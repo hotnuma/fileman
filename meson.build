@@ -1,0 +1,119 @@
+project(
+    'fileman',
+    ['c'],
+    version : '1.0',
+    license : 'GPL-2.0',
+    default_options : [
+        'c_std=c11',
+    ],
+)
+
+c_args = [
+    '-Wall',
+    '-O2',
+    '-DSN_API_NOT_YET_FROZEN',
+    '-DG_UDEV_API_IS_SUBJECT_TO_CHANGE',
+
+]
+
+cc = meson.get_compiler('c')
+
+app_deps = [
+#    dependency('gudev-1.0'),
+    dependency('libnotify'),
+    dependency('gtk+-3.0'),
+    dependency('exo-2'),
+    dependency('libxfconf-0'),
+    dependency('libxfce4util-1.0'),
+    dependency('libxfce4ui-2'),
+    dependency('thunarx-3'),
+]
+
+app_sources = [
+    'core/thunar-browser.c',
+    'core/thunar-clipboard-manager.c',
+    'core/thunar-component.c',
+    'core/thunar-device.c',
+    'core/thunar-device-monitor.c',
+    'core/thunar-dnd.c',
+    'core/thunar-enum-types.c',
+    'core/thunar-file.c',
+    'core/thunar-file-monitor.c',
+    'core/thunar-folder.c',
+    'core/thunar-history.c',
+    'core/thunar-ice.c',
+    'core/thunar-launcher.c',
+    'core/thunar-navigator.c',
+    'core/thunar-notify.c',
+    'core/thunar-sendto-model.c',
+    'core/thunar-session-client.c',
+    'core/thunar-user.c',
+    'core/thunar-util.c',
+    'dialog/thunar-chooser-button.c',
+    'dialog/thunar-chooser-dialog.c',
+    'dialog/thunar-chooser-model.c',
+    'dialog/thunar-dialogs.c',
+    'dialog/thunar-permissions-chooser.c',
+    'dialog/thunar-preferences-dialog.c',
+    'dialog/thunar-progress-dialog.c',
+    'dialog/thunar-progress-view.c',
+    'dialog/thunar-properties-dialog.c',
+#    'dialog/thunar-renamer-dialog.c',
+#    'dialog/thunar-renamer-model.c',
+#    'dialog/thunar-renamer-pair.c',
+#    'dialog/thunar-renamer-progress.c',
+    'extension/thunar-gdk-extensions.c',
+    'extension/thunar-gio-extensions.c',
+    'extension/thunar-gobject-extensions.c',
+    'extension/thunar-gtk-extensions.c',
+    'extension/thunar-pango-extensions.c',
+    'job/thunar-deep-count-job.c',
+    'job/thunar-io-jobs.c',
+    'job/thunar-io-jobs-util.c',
+    'job/thunar-io-scan-directory.c',
+    'job/thunar-job.c',
+    'job/thunar-simple-job.c',
+    'job/thunar-transfer-job.c',
+    'side/thunar-side-pane.c',
+    'side/thunar-tree-model.c',
+    'side/thunar-tree-pane.c',
+    'side/thunar-tree-view.c',
+    'view/thunar-column-editor.c',
+    'view/thunar-column-model.c',
+    'view/thunar-details-view.c',
+    'view/thunar-list-model.c',
+    'view/thunar-standard-view.c',
+    'view/thunar-view.c',
+    'widget/thunar-icon-factory.c',
+    'widget/thunar-image.c',
+    'widget/thunar-location-bar.c',
+    'widget/thunar-location-entry.c',
+    'widget/thunar-menu.c',
+    'widget/thunar-path-entry.c',
+    'widget/thunar-size-label.c',
+    'widget/thunar-statusbar.c',
+    'main.c',
+    'thunar-application.c',
+    'thunar-preferences.c',
+    'thunar-window.c',
+]
+
+app_includes = [
+    'core',
+    'dialog',
+    'extension',
+    'job',
+    'side',
+    'view',
+    'widget',
+]
+
+executable(
+    'fileman',
+    c_args : c_args,
+    include_directories : app_includes,
+    dependencies : app_deps,
+    sources : app_sources,
+)
+
+
