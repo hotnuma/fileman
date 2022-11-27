@@ -54,7 +54,6 @@
 #include <thunar-preferences.h>
 #include <thunar-private.h>
 #include <thunar-progress-dialog.h>
-//#include <thunar-renamer-dialog.h>
 #include <thunar-util.h>
 #include <thunar-view.h>
 #include <thunar-session-client.h>
@@ -74,7 +73,6 @@ static gchar   *opt_sm_client_id = NULL;
 /* option entries */
 static const GOptionEntry option_entries[] =
 {
-  { "bulk-rename", 'B', 0, G_OPTION_ARG_NONE, NULL, N_ ("Open the bulk rename dialog"), NULL, },
   { "daemon", 0, 0, G_OPTION_ARG_NONE, NULL, N_ ("Run in daemon mode"), NULL, },
   { "sm-client-id", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING, &opt_sm_client_id, NULL, NULL, },
   { "quit", 'q', 0, G_OPTION_ARG_NONE, NULL, N_ ("Quit a running Thunar instance"), NULL, },
@@ -252,7 +250,8 @@ thunar_application_class_init (ThunarApplicationClass *klass)
   gapplication_class->shutdown             = thunar_application_shutdown;
   gapplication_class->handle_local_options = thunar_application_handle_local_options;
   gapplication_class->command_line         = thunar_application_command_line;
-  //gapplication_class->dbus_register        = thunar_application_dbus_register;
+
+//gapplication_class->dbus_register        = thunar_application_dbus_register;
 
   /**
    * ThunarApplication:daemon:
@@ -370,7 +369,7 @@ thunar_application_startup (GApplication *gapp)
                     G_CALLBACK (thunar_application_uevent), application);
 #endif
 
-  //thunar_application_dbus_init (application);
+//thunar_application_dbus_init (application);
 
   G_APPLICATION_CLASS (thunar_application_parent_class)->startup (gapp);
 
@@ -493,7 +492,6 @@ thunar_application_command_line (GApplication            *gapp,
                                  GApplicationCommandLine *command_line)
 {
   ThunarApplication *application  = THUNAR_APPLICATION (gapp);
-  gboolean           bulk_rename  = FALSE;
   gboolean           daemon       = FALSE;
   gboolean           quit         = FALSE;
   GStrv              filenames    = NULL;
@@ -503,7 +501,6 @@ thunar_application_command_line (GApplication            *gapp,
   gchar             *cwd_list[]   = { (gchar *)".", NULL };
 
   /* retrieve arguments */
-  g_variant_dict_lookup (options_dict, "bulk-rename", "b", &bulk_rename);
   g_variant_dict_lookup (options_dict, "quit", "b", &quit);
   g_variant_dict_lookup (options_dict, "daemon", "b", &daemon);
   g_variant_dict_lookup (options_dict, G_OPTION_REMAINING, "^aay", &filenames);
@@ -521,18 +518,6 @@ thunar_application_command_line (GApplication            *gapp,
     {
         thunar_application_set_daemon (application, TRUE);
     }
-
-  /* check if we should open the bulk rename dialog */
-//  if (G_UNLIKELY (bulk_rename))
-//    {
-//      /* try to open the bulk rename dialog */
-//      if (!thunar_application_bulk_rename (application, cwd, filenames, TRUE, NULL, NULL, &error))
-//        {
-//          /* FIXME? */
-//          g_application_command_line_printerr (command_line, "Thunar: Failed to open bulk rename: %s\n", error->message);
-//        }
-//    }
-//  else
 
     if (filenames != NULL)
     {
@@ -625,6 +610,9 @@ thunar_application_get_property (GObject    *object,
                                  GValue     *value,
                                  GParamSpec *pspec)
 {
+  UNUSED(object);
+  UNUSED(pspec);
+
   ThunarApplication *application = THUNAR_APPLICATION (object);
 
   switch (prop_id)
@@ -647,6 +635,9 @@ thunar_application_set_property (GObject      *object,
                                  const GValue *value,
                                  GParamSpec   *pspec)
 {
+  UNUSED(object);
+  UNUSED(pspec);
+
   ThunarApplication *application = THUNAR_APPLICATION (object);
 
   switch (prop_id)
@@ -1036,6 +1027,8 @@ thunar_application_volman_watch (GPid     pid,
                                  gint     status,
                                  gpointer user_data)
 {
+  UNUSED(status);
+
   ThunarApplication *application = THUNAR_APPLICATION (user_data);
 
   /* check if the idle source isn't active, but we have pending UDIs */
@@ -1057,6 +1050,7 @@ thunar_application_volman_watch_destroy (gpointer user_data)
 {
   THUNAR_APPLICATION (user_data)->volman_watch_id = 0;
 }
+
 #endif /* HAVE_GUDEV */
 
 
@@ -1359,103 +1353,6 @@ thunar_application_open_window (ThunarApplication *application,
 }
 
 
-#if 0
-/**
- * thunar_application_bulk_rename:
- * @application       : a #ThunarApplication.
- * @working_directory : the default working directory for the bulk rename dialog.
- * @filenames         : the list of file names that should be renamed or the empty
- *                      list to start with an empty rename dialog. The file names
- *                      can either be absolute paths, supported URIs or relative file
- *                      names to @working_directory.
- * @standalone        : %TRUE to display the bulk rename dialog like a standalone
- *                      application.
- * @screen            : the #GdkScreen on which to rename the @filenames or %NULL
- *                      to use the default #GdkScreen.
- * @startup_id        : startup notification id to properly finish startup notification
- *                      and focus the window when focus stealing is enabled or %NULL.
- * @error             : return location for errors or %NULL.
- *
- * Tries to popup the bulk rename dialog.
- *
- * Return value: %TRUE if the dialog was opened successfully, otherwise %FALSE.
- **/
-gboolean
-thunar_application_bulk_rename (ThunarApplication *application,
-                                const gchar       *working_directory,
-                                gchar            **filenames,
-                                gboolean           standalone,
-                                GdkScreen         *screen,
-                                const gchar       *startup_id,
-                                GError           **error)
-{
-  ThunarFile *current_directory = NULL;
-  ThunarFile *file;
-  gboolean    result = FALSE;
-  GList      *file_list = NULL;
-  gchar      *filename;
-  gchar      *empty_strv[] = { NULL };
-  gint        n;
-
-  _thunar_return_val_if_fail (screen == NULL || GDK_IS_SCREEN (screen), FALSE);
-  _thunar_return_val_if_fail (THUNAR_IS_APPLICATION (application), FALSE);
-  _thunar_return_val_if_fail (error == NULL || *error == NULL, FALSE);
-  _thunar_return_val_if_fail (working_directory != NULL, FALSE);
-
-  if (!filenames)
-    filenames = empty_strv;
-
-  /* determine the file for the working directory */
-  current_directory = thunar_file_get_for_uri (working_directory, error);
-  if (G_UNLIKELY (current_directory == NULL))
-    return FALSE;
-
-  /* check if we should use the default screen */
-  if (G_LIKELY (screen == NULL))
-    screen = gdk_screen_get_default ();
-
-  /* try to process all filenames and convert them to the appropriate file objects */
-  for (n = 0; filenames[n] != NULL; ++n)
-    {
-      /* check if the filename is an absolute path or looks like an URI */
-      if (g_path_is_absolute (filenames[n]) || exo_str_looks_like_an_uri (filenames[n]))
-        {
-          /* determine the file for the filename directly */
-          file = thunar_file_get_for_uri (filenames[n], error);
-        }
-      else
-        {
-          /* translate the filename into an absolute path first */
-          filename = g_build_filename (working_directory, filenames[n], NULL);
-          file = thunar_file_get_for_uri (filename, error);
-          g_free (filename);
-        }
-
-      /* verify that we have a valid file */
-      if (G_LIKELY (file != NULL))
-        file_list = g_list_append (file_list, file);
-      else
-        break;
-    }
-
-  /* check if the filenames where resolved successfully */
-  if (G_LIKELY (filenames[n] == NULL))
-    {
-      /* popup the bulk rename dialog */
-      thunar_show_renamer_dialog (screen, current_directory, file_list, standalone, startup_id);
-
-      /* we succeed */
-      result = TRUE;
-    }
-
-  /* cleanup */
-  g_object_unref (G_OBJECT (current_directory));
-  thunar_g_file_list_free (file_list);
-
-  return result;
-}
-#endif
-
 
 static GtkWidget *
 thunar_application_get_progress_dialog (ThunarApplication *application)
@@ -1485,6 +1382,8 @@ thunar_application_process_files_finish (ThunarBrowser *browser,
                                          GError        *error,
                                          gpointer       unused)
 {
+  UNUSED(unused);
+
   ThunarApplication *application = THUNAR_APPLICATION (browser);
   GdkScreen         *screen;
   const gchar       *startup_id;
@@ -1708,6 +1607,8 @@ static void
 thunar_application_rename_file_finished (ExoJob  *job,
                                          gpointer user_data)
 {
+  UNUSED(user_data);
+
   _thunar_return_if_fail (EXO_IS_JOB (job));
 
   /* destroy the job object */
