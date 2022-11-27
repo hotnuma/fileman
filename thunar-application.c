@@ -54,11 +54,9 @@
 #include <thunar-preferences.h>
 #include <thunar-private.h>
 #include <thunar-progress-dialog.h>
-#include <thunar-renamer-dialog.h>
-#ifdef ENABLE_THUMBNAILS
-#include <thunar-thumbnail-cache.h>
-#include <thunar-thumbnailer.h>
-#endif
+//#include <thunar-renamer-dialog.h>
+//#include <thunar-thumbnail-cache.h>
+//#include <thunar-thumbnailer.h>
 #include <thunar-util.h>
 #include <thunar-view.h>
 #include <thunar-session-client.h>
@@ -113,6 +111,7 @@ static void           thunar_application_set_property           (GObject        
                                                                  guint                   prop_id,
                                                                  const GValue           *value,
                                                                  GParamSpec             *pspec);
+#if 0
 static void           thunar_application_dbus_acquired_cb       (GDBusConnection        *conn,
                                                                  const gchar            *name,
                                                                  gpointer                user_data);
@@ -123,6 +122,12 @@ static void           thunar_application_dbus_name_lost_cb      (GDBusConnection
                                                                  const gchar            *name,
                                                                  gpointer                user_data);
 static void           thunar_application_dbus_init              (ThunarApplication      *application);
+static gboolean       thunar_application_dbus_register          (GApplication           *application,
+                                                                 GDBusConnection        *connection,
+                                                                 const gchar            *object_path,
+                                                                 GError                **error);
+#endif
+
 static void           thunar_application_startup                (GApplication           *application);
 static void           thunar_application_shutdown               (GApplication           *application);
 static void           thunar_application_activate               (GApplication           *application);
@@ -130,10 +135,6 @@ static int            thunar_application_handle_local_options   (GApplication   
                                                                  GVariantDict           *options);
 static int            thunar_application_command_line           (GApplication           *application,
                                                                  GApplicationCommandLine *command_line);
-static gboolean       thunar_application_dbus_register          (GApplication           *application,
-                                                                 GDBusConnection        *connection,
-                                                                 const gchar            *object_path,
-                                                                 GError                **error);
 static void           thunar_application_load_css               (void);
 static void           thunar_application_accel_map_changed      (ThunarApplication      *application);
 static gboolean       thunar_application_accel_map_save         (gpointer                user_data);
@@ -199,6 +200,8 @@ struct _ThunarApplication
 
 #ifdef ENABLE_DBUS
   ThunarDBusService     *dbus_service;
+  guint                  dbus_owner_id_xfce;
+  guint                  dbus_owner_id_fdo;
 #endif
 
   gboolean               daemon;
@@ -218,8 +221,6 @@ struct _ThunarApplication
 
   GList                 *files_to_launch;
 
-  guint                  dbus_owner_id_xfce;
-  guint                  dbus_owner_id_fdo;
 };
 
 
@@ -258,7 +259,7 @@ thunar_application_class_init (ThunarApplicationClass *klass)
   gapplication_class->shutdown             = thunar_application_shutdown;
   gapplication_class->handle_local_options = thunar_application_handle_local_options;
   gapplication_class->command_line         = thunar_application_command_line;
-  gapplication_class->dbus_register        = thunar_application_dbus_register;
+  //gapplication_class->dbus_register        = thunar_application_dbus_register;
 
   /**
    * ThunarApplication:daemon:
@@ -294,6 +295,8 @@ thunar_application_init (ThunarApplication *application)
 }
 
 
+
+#if 0
 static void
 thunar_application_dbus_acquired_cb (GDBusConnection *conn,
                                      const gchar     *name,
@@ -347,6 +350,7 @@ thunar_application_dbus_init (ThunarApplication *application)
                                      application,
                                      NULL);
 }
+#endif
 
 
 
@@ -373,7 +377,7 @@ thunar_application_startup (GApplication *gapp)
                     G_CALLBACK (thunar_application_uevent), application);
 #endif
 
-  thunar_application_dbus_init (application);
+  //thunar_application_dbus_init (application);
 
   G_APPLICATION_CLASS (thunar_application_parent_class)->startup (gapp);
 
@@ -437,6 +441,7 @@ thunar_application_shutdown (GApplication *gapp)
   if (G_UNLIKELY (application->show_dialogs_timer_id != 0))
     g_source_remove (application->show_dialogs_timer_id);
 
+#if 0
   /* drop ref on the thumbnailer */
   if (application->thumbnailer != NULL)
     g_object_unref (application->thumbnailer);
@@ -444,6 +449,7 @@ thunar_application_shutdown (GApplication *gapp)
   /* release the thumbnail cache */
   if (application->thumbnail_cache != NULL)
     g_object_unref (G_OBJECT (application->thumbnail_cache));
+#endif
 
   /* disconnect from the preferences */
   g_object_unref (G_OBJECT (application->preferences));
@@ -451,8 +457,10 @@ thunar_application_shutdown (GApplication *gapp)
   /* disconnect from the session manager */
   g_object_unref (G_OBJECT (application->session_client));
 
+#if 0
   /* remove the dbus service */
   g_clear_pointer (&application->dbus_service, g_object_unref);
+#endif
 
   G_APPLICATION_CLASS (thunar_application_parent_class)->shutdown (gapp);
 }
@@ -474,15 +482,18 @@ static int
 thunar_application_handle_local_options (GApplication *gapp,
                                          GVariantDict *options)
 {
+  UNUSED(gapp);
+  UNUSED(options);
+
   /* check if we should print version information */
   if (G_UNLIKELY (opt_version))
     {
-      g_print ("%s %s (Xfce %s)\n\n", PACKAGE_NAME, PACKAGE_VERSION, xfce_version_string ());
-      g_print ("%s\n", "Copyright (c) 2004-2020");
-      g_print ("\t%s\n\n", _("The Thunar development team. All rights reserved."));
-      g_print ("%s\n\n", _("Written by Benedikt Meurer <benny@xfce.org>."));
-      g_print (_("Please report bugs to <%s>."), PACKAGE_BUGREPORT);
-      g_print ("\n");
+//      g_print ("%s %s (Xfce %s)\n\n", PACKAGE_NAME, PACKAGE_VERSION, xfce_version_string ());
+//      g_print ("%s\n", "Copyright (c) 2004-2020");
+//      g_print ("\t%s\n\n", _("The Thunar development team. All rights reserved."));
+//      g_print ("%s\n\n", _("Written by Benedikt Meurer <benny@xfce.org>."));
+//      g_print (_("Please report bugs to <%s>."), PACKAGE_BUGREPORT);
+//      g_print ("\n");
       return EXIT_SUCCESS;
     }
 
@@ -527,16 +538,18 @@ thunar_application_command_line (GApplication            *gapp,
     }
 
   /* check if we should open the bulk rename dialog */
-  if (G_UNLIKELY (bulk_rename))
-    {
-      /* try to open the bulk rename dialog */
-      if (!thunar_application_bulk_rename (application, cwd, filenames, TRUE, NULL, NULL, &error))
-        {
-          /* FIXME? */
-          g_application_command_line_printerr (command_line, "Thunar: Failed to open bulk rename: %s\n", error->message);
-        }
-    }
-  else if (filenames != NULL)
+//  if (G_UNLIKELY (bulk_rename))
+//    {
+//      /* try to open the bulk rename dialog */
+//      if (!thunar_application_bulk_rename (application, cwd, filenames, TRUE, NULL, NULL, &error))
+//        {
+//          /* FIXME? */
+//          g_application_command_line_printerr (command_line, "Thunar: Failed to open bulk rename: %s\n", error->message);
+//        }
+//    }
+//  else
+
+    if (filenames != NULL)
     {
       if (!thunar_application_process_filenames (application, cwd, filenames, NULL, NULL, &error))
         {
@@ -567,7 +580,7 @@ out:
 }
 
 
-
+#if 0
 static gboolean
 thunar_application_dbus_register (GApplication           *gapp,
                                   GDBusConnection        *connection,
@@ -583,7 +596,7 @@ thunar_application_dbus_register (GApplication           *gapp,
 
     return thunar_dbus_service_export_on_connection (application->dbus_service, connection, error);
 }
-
+#endif
 
 
 static void
@@ -1103,7 +1116,7 @@ thunar_application_get (void)
   if (default_app)
     return THUNAR_APPLICATION (g_object_ref (default_app));
   else
-    return g_object_ref_sink (g_object_new (THUNAR_TYPE_APPLICATION, "application-id", "org.xfce.Thunar", NULL));
+    return g_object_ref_sink (g_object_new (THUNAR_TYPE_APPLICATION, "application-id", "org.hotnuma.Fileman", NULL));
 }
 
 
@@ -1361,7 +1374,7 @@ thunar_application_open_window (ThunarApplication *application,
 }
 
 
-
+#if 0
 /**
  * thunar_application_bulk_rename:
  * @application       : a #ThunarApplication.
@@ -1456,7 +1469,7 @@ thunar_application_bulk_rename (ThunarApplication *application,
 
   return result;
 }
-
+#endif
 
 
 static GtkWidget *
@@ -2451,7 +2464,7 @@ thunar_application_restore_files (ThunarApplication *application,
 }
 
 
-
+#if 0
 ThunarThumbnailCache *
 thunar_application_get_thumbnail_cache (ThunarApplication *application)
 {
@@ -2462,5 +2475,6 @@ thunar_application_get_thumbnail_cache (ThunarApplication *application)
 
   return g_object_ref (application->thumbnail_cache);
 }
+#endif
 
 

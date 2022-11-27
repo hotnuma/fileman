@@ -61,6 +61,7 @@ HEADERS = \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
     side/thunar-tree-view.h \
+  thunar-marshal.h \
     view/thunar-column-editor.h \
     view/thunar-column-model.h \
     view/thunar-details-view.h \
@@ -68,11 +69,13 @@ HEADERS = \
     view/thunar-standard-view.h \
     view/thunar-view.h \
     widget/thunar-icon-factory.h \
+    widget/thunar-icon-renderer.h \
     widget/thunar-image.h \
     widget/thunar-location-bar.h \
     widget/thunar-location-entry.h \
     widget/thunar-menu.h \
     widget/thunar-path-entry.h \
+    widget/thunar-shortcuts-icon-renderer.h \
     widget/thunar-size-label.h \
     widget/thunar-statusbar.h \
     config.h \
@@ -126,6 +129,7 @@ SOURCES = \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \
     side/thunar-tree-view.c \
+  thunar-marshal.c \
     view/thunar-column-editor.c \
     view/thunar-column-model.c \
     view/thunar-details-view.c \
@@ -133,11 +137,13 @@ SOURCES = \
     view/thunar-standard-view.c \
     view/thunar-view.c \
     widget/thunar-icon-factory.c \
+    widget/thunar-icon-renderer.c \
     widget/thunar-image.c \
     widget/thunar-location-bar.c \
     widget/thunar-location-entry.c \
     widget/thunar-menu.c \
     widget/thunar-path-entry.c \
+    widget/thunar-shortcuts-icon-renderer.c \
     widget/thunar-size-label.c \
     widget/thunar-statusbar.c \
     main.c \

@@ -1714,6 +1714,9 @@ thunar_launcher_action_sendto_device (ThunarLauncher *launcher,
 static void
 thunar_launcher_action_add_shortcuts (ThunarLauncher *launcher)
 {
+  return;
+
+#if 0
   GList           *lp;
   GtkWidget       *window;
   const GtkWidget *sidepane;
@@ -1733,7 +1736,7 @@ thunar_launcher_action_add_shortcuts (ThunarLauncher *launcher)
       for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
         thunar_shortcuts_pane_add_shortcut (THUNAR_SHORTCUTS_PANE (sidepane), lp->data);
     }
-
+#endif
 }
 
 
@@ -2155,11 +2158,11 @@ thunar_launcher_action_rename (ThunarLauncher *launcher)
           g_signal_connect (job, "finished", G_CALLBACK (thunar_launcher_rename_finished), launcher->widget);
         }
     }
-  else
-    {
-      /* display the bulk rename dialog */
-      thunar_show_renamer_dialog (GTK_WIDGET (window), launcher->current_directory, launcher->files_to_process, FALSE, NULL);
-    }
+//  else
+//    {
+//      /* display the bulk rename dialog */
+//      thunar_show_renamer_dialog (GTK_WIDGET (window), launcher->current_directory, launcher->files_to_process, FALSE, NULL);
+//    }
 }
 
 

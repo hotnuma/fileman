@@ -61,13 +61,13 @@ GtkWidget            *thunar_application_open_window                (ThunarAppli
                                                                      const gchar       *startup_id,
                                                                      gboolean           force_new_window);
 
-gboolean              thunar_application_bulk_rename                (ThunarApplication *application,
-                                                                     const gchar       *working_directory,
-                                                                     gchar            **filenames,
-                                                                     gboolean           standalone,
-                                                                     GdkScreen         *screen,
-                                                                     const gchar       *startup_id,
-                                                                     GError           **error);
+//gboolean              thunar_application_bulk_rename                (ThunarApplication *application,
+//                                                                     const gchar       *working_directory,
+//                                                                     gchar            **filenames,
+//                                                                     gboolean           standalone,
+//                                                                     GdkScreen         *screen,
+//                                                                     const gchar       *startup_id,
+//                                                                     GError           **error);
 
 gboolean              thunar_application_process_filenames          (ThunarApplication *application,
                                                                      const gchar       *working_directory,

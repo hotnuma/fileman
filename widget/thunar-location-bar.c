@@ -25,7 +25,7 @@
 #include <thunar-private.h>
 #include <thunar-navigator.h>
 #include <thunar-location-entry.h>
-#include <thunar-location-buttons.h>
+//#include <thunar-location-buttons.h>
 #include <thunar-preferences.h>
 
 
@@ -45,7 +45,7 @@ struct _ThunarLocationBar
   ThunarFile *current_directory;
 
   GtkWidget  *locationEntry;
-  GtkWidget  *locationButtons;
+  //GtkWidget  *locationButtons;
 };
 
 
@@ -147,7 +147,7 @@ thunar_location_bar_init (ThunarLocationBar *bar)
 
   bar->current_directory = NULL;
   bar->locationEntry = NULL;
-  bar->locationButtons = NULL;
+  //bar->locationButtons = NULL;
 
   thunar_location_bar_settings_changed (bar);
 
@@ -165,8 +165,11 @@ thunar_location_bar_finalize (GObject *object)
 
   if (bar->locationEntry)
     g_object_unref (bar->locationEntry);
+
+#if 0
   if (bar->locationButtons)
     g_object_unref (bar->locationButtons);
+#endif
 
   /* release from the current_directory */
   thunar_navigator_set_current_directory (THUNAR_NAVIGATOR (bar), NULL);
@@ -264,7 +267,8 @@ static GtkWidget *
 thunar_location_bar_install_widget (ThunarLocationBar    *bar,
                                     GType                 type)
 {
-  GtkWidget *installedWidget, *child;
+  GtkWidget *installedWidget = NULL;
+  GtkWidget *child;
 
   /* check if the the right type is already installed */
   if ((child = gtk_bin_get_child (GTK_BIN (bar))) && G_TYPE_CHECK_INSTANCE_TYPE (child, type))
@@ -282,6 +286,7 @@ thunar_location_bar_install_widget (ThunarLocationBar    *bar,
         }
       installedWidget = bar->locationEntry;
     }
+#if 0
   else
     {
       if (bar->locationButtons == NULL)
@@ -294,6 +299,7 @@ thunar_location_bar_install_widget (ThunarLocationBar    *bar,
         }
       installedWidget = bar->locationButtons;
     }
+#endif
 
   thunar_navigator_set_current_directory (THUNAR_NAVIGATOR (installedWidget), bar->current_directory);
 
@@ -369,11 +375,13 @@ thunar_location_bar_settings_changed (ThunarLocationBar *bar)
   g_object_get (thunar_preferences_get(), "last-location-bar", &last_location_bar, NULL);
 
   /* validate it */
+#if 0
   if (!strcmp (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_BUTTONS)))
     type = THUNAR_TYPE_LOCATION_BUTTONS;
   else if (!strcmp (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_ENTRY)))
     type = THUNAR_TYPE_LOCATION_ENTRY;
   else
+#endif
     type = THUNAR_TYPE_LOCATION_ENTRY; /* fallback */
 
   g_free (last_location_bar);

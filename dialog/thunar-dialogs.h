@@ -32,10 +32,10 @@ gchar             *thunar_dialogs_show_create           (gpointer              p
                                                          const gchar          *title);
 ThunarJob         *thunar_dialogs_show_rename_file      (gpointer              parent,
                                                          ThunarFile           *file);
-void               thunar_dialogs_show_about            (GtkWindow            *parent,
-                                                         const gchar          *title,
-                                                         const gchar          *format,
-                                                         ...) G_GNUC_PRINTF (3, 4);
+//void               thunar_dialogs_show_about            (GtkWindow            *parent,
+//                                                         const gchar          *title,
+//                                                         const gchar          *format,
+//                                                         ...) G_GNUC_PRINTF (3, 4);
 void               thunar_dialogs_show_error            (gpointer              parent,
                                                          const GError         *error,
                                                          const gchar          *format,

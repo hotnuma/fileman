@@ -40,7 +40,7 @@
 
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
-//#include <thunar-icon-renderer.h>
+#include <thunar-icon-renderer.h>
 #include <thunar-list-model.h>
 #include <thunar-path-entry.h>
 #include <thunar-private.h>

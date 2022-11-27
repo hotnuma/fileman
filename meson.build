@@ -11,6 +11,9 @@ project(
 c_args = [
     '-Wall',
     '-O2',
+    '-DHAVE_CONFIG_H',
+    '-D_GNU_SOURCE',
+    '-D__USE_XOPEN_EXTENDED',
     '-DSN_API_NOT_YET_FROZEN',
     '-DG_UDEV_API_IS_SUBJECT_TO_CHANGE',
 
@@ -19,7 +22,6 @@ c_args = [
 cc = meson.get_compiler('c')
 
 app_deps = [
-#    dependency('gudev-1.0'),
     dependency('libnotify'),
     dependency('gtk+-3.0'),
     dependency('exo-2'),
@@ -58,10 +60,6 @@ app_sources = [
     'dialog/thunar-progress-dialog.c',
     'dialog/thunar-progress-view.c',
     'dialog/thunar-properties-dialog.c',
-#    'dialog/thunar-renamer-dialog.c',
-#    'dialog/thunar-renamer-model.c',
-#    'dialog/thunar-renamer-pair.c',
-#    'dialog/thunar-renamer-progress.c',
     'extension/thunar-gdk-extensions.c',
     'extension/thunar-gio-extensions.c',
     'extension/thunar-gobject-extensions.c',
@@ -85,15 +83,18 @@ app_sources = [
     'view/thunar-standard-view.c',
     'view/thunar-view.c',
     'widget/thunar-icon-factory.c',
+    'widget/thunar-icon-renderer.c',
     'widget/thunar-image.c',
     'widget/thunar-location-bar.c',
     'widget/thunar-location-entry.c',
     'widget/thunar-menu.c',
     'widget/thunar-path-entry.c',
+    'widget/thunar-shortcuts-icon-renderer.c',
     'widget/thunar-size-label.c',
     'widget/thunar-statusbar.c',
     'main.c',
     'thunar-application.c',
+    'thunar-marshal.c',
     'thunar-preferences.c',
     'thunar-window.c',
 ]
@@ -114,6 +115,7 @@ executable(
     include_directories : app_includes,
     dependencies : app_deps,
     sources : app_sources,
+    install : true,
 )
 
 

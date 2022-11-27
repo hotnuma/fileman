@@ -62,9 +62,6 @@
 
 #include <strings.h>
 
-// why I need to include these ?
-#include <pwd.h>
-
 /**
  * thunar_util_strrchr_offset:
  * @str:    haystack

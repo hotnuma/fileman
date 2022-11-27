@@ -1,4 +1,8 @@
 
+/usr/bin/ld : fileman.p/thunar-window.c.o : dans la fonction « thunar_window_action_about » :
+thunar-window.c:(.text+0x65d) : référence indéfinie vers « thunar_dialogs_show_about »
+
+
 #'-DGDK_DISABLE_DEPRECATED',
 #'-DGTK_DISABLE_DEPRECATED',
 

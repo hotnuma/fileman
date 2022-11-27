@@ -68,7 +68,8 @@
 #include <thunar-dialogs.h>
 #include <thunar-icon-factory.h>
 
-
+// ???
+//#include <sys/stat.h>
 
 /* Dump the file cache every X second, set to 0 to disable */
 #define DUMP_FILE_CACHE 0
@@ -379,6 +380,7 @@ thunar_file_class_init (ThunarFileClass *klass)
 static void
 thunar_file_init (ThunarFile *file)
 {
+  UNUSED(file);
 }
 
 

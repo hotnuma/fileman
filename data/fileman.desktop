@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Fileman
+Comment=Browse the filesystem
+GenericName=File Manager
+Keywords=file manager;explorer;finder;browser;folders;directory;directories;partitions;drives;network;devices;rename;move;copy;delete;permissions;home;trash;
+Exec=fileman %F
+Icon=org.xfce.thunar
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=System;Utility;Core;GTK;FileTools;FileManager;
+MimeType=inode/directory;

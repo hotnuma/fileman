@@ -104,7 +104,7 @@ static GList   *thunar_properties_dialog_get_files            (ThunarPropertiesD
 
 struct _ThunarPropertiesDialogClass
 {
-  ThunarAbstractDialogClass __parent__;
+  GtkDialogClass __parent__;
 
   /* signals */
   gboolean (*reload) (ThunarPropertiesDialog *dialog);
@@ -112,7 +112,7 @@ struct _ThunarPropertiesDialogClass
 
 struct _ThunarPropertiesDialog
 {
-  ThunarAbstractDialog    __parent__;
+  GtkDialog    __parent__;
 
   ThunarxProviderFactory *provider_factory;
   GList                  *provider_pages;
@@ -122,8 +122,8 @@ struct _ThunarPropertiesDialog
   GList                  *files;
   gboolean                file_size_binary;
 
-  ThunarThumbnailer      *thumbnailer;
-  guint                   thumbnail_request;
+  //ThunarThumbnailer      *thumbnailer;
+  //guint                   thumbnail_request;
 
   XfceFilenameInput      *name_entry;
 
@@ -151,7 +151,7 @@ struct _ThunarPropertiesDialog
 
 
 
-G_DEFINE_TYPE (ThunarPropertiesDialog, thunar_properties_dialog, THUNAR_TYPE_ABSTRACT_DIALOG)
+G_DEFINE_TYPE (ThunarPropertiesDialog, thunar_properties_dialog, GTK_TYPE_DIALOG /*THUNAR_TYPE_ABSTRACT_DIALOG*/)
 
 
 
@@ -226,7 +226,7 @@ thunar_properties_dialog_class_init (ThunarPropertiesDialogClass *klass)
 static void
 thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
 {
-  GtkWidget *chooser;
+  //GtkWidget *chooser;
   GtkWidget *grid;
   GtkWidget *label;
   GtkWidget *box;
@@ -245,8 +245,10 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
                             G_CALLBACK (thunar_properties_dialog_reload), dialog);
 
   /* create a new thumbnailer */
+#if 0
   dialog->thumbnailer = thunar_thumbnailer_get ();
   dialog->thumbnail_request = 0;
+#endif
 
   dialog->provider_factory = thunarx_provider_factory_get_default ();
 
@@ -569,12 +571,14 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
   /*
      Emblem chooser
    */
+#if 0
   label = gtk_label_new (_("Emblems"));
   chooser = thunar_emblem_chooser_new ();
   exo_binding_new (G_OBJECT (dialog), "files", G_OBJECT (chooser), "files");
   gtk_notebook_append_page (GTK_NOTEBOOK (dialog->notebook), chooser, label);
   gtk_widget_show (chooser);
   gtk_widget_show (label);
+#endif
 
   /*
      Permissions chooser
@@ -614,6 +618,7 @@ thunar_properties_dialog_finalize (GObject *object)
   g_object_unref (dialog->preferences);
 
   /* cancel any pending thumbnailer requests */
+#if 0
   if (dialog->thumbnail_request > 0)
     {
       thunar_thumbnailer_dequeue (dialog->thumbnailer, dialog->thumbnail_request);
@@ -622,6 +627,7 @@ thunar_properties_dialog_finalize (GObject *object)
 
   /* release the thumbnailer */
   g_object_unref (dialog->thumbnailer);
+#endif
 
   /* release the provider property pages */
   g_list_free_full (dialog->provider_pages, g_object_unref);
@@ -1344,11 +1350,13 @@ thunar_properties_dialog_update (ThunarPropertiesDialog *dialog)
   _thunar_return_if_fail (dialog->files != NULL);
 
   /* cancel any pending thumbnail requests */
+#if 0
   if (dialog->thumbnail_request > 0)
     {
       thunar_thumbnailer_dequeue (dialog->thumbnailer, dialog->thumbnail_request);
       dialog->thumbnail_request = 0;
     }
+#endif
 
   if (dialog->files->next == NULL)
     {

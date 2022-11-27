@@ -99,12 +99,12 @@ static void        thunar_chooser_dialog_set_open            (ThunarChooserDialo
 
 struct _ThunarChooserDialogClass
 {
-  ThunarAbstractDialogClass __parent__;
+  GtkDialogClass __parent__;
 };
 
 struct _ThunarChooserDialog
 {
-  ThunarAbstractDialog __parent__;
+  GtkDialog __parent__;
 
   ThunarFile  *file;
   gboolean     open;
@@ -122,7 +122,7 @@ struct _ThunarChooserDialog
 
 
 
-G_DEFINE_TYPE (ThunarChooserDialog, thunar_chooser_dialog, THUNAR_TYPE_ABSTRACT_DIALOG)
+G_DEFINE_TYPE (ThunarChooserDialog, thunar_chooser_dialog, GTK_TYPE_DIALOG /*THUNAR_TYPE_ABSTRACT_DIALOG*/)
 
 
 

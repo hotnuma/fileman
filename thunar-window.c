@@ -35,17 +35,17 @@
 #include <thunar-application.h>
 #include <thunar-browser.h>
 #include <thunar-clipboard-manager.h>
-#include <thunar-compact-view.h>
+//#include <thunar-compact-view.h>
 #include <thunar-details-view.h>
 #include <thunar-dialogs.h>
-#include <thunar-shortcuts-pane.h>
+//#include <thunar-shortcuts-pane.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-history.h>
-#include <thunar-icon-view.h>
+//#include <thunar-icon-view.h>
 #include <thunar-launcher.h>
-#include <thunar-location-buttons.h>
+//#include <thunar-location-buttons.h>
 #include <thunar-location-entry.h>
 #include <thunar-marshal.h>
 #include <thunar-menu.h>
@@ -182,8 +182,8 @@ static void      thunar_window_action_statusbar_changed   (ThunarWindow         
 static void      thunar_window_action_menubar_update      (ThunarWindow           *window);
 static void      thunar_window_action_menubar_changed     (ThunarWindow           *window);
 static void      thunar_window_action_detailed_view       (ThunarWindow           *window);
-static void      thunar_window_action_icon_view           (ThunarWindow           *window);
-static void      thunar_window_action_compact_view        (ThunarWindow           *window);
+//static void      thunar_window_action_icon_view           (ThunarWindow           *window);
+//static void      thunar_window_action_compact_view        (ThunarWindow           *window);
 static void      thunar_window_replace_view               (ThunarWindow           *window,
                                                            GtkWidget              *view,
                                                            GType                   view_type);
@@ -394,9 +394,9 @@ static XfceGtkActionEntry thunar_window_action_entries[] =
     { THUNAR_WINDOW_ACTION_ZOOM_RESET,                     "<Actions>/ThunarWindow/zoom-reset",                      "<Primary>KP_0",        XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Normal Si_ze"),           N_ ("Show the contents at the normal size"),                                         "zoom-original-symbolic",  G_CALLBACK (thunar_window_zoom_reset),                },
     { THUNAR_WINDOW_ACTION_ZOOM_RESET_ALT,                 "<Actions>/ThunarWindow/zoom-reset-alt",                  "<Primary>0",           XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_zoom_reset),                },
     { THUNAR_WINDOW_ACTION_CLEAR_DIRECTORY_SPECIFIC_SETTINGS,"<Actions>/ThunarWindow/clear-directory-specific-settings","",                  XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Clear Saved _Folder View Settings"), N_ ("Delete saved view settings for this folder"),                         NULL,                     G_CALLBACK (thunar_window_action_clear_directory_specific_settings), },
-    { THUNAR_WINDOW_ACTION_VIEW_AS_ICONS,                  "<Actions>/ThunarWindow/view-as-icons",                   "<Primary>1",           XFCE_GTK_RADIO_MENU_ITEM, N_ ("_Icon View"),             N_ ("Display folder content in an icon view"),                                        NULL,                      G_CALLBACK (thunar_window_action_icon_view),          },
+    { THUNAR_WINDOW_ACTION_VIEW_AS_ICONS,                  "<Actions>/ThunarWindow/view-as-icons",                   "<Primary>1",           XFCE_GTK_RADIO_MENU_ITEM, N_ ("_Icon View"),             N_ ("Display folder content in an icon view"),                                        NULL,                      G_CALLBACK (thunar_window_action_detailed_view /*thunar_window_action_icon_view*/),          },
     { THUNAR_WINDOW_ACTION_VIEW_AS_DETAILED_LIST,          "<Actions>/ThunarWindow/view-as-detailed-list",           "<Primary>2",           XFCE_GTK_RADIO_MENU_ITEM, N_ ("_List View"),             N_ ("Display folder content in a detailed list view"),                                NULL,                      G_CALLBACK (thunar_window_action_detailed_view),      },
-    { THUNAR_WINDOW_ACTION_VIEW_AS_COMPACT_LIST,           "<Actions>/ThunarWindow/view-as-compact-list",            "<Primary>3",           XFCE_GTK_RADIO_MENU_ITEM, N_ ("_Compact View"),          N_ ("Display folder content in a compact list view"),                                 NULL,                      G_CALLBACK (thunar_window_action_compact_view),       },
+    { THUNAR_WINDOW_ACTION_VIEW_AS_COMPACT_LIST,           "<Actions>/ThunarWindow/view-as-compact-list",            "<Primary>3",           XFCE_GTK_RADIO_MENU_ITEM, N_ ("_Compact View"),          N_ ("Display folder content in a compact list view"),                                 NULL,                      G_CALLBACK (thunar_window_action_detailed_view /*thunar_window_action_compact_view*/),       },
 
     { THUNAR_WINDOW_ACTION_GO_MENU,                        "<Actions>/ThunarWindow/go-menu",                         "",                     XFCE_GTK_MENU_ITEM,       N_ ("_Go"),                    NULL,                                                                                NULL,                      NULL                                                  },
     { THUNAR_WINDOW_ACTION_OPEN_FILE_SYSTEM,               "<Actions>/ThunarWindow/open-file-system",                "",                     XFCE_GTK_IMAGE_MENU_ITEM, N_ ("File System"),            N_ ("Browse the file system"),                                                       "drive-harddisk",          G_CALLBACK (thunar_window_action_open_file_system),   },
@@ -830,12 +830,15 @@ thunar_window_init (ThunarWindow *window)
   g_signal_connect_object (G_OBJECT (window->preferences), "notify::misc-change-window-icon", G_CALLBACK (thunar_window_update_window_icon), window, G_CONNECT_SWAPPED);
 
   /* determine the selected side pane */
-  if (exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE)))
-    type = THUNAR_TYPE_SHORTCUTS_PANE;
-  else if (exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_TREE_PANE)))
-    type = THUNAR_TYPE_TREE_PANE;
-  else
-    type = G_TYPE_NONE;
+//  if (exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE)))
+//    type = THUNAR_TYPE_SHORTCUTS_PANE;
+//  else if (exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_TREE_PANE)))
+//    type = THUNAR_TYPE_TREE_PANE;
+//  else
+//    type = G_TYPE_NONE;
+
+  type = THUNAR_TYPE_TREE_PANE;
+
   thunar_window_install_sidepane (window, type);
   g_free (last_side_pane);
 
@@ -853,9 +856,9 @@ thunar_window_init (ThunarWindow *window)
     thunar_window_binding_create (window, window->view, "statusbar-text", window->statusbar, "text", G_BINDING_SYNC_CREATE);
 
   /* ensure that all the view types are registered */
-  g_type_ensure (THUNAR_TYPE_ICON_VIEW);
+  //g_type_ensure (THUNAR_TYPE_ICON_VIEW);
   g_type_ensure (THUNAR_TYPE_DETAILS_VIEW);
-  g_type_ensure (THUNAR_TYPE_COMPACT_VIEW);
+  //g_type_ensure (THUNAR_TYPE_COMPACT_VIEW);
 
   /* load the bookmarks file and monitor */
   window->bookmarks = NULL;
@@ -874,6 +877,8 @@ thunar_window_screen_changed (GtkWidget *widget,
                               GdkScreen *old_screen,
                               gpointer   userdata)
 {
+  UNUSED(old_screen);
+  UNUSED(userdata);
   GdkScreen *screen = gdk_screen_get_default ();
   GdkVisual *visual = gdk_screen_get_rgba_visual (screen);
 
@@ -1044,16 +1049,16 @@ thunar_window_update_view_menu (ThunarWindow *window,
   g_object_get (window->preferences, "last-location-bar", &last_location_bar, NULL);
   xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_LOCATION_SELECTOR_PATHBAR), G_OBJECT (window),
                                                    exo_str_is_equal (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_ENTRY)), GTK_MENU_SHELL (sub_items));
-  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_LOCATION_SELECTOR_TOOLBAR), G_OBJECT (window),
-                                                   exo_str_is_equal (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_BUTTONS)), GTK_MENU_SHELL (sub_items));
+//  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_LOCATION_SELECTOR_TOOLBAR), G_OBJECT (window),
+//                                                   exo_str_is_equal (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_BUTTONS)), GTK_MENU_SHELL (sub_items));
   g_free (last_location_bar);
   gtk_menu_item_set_submenu (GTK_MENU_ITEM (item), GTK_WIDGET (sub_items));
   item = xfce_gtk_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_SIDE_PANE_MENU), G_OBJECT (window), GTK_MENU_SHELL (menu));
   sub_items =  gtk_menu_new();
   gtk_menu_set_accel_group (GTK_MENU (sub_items), window->accel_group);
   g_object_get (window->preferences, "last-side-pane", &last_side_pane, NULL);
-  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_SIDE_PANE_SHORTCUTS), G_OBJECT (window),
-                                                   exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE)), GTK_MENU_SHELL (sub_items));
+//  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_SIDE_PANE_SHORTCUTS), G_OBJECT (window),
+//                                                   exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE)), GTK_MENU_SHELL (sub_items));
   xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_SIDE_PANE_TREE), G_OBJECT (window),
                                                    exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_TREE_PANE)), GTK_MENU_SHELL (sub_items));
   g_free (last_side_pane);
@@ -1082,12 +1087,12 @@ thunar_window_update_view_menu (ThunarWindow *window,
       xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (menu));
     }
 
-  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_AS_ICONS),
-                                                 G_OBJECT (window), window->view_type == THUNAR_TYPE_ICON_VIEW, GTK_MENU_SHELL (menu));
+//  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_AS_ICONS),
+//                                                 G_OBJECT (window), window->view_type == THUNAR_TYPE_ICON_VIEW, GTK_MENU_SHELL (menu));
   xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_AS_DETAILED_LIST),
                                                  G_OBJECT (window), window->view_type == THUNAR_TYPE_DETAILS_VIEW, GTK_MENU_SHELL (menu));
-  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_AS_COMPACT_LIST),
-                                                 G_OBJECT (window), window->view_type == THUNAR_TYPE_COMPACT_VIEW, GTK_MENU_SHELL (menu));
+//  xfce_gtk_toggle_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_AS_COMPACT_LIST),
+//                                                 G_OBJECT (window), window->view_type == THUNAR_TYPE_COMPACT_VIEW, GTK_MENU_SHELL (menu));
 
   gtk_widget_show_all (GTK_WIDGET (menu));
 
@@ -1250,6 +1255,8 @@ static gboolean thunar_window_delete (GtkWidget *widget,
                                       GdkEvent  *event,
                                       gpointer   data )
 {
+  UNUSED(event);
+  UNUSED(data);
   GtkNotebook *notebook;
   gboolean confirm_close_multiple_tabs, do_not_ask_again;
   gint response, n_tabs;
@@ -1319,6 +1326,7 @@ thunar_window_set_property (GObject            *object,
                             const GValue       *value,
                             GParamSpec         *pspec)
 {
+  UNUSED(pspec);
   ThunarWindow *window = THUNAR_WINDOW (object);
 
   switch (prop_id)
@@ -1373,10 +1381,10 @@ thunar_window_has_shortcut_sidepane (ThunarWindow *window)
   _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
 
   /* check if a side pane is currently active */
-  if (G_LIKELY (window->sidepane != NULL))
-    {
-      return G_OBJECT_TYPE (window->sidepane) == THUNAR_TYPE_SHORTCUTS_PANE;
-    }
+//  if (G_LIKELY (window->sidepane != NULL))
+//    {
+//      return G_OBJECT_TYPE (window->sidepane) == THUNAR_TYPE_SHORTCUTS_PANE;
+//    }
   return FALSE;
 }
 
@@ -1411,7 +1419,7 @@ thunar_window_toggle_sidepane (ThunarWindow *window)
   else
     {
       /* check if we have a previously remembered toggle type */
-      if (window->toggle_sidepane_type == THUNAR_TYPE_TREE_PANE || window->toggle_sidepane_type == THUNAR_TYPE_SHORTCUTS_PANE)
+      if (window->toggle_sidepane_type == THUNAR_TYPE_TREE_PANE /*|| window->toggle_sidepane_type == THUNAR_TYPE_SHORTCUTS_PANE*/)
           thunar_window_install_sidepane (window, window->toggle_sidepane_type);
     }
 
@@ -2633,19 +2641,19 @@ thunar_window_action_pathbar_changed (ThunarWindow *window)
 static void
 thunar_window_action_toolbar_changed (ThunarWindow *window)
 {
-  gchar    *last_location_bar;
-  gboolean  toolbar_checked;
+//  gchar    *last_location_bar;
+//  gboolean  toolbar_checked;
 
   _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
 
-  g_object_get (window->preferences, "last-location-bar", &last_location_bar, NULL);
-  toolbar_checked = exo_str_is_equal (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_BUTTONS));
-  g_free (last_location_bar);
+//  g_object_get (window->preferences, "last-location-bar", &last_location_bar, NULL);
+//  toolbar_checked = exo_str_is_equal (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_BUTTONS));
+//  g_free (last_location_bar);
 
-  if (toolbar_checked)
+//  if (toolbar_checked)
     g_object_set (window->preferences, "last-location-bar", g_type_name (G_TYPE_NONE), NULL);
-  else
-    g_object_set (window->preferences, "last-location-bar", g_type_name (THUNAR_TYPE_LOCATION_BUTTONS), NULL);
+//  else
+//    g_object_set (window->preferences, "last-location-bar", g_type_name (THUNAR_TYPE_LOCATION_BUTTONS), NULL);
 }
 
 
@@ -2653,20 +2661,20 @@ thunar_window_action_toolbar_changed (ThunarWindow *window)
 static void
 thunar_window_action_shortcuts_changed (ThunarWindow *window)
 {
-  gchar    *last_side_pane;
-  gboolean  shortcuts_checked;
+//  gchar    *last_side_pane;
+//  gboolean  shortcuts_checked;
   GType     type = G_TYPE_NONE;
 
   _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
 
-  g_object_get (window->preferences, "last-side-pane", &last_side_pane, NULL);
-  shortcuts_checked = exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE));
-  g_free (last_side_pane);
+//  g_object_get (window->preferences, "last-side-pane", &last_side_pane, NULL);
+//  shortcuts_checked = exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE));
+//  g_free (last_side_pane);
 
-  if (shortcuts_checked)
+//  if (shortcuts_checked)
     type = G_TYPE_NONE;
-  else
-    type = THUNAR_TYPE_SHORTCUTS_PANE;
+//  else
+//    type = THUNAR_TYPE_SHORTCUTS_PANE;
 
   thunar_window_install_sidepane (window, type);
 }
@@ -2771,19 +2779,19 @@ thunar_window_action_detailed_view (ThunarWindow *window)
 
 
 
-static void
-thunar_window_action_icon_view (ThunarWindow *window)
-{
-  thunar_window_action_view_changed (window, THUNAR_TYPE_ICON_VIEW);
-}
+//static void
+//thunar_window_action_icon_view (ThunarWindow *window)
+//{
+//  thunar_window_action_view_changed (window, THUNAR_TYPE_ICON_VIEW);
+//}
 
 
 
-static void
-thunar_window_action_compact_view (ThunarWindow *window)
-{
-  thunar_window_action_view_changed (window, THUNAR_TYPE_COMPACT_VIEW);
-}
+//static void
+//thunar_window_action_compact_view (ThunarWindow *window)
+//{
+//  thunar_window_action_view_changed (window, THUNAR_TYPE_COMPACT_VIEW);
+//}
 
 
 
@@ -3401,9 +3409,9 @@ static void
 thunar_window_action_about (ThunarWindow *window)
 {
   /* just popup the about dialog */
-  thunar_dialogs_show_about (GTK_WINDOW (window), PACKAGE_NAME,
-                             _("Thunar is a fast and easy to use file manager\n"
-                               "for the Xfce Desktop Environment."));
+//  thunar_dialogs_show_about (GTK_WINDOW (window), PACKAGE_NAME,
+//                             _("Thunar is a fast and easy to use file manager\n"
+//                               "for the Xfce Desktop Environment."));
 }
 
 
@@ -4199,7 +4207,7 @@ thunar_window_view_type_for_directory (ThunarWindow *window,
 
   /* fallback view type, in case nothing was set */
   if (g_type_is_a (type, G_TYPE_NONE) || g_type_is_a (type, G_TYPE_INVALID))
-    type = THUNAR_TYPE_ICON_VIEW;
+    type = THUNAR_TYPE_DETAILS_VIEW; /*THUNAR_TYPE_ICON_VIEW*/
 
   return type;
 }

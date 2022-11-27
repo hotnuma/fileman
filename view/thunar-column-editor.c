@@ -25,7 +25,7 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-#include <thunar-abstract-dialog.h>
+//#include <thunar-abstract-dialog.h>
 #include <thunar-column-editor.h>
 #include <thunar-dialogs.h>
 #include <thunar-gtk-extensions.h>
@@ -55,12 +55,12 @@ static void thunar_column_editor_use_defaults       (GtkWidget                *b
 
 struct _ThunarColumnEditorClass
 {
-  ThunarAbstractDialogClass __parent__;
+  GtkDialogClass __parent__;
 };
 
 struct _ThunarColumnEditor
 {
-  ThunarAbstractDialog __parent__;
+  GtkDialog __parent__;
 
   ThunarPreferences *preferences;
 
@@ -75,7 +75,7 @@ struct _ThunarColumnEditor
 
 
 
-G_DEFINE_TYPE (ThunarColumnEditor, thunar_column_editor, THUNAR_TYPE_ABSTRACT_DIALOG)
+G_DEFINE_TYPE (ThunarColumnEditor, thunar_column_editor, GTK_TYPE_DIALOG /*THUNAR_TYPE_ABSTRACT_DIALOG*/)
 
 
 

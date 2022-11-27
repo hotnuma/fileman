@@ -47,10 +47,10 @@
 #include <thunar-pango-extensions.h>
 #include <thunar-private.h>
 #include <thunar-properties-dialog.h>
-#include <thunar-renamer-dialog.h>
+//#include <thunar-renamer-dialog.h>
 #include <thunar-simple-job.h>
 #include <thunar-standard-view.h>
-#include <thunar-thumbnailer.h>
+//#include <thunar-thumbnailer.h>
 #include <thunar-util.h>
 
 #if defined(GDK_WINDOWING_X11)
@@ -246,6 +246,7 @@ static gboolean             thunar_standard_view_drag_scroll_timer          (gpo
 static void                 thunar_standard_view_drag_scroll_timer_destroy  (gpointer                  user_data);
 static gboolean             thunar_standard_view_drag_timer                 (gpointer                  user_data);
 static void                 thunar_standard_view_drag_timer_destroy         (gpointer                  user_data);
+#if 0
 static void                 thunar_standard_view_finished_thumbnailing      (ThunarThumbnailer        *thumbnailer,
                                                                              guint                     request,
                                                                              ThunarStandardView       *standard_view);
@@ -258,6 +259,7 @@ static gboolean             thunar_standard_view_request_thumbnails_lazy    (gpo
 static void                 thunar_standard_view_thumbnail_mode_toggled     (ThunarStandardView       *standard_view,
                                                                              GParamSpec               *pspec,
                                                                              ThunarIconFactory        *icon_factory);
+#endif
 static void                 thunar_standard_view_scrolled                   (GtkAdjustment            *adjustment,
                                                                              ThunarStandardView       *standard_view);
 static void                 thunar_standard_view_size_allocate              (ThunarStandardView       *standard_view,
@@ -326,11 +328,13 @@ struct _ThunarStandardViewPrivate
   GList                  *selected_files;
   guint                   restore_selection_idle_id;
 
+#if 0
   /* support for generating thumbnails */
   ThunarThumbnailer      *thumbnailer;
   guint                   thumbnail_request;
   guint                   thumbnail_source_id;
   gboolean                thumbnailing_scheduled;
+#endif
 
   /* file insert signal */
   gulong                  row_changed_id;
@@ -571,9 +575,9 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
   standard_view->preferences = thunar_preferences_get ();
 
   /* create a thumbnailer */
-  standard_view->priv->thumbnailer = thunar_thumbnailer_get ();
-  g_signal_connect (G_OBJECT (standard_view->priv->thumbnailer), "request-finished", G_CALLBACK (thunar_standard_view_finished_thumbnailing), standard_view);
-  standard_view->priv->thumbnailing_scheduled = FALSE;
+//  standard_view->priv->thumbnailer = thunar_thumbnailer_get ();
+//  g_signal_connect (G_OBJECT (standard_view->priv->thumbnailer), "request-finished", G_CALLBACK (thunar_standard_view_finished_thumbnailing), standard_view);
+//  standard_view->priv->thumbnailing_scheduled = FALSE;
 
   /* initialize the scrolled window */
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (standard_view),
@@ -603,7 +607,7 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
   standard_view->icon_renderer = thunar_icon_renderer_new ();
   g_object_ref_sink (G_OBJECT (standard_view->icon_renderer));
   exo_binding_new (G_OBJECT (standard_view), "zoom-level", G_OBJECT (standard_view->icon_renderer), "size");
-  exo_binding_new (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->priv->thumbnailer), "thumbnail-size");
+  //exo_binding_new (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->priv->thumbnailer), "thumbnail-size");
 
   /* setup the name renderer */
   standard_view->name_renderer = g_object_new (GTK_TYPE_CELL_RENDERER_TEXT,
@@ -732,7 +736,7 @@ thunar_standard_view_dispose (GObject *object)
   ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW (object);
 
   /* cancel pending thumbnail sources and requests */
-  thunar_standard_view_cancel_thumbnailing (standard_view);
+  //thunar_standard_view_cancel_thumbnailing (standard_view);
 
   /* unregister the "loading" binding */
   if (G_UNLIKELY (standard_view->loading_binding != NULL))
@@ -780,8 +784,8 @@ thunar_standard_view_finalize (GObject *object)
   thunar_standard_view_disconnect_accelerators (standard_view);
 
   /* release the thumbnailer */
-  g_signal_handlers_disconnect_by_func (standard_view->priv->thumbnailer, thunar_standard_view_finished_thumbnailing, standard_view);
-  g_object_unref (standard_view->priv->thumbnailer);
+//  g_signal_handlers_disconnect_by_func (standard_view->priv->thumbnailer, thunar_standard_view_finished_thumbnailing, standard_view);
+//  g_object_unref (standard_view->priv->thumbnailer);
 
   /* release the scroll_to_file reference (if any) */
   if (G_UNLIKELY (standard_view->priv->scroll_to_file != NULL))
@@ -846,6 +850,7 @@ thunar_standard_view_get_property (GObject    *object,
                                    GValue     *value,
                                    GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarFile *current_directory;
   gboolean thumbnail_draw_frames;
 
@@ -906,6 +911,7 @@ thunar_standard_view_set_property (GObject      *object,
                                    const GValue *value,
                                    GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW (object);
 
   switch (prop_id)
@@ -968,10 +974,10 @@ thunar_standard_view_realize (GtkWidget *widget)
   exo_binding_new (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->icon_factory), "thumbnail-size");
 
   /* we need to redraw whenever the "thumbnail_mode" property is toggled */
-  g_signal_connect_swapped (standard_view->icon_factory,
-                            "notify::thumbnail_mode",
-                            G_CALLBACK (thunar_standard_view_thumbnail_mode_toggled),
-                            standard_view);
+//  g_signal_connect_swapped (standard_view->icon_factory,
+//                            "notify::thumbnail_mode",
+//                            G_CALLBACK (thunar_standard_view_thumbnail_mode_toggled),
+//                            standard_view);
 
   /* apply the thumbnail frame preferences after icon_factory got initialized */
   exo_binding_new (G_OBJECT (standard_view->preferences), "misc-thumbnail-draw-frames", G_OBJECT (standard_view), "thumbnail-draw-frames");
@@ -1239,7 +1245,7 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
     return;
 
   /* cancel any pending thumbnail sources and requests */
-  thunar_standard_view_cancel_thumbnailing (standard_view);
+  //thunar_standard_view_cancel_thumbnailing (standard_view);
 
   /* disconnect any previous "loading" binding */
   if (G_LIKELY (standard_view->loading_binding != NULL))
@@ -1432,6 +1438,7 @@ thunar_standard_view_set_loading (ThunarStandardView *standard_view,
       thunar_g_file_list_free (selected_files);
     }
 
+#if 0
   /* check if we're done loading and a thumbnail timeout or idle was requested */
   if (!loading && standard_view->priv->thumbnailing_scheduled)
     {
@@ -1442,6 +1449,7 @@ thunar_standard_view_set_loading (ThunarStandardView *standard_view,
       thunar_standard_view_schedule_thumbnail_idle (standard_view);
       standard_view->priv->thumbnailing_scheduled = FALSE;
     }
+#endif
 
   /* notify listeners */
   g_object_freeze_notify (G_OBJECT (standard_view));
@@ -1449,7 +1457,6 @@ thunar_standard_view_set_loading (ThunarStandardView *standard_view,
   thunar_standard_view_update_statusbar_text (standard_view);
   g_object_thaw_notify (G_OBJECT (standard_view));
 }
-
 
 
 static const gchar*
@@ -1654,9 +1661,11 @@ thunar_standard_view_reload (ThunarView *view,
   if (standard_view->priv->directory_specific_settings)
     thunar_standard_view_apply_directory_specific_settings (standard_view, standard_view->priv->current_directory);
 
+#if 0
   /* schedule thumbnail reload update */
   if (!standard_view->priv->thumbnailing_scheduled)
     thunar_standard_view_schedule_thumbnail_idle (standard_view);
+#endif
 }
 
 
@@ -2027,7 +2036,7 @@ thunar_standard_view_current_directory_changed (ThunarFile         *current_dire
   g_object_notify_by_pspec (G_OBJECT (standard_view), standard_view_props[PROP_TOOLTIP_TEXT]);
 
   /* directory is possibly moved, schedule a thumbnail update */
-  thunar_standard_view_schedule_thumbnail_timeout (standard_view);
+  //thunar_standard_view_schedule_thumbnail_timeout (standard_view);
 }
 
 
@@ -2264,6 +2273,8 @@ thunar_standard_view_button_release_event (GtkWidget          *view,
                                            GdkEventButton     *event,
                                            ThunarStandardView *standard_view)
 {
+  UNUSED(view);
+  UNUSED(event);
   _thunar_return_val_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view), FALSE);
   _thunar_return_val_if_fail (standard_view->priv->drag_timer_id != 0, FALSE);
 
@@ -2319,6 +2330,7 @@ thunar_standard_view_scroll_event (GtkWidget          *view,
                                    GdkEventScroll     *event,
                                    ThunarStandardView *standard_view)
 {
+  UNUSED(view);
   GdkScrollDirection scrolling_direction;
   gboolean           misc_horizontal_wheel_navigates;
 
@@ -2837,6 +2849,7 @@ thunar_standard_view_drag_begin (GtkWidget          *view,
                                  GdkDragContext     *context,
                                  ThunarStandardView *standard_view)
 {
+  UNUSED(view);
   ThunarFile *file;
   GdkPixbuf  *icon;
   gint        size;
@@ -2968,39 +2981,41 @@ thunar_standard_view_rows_reordered (ThunarListModel    *model,
 }
 
 
-
 static void
 thunar_standard_view_row_changed (ThunarListModel    *model,
                                   GtkTreePath        *path,
                                   GtkTreeIter        *iter,
                                   ThunarStandardView *standard_view)
 {
-  ThunarFile *file;
+  return;
 
-  _thunar_return_if_fail (THUNAR_IS_LIST_MODEL (model));
-  _thunar_return_if_fail (path != NULL);
-  _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
-  _thunar_return_if_fail (standard_view->model == model);
 
-  if (standard_view->priv->thumbnail_request != 0)
-    return;
+//  ThunarFile *file;
 
-  /* leave if this view is not suitable for generating thumbnails */
-  if (!thunar_icon_factory_get_show_thumbnail (standard_view->icon_factory,
-                                               standard_view->priv->current_directory))
-    return;
+//  _thunar_return_if_fail (THUNAR_IS_LIST_MODEL (model));
+//  _thunar_return_if_fail (path != NULL);
+//  _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
+//  _thunar_return_if_fail (standard_view->model == model);
 
-  /* queue a thumbnail request */
-  file = thunar_list_model_get_file (standard_view->model, iter);
-  if (thunar_file_get_thumb_state (file) == THUNAR_FILE_THUMB_STATE_UNKNOWN)
-    {
-      thunar_standard_view_cancel_thumbnailing (standard_view);
-      thunar_thumbnailer_queue_file (standard_view->priv->thumbnailer, file,
-                                     &standard_view->priv->thumbnail_request);
-    }
-  g_object_unref (G_OBJECT (file));
+
+//  if (standard_view->priv->thumbnail_request != 0)
+//    return;
+
+//  /* leave if this view is not suitable for generating thumbnails */
+//  if (!thunar_icon_factory_get_show_thumbnail (standard_view->icon_factory,
+//                                               standard_view->priv->current_directory))
+//    return;
+
+//  /* queue a thumbnail request */
+//  file = thunar_list_model_get_file (standard_view->model, iter);
+//  if (thunar_file_get_thumb_state (file) == THUNAR_FILE_THUMB_STATE_UNKNOWN)
+//    {
+//      thunar_standard_view_cancel_thumbnailing (standard_view);
+//      thunar_thumbnailer_queue_file (standard_view->priv->thumbnailer, file,
+//                                     &standard_view->priv->thumbnail_request);
+//    }
+//  g_object_unref (G_OBJECT (file));
 }
-
 
 
 static void
@@ -3214,7 +3229,7 @@ thunar_standard_view_drag_timer_destroy (gpointer user_data)
 }
 
 
-
+#if 0
 static void
 thunar_standard_view_finished_thumbnailing (ThunarThumbnailer  *thumbnailer,
                                             guint               request,
@@ -3433,6 +3448,7 @@ thunar_standard_view_thumbnail_mode_toggled (ThunarStandardView *standard_view,
       thunar_standard_view_cancel_thumbnailing (standard_view);
     }
 }
+#endif
 
 
 
@@ -3448,7 +3464,7 @@ thunar_standard_view_scrolled (GtkAdjustment      *adjustment,
     return;
 
   /* reschedule a thumbnail request timeout */
-  thunar_standard_view_schedule_thumbnail_timeout (standard_view);
+  //thunar_standard_view_schedule_thumbnail_timeout (standard_view);
 }
 
 
@@ -3464,11 +3480,11 @@ thunar_standard_view_size_allocate (ThunarStandardView *standard_view,
     return;
 
   /* to avoid a flow of updates, don't update if there is already a request pending */
-  if (standard_view->priv->thumbnail_source_id == 0)
-    {
-      /* reschedule a thumbnail request timeout */
-      thunar_standard_view_schedule_thumbnail_timeout (standard_view);
-    }
+//  if (standard_view->priv->thumbnail_source_id == 0)
+//    {
+//      /* reschedule a thumbnail request timeout */
+//      thunar_standard_view_schedule_thumbnail_timeout (standard_view);
+//    }
 }
 
 
