@@ -1,10 +1,10 @@
 
+This is an experimental fork of Thunar File Manager from XFCE desktop
+
 <!--
 
 xfce_get_homedir
 
-
-** (fileman:15535): CRITICAL **: 21:06:36.220: thunar_window_binding_create: assertion '(((g_type_check_instance_is_fundamentally_a ((GTypeInstance*) ((dst_object)), (((GType) ((20) << (2))))))))' failed
 
 #'-DGDK_DISABLE_DEPRECATED',
 #'-DGTK_DISABLE_DEPRECATED',
@@ -43,8 +43,20 @@ TIME_H
 
 
 AC_FUNC_MMAP()
-AC_CHECK_FUNCS([localeconv mkdtemp pread pwrite sched_yield setgroupent \
-                setpassent strcoll strlcpy strptime symlink atexit])
+
+AC_CHECK_FUNCS()
+localeconv
+mkdtemp
+pread
+pwrite
+sched_yield
+setgroupent
+setpassent
+strcoll
+strlcpy
+strptime
+symlink
+atexit
 
 XDT_I18N([@LINGUAS@])
 

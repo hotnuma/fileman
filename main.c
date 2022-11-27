@@ -56,7 +56,7 @@ main (int argc, char **argv)
 #endif
 
   /* setup application name */
-  g_set_application_name (_("Fileman 13"));
+  g_set_application_name (_("Fileman"));
 
 #ifdef G_ENABLE_DEBUG
   /* Do NOT remove this line for now, If something doesn't work,

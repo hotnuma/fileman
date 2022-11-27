@@ -886,7 +886,7 @@ thunar_preferences_init (ThunarPreferences *preferences)
     return;
 
   /* load the channel */
-  preferences->channel = xfconf_channel_get ("thunar");
+  preferences->channel = xfconf_channel_get ("fileman");
 
   /* check one of the property to see if there are values */
   if (!xfconf_channel_has_property (preferences->channel, check_prop))
@@ -925,6 +925,7 @@ thunar_preferences_get_property (GObject    *object,
                                  GValue     *value,
                                  GParamSpec *pspec)
 {
+  UNUSED(prop_id);
   ThunarPreferences  *preferences = THUNAR_PREFERENCES (object);
   GValue              src = { 0, };
   gchar               prop_name[64];
@@ -969,6 +970,7 @@ thunar_preferences_set_property (GObject      *object,
                                  const GValue *value,
                                  GParamSpec   *pspec)
 {
+  UNUSED(prop_id);
   ThunarPreferences  *preferences = THUNAR_PREFERENCES (object);
   GValue              dst = { 0, };
   gchar               prop_name[64];
@@ -1019,6 +1021,9 @@ thunar_preferences_prop_changed (XfconfChannel     *channel,
                                  const GValue      *value,
                                  ThunarPreferences *preferences)
 {
+  UNUSED(channel);
+  UNUSED(value);
+
   GParamSpec *pspec;
 
   /* check if the property exists and emit change */
