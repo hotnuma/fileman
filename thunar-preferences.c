@@ -122,7 +122,6 @@ static void     thunar_preferences_prop_changed       (XfconfChannel          *c
                                                        const gchar            *prop_name,
                                                        const GValue           *value,
                                                        ThunarPreferences      *preferences);
-static void     thunar_preferences_load_rc_file       (ThunarPreferences      *preferences);
 
 
 
@@ -891,9 +890,6 @@ thunar_preferences_init (ThunarPreferences *preferences)
   /* check one of the property to see if there are values */
   if (!xfconf_channel_has_property (preferences->channel, check_prop))
     {
-      /* try to load the old config file */
-      thunar_preferences_load_rc_file (preferences);
-
       /* set the string we check */
       if (!xfconf_channel_has_property (preferences->channel, check_prop))
         xfconf_channel_set_string (preferences->channel, check_prop, "ThunarIconView");
@@ -1030,97 +1026,6 @@ thunar_preferences_prop_changed (XfconfChannel     *channel,
   pspec = g_object_class_find_property (G_OBJECT_GET_CLASS (preferences), prop_name + 1);
   if (G_LIKELY (pspec != NULL))
     g_object_notify_by_pspec (G_OBJECT (preferences), pspec);
-}
-
-
-
-static void
-thunar_preferences_load_rc_file (ThunarPreferences *preferences)
-{
-  GParamSpec  **pspecs;
-  GParamSpec   *pspec;
-  XfceRc       *rc;
-  guint         nspecs, n;
-  const gchar  *string;
-  GValue        dst = { 0, };
-  GValue        src = { 0, };
-  gchar         prop_name[64];
-  const gchar  *nick;
-  gchar        *filename;
-
-  /* find file */
-  filename = xfce_resource_lookup (XFCE_RESOURCE_CONFIG, "Thunar/thunarrc");
-  if (G_UNLIKELY (filename == NULL))
-    return;
-
-  /* look for preferences */
-  rc = xfce_rc_simple_open (filename, TRUE);
-  if (G_UNLIKELY (rc == NULL))
-    return;
-
-  xfce_rc_set_group (rc, "Configuration");
-
-  pspecs = g_object_class_list_properties (G_OBJECT_GET_CLASS (preferences), &nspecs);
-  for (n = 0; n < nspecs; ++n)
-    {
-      pspec = pspecs[n];
-
-      /* continue if the nick is null */
-      nick = g_param_spec_get_nick (pspec);
-      if (G_UNLIKELY (nick == NULL))
-        continue;
-
-      /* read the value from the rc file */
-      string = xfce_rc_read_entry (rc, nick, NULL);
-      if (G_UNLIKELY (string == NULL))
-        continue;
-
-      /* xfconf property name, continue if exists */
-      g_snprintf (prop_name, sizeof (prop_name), "/%s", g_param_spec_get_name (pspec));
-      if (xfconf_channel_has_property (preferences->channel, prop_name))
-        continue;
-
-      /* source property */
-      g_value_init (&src, G_TYPE_STRING);
-      g_value_set_static_string (&src, string);
-
-      /* store string and enums directly */
-      if (G_IS_PARAM_SPEC_STRING (pspec) || G_IS_PARAM_SPEC_ENUM (pspec))
-        {
-          xfconf_channel_set_property (preferences->channel, prop_name, &src);
-        }
-      else if (g_value_type_transformable (G_TYPE_STRING, G_PARAM_SPEC_VALUE_TYPE (pspec)))
-        {
-          g_value_init (&dst, G_PARAM_SPEC_VALUE_TYPE (pspec));
-          if (g_value_transform (&src, &dst))
-            xfconf_channel_set_property (preferences->channel, prop_name, &dst);
-          g_value_unset (&dst);
-        }
-      else
-        {
-          g_warning ("Failed to migrate property \"%s\"", g_param_spec_get_name (pspec));
-        }
-
-      g_value_unset (&src);
-    }
-
-  /* manually migrate the thumbnails property */
-  if (!xfce_rc_read_bool_entry (rc, "MiscShowThumbnails", TRUE))
-    {
-      xfconf_channel_set_string (preferences->channel,
-                                 "/misc-thumbnail-mode",
-                                 "THUNAR_THUMBNAIL_MODE_NEVER");
-    }
-
-  g_free (pspecs);
-  xfce_rc_close (rc);
-
-  g_print ("\n\n"
-           "Your Thunar settings have been migrated to Xfconf.\n"
-           "The config file \"%s\"\n"
-           "is not used anymore.\n\n", filename);
-
-  g_free (filename);
 }
 
 
