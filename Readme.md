@@ -11,7 +11,6 @@ xfce_get_homedir
 * New macros
     
     #ifdef ENABLE_GETTEXT
-    #ifdef ENABLE_THUMBNAILS
     #ifdef ENABLE_DBUS
     
     

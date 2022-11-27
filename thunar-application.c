@@ -55,8 +55,6 @@
 #include <thunar-private.h>
 #include <thunar-progress-dialog.h>
 //#include <thunar-renamer-dialog.h>
-//#include <thunar-thumbnail-cache.h>
-//#include <thunar-thumbnailer.h>
 #include <thunar-util.h>
 #include <thunar-view.h>
 #include <thunar-session-client.h>
@@ -192,11 +190,6 @@ struct _ThunarApplication
 
   ThunarPreferences     *preferences;
   GtkWidget             *progress_dialog;
-
-#ifdef ENABLE_THUMBNAILS
-  ThunarThumbnailCache  *thumbnail_cache;
-  ThunarThumbnailer     *thumbnailer;
-#endif
 
 #ifdef ENABLE_DBUS
   ThunarDBusService     *dbus_service;
@@ -441,16 +434,6 @@ thunar_application_shutdown (GApplication *gapp)
   if (G_UNLIKELY (application->show_dialogs_timer_id != 0))
     g_source_remove (application->show_dialogs_timer_id);
 
-#if 0
-  /* drop ref on the thumbnailer */
-  if (application->thumbnailer != NULL)
-    g_object_unref (application->thumbnailer);
-
-  /* release the thumbnail cache */
-  if (application->thumbnail_cache != NULL)
-    g_object_unref (G_OBJECT (application->thumbnail_cache));
-#endif
-
   /* disconnect from the preferences */
   g_object_unref (G_OBJECT (application->preferences));
 
@@ -488,12 +471,14 @@ thunar_application_handle_local_options (GApplication *gapp,
   /* check if we should print version information */
   if (G_UNLIKELY (opt_version))
     {
-//      g_print ("%s %s (Xfce %s)\n\n", PACKAGE_NAME, PACKAGE_VERSION, xfce_version_string ());
-//      g_print ("%s\n", "Copyright (c) 2004-2020");
-//      g_print ("\t%s\n\n", _("The Thunar development team. All rights reserved."));
-//      g_print ("%s\n\n", _("Written by Benedikt Meurer <benny@xfce.org>."));
-//      g_print (_("Please report bugs to <%s>."), PACKAGE_BUGREPORT);
-//      g_print ("\n");
+#if 0
+      g_print ("%s %s (Xfce %s)\n\n", PACKAGE_NAME, PACKAGE_VERSION, xfce_version_string ());
+      g_print ("%s\n", "Copyright (c) 2004-2020");
+      g_print ("\t%s\n\n", _("The Thunar development team. All rights reserved."));
+      g_print ("%s\n\n", _("Written by Benedikt Meurer <benny@xfce.org>."));
+      g_print (_("Please report bugs to <%s>."), PACKAGE_BUGREPORT);
+      g_print ("\n");
+#endif
       return EXIT_SUCCESS;
     }
 
@@ -2462,19 +2447,5 @@ thunar_application_restore_files (ThunarApplication *application,
   thunar_g_file_list_free (source_path_list);
   thunar_g_file_list_free (target_path_list);
 }
-
-
-#if 0
-ThunarThumbnailCache *
-thunar_application_get_thumbnail_cache (ThunarApplication *application)
-{
-  _thunar_return_val_if_fail (THUNAR_IS_APPLICATION (application), NULL);
-
-  if (application->thumbnail_cache == NULL)
-    application->thumbnail_cache = thunar_thumbnail_cache_new ();
-
-  return g_object_ref (application->thumbnail_cache);
-}
-#endif
 
 

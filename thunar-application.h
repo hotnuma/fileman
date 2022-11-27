@@ -24,7 +24,6 @@
 #define __THUNAR_APPLICATION_H__
 
 #include <thunar-window.h>
-//#include <thunar-thumbnail-cache.h>
 
 G_BEGIN_DECLS;
 
@@ -143,10 +142,8 @@ void                  thunar_application_restore_files             (ThunarApplic
                                                                     GList             *trash_file_list,
                                                                     GClosure          *new_files_closure);
 
-#if 0
-ThunarThumbnailCache *thunar_application_get_thumbnail_cache       (ThunarApplication *application);
-#endif
-
 G_END_DECLS;
 
 #endif /* !__THUNAR_APPLICATION_H__ */
+
+

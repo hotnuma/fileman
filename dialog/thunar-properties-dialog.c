@@ -55,7 +55,6 @@
 #include <thunar-private.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-size-label.h>
-//#include <thunar-thumbnailer.h>
 #include <thunar-util.h>
 
 
@@ -121,9 +120,6 @@ struct _ThunarPropertiesDialog
 
   GList                  *files;
   gboolean                file_size_binary;
-
-  //ThunarThumbnailer      *thumbnailer;
-  //guint                   thumbnail_request;
 
   XfceFilenameInput      *name_entry;
 
@@ -243,12 +239,6 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
                    G_OBJECT (dialog), "file-size-binary");
   g_signal_connect_swapped (G_OBJECT (dialog->preferences), "notify::misc-file-size-binary",
                             G_CALLBACK (thunar_properties_dialog_reload), dialog);
-
-  /* create a new thumbnailer */
-#if 0
-  dialog->thumbnailer = thunar_thumbnailer_get ();
-  dialog->thumbnail_request = 0;
-#endif
 
   dialog->provider_factory = thunarx_provider_factory_get_default ();
 
@@ -617,18 +607,6 @@ thunar_properties_dialog_finalize (GObject *object)
   g_signal_handlers_disconnect_by_func (dialog->preferences, thunar_properties_dialog_reload, dialog);
   g_object_unref (dialog->preferences);
 
-  /* cancel any pending thumbnailer requests */
-#if 0
-  if (dialog->thumbnail_request > 0)
-    {
-      thunar_thumbnailer_dequeue (dialog->thumbnailer, dialog->thumbnail_request);
-      dialog->thumbnail_request = 0;
-    }
-
-  /* release the thumbnailer */
-  g_object_unref (dialog->thumbnailer);
-#endif
-
   /* release the provider property pages */
   g_list_free_full (dialog->provider_pages, g_object_unref);
 
@@ -946,12 +924,6 @@ thunar_properties_dialog_update_single (ThunarPropertiesDialog *dialog)
 
   /* hide the permissions chooser for trashed files */
   gtk_widget_set_visible (dialog->permissions_chooser, !thunar_file_is_trashed (file));
-
-  /* queue a new thumbnail request */
-#if 0
-  thunar_thumbnailer_queue_file (dialog->thumbnailer, file,
-                                 &dialog->thumbnail_request);
-#endif
 
   icon_theme = gtk_icon_theme_get_for_screen (gtk_widget_get_screen (GTK_WIDGET (dialog)));
   icon_factory = thunar_icon_factory_get_for_icon_theme (icon_theme);
@@ -1348,15 +1320,6 @@ thunar_properties_dialog_update (ThunarPropertiesDialog *dialog)
 {
   _thunar_return_if_fail (THUNAR_IS_PROPERTIES_DIALOG (dialog));
   _thunar_return_if_fail (dialog->files != NULL);
-
-  /* cancel any pending thumbnail requests */
-#if 0
-  if (dialog->thumbnail_request > 0)
-    {
-      thunar_thumbnailer_dequeue (dialog->thumbnailer, dialog->thumbnail_request);
-      dialog->thumbnail_request = 0;
-    }
-#endif
 
   if (dialog->files->next == NULL)
     {
