@@ -4,11 +4,6 @@
 #define PACKAGE_NAME "fileman"
 #define BINDIR "/usr/bin"
 
-//#define _(X) ((const char *) X)
-//#define N_(X) ((const char *) X)
-//#define __USE_MISC 1
-//#define __USE_XOPEN_EXTENDED 1
-
 //https://stackoverflow.com/questions/7090998/
 #define UNUSED(x) (void)(x)
 
@@ -39,7 +34,7 @@
 
 #define HAVE_GIO_UNIX 1
 #define HAVE_LIBNOTIFY 1
-//#define HAVE_GUDEV 1
+#define HAVE_GUDEV 1
 
 #define HAVE_UNISTD_H 1
 

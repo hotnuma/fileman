@@ -23,6 +23,7 @@ cc = meson.get_compiler('c')
 
 app_deps = [
     dependency('libnotify'),
+    dependency('gudev-1.0'),
     dependency('gtk+-3.0'),
     dependency('exo-2'),
     dependency('libxfconf-0'),

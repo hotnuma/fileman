@@ -4,6 +4,7 @@ CONFIG = c11 link_pkgconfig
 DEFINES = GTK HAVE_CONFIG_H
 
 PKGCONFIG = \
+    gudev-1.0 \
     libnotify \
     gtk+-3.0 \
     exo-2 \
@@ -11,8 +12,6 @@ PKGCONFIG = \
     libxfce4util-1.0 \
     libxfce4ui-2 \
     thunarx-3 \
-
-#    gudev-1.0 \
 
 INCLUDEPATH = core dialog extension job side view widget
 

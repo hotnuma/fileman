@@ -277,6 +277,7 @@ thunar_transfer_job_progress (goffset  current_num_bytes,
                               goffset  total_num_bytes,
                               gpointer user_data)
 {
+  UNUSED(total_num_bytes);
   ThunarTransferJob *job = user_data;
   guint64            new_percentage;
   gint64             current_time;
@@ -684,7 +685,8 @@ thunar_transfer_job_copy_node (ThunarTransferJob  *job,
                                GError            **error)
 {
   //ThunarThumbnailCache *thumbnail_cache;
-  ThunarApplication    *application;
+  //ThunarApplication    *application;
+
   ThunarJobResponse     response;
   GFileInfo            *info;
   GError               *err = NULL;
@@ -858,6 +860,8 @@ static gboolean
 thunar_transfer_job_verify_destination (ThunarTransferJob  *transfer_job,
                                         GError            **error)
 {
+  UNUSED(error);
+
   GFileInfo         *filesystem_info;
   guint64            free_space;
   GFile             *dest;
@@ -1485,8 +1489,9 @@ thunar_transfer_job_execute (ExoJob  *job,
                              GError **error)
 {
   //ThunarThumbnailCache *thumbnail_cache;
+  //ThunarApplication    *application;
+
   ThunarTransferNode   *node;
-  ThunarApplication    *application;
   ThunarTransferJob    *transfer_job = THUNAR_TRANSFER_JOB (job);
   GFileInfo            *info;
   GError               *err = NULL;
