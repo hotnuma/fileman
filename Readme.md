@@ -1,6 +1,8 @@
 
-/usr/bin/ld : fileman.p/thunar-window.c.o : dans la fonction « thunar_window_action_about » :
-thunar-window.c:(.text+0x65d) : référence indéfinie vers « thunar_dialogs_show_about »
+<!--
+
+xfce_get_homedir
+
 
 
 #'-DGDK_DISABLE_DEPRECATED',
@@ -78,5 +80,7 @@ XDT_CHECK_OPTIONAL_PACKAGE([LIBNOTIFY], [libnotify], [0.4.0], [notifications],
 
 thunarx/thunarx-3.pc
 thunarx/thunarx-config.h
+
+-->
 
 

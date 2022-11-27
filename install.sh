@@ -21,7 +21,7 @@ if [[ ! -d $dest ]]; then
 fi
 
 dest=/usr/local/share/applications/
-if [[ ! -f $dest ]]; then
+if [[ ! -f $dest/fileman.desktop ]]; then
     echo "*** install desktop file"
     sudo cp $BASEDIR/data/fileman.desktop $dest
 fi
