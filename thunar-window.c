@@ -199,7 +199,6 @@ static void      thunar_window_action_open_templates      (ThunarWindow         
 static void      thunar_window_action_open_file_system    (ThunarWindow           *window);
 static void      thunar_window_action_open_trash          (ThunarWindow           *window);
 static void      thunar_window_action_open_network        (ThunarWindow           *window);
-//static void      thunar_window_action_open_bookmark       (GFile                  *g_file);
 static void      thunar_window_action_open_location       (ThunarWindow           *window);
 static void      thunar_window_action_contents            (ThunarWindow           *window);
 //static void      thunar_window_action_about               (ThunarWindow           *window);
@@ -260,12 +259,6 @@ static gboolean  thunar_window_button_press_event         (GtkWidget            
                                                            GdkEventButton         *event,
                                                            ThunarWindow           *window);
 static void      thunar_window_history_changed            (ThunarWindow           *window);
-#if 0
-static void      thunar_window_update_bookmarks           (ThunarWindow           *window);
-static void      thunar_window_free_bookmarks             (ThunarWindow           *window);
-static void      thunar_window_menu_add_bookmarks         (ThunarWindow           *window,
-                                                           GtkMenuShell           *view_menu);
-#endif
 static gboolean  thunar_window_check_uca_key_activation   (ThunarWindow           *window,
                                                            GdkEventKey            *key_event,
                                                            gpointer                user_data);
@@ -300,10 +293,6 @@ struct _ThunarWindow
   /* support for custom preferences actions */
   ThunarxProviderFactory *provider_factory;
   GList                  *thunarx_preferences_providers;
-
-//  GFile                  *bookmark_file;
-//  GList                  *bookmarks;
-//  GFileMonitor           *bookmark_monitor;
 
   ThunarClipboardManager *clipboard;
 
@@ -870,16 +859,6 @@ thunar_window_init (ThunarWindow *window)
   //g_type_ensure (THUNAR_TYPE_COMPACT_VIEW);
 
   /* load the bookmarks file and monitor */
-#if 0
-  window->bookmarks = NULL;
-  window->bookmark_file = thunar_g_file_new_for_bookmarks ();
-  window->bookmark_monitor = g_file_monitor_file (window->bookmark_file, G_FILE_MONITOR_NONE, NULL, NULL);
-  if (G_LIKELY (window->bookmark_monitor != NULL))
-      g_signal_connect_swapped (window->bookmark_monitor, "changed", G_CALLBACK (thunar_window_update_bookmarks), window);
-
-  /* initial load of the bookmarks */
-  thunar_window_update_bookmarks (window);
-#endif
 }
 
 
@@ -1238,17 +1217,6 @@ thunar_window_finalize (GObject *object)
 
   g_object_unref (window->icon_factory);
   g_object_unref (window->launcher);
-
-#if 0
-  if (window->bookmark_file != NULL)
-    g_object_unref (window->bookmark_file);
-
-  if (window->bookmark_monitor != NULL)
-    {
-      g_file_monitor_cancel (window->bookmark_monitor);
-      g_object_unref (window->bookmark_monitor);
-    }
-#endif
 
   /* release our reference on the provider factory */
   g_object_unref (window->provider_factory);
@@ -2224,227 +2192,6 @@ thunar_window_install_sidepane (ThunarWindow *window,
 }
 
 
-#if 0
-static gchar*
-thunar_window_bookmark_get_accel_path (GFile *bookmark_file)
-{
-  GChecksum    *checksum;
-  gchar        *uri;
-  gchar        *accel_path;
-  const gchar  *unique_name;
-
-  _thunar_return_val_if_fail (G_IS_FILE (bookmark_file), NULL);
-
-  /* create unique id based on the uri */
-  uri = g_file_get_uri (bookmark_file);
-  checksum = g_checksum_new (G_CHECKSUM_MD5);
-  g_checksum_update (checksum, (const guchar *) uri, strlen (uri));
-  unique_name = g_checksum_get_string (checksum);
-  accel_path = g_strconcat("<Actions>/ThunarBookmarks/", unique_name, NULL);
-
-  g_free (uri);
-  g_checksum_free (checksum);
-  return accel_path;
-}
-
-static void
-thunar_window_menu_add_bookmarks (ThunarWindow *window,
-                                  GtkMenuShell *view_menu)
-{
-  GList          *lp;
-  ThunarBookmark *bookmark;
-  ThunarFile     *thunar_file;
-  gchar          *parse_name;
-  gchar          *accel_path;
-  gchar          *tooltip;
-  const gchar    *name;
-  gchar          *remote_name;
-  GtkIconTheme   *icon_theme;
-  const gchar    *icon_name;
-
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
-
-  for (lp = window->bookmarks; lp != NULL; lp = lp->next)
-    {
-      bookmark = lp->data;
-      accel_path = thunar_window_bookmark_get_accel_path (bookmark->g_file);
-      parse_name = g_file_get_parse_name (bookmark->g_file);
-      tooltip = g_strdup_printf (_("Open the location \"%s\""), parse_name);
-      g_free (parse_name);
-
-      if (g_file_has_uri_scheme (bookmark->g_file, "file"))
-        {
-          /* try to open the file corresponding to the uri */
-          thunar_file = thunar_file_get (bookmark->g_file, NULL);
-          if (G_LIKELY (thunar_file != NULL))
-            {
-              /* make sure the file refers to a directory */
-              if (G_UNLIKELY (thunar_file_is_directory (thunar_file)))
-                {
-                  name = bookmark->name;
-                  if (bookmark->name == NULL)
-                    name = thunar_file_get_display_name (thunar_file);
-
-                  icon_theme = gtk_icon_theme_get_for_screen (gtk_window_get_screen (GTK_WINDOW (window)));
-                  icon_name = thunar_file_get_icon_name (thunar_file, THUNAR_FILE_ICON_STATE_DEFAULT, icon_theme);
-                  xfce_gtk_image_menu_item_new_from_icon_name (name, tooltip, accel_path, G_CALLBACK (thunar_window_action_open_bookmark), G_OBJECT (bookmark->g_file), icon_name, view_menu);
-               }
-            g_object_unref (thunar_file);
-          }
-        }
-      else
-        {
-          if (bookmark->name == NULL)
-            remote_name = thunar_g_file_get_display_name_remote (bookmark->g_file);
-          else
-            remote_name = g_strdup (bookmark->name);
-          xfce_gtk_image_menu_item_new_from_icon_name (remote_name, tooltip, accel_path, G_CALLBACK (thunar_window_action_open_bookmark),  G_OBJECT (bookmark->g_file), "folder-remote", view_menu);
-          g_free (remote_name);
-        }
-
-      g_free (tooltip);
-      g_free (accel_path);
-    }
-}
-
-
-
-static ThunarBookmark *
-thunar_window_bookmark_add (ThunarWindow *window,
-                            GFile        *g_file,
-                            const gchar  *name)
-{
-  ThunarBookmark *bookmark;
-
-  bookmark = g_slice_new0 (ThunarBookmark);
-  bookmark->g_file = g_object_ref (g_file);
-  bookmark->name = g_strdup (name);
-
-  window->bookmarks = g_list_append (window->bookmarks, bookmark);
-  return bookmark;
-}
-
-
-
-static void
-thunar_window_free_bookmarks (ThunarWindow *window)
-{
-  GList          *lp;
-  ThunarBookmark *bookmark;
-
-  for (lp = window->bookmarks; lp != NULL; lp = lp->next)
-    {
-      bookmark = lp->data;
-      g_object_unref (bookmark->g_file);
-      g_free (bookmark->name);
-      g_slice_free (ThunarBookmark, lp->data);
-    }
-  window->bookmarks = NULL;
-}
-
-
-
-static void
-thunar_window_update_bookmark (GFile       *g_file,
-                               const gchar *name,
-                               gint         line_num,
-                               gpointer     user_data)
-{
-  ThunarWindow      *window = THUNAR_WINDOW (user_data);
-  gchar             *accel_path;
-  XfceGtkActionEntry entry[1];
-
-  _thunar_return_if_fail (G_IS_FILE (g_file));
-  _thunar_return_if_fail (name == NULL || g_utf8_validate (name, -1, NULL));
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
-
-  /* Add the bookmark to our internal list of bookmarks */
-  thunar_window_bookmark_add (window, g_file, name);
-  
-  /* Add ref to window to each g_file, will be needed in callback */
-  g_object_set_data_full (G_OBJECT (g_file), I_("thunar-window"), window, NULL);
-
-  /* Build a minimal XfceGtkActionEntry in order to be able to use the methods below */
-  accel_path = thunar_window_bookmark_get_accel_path (g_file);
-  entry[0].accel_path = accel_path;
-  entry[0].callback = G_CALLBACK (thunar_window_action_open_bookmark);
-  entry[0].default_accelerator = "";
-
-  /* Add entry, so that the bookmark can loaded/saved to acceels.scm (will be skipped if already available)*/
-  xfce_gtk_accel_map_add_entries (entry, G_N_ELEMENTS (entry));
-
-  /* Link action with callback */
-  xfce_gtk_accel_group_disconnect_action_entries (window->accel_group, entry, G_N_ELEMENTS (entry));
-  xfce_gtk_accel_group_connect_action_entries (window->accel_group, entry, G_N_ELEMENTS (entry), g_file);
-  g_free (accel_path);
-}
-
-
-
-static void
-thunar_window_update_bookmarks (ThunarWindow *window)
-{
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
-
-  thunar_window_free_bookmarks (window);
-
-  /* re-create our internal bookmarks according to the bookmark file */
-  thunar_util_load_bookmarks (window->bookmark_file,
-                              thunar_window_update_bookmark,
-                              window);
-}
-
-static void
-thunar_window_open_or_launch (ThunarWindow *window,
-                              ThunarFile   *file)
-{
-  GError *error = NULL;
-
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
-  _thunar_return_if_fail (THUNAR_IS_FILE (file));
-
-  if (thunar_file_is_directory (file))
-    {
-      /* open the new directory */
-      thunar_window_set_current_directory (window, file);
-    }
-  else
-    {
-      /* try to launch the selected file */
-      if (!thunar_file_launch (file, window, NULL, &error))
-        {
-          thunar_dialogs_show_error (window, error, _("Failed to launch \"%s\""),
-                                     thunar_file_get_display_name (file));
-          g_error_free (error);
-        }
-    }
-}
-
-static void
-thunar_window_poke_file_finish (ThunarBrowser *browser,
-                                ThunarFile    *file,
-                                ThunarFile    *target_file,
-                                GError        *error,
-                                gpointer       ignored)
-{
-  UNUSED(ignored);
-
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (browser));
-  _thunar_return_if_fail (THUNAR_IS_FILE (file));
-
-  if (error == NULL)
-    {
-      thunar_window_open_or_launch (THUNAR_WINDOW (browser), target_file);
-    }
-  else
-    {
-      thunar_dialogs_show_error (GTK_WIDGET (browser), error,
-                                 _("Failed to open \"%s\""),
-                                 thunar_file_get_display_name (file));
-    }
-}
-#endif
-
 
 static void
 thunar_window_start_open_location (ThunarWindow *window,
@@ -3385,36 +3132,6 @@ thunar_window_propagate_key_event (GtkWindow* window,
   return GDK_EVENT_PROPAGATE;
 }
 
-
-
-#if 0
-static void
-thunar_window_poke_location_finish (ThunarBrowser *browser,
-                                    GFile         *location,
-                                    ThunarFile    *file,
-                                    ThunarFile    *target_file,
-                                    GError        *error,
-                                    gpointer       ignored)
-{
-  UNUSED(location);
-
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (browser));
-  _thunar_return_if_fail (THUNAR_IS_FILE (file));
-
-  thunar_window_poke_file_finish (browser, file, target_file, error, ignored);
-}
-
-
-static void
-thunar_window_action_open_bookmark (GFile *g_file)
-{
-  GtkWindow *window;
-
-  window = g_object_get_data (G_OBJECT (g_file), I_("thunar-window"));
- 
-  thunar_window_set_current_directory_gfile (THUNAR_WINDOW (window), g_file);
-}
-#endif
 
 
 static void
