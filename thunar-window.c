@@ -35,17 +35,13 @@
 #include <thunar-application.h>
 #include <thunar-browser.h>
 #include <thunar-clipboard-manager.h>
-//#include <thunar-compact-view.h>
 #include <thunar-details-view.h>
 #include <thunar-dialogs.h>
-//#include <thunar-shortcuts-pane.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-history.h>
-//#include <thunar-icon-view.h>
 #include <thunar-launcher.h>
-//#include <thunar-location-buttons.h>
 #include <thunar-location-entry.h>
 #include <thunar-marshal.h>
 #include <thunar-menu.h>
@@ -180,8 +176,6 @@ static void      thunar_window_action_shortcuts_changed   (ThunarWindow         
 static void      thunar_window_action_tree_changed        (ThunarWindow           *window);
 static void      thunar_window_action_statusbar_changed   (ThunarWindow           *window);
 static void      thunar_window_action_detailed_view       (ThunarWindow           *window);
-//static void      thunar_window_action_icon_view           (ThunarWindow           *window);
-//static void      thunar_window_action_compact_view        (ThunarWindow           *window);
 static void      thunar_window_replace_view               (ThunarWindow           *window,
                                                            GtkWidget              *view,
                                                            GType                   view_type);
@@ -285,7 +279,6 @@ struct _ThunarWindow
   ThunarDeviceMonitor    *device_monitor;
 
   GtkWidget              *grid;
-  //GtkWidget              *menubar;
   GtkWidget              *paned;
   GtkWidget              *sidepane;
   GtkWidget              *view_box;
@@ -573,9 +566,6 @@ thunar_window_class_init (ThunarWindowClass *klass)
 static void
 thunar_window_init (ThunarWindow *window)
 {
-//  GtkWidget       *label;
-//  GtkWidget       *infobar;
-//  GtkWidget       *item;
   gboolean         last_menubar_visible;
   gchar           *last_location_bar;
   gchar           *last_side_pane;
@@ -753,14 +743,6 @@ thunar_window_init (ThunarWindow *window)
   /* update window icon whenever preferences change */
   g_signal_connect_object (G_OBJECT (window->preferences), "notify::misc-change-window-icon", G_CALLBACK (thunar_window_update_window_icon), window, G_CONNECT_SWAPPED);
 
-  /* determine the selected side pane */
-//  if (exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE)))
-//    type = THUNAR_TYPE_SHORTCUTS_PANE;
-//  else if (exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_TREE_PANE)))
-//    type = THUNAR_TYPE_TREE_PANE;
-//  else
-//    type = G_TYPE_NONE;
-
   type = THUNAR_TYPE_TREE_PANE;
 
   thunar_window_install_sidepane (window, type);
@@ -780,11 +762,7 @@ thunar_window_init (ThunarWindow *window)
     thunar_window_binding_create (window, window->view, "statusbar-text", window->statusbar, "text", G_BINDING_SYNC_CREATE);
 
   /* ensure that all the view types are registered */
-  //g_type_ensure (THUNAR_TYPE_ICON_VIEW);
   g_type_ensure (THUNAR_TYPE_DETAILS_VIEW);
-  //g_type_ensure (THUNAR_TYPE_COMPACT_VIEW);
-
-  /* load the bookmarks file and monitor */
 }
 
 
@@ -1023,11 +1001,6 @@ thunar_window_has_shortcut_sidepane (ThunarWindow *window)
 {
   _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
 
-  /* check if a side pane is currently active */
-//  if (G_LIKELY (window->sidepane != NULL))
-//    {
-//      return G_OBJECT_TYPE (window->sidepane) == THUNAR_TYPE_SHORTCUTS_PANE;
-//    }
   return FALSE;
 }
 
@@ -2072,19 +2045,9 @@ thunar_window_action_pathbar_changed (ThunarWindow *window)
 static void
 thunar_window_action_toolbar_changed (ThunarWindow *window)
 {
-//  gchar    *last_location_bar;
-//  gboolean  toolbar_checked;
-
   _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
 
-//  g_object_get (window->preferences, "last-location-bar", &last_location_bar, NULL);
-//  toolbar_checked = exo_str_is_equal (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_BUTTONS));
-//  g_free (last_location_bar);
-
-//  if (toolbar_checked)
     g_object_set (window->preferences, "last-location-bar", g_type_name (G_TYPE_NONE), NULL);
-//  else
-//    g_object_set (window->preferences, "last-location-bar", g_type_name (THUNAR_TYPE_LOCATION_BUTTONS), NULL);
 }
 
 
@@ -2092,20 +2055,11 @@ thunar_window_action_toolbar_changed (ThunarWindow *window)
 static void
 thunar_window_action_shortcuts_changed (ThunarWindow *window)
 {
-//  gchar    *last_side_pane;
-//  gboolean  shortcuts_checked;
   GType     type = G_TYPE_NONE;
 
   _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
 
-//  g_object_get (window->preferences, "last-side-pane", &last_side_pane, NULL);
-//  shortcuts_checked = exo_str_is_equal (last_side_pane, g_type_name (THUNAR_TYPE_SHORTCUTS_PANE));
-//  g_free (last_side_pane);
-
-//  if (shortcuts_checked)
     type = G_TYPE_NONE;
-//  else
-//    type = THUNAR_TYPE_SHORTCUTS_PANE;
 
   thunar_window_install_sidepane (window, type);
 }
@@ -2177,22 +2131,6 @@ thunar_window_action_detailed_view (ThunarWindow *window)
 {
   thunar_window_action_view_changed (window, THUNAR_TYPE_DETAILS_VIEW);
 }
-
-
-
-//static void
-//thunar_window_action_icon_view (ThunarWindow *window)
-//{
-//  thunar_window_action_view_changed (window, THUNAR_TYPE_ICON_VIEW);
-//}
-
-
-
-//static void
-//thunar_window_action_compact_view (ThunarWindow *window)
-//{
-//  thunar_window_action_view_changed (window, THUNAR_TYPE_COMPACT_VIEW);
-//}
 
 
 
