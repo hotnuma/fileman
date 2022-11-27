@@ -316,7 +316,6 @@ struct _ThunarWindow
 
   GtkWidget              *grid;
   //GtkWidget              *menubar;
-  GtkWidget              *spinner;
   GtkWidget              *paned;
   GtkWidget              *sidepane;
   GtkWidget              *view_box;
@@ -1698,7 +1697,6 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
 
   /* add stock bindings */
   thunar_window_binding_create (window, window, "current-directory", page, "current-directory", G_BINDING_DEFAULT);
-  thunar_window_binding_create (window, page, "loading", window->spinner, "active", G_BINDING_SYNC_CREATE);
   thunar_window_binding_create (window, page, "selected-files", window->launcher, "selected-files", G_BINDING_SYNC_CREATE);
   thunar_window_binding_create (window, page, "zoom-level", window, "zoom-level", G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
 
