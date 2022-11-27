@@ -239,8 +239,6 @@ static gboolean  thunar_window_check_uca_key_activation   (ThunarWindow         
                                                            gpointer                user_data);
 static void      thunar_window_set_directory_specific_settings (ThunarWindow      *window,
                                                                 gboolean           directory_specific_settings);
-//static void      thunar_window_set_current_directory_gfile     (ThunarWindow      *window,
-//                                                                GFile             *current_directory);
 static GType     thunar_window_view_type_for_directory         (ThunarWindow      *window,
                                                                 ThunarFile        *directory);
 static void      thunar_window_action_clear_directory_specific_settings (ThunarWindow  *window);
@@ -3153,29 +3151,6 @@ thunar_window_set_current_directory (ThunarWindow *window,
    */
   g_object_notify (G_OBJECT (window), "current-directory");
 }
-
-
-#if 0
-static void
-thunar_window_set_current_directory_gfile (ThunarWindow *window,
-                                           GFile        *current_directory)
-{
-  ThunarFile *thunar_file;
-
-  /* remote files possibly need to be poked first */
-  if (g_file_has_uri_scheme (current_directory, "file"))
-    {
-      thunar_file = thunar_file_get (current_directory, NULL);
-      thunar_window_set_current_directory (THUNAR_WINDOW (window), thunar_file);
-      g_object_unref (thunar_file);
-    }
-  else
-    {
-      thunar_browser_poke_location (THUNAR_BROWSER (window), current_directory, THUNAR_WINDOW (window),
-                                    thunar_window_poke_location_finish, NULL);
-    }
-}
-#endif
 
 
 /**
