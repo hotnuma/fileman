@@ -1279,22 +1279,11 @@ thunar_application_open_window (ThunarApplication *application,
 
   /* open as tab instead, if preferred */
   g_object_get (G_OBJECT (application->preferences), "misc-open-new-window-as-tab", &open_new_window_as_tab, NULL);
-  if (G_UNLIKELY (!force_new_window && open_new_window_as_tab))
-    {
-      list = thunar_application_get_windows (application);
-      if (list != NULL)  
-        {
-          /* this will be the topmost Window */
-          list = g_list_last (list);
 
-          if (directory != NULL)
-              thunar_window_notebook_open_new_tab (THUNAR_WINDOW (list->data), directory);
-          
-          /* bring the window to front */
-          gtk_window_present (list->data);
-          return list->data;
-        }
-    }
+//  if (G_UNLIKELY (!force_new_window && open_new_window_as_tab))
+//    {
+//      oooppps....
+//    }
 
   /* generate a unique role for the new window (for session management) */
   role = g_strdup_printf ("Thunar-%u-%u", (guint) time (NULL), (guint) g_random_int ());

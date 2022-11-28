@@ -78,8 +78,6 @@ gboolean                  thunar_window_set_directories                     (Thu
 void                      thunar_window_update_directories                  (ThunarWindow        *window,
                                                                              ThunarFile          *old_directory,
                                                                              ThunarFile          *new_directory);
-void                      thunar_window_notebook_open_new_tab               (ThunarWindow        *window,
-                                                                             ThunarFile          *directory);
 gboolean                  thunar_window_has_shortcut_sidepane               (ThunarWindow        *window);
 GtkWidget*                thunar_window_get_sidepane                        (ThunarWindow        *window);
 void                      thunar_window_append_menu_item                    (ThunarWindow        *window,
