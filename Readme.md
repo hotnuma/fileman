@@ -5,6 +5,14 @@ This is an experimental fork of Thunar File Manager from XFCE desktop
 
 xfce_get_homedir
 
+  { THUNAR_WINDOW_ACTION_BACK,                           "<Actions>/ThunarStandardView/back",                      "<Alt>Left",            XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Back"),                   N_ ("Go to the previous visited folder"),                                            "go-previous-symbolic",    G_CALLBACK (thunar_window_action_back),                },
+  { THUNAR_WINDOW_ACTION_FORWARD,                        "<Actions>/ThunarStandardView/forward",                   "<Alt>Right",           XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Forward"),                N_ ("Go to the next visited folder"),                                                "go-next-symbolic",        G_CALLBACK (thunar_window_action_forward),             },
+  { THUNAR_WINDOW_ACTION_OPEN_PARENT,                    "<Actions>/ThunarWindow/open-parent",                     "<Alt>Up",              XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Open _Parent"),           N_ ("Open the parent folder"),                                                       "go-up-symbolic",          G_CALLBACK (thunar_window_action_go_up),              },
+  { THUNAR_WINDOW_ACTION_OPEN_HOME,                      "<Actions>/ThunarWindow/open-home",                       "<Alt>Home",            XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Home"),                  N_ ("Go to the home folder"),                                                        "go-home-symbolic",        G_CALLBACK (thunar_window_action_open_home),          },
+
+  { THUNAR_WINDOW_ACTION_RELOAD_ALT,                     "<Actions>/ThunarWindow/reload-alt",                      "F5",                   XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_action_reload),             },
+  { THUNAR_WINDOW_ACTION_SHOW_HIDDEN,                    "<Actions>/ThunarWindow/show-hidden",                     "<Primary>h",           XFCE_GTK_CHECK_MENU_ITEM, N_ ("Show _Hidden Files"),     N_ ("Toggles the display of hidden files in the current window"),                    NULL,                      G_CALLBACK (thunar_window_action_show_hidden),        },
+  { THUNAR_WINDOW_ACTION_BACK_ALT,                       "<Actions>/ThunarStandardView/back-alt",                  "BackSpace",            XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_action_back),                },
 
 #'-DGDK_DISABLE_DEPRECATED',
 #'-DGTK_DISABLE_DEPRECATED',
