@@ -1730,6 +1730,8 @@ thunar_window_replace_view (ThunarWindow *window,
                             GtkWidget    *view,
                             GType         view_type)
 {
+  DPRINT("enter : thunar_window_replace_view\n");
+
   ThunarFile     *file = NULL;
   ThunarFile     *current_directory = NULL;
   GtkWidget      *new_view;
@@ -2245,51 +2247,58 @@ void
 thunar_window_set_directory_specific_settings (ThunarWindow *window,
                                                gboolean      directory_specific_settings)
 {
-  GList      *tabs, *lp;
-  ThunarFile *directory;
-  GType       view_type;
-  gchar      *type_name;
+  return;
 
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
+//  DPRINT("enter : thunar_window_set_directory_specific_settings\n");
 
-  /* reset to the default view type if we are turning directory specific settings off */
-  if (!directory_specific_settings && window->directory_specific_settings)
-    {
-      /* determine the default view type */
-      g_object_get (G_OBJECT (window->preferences), "default-view", &type_name, NULL);
-      view_type = g_type_from_name (type_name);
-      g_free (type_name);
+//  GList      *tabs, *lp;
+//  ThunarFile *directory;
+//  GType       view_type;
+//  gchar      *type_name;
 
-      /* set the last view type */
-      if (!g_type_is_a (view_type, G_TYPE_NONE) && !g_type_is_a (view_type, G_TYPE_INVALID))
-        g_object_set (G_OBJECT (window->preferences), "last-view", g_type_name (view_type), NULL);
-    }
+//  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
 
-  /* save the setting */
-  window->directory_specific_settings = directory_specific_settings;
+//  /* reset to the default view type if we are turning directory specific settings off */
+//  if (!directory_specific_settings && window->directory_specific_settings)
+//    {
+//      /* determine the default view type */
+//      g_object_get (G_OBJECT (window->preferences), "default-view", &type_name, NULL);
+//      view_type = g_type_from_name (type_name);
+//      g_free (type_name);
 
-  /* get all of the window's tabs */
-  tabs = gtk_container_get_children (GTK_CONTAINER (window->notebook));
+//      /* set the last view type */
+//      if (!g_type_is_a (view_type, G_TYPE_NONE) && !g_type_is_a (view_type, G_TYPE_INVALID))
+//        g_object_set (G_OBJECT (window->preferences), "last-view", g_type_name (view_type), NULL);
+//    }
 
-  /* replace each tab with a tab of the correct view type */
-  for (lp = tabs; lp != NULL; lp = lp->next)
-    {
-      if (!THUNAR_IS_STANDARD_VIEW (lp->data))
-        continue;
+//  /* save the setting */
+//  window->directory_specific_settings = directory_specific_settings;
 
-      directory = thunar_navigator_get_current_directory (lp->data);
+//  /* get all of the window's tabs */
+//  tabs = gtk_container_get_children (GTK_CONTAINER (window->notebook));
 
-      if (!THUNAR_IS_FILE (directory))
-        continue;
+//  if (tabs == NULL)
+//    DPRINT("no tab\n");
 
-      /* find the correct view type for the new view */
-      view_type = thunar_window_view_type_for_directory (window, directory);
+//  /* replace each tab with a tab of the correct view type */
+//  for (lp = tabs; lp != NULL; lp = lp->next)
+//    {
+//      if (!THUNAR_IS_STANDARD_VIEW (lp->data))
+//        continue;
 
-      /* replace the old view with a new one */
-      thunar_window_replace_view (window, lp->data, view_type);
-    }
+//      directory = thunar_navigator_get_current_directory (lp->data);
 
-  g_list_free (tabs);
+//      if (!THUNAR_IS_FILE (directory))
+//        continue;
+
+//      /* find the correct view type for the new view */
+//      view_type = thunar_window_view_type_for_directory (window, directory);
+
+//      /* replace the old view with a new one */
+//      thunar_window_replace_view (window, lp->data, view_type);
+//    }
+
+//  g_list_free (tabs);
 }
 
 
@@ -2322,6 +2331,8 @@ void
 thunar_window_set_current_directory (ThunarWindow *window,
                                      ThunarFile   *current_directory)
 {
+  DPRINT("enter : thunar_window_set_current_directory\n");
+
   _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
   _thunar_return_if_fail (current_directory == NULL || THUNAR_IS_FILE (current_directory));
 
@@ -2368,12 +2379,16 @@ thunar_window_set_current_directory (ThunarWindow *window,
       if (num_pages == 0) /* create a new view if the window is new */
         {
           window->current_directory = current_directory;
+          DPRINT("thunar_window_replace_view: create view\n");
           thunar_window_replace_view (window, window->view, type);
         }
       else /* change the view type if necessary, and set the current directory */
         {
           if (window->view != NULL && window->view_type != type)
-            thunar_window_replace_view (window, window->view, type);
+            {
+              DPRINT("thunar_window_replace_view: change view type\n");
+              thunar_window_replace_view (window, window->view, type);
+            }
 
           window->current_directory = current_directory;
         }

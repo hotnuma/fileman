@@ -3,6 +3,13 @@ This is an experimental fork of Thunar File Manager from XFCE desktop
 
 <!--
 
+metadata
+
+gboolean directory_specific_settings;
+thunar_file_get_metadata_setting()
+
+
+
 enter : thunar_window_notebook_insert
 enter : thunar_window_notebook_page_added
 enter : thunar_window_notebook_show_tabs
