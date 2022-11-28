@@ -105,6 +105,8 @@ thunar_session_client_class_init (ThunarSessionClientClass *klass)
 static void
 thunar_session_client_init (ThunarSessionClient *session_client)
 {
+  UNUSED(session_client);
+
   /* initialize the ICE layer */
   thunar_ice_init ();
 }
@@ -454,6 +456,8 @@ thunar_session_client_shutdown_cancelled (SmcConn              connection,
 ThunarSessionClient*
 thunar_session_client_new (const gchar *session_id)
 {
+  UNUSED(session_id);
+
   ThunarSessionClient *session_client;
 
   /* allocate a new session client */
@@ -467,4 +471,5 @@ thunar_session_client_new (const gchar *session_id)
 
   return session_client;
 }
+
 

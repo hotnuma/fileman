@@ -41,16 +41,10 @@ GType                 thunar_application_get_type                   (void) G_GNU
 
 ThunarApplication    *thunar_application_get                        (void);
 
-void                  thunar_application_quit                       (ThunarApplication *application);
-
 gboolean              thunar_application_get_daemon                 (ThunarApplication *application);
 void                  thunar_application_set_daemon                 (ThunarApplication *application,
                                                                      gboolean           daemon);
 
-GList                *thunar_application_get_windows                (ThunarApplication *application);
-
-gboolean              thunar_application_has_windows                (ThunarApplication *application);
-void                  thunar_application_close_all_windows          (ThunarApplication *application);
 void                  thunar_application_take_window                (ThunarApplication *application,
                                                                      GtkWindow         *window);
 
@@ -66,26 +60,6 @@ gboolean              thunar_application_process_filenames          (ThunarAppli
                                                                      GdkScreen         *screen,
                                                                      const gchar       *startup_id,
                                                                      GError           **error);
-
-void                  thunar_application_rename_file                (ThunarApplication *application,
-                                                                     ThunarFile        *file,
-                                                                     GdkScreen         *screen,
-                                                                     const gchar       *startup_id);
-void                  thunar_application_create_file                (ThunarApplication *application,
-                                                                     ThunarFile        *parent_directory,
-                                                                     const gchar       *content_type,
-                                                                     GdkScreen         *screen,
-                                                                     const gchar       *startup_id);
-void                  thunar_application_create_file_from_template (ThunarApplication *application,
-                                                                    ThunarFile        *parent_directory,
-                                                                    ThunarFile        *template_file,
-                                                                    GdkScreen         *screen,
-                                                                    const gchar       *startup_id);
-void                  thunar_application_copy_to                   (ThunarApplication *application,
-                                                                    gpointer           parent,
-                                                                    GList             *source_file_list,
-                                                                    GList             *target_file_list,
-                                                                    GClosure          *new_files_closure);
 
 void                  thunar_application_copy_into                 (ThunarApplication *application,
                                                                     gpointer           parent,

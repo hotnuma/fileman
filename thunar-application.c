@@ -106,7 +106,7 @@ static void           thunar_application_set_property           (GObject        
                                                                  guint                   prop_id,
                                                                  const GValue           *value,
                                                                  GParamSpec             *pspec);
-#if 0
+#if ENABLE_DBUS
 static void           thunar_application_dbus_acquired_cb       (GDBusConnection        *conn,
                                                                  const gchar            *name,
                                                                  gpointer                user_data);
@@ -1074,28 +1074,6 @@ thunar_application_get (void)
 
 
 /**
- * thunar_application_quit:
- * @application : a #ThunarApplication.
- *
- * Attempts to exit daemon mode(required if application is on hold) and leaves the gtk main loop
- **/
-void
-thunar_application_quit (ThunarApplication *application)
-{
-  _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
-
-  thunar_application_set_daemon(application, FALSE);
-
-  /* For some unknown reason we need to close all open thunar windows before quit */
-  /* Otherwise thunar will hangup on quit and thunar_application_shutdown will not be called */
-  thunar_application_close_all_windows (application);
-
-  g_application_quit (G_APPLICATION (application));
-}
-
-
-
-/**
  * thunar_application_get_daemon:
  * @application : a #ThunarApplication.
  *
@@ -1135,74 +1113,6 @@ thunar_application_set_daemon (ThunarApplication *application,
       else
         g_application_release (G_APPLICATION (application));
     }
-}
-
-
-
-/**
- * thunar_application_close_all_windows:
- * @application : a #ThunarApplication.
- *
- * Closes all #ThunarWindows currently handled by @application.
- **/
-void
-thunar_application_close_all_windows (ThunarApplication *application)
-{
-  GList *gtk_windows, *lp;
-
-  _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
-
-  gtk_windows = gtk_application_get_windows (GTK_APPLICATION (application));
-
-  for (lp = gtk_windows; lp != NULL; lp = lp->next)
-    if (G_LIKELY (THUNAR_IS_WINDOW (lp->data)))
-      gtk_window_close (lp->data);
-}
-
-
-
-/**
- * thunar_application_get_windows:
- * @application : a #ThunarApplication.
- *
- * Returns the list of regular #ThunarWindows currently handled by
- * @application. The returned list is owned by the caller and
- * must be freed using g_list_free().
- *
- * Return value: the list of regular #ThunarWindows in @application.
- **/
-GList*
-thunar_application_get_windows (ThunarApplication *application)
-{
-  GList *gtk_windows, *thunar_windows = NULL, *lp;
-
-  _thunar_return_val_if_fail (THUNAR_IS_APPLICATION (application), NULL);
-
-  gtk_windows = gtk_application_get_windows (GTK_APPLICATION (application));
-
-  for (lp = gtk_windows; lp != NULL; lp = lp->next)
-    if (G_LIKELY (THUNAR_IS_WINDOW (lp->data)))
-      thunar_windows = g_list_prepend (thunar_windows, lp->data);
-
-  return thunar_windows;
-}
-
-
-/**
- * thunar_application_has_windows:
- * @application : a #ThunarApplication.
- *
- * Returns %TRUE if @application controls atleast one window.
- *
- * Return value: %TRUE if @application controls atleast one window.
- **/
-gboolean
-thunar_application_has_windows (ThunarApplication *application)
-{
-  _thunar_return_val_if_fail (THUNAR_IS_APPLICATION (application), FALSE);
-
-  /* FIXME: this is possible inconsisitent with thunar_application_get_windows() */
-  return gtk_application_get_windows (GTK_APPLICATION (application)) != NULL;
 }
 
 
@@ -1265,7 +1175,9 @@ thunar_application_open_window (ThunarApplication *application,
                                 const gchar       *startup_id,
                                 gboolean           force_new_window)
 {
-  GList*     list;
+  UNUSED(force_new_window);
+  //GList*     list;
+
   GtkWidget *window;
   gchar     *role;
   gboolean   open_new_window_as_tab;
@@ -1537,261 +1449,6 @@ thunar_application_process_filenames (ThunarApplication *application,
   g_list_free (file_list);
 
   return TRUE;
-}
-
-
-
-static void
-thunar_application_rename_file_error (ExoJob            *job,
-                                      GError            *error,
-                                      ThunarApplication *application)
-{
-  ThunarFile *file;
-  GdkScreen  *screen;
-
-  _thunar_return_if_fail (EXO_IS_JOB (job));
-  _thunar_return_if_fail (error != NULL);
-  _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
-
-  screen = g_object_get_qdata (G_OBJECT (job), thunar_application_screen_quark);
-  file = g_object_get_qdata (G_OBJECT (job), thunar_application_file_quark);
-
-  g_assert (screen != NULL);
-  g_assert (file != NULL);
-
-  thunar_dialogs_show_error (screen, error, _("Failed to rename \"%s\""),
-                             thunar_file_get_display_name (file));
-}
-
-
-
-static void
-thunar_application_rename_file_finished (ExoJob  *job,
-                                         gpointer user_data)
-{
-  UNUSED(user_data);
-
-  _thunar_return_if_fail (EXO_IS_JOB (job));
-
-  /* destroy the job object */
-  g_object_unref (job);
-}
-
-
-
-/**
- * thunar_application_rename_file:
- * @application : a #ThunarApplication.
- * @file        : a #ThunarFile to be renamed.
- * @screen      : the #GdkScreen on which to open the window or %NULL
- *                to open on the default screen.
- * @startup_id  : startup id from startup notification passed along
- *                with dbus to make focus stealing work properly.
- *
- * Prompts the user to rename the @file.
- **/
-void
-thunar_application_rename_file (ThunarApplication *application,
-                                ThunarFile        *file,
-                                GdkScreen         *screen,
-                                const gchar       *startup_id)
-{
-  ThunarJob *job;
-
-  _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
-  _thunar_return_if_fail (THUNAR_IS_FILE (file));
-  _thunar_return_if_fail (GDK_IS_SCREEN (screen));
-  _thunar_return_if_fail (startup_id != NULL);
-
-  /* TODO pass the startup ID to the rename dialog */
-
-  /* run the rename dialog */
-  job = thunar_dialogs_show_rename_file (screen, file);
-  if (G_LIKELY (job != NULL))
-    {
-      /* remember the screen and file */
-      g_object_set_qdata (G_OBJECT (job), thunar_application_screen_quark, screen);
-      g_object_set_qdata_full (G_OBJECT (job), thunar_application_file_quark,
-                               g_object_ref (file), g_object_unref);
-
-      /* handle rename errors */
-      g_signal_connect (job, "error",
-                        G_CALLBACK (thunar_application_rename_file_error), application);
-
-      /* destroy the job when it has finished */
-      g_signal_connect (job, "finished",
-                        G_CALLBACK (thunar_application_rename_file_finished), NULL);
-    }
-}
-
-
-
-/**
- * thunar_application_create_file:
- * @application      : a #ThunarApplication.
- * @parent_directory : the #ThunarFile of the parent directory.
- * @content_type     : the content type of the new file.
- * @screen           : the #GdkScreen on which to open the window or %NULL
- *                     to open on the default screen.
- * @startup_id       : startup id from startup notification passed along
- *                     with dbus to make focus stealing work properly.
- *
- * Prompts the user to create a new file or directory in @parent_directory.
- * The @content_type defines the icon and other elements in the filename
- * prompt dialog.
- **/
-void
-thunar_application_create_file (ThunarApplication *application,
-                                ThunarFile        *parent_directory,
-                                const gchar       *content_type,
-                                GdkScreen         *screen,
-                                const gchar       *startup_id)
-{
-  const gchar *dialog_title;
-  const gchar *title;
-  gboolean     is_directory;
-  GList        path_list;
-  gchar       *name;
-
-  _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
-  _thunar_return_if_fail (THUNAR_IS_FILE (parent_directory));
-  _thunar_return_if_fail (content_type != NULL && *content_type != '\0');
-  _thunar_return_if_fail (GDK_IS_SCREEN (screen));
-  _thunar_return_if_fail (startup_id != NULL);
-
-  is_directory = (g_strcmp0 (content_type, "inode/directory") == 0);
-
-  if (is_directory)
-    {
-      dialog_title = _("New Folder");
-      title = _("Create New Folder");
-    }
-  else
-    {
-      dialog_title = _("New File");
-      title = _("Create New File");
-    }
-
-  /* TODO pass the startup ID to the rename dialog */
-
-  /* ask the user to enter a name for the new folder */
-  name = thunar_dialogs_show_create (screen, content_type, dialog_title, title);
-  if (G_LIKELY (name != NULL))
-    {
-      path_list.data = g_file_get_child (thunar_file_get_file (parent_directory), name);
-      path_list.next = path_list.prev = NULL;
-
-      /* launch the operation */
-      if (is_directory)
-        thunar_application_mkdir (application, screen, &path_list, NULL);
-      else
-        thunar_application_creat (application, screen, &path_list, NULL, NULL);
-
-      g_object_unref (path_list.data);
-      g_free (name);
-    }
-}
-
-
-
-/**
- * thunar_application_create_file_from_template:
- * @application      : a #ThunarApplication.
- * @parent_directory : the #ThunarFile of the parent directory.
- * @template_file    : the #ThunarFile of the template.
- * @screen           : the #GdkScreen on which to open the window or %NULL
- *                     to open on the default screen.
- * @startup_id       : startup id from startup notification passed along
- *                     with dbus to make focus stealing work properly.
- *
- * Prompts the user to create a new file or directory in @parent_directory
- * from an existing @template_file which predefines the name and extension
- * in the create dialog.
- **/
-void
-thunar_application_create_file_from_template (ThunarApplication *application,
-                                              ThunarFile        *parent_directory,
-                                              ThunarFile        *template_file,
-                                              GdkScreen         *screen,
-                                              const gchar       *startup_id)
-{
-  GList  target_path_list;
-  gchar *name;
-  gchar *title;
-
-  _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
-  _thunar_return_if_fail (THUNAR_IS_FILE (parent_directory));
-  _thunar_return_if_fail (THUNAR_IS_FILE (template_file));
-  _thunar_return_if_fail (GDK_IS_SCREEN (screen));
-  _thunar_return_if_fail (startup_id != NULL);
-
-  /* generate a title for the create dialog */
-  title = g_strdup_printf (_("Create Document from template \"%s\""),
-                           thunar_file_get_display_name (template_file));
-
-  /* TODO pass the startup ID to the rename dialog */
-
-  /* ask the user to enter a name for the new document */
-  name = thunar_dialogs_show_create (screen,
-                                     thunar_file_get_content_type (template_file),
-                                     thunar_file_get_display_name (template_file),
-                                     title);
-  if (G_LIKELY (name != NULL))
-    {
-      /* fake the target path list */
-      target_path_list.data = g_file_get_child (thunar_file_get_file (parent_directory), name);
-      target_path_list.next = target_path_list.prev = NULL;
-
-      /* launch the operation */
-      thunar_application_creat (application, screen,
-                                &target_path_list,
-                                thunar_file_get_file (template_file),
-                                NULL);
-
-      /* release the target path */
-      g_object_unref (target_path_list.data);
-
-      /* release the file name */
-      g_free (name);
-    }
-
-  /* clean up */
-  g_free (title);
-}
-
-
-
-/**
- * thunar_application_copy_to:
- * @application       : a #ThunarApplication.
- * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
- * @source_file_list  : the lst of #GFile<!---->s that should be copied.
- * @target_file_list  : the list of #GFile<!---->s where files should be copied to.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Copies all files from @source_file_list to their locations specified in
- * @target_file_list.
- *
- * @source_file_list and @target_file_list must be of the same length.
- **/
-void
-thunar_application_copy_to (ThunarApplication *application,
-                            gpointer           parent,
-                            GList             *source_file_list,
-                            GList             *target_file_list,
-                            GClosure          *new_files_closure)
-{
-  _thunar_return_if_fail (g_list_length (source_file_list) == g_list_length (target_file_list));
-  _thunar_return_if_fail (parent == NULL || GDK_IS_SCREEN (parent) || GTK_IS_WIDGET (parent));
-  _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
-
-  /* launch the operation */
-  thunar_application_launch (application, parent, "edit-copy",
-                             _("Copying files..."), thunar_io_jobs_copy_files,
-                             source_file_list, target_file_list, FALSE, TRUE, new_files_closure);
 }
 
 
