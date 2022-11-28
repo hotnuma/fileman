@@ -274,8 +274,6 @@ struct _ThunarWindow
 
   gboolean                show_hidden;
 
-  gboolean                directory_specific_settings;
-
   /* support to remember window geometry */
   guint                   save_geometry_timer_id;
 
@@ -1188,10 +1186,6 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
   window->view = page;
   window->view_type = G_TYPE_FROM_INSTANCE (page);
 
-  /* remember the last view type if directory specific settings are not enabled */
-  if (!window->directory_specific_settings && window->view_type != G_TYPE_NONE)
-    g_object_set (G_OBJECT (window->preferences), "last-view", g_type_name (window->view_type), NULL);
-
   /* connect to the new history */
   history = thunar_standard_view_get_history (THUNAR_STANDARD_VIEW (window->view));
   if (history != NULL)
@@ -1820,10 +1814,6 @@ thunar_window_replace_view (ThunarWindow *window,
   thunar_component_set_selected_files (THUNAR_COMPONENT (new_view), selected_files);
   thunar_g_file_list_free (selected_files);
 
-  /* remember the last view type if this is the active view and directory specific settings are not enabled */
-  if (is_current_view && !window->directory_specific_settings && gtk_widget_get_visible (GTK_WIDGET (window)) && view_type != G_TYPE_NONE)
-    g_object_set (G_OBJECT (window->preferences), "last-view", g_type_name (view_type), NULL);
-
   /* release the file references */
   if (G_UNLIKELY (file != NULL))
     g_object_unref (G_OBJECT (file));
@@ -2248,57 +2238,6 @@ thunar_window_set_directory_specific_settings (ThunarWindow *window,
                                                gboolean      directory_specific_settings)
 {
   return;
-
-//  DPRINT("enter : thunar_window_set_directory_specific_settings\n");
-
-//  GList      *tabs, *lp;
-//  ThunarFile *directory;
-//  GType       view_type;
-//  gchar      *type_name;
-
-//  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
-
-//  /* reset to the default view type if we are turning directory specific settings off */
-//  if (!directory_specific_settings && window->directory_specific_settings)
-//    {
-//      /* determine the default view type */
-//      g_object_get (G_OBJECT (window->preferences), "default-view", &type_name, NULL);
-//      view_type = g_type_from_name (type_name);
-//      g_free (type_name);
-
-//      /* set the last view type */
-//      if (!g_type_is_a (view_type, G_TYPE_NONE) && !g_type_is_a (view_type, G_TYPE_INVALID))
-//        g_object_set (G_OBJECT (window->preferences), "last-view", g_type_name (view_type), NULL);
-//    }
-
-//  /* save the setting */
-//  window->directory_specific_settings = directory_specific_settings;
-
-//  /* get all of the window's tabs */
-//  tabs = gtk_container_get_children (GTK_CONTAINER (window->notebook));
-
-//  if (tabs == NULL)
-//    DPRINT("no tab\n");
-
-//  /* replace each tab with a tab of the correct view type */
-//  for (lp = tabs; lp != NULL; lp = lp->next)
-//    {
-//      if (!THUNAR_IS_STANDARD_VIEW (lp->data))
-//        continue;
-
-//      directory = thunar_navigator_get_current_directory (lp->data);
-
-//      if (!THUNAR_IS_FILE (directory))
-//        continue;
-
-//      /* find the correct view type for the new view */
-//      view_type = thunar_window_view_type_for_directory (window, directory);
-
-//      /* replace the old view with a new one */
-//      thunar_window_replace_view (window, lp->data, view_type);
-//    }
-
-//  g_list_free (tabs);
 }
 
 
@@ -2713,16 +2652,6 @@ thunar_window_view_type_for_directory (ThunarWindow *window,
 
   _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), G_TYPE_NONE);
   _thunar_return_val_if_fail (THUNAR_IS_FILE (directory), G_TYPE_NONE);
-
-  /* if the  directory has a saved view type and directory specific view types are enabled, we use it */
-  if (window->directory_specific_settings)
-    {
-      const gchar *dir_spec_type_name;
-
-      dir_spec_type_name = thunar_file_get_metadata_setting (directory, "view-type");
-      if (dir_spec_type_name != NULL)
-        type = g_type_from_name (dir_spec_type_name);
-    }
 
   /* if there is no saved view type for the directory or directory specific view types are not enabled,
    * we use the last view type */

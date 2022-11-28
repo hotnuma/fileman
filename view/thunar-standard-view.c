@@ -266,7 +266,7 @@ struct _ThunarStandardViewPrivate
   ThunarZoomLevel         zoom_level;
 
   /* directory specific settings */
-  gboolean                directory_specific_settings;
+//  gboolean                directory_specific_settings;
 
   /* scroll_to_file support */
   GHashTable             *scroll_to_files;
@@ -1253,8 +1253,8 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
   thunar_navigator_set_current_directory (THUNAR_NAVIGATOR (standard_view->priv->history), current_directory);
 
   /* if directory specific settings are enabled, apply them */
-  if (standard_view->priv->directory_specific_settings)
-    thunar_standard_view_apply_directory_specific_settings (standard_view, current_directory);
+//  if (standard_view->priv->directory_specific_settings)
+//    thunar_standard_view_apply_directory_specific_settings (standard_view, current_directory);
 
   /* We drop the model from the view as a simple optimization to speed up
    * the process of disconnecting the model data from the view.
@@ -1550,7 +1550,7 @@ thunar_standard_view_set_directory_specific_settings (ThunarStandardView *standa
                                                       gboolean            directory_specific_settings)
 {
   /* save the setting */
-  standard_view->priv->directory_specific_settings = directory_specific_settings;
+//  standard_view->priv->directory_specific_settings = directory_specific_settings;
 
   /* if there is no current directory then return  */
   if (standard_view->priv->current_directory == NULL)
@@ -1597,8 +1597,8 @@ thunar_standard_view_reload (ThunarView *view,
 
   /* if directory specific settings are enabled, apply them. the reload might have been triggered */
   /* specifically to ensure that any change in these settings is applied */
-  if (standard_view->priv->directory_specific_settings)
-    thunar_standard_view_apply_directory_specific_settings (standard_view, standard_view->priv->current_directory);
+//  if (standard_view->priv->directory_specific_settings)
+//    thunar_standard_view_apply_directory_specific_settings (standard_view, standard_view->priv->current_directory);
 
 }
 
@@ -2975,33 +2975,33 @@ thunar_standard_view_sort_column_changed (GtkTreeSortable    *tree_sortable,
   /* determine the new sort column and sort order, and save them */
   if (gtk_tree_sortable_get_sort_column_id (tree_sortable, &sort_column, &sort_order))
     {
-      if (standard_view->priv->directory_specific_settings)
-        {
-          const gchar *sort_column_name;
-          const gchar *sort_order_name;
+//      if (standard_view->priv->directory_specific_settings)
+//        {
+//          const gchar *sort_column_name;
+//          const gchar *sort_order_name;
 
-          /* save the sort column name */
-          sort_column_name = thunar_column_string_from_value (sort_column);
-          if (sort_column_name != NULL)
-            thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-column", sort_column_name);
+//          /* save the sort column name */
+//          sort_column_name = thunar_column_string_from_value (sort_column);
+//          if (sort_column_name != NULL)
+//            thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-column", sort_column_name);
 
-          /* convert the sort order to a string */
-          if (sort_order == GTK_SORT_ASCENDING)
-            sort_order_name = "GTK_SORT_ASCENDING";
-          if (sort_order == GTK_SORT_DESCENDING)
-            sort_order_name = "GTK_SORT_DESCENDING";
+//          /* convert the sort order to a string */
+//          if (sort_order == GTK_SORT_ASCENDING)
+//            sort_order_name = "GTK_SORT_ASCENDING";
+//          if (sort_order == GTK_SORT_DESCENDING)
+//            sort_order_name = "GTK_SORT_DESCENDING";
 
-          /* save the sort order */
-          thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-order", sort_order_name);
-        }
-      else
-        {
+//          /* save the sort order */
+//          thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-order", sort_order_name);
+//        }
+//      else
+//        {
           /* remember the new values as default */
           g_object_set (G_OBJECT (standard_view->preferences),
                         "last-sort-column", sort_column,
                         "last-sort-order", sort_order,
                         NULL);
-        }
+//        }
     }
 }
 
