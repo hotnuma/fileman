@@ -77,7 +77,7 @@ static const GOptionEntry option_entries[] =
   { "sm-client-id", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING, &opt_sm_client_id, NULL, NULL, },
   { "quit", 'q', 0, G_OPTION_ARG_NONE, NULL, N_ ("Quit a running Thunar instance"), NULL, },
   { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, NULL, NULL, NULL, },
-  { NULL, },
+  { NULL, 0, 0, 0, NULL, NULL, NULL, },
 };
 
 
@@ -1960,6 +1960,7 @@ static ThunarJob *
 unlink_stub (GList *source_path_list,
              GList *target_path_list)
 {
+  UNUSED(target_path_list);
   return thunar_io_jobs_unlink_files (source_path_list);
 }
 
@@ -2076,6 +2077,7 @@ static ThunarJob *
 trash_stub (GList *source_file_list,
             GList *target_file_list)
 {
+  UNUSED(target_file_list);
   return thunar_io_jobs_trash_files (source_file_list);
 }
 
@@ -2147,6 +2149,7 @@ static ThunarJob *
 mkdir_stub (GList *source_path_list,
             GList *target_path_list)
 {
+  UNUSED(target_path_list);
   return thunar_io_jobs_make_directories (source_path_list);
 }
 

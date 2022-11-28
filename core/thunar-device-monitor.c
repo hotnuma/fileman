@@ -333,6 +333,7 @@ thunar_device_monitor_update_hidden (gpointer key,
                                      gpointer value,
                                      gpointer data)
 {
+  UNUSED(key);
   ThunarDeviceMonitor *monitor = THUNAR_DEVICE_MONITOR (data);
   ThunarDevice        *device = THUNAR_DEVICE (value);
   gchar               *id;
@@ -680,6 +681,7 @@ thunar_device_monitor_list_prepend (gpointer key,
                                     gpointer value,
                                     gpointer user_data)
 {
+  UNUSED(key);
   GList **list = user_data;
 
   _thunar_return_if_fail (THUNAR_IS_DEVICE (value));

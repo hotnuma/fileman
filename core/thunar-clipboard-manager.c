@@ -234,6 +234,8 @@ thunar_clipboard_manager_get_property (GObject    *object,
                                        GValue     *value,
                                        GParamSpec *pspec)
 {
+  UNUSED(pspec);
+
   ThunarClipboardManager *manager = THUNAR_CLIPBOARD_MANAGER (object);
 
   switch (prop_id)
@@ -275,6 +277,7 @@ thunar_clipboard_manager_owner_changed (GtkClipboard           *clipboard,
   _thunar_return_if_fail (GTK_IS_CLIPBOARD (clipboard));
   _thunar_return_if_fail (THUNAR_IS_CLIPBOARD_MANAGER (manager));
   _thunar_return_if_fail (manager->clipboard == clipboard);
+  UNUSED(event);
 
   /* need to take a reference on the manager, because the clipboards
    * "targets received callback" mechanism is not cancellable.
@@ -293,6 +296,7 @@ thunar_clipboard_manager_contents_received (GtkClipboard     *clipboard,
                                             GtkSelectionData *selection_data,
                                             gpointer          user_data)
 {
+  UNUSED(clipboard);
   ThunarClipboardPasteRequest *request = user_data;
   ThunarClipboardManager      *manager = THUNAR_CLIPBOARD_MANAGER (request->manager);
   ThunarApplication           *application;
