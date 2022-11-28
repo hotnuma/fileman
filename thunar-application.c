@@ -126,8 +126,6 @@ static gboolean       thunar_application_dbus_register          (GApplication   
 static void           thunar_application_startup                (GApplication           *application);
 static void           thunar_application_shutdown               (GApplication           *application);
 static void           thunar_application_activate               (GApplication           *application);
-static int            thunar_application_handle_local_options   (GApplication           *application,
-                                                                 GVariantDict           *options);
 static int            thunar_application_command_line           (GApplication           *application,
                                                                  GApplicationCommandLine *command_line);
 static void           thunar_application_load_css               (void);
@@ -247,7 +245,6 @@ thunar_application_class_init (ThunarApplicationClass *klass)
   gapplication_class->startup              = thunar_application_startup;
   gapplication_class->activate             = thunar_application_activate;
   gapplication_class->shutdown             = thunar_application_shutdown;
-  gapplication_class->handle_local_options = thunar_application_handle_local_options;
   gapplication_class->command_line         = thunar_application_command_line;
 
 #ifdef ENABLE_DBUS
@@ -459,19 +456,6 @@ thunar_application_finalize (GObject *object)
    * in GApplication::shutdown. Therefore, this method doesn't do very much */
 
   (*G_OBJECT_CLASS (thunar_application_parent_class)->finalize) (object);
-}
-
-
-
-static int
-thunar_application_handle_local_options (GApplication *gapp,
-                                         GVariantDict *options)
-{
-  UNUSED(gapp);
-  UNUSED(options);
-
-  /* continue processing on the primary instance */
-  return -1;
 }
 
 
