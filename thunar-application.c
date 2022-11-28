@@ -57,15 +57,15 @@
 #include <thunar-util.h>
 #include <thunar-view.h>
 #include <thunar-session-client.h>
+
 #ifdef ENABLE_DBUS
 #include <thunar-dbus-service.h>
 #endif
+
 #define ACCEL_MAP_PATH "Thunar/accels.scm"
 
 
 
-/* option values */
-static gboolean opt_version = FALSE;
 /* the sm-client-id option is only honored while starting the primary instance,
  * and will be silently ignored on every other invocation */
 static gchar   *opt_sm_client_id = NULL;
@@ -76,7 +76,6 @@ static const GOptionEntry option_entries[] =
   { "daemon", 0, 0, G_OPTION_ARG_NONE, NULL, N_ ("Run in daemon mode"), NULL, },
   { "sm-client-id", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING, &opt_sm_client_id, NULL, NULL, },
   { "quit", 'q', 0, G_OPTION_ARG_NONE, NULL, N_ ("Quit a running Thunar instance"), NULL, },
-  { "version", 'V', 0, G_OPTION_ARG_NONE, &opt_version, N_ ("Print version information and exit"), NULL, },
   { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, NULL, NULL, NULL, },
   { NULL, },
 };
@@ -251,7 +250,9 @@ thunar_application_class_init (ThunarApplicationClass *klass)
   gapplication_class->handle_local_options = thunar_application_handle_local_options;
   gapplication_class->command_line         = thunar_application_command_line;
 
-//gapplication_class->dbus_register        = thunar_application_dbus_register;
+#ifdef ENABLE_DBUS
+  gapplication_class->dbus_register        = thunar_application_dbus_register;
+#endif
 
   /**
    * ThunarApplication:daemon:
@@ -288,7 +289,7 @@ thunar_application_init (ThunarApplication *application)
 
 
 
-#if 0
+#ifdef ENABLE_DBUS
 static void
 thunar_application_dbus_acquired_cb (GDBusConnection *conn,
                                      const gchar     *name,
@@ -369,7 +370,9 @@ thunar_application_startup (GApplication *gapp)
                     G_CALLBACK (thunar_application_uevent), application);
 #endif
 
-//thunar_application_dbus_init (application);
+#ifdef ENABLE_DBUS
+  thunar_application_dbus_init (application);
+#endif
 
   G_APPLICATION_CLASS (thunar_application_parent_class)->startup (gapp);
 
@@ -439,7 +442,7 @@ thunar_application_shutdown (GApplication *gapp)
   /* disconnect from the session manager */
   g_object_unref (G_OBJECT (application->session_client));
 
-#if 0
+#ifdef ENABLE_DBUS
   /* remove the dbus service */
   g_clear_pointer (&application->dbus_service, g_object_unref);
 #endif
@@ -466,20 +469,6 @@ thunar_application_handle_local_options (GApplication *gapp,
 {
   UNUSED(gapp);
   UNUSED(options);
-
-  /* check if we should print version information */
-  if (G_UNLIKELY (opt_version))
-    {
-#if 0
-      g_print ("%s %s (Xfce %s)\n\n", PACKAGE_NAME, PACKAGE_VERSION, xfce_version_string ());
-      g_print ("%s\n", "Copyright (c) 2004-2020");
-      g_print ("\t%s\n\n", _("The Thunar development team. All rights reserved."));
-      g_print ("%s\n\n", _("Written by Benedikt Meurer <benny@xfce.org>."));
-      g_print (_("Please report bugs to <%s>."), PACKAGE_BUGREPORT);
-      g_print ("\n");
-#endif
-      return EXIT_SUCCESS;
-    }
 
   /* continue processing on the primary instance */
   return -1;
@@ -550,7 +539,7 @@ out:
 }
 
 
-#if 0
+#ifdef ENABLE_DBUS
 static gboolean
 thunar_application_dbus_register (GApplication           *gapp,
                                   GDBusConnection        *connection,
