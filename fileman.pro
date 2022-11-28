@@ -40,7 +40,6 @@ HEADERS = \
     dialog/thunar-chooser-model.h \
     dialog/thunar-dialogs.h \
     dialog/thunar-permissions-chooser.h \
-    dialog/thunar-preferences-dialog.h \
     dialog/thunar-progress-dialog.h \
     dialog/thunar-progress-view.h \
     dialog/thunar-properties-dialog.h \
@@ -108,7 +107,6 @@ SOURCES = \
     dialog/thunar-chooser-model.c \
     dialog/thunar-dialogs.c \
     dialog/thunar-permissions-chooser.c \
-    dialog/thunar-preferences-dialog.c \
     dialog/thunar-progress-dialog.c \
     dialog/thunar-progress-view.c \
     dialog/thunar-properties-dialog.c \

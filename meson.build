@@ -14,9 +14,8 @@ c_args = [
     '-DHAVE_CONFIG_H',
     '-D_GNU_SOURCE',
     '-D__USE_XOPEN_EXTENDED',
-    '-DSN_API_NOT_YET_FROZEN',
     '-DG_UDEV_API_IS_SUBJECT_TO_CHANGE',
-
+    '-DSN_API_NOT_YET_FROZEN',
 ]
 
 cc = meson.get_compiler('c')
@@ -57,7 +56,6 @@ app_sources = [
     'dialog/thunar-chooser-model.c',
     'dialog/thunar-dialogs.c',
     'dialog/thunar-permissions-chooser.c',
-    'dialog/thunar-preferences-dialog.c',
     'dialog/thunar-progress-dialog.c',
     'dialog/thunar-progress-view.c',
     'dialog/thunar-properties-dialog.c',

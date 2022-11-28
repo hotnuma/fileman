@@ -46,7 +46,6 @@
 #include <thunar-marshal.h>
 #include <thunar-menu.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-preferences-dialog.h>
 #include <thunar-preferences.h>
 #include <thunar-private.h>
 #include <thunar-util.h>
@@ -163,8 +162,6 @@ static void      thunar_window_action_close_all_windows   (ThunarWindow         
 static void      thunar_window_action_close_tab           (ThunarWindow           *window,
                                                            GtkWidget              *menu_item);
 static void      thunar_window_action_close_window        (ThunarWindow           *window,
-                                                           GtkWidget              *menu_item);
-static void      thunar_window_action_preferences         (ThunarWindow           *window,
                                                            GtkWidget              *menu_item);
 static void      thunar_window_action_reload              (ThunarWindow           *window,
                                                            GtkWidget              *menu_item);
@@ -335,7 +332,6 @@ static XfceGtkActionEntry thunar_window_action_entries[] =
     { THUNAR_WINDOW_ACTION_CLOSE_ALL_WINDOWS,              "<Actions>/ThunarWindow/close-all-windows",               "<Primary><Shift>w",    XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Close _All Windows"),     N_ ("Close all Thunar windows"),                                                     NULL,                      G_CALLBACK (thunar_window_action_close_all_windows),  },
 
     { THUNAR_WINDOW_ACTION_EDIT_MENU,                      "<Actions>/ThunarWindow/edit-menu",                       "",                     XFCE_GTK_MENU_ITEM,       N_ ("_Edit"),                  NULL,                                                                                NULL,                      NULL,                                                 },
-    { THUNAR_WINDOW_ACTION_PREFERENCES,                    "<Actions>/ThunarWindow/preferences",                     "",                     XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Pr_eferences..."),        N_ ("Edit Thunars Preferences"),                                                     "preferences-system",      G_CALLBACK (thunar_window_action_preferences),        },
 
     { THUNAR_WINDOW_ACTION_VIEW_MENU,                      "<Actions>/ThunarWindow/view-menu",                       "",                     XFCE_GTK_MENU_ITEM,       N_ ("_View"),                  NULL,                                                                                NULL,                      NULL,                                                 },
     { THUNAR_WINDOW_ACTION_RELOAD,                         "<Actions>/ThunarWindow/reload",                          "<Primary>r",           XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Reload"),                N_ ("Reload the current folder"),                                                    "view-refresh-symbolic",   G_CALLBACK (thunar_window_action_reload),             },
@@ -1975,28 +1971,6 @@ thunar_window_action_close_window (ThunarWindow *window,
 {
   UNUSED(menu_item);
   gtk_widget_destroy (GTK_WIDGET (window));
-}
-
-
-
-static void
-thunar_window_action_preferences (ThunarWindow *window,
-                                  GtkWidget    *menu_item)
-{
-  UNUSED(menu_item);
-  GtkWidget         *dialog;
-  ThunarApplication *application;
-
-  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
-
-  /* allocate and display a preferences dialog */;
-  dialog = thunar_preferences_dialog_new (GTK_WINDOW (window));
-  gtk_widget_show (dialog);
-
-  /* ...and let the application take care of it */
-  application = thunar_application_get ();
-  thunar_application_take_window (application, GTK_WINDOW (dialog));
-  g_object_unref (G_OBJECT (application));
 }
 
 
