@@ -149,6 +149,8 @@ static void      thunar_window_install_sidepane           (ThunarWindow         
 static void      thunar_window_start_open_location        (ThunarWindow           *window,
                                                            const gchar            *initial_text);
 
+static void      thunar_window_action_debug              (ThunarWindow           *window,
+                                                           GtkWidget              *menu_item);
 static void      thunar_window_action_reload              (ThunarWindow           *window,
                                                            GtkWidget              *menu_item);
 static void      thunar_window_replace_view               (ThunarWindow           *window,
@@ -290,21 +292,23 @@ struct _ThunarWindow
 
 static XfceGtkActionEntry thunar_window_action_entries[] =
 {
-  { THUNAR_WINDOW_ACTION_RELOAD_ALT,                     "<Actions>/ThunarWindow/reload-alt",                      "F5",                   XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_action_reload),             },
-  { THUNAR_WINDOW_ACTION_SHOW_HIDDEN,                    "<Actions>/ThunarWindow/show-hidden",                     "<Primary>h",           XFCE_GTK_CHECK_MENU_ITEM, N_ ("Show _Hidden Files"),     N_ ("Toggles the display of hidden files in the current window"),                    NULL,                      G_CALLBACK (thunar_window_action_show_hidden),        },
-  { THUNAR_WINDOW_ACTION_OPEN_HOME,                      "<Actions>/ThunarWindow/open-home",                       "<Alt>Home",            XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Home"),                  N_ ("Go to the home folder"),                                                        "go-home-symbolic",        G_CALLBACK (thunar_window_action_open_home),          },
-  { THUNAR_WINDOW_ACTION_OPEN_PARENT,                    "<Actions>/ThunarWindow/open-parent",                     "<Alt>Up",              XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Open _Parent"),           N_ ("Open the parent folder"),                                                       "go-up-symbolic",          G_CALLBACK (thunar_window_action_go_up),              },
-  { THUNAR_WINDOW_ACTION_BACK,                           "<Actions>/ThunarStandardView/back",                      "<Alt>Left",            XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Back"),                   N_ ("Go to the previous visited folder"),                                            "go-previous-symbolic",    G_CALLBACK (thunar_window_action_back),                },
-  { THUNAR_WINDOW_ACTION_FORWARD,                        "<Actions>/ThunarStandardView/forward",                   "<Alt>Right",           XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Forward"),                N_ ("Go to the next visited folder"),                                                "go-next-symbolic",        G_CALLBACK (thunar_window_action_forward),             },
-  { THUNAR_WINDOW_ACTION_BACK_ALT,                       "<Actions>/ThunarStandardView/back-alt",                  "BackSpace",            XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_action_back),                },
+  {THUNAR_WINDOW_ACTION_BACK, "<Actions>/ThunarStandardView/back", "<Alt>Left", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Back"), N_ ("Go to the previous visited folder"), "go-previous-symbolic", G_CALLBACK (thunar_window_action_back)},
+  {THUNAR_WINDOW_ACTION_FORWARD, "<Actions>/ThunarStandardView/forward", "<Alt>Right", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Forward"), N_ ("Go to the next visited folder"), "go-next-symbolic", G_CALLBACK (thunar_window_action_forward)},
+  {THUNAR_WINDOW_ACTION_OPEN_PARENT, "<Actions>/ThunarWindow/open-parent", "<Alt>Up", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Open _Parent"), N_ ("Open the parent folder"), "go-up-symbolic", G_CALLBACK (thunar_window_action_go_up)},
+  {THUNAR_WINDOW_ACTION_OPEN_HOME, "<Actions>/ThunarWindow/open-home", "<Alt>Home", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Home"), N_ ("Go to the home folder"), "go-home-symbolic", G_CALLBACK (thunar_window_action_open_home)},
 
-  { THUNAR_WINDOW_ACTION_ZOOM_IN,                        "<Actions>/ThunarWindow/zoom-in",                         "<Primary>KP_Add",      XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Zoom I_n"),               N_ ("Show the contents in more detail"),                                             "zoom-in-symbolic",        G_CALLBACK (thunar_window_zoom_in),                   },
-  { THUNAR_WINDOW_ACTION_ZOOM_IN_ALT_1,                  "<Actions>/ThunarWindow/zoom-in-alt1",                    "<Primary>plus",        XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_zoom_in),                   },
-  { THUNAR_WINDOW_ACTION_ZOOM_IN_ALT_2,                  "<Actions>/ThunarWindow/zoom-in-alt2",                    "<Primary>equal",       XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_zoom_in),                   },
-  { THUNAR_WINDOW_ACTION_ZOOM_OUT,                       "<Actions>/ThunarWindow/zoom-out",                        "<Primary>KP_Subtract", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Zoom _Out"),              N_ ("Show the contents in less detail"),                                             "zoom-out-symbolic",       G_CALLBACK (thunar_window_zoom_out),                  },
-  { THUNAR_WINDOW_ACTION_ZOOM_OUT_ALT,                   "<Actions>/ThunarWindow/zoom-out-alt",                    "<Primary>minus",       XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_zoom_out),                  },
-  { THUNAR_WINDOW_ACTION_ZOOM_RESET,                     "<Actions>/ThunarWindow/zoom-reset",                      "<Primary>KP_0",        XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Normal Si_ze"),           N_ ("Show the contents at the normal size"),                                         "zoom-original-symbolic",  G_CALLBACK (thunar_window_zoom_reset),                },
-  { THUNAR_WINDOW_ACTION_ZOOM_RESET_ALT,                 "<Actions>/ThunarWindow/zoom-reset-alt",                  "<Primary>0",           XFCE_GTK_IMAGE_MENU_ITEM, NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_zoom_reset),                },
+  {THUNAR_WINDOW_ACTION_DEBUG, "<Actions>/ThunarWindow/debug", "<Primary>d", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_action_debug)},
+  {THUNAR_WINDOW_ACTION_RELOAD_ALT, "<Actions>/ThunarWindow/reload-alt", "F5", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_action_reload)},
+  {THUNAR_WINDOW_ACTION_SHOW_HIDDEN, "<Actions>/ThunarWindow/show-hidden", "<Primary>h", XFCE_GTK_CHECK_MENU_ITEM, N_ ("Show _Hidden Files"), N_ ("Toggles the display of hidden files in the current window"), NULL, G_CALLBACK (thunar_window_action_show_hidden)},
+  {THUNAR_WINDOW_ACTION_BACK_ALT, "<Actions>/ThunarStandardView/back-alt", "BackSpace", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_action_back)},
+
+  {THUNAR_WINDOW_ACTION_ZOOM_IN, "<Actions>/ThunarWindow/zoom-in", "<Primary>KP_Add", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Zoom I_n"), N_ ("Show the contents in more detail"), "zoom-in-symbolic", G_CALLBACK (thunar_window_zoom_in)},
+  {THUNAR_WINDOW_ACTION_ZOOM_IN_ALT_1, "<Actions>/ThunarWindow/zoom-in-alt1", "<Primary>plus", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_in)},
+  {THUNAR_WINDOW_ACTION_ZOOM_IN_ALT_2, "<Actions>/ThunarWindow/zoom-in-alt2", "<Primary>equal", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_in)},
+  {THUNAR_WINDOW_ACTION_ZOOM_OUT, "<Actions>/ThunarWindow/zoom-out", "<Primary>KP_Subtract", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Zoom _Out"), N_ ("Show the contents in less detail"), "zoom-out-symbolic", G_CALLBACK (thunar_window_zoom_out)},
+  {THUNAR_WINDOW_ACTION_ZOOM_OUT_ALT, "<Actions>/ThunarWindow/zoom-out-alt", "<Primary>minus", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_out)},
+  {THUNAR_WINDOW_ACTION_ZOOM_RESET, "<Actions>/ThunarWindow/zoom-reset", "<Primary>KP_0", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Normal Si_ze"), N_ ("Show the contents at the normal size"), "zoom-original-symbolic", G_CALLBACK (thunar_window_zoom_reset)},
+  {THUNAR_WINDOW_ACTION_ZOOM_RESET_ALT, "<Actions>/ThunarWindow/zoom-reset-alt", "<Primary>0", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_reset)},
 };
 
 #define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_window_action_entries,G_N_ELEMENTS(thunar_window_action_entries),id)
@@ -1673,6 +1677,18 @@ thunar_window_start_open_location (ThunarWindow *window,
   /* temporary show the location toolbar, even if it is normally hidden */
   gtk_widget_show (window->location_toolbar);
   thunar_location_bar_request_entry (THUNAR_LOCATION_BAR (window->location_bar), initial_text);
+}
+
+
+
+static void
+thunar_window_action_debug (ThunarWindow *window,
+                             GtkWidget    *menu_item)
+{
+  UNUSED(window);
+  UNUSED(menu_item);
+
+  g_print("bla\n");
 }
 
 
