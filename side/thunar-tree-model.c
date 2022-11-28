@@ -1387,6 +1387,7 @@ thunar_tree_model_item_notify_loading (ThunarTreeModelItem *item,
                                        GParamSpec          *pspec,
                                        ThunarFolder        *folder)
 {
+  UNUSED(pspec);
   GNode *node;
 
   _thunar_return_if_fail (THUNAR_IS_FOLDER (folder));

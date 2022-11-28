@@ -319,6 +319,7 @@ thunar_chooser_dialog_get_property (GObject    *object,
                                     GValue     *value,
                                     GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarChooserDialog *dialog = THUNAR_CHOOSER_DIALOG (object);
 
   switch (prop_id)
@@ -345,6 +346,7 @@ thunar_chooser_dialog_set_property (GObject      *object,
                                     const GValue *value,
                                     GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarChooserDialog *dialog = THUNAR_CHOOSER_DIALOG (object);
 
   switch (prop_id)
@@ -908,6 +910,7 @@ thunar_chooser_dialog_notify_expanded (GtkExpander         *expander,
                                        GParamSpec          *pspec,
                                        ThunarChooserDialog *dialog)
 {
+  UNUSED(pspec);
   GtkTreeSelection *selection;
 
   _thunar_return_if_fail (GTK_IS_EXPANDER (expander));

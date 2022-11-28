@@ -201,6 +201,7 @@ thunar_chooser_button_get_property (GObject    *object,
                                     GValue     *value,
                                     GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarChooserButton *chooser_button = THUNAR_CHOOSER_BUTTON (object);
 
   switch (prop_id)
@@ -223,6 +224,7 @@ thunar_chooser_button_set_property (GObject      *object,
                                     const GValue *value,
                                     GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarChooserButton *chooser_button = THUNAR_CHOOSER_BUTTON (object);
 
   switch (prop_id)

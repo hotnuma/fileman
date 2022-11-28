@@ -486,6 +486,7 @@ thunar_list_model_get_property (GObject    *object,
                                 GValue     *value,
                                 GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarListModel *store = THUNAR_LIST_MODEL (object);
 
   switch (prop_id)
@@ -536,6 +537,7 @@ thunar_list_model_set_property (GObject      *object,
                                 const GValue *value,
                                 GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarListModel *store = THUNAR_LIST_MODEL (object);
 
   switch (prop_id)

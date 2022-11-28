@@ -624,6 +624,7 @@ thunar_properties_dialog_get_property (GObject    *object,
                                        GValue     *value,
                                        GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarPropertiesDialog *dialog = THUNAR_PROPERTIES_DIALOG (object);
 
   switch (prop_id)
@@ -650,6 +651,7 @@ thunar_properties_dialog_set_property (GObject      *object,
                                        const GValue *value,
                                        GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarPropertiesDialog *dialog = THUNAR_PROPERTIES_DIALOG (object);
 
   switch (prop_id)

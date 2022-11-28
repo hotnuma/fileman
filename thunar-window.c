@@ -1133,6 +1133,8 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
   if (window->view == page)
     return;
 
+  DPRINT("enter : thunar_window_notebook_switch_page\n");
+
   /* Use accelerators only on the current active tab */
   if (window->view != NULL)
     g_object_set (G_OBJECT (window->view), "accel-group", NULL, NULL);
@@ -1220,6 +1222,8 @@ thunar_window_notebook_show_tabs (ThunarWindow *window)
                     "misc-always-show-tabs", &show_tabs, NULL);
     }
 
+  DPRINT("enter : thunar_window_notebook_show_tabs\n");
+
   /* update visibility */
   gtk_notebook_set_show_tabs (GTK_NOTEBOOK (window->notebook), show_tabs);
 }
@@ -1261,6 +1265,8 @@ thunar_window_notebook_page_added (GtkWidget    *notebook,
   _thunar_return_if_fail (THUNAR_IS_VIEW (page));
   _thunar_return_if_fail (window->notebook == notebook);
 
+  DPRINT("enter : thunar_window_notebook_page_added\n");
+
   /* connect signals */
   g_signal_connect (G_OBJECT (page), "notify::loading", G_CALLBACK (thunar_window_notify_loading), window);
   g_signal_connect_swapped (G_OBJECT (page), "start-open-location", G_CALLBACK (thunar_window_start_open_location), window);
@@ -1291,6 +1297,8 @@ thunar_window_notebook_page_removed (GtkWidget    *notebook,
   _thunar_return_if_fail (THUNAR_IS_VIEW (page));
   _thunar_return_if_fail (window->notebook == notebook);
 
+  DPRINT("enter : thunar_window_notebook_page_removed\n");
+
   /* drop connected signals */
   g_signal_handlers_disconnect_matched (page, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, window);
 
@@ -1320,6 +1328,8 @@ thunar_window_notebook_button_press_event (GtkWidget      *notebook,
   GtkAllocation  alloc;
   gint           x, y;
   gboolean       close_tab;
+
+  DPRINT("enter : thunar_window_notebook_button_press_event\n");
 
   if ((event->button == 2 || event->button == 3)
       && event->type == GDK_BUTTON_PRESS)
@@ -1357,9 +1367,6 @@ thunar_window_notebook_button_press_event (GtkWidget      *notebook,
         {
           /* update the current tab before we show the menu */
           gtk_notebook_set_current_page (GTK_NOTEBOOK (notebook), page_num);
-
-          /* show the tab menu */
-//          thunar_window_notebook_popup_menu (notebook, window);
         }
 
       return TRUE;
@@ -1383,6 +1390,8 @@ thunar_window_notebook_create_window (GtkWidget    *notebook,
   GdkMonitor        *monitor;
   GdkScreen         *screen;
   GdkRectangle       geo;
+
+  DPRINT("enter : thunar_window_notebook_create_window\n");
 
   _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), NULL);
   _thunar_return_val_if_fail (GTK_IS_NOTEBOOK (notebook), NULL);
@@ -1431,6 +1440,8 @@ thunar_window_notebook_insert (ThunarWindow  *window,
                                gint           position,
                                ThunarHistory *history)
 {
+  DPRINT("enter : thunar_window_notebook_insert\n");
+
   GtkWidget      *view;
   GtkWidget      *label;
   GtkWidget      *label_box;
@@ -1497,6 +1508,8 @@ void
 thunar_window_notebook_open_new_tab (ThunarWindow *window,
                                      ThunarFile   *directory)
 {
+  DPRINT("enter : thunar_window_notebook_open_new_tab\n");
+
   ThunarHistory *history = NULL;
   GtkWidget     *view;
   gint           page_num;

@@ -455,6 +455,7 @@ thunar_permissions_chooser_get_property (GObject    *object,
                                          GValue     *value,
                                          GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarPermissionsChooser *chooser = THUNAR_PERMISSIONS_CHOOSER (object);
   GList                    *lp;
 
@@ -486,6 +487,7 @@ thunar_permissions_chooser_set_property (GObject      *object,
                                          const GValue *value,
                                          GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarPermissionsChooser *chooser = THUNAR_PERMISSIONS_CHOOSER (object);
 
   switch (prop_id)

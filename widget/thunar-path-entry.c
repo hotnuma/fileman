@@ -315,6 +315,7 @@ thunar_path_entry_get_property (GObject    *object,
                                 GValue     *value,
                                 GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY (object);
 
   switch (prop_id)
@@ -337,6 +338,7 @@ thunar_path_entry_set_property (GObject      *object,
                                 const GValue *value,
                                 GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY (object);
 
   switch (prop_id)

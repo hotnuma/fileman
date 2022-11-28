@@ -426,6 +426,7 @@ thunar_launcher_get_property (GObject    *object,
                               GValue     *value,
                               GParamSpec *pspec)
 {
+  UNUSED(pspec);
   switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
@@ -450,6 +451,7 @@ thunar_launcher_set_property (GObject      *object,
                               const GValue *value,
                               GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarLauncher *launcher = THUNAR_LAUNCHER (object);
 
   switch (prop_id)

@@ -7,6 +7,12 @@
 //https://stackoverflow.com/questions/7090998/
 #define UNUSED(x) (void)(x)
 
+#ifndef NO_DPRINT
+#define DPRINT g_print
+#else
+#define DPRINT(fmt, ...) do {} while (0)
+#endif
+
 #define HAVE_LINUX 1
 
 #define HAVE_CTYPE_H 1

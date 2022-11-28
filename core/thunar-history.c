@@ -141,7 +141,7 @@ thunar_history_navigator_init (ThunarNavigatorIface *iface)
 static void
 thunar_history_init (ThunarHistory *history)
 {
-
+  UNUSED(history);
 }
 
 
@@ -166,6 +166,7 @@ thunar_history_get_property (GObject    *object,
                              GValue     *value,
                              GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarHistory *history = THUNAR_HISTORY (object);
 
   switch (prop_id)
@@ -188,6 +189,7 @@ thunar_history_set_property (GObject      *object,
                              const GValue *value,
                              GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarHistory *history = THUNAR_HISTORY (object);
 
   switch (prop_id)

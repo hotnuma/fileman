@@ -722,6 +722,7 @@ thunar_browser_poke_location (ThunarBrowser                *browser,
                               ThunarBrowserPokeLocationFunc func,
                               gpointer                      user_data)
 {
+  UNUSED(widget);
   PokeFileData *poke_data;
 
   _thunar_return_if_fail (THUNAR_IS_BROWSER (browser));

@@ -3,6 +3,12 @@ This is an experimental fork of Thunar File Manager from XFCE desktop
 
 <!--
 
+enter : thunar_window_notebook_insert
+enter : thunar_window_notebook_page_added
+enter : thunar_window_notebook_show_tabs
+enter : thunar_window_notebook_switch_page
+enter : thunar_window_notebook_page_removed
+
 xfce_get_homedir
 
 #'-DGDK_DISABLE_DEPRECATED',

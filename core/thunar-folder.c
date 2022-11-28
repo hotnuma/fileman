@@ -351,6 +351,7 @@ thunar_folder_get_property (GObject    *object,
                             GValue     *value,
                             GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarFolder *folder = THUNAR_FOLDER (object);
 
   switch (prop_id)
@@ -377,6 +378,7 @@ thunar_folder_set_property (GObject      *object,
                             const GValue *value,
                             GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarFolder *folder = THUNAR_FOLDER (object);
 
   switch (prop_id)

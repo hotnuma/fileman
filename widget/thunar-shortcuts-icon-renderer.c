@@ -152,6 +152,7 @@ thunar_shortcuts_icon_renderer_get_property (GObject    *object,
                                              GValue     *value,
                                              GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarShortcutsIconRenderer *renderer = THUNAR_SHORTCUTS_ICON_RENDERER (object);
 
   switch (prop_id)
@@ -178,6 +179,7 @@ thunar_shortcuts_icon_renderer_set_property (GObject      *object,
                                              const GValue *value,
                                              GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarShortcutsIconRenderer *renderer = THUNAR_SHORTCUTS_ICON_RENDERER (object);
 
   switch (prop_id)

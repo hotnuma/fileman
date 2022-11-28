@@ -290,6 +290,7 @@ thunar_icon_factory_get_property (GObject    *object,
                                   GValue     *value,
                                   GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarIconFactory *factory = THUNAR_ICON_FACTORY (object);
 
   switch (prop_id)
@@ -324,6 +325,7 @@ thunar_icon_factory_set_property (GObject      *object,
                                   const GValue *value,
                                   GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarIconFactory *factory = THUNAR_ICON_FACTORY (object);
 
   switch (prop_id)

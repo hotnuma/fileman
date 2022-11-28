@@ -229,6 +229,7 @@ thunar_location_entry_get_property (GObject    *object,
                                     GValue     *value,
                                     GParamSpec *pspec)
 {
+  UNUSED(pspec);
   switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
@@ -249,6 +250,7 @@ thunar_location_entry_set_property (GObject      *object,
                                     const GValue *value,
                                     GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarLocationEntry *entry = THUNAR_LOCATION_ENTRY (object);
 
   switch (prop_id)

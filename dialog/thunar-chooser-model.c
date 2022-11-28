@@ -157,6 +157,7 @@ thunar_chooser_model_get_property (GObject    *object,
                                    GValue     *value,
                                    GParamSpec *pspec)
 {
+  UNUSED(pspec);
   ThunarChooserModel *model = THUNAR_CHOOSER_MODEL (object);
 
   switch (prop_id)
@@ -179,6 +180,7 @@ thunar_chooser_model_set_property (GObject      *object,
                                    const GValue *value,
                                    GParamSpec   *pspec)
 {
+  UNUSED(pspec);
   ThunarChooserModel *model = THUNAR_CHOOSER_MODEL (object);
 
   switch (prop_id)
