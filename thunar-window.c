@@ -86,6 +86,7 @@ struct _ThunarBookmark
   GFile *g_file;
   gchar *name;
 };
+
 typedef struct _ThunarBookmark ThunarBookmark;
 
 
@@ -117,6 +118,7 @@ static void      thunar_window_realize                    (GtkWidget            
 static void      thunar_window_unrealize                  (GtkWidget              *widget);
 static gboolean  thunar_window_configure_event            (GtkWidget              *widget,
                                                            GdkEventConfigure      *event);
+
 static void      thunar_window_notebook_switch_page       (GtkWidget              *notebook,
                                                            GtkWidget              *page,
                                                            guint                   page_num,
@@ -129,9 +131,6 @@ static void      thunar_window_notebook_page_removed      (GtkWidget            
                                                            GtkWidget              *page,
                                                            guint                   page_num,
                                                            ThunarWindow           *window);
-static gboolean  thunar_window_notebook_button_press_event(GtkWidget              *notebook,
-                                                           GdkEventButton         *event,
-                                                           ThunarWindow           *window);
 static gpointer  thunar_window_notebook_create_window     (GtkWidget              *notebook,
                                                            GtkWidget              *page,
                                                            gint                    x,
@@ -142,6 +141,7 @@ static GtkWidget*thunar_window_notebook_insert            (ThunarWindow         
                                                            GType                   view_type,
                                                            gint                    position,
                                                            ThunarHistory          *history);
+
 static void      thunar_window_update_location_bar_visible(ThunarWindow           *window);
 static void      thunar_window_handle_reload_request      (ThunarWindow           *window);
 static void      thunar_window_install_sidepane           (ThunarWindow           *window,
@@ -603,7 +603,6 @@ thunar_window_init (ThunarWindow *window)
   g_signal_connect (G_OBJECT (window->notebook), "switch-page", G_CALLBACK (thunar_window_notebook_switch_page), window);
   g_signal_connect (G_OBJECT (window->notebook), "page-added", G_CALLBACK (thunar_window_notebook_page_added), window);
   g_signal_connect (G_OBJECT (window->notebook), "page-removed", G_CALLBACK (thunar_window_notebook_page_removed), window);
-  g_signal_connect_after (G_OBJECT (window->notebook), "button-press-event", G_CALLBACK (thunar_window_notebook_button_press_event), window);
   g_signal_connect (G_OBJECT (window->notebook), "create-window", G_CALLBACK (thunar_window_notebook_create_window), window);
   gtk_notebook_set_show_border (GTK_NOTEBOOK (window->notebook), FALSE);
   gtk_notebook_set_scrollable (GTK_NOTEBOOK (window->notebook), TRUE);
@@ -1300,66 +1299,6 @@ thunar_window_notebook_page_removed (GtkWidget    *notebook,
 
 
 
-static gboolean
-thunar_window_notebook_button_press_event (GtkWidget      *notebook,
-                                           GdkEventButton *event,
-                                           ThunarWindow   *window)
-{
-  gint           page_num = 0;
-  GtkWidget     *page;
-  GtkWidget     *label_box;
-  GtkAllocation  alloc;
-  gint           x, y;
-  gboolean       close_tab;
-
-//  DPRINT("enter : thunar_window_notebook_button_press_event\n");
-
-  if ((event->button == 2 || event->button == 3)
-      && event->type == GDK_BUTTON_PRESS)
-    {
-      /* get real window coordinates */
-      gdk_window_get_position (event->window, &x, &y);
-      x += event->x;
-      y += event->y;
-
-      /* lookup the clicked tab */
-      while ((page = gtk_notebook_get_nth_page (GTK_NOTEBOOK (notebook), page_num)) != NULL)
-        {
-          label_box = gtk_notebook_get_tab_label (GTK_NOTEBOOK (notebook), page);
-          gtk_widget_get_allocation (label_box, &alloc);
-
-          if (x >= alloc.x && x < alloc.x + alloc.width
-              && y >= alloc.y && y < alloc.y + alloc.height)
-            break;
-
-          page_num++;
-        }
-
-      /* leave if no tab could be found */
-      if (page == NULL)
-        return FALSE;
-
-      if (event->button == 2)
-        {
-          /* check if we should close the tab */
-          g_object_get (window->preferences, "misc-tab-close-middle-click", &close_tab, NULL);
-          if (close_tab)
-            gtk_widget_destroy (page);
-        }
-      else if (event->button == 3)
-        {
-          /* update the current tab before we show the menu */
-          gtk_notebook_set_current_page (GTK_NOTEBOOK (notebook), page_num);
-        }
-
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-
-
 static gpointer
 thunar_window_notebook_create_window (GtkWidget    *notebook,
                                       GtkWidget    *page,
@@ -1651,7 +1590,9 @@ thunar_window_action_debug (ThunarWindow *window,
   UNUSED(window);
   UNUSED(menu_item);
 
-  g_print("bla\n");
+  GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
+  const gchar *name = gtk_widget_get_name(focused);
+  g_print("focused widget = %s\n", name);
 }
 
 
