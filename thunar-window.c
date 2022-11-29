@@ -137,6 +137,10 @@ static gpointer  thunar_window_notebook_create_window     (GtkWidget            
                                                            gint                    x,
                                                            gint                    y,
                                                            ThunarWindow           *window);
+static GtkWidget* thunar_window_create_view (ThunarWindow  *window,
+                               ThunarFile    *directory,
+                               GType          view_type,
+                               ThunarHistory *history);
 static GtkWidget*thunar_window_notebook_insert            (ThunarWindow           *window,
                                                            ThunarFile             *directory,
                                                            GType                   view_type,
@@ -1420,6 +1424,31 @@ thunar_window_notebook_create_window (GtkWidget    *notebook,
 
   /* insert page in new notebook */
   return THUNAR_WINDOW (new_window)->notebook;
+}
+
+
+
+static GtkWidget*
+thunar_window_create_view (ThunarWindow  *window,
+                               ThunarFile    *directory,
+                               GType          view_type,
+                               ThunarHistory *history)
+{
+  _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), NULL);
+  _thunar_return_val_if_fail (THUNAR_IS_FILE (directory), NULL);
+  _thunar_return_val_if_fail (view_type != G_TYPE_NONE, NULL);
+  _thunar_return_val_if_fail (history == NULL || THUNAR_IS_HISTORY (history), NULL);
+
+  /* allocate and setup a new view */
+  GtkWidget *view = g_object_new (view_type, "current-directory", directory, NULL);
+  thunar_view_set_show_hidden (THUNAR_VIEW (view), window->show_hidden);
+  gtk_widget_show (view);
+
+  /* set the history of the view if a history is provided */
+  if (history != NULL)
+    thunar_standard_view_set_history (THUNAR_STANDARD_VIEW (view), history);
+
+  return view;
 }
 
 

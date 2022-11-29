@@ -1,0 +1,13 @@
+
+#if 0
+
+thunar_window_notebook_insert
+thunar_window_notebook_page_added
+thunar_window_notebook_show_tabs
+thunar_window_notebook_switch_page
+thunar_window_notebook_page_removed
+
+
+#endif
+
+

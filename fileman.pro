@@ -83,6 +83,7 @@ HEADERS = \
     thunar-window.h \
 
 SOURCES = \
+  0Temp.c \
     core/thunar-browser.c \
     core/thunar-clipboard-manager.c \
     core/thunar-component.c \
