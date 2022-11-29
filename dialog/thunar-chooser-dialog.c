@@ -532,6 +532,8 @@ thunar_chooser_dialog_selection_func (GtkTreeSelection *selection,
                                       gboolean          path_currently_selected,
                                       gpointer          user_data)
 {
+  UNUSED(selection);
+  UNUSED(user_data);
   GtkTreeIter iter;
   gboolean    permitted = TRUE;
   GValue      value = { 0, };
@@ -759,6 +761,7 @@ static void
 thunar_chooser_dialog_browse_clicked (GtkWidget           *button,
                                       ThunarChooserDialog *dialog)
 {
+  UNUSED(button);
   GtkFileFilter *filter;
   GtkWidget     *chooser;
   gchar         *filename;
@@ -989,6 +992,7 @@ thunar_chooser_dialog_row_activated (GtkTreeView         *treeview,
                                      GtkTreeViewColumn   *column,
                                      ThunarChooserDialog *dialog)
 {
+  UNUSED(column);
   GtkTreeModel *model;
   GtkTreeIter   iter;
   GValue        value = { 0, };

@@ -356,6 +356,10 @@ thunar_icon_factory_changed (GSignalInvocationHint *ihint,
                              const GValue          *param_values,
                              gpointer               user_data)
 {
+  UNUSED(ihint);
+  UNUSED(n_param_values);
+  UNUSED(param_values);
+
   ThunarIconFactory *factory = THUNAR_ICON_FACTORY (user_data);
 
   /* drop all items from the icon cache */
@@ -374,6 +378,8 @@ static gboolean
 thunar_icon_check_sweep (ThunarIconKey *key,
                          GdkPixbuf     *pixbuf)
 {
+  UNUSED(key);
+
   return (G_OBJECT (pixbuf)->ref_count == 1);
 }
 

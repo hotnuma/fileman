@@ -100,6 +100,7 @@ thunar_group_class_init (ThunarGroupClass *klass)
 static void
 thunar_group_init (ThunarGroup *group)
 {
+  UNUSED(group);
 }
 
 
@@ -231,6 +232,7 @@ thunar_user_class_init (ThunarUserClass *klass)
 static void
 thunar_user_init (ThunarUser *user)
 {
+  UNUSED(user);
 }
 
 

@@ -390,6 +390,8 @@ thunar_path_entry_icon_press_event (GtkEntry            *entry,
                                     GdkEventButton      *event,
                                     gpointer             userdata)
 {
+  UNUSED(userdata);
+
   ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY (entry);
 
   if (event->button == 1 && icon_pos == GTK_ENTRY_ICON_PRIMARY)
@@ -409,6 +411,8 @@ thunar_path_entry_icon_release_event (GtkEntry            *entry,
                                       GdkEventButton      *event,
                                       gpointer             user_data)
 {
+  UNUSED(user_data);
+
   ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY (entry);
 
   if (event->button == path_entry->drag_button && icon_pos == GTK_ENTRY_ICON_PRIMARY)
@@ -502,6 +506,10 @@ thunar_path_entry_drag_data_get (GtkWidget        *widget,
                                  guint             info,
                                  guint             timestamp)
 {
+  UNUSED(context);
+  UNUSED(info);
+  UNUSED(timestamp);
+
   ThunarPathEntry  *path_entry = THUNAR_PATH_ENTRY (widget);
   GList             file_list;
   gchar           **uris;
@@ -919,6 +927,8 @@ thunar_path_entry_match_func (GtkEntryCompletion *completion,
                               GtkTreeIter        *iter,
                               gpointer            user_data)
 {
+  UNUSED(key);
+
   GtkTreeModel    *model;
   ThunarPathEntry *path_entry;
   const gchar     *last_slash;
@@ -993,6 +1003,8 @@ thunar_path_entry_match_selected (GtkEntryCompletion *completion,
                                   GtkTreeIter        *iter,
                                   gpointer            user_data)
 {
+  UNUSED(completion);
+
   ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY (user_data);
   const gchar     *last_slash;
   const gchar     *text;

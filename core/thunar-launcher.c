@@ -153,7 +153,6 @@ static void                    thunar_launcher_poke_data_free             (Thuna
 static void                    thunar_launcher_widget_destroyed           (ThunarLauncher                 *launcher,
                                                                            GtkWidget                      *widget);
 static void                    thunar_launcher_action_open                (ThunarLauncher                 *launcher);
-static void                    thunar_launcher_action_open_in_new_tabs    (ThunarLauncher                 *launcher);
 static void                    thunar_launcher_action_open_in_new_windows (ThunarLauncher                 *launcher);
 static void                    thunar_launcher_action_open_with_other     (ThunarLauncher                 *launcher);
 static void                    thunar_launcher_action_sendto_desktop      (ThunarLauncher                 *launcher);
@@ -704,6 +703,7 @@ thunar_launcher_execute_files (ThunarLauncher *launcher,
 static guint
 thunar_launcher_g_app_info_hash (gconstpointer app_info)
 {
+  UNUSED(app_info);
   return 0;
 }
 
@@ -1204,25 +1204,6 @@ thunar_launcher_action_open (ThunarLauncher *launcher)
 
 
 
-/**
- * thunar_launcher_action_open_in_new_tabs:
- * @launcher : a #ThunarLauncher instance
- *
- * Will open each selected folder in a new tab
- **/
-static void
-thunar_launcher_action_open_in_new_tabs (ThunarLauncher *launcher)
-{
-  _thunar_return_if_fail (THUNAR_IS_LAUNCHER (launcher));
-
-  if (G_UNLIKELY (launcher->files_to_process == NULL))
-    return;
-
-  thunar_launcher_open_selected_folders (launcher, TRUE);
-}
-
-
-
 static void
 thunar_launcher_action_open_in_new_windows (ThunarLauncher *launcher)
 {
@@ -1705,6 +1686,7 @@ thunar_launcher_action_sendto_device (ThunarLauncher *launcher,
 static void
 thunar_launcher_action_add_shortcuts (ThunarLauncher *launcher)
 {
+  UNUSED(launcher);
   return;
 
 #if 0
@@ -2803,6 +2785,7 @@ thunar_launcher_append_open_section (ThunarLauncher *launcher,
                                      gboolean        support_change_directory,
                                      gboolean        force)
 {
+  UNUSED(support_tabs);
   GList     *applications;
   gchar     *label_text;
   gchar     *tooltip_text;

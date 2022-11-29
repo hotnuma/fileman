@@ -84,6 +84,7 @@ thunar_simple_job_class_init (ThunarSimpleJobClass *klass)
 static void
 thunar_simple_job_init (ThunarSimpleJob *simple_job)
 {
+  UNUSED(simple_job);
 }
 
 

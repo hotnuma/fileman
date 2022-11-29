@@ -184,6 +184,8 @@ thunar_menu_get_property (GObject    *object,
                           GValue     *value,
                           GParamSpec *pspec)
 {
+  UNUSED(value);
+
   switch (prop_id)
     {
     default:

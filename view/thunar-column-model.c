@@ -225,6 +225,7 @@ thunar_column_model_finalize (GObject *object)
 static GtkTreeModelFlags
 thunar_column_model_get_flags (GtkTreeModel *tree_model)
 {
+  UNUSED(tree_model);
   return GTK_TREE_MODEL_LIST_ONLY;
 }
 
@@ -233,6 +234,7 @@ thunar_column_model_get_flags (GtkTreeModel *tree_model)
 static gint
 thunar_column_model_get_n_columns (GtkTreeModel *tree_model)
 {
+  UNUSED(tree_model);
   return THUNAR_COLUMN_MODEL_N_COLUMNS;
 }
 
@@ -242,6 +244,7 @@ static GType
 thunar_column_model_get_column_type (GtkTreeModel *tree_model,
                                      gint          idx)
 {
+  UNUSED(tree_model);
   switch (idx)
     {
     case THUNAR_COLUMN_MODEL_COLUMN_NAME:
@@ -383,6 +386,8 @@ static gboolean
 thunar_column_model_iter_has_child (GtkTreeModel *tree_model,
                                     GtkTreeIter  *iter)
 {
+  UNUSED(tree_model);
+  UNUSED(iter);
   return FALSE;
 }
 
@@ -425,6 +430,9 @@ thunar_column_model_iter_parent (GtkTreeModel *tree_model,
                                  GtkTreeIter  *iter,
                                  GtkTreeIter  *child)
 {
+  UNUSED(tree_model);
+  UNUSED(iter);
+  UNUSED(child);
   return FALSE;
 }
 

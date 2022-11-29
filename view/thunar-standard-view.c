@@ -2317,6 +2317,7 @@ thunar_standard_view_key_press_event (GtkWidget          *view,
                                       GdkEventKey        *event,
                                       ThunarStandardView *standard_view)
 {
+  UNUSED(view);
   _thunar_return_val_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view), FALSE);
 
   /* need to catch "/" and "~" first, as the views would otherwise start interactive search */
@@ -2434,6 +2435,8 @@ tsv_reload_directory (GPid     pid,
                       gint     status,
                       gpointer user_data)
 {
+  UNUSED(pid);
+  UNUSED(status);
   GFileMonitor *monitor;
   GFile        *file;
 
@@ -2659,6 +2662,10 @@ thunar_standard_view_drag_leave (GtkWidget          *widget,
                                  guint               timestamp,
                                  ThunarStandardView *standard_view)
 {
+  UNUSED(widget);
+  UNUSED(context);
+  UNUSED(timestamp);
+
   /* reset the drop-file for the icon renderer */
   g_object_set (G_OBJECT (standard_view->icon_renderer), "drop-file", NULL, NULL);
 
@@ -2818,6 +2825,10 @@ thunar_standard_view_drag_data_get (GtkWidget          *view,
                                     guint               timestamp,
                                     ThunarStandardView *standard_view)
 {
+  UNUSED(view);
+  UNUSED(context);
+  UNUSED(info);
+  UNUSED(timestamp);
   gchar **uris;
 
   /* set the URI list for the drag selection */
@@ -2836,6 +2847,8 @@ thunar_standard_view_drag_data_delete (GtkWidget          *view,
                                        GdkDragContext     *context,
                                        ThunarStandardView *standard_view)
 {
+  UNUSED(context);
+  UNUSED(standard_view);
   /* make sure the default handler of ExoIconView/GtkTreeView is never run */
   g_signal_stop_emission_by_name (G_OBJECT (view), "drag-data-delete");
 }
@@ -2847,6 +2860,9 @@ thunar_standard_view_drag_end (GtkWidget          *view,
                                GdkDragContext     *context,
                                ThunarStandardView *standard_view)
 {
+  UNUSED(view);
+  UNUSED(context);
+
   /* stop any running drag autoscroll timer */
   if (G_UNLIKELY (standard_view->priv->drag_scroll_timer_id != 0))
     g_source_remove (standard_view->priv->drag_scroll_timer_id);
@@ -2897,6 +2913,10 @@ thunar_standard_view_rows_reordered (ThunarListModel    *model,
                                      gpointer            new_order,
                                      ThunarStandardView *standard_view)
 {
+  UNUSED(path);
+  UNUSED(iter);
+  UNUSED(new_order);
+
   _thunar_return_if_fail (THUNAR_IS_LIST_MODEL (model));
   _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
   _thunar_return_if_fail (standard_view->model == model);
@@ -2918,6 +2938,10 @@ thunar_standard_view_row_changed (ThunarListModel    *model,
                                   GtkTreeIter        *iter,
                                   ThunarStandardView *standard_view)
 {
+  UNUSED(model);
+  UNUSED(path);
+  UNUSED(iter);
+  UNUSED(standard_view);
   return;
 }
 
@@ -2927,6 +2951,8 @@ thunar_standard_view_select_after_row_deleted (ThunarListModel    *model,
                                                GtkTreePath        *path,
                                                ThunarStandardView *standard_view)
 {
+  UNUSED(model);
+
   _thunar_return_if_fail (path != NULL);
   _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
 
@@ -3151,6 +3177,8 @@ static void
 thunar_standard_view_size_allocate (ThunarStandardView *standard_view,
                                     GtkAllocation      *allocation)
 {
+  UNUSED(allocation);
+
   _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
 
   /* ignore size changes when the view is still loading */

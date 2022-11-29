@@ -463,6 +463,8 @@ thunar_details_view_selection_invert_foreach (GtkTreeModel *model,
                                               GtkTreeIter  *iter,
                                               gpointer      data)
 {
+  UNUSED(model);
+  UNUSED(iter);
   GList      **list = data;
 
   *list = g_list_prepend (*list, gtk_tree_path_copy (path));
@@ -610,6 +612,7 @@ thunar_details_view_notify_model (GtkTreeView       *tree_view,
                                   ThunarDetailsView *details_view)
 {
   UNUSED(pspec);
+  UNUSED(details_view);
   /* We need to set the search column here, as GtkTreeView resets it
    * whenever a new model is set.
    */
@@ -771,6 +774,7 @@ thunar_details_view_key_press_event (GtkTreeView       *tree_view,
                                      GdkEventKey       *event,
                                      ThunarDetailsView *details_view)
 {
+  UNUSED(tree_view);
   details_view->button_pressed = FALSE;
 
   /* popup context menu if "Menu" or "<Shift>F10" is pressed */
@@ -791,6 +795,7 @@ thunar_details_view_row_activated (GtkTreeView       *tree_view,
                                    GtkTreeViewColumn *column,
                                    ThunarDetailsView *details_view)
 {
+  UNUSED(column);
   GtkTreeSelection *selection;
   ThunarLauncher   *launcher;
   GtkWidget        *window;
@@ -825,6 +830,7 @@ thunar_details_view_select_cursor_row (GtkTreeView            *tree_view,
    * default gtk signal handler there.
    */
 
+  UNUSED(editing);
   ThunarLauncher *launcher;
   GtkWidget      *window;
 
@@ -847,6 +853,10 @@ thunar_details_view_row_changed (GtkTreeView       *tree_view,
                                  GtkTreeViewColumn *column,
                                  ThunarDetailsView *details_view)
 {
+  UNUSED(tree_view);
+  UNUSED(path);
+  UNUSED(column);
+
   _thunar_return_if_fail (THUNAR_IS_DETAILS_VIEW (details_view));
 
   gtk_widget_queue_draw (GTK_WIDGET (details_view));
@@ -966,6 +976,7 @@ static void
 thunar_details_view_disconnect_accelerators (ThunarStandardView *standard_view,
                                              GtkAccelGroup      *accel_group)
 {
+  UNUSED(standard_view);
   /* Dont listen to the accel keys defined by the action entries any more */
   xfce_gtk_accel_group_disconnect_action_entries (accel_group,
                                                   thunar_details_view_action_entries,
@@ -988,6 +999,7 @@ thunar_details_view_append_menu_items (ThunarStandardView *standard_view,
                                        GtkMenu            *menu,
                                        GtkAccelGroup      *accel_group)
 {
+  UNUSED(accel_group);
   ThunarDetailsView *details_view = THUNAR_DETAILS_VIEW (standard_view);
 
   _thunar_return_if_fail (THUNAR_IS_DETAILS_VIEW (details_view));

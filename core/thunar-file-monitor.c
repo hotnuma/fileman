@@ -104,6 +104,7 @@ thunar_file_monitor_class_init (ThunarFileMonitorClass *klass)
 static void
 thunar_file_monitor_init (ThunarFileMonitor *monitor)
 {
+  UNUSED(monitor);
 }
 
 

@@ -380,6 +380,8 @@ thunar_location_entry_poke_file_finish (ThunarBrowser *browser,
                                         GError        *error,
                                         gpointer       ignored)
 {
+  UNUSED(ignored);
+
   _thunar_return_if_fail (THUNAR_IS_LOCATION_ENTRY (browser));
   _thunar_return_if_fail (THUNAR_IS_FILE (file));
 
@@ -427,6 +429,8 @@ thunar_location_entry_button_press_event (GtkWidget           *path_entry,
                                           GdkEventButton      *event,
                                           ThunarLocationEntry *location_entry)
 {
+  UNUSED(path_entry);
+
   _thunar_return_val_if_fail (THUNAR_IS_LOCATION_ENTRY (location_entry), FALSE);
 
   /* check if the context menu was triggered */
@@ -462,6 +466,9 @@ thunar_location_entry_reload (GtkEntry            *entry,
                               GdkEvent            *event,
                               ThunarLocationEntry *location_entry)
 {
+  UNUSED(entry);
+  UNUSED(event);
+
   _thunar_return_if_fail (THUNAR_IS_LOCATION_ENTRY (location_entry));
 
   if (icon_pos == GTK_ENTRY_ICON_SECONDARY)

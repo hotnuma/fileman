@@ -365,6 +365,7 @@ thunar_chooser_button_row_separator (GtkTreeModel *model,
                                      GtkTreeIter  *iter,
                                      gpointer      data)
 {
+  UNUSED(data);
   gchar *name;
 
   /* determine the value of the "name" column */

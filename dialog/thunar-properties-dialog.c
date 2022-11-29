@@ -746,6 +746,7 @@ static void
 thunar_properties_dialog_name_activate (GtkWidget              *entry,
                                         ThunarPropertiesDialog *dialog)
 {
+  UNUSED(entry);
   const gchar *old_name;
   const gchar *new_name;
   ThunarJob   *job;
@@ -780,6 +781,7 @@ thunar_properties_dialog_name_focus_out_event (GtkWidget              *entry,
                                                GdkEventFocus          *event,
                                                ThunarPropertiesDialog *dialog)
 {
+  UNUSED(event);
   thunar_properties_dialog_name_activate (entry, dialog);
   return FALSE;
 }

@@ -121,6 +121,8 @@ thunar_statusbar_set_property (GObject      *object,
                                const GValue *value,
                                GParamSpec   *pspec)
 {
+  UNUSED(pspec);
+
   ThunarStatusbar *statusbar = THUNAR_STATUSBAR (object);
 
   switch (prop_id)

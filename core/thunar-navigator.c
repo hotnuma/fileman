@@ -50,7 +50,7 @@ thunar_navigator_get_type (void)
   static volatile gsize type__volatile = 0;
   GType                 type;
 
-  if (g_once_init_enter (&type__volatile))
+  if (g_once_init_enter ((gsize*) &type__volatile))
     {
       static const GTypeInfo info =
       {
@@ -63,6 +63,7 @@ thunar_navigator_get_type (void)
         0,
         0,
         NULL,
+        NULL
       };
 
       type = g_type_register_static (G_TYPE_INTERFACE, I_("ThunarNavigator"), &info, 0);

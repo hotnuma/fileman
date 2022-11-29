@@ -189,6 +189,8 @@ thunar_icon_renderer_get_property (GObject    *object,
                                    GValue     *value,
                                    GParamSpec *pspec)
 {
+  UNUSED(pspec);
+
   ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER (object);
 
   switch (prop_id)
@@ -227,6 +229,8 @@ thunar_icon_renderer_set_property (GObject      *object,
                                    const GValue *value,
                                    GParamSpec   *pspec)
 {
+  UNUSED(pspec);
+
   ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER (object);
 
   switch (prop_id)
@@ -270,6 +274,8 @@ thunar_icon_renderer_get_preferred_width (GtkCellRenderer *renderer,
                                           gint            *minimum,
                                           gint            *natural)
 {
+  UNUSED(widget);
+
   ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER (renderer);
   int xpad;
 
@@ -287,6 +293,8 @@ thunar_icon_renderer_get_preferred_height (GtkCellRenderer *renderer,
                                            gint            *minimum,
                                            gint            *natural)
 {
+  UNUSED(widget);
+
   ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER (renderer);
   int ypad;
 
@@ -352,6 +360,8 @@ static void
 thunar_icon_renderer_color_lighten (cairo_t   *cr,
                                     GtkWidget *widget)
 {
+  UNUSED(widget);
+
   cairo_pattern_t *source;
 
   cairo_save (cr);
@@ -376,6 +386,8 @@ thunar_icon_renderer_render (GtkCellRenderer     *renderer,
                              const GdkRectangle  *cell_area,
                              GtkCellRendererState flags)
 {
+  UNUSED(background_area);
+
   ThunarClipboardManager *clipboard;
   ThunarFileIconState     icon_state;
   ThunarIconRenderer     *icon_renderer = THUNAR_ICON_RENDERER (renderer);

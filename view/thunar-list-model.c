@@ -581,6 +581,7 @@ thunar_list_model_set_property (GObject      *object,
 static GtkTreeModelFlags
 thunar_list_model_get_flags (GtkTreeModel *model)
 {
+  UNUSED(model);
   return GTK_TREE_MODEL_ITERS_PERSIST | GTK_TREE_MODEL_LIST_ONLY;
 }
 
@@ -589,6 +590,7 @@ thunar_list_model_get_flags (GtkTreeModel *model)
 static gint
 thunar_list_model_get_n_columns (GtkTreeModel *model)
 {
+  UNUSED(model);
   return THUNAR_N_COLUMNS;
 }
 
@@ -598,6 +600,7 @@ static GType
 thunar_list_model_get_column_type (GtkTreeModel *model,
                                    gint          idx)
 {
+  UNUSED(model);
   switch (idx)
     {
     case THUNAR_COLUMN_DATE_ACCESSED:
@@ -856,6 +859,8 @@ static gboolean
 thunar_list_model_iter_has_child (GtkTreeModel *model,
                                   GtkTreeIter  *iter)
 {
+  UNUSED(model);
+  UNUSED(iter);
   return FALSE;
 }
 
@@ -905,6 +910,9 @@ thunar_list_model_iter_parent (GtkTreeModel *model,
                                GtkTreeIter  *iter,
                                GtkTreeIter  *child)
 {
+  UNUSED(model);
+  UNUSED(iter);
+  UNUSED(child);
   return FALSE;
 }
 
@@ -915,6 +923,9 @@ thunar_list_model_drag_data_received (GtkTreeDragDest  *dest,
                                       GtkTreePath      *path,
                                       GtkSelectionData *data)
 {
+  UNUSED(dest);
+  UNUSED(path);
+  UNUSED(data);
   return FALSE;
 }
 
@@ -925,6 +936,9 @@ thunar_list_model_row_drop_possible (GtkTreeDragDest  *dest,
                                      GtkTreePath      *path,
                                      GtkSelectionData *data)
 {
+  UNUSED(dest);
+  UNUSED(path);
+  UNUSED(data);
   return FALSE;
 }
 
@@ -1049,6 +1063,11 @@ thunar_list_model_set_default_sort_func (GtkTreeSortable       *sortable,
                                          gpointer               data,
                                          GDestroyNotify         destroy)
 {
+  UNUSED(sortable);
+  UNUSED(func);
+  UNUSED(data);
+  UNUSED(destroy);
+
   g_critical ("ThunarListModel has sorting facilities built-in!");
 }
 
@@ -1061,6 +1080,12 @@ thunar_list_model_set_sort_func (GtkTreeSortable       *sortable,
                                  gpointer               data,
                                  GDestroyNotify         destroy)
 {
+  UNUSED(sortable);
+  UNUSED(sort_column_id);
+  UNUSED(func);
+  UNUSED(data);
+  UNUSED(destroy);
+
   g_critical ("ThunarListModel has sorting facilities built-in!");
 }
 
@@ -1069,6 +1094,7 @@ thunar_list_model_set_sort_func (GtkTreeSortable       *sortable,
 static gboolean
 thunar_list_model_has_default_sort_func (GtkTreeSortable *sortable)
 {
+  UNUSED(sortable);
   return FALSE;
 }
 
@@ -1276,6 +1302,8 @@ thunar_list_model_files_added (ThunarFolder    *folder,
                                GList           *files,
                                ThunarListModel *store)
 {
+  UNUSED(folder);
+
   GtkTreePath   *path;
   GtkTreeIter    iter;
   ThunarFile    *file;
@@ -1338,6 +1366,8 @@ thunar_list_model_files_removed (ThunarFolder    *folder,
                                  GList           *files,
                                  ThunarListModel *store)
 {
+  UNUSED(folder);
+
   GList         *lp;
   GSequenceIter *row;
   GSequenceIter *end;

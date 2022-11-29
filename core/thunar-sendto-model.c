@@ -187,6 +187,11 @@ thunar_sendto_model_event (GFileMonitor     *monitor,
                            GFileMonitorEvent event_type,
                            gpointer          user_data)
 {
+  UNUSED(file);
+  UNUSED(monitor);
+  UNUSED(other_file);
+  UNUSED(event_type);
+
   ThunarSendtoModel *sendto_model = THUNAR_SENDTO_MODEL (user_data);
 
   /* release the previously loaded handlers */

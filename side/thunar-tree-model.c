@@ -458,6 +458,7 @@ thunar_tree_model_set_property (GObject      *object,
 static GtkTreeModelFlags
 thunar_tree_model_get_flags (GtkTreeModel *tree_model)
 {
+  UNUSED(tree_model);
   return GTK_TREE_MODEL_ITERS_PERSIST;
 }
 
@@ -466,6 +467,7 @@ thunar_tree_model_get_flags (GtkTreeModel *tree_model)
 static gint
 thunar_tree_model_get_n_columns (GtkTreeModel *tree_model)
 {
+  UNUSED(tree_model);
   return THUNAR_TREE_MODEL_N_COLUMNS;
 }
 
@@ -475,6 +477,7 @@ static GType
 thunar_tree_model_get_column_type (GtkTreeModel *tree_model,
                                    gint          column)
 {
+  UNUSED(tree_model);
   switch (column)
     {
     case THUNAR_TREE_MODEL_COLUMN_FILE:
@@ -1674,6 +1677,7 @@ static gboolean
 thunar_tree_model_node_traverse_free (GNode   *node,
                                       gpointer user_data)
 {
+  UNUSED(user_data);
   if (G_LIKELY (node->data != NULL))
     thunar_tree_model_item_free (node->data);
   return FALSE;

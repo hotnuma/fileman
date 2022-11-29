@@ -491,6 +491,7 @@ static void
 thunar_column_editor_use_defaults (GtkWidget          *button,
                                    ThunarColumnEditor *column_editor)
 {
+  UNUSED(button);
   static const gchar *PROPERTY_NAMES[] =
   {
     "last-details-view-column-order",

@@ -191,6 +191,7 @@ static void
 popup_menu_realized (GtkWidget *menu,
                      gpointer   user_data)
 {
+    UNUSED(user_data);
     GdkWindow *toplevel = gtk_widget_get_window (gtk_widget_get_toplevel (menu));
     g_signal_handlers_disconnect_by_func (toplevel, moved_to_rect_cb, menu);
     g_signal_connect (toplevel, "moved-to-rect", G_CALLBACK (moved_to_rect_cb), menu);
