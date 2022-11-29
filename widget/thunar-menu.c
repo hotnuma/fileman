@@ -48,7 +48,6 @@ enum
   PROP_MENU_TYPE,
   PROP_LAUNCHER,
   PROP_FORCE_SECTION_OPEN,
-  PROP_TAB_SUPPORT_DISABLED,
   PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
 };
 
@@ -70,13 +69,14 @@ struct _ThunarMenuClass
 struct _ThunarMenu
 {
   GtkMenu __parent__;
+
   ThunarLauncher  *launcher;
 
   /* true, if the 'open' section should be forced */
   gboolean         force_section_open;
 
   /* true, if 'open as new tab' should not be shown */
-  gboolean         tab_support_disabled;
+//  gboolean         tab_support_disabled;
 
   /* true, if 'open' for folders, which would result in changing the directory, should not be shown */
   gboolean         change_directory_support_disabled;
@@ -135,15 +135,6 @@ thunar_menu_class_init (ThunarMenuClass *klass)
                                                          | G_PARAM_CONSTRUCT_ONLY));
 
   g_object_class_install_property (gobject_class,
-                                   PROP_TAB_SUPPORT_DISABLED,
-                                   g_param_spec_boolean ("tab-support-disabled",
-                                                         "tab-support-disabled",
-                                                         "tab-support-disabled",
-                                                         FALSE,
-                                                           G_PARAM_WRITABLE
-                                                         | G_PARAM_CONSTRUCT_ONLY));
-
-  g_object_class_install_property (gobject_class,
                                    PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
                                    g_param_spec_boolean ("change_directory-support-disabled",
                                                          "change_directory-support-disabled",
@@ -160,7 +151,7 @@ thunar_menu_init (ThunarMenu *menu)
 {
   menu->force_section_open = FALSE;
   menu->type = FALSE;
-  menu->tab_support_disabled = FALSE;
+//  menu->tab_support_disabled = FALSE;
   menu->change_directory_support_disabled = FALSE;
 }
 
@@ -219,10 +210,6 @@ thunar_menu_set_property (GObject      *object,
       menu->force_section_open = g_value_get_boolean (value);
       break;
 
-    case PROP_TAB_SUPPORT_DISABLED:
-      menu->tab_support_disabled = g_value_get_boolean (value);
-      break;
-
     case PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED:
       menu->change_directory_support_disabled = g_value_get_boolean (value);
       break;
@@ -268,7 +255,10 @@ thunar_menu_add_sections (ThunarMenu         *menu,
 
   if (menu_sections & THUNAR_MENU_SECTION_OPEN)
     {
-      if (thunar_launcher_append_open_section (menu->launcher, GTK_MENU_SHELL (menu), !menu->tab_support_disabled, !menu->change_directory_support_disabled, menu->force_section_open))
+      if (thunar_launcher_append_open_section (menu->launcher, GTK_MENU_SHELL (menu),
+                                               FALSE /*!menu->tab_support_disabled*/,
+                                               !menu->change_directory_support_disabled,
+                                               menu->force_section_open))
          xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (menu));
     }
 
