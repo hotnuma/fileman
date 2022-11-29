@@ -3235,8 +3235,8 @@ thunar_standard_view_context_menu (ThunarStandardView *standard_view)
                                             | THUNAR_MENU_SECTION_CUSTOM_ACTIONS);
       thunar_standard_view_append_menu_items (standard_view, GTK_MENU (context_menu), NULL);
       xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (context_menu));
-      thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_ZOOM
-                                            | THUNAR_MENU_SECTION_PROPERTIES);
+      thunar_menu_add_sections (context_menu, /*THUNAR_MENU_SECTION_ZOOM
+                                            |*/ THUNAR_MENU_SECTION_PROPERTIES);
     }
   thunar_menu_hide_accel_labels (context_menu);
   gtk_widget_show_all (GTK_WIDGET (context_menu));

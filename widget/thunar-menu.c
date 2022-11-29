@@ -249,7 +249,6 @@ gboolean
 thunar_menu_add_sections (ThunarMenu         *menu,
                           ThunarMenuSections  menu_sections)
 {
-  GtkWidget *window;
   gboolean   item_added;
   gboolean   force = menu->type == THUNAR_MENU_TYPE_WINDOW || menu->type == THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW;
 
@@ -336,18 +335,6 @@ thunar_menu_add_sections (ThunarMenu         *menu,
       item_added |= (thunar_launcher_append_menu_item (menu->launcher, GTK_MENU_SHELL (menu), THUNAR_LAUNCHER_ACTION_EJECT, FALSE) != NULL);
       if (item_added)
          xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (menu));
-    }
-
-  if (menu_sections & THUNAR_MENU_SECTION_ZOOM)
-    {
-      window = thunar_launcher_get_widget (menu->launcher);
-      if (THUNAR_IS_WINDOW (window))
-        {
-          thunar_window_append_menu_item (THUNAR_WINDOW (window), GTK_MENU_SHELL (menu), THUNAR_WINDOW_ACTION_ZOOM_IN);
-          thunar_window_append_menu_item (THUNAR_WINDOW (window), GTK_MENU_SHELL (menu), THUNAR_WINDOW_ACTION_ZOOM_OUT);
-          thunar_window_append_menu_item (THUNAR_WINDOW (window), GTK_MENU_SHELL (menu), THUNAR_WINDOW_ACTION_ZOOM_RESET);
-          xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (menu));
-        }
     }
 
   if (menu_sections & THUNAR_MENU_SECTION_PROPERTIES)

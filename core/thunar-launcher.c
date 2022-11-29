@@ -159,7 +159,6 @@ static void                    thunar_launcher_action_sendto_desktop      (Thuna
 static void                    thunar_launcher_action_properties          (ThunarLauncher                 *launcher);
 static void                    thunar_launcher_action_sendto_device       (ThunarLauncher                 *launcher,
                                                                            GObject                        *object);
-static void                    thunar_launcher_action_add_shortcuts       (ThunarLauncher                 *launcher);
 static void                    thunar_launcher_action_make_link           (ThunarLauncher                 *launcher);
 static void                    thunar_launcher_action_duplicate           (ThunarLauncher                 *launcher);
 static void                    thunar_launcher_action_rename              (ThunarLauncher                 *launcher);
@@ -235,15 +234,15 @@ static GParamSpec *launcher_props[N_PROPERTIES] = { NULL, };
 
 static XfceGtkActionEntry thunar_launcher_action_entries[] =
 {
-    { THUNAR_LAUNCHER_ACTION_OPEN,             "<Actions>/ThunarLauncher/open",                    "<Primary>O",        XFCE_GTK_IMAGE_MENU_ITEM, NULL,                                   NULL,                                                                                            "document-open",        G_CALLBACK (thunar_launcher_action_open),                },
+    { THUNAR_LAUNCHER_ACTION_OPEN, "<Actions>/ThunarLauncher/open", "<Primary>O", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL,                                                                                            "document-open",        G_CALLBACK (thunar_launcher_action_open),                },
     { THUNAR_LAUNCHER_ACTION_EXECUTE,          "<Actions>/ThunarLauncher/execute",                 "",                  XFCE_GTK_IMAGE_MENU_ITEM, NULL,                                   NULL,                                                                                            "system-run",           G_CALLBACK (thunar_launcher_action_open),                },
     { THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,   "<Actions>/ThunarLauncher/open-in-new-window",      "<Primary><shift>O", XFCE_GTK_MENU_ITEM,       NULL,                                   NULL,                                                                                            NULL,                   G_CALLBACK (thunar_launcher_action_open_in_new_windows), },
     { THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER,  "<Actions>/ThunarLauncher/open-with-other",         "",                  XFCE_GTK_MENU_ITEM,       N_ ("Open With Other _Application..."), N_ ("Choose another application with which to open the selected file"),                          NULL,                   G_CALLBACK (thunar_launcher_action_open_with_other),     },
 
     /* For backward compatibility the old accel paths are re-used. Currently not possible to automatically migrate to new accel paths. */
     /* Waiting for https://gitlab.gnome.org/GNOME/gtk/issues/2375 to be able to fix that */
-    { THUNAR_LAUNCHER_ACTION_SENDTO_MENU,      "<Actions>/ThunarWindow/sendto-menu",               "",                  XFCE_GTK_MENU_ITEM,       N_ ("_Send To"),                        NULL,                                                                                            NULL,                   NULL,                                                    },
-    { THUNAR_LAUNCHER_ACTION_SENDTO_SHORTCUTS, "<Actions>/ThunarShortcutsPane/sendto-shortcuts",   "",                  XFCE_GTK_MENU_ITEM,       NULL,                                   NULL,                                                                                            "bookmark-new",         G_CALLBACK (thunar_launcher_action_add_shortcuts),       },
+
+  { THUNAR_LAUNCHER_ACTION_SENDTO_MENU,      "<Actions>/ThunarWindow/sendto-menu",               "",                  XFCE_GTK_MENU_ITEM,       N_ ("_Send To"),                        NULL,                                                                                            NULL,                   NULL,                                                    },
     { THUNAR_LAUNCHER_ACTION_SENDTO_DESKTOP,   "<Actions>/ThunarLauncher/sendto-desktop",          "",                  XFCE_GTK_MENU_ITEM,       NULL,                                   NULL,                                                                                            "user-desktop",         G_CALLBACK (thunar_launcher_action_sendto_desktop),      },
     { THUNAR_LAUNCHER_ACTION_PROPERTIES,       "<Actions>/ThunarStandardView/properties",          "<Alt>Return",       XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Properties..."),                  N_ ("View the properties of the selected file"),                                                 "document-properties",  G_CALLBACK (thunar_launcher_action_properties),          },
     { THUNAR_LAUNCHER_ACTION_MAKE_LINK,        "<Actions>/ThunarStandardView/make-link",           "",                  XFCE_GTK_MENU_ITEM,       N_ ("Ma_ke Link"),                      NULL,                                                                                            NULL,                   G_CALLBACK (thunar_launcher_action_make_link),           },
@@ -1683,36 +1682,6 @@ thunar_launcher_action_sendto_device (ThunarLauncher *launcher,
 }
 
 
-static void
-thunar_launcher_action_add_shortcuts (ThunarLauncher *launcher)
-{
-  UNUSED(launcher);
-  return;
-
-#if 0
-  GList           *lp;
-  GtkWidget       *window;
-  const GtkWidget *sidepane;
-
-  _thunar_return_if_fail (THUNAR_IS_LAUNCHER (launcher));
-
-  /* determine the toplevel window we belong to */
-  window = gtk_widget_get_toplevel (launcher->widget);
-  if (THUNAR_IS_WINDOW (window) == FALSE)
-    return;
-  if (thunar_window_has_shortcut_sidepane (THUNAR_WINDOW (window)) == FALSE)
-    return;
-
-  sidepane = thunar_window_get_sidepane (THUNAR_WINDOW (window));
-  if (sidepane != NULL  && THUNAR_IS_SHORTCUTS_PANE (sidepane))
-    {
-      for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
-        thunar_shortcuts_pane_add_shortcut (THUNAR_SHORTCUTS_PANE (sidepane), lp->data);
-    }
-#endif
-}
-
-
 
 static GtkWidget*
 thunar_launcher_build_sendto_submenu (ThunarLauncher *launcher)
@@ -1724,7 +1693,6 @@ thunar_launcher_build_sendto_submenu (ThunarLauncher *launcher)
   GtkWidget                *image;
   GtkWidget                *item;
   GtkWidget                *submenu;
-  GtkWidget                *window;
   GList                    *devices;
   GList                    *appinfo_list;
   GIcon                    *icon;
@@ -1736,31 +1704,13 @@ thunar_launcher_build_sendto_submenu (ThunarLauncher *launcher)
 
   submenu = gtk_menu_new();
 
-  /* show "sent to shortcut" if only directories are selected */
-  if (launcher->n_directories_to_process > 0 && launcher->n_directories_to_process == launcher->n_files_to_process)
-    {
-      /* determine the toplevel window we belong to */
-      window = gtk_widget_get_toplevel (launcher->widget);
-      if (THUNAR_IS_WINDOW (window) && thunar_window_has_shortcut_sidepane (THUNAR_WINDOW (window)))
-        {
-          action_entry = get_action_entry (THUNAR_LAUNCHER_ACTION_SENDTO_SHORTCUTS);
-          if (action_entry != NULL)
-            {
-              label_text   = ngettext ("Side Pane (Create Shortcut)", "Side Pane (Create Shortcuts)", launcher->n_files_to_process);
-              tooltip_text = ngettext ("Add the selected folder to the shortcuts side pane",
-                                       "Add the selected folders to the shortcuts side pane", launcher->n_files_to_process);
-              item = xfce_gtk_image_menu_item_new_from_icon_name (label_text, tooltip_text, action_entry->accel_path, action_entry->callback,
-                                                                  G_OBJECT (launcher), action_entry->menu_item_icon_name, GTK_MENU_SHELL (submenu));
-            }
-        }
-    }
-
   /* Check whether at least one files is located in the trash (to en-/disable the "sendto-desktop" action). */
   for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
     {
       if (G_UNLIKELY (thunar_file_is_trashed (lp->data)))
         linkable = FALSE;
     }
+
   if (linkable)
     {
       action_entry = get_action_entry (THUNAR_LAUNCHER_ACTION_SENDTO_DESKTOP);
@@ -2131,11 +2081,10 @@ thunar_launcher_action_rename (ThunarLauncher *launcher)
           g_signal_connect (job, "finished", G_CALLBACK (thunar_launcher_rename_finished), launcher->widget);
         }
     }
-//  else
-//    {
-//      /* display the bulk rename dialog */
-//      thunar_show_renamer_dialog (GTK_WIDGET (window), launcher->current_directory, launcher->files_to_process, FALSE, NULL);
-//    }
+    //else
+    //  {
+    //    multiplefiles...
+    //  }
 }
 
 
