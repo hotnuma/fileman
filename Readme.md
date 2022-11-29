@@ -8,19 +8,17 @@ metadata
 gboolean directory_specific_settings;
 thunar_file_get_metadata_setting()
 
-
-
 xfce_get_homedir
 
 #'-DGDK_DISABLE_DEPRECATED',
 #'-DGTK_DISABLE_DEPRECATED',
+#    '-D__USE_XOPEN_EXTENDED',
 
 * New macros
     
-    #ifdef ENABLE_GETTEXT
-    #ifdef ENABLE_DBUS
-    
-    
+#ifdef ENABLE_GETTEXT
+#ifdef ENABLE_DBUS
+#ifdef ENABLE_LIBSM
 
 HAVE_LINUX
 
@@ -46,7 +44,6 @@ SYS_TYPES_H
 SYS_UIO_H
 SYS_WAIT_H
 TIME_H
-
 
 AC_FUNC_MMAP()
 XDT_I18N([@LINGUAS@])

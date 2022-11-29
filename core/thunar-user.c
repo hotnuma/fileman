@@ -57,10 +57,6 @@
 #define THUNAR_USER_MANAGER_FLUSH_INTERVAL (10 * 60)
 
 
-// ???
-
-#include <sys/types.h>
-#include <grp.h>
 
 static void         thunar_group_finalize   (GObject          *object);
 static ThunarGroup *thunar_group_new        (guint32           id);

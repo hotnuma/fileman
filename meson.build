@@ -14,12 +14,22 @@ c_args = [
     '-O2',
     '-DHAVE_CONFIG_H',
     '-D_GNU_SOURCE',
-#    '-D__USE_XOPEN_EXTENDED',
     '-DG_UDEV_API_IS_SUBJECT_TO_CHANGE',
     '-DSN_API_NOT_YET_FROZEN',
 ]
 
 cc = meson.get_compiler('c')
+
+app_includes = [
+    'core',
+    'dialog',
+    'extension',
+    'job',
+    'menu',
+    'side',
+    'view',
+    'widget',
+]
 
 app_deps = [
     dependency('libnotify'),
@@ -44,10 +54,8 @@ app_sources = [
     'core/thunar-file-monitor.c',
     'core/thunar-folder.c',
     'core/thunar-history.c',
-    'core/thunar-launcher.c',
     'core/thunar-navigator.c',
     'core/thunar-notify.c',
-    'core/thunar-sendto-model.c',
     'core/thunar-user.c',
     'core/thunar-util.c',
     'dialog/thunar-chooser-button.c',
@@ -70,6 +78,9 @@ app_sources = [
     'job/thunar-job.c',
     'job/thunar-simple-job.c',
     'job/thunar-transfer-job.c',
+    'menu/thunar-launcher.c',
+    'menu/thunar-menu.c',
+    'menu/thunar-sendto-model.c',
     'side/thunar-side-pane.c',
     'side/thunar-tree-model.c',
     'side/thunar-tree-pane.c',
@@ -85,7 +96,6 @@ app_sources = [
     'widget/thunar-image.c',
     'widget/thunar-location-bar.c',
     'widget/thunar-location-entry.c',
-    'widget/thunar-menu.c',
     'widget/thunar-path-entry.c',
     'widget/thunar-shortcuts-icon-renderer.c',
     'widget/thunar-size-label.c',
@@ -95,16 +105,6 @@ app_sources = [
     'thunar-marshal.c',
     'thunar-preferences.c',
     'thunar-window.c',
-]
-
-app_includes = [
-    'core',
-    'dialog',
-    'extension',
-    'job',
-    'side',
-    'view',
-    'widget',
 ]
 
 executable(

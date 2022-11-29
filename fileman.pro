@@ -13,7 +13,7 @@ PKGCONFIG = \
     libxfce4ui-2 \
     thunarx-3 \
 
-INCLUDEPATH = core dialog extension job side view widget
+INCLUDEPATH = core dialog extension job menu side view widget
 
 HEADERS = \
     core/thunar-browser.h \
@@ -27,10 +27,8 @@ HEADERS = \
     core/thunar-file-monitor.h \
     core/thunar-folder.h \
     core/thunar-history.h \
-    core/thunar-launcher.h \
     core/thunar-navigator.h \
     core/thunar-notify.h \
-    core/thunar-sendto-model.h \
     core/thunar-user.h \
     core/thunar-util.h \
     dialog/thunar-chooser-button.h \
@@ -53,11 +51,13 @@ HEADERS = \
     job/thunar-job.h \
     job/thunar-simple-job.h \
     job/thunar-transfer-job.h \
+    menu/thunar-launcher.h \
+    menu/thunar-menu.h \
+    menu/thunar-sendto-model.h \
     side/thunar-side-pane.h \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
     side/thunar-tree-view.h \
-  thunar-marshal.h \
     view/thunar-column-editor.h \
     view/thunar-column-model.h \
     view/thunar-details-view.h \
@@ -69,13 +69,13 @@ HEADERS = \
     widget/thunar-image.h \
     widget/thunar-location-bar.h \
     widget/thunar-location-entry.h \
-    widget/thunar-menu.h \
     widget/thunar-path-entry.h \
     widget/thunar-shortcuts-icon-renderer.h \
     widget/thunar-size-label.h \
     widget/thunar-statusbar.h \
     config.h \
     thunar-application.h \
+    thunar-marshal.h \
     thunar-preferences.h \
     thunar-private.h \
     thunar-window.h \
@@ -93,10 +93,8 @@ SOURCES = \
     core/thunar-file-monitor.c \
     core/thunar-folder.c \
     core/thunar-history.c \
-    core/thunar-launcher.c \
     core/thunar-navigator.c \
     core/thunar-notify.c \
-    core/thunar-sendto-model.c \
     core/thunar-user.c \
     core/thunar-util.c \
     dialog/thunar-chooser-button.c \
@@ -119,11 +117,13 @@ SOURCES = \
     job/thunar-job.c \
     job/thunar-simple-job.c \
     job/thunar-transfer-job.c \
+    menu/thunar-launcher.c \
+    menu/thunar-menu.c \
+    menu/thunar-sendto-model.c \
     side/thunar-side-pane.c \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \
     side/thunar-tree-view.c \
-  thunar-marshal.c \
     view/thunar-column-editor.c \
     view/thunar-column-model.c \
     view/thunar-details-view.c \
@@ -135,13 +135,13 @@ SOURCES = \
     widget/thunar-image.c \
     widget/thunar-location-bar.c \
     widget/thunar-location-entry.c \
-    widget/thunar-menu.c \
     widget/thunar-path-entry.c \
     widget/thunar-shortcuts-icon-renderer.c \
     widget/thunar-size-label.c \
     widget/thunar-statusbar.c \
     main.c \
     thunar-application.c \
+    thunar-marshal.c \
     thunar-preferences.c \
     thunar-window.c \
 

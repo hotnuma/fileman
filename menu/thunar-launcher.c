@@ -44,9 +44,7 @@
 #include <thunar-preferences.h>
 #include <thunar-private.h>
 #include <thunar-properties-dialog.h>
-//#include <thunar-renamer-dialog.h>
 #include <thunar-sendto-model.h>
-//#include <thunar-shortcuts-pane.h>
 #include <thunar-simple-job.h>
 #include <thunar-device-monitor.h>
 #include <thunar-tree-view.h>
