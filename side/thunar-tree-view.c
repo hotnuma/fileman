@@ -662,8 +662,8 @@ thunar_tree_view_button_press_event (GtkWidget      *widget,
                                      GdkEventButton *event)
 {
   ThunarTreeView    *view = THUNAR_TREE_VIEW (widget);
-  ThunarDevice      *device;
-  ThunarFile        *file;
+  ThunarDevice      *device = NULL;
+  ThunarFile        *file = NULL;
   GtkTreeViewColumn *column;
   GtkTreePath       *path;
   GtkTreeIter        iter;
@@ -974,6 +974,8 @@ thunar_tree_view_drag_drop (GtkWidget      *widget,
                             gint            y,
                             guint           timestamp)
 {
+  UNUSED(x);
+  UNUSED(y);
   ThunarTreeView *view = THUNAR_TREE_VIEW (widget);
   GdkAtom         target;
 
@@ -1139,6 +1141,7 @@ thunar_tree_view_test_expand_row (GtkTreeView *tree_view,
                                   GtkTreeIter *iter,
                                   GtkTreePath *path)
 {
+  UNUSED(path);
   ThunarTreeView          *view = THUNAR_TREE_VIEW (tree_view);
   gboolean                 expandable = TRUE;
   ThunarDevice            *device;
@@ -1178,6 +1181,8 @@ thunar_tree_view_row_collapsed (GtkTreeView *tree_view,
                                 GtkTreeIter *iter,
                                 GtkTreePath *path)
 {
+  UNUSED(iter);
+  UNUSED(path);
   /* schedule a cleanup of the tree model */
   thunar_tree_model_cleanup (THUNAR_TREE_VIEW (tree_view)->model);
 }
@@ -1252,7 +1257,7 @@ thunar_tree_view_context_menu (ThunarTreeView *view,
          thunar_g_file_is_network  (thunar_file_get_file (file)))
         {
           thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
-          thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_TAB, TRUE);
+
           thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
           xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (context_menu));
           thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_EMPTY_TRASH);
@@ -1276,7 +1281,7 @@ thunar_tree_view_context_menu (ThunarTreeView *view,
     {
       g_object_set (G_OBJECT (view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
       thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
-      thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_TAB, TRUE);
+
       thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
       xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (context_menu));
       thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
@@ -1579,6 +1584,9 @@ thunar_tree_view_selection_func (GtkTreeSelection *selection,
                                  gboolean          path_currently_selected,
                                  gpointer          user_data)
 {
+  UNUSED(selection);
+  UNUSED(user_data);
+
   GtkTreeIter   iter;
   ThunarFile   *file;
   gboolean      result = FALSE;

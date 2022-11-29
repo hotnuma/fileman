@@ -238,7 +238,6 @@ static XfceGtkActionEntry thunar_launcher_action_entries[] =
 {
     { THUNAR_LAUNCHER_ACTION_OPEN,             "<Actions>/ThunarLauncher/open",                    "<Primary>O",        XFCE_GTK_IMAGE_MENU_ITEM, NULL,                                   NULL,                                                                                            "document-open",        G_CALLBACK (thunar_launcher_action_open),                },
     { THUNAR_LAUNCHER_ACTION_EXECUTE,          "<Actions>/ThunarLauncher/execute",                 "",                  XFCE_GTK_IMAGE_MENU_ITEM, NULL,                                   NULL,                                                                                            "system-run",           G_CALLBACK (thunar_launcher_action_open),                },
-    { THUNAR_LAUNCHER_ACTION_OPEN_IN_TAB,      "<Actions>/ThunarLauncher/open-in-new-tab",         "<Primary><shift>P", XFCE_GTK_MENU_ITEM,       NULL,                                   NULL,                                                                                            NULL,                   G_CALLBACK (thunar_launcher_action_open_in_new_tabs),    },
     { THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,   "<Actions>/ThunarLauncher/open-in-new-window",      "<Primary><shift>O", XFCE_GTK_MENU_ITEM,       NULL,                                   NULL,                                                                                            NULL,                   G_CALLBACK (thunar_launcher_action_open_in_new_windows), },
     { THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER,  "<Actions>/ThunarLauncher/open-with-other",         "",                  XFCE_GTK_MENU_ITEM,       N_ ("Open With Other _Application..."), N_ ("Choose another application with which to open the selected file"),                          NULL,                   G_CALLBACK (thunar_launcher_action_open_with_other),     },
 
@@ -1327,16 +1326,6 @@ thunar_launcher_append_menu_item (ThunarLauncher       *launcher,
       case THUNAR_LAUNCHER_ACTION_EXECUTE:
         return xfce_gtk_image_menu_item_new_from_icon_name (_("_Execute"), ngettext ("Execute the selected file", "Execute the selected files", launcher->n_files_to_process),
                                            action_entry->accel_path, action_entry->callback, G_OBJECT (launcher), action_entry->menu_item_icon_name, menu);
-
-      case THUNAR_LAUNCHER_ACTION_OPEN_IN_TAB:
-        n = launcher->n_files_to_process > 0 ? launcher->n_files_to_process : 1;
-        label_text = g_strdup_printf (ngettext ("Open in New _Tab", "Open in %d New _Tabs", n), n);
-        tooltip_text = g_strdup_printf (ngettext ("Open the selected directory in new tab",
-                                                  "Open the selected directories in %d new tabs", n), n);
-        item = xfce_gtk_menu_item_new (label_text, tooltip_text, action_entry->accel_path, action_entry->callback, G_OBJECT (launcher), menu);
-        g_free (tooltip_text);
-        g_free (label_text);
-        return item;
 
       case THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW:
         n = launcher->n_files_to_process > 0 ? launcher->n_files_to_process : 1;
@@ -2870,8 +2859,6 @@ thunar_launcher_append_open_section (ThunarLauncher *launcher,
 
   if (launcher->n_files_to_process == launcher->n_directories_to_process && launcher->n_directories_to_process >= 1)
     {
-      if (support_tabs)
-        thunar_launcher_append_menu_item (launcher, GTK_MENU_SHELL (menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_TAB, FALSE);
       thunar_launcher_append_menu_item (launcher, GTK_MENU_SHELL (menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, FALSE);
     }
 
