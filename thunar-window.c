@@ -109,9 +109,6 @@ static void      thunar_window_set_property               (GObject              
                                                            GParamSpec             *pspec);
 static gboolean  thunar_window_reload                     (ThunarWindow           *window,
                                                            gboolean                reload_info);
-static gboolean  thunar_window_zoom_in                    (ThunarWindow           *window);
-static gboolean  thunar_window_zoom_out                   (ThunarWindow           *window);
-static gboolean  thunar_window_zoom_reset                 (ThunarWindow           *window);
 static gboolean  thunar_window_tab_change                 (ThunarWindow           *window,
                                                            gint                    nth);
 static void      thunar_window_realize                    (GtkWidget              *widget);
@@ -293,14 +290,6 @@ static XfceGtkActionEntry thunar_window_action_entries[] =
   {THUNAR_WINDOW_ACTION_RELOAD_ALT, "<Actions>/ThunarWindow/reload-alt", "F5", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_action_reload)},
   {THUNAR_WINDOW_ACTION_SHOW_HIDDEN, "<Actions>/ThunarWindow/show-hidden", "<Primary>h", XFCE_GTK_CHECK_MENU_ITEM, N_ ("Show _Hidden Files"), N_ ("Toggles the display of hidden files in the current window"), NULL, G_CALLBACK (thunar_window_action_show_hidden)},
   {THUNAR_WINDOW_ACTION_BACK_ALT, "<Actions>/ThunarStandardView/back-alt", "BackSpace", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_action_back)},
-
-  {THUNAR_WINDOW_ACTION_ZOOM_IN, "<Actions>/ThunarWindow/zoom-in", "<Primary>KP_Add", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Zoom I_n"), N_ ("Show the contents in more detail"), "zoom-in-symbolic", G_CALLBACK (thunar_window_zoom_in)},
-  {THUNAR_WINDOW_ACTION_ZOOM_IN_ALT_1, "<Actions>/ThunarWindow/zoom-in-alt1", "<Primary>plus", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_in)},
-  {THUNAR_WINDOW_ACTION_ZOOM_IN_ALT_2, "<Actions>/ThunarWindow/zoom-in-alt2", "<Primary>equal", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_in)},
-  {THUNAR_WINDOW_ACTION_ZOOM_OUT, "<Actions>/ThunarWindow/zoom-out", "<Primary>KP_Subtract", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Zoom _Out"), N_ ("Show the contents in less detail"), "zoom-out-symbolic", G_CALLBACK (thunar_window_zoom_out)},
-  {THUNAR_WINDOW_ACTION_ZOOM_OUT_ALT, "<Actions>/ThunarWindow/zoom-out-alt", "<Primary>minus", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_out)},
-  {THUNAR_WINDOW_ACTION_ZOOM_RESET, "<Actions>/ThunarWindow/zoom-reset", "<Primary>KP_0", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Normal Si_ze"), N_ ("Show the contents at the normal size"), "zoom-original-symbolic", G_CALLBACK (thunar_window_zoom_reset)},
-  {THUNAR_WINDOW_ACTION_ZOOM_RESET_ALT, "<Actions>/ThunarWindow/zoom-reset-alt", "<Primary>0", XFCE_GTK_IMAGE_MENU_ITEM, NULL, NULL, NULL, G_CALLBACK (thunar_window_zoom_reset)},
 };
 
 #define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_window_action_entries,G_N_ELEMENTS(thunar_window_action_entries),id)
@@ -336,9 +325,10 @@ thunar_window_class_init (ThunarWindowClass *klass)
   gtkwidget_class->configure_event = thunar_window_configure_event;
 
   klass->reload = thunar_window_reload;
-  klass->zoom_in = thunar_window_zoom_in;
-  klass->zoom_out = thunar_window_zoom_out;
-  klass->zoom_reset = thunar_window_zoom_reset;
+  klass->zoom_in = NULL;
+  klass->zoom_out = NULL;
+  klass->zoom_reset = NULL;
+
   klass->tab_change = thunar_window_tab_change;
 
   xfce_gtk_translate_action_entries (thunar_window_action_entries, G_N_ELEMENTS (thunar_window_action_entries));
@@ -926,57 +916,6 @@ GtkWidget* thunar_window_get_sidepane (ThunarWindow *window)
 {
   _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
   return GTK_WIDGET (window->sidepane);
-}
-
-
-
-static gboolean
-thunar_window_zoom_in (ThunarWindow *window)
-{
-  _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
-
-  /* check if we can still zoom in */
-  if (G_LIKELY (window->zoom_level < THUNAR_ZOOM_N_LEVELS - 1))
-    {
-      thunar_window_set_zoom_level (window, window->zoom_level + 1);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-
-
-static gboolean
-thunar_window_zoom_out (ThunarWindow *window)
-{
-  _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
-
-  /* check if we can still zoom out */
-  if (G_LIKELY (window->zoom_level > 0))
-    {
-      thunar_window_set_zoom_level (window, window->zoom_level - 1);
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-
-
-static gboolean
-thunar_window_zoom_reset (ThunarWindow *window)
-{
-  _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
-
-  /* tell the view to reset it's zoom level */
-  if (G_LIKELY (window->view != NULL))
-    {
-      thunar_view_reset_zoom_level (THUNAR_VIEW (window->view));
-      return TRUE;
-    }
-
-  return FALSE;
 }
 
 
@@ -2267,7 +2206,7 @@ thunar_window_get_action_entry (ThunarWindow       *window,
 }
 
 
-
+#if 0
 /**
  * thunar_window_append_menu_item:
  * @window  : Instance of a  #ThunarWindow
@@ -2292,7 +2231,7 @@ thunar_window_append_menu_item (ThunarWindow       *window,
   if (action == THUNAR_WINDOW_ACTION_ZOOM_OUT)
     gtk_widget_set_sensitive (item, G_LIKELY (window->zoom_level > 0));
 }
-
+#endif
 
 
 /**
