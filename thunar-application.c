@@ -56,7 +56,10 @@
 #include <thunar-progress-dialog.h>
 #include <thunar-util.h>
 #include <thunar-view.h>
+
+#ifdef ENABLE_LIBSM
 #include <thunar-session-client.h>
+#endif
 
 #ifdef ENABLE_DBUS
 #include <thunar-dbus-service.h>
@@ -181,7 +184,9 @@ struct _ThunarApplication
 {
   GtkApplication         __parent__;
 
+#ifdef ENABLE_LIBSM
   ThunarSessionClient   *session_client;
+#endif
 
   ThunarPreferences     *preferences;
   GtkWidget             *progress_dialog;
@@ -374,7 +379,9 @@ thunar_application_startup (GApplication *gapp)
   G_APPLICATION_CLASS (thunar_application_parent_class)->startup (gapp);
 
   /* connect to the session manager */
+#ifdef ENABLE_LIBSM
   application->session_client = thunar_session_client_new (opt_sm_client_id);
+#endif
 
   /* check if we have a saved accel map */
   path = xfce_resource_lookup (XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
@@ -437,7 +444,9 @@ thunar_application_shutdown (GApplication *gapp)
   g_object_unref (G_OBJECT (application->preferences));
 
   /* disconnect from the session manager */
+#ifdef ENABLE_LIBSM
   g_object_unref (G_OBJECT (application->session_client));
+#endif
 
 #ifdef ENABLE_DBUS
   /* remove the dbus service */

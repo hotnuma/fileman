@@ -75,9 +75,6 @@ struct _ThunarMenu
   /* true, if the 'open' section should be forced */
   gboolean         force_section_open;
 
-  /* true, if 'open as new tab' should not be shown */
-//  gboolean         tab_support_disabled;
-
   /* true, if 'open' for folders, which would result in changing the directory, should not be shown */
   gboolean         change_directory_support_disabled;
 
@@ -368,3 +365,5 @@ thunar_menu_hide_accel_labels (ThunarMenu *menu)
     xfce_gtk_menu_item_set_accel_label (lp->data, NULL);
   g_list_free (children);
 }
+
+

@@ -27,12 +27,10 @@ HEADERS = \
     core/thunar-file-monitor.h \
     core/thunar-folder.h \
     core/thunar-history.h \
-    core/thunar-ice.h \
     core/thunar-launcher.h \
     core/thunar-navigator.h \
     core/thunar-notify.h \
     core/thunar-sendto-model.h \
-    core/thunar-session-client.h \
     core/thunar-user.h \
     core/thunar-util.h \
     dialog/thunar-chooser-button.h \
@@ -95,12 +93,10 @@ SOURCES = \
     core/thunar-file-monitor.c \
     core/thunar-folder.c \
     core/thunar-history.c \
-    core/thunar-ice.c \
     core/thunar-launcher.c \
     core/thunar-navigator.c \
     core/thunar-notify.c \
     core/thunar-sendto-model.c \
-    core/thunar-session-client.c \
     core/thunar-user.c \
     core/thunar-util.c \
     dialog/thunar-chooser-button.c \

@@ -33,13 +33,16 @@
 #include <gio/gdesktopappinfo.h>
 #endif
 
+#ifdef ENABLE_LIBSM
+#include <thunar-session-client.h>
+#endif
+
 #include <xfconf/xfconf.h>
 
 #include <thunar-application.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-private.h>
 #include <thunar-notify.h>
-#include <thunar-session-client.h>
 #include <thunar-preferences.h>
 
 
