@@ -131,11 +131,6 @@ static void      thunar_window_notebook_page_removed      (GtkWidget            
                                                            GtkWidget              *page,
                                                            guint                   page_num,
                                                            ThunarWindow           *window);
-static gpointer  thunar_window_notebook_create_window     (GtkWidget              *notebook,
-                                                           GtkWidget              *page,
-                                                           gint                    x,
-                                                           gint                    y,
-                                                           ThunarWindow           *window);
 static GtkWidget*thunar_window_notebook_insert            (ThunarWindow           *window,
                                                            ThunarFile             *directory,
                                                            GType                   view_type,
@@ -603,7 +598,6 @@ thunar_window_init (ThunarWindow *window)
   g_signal_connect (G_OBJECT (window->notebook), "switch-page", G_CALLBACK (thunar_window_notebook_switch_page), window);
   g_signal_connect (G_OBJECT (window->notebook), "page-added", G_CALLBACK (thunar_window_notebook_page_added), window);
   g_signal_connect (G_OBJECT (window->notebook), "page-removed", G_CALLBACK (thunar_window_notebook_page_removed), window);
-  g_signal_connect (G_OBJECT (window->notebook), "create-window", G_CALLBACK (thunar_window_notebook_create_window), window);
   gtk_notebook_set_show_border (GTK_NOTEBOOK (window->notebook), FALSE);
   gtk_notebook_set_scrollable (GTK_NOTEBOOK (window->notebook), TRUE);
   gtk_container_set_border_width (GTK_CONTAINER (window->notebook), 0);
@@ -1295,62 +1289,6 @@ thunar_window_notebook_page_removed (GtkWidget    *notebook,
       /* update tab visibility */
       thunar_window_notebook_show_tabs (window);
     }
-}
-
-
-
-static gpointer
-thunar_window_notebook_create_window (GtkWidget    *notebook,
-                                      GtkWidget    *page,
-                                      gint          x,
-                                      gint          y,
-                                      ThunarWindow *window)
-{
-  GtkWidget         *new_window;
-  ThunarApplication *application;
-  gint               width, height;
-  GdkMonitor        *monitor;
-  GdkScreen         *screen;
-  GdkRectangle       geo;
-
-//  DPRINT("enter : thunar_window_notebook_create_window\n");
-
-  _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), NULL);
-  _thunar_return_val_if_fail (GTK_IS_NOTEBOOK (notebook), NULL);
-  _thunar_return_val_if_fail (window->notebook == notebook, NULL);
-  _thunar_return_val_if_fail (THUNAR_IS_VIEW (page), NULL);
-
-  /* do nothing if this window has only 1 tab */
-  if (gtk_notebook_get_n_pages (GTK_NOTEBOOK (notebook)) < 2)
-    return NULL;
-
-  /* create new window */
-  application = thunar_application_get ();
-  screen = gtk_window_get_screen (GTK_WINDOW (window));
-  new_window = thunar_application_open_window (application, NULL, screen, NULL, TRUE);
-  g_object_unref (application);
-
-  /* make sure the new window has the same size */
-  gtk_window_get_size (GTK_WINDOW (window), &width, &height);
-  gtk_window_resize (GTK_WINDOW (new_window), width, height);
-
-  /* move the window to the drop position */
-  if (x >= 0 && y >= 0)
-    {
-      /* get the monitor geometry */
-      monitor = gdk_display_get_monitor_at_point (gdk_display_get_default (), x, y);
-      gdk_monitor_get_geometry (monitor, &geo);
-
-      /* calculate window position, but keep it on the current monitor */
-      x = CLAMP (x - width / 2, geo.x, geo.x + geo.width - width);
-      y = CLAMP (y - height / 2, geo.y, geo.y + geo.height - height);
-
-      /* move the window */
-      gtk_window_move (GTK_WINDOW (new_window), MAX (0, x), MAX (0, y));
-    }
-
-  /* insert page in new notebook */
-  return THUNAR_WINDOW (new_window)->notebook;
 }
 
 

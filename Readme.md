@@ -49,23 +49,7 @@ TIME_H
 
 
 AC_FUNC_MMAP()
-
-AC_CHECK_FUNCS()
-localeconv
-mkdtemp
-pread
-pwrite
-sched_yield
-setgroupent
-setpassent
-strcoll
-strlcpy
-strptime
-symlink
-atexit
-
 XDT_I18N([@LINGUAS@])
-
 XDT_CHECK_LIBX11_REQUIRE()
 
 GTK_DOC_CHECK([1.9])

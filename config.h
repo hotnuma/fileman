@@ -39,10 +39,22 @@
 #define HAVE_TIME_H 1
 
 #define HAVE_GIO_UNIX 1
-#define HAVE_LIBNOTIFY 1
 #define HAVE_GUDEV 1
-
+#define HAVE_LIBNOTIFY 1
 #define HAVE_UNISTD_H 1
+
+#define HAVE_LOCALECONV
+#define HAVE_MKDTEMP
+#define HAVE_PREAD
+#define HAVE_PWRITE
+#define HAVE_SCHED_YIELD
+//#define HAVE_SETGROUPENT
+//#define HAVE_SETPASSENT
+#define HAVE_STRCOLL
+//#define HAVE_STRLCPY
+#define HAVE_STRPTIME
+#define HAVE_SYMLINK
+#define HAVE_ATEXIT
 
 #endif // CONFIG_H
 
