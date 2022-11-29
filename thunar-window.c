@@ -153,7 +153,7 @@ static void      thunar_window_action_debug              (ThunarWindow          
                                                            GtkWidget              *menu_item);
 static void      thunar_window_action_reload              (ThunarWindow           *window,
                                                            GtkWidget              *menu_item);
-static void      thunar_window_replace_view               (ThunarWindow           *window,
+static void      thunar_window_create_view               (ThunarWindow           *window,
                                                            GtkWidget              *view,
                                                            GType                   view_type);
 static void      thunar_window_action_go_up               (ThunarWindow           *window);
@@ -250,7 +250,6 @@ struct _ThunarWindow
   GtkWidget              *view;
   GtkWidget              *statusbar;
 
-  GType                   view_type;
   GSList                 *view_bindings;
 
   /* support for two different styles of location bars */
@@ -502,9 +501,6 @@ thunar_window_init (ThunarWindow *window)
   GtkToolItem     *tool_item;
   gboolean         small_icons;
   GtkStyleContext *context;
-
-  /* unset the view type */
-  window->view_type = G_TYPE_NONE;
 
   /* grab a reference on the provider factory and load the providers*/
   window->provider_factory = thunarx_provider_factory_get_default ();
@@ -1182,7 +1178,6 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
 
   /* activate new view */
   window->view = page;
-  window->view_type = G_TYPE_FROM_INSTANCE (page);
 
   /* connect to the new history */
   history = thunar_standard_view_get_history (THUNAR_STANDARD_VIEW (window->view));
@@ -1267,9 +1262,6 @@ thunar_window_notebook_page_added (GtkWidget    *notebook,
   /* update tab visibility */
   thunar_window_notebook_show_tabs (window);
 
-  /* set default type if not set yet */
-  if (window->view_type == G_TYPE_NONE)
-    window->view_type = G_OBJECT_TYPE (page);
 }
 
 
@@ -1684,7 +1676,7 @@ thunar_window_action_reload (ThunarWindow *window,
 
 
 static void
-thunar_window_replace_view (ThunarWindow *window,
+thunar_window_create_view (ThunarWindow *window,
                             GtkWidget    *view,
                             GType         view_type)
 {
@@ -1697,14 +1689,12 @@ thunar_window_replace_view (ThunarWindow *window,
 
   _thunar_return_if_fail (view_type != G_TYPE_NONE);
 
+  _thunar_assert(view == NULL);
+
   if (view != NULL)
     return;
 
-  DPRINT("enter : thunar_window_replace_view\n");
-
-  //gboolean is_current_view = (view == window->view);
-
-  window->view_type = view_type;
+  DPRINT("enter : thunar_window_create_view\n");
 
   /* if we have not got a current directory from the old view, use the window's current directory */
   if (current_directory == NULL && window->current_directory != NULL)
@@ -2237,9 +2227,9 @@ thunar_window_set_current_directory (ThunarWindow *window,
       window->current_directory = current_directory;
 
       /* create a new view if the window is new */
-      if (num_pages == 0)
+      if (window->view == NULL /*num_pages == 0*/)
         {
-          thunar_window_replace_view (window, window->view, type);
+          thunar_window_create_view (window, window->view, type);
         }
 
       /* connect the "changed"/"destroy" signals */
