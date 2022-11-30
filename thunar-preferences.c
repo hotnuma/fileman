@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2005-2007 Benedikt Meurer <benny@xfce.org>
  * Copyright (c) 2009 Jannis Pohlmann <jannis@xfce.org>
@@ -44,7 +43,6 @@
 #include <thunar-preferences.h>
 #include <thunar-private.h>
 #include <xfconf/xfconf.h>
-
 
 /* Property identifiers */
 enum
@@ -95,13 +93,10 @@ enum
     PROP_MISC_TAB_CLOSE_MIDDLE_CLICK,
     PROP_MISC_TEXT_BESIDE_ICONS,
     PROP_MISC_THUMBNAIL_MODE,
-    PROP_MISC_THUMBNAIL_DRAW_FRAMES,
     PROP_MISC_FILE_SIZE_BINARY,
     PROP_MISC_CONFIRM_CLOSE_MULTIPLE_TABS,
     PROP_MISC_PARALLEL_COPY_MODE,
     PROP_MISC_WINDOW_ICON,
-    PROP_SHORTCUTS_ICON_EMBLEMS,
-    PROP_SHORTCUTS_ICON_SIZE,
     PROP_TREE_ICON_EMBLEMS,
     PROP_TREE_ICON_SIZE,
     N_PROPERTIES,
@@ -752,20 +747,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                            EXO_PARAM_READWRITE);
 
     /**
-     * ThunarPreferences:misc-thumbnail-draw-frames:
-     *
-     * Whether to draw black frames around thumbnails.
-     * This looks neat, but will delay the first draw a bit.
-     * May have an impact on older systems, on folders with many pictures.
-     **/
-    preferences_props[PROP_MISC_THUMBNAIL_DRAW_FRAMES] =
-        g_param_spec_boolean ("misc-thumbnail-draw-frames",
-                              NULL,
-                              NULL,
-                              FALSE,
-                              EXO_PARAM_READWRITE);
-
-    /**
      * ThunarPreferences:misc-file-size-binary:
      *
      * Show file size in binary format instead of decimal.
@@ -814,33 +795,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                               NULL,
                               TRUE,
                               EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:shortcuts-icon-emblems:
-     *
-     * Whether to display emblems for file icons (if defined) in the
-     * shortcuts side pane.
-     **/
-    preferences_props[PROP_SHORTCUTS_ICON_EMBLEMS] =
-        g_param_spec_boolean ("shortcuts-icon-emblems",
-                              "ShortcutsIconEmblems",
-                              NULL,
-                              TRUE,
-                              EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:shortcuts-icon-size:
-     *
-     * The icon size to use for the icons displayed in the
-     * shortcuts side pane.
-     **/
-    preferences_props[PROP_SHORTCUTS_ICON_SIZE] =
-        g_param_spec_enum ("shortcuts-icon-size",
-                           "ShortcutsIconSize",
-                           NULL,
-                           THUNAR_TYPE_ICON_SIZE,
-                           THUNAR_ICON_SIZE_24,
-                           EXO_PARAM_READWRITE);
 
     /**
      * ThunarPreferences:tree-icon-emblems:

@@ -190,21 +190,6 @@ thunar_icon_factory_class_init (ThunarIconFactoryClass *klass)
                                              EXO_PARAM_READWRITE));
 
     /**
-     * ThunarIconFactory:thumbnail-draw-frames:
-     *
-     * Whether to draw black frames around thumbnails.
-     * This looks neat, but will delay the first draw a bit.
-     * May have an impact on older systems, on folders with many pictures.
-     **/
-    g_object_class_install_property (gobject_class,
-                                     PROP_THUMBNAIL_DRAW_FRAMES,
-                                     g_param_spec_boolean ("thumbnail-draw-frames",
-                                             "thumbnail-draw-frames",
-                                             "thumbnail-draw-frames",
-                                             FALSE,
-                                             EXO_PARAM_READWRITE));
-
-    /**
      * ThunarIconFactory:thumbnail-size:
      *
      * Size of the thumbnails to load

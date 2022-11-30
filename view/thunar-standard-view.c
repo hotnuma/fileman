@@ -47,7 +47,6 @@
 #include <thunar-pango-extensions.h>
 #include <thunar-private.h>
 #include <thunar-properties-dialog.h>
-//#include <thunar-renamer-dialog.h>
 #include <thunar-simple-job.h>
 #include <thunar-standard-view.h>
 #include <thunar-util.h>
@@ -71,7 +70,6 @@ enum
     PROP_STATUSBAR_TEXT,
     PROP_ZOOM_LEVEL,
     PROP_DIRECTORY_SPECIFIC_SETTINGS,
-    PROP_THUMBNAIL_DRAW_FRAMES,
     PROP_ACCEL_GROUP,
     N_PROPERTIES
 };
@@ -427,20 +425,6 @@ thunar_standard_view_class_init (ThunarStandardViewClass *klass)
         g_param_spec_boolean ("directory-specific-settings",
                               "directory-specific-settings",
                               "directory-specific-settings",
-                              FALSE,
-                              EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarStandardView:thumbnail-draw-frames:
-     *
-     * Whether to draw black frames around thumbnails.
-     * This looks neat, but will delay the first draw a bit.
-     * May have an impact on older systems, on folders with many pictures.
-     **/
-    standard_view_props[PROP_THUMBNAIL_DRAW_FRAMES] =
-        g_param_spec_boolean ("thumbnail-draw-frames",
-                              "thumbnail-draw-frames",
-                              "thumbnail-draw-frames",
                               FALSE,
                               EXO_PARAM_READWRITE);
 
@@ -816,7 +800,6 @@ thunar_standard_view_get_property (GObject    *object,
 {
     UNUSED(pspec);
     ThunarFile *current_directory;
-    gboolean thumbnail_draw_frames;
 
     switch (prop_id)
     {
@@ -854,11 +837,6 @@ thunar_standard_view_get_property (GObject    *object,
 
     case PROP_ZOOM_LEVEL:
         g_value_set_enum (value, thunar_view_get_zoom_level (THUNAR_VIEW (object)));
-        break;
-
-    case PROP_THUMBNAIL_DRAW_FRAMES:
-        g_object_get (G_OBJECT (THUNAR_STANDARD_VIEW(object)->icon_factory), "thumbnail-draw-frames", &thumbnail_draw_frames, NULL);
-        g_value_set_boolean (value, thumbnail_draw_frames);
         break;
 
     default:
@@ -904,11 +882,6 @@ thunar_standard_view_set_property (GObject      *object,
         thunar_standard_view_set_directory_specific_settings (standard_view, g_value_get_boolean (value));
         break;
 
-    case PROP_THUMBNAIL_DRAW_FRAMES:
-        g_object_set (G_OBJECT (standard_view->icon_factory), "thumbnail-draw-frames", g_value_get_boolean (value), NULL);
-        thunar_standard_view_reload(THUNAR_VIEW (object), TRUE);
-        break;
-
     case PROP_ACCEL_GROUP:
         thunar_standard_view_disconnect_accelerators (standard_view);
         standard_view->accel_group = g_value_dup_object (value);
@@ -936,10 +909,6 @@ thunar_standard_view_realize (GtkWidget *widget)
     icon_theme = gtk_icon_theme_get_for_screen (gtk_widget_get_screen (widget));
     standard_view->icon_factory = thunar_icon_factory_get_for_icon_theme (icon_theme);
     exo_binding_new (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->icon_factory), "thumbnail-size");
-
-    /* apply the thumbnail frame preferences after icon_factory got initialized */
-    exo_binding_new (G_OBJECT (standard_view->preferences), "misc-thumbnail-draw-frames", G_OBJECT (standard_view), "thumbnail-draw-frames");
-
 }
 
 
