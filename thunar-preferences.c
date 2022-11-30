@@ -102,23 +102,13 @@ enum
     N_PROPERTIES,
 };
 
-
-
-static void     thunar_preferences_finalize           (GObject                *object);
-static void     thunar_preferences_get_property       (GObject                *object,
-        guint                   prop_id,
-        GValue                 *value,
-        GParamSpec             *pspec);
-static void     thunar_preferences_set_property       (GObject                *object,
-        guint                   prop_id,
-        const GValue           *value,
-        GParamSpec             *pspec);
-static void     thunar_preferences_prop_changed       (XfconfChannel          *channel,
-        const gchar            *prop_name,
-        const GValue           *value,
-        ThunarPreferences      *preferences);
-
-
+static void thunar_preferences_finalize (GObject *object);
+static void thunar_preferences_get_property (GObject *object, guint prop_id,
+                                             GValue *value, GParamSpec *pspec);
+static void thunar_preferences_set_property (GObject *object, guint prop_id,
+                                             const GValue *value, GParamSpec *pspec);
+static void thunar_preferences_prop_changed (XfconfChannel *channel, const gchar *prop_name,
+                                             const GValue *value, ThunarPreferences *preferences);
 
 struct _ThunarPreferencesClass
 {
@@ -131,23 +121,15 @@ struct _ThunarPreferences
 
     XfconfChannel *channel;
 
-    gulong         property_changed_id;
+    gulong property_changed_id;
 };
-
-
 
 /* don't do anything in case xfconf_init() failed */
 static gboolean no_xfconf = FALSE;
 
-
-
 G_DEFINE_TYPE (ThunarPreferences, thunar_preferences, G_TYPE_OBJECT)
 
-
-
 static GParamSpec *preferences_props[N_PROPERTIES] = { NULL, };
-
-
 
 static void
 thunar_preferences_class_init (ThunarPreferencesClass *klass)
@@ -827,8 +809,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
     g_object_class_install_properties (gobject_class, N_PROPERTIES, preferences_props);
 }
 
-
-
 static void
 thunar_preferences_init (ThunarPreferences *preferences)
 {
@@ -854,8 +834,6 @@ thunar_preferences_init (ThunarPreferences *preferences)
                           G_CALLBACK (thunar_preferences_prop_changed), preferences);
 }
 
-
-
 static void
 thunar_preferences_finalize (GObject *object)
 {
@@ -866,8 +844,6 @@ thunar_preferences_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_preferences_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_preferences_get_property (GObject    *object,
@@ -911,8 +887,6 @@ thunar_preferences_get_property (GObject    *object,
         g_param_value_set_default (pspec, value);
     }
 }
-
-
 
 static void
 thunar_preferences_set_property (GObject      *object,
@@ -963,8 +937,6 @@ thunar_preferences_set_property (GObject      *object,
     g_signal_handler_unblock (preferences->channel, preferences->property_changed_id);
 }
 
-
-
 static void
 thunar_preferences_prop_changed (XfconfChannel     *channel,
                                  const gchar       *prop_name,
@@ -982,8 +954,6 @@ thunar_preferences_prop_changed (XfconfChannel     *channel,
         g_object_notify_by_pspec (G_OBJECT (preferences), pspec);
 }
 
-
-
 /**
  * thunar_preferences_get:
  *
@@ -995,7 +965,7 @@ thunar_preferences_prop_changed (XfconfChannel     *channel,
  * Return value: the global #ThunarPreferences instance.
  **/
 ThunarPreferences*
-thunar_preferences_get (void)
+thunar_preferences_get ()
 {
     static ThunarPreferences *preferences = NULL;
 
@@ -1013,10 +983,8 @@ thunar_preferences_get (void)
     return preferences;
 }
 
-
-
 void
-thunar_preferences_xfconf_init_failed (void)
+thunar_preferences_xfconf_init_failed ()
 {
     no_xfconf = TRUE;
 }

@@ -129,10 +129,14 @@ static ThunarZoomLevel      thunar_standard_view_get_zoom_level             (Thu
 static void                 thunar_standard_view_set_zoom_level             (ThunarView               *view,
         ThunarZoomLevel           zoom_level);
 static void                 thunar_standard_view_reset_zoom_level           (ThunarView               *view);
+
+#if ENABLE_SPECDIR
 static void                 thunar_standard_view_apply_directory_specific_settings    (ThunarStandardView   *standard_view,
         ThunarFile           *directory);
 static void                 thunar_standard_view_set_directory_specific_settings      (ThunarStandardView   *standard_view,
         gboolean              directory_specific_settings);
+#endif
+
 static void                 thunar_standard_view_reload                     (ThunarView               *view,
         gboolean                  reload_info);
 static gboolean             thunar_standard_view_get_visible_range          (ThunarView               *view,
@@ -264,7 +268,9 @@ struct _ThunarStandardViewPrivate
     ThunarZoomLevel         zoom_level;
 
     /* directory specific settings */
-//  gboolean                directory_specific_settings;
+#if ENABLE_SPECDIR
+    gboolean                directory_specific_settings;
+#endif
 
     /* scroll_to_file support */
     GHashTable             *scroll_to_files;
@@ -878,9 +884,11 @@ thunar_standard_view_set_property (GObject      *object,
         thunar_view_set_zoom_level (THUNAR_VIEW (object), g_value_get_enum (value));
         break;
 
+#if ENABLE_SPECDIR
     case PROP_DIRECTORY_SPECIFIC_SETTINGS:
         thunar_standard_view_set_directory_specific_settings (standard_view, g_value_get_boolean (value));
         break;
+#endif
 
     case PROP_ACCEL_GROUP:
         thunar_standard_view_disconnect_accelerators (standard_view);
@@ -1222,8 +1230,10 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
     thunar_navigator_set_current_directory (THUNAR_NAVIGATOR (standard_view->priv->history), current_directory);
 
     /* if directory specific settings are enabled, apply them */
-//  if (standard_view->priv->directory_specific_settings)
-//    thunar_standard_view_apply_directory_specific_settings (standard_view, current_directory);
+#if ENABLE_SPECDIR
+  if (standard_view->priv->directory_specific_settings)
+    thunar_standard_view_apply_directory_specific_settings (standard_view, current_directory);
+#endif
 
     /* We drop the model from the view as a simple optimization to speed up
      * the process of disconnecting the model data from the view.
@@ -1462,8 +1472,7 @@ thunar_standard_view_reset_zoom_level (ThunarView *view)
     g_value_unset (&value);
 }
 
-
-
+#if ENABLE_SPECDIR
 static void
 thunar_standard_view_apply_directory_specific_settings (ThunarStandardView *standard_view,
         ThunarFile         *directory)
@@ -1512,14 +1521,12 @@ thunar_standard_view_apply_directory_specific_settings (ThunarStandardView *stan
                       standard_view);
 }
 
-
-
 static void
 thunar_standard_view_set_directory_specific_settings (ThunarStandardView *standard_view,
         gboolean            directory_specific_settings)
 {
     /* save the setting */
-//  standard_view->priv->directory_specific_settings = directory_specific_settings;
+    standard_view->priv->directory_specific_settings = directory_specific_settings;
 
     /* if there is no current directory then return  */
     if (standard_view->priv->current_directory == NULL)
@@ -1541,6 +1548,7 @@ thunar_standard_view_set_directory_specific_settings (ThunarStandardView *standa
         gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (standard_view->model), sort_column, sort_order);
     }
 }
+#endif
 
 
 
@@ -1564,14 +1572,13 @@ thunar_standard_view_reload (ThunarView *view,
             thunar_standard_view_current_directory_destroy (file, standard_view);
     }
 
+#if ENABLE_SPECDIR
     /* if directory specific settings are enabled, apply them. the reload might have been triggered */
     /* specifically to ensure that any change in these settings is applied */
-//  if (standard_view->priv->directory_specific_settings)
-//    thunar_standard_view_apply_directory_specific_settings (standard_view, standard_view->priv->current_directory);
-
+    if (standard_view->priv->directory_specific_settings)
+        thunar_standard_view_apply_directory_specific_settings (standard_view, standard_view->priv->current_directory);
+#endif
 }
-
-
 
 static gboolean
 thunar_standard_view_get_visible_range (ThunarView  *view,

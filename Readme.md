@@ -1,12 +1,13 @@
 
 This is an experimental fork of Thunar File Manager from XFCE desktop
 
+TODO : preferences options cleanup
+
 menus:
 thunar_tree_view_context_menu
 thunar_standard_view_context_menu
 
 <!--
-
 metadata
 
 gboolean directory_specific_settings;
