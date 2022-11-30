@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2009 Jannis Pohlmann <jannis@xfce.org>
  *
@@ -25,12 +24,12 @@
 
 G_BEGIN_DECLS
 
-GFile    *thunar_g_file_new_for_home             (void);
-GFile    *thunar_g_file_new_for_root             (void);
-GFile    *thunar_g_file_new_for_trash            (void);
-GFile    *thunar_g_file_new_for_desktop          (void);
-GFile    *thunar_g_file_new_for_computer         (void);
-GFile    *thunar_g_file_new_for_bookmarks        (void);
+GFile *thunar_g_file_new_for_home       ();
+GFile *thunar_g_file_new_for_root       ();
+GFile *thunar_g_file_new_for_trash      ();
+GFile *thunar_g_file_new_for_desktop    ();
+GFile *thunar_g_file_new_for_computer   ();
+GFile *thunar_g_file_new_for_bookmarks  ();
 
 gboolean  thunar_g_file_is_root                  (GFile                *file);
 gboolean  thunar_g_file_is_trashed               (GFile                *file);

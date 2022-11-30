@@ -7,6 +7,48 @@ menus:
 thunar_tree_view_context_menu
 thunar_standard_view_context_menu
 
+#### Widget focus
+
+* search
+    
+    ```
+    $ cgrep gtk_widget_grab_focus
+    
+    dialog/thunar-chooser-dialog.c:971:     gtk_widget_grab_focus (dialog->tree_view);
+    dialog/thunar-properties-dialog.c:972:  gtk_widget_grab_focus (GTK_WIDGET (xfce_filename_input_get_entry (dialog->name_entry)));
+    dialog/thunar-dialogs.c:1115:           gtk_widget_grab_focus (entry);
+    view/thunar-column-editor.c:283:        gtk_widget_grab_focus (column_editor->tree_view);
+    
+    widget/thunar-location-entry.c:308:     gtk_widget_grab_focus (location_entry->path_entry);
+    
+    side/thunar-tree-view.c:790:            gtk_widget_grab_focus (widget);
+    side/thunar-tree-view.c:904:            gtk_widget_grab_focus (widget);
+    
+    view/thunar-standard-view.c:944:        gtk_widget_grab_focus (gtk_bin_get_child (GTK_BIN (widget)));
+    view/thunar-standard-view.c:1959:       gtk_widget_grab_focus (GTK_WIDGET (standard_view));
+    view/thunar-standard-view.c:2072:       gtk_widget_grab_focus (GTK_WIDGET (standard_view));
+    view/thunar-standard-view.c:2159:       gtk_widget_grab_focus (gtk_bin_get_child (GTK_BIN (standard_view)));
+    
+    view/thunar-details-view.c:684:         gtk_widget_grab_focus (GTK_WIDGET (tree_view));
+    
+    thunar-window.c:1109:                   gtk_widget_grab_focus (page);
+    thunar-window.c:1346:                   gtk_widget_grab_focus (window->view);
+    thunar-window.c:1523:                   gtk_widget_grab_focus (new_view);
+    thunar-window.c:2052:                   gtk_widget_grab_focus (window->view);
+    ```
+
+* Widget focus
+    
+    gtk_widget_grab_focus
+    
+    focus-out-event, focus-in-event, gtk_window_get_focus
+    
+    ```
+    thunar/thunar-standard-view.c:394:
+    gtkwidget_class->grab_focus = thunar_standard_view_grab_focus;
+    ```
+    
+
 <!--
 metadata
 

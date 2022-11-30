@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2004-2006 os-cillation e.K.
  *
@@ -37,9 +36,11 @@ G_BEGIN_DECLS;
 #define G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec) G_STMT_START{ (void)0; }G_STMT_END
 #endif
 
-void   thunar_g_initialize_transformations (void);
-gchar* thunar_g_strescape                  (const gchar *source);
+void thunar_g_initialize_transformations ();
+gchar* thunar_g_strescape (const gchar *source);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_GOBJECT_EXTENSIONS_H__ */
+
+

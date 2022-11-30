@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2006 Benedikt Meurer <benny@xfce.org>
  *
@@ -38,3 +37,5 @@ PangoAttrList *thunar_pango_attr_list_underline_single  (void) G_GNUC_CONST;
 G_END_DECLS;
 
 #endif /* !__THUNAR_PANGO_EXTENSIONS_H__ */
+
+

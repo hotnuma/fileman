@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2003-2007 Benedikt Meurer <benny@xfce.org>
  *
@@ -25,14 +24,18 @@
 
 G_BEGIN_DECLS;
 
-GdkScreen *thunar_gdk_screen_open             (const gchar *display_name,
-        GError     **error);
+#if 0
+GdkScreen *thunar_gdk_screen_open (const gchar *display_name,
+                                   GError **error);
+#endif
 
-void       thunar_gdk_cairo_set_source_pixbuf (cairo_t     *cr,
-        GdkPixbuf   *pixbuf,
-        gdouble      pixbuf_x,
-        gdouble      pixbuf_y);
+void thunar_gdk_cairo_set_source_pixbuf (cairo_t *cr,
+                                         GdkPixbuf *pixbuf,
+                                         gdouble pixbuf_x,
+                                         gdouble pixbuf_y);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_GDK_EXTENSIONS_H__ */
+
+

@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2003-2007 Benedikt Meurer <benny@xfce.org>
  *
@@ -37,11 +36,7 @@
 #include <thunar-gdk-extensions.h>
 #include <thunar-private.h>
 
-
-
 static const cairo_user_data_key_t cairo_key;
-
-
 
 static cairo_surface_t *
 thunar_gdk_cairo_create_surface (const GdkPixbuf *pixbuf)
@@ -144,8 +139,7 @@ thunar_gdk_cairo_create_surface (const GdkPixbuf *pixbuf)
     return surface;
 }
 
-
-
+#if 0
 /**
  * thunar_gdk_screen_open:
  * @display_name : a fully qualified display name.
@@ -219,8 +213,7 @@ thunar_gdk_screen_open (const gchar *display_name,
 
     return screen;
 }
-
-
+#endif
 
 /**
  * thunar_gdk_cairo_set_source_pixbuf:
