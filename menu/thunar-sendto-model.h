@@ -39,7 +39,7 @@ GType              thunar_sendto_model_get_type     (void) G_GNUC_CONST;
 ThunarSendtoModel *thunar_sendto_model_get_default  (void) G_GNUC_WARN_UNUSED_RESULT;
 
 GList             *thunar_sendto_model_get_matching (ThunarSendtoModel *sendto_model,
-                                                     GList             *files) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+        GList             *files) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS;
 

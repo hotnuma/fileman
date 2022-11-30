@@ -34,31 +34,31 @@ typedef struct _ThunarNavigator      ThunarNavigator;
 
 struct _ThunarNavigatorIface
 {
-  GTypeInterface __parent__;
+    GTypeInterface __parent__;
 
-  /* methods */
-  ThunarFile *(*get_current_directory) (ThunarNavigator *navigator);
-  void        (*set_current_directory) (ThunarNavigator *navigator,
-                                        ThunarFile      *current_directory);
+    /* methods */
+    ThunarFile *(*get_current_directory) (ThunarNavigator *navigator);
+    void        (*set_current_directory) (ThunarNavigator *navigator,
+                                          ThunarFile      *current_directory);
 
-  /* signals */
-  void        (*change_directory)      (ThunarNavigator *navigator,
-                                        ThunarFile      *directory);
-  void        (*open_new_tab)          (ThunarNavigator *navigator,
-                                        ThunarFile      *directory);
+    /* signals */
+    void        (*change_directory)      (ThunarNavigator *navigator,
+                                          ThunarFile      *directory);
+    void        (*open_new_tab)          (ThunarNavigator *navigator,
+                                          ThunarFile      *directory);
 };
 
 GType       thunar_navigator_get_type              (void) G_GNUC_CONST;
 
 ThunarFile *thunar_navigator_get_current_directory (ThunarNavigator *navigator);
 void        thunar_navigator_set_current_directory (ThunarNavigator *navigator,
-                                                    ThunarFile      *current_directory);
+        ThunarFile      *current_directory);
 
 void        thunar_navigator_change_directory      (ThunarNavigator *navigator,
-                                                    ThunarFile      *directory);
+        ThunarFile      *directory);
 
 void        thunar_navigator_open_new_tab          (ThunarNavigator *navigator,
-                                                    ThunarFile      *directory);
+        ThunarFile      *directory);
 
 G_END_DECLS;
 

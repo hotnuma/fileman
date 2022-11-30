@@ -40,30 +40,30 @@ ThunarListModel *thunar_list_model_new                    (void);
 
 ThunarFolder    *thunar_list_model_get_folder             (ThunarListModel  *store);
 void             thunar_list_model_set_folder             (ThunarListModel  *store,
-                                                           ThunarFolder     *folder);
+        ThunarFolder     *folder);
 
 void             thunar_list_model_set_folders_first      (ThunarListModel  *store,
-                                                           gboolean          folders_first);
+        gboolean          folders_first);
 
 gboolean         thunar_list_model_get_show_hidden        (ThunarListModel  *store);
 void             thunar_list_model_set_show_hidden        (ThunarListModel  *store,
-                                                           gboolean          show_hidden);
+        gboolean          show_hidden);
 
 gboolean         thunar_list_model_get_file_size_binary   (ThunarListModel  *store);
 void             thunar_list_model_set_file_size_binary   (ThunarListModel  *store,
-                                                           gboolean          file_size_binary);
+        gboolean          file_size_binary);
 
 ThunarFile      *thunar_list_model_get_file               (ThunarListModel  *store,
-                                                           GtkTreeIter      *iter);
+        GtkTreeIter      *iter);
 
 
 GList           *thunar_list_model_get_paths_for_files    (ThunarListModel  *store,
-                                                           GList            *files);
+        GList            *files);
 GList           *thunar_list_model_get_paths_for_pattern  (ThunarListModel  *store,
-                                                           const gchar      *pattern);
+        const gchar      *pattern);
 
 gchar           *thunar_list_model_get_statusbar_text     (ThunarListModel  *store,
-                                                           GList            *selected_items);
+        GList            *selected_items);
 
 G_END_DECLS;
 

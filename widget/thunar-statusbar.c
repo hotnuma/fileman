@@ -33,29 +33,29 @@
 
 enum
 {
-  PROP_0,
-  PROP_TEXT,
+    PROP_0,
+    PROP_TEXT,
 };
 
 
 
 static void        thunar_statusbar_set_property          (GObject              *object,
-                                                           guint                 prop_id,
-                                                           const GValue         *value,
-                                                           GParamSpec           *pspec);
+        guint                 prop_id,
+        const GValue         *value,
+        GParamSpec           *pspec);
 static void        thunar_statusbar_set_text              (ThunarStatusbar      *statusbar,
-                                                           const gchar          *text);
+        const gchar          *text);
 
 
 struct _ThunarStatusbarClass
 {
-  GtkStatusbarClass __parent__;
+    GtkStatusbarClass __parent__;
 };
 
 struct _ThunarStatusbar
 {
-  GtkStatusbar __parent__;
-  guint        context_id;
+    GtkStatusbar __parent__;
+    guint        context_id;
 };
 
 
@@ -67,37 +67,37 @@ G_DEFINE_TYPE (ThunarStatusbar, thunar_statusbar, GTK_TYPE_STATUSBAR)
 static void
 thunar_statusbar_class_init (ThunarStatusbarClass *klass)
 {
-  static gboolean style_initialized = FALSE;
+    static gboolean style_initialized = FALSE;
 
-  GObjectClass *gobject_class;
+    GObjectClass *gobject_class;
 
-  gobject_class = G_OBJECT_CLASS (klass);
-  gobject_class->set_property = thunar_statusbar_set_property;
+    gobject_class = G_OBJECT_CLASS (klass);
+    gobject_class->set_property = thunar_statusbar_set_property;
 
-  /**
-   * ThunarStatusbar:text:
-   *
-   * The main text to be displayed in the statusbar. This property
-   * can only be written.
-   **/
-  g_object_class_install_property (gobject_class,
-                                   PROP_TEXT,
-                                   g_param_spec_string ("text",
-                                                        "text",
-                                                        "text",
-                                                        NULL,
-                                                        EXO_PARAM_WRITABLE));
+    /**
+     * ThunarStatusbar:text:
+     *
+     * The main text to be displayed in the statusbar. This property
+     * can only be written.
+     **/
+    g_object_class_install_property (gobject_class,
+                                     PROP_TEXT,
+                                     g_param_spec_string ("text",
+                                             "text",
+                                             "text",
+                                             NULL,
+                                             EXO_PARAM_WRITABLE));
 
-  if (!style_initialized)
+    if (!style_initialized)
     {
-    	  gtk_widget_class_install_style_property (GTK_WIDGET_CLASS (gobject_class),
-          g_param_spec_enum (
-	          "shadow-type",                //name
-	          "shadow-type",                //nick
-	          "type of shadow",             //blurb
-	          gtk_shadow_type_get_type(),   //type
-	          GTK_SHADOW_NONE,              //default
-	          G_PARAM_READWRITE ));         //flags
+        gtk_widget_class_install_style_property (GTK_WIDGET_CLASS (gobject_class),
+                g_param_spec_enum (
+                    "shadow-type",                //name
+                    "shadow-type",                //nick
+                    "type of shadow",             //blurb
+                    gtk_shadow_type_get_type(),   //type
+                    GTK_SHADOW_NONE,              //default
+                    G_PARAM_READWRITE ));         //flags
     }
 }
 
@@ -106,11 +106,11 @@ thunar_statusbar_class_init (ThunarStatusbarClass *klass)
 static void
 thunar_statusbar_init (ThunarStatusbar *statusbar)
 {
-  statusbar->context_id = gtk_statusbar_get_context_id (GTK_STATUSBAR (statusbar), "Main text");
+    statusbar->context_id = gtk_statusbar_get_context_id (GTK_STATUSBAR (statusbar), "Main text");
 
-  /* make the status thinner */
-  gtk_widget_set_margin_top (GTK_WIDGET (statusbar), 0);
-  gtk_widget_set_margin_bottom (GTK_WIDGET (statusbar), 0);
+    /* make the status thinner */
+    gtk_widget_set_margin_top (GTK_WIDGET (statusbar), 0);
+    gtk_widget_set_margin_bottom (GTK_WIDGET (statusbar), 0);
 }
 
 
@@ -121,19 +121,19 @@ thunar_statusbar_set_property (GObject      *object,
                                const GValue *value,
                                GParamSpec   *pspec)
 {
-  UNUSED(pspec);
+    UNUSED(pspec);
 
-  ThunarStatusbar *statusbar = THUNAR_STATUSBAR (object);
+    ThunarStatusbar *statusbar = THUNAR_STATUSBAR (object);
 
-  switch (prop_id)
+    switch (prop_id)
     {
     case PROP_TEXT:
-      thunar_statusbar_set_text (statusbar, g_value_get_string (value));
-      break;
+        thunar_statusbar_set_text (statusbar, g_value_get_string (value));
+        break;
 
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
     }
 }
 
@@ -150,11 +150,11 @@ static void
 thunar_statusbar_set_text (ThunarStatusbar *statusbar,
                            const gchar     *text)
 {
-  _thunar_return_if_fail (THUNAR_IS_STATUSBAR (statusbar));
-  _thunar_return_if_fail (text != NULL);
+    _thunar_return_if_fail (THUNAR_IS_STATUSBAR (statusbar));
+    _thunar_return_if_fail (text != NULL);
 
-  gtk_statusbar_pop (GTK_STATUSBAR (statusbar), statusbar->context_id);
-  gtk_statusbar_push (GTK_STATUSBAR (statusbar), statusbar->context_id, text);
+    gtk_statusbar_pop (GTK_STATUSBAR (statusbar), statusbar->context_id);
+    gtk_statusbar_push (GTK_STATUSBAR (statusbar), statusbar->context_id, text);
 }
 
 
@@ -170,5 +170,5 @@ thunar_statusbar_set_text (ThunarStatusbar *statusbar,
 GtkWidget*
 thunar_statusbar_new (void)
 {
-  return g_object_new (THUNAR_TYPE_STATUSBAR, NULL);
+    return g_object_new (THUNAR_TYPE_STATUSBAR, NULL);
 }

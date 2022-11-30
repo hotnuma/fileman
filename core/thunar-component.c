@@ -35,25 +35,25 @@ static void thunar_component_class_init (gpointer klass);
 GType
 thunar_component_get_type (void)
 {
-  static volatile gsize type__volatile = 0;
-  GType                 type;
+    static volatile gsize type__volatile = 0;
+    GType                 type;
 
-  if (g_once_init_enter (&type__volatile))
+    if (g_once_init_enter (&type__volatile))
     {
-      type = g_type_register_static_simple (G_TYPE_INTERFACE,
-                                            I_("ThunarComponent"),
-                                            sizeof (ThunarComponentIface),
-                                            (GClassInitFunc) (void (*)(void)) thunar_component_class_init,
-                                            0,
-                                            NULL,
-                                            0);
+        type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                              I_("ThunarComponent"),
+                                              sizeof (ThunarComponentIface),
+                                              (GClassInitFunc) (void (*)(void)) thunar_component_class_init,
+                                              0,
+                                              NULL,
+                                              0);
 
-      g_type_interface_add_prerequisite (type, THUNAR_TYPE_NAVIGATOR);
+        g_type_interface_add_prerequisite (type, THUNAR_TYPE_NAVIGATOR);
 
-      g_once_init_leave (&type__volatile, type);
+        g_once_init_leave (&type__volatile, type);
     }
 
-  return type__volatile;
+    return type__volatile;
 }
 
 
@@ -61,30 +61,30 @@ thunar_component_get_type (void)
 static void
 thunar_component_class_init (gpointer klass)
 {
-  /**
-   * ThunarComponent:selected-files:
-   *
-   * The list of currently selected files for the #ThunarWindow to
-   * which this #ThunarComponent belongs.
-   *
-   * The exact semantics of this property depend on the implementor
-   * of this interface. For example, #ThunarComponent<!---->s will update
-   * the property depending on the users selection with the
-   * #GtkTreeComponent or #ExoIconComponent. While other components in a window,
-   * like the #ThunarShortcutsPane, will not update this property on
-   * their own, but rely on #ThunarWindow to synchronize the selected
-   * files list with the selected files list from the active #ThunarComponent.
-   *
-   * This way all components can behave properly depending on the
-   * set of selected files even though they don't have direct access
-   * to the #ThunarComponent.
-   **/
-  g_object_interface_install_property (klass,
-                                       g_param_spec_boxed ("selected-files",
-                                                           "selected-files",
-                                                           "selected-files",
-                                                           THUNARX_TYPE_FILE_INFO_LIST,
-                                                           EXO_PARAM_READWRITE));
+    /**
+     * ThunarComponent:selected-files:
+     *
+     * The list of currently selected files for the #ThunarWindow to
+     * which this #ThunarComponent belongs.
+     *
+     * The exact semantics of this property depend on the implementor
+     * of this interface. For example, #ThunarComponent<!---->s will update
+     * the property depending on the users selection with the
+     * #GtkTreeComponent or #ExoIconComponent. While other components in a window,
+     * like the #ThunarShortcutsPane, will not update this property on
+     * their own, but rely on #ThunarWindow to synchronize the selected
+     * files list with the selected files list from the active #ThunarComponent.
+     *
+     * This way all components can behave properly depending on the
+     * set of selected files even though they don't have direct access
+     * to the #ThunarComponent.
+     **/
+    g_object_interface_install_property (klass,
+                                         g_param_spec_boxed ("selected-files",
+                                                 "selected-files",
+                                                 "selected-files",
+                                                 THUNARX_TYPE_FILE_INFO_LIST,
+                                                 EXO_PARAM_READWRITE));
 }
 
 
@@ -101,8 +101,8 @@ thunar_component_class_init (gpointer klass)
 GList*
 thunar_component_get_selected_files (ThunarComponent *component)
 {
-  _thunar_return_val_if_fail (THUNAR_IS_COMPONENT (component), NULL);
-  return (*THUNAR_COMPONENT_GET_IFACE (component)->get_selected_files) (component);
+    _thunar_return_val_if_fail (THUNAR_IS_COMPONENT (component), NULL);
+    return (*THUNAR_COMPONENT_GET_IFACE (component)->get_selected_files) (component);
 }
 
 
@@ -120,8 +120,8 @@ void
 thunar_component_set_selected_files (ThunarComponent *component,
                                      GList           *selected_files)
 {
-  _thunar_return_if_fail (THUNAR_IS_COMPONENT (component));
-  (*THUNAR_COMPONENT_GET_IFACE (component)->set_selected_files) (component, selected_files);
+    _thunar_return_if_fail (THUNAR_IS_COMPONENT (component));
+    (*THUNAR_COMPONENT_GET_IFACE (component)->set_selected_files) (component, selected_files);
 }
 
 
@@ -136,11 +136,11 @@ thunar_component_set_selected_files (ThunarComponent *component,
 void
 thunar_component_restore_selection (ThunarComponent *component)
 {
-  GList           *selected_files;
+    GList           *selected_files;
 
-  _thunar_return_if_fail (THUNAR_IS_COMPONENT (component));
+    _thunar_return_if_fail (THUNAR_IS_COMPONENT (component));
 
-  selected_files = thunar_g_file_list_copy (thunar_component_get_selected_files (component));
-  thunar_component_set_selected_files (component, selected_files);
-  thunar_g_file_list_free (selected_files);
+    selected_files = thunar_g_file_list_copy (thunar_component_get_selected_files (component));
+    thunar_component_set_selected_files (component, selected_files);
+    thunar_g_file_list_free (selected_files);
 }

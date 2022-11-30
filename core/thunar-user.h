@@ -75,9 +75,9 @@ GType              thunar_user_manager_get_type        (void) G_GNUC_CONST;
 ThunarUserManager *thunar_user_manager_get_default     (void) G_GNUC_WARN_UNUSED_RESULT;
 
 ThunarGroup       *thunar_user_manager_get_group_by_id (ThunarUserManager *manager,
-                                                        guint32            id) G_GNUC_WARN_UNUSED_RESULT;
+        guint32            id) G_GNUC_WARN_UNUSED_RESULT;
 ThunarUser        *thunar_user_manager_get_user_by_id  (ThunarUserManager *manager,
-                                                        guint32            id) G_GNUC_WARN_UNUSED_RESULT;
+        guint32            id) G_GNUC_WARN_UNUSED_RESULT;
 
 GList             *thunar_user_manager_get_all_groups  (ThunarUserManager *manager) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 

@@ -44,32 +44,32 @@ typedef struct _ThunarJob        ThunarJob;
 
 struct _ThunarJobClass
 {
-  /*< private >*/
-  ExoJobClass __parent__;
+    /*< private >*/
+    ExoJobClass __parent__;
 
-  /*< public >*/
+    /*< public >*/
 
-  /* signals */
-  ThunarJobResponse (*ask)         (ThunarJob        *job,
-                                    const gchar      *message,
-                                    ThunarJobResponse choices);
-  ThunarJobResponse (*ask_replace) (ThunarJob        *job,
-                                    ThunarFile       *source_file,
-                                    ThunarFile       *target_file);
+    /* signals */
+    ThunarJobResponse (*ask)         (ThunarJob        *job,
+                                      const gchar      *message,
+                                      ThunarJobResponse choices);
+    ThunarJobResponse (*ask_replace) (ThunarJob        *job,
+                                      ThunarFile       *source_file,
+                                      ThunarFile       *target_file);
 };
 
 struct _ThunarJob
 {
-  /*< private >*/
-  ExoJob            __parent__;
-  ThunarJobPrivate *priv;
+    /*< private >*/
+    ExoJob            __parent__;
+    ThunarJobPrivate *priv;
 };
 
 GType             thunar_job_get_type               (void) G_GNUC_CONST;
 void              thunar_job_set_total_files        (ThunarJob       *job,
-                                                     GList           *total_files);
+        GList           *total_files);
 void              thunar_job_set_pausable           (ThunarJob       *job,
-                                                     gboolean         pausable);
+        gboolean         pausable);
 gboolean          thunar_job_is_pausable            (ThunarJob       *job);
 void              thunar_job_pause                  (ThunarJob       *job);
 void              thunar_job_resume                 (ThunarJob       *job);
@@ -78,32 +78,32 @@ void              thunar_job_unfreeze               (ThunarJob       *job);
 gboolean          thunar_job_is_paused              (ThunarJob       *job);
 gboolean          thunar_job_is_frozen              (ThunarJob       *job);
 void              thunar_job_processing_file        (ThunarJob       *job,
-                                                     GList           *current_file,
-                                                     guint            n_processed);
+        GList           *current_file,
+        guint            n_processed);
 
 ThunarJobResponse thunar_job_ask_create             (ThunarJob       *job,
-                                                     const gchar     *format,
-                                                     ...);
+        const gchar     *format,
+        ...);
 ThunarJobResponse thunar_job_ask_overwrite          (ThunarJob       *job,
-                                                     const gchar     *format,
-                                                     ...);
+        const gchar     *format,
+        ...);
 ThunarJobResponse thunar_job_ask_delete             (ThunarJob       *job,
-                                                     const gchar     *format,
-                                                     ...);
+        const gchar     *format,
+        ...);
 ThunarJobResponse thunar_job_ask_replace            (ThunarJob       *job,
-                                                     GFile           *source_path,
-                                                     GFile           *target_path,
-                                                     GError         **error);
+        GFile           *source_path,
+        GFile           *target_path,
+        GError         **error);
 ThunarJobResponse thunar_job_ask_skip               (ThunarJob       *job,
-                                                     const gchar     *format,
-                                                     ...);
+        const gchar     *format,
+        ...);
 gboolean          thunar_job_ask_no_size            (ThunarJob       *job,
-                                                     const gchar     *format,
-                                                     ...);
+        const gchar     *format,
+        ...);
 gboolean          thunar_job_files_ready            (ThunarJob       *job,
-                                                     GList           *file_list);
+        GList           *file_list);
 void              thunar_job_new_files              (ThunarJob       *job,
-                                                     const GList     *file_list);
+        const GList     *file_list);
 GList *           thunar_job_ask_jobs               (ThunarJob       *job);
 
 G_END_DECLS

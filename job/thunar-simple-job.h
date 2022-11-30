@@ -38,8 +38,8 @@ G_BEGIN_DECLS
  * Return value: %TRUE on success, %FALSE in case of an error.
  **/
 typedef gboolean (*ThunarSimpleJobFunc) (ThunarJob  *job,
-                                         GArray     *param_values,
-                                         GError    **error);
+        GArray     *param_values,
+        GError    **error);
 
 
 typedef struct _ThunarSimpleJobClass ThunarSimpleJobClass;
@@ -55,8 +55,8 @@ typedef struct _ThunarSimpleJob      ThunarSimpleJob;
 GType      thunar_simple_job_get_type           (void) G_GNUC_CONST;
 
 ThunarJob *thunar_simple_job_launch             (ThunarSimpleJobFunc func,
-                                                 guint               n_param_values,
-                                                 ...) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+        guint               n_param_values,
+        ...) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 GArray    *thunar_simple_job_get_param_values   (ThunarSimpleJob    *job);
 
 G_END_DECLS

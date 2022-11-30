@@ -37,18 +37,18 @@ typedef struct _ThunarIconRenderer      ThunarIconRenderer;
 
 struct _ThunarIconRendererClass
 {
-  GtkCellRendererClass __parent__;
+    GtkCellRendererClass __parent__;
 };
 
 struct _ThunarIconRenderer
 {
-  GtkCellRenderer __parent__;
+    GtkCellRenderer __parent__;
 
-  ThunarFile    *drop_file;
-  ThunarFile    *file;
-  gboolean       emblems;
-  gboolean       follow_state;
-  ThunarIconSize size;
+    ThunarFile    *drop_file;
+    ThunarFile    *file;
+    gboolean       emblems;
+    gboolean       follow_state;
+    ThunarIconSize size;
 };
 
 GType            thunar_icon_renderer_get_type (void) G_GNUC_CONST;

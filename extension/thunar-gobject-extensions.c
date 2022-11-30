@@ -50,7 +50,7 @@ static void
 transform_string_to_boolean (const GValue *src,
                              GValue       *dst)
 {
-  g_value_set_boolean (dst, strcmp (g_value_get_string (src), "FALSE") != 0);
+    g_value_set_boolean (dst, strcmp (g_value_get_string (src), "FALSE") != 0);
 }
 
 
@@ -59,22 +59,22 @@ static void
 transform_string_to_enum (const GValue *src,
                           GValue       *dst)
 {
-  GEnumClass *klass;
-  gint        value = 0;
-  guint       n;
+    GEnumClass *klass;
+    gint        value = 0;
+    guint       n;
 
-  /* determine the enum value matching the src... */
-  klass = g_type_class_ref (G_VALUE_TYPE (dst));
-  for (n = 0; n < klass->n_values; ++n)
+    /* determine the enum value matching the src... */
+    klass = g_type_class_ref (G_VALUE_TYPE (dst));
+    for (n = 0; n < klass->n_values; ++n)
     {
-      value = klass->values[n].value;
-      if (exo_str_is_equal (klass->values[n].value_name, g_value_get_string (src)))
-        break;
+        value = klass->values[n].value;
+        if (exo_str_is_equal (klass->values[n].value_name, g_value_get_string (src)))
+            break;
     }
-  g_type_class_unref (klass);
+    g_type_class_unref (klass);
 
-  /* ...and return that value */
-  g_value_set_enum (dst, value);
+    /* ...and return that value */
+    g_value_set_enum (dst, value);
 }
 
 
@@ -83,7 +83,7 @@ static void
 transform_string_to_int (const GValue *src,
                          GValue       *dst)
 {
-  g_value_set_int (dst, (gint) strtol (g_value_get_string (src), NULL, 10));
+    g_value_set_int (dst, (gint) strtol (g_value_get_string (src), NULL, 10));
 }
 
 
@@ -92,7 +92,7 @@ static void
 transform_string_to_uint (const GValue *src,
                           GValue       *dst)
 {
-  g_value_set_uint (dst, (guint) strtoul (g_value_get_string (src), NULL, 10));
+    g_value_set_uint (dst, (guint) strtoul (g_value_get_string (src), NULL, 10));
 }
 
 
@@ -107,15 +107,15 @@ transform_string_to_uint (const GValue *src,
 void
 thunar_g_initialize_transformations (void)
 {
-  if (!g_value_type_transformable (G_TYPE_STRING, G_TYPE_BOOLEAN))
-    g_value_register_transform_func (G_TYPE_STRING, G_TYPE_BOOLEAN, transform_string_to_boolean);
-  if (!g_value_type_transformable (G_TYPE_STRING, G_TYPE_INT))
-    g_value_register_transform_func (G_TYPE_STRING, G_TYPE_INT, transform_string_to_int);
-  if (!g_value_type_transformable (G_TYPE_STRING, G_TYPE_UINT))
-    g_value_register_transform_func (G_TYPE_STRING, G_TYPE_UINT, transform_string_to_uint);
+    if (!g_value_type_transformable (G_TYPE_STRING, G_TYPE_BOOLEAN))
+        g_value_register_transform_func (G_TYPE_STRING, G_TYPE_BOOLEAN, transform_string_to_boolean);
+    if (!g_value_type_transformable (G_TYPE_STRING, G_TYPE_INT))
+        g_value_register_transform_func (G_TYPE_STRING, G_TYPE_INT, transform_string_to_int);
+    if (!g_value_type_transformable (G_TYPE_STRING, G_TYPE_UINT))
+        g_value_register_transform_func (G_TYPE_STRING, G_TYPE_UINT, transform_string_to_uint);
 
-  /* register a transformation function string->enum unconditionally */
-  g_value_register_transform_func (G_TYPE_STRING, G_TYPE_ENUM, transform_string_to_enum);
+    /* register a transformation function string->enum unconditionally */
+    g_value_register_transform_func (G_TYPE_STRING, G_TYPE_ENUM, transform_string_to_enum);
 }
 
 
@@ -135,37 +135,37 @@ thunar_g_initialize_transformations (void)
 gchar*
 thunar_g_strescape (const gchar *source)
 {
-  gchar*       g_escaped;
-  gchar*       result;
-  unsigned int j = 0;
-  unsigned int new_size = 0;
+    gchar*       g_escaped;
+    gchar*       result;
+    unsigned int j = 0;
+    unsigned int new_size = 0;
 
-  /* First apply the default escaping .. will escape everything, expect SPACE */
-  g_escaped = g_strescape (source, NULL);
+    /* First apply the default escaping .. will escape everything, expect SPACE */
+    g_escaped = g_strescape (source, NULL);
 
-  /* calc required new size */
-  for (unsigned int i = 0; i < strlen (g_escaped); i++)
+    /* calc required new size */
+    for (unsigned int i = 0; i < strlen (g_escaped); i++)
     {
-      if (g_escaped[i] == ' ')
+        if (g_escaped[i] == ' ')
+            new_size++;
         new_size++;
-      new_size++;
     }
 
-  /* strlen() does not include the \0 character, add an extra slot for it */
-  new_size++;
-  result = malloc (new_size * sizeof (gchar));
+    /* strlen() does not include the \0 character, add an extra slot for it */
+    new_size++;
+    result = malloc (new_size * sizeof (gchar));
 
-  for (unsigned int i = 0; i < strlen (g_escaped); i++)
+    for (unsigned int i = 0; i < strlen (g_escaped); i++)
     {
-      if (g_escaped[i] == ' ')
+        if (g_escaped[i] == ' ')
         {
-          result[j] = '\\';
-          j++;
+            result[j] = '\\';
+            j++;
         }
-      result[j] = g_escaped[i];
-      j++;
+        result[j] = g_escaped[i];
+        j++;
     }
-  result[j] = '\0';
-  g_free (g_escaped);
-  return result;
+    result[j] = '\0';
+    g_free (g_escaped);
+    return result;
 }

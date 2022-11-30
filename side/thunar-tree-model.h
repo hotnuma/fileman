@@ -28,8 +28,8 @@ typedef struct _ThunarTreeModelClass ThunarTreeModelClass;
 typedef struct _ThunarTreeModel      ThunarTreeModel;
 
 typedef gboolean (* ThunarTreeModelVisibleFunc) (ThunarTreeModel *model,
-                                                 ThunarFile      *file,
-                                                 gpointer         data);
+        ThunarFile      *file,
+        gpointer         data);
 
 #define THUNAR_TYPE_TREE_MODEL            (thunar_tree_model_get_type ())
 #define THUNAR_TREE_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_TREE_MODEL, ThunarTreeModel))
@@ -50,26 +50,26 @@ typedef gboolean (* ThunarTreeModelVisibleFunc) (ThunarTreeModel *model,
  **/
 typedef enum
 {
-  THUNAR_TREE_MODEL_COLUMN_FILE,
-  THUNAR_TREE_MODEL_COLUMN_NAME,
-  THUNAR_TREE_MODEL_COLUMN_ATTR,
-  THUNAR_TREE_MODEL_COLUMN_DEVICE,
-  THUNAR_TREE_MODEL_N_COLUMNS,
+    THUNAR_TREE_MODEL_COLUMN_FILE,
+    THUNAR_TREE_MODEL_COLUMN_NAME,
+    THUNAR_TREE_MODEL_COLUMN_ATTR,
+    THUNAR_TREE_MODEL_COLUMN_DEVICE,
+    THUNAR_TREE_MODEL_N_COLUMNS,
 } ThunarTreeModelColumn;
 
 GType            thunar_tree_model_get_type           (void) G_GNUC_CONST;
 
 void             thunar_tree_model_set_visible_func   (ThunarTreeModel            *model,
-                                                       ThunarTreeModelVisibleFunc  func,
-                                                       gpointer                    data);
+        ThunarTreeModelVisibleFunc  func,
+        gpointer                    data);
 void             thunar_tree_model_refilter           (ThunarTreeModel            *model);
 
 void             thunar_tree_model_cleanup            (ThunarTreeModel            *model);
 gboolean         thunar_tree_model_node_has_dummy     (ThunarTreeModel            *model,
-                                                       GNode                      *node);
+        GNode                      *node);
 void             thunar_tree_model_add_child          (ThunarTreeModel            *model,
-                                                       GNode                      *node,
-                                                       ThunarFile                 *file);
+        GNode                      *node,
+        ThunarFile                 *file);
 
 G_END_DECLS;
 

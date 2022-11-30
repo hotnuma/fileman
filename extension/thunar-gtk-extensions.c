@@ -50,18 +50,18 @@ void
 thunar_gtk_label_set_a11y_relation (GtkLabel  *label,
                                     GtkWidget *widget)
 {
-  AtkRelationSet *relations;
-  AtkRelation    *relation;
-  AtkObject      *object;
+    AtkRelationSet *relations;
+    AtkRelation    *relation;
+    AtkObject      *object;
 
-  _thunar_return_if_fail (GTK_IS_WIDGET (widget));
-  _thunar_return_if_fail (GTK_IS_LABEL (label));
+    _thunar_return_if_fail (GTK_IS_WIDGET (widget));
+    _thunar_return_if_fail (GTK_IS_LABEL (label));
 
-  object = gtk_widget_get_accessible (widget);
-  relations = atk_object_ref_relation_set (gtk_widget_get_accessible (GTK_WIDGET (label)));
-  relation = atk_relation_new (&object, 1, ATK_RELATION_LABEL_FOR);
-  atk_relation_set_add (relations, relation);
-  g_object_unref (G_OBJECT (relation));
+    object = gtk_widget_get_accessible (widget);
+    relations = atk_object_ref_relation_set (gtk_widget_get_accessible (GTK_WIDGET (label)));
+    relation = atk_relation_new (&object, 1, ATK_RELATION_LABEL_FOR);
+    atk_relation_set_add (relations, relation);
+    g_object_unref (G_OBJECT (relation));
 }
 
 
@@ -80,52 +80,52 @@ GtkWidget*
 thunar_gtk_menu_thunarx_menu_item_new (GObject      *thunarx_menu_item,
                                        GtkMenuShell *menu_to_append_item)
 {
-  gchar        *name, *label_text, *tooltip_text, *icon_name, *accel_path;
-  gboolean      sensitive;
-  GtkWidget    *gtk_menu_item;
-  ThunarxMenu  *thunarx_menu;
-  GList        *children;
-  GList        *lp;
-  GtkWidget    *submenu;
-  GtkWidget    *image;
-  GIcon        *icon; 
+    gchar        *name, *label_text, *tooltip_text, *icon_name, *accel_path;
+    gboolean      sensitive;
+    GtkWidget    *gtk_menu_item;
+    ThunarxMenu  *thunarx_menu;
+    GList        *children;
+    GList        *lp;
+    GtkWidget    *submenu;
+    GtkWidget    *image;
+    GIcon        *icon;
 
-  g_return_val_if_fail (THUNARX_IS_MENU_ITEM (thunarx_menu_item), NULL);
+    g_return_val_if_fail (THUNARX_IS_MENU_ITEM (thunarx_menu_item), NULL);
 
-  g_object_get (G_OBJECT (thunarx_menu_item),
-                "name", &name,
-                "label", &label_text,
-                "tooltip", &tooltip_text,
-                "icon", &icon_name,
-                "sensitive", &sensitive,
-                "menu", &thunarx_menu,
-                NULL);
+    g_object_get (G_OBJECT (thunarx_menu_item),
+                  "name", &name,
+                  "label", &label_text,
+                  "tooltip", &tooltip_text,
+                  "icon", &icon_name,
+                  "sensitive", &sensitive,
+                  "menu", &thunarx_menu,
+                  NULL);
 
-  accel_path = g_strconcat ("<Actions>/ThunarActions/", name, NULL);
-  icon = g_icon_new_for_string (icon_name, NULL);
-  image = gtk_image_new_from_gicon (icon,GTK_ICON_SIZE_MENU);
-  gtk_menu_item = xfce_gtk_image_menu_item_new (label_text, tooltip_text, accel_path,
-                                                G_CALLBACK (thunarx_menu_item_activate),
-                                                G_OBJECT (thunarx_menu_item), image, menu_to_append_item);
+    accel_path = g_strconcat ("<Actions>/ThunarActions/", name, NULL);
+    icon = g_icon_new_for_string (icon_name, NULL);
+    image = gtk_image_new_from_gicon (icon,GTK_ICON_SIZE_MENU);
+    gtk_menu_item = xfce_gtk_image_menu_item_new (label_text, tooltip_text, accel_path,
+                    G_CALLBACK (thunarx_menu_item_activate),
+                    G_OBJECT (thunarx_menu_item), image, menu_to_append_item);
 
-  /* recursively add submenu items if any */
-  if (gtk_menu_item != NULL && thunarx_menu != NULL)
-  {
-    children = thunarx_menu_get_items (thunarx_menu);
-    submenu = gtk_menu_new ();
-    for (lp = children; lp != NULL; lp = lp->next)
-      thunar_gtk_menu_thunarx_menu_item_new (lp->data, GTK_MENU_SHELL (submenu));
-    gtk_menu_item_set_submenu (GTK_MENU_ITEM (gtk_menu_item), submenu);
-    thunarx_menu_item_list_free (children);
-  }
-  g_free (name);
-  g_free (accel_path);
-  g_free (label_text);
-  g_free (tooltip_text);
-  g_free (icon_name);
-  g_object_unref (icon);
+    /* recursively add submenu items if any */
+    if (gtk_menu_item != NULL && thunarx_menu != NULL)
+    {
+        children = thunarx_menu_get_items (thunarx_menu);
+        submenu = gtk_menu_new ();
+        for (lp = children; lp != NULL; lp = lp->next)
+            thunar_gtk_menu_thunarx_menu_item_new (lp->data, GTK_MENU_SHELL (submenu));
+        gtk_menu_item_set_submenu (GTK_MENU_ITEM (gtk_menu_item), submenu);
+        thunarx_menu_item_list_free (children);
+    }
+    g_free (name);
+    g_free (accel_path);
+    g_free (label_text);
+    g_free (tooltip_text);
+    g_free (icon_name);
+    g_object_unref (icon);
 
-  return gtk_menu_item;
+    return gtk_menu_item;
 }
 
 
@@ -140,18 +140,18 @@ thunar_gtk_menu_thunarx_menu_item_new (GObject      *thunarx_menu_item,
 void
 thunar_gtk_menu_clean (GtkMenu *menu)
 {
-  GList     *children, *lp;
-  GtkWidget *submenu;
+    GList     *children, *lp;
+    GtkWidget *submenu;
 
-  children = gtk_container_get_children (GTK_CONTAINER (menu));
-  for (lp = children; lp != NULL; lp = lp->next)
+    children = gtk_container_get_children (GTK_CONTAINER (menu));
+    for (lp = children; lp != NULL; lp = lp->next)
     {
-      submenu = gtk_menu_item_get_submenu (lp->data);
-      if (submenu != NULL)
-        gtk_widget_destroy (submenu);
-      gtk_container_remove (GTK_CONTAINER (menu), lp->data);
+        submenu = gtk_menu_item_get_submenu (lp->data);
+        if (submenu != NULL)
+            gtk_widget_destroy (submenu);
+        gtk_container_remove (GTK_CONTAINER (menu), lp->data);
     }
-  g_list_free (children);
+    g_list_free (children);
 }
 
 
@@ -165,9 +165,9 @@ thunar_gtk_menu_clean (GtkMenu *menu)
 void
 thunar_gtk_menu_run (GtkMenu *menu)
 {
-  GdkEvent *event = gtk_get_current_event ();
-  thunar_gtk_menu_run_at_event (menu, event);
-  gdk_event_free (event);
+    GdkEvent *event = gtk_get_current_event ();
+    thunar_gtk_menu_run_at_event (menu, event);
+    gdk_event_free (event);
 }
 
 
@@ -217,17 +217,17 @@ void
 thunar_gtk_menu_run_at_event (GtkMenu *menu,
                               GdkEvent *event)
 {
-  GMainLoop *loop;
-  gulong     signal_id;
+    GMainLoop *loop;
+    gulong     signal_id;
 
-  _thunar_return_if_fail (GTK_IS_MENU (menu));
+    _thunar_return_if_fail (GTK_IS_MENU (menu));
 
-  /* take over the floating reference on the menu */
-  g_object_ref_sink (G_OBJECT (menu));
+    /* take over the floating reference on the menu */
+    g_object_ref_sink (G_OBJECT (menu));
 
-  /* run an internal main loop */
-  loop = g_main_loop_new (NULL, FALSE);
-  signal_id = g_signal_connect_swapped (G_OBJECT (menu), "deactivate", G_CALLBACK (g_main_loop_quit), loop);
+    /* run an internal main loop */
+    loop = g_main_loop_new (NULL, FALSE);
+    signal_id = g_signal_connect_swapped (G_OBJECT (menu), "deactivate", G_CALLBACK (g_main_loop_quit), loop);
 
 #if GTK_CHECK_VERSION (3, 24, 8)
     /* Workaround for incorrect popup menus size */
@@ -235,17 +235,17 @@ thunar_gtk_menu_run_at_event (GtkMenu *menu,
     gtk_widget_realize (GTK_WIDGET (menu));
 #endif
 
-  gtk_menu_popup_at_pointer (menu, event);
-  gtk_menu_reposition (menu);
-  gtk_grab_add (GTK_WIDGET (menu));
-  g_main_loop_run (loop);
-  g_main_loop_unref (loop);
-  gtk_grab_remove (GTK_WIDGET (menu));
+    gtk_menu_popup_at_pointer (menu, event);
+    gtk_menu_reposition (menu);
+    gtk_grab_add (GTK_WIDGET (menu));
+    g_main_loop_run (loop);
+    g_main_loop_unref (loop);
+    gtk_grab_remove (GTK_WIDGET (menu));
 
-  g_signal_handler_disconnect (G_OBJECT (menu), signal_id);
+    g_signal_handler_disconnect (G_OBJECT (menu), signal_id);
 
-  /* release the menu reference */
-  g_object_unref (G_OBJECT (menu));
+    /* release the menu reference */
+    g_object_unref (G_OBJECT (menu));
 }
 
 
@@ -264,22 +264,22 @@ thunar_gtk_widget_set_tooltip (GtkWidget   *widget,
                                const gchar *format,
                                ...)
 {
-  va_list  var_args;
-  gchar   *tooltip;
+    va_list  var_args;
+    gchar   *tooltip;
 
-  _thunar_return_if_fail (GTK_IS_WIDGET (widget));
-  _thunar_return_if_fail (g_utf8_validate (format, -1, NULL));
+    _thunar_return_if_fail (GTK_IS_WIDGET (widget));
+    _thunar_return_if_fail (g_utf8_validate (format, -1, NULL));
 
-  /* determine the tooltip */
-  va_start (var_args, format);
-  tooltip = g_strdup_vprintf (format, var_args);
-  va_end (var_args);
+    /* determine the tooltip */
+    va_start (var_args, format);
+    tooltip = g_strdup_vprintf (format, var_args);
+    va_end (var_args);
 
-  /* setup the tooltip for the widget */
-  gtk_widget_set_tooltip_text (widget, tooltip);
+    /* setup the tooltip for the widget */
+    gtk_widget_set_tooltip_text (widget, tooltip);
 
-  /* release the tooltip */
-  g_free (tooltip);
+    /* release the tooltip */
+    g_free (tooltip);
 }
 
 
@@ -291,15 +291,15 @@ thunar_gtk_widget_set_tooltip (GtkWidget   *widget,
 GtkWidget*
 thunar_gtk_get_focused_widget (void)
 {
-  GtkApplication *app;
-  GtkWindow      *window;
-  app = GTK_APPLICATION (g_application_get_default ());
-  if (NULL == app)
-    return NULL;
+    GtkApplication *app;
+    GtkWindow      *window;
+    app = GTK_APPLICATION (g_application_get_default ());
+    if (NULL == app)
+        return NULL;
 
-  window = gtk_application_get_active_window (app);
+    window = gtk_application_get_active_window (app);
 
-  return gtk_window_get_focus (window);
+    return gtk_window_get_focus (window);
 }
 
 
@@ -313,18 +313,18 @@ thunar_gtk_get_focused_widget (void)
 GMountOperation *
 thunar_gtk_mount_operation_new (gpointer parent)
 {
-  GMountOperation *operation;
-  GdkScreen       *screen;
-  GtkWindow       *window = NULL;
+    GMountOperation *operation;
+    GdkScreen       *screen;
+    GtkWindow       *window = NULL;
 
-  screen = thunar_util_parse_parent (parent, &window);
+    screen = thunar_util_parse_parent (parent, &window);
 
-  operation = gtk_mount_operation_new (window);
-  g_mount_operation_set_password_save (G_MOUNT_OPERATION (operation), G_PASSWORD_SAVE_FOR_SESSION);
-  if (window == NULL && screen != NULL)
-    gtk_mount_operation_set_screen (GTK_MOUNT_OPERATION (operation), screen);
+    operation = gtk_mount_operation_new (window);
+    g_mount_operation_set_password_save (G_MOUNT_OPERATION (operation), G_PASSWORD_SAVE_FOR_SESSION);
+    if (window == NULL && screen != NULL)
+        gtk_mount_operation_set_screen (GTK_MOUNT_OPERATION (operation), screen);
 
-  return operation;
+    return operation;
 }
 
 
@@ -338,8 +338,8 @@ thunar_gtk_mount_operation_new (gpointer parent)
 gboolean
 thunar_gtk_editable_can_cut (GtkEditable *editable)
 {
-  return gtk_editable_get_editable (editable) &&
-         thunar_gtk_editable_can_copy (editable);
+    return gtk_editable_get_editable (editable) &&
+           thunar_gtk_editable_can_copy (editable);
 }
 
 
@@ -353,7 +353,7 @@ thunar_gtk_editable_can_cut (GtkEditable *editable)
 gboolean
 thunar_gtk_editable_can_copy (GtkEditable *editable)
 {
-  return gtk_editable_get_selection_bounds (editable, NULL,NULL);
+    return gtk_editable_get_selection_bounds (editable, NULL,NULL);
 }
 
 
@@ -367,5 +367,5 @@ thunar_gtk_editable_can_copy (GtkEditable *editable)
 gboolean
 thunar_gtk_editable_can_paste (GtkEditable *editable)
 {
-  return gtk_editable_get_editable (editable);
+    return gtk_editable_get_editable (editable);
 }

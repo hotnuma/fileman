@@ -34,9 +34,9 @@ typedef void   (*ThunarDeviceCallback) (ThunarDevice *device,
 
 enum _ThunarDeviceKind
 {
-  THUNAR_DEVICE_KIND_VOLUME,
-  THUNAR_DEVICE_KIND_MOUNT_LOCAL,
-  THUNAR_DEVICE_KIND_MOUNT_REMOTE
+    THUNAR_DEVICE_KIND_VOLUME,
+    THUNAR_DEVICE_KIND_MOUNT_LOCAL,
+    THUNAR_DEVICE_KIND_MOUNT_REMOTE
 };
 
 #define THUNAR_TYPE_DEVICE             (thunar_device_get_type ())
@@ -71,25 +71,25 @@ gboolean             thunar_device_is_mounted       (const ThunarDevice   *devic
 GFile               *thunar_device_get_root         (const ThunarDevice   *device);
 
 gint                 thunar_device_sort             (const ThunarDevice   *device1,
-                                                     const ThunarDevice   *device2);
+        const ThunarDevice   *device2);
 
 void                 thunar_device_mount            (ThunarDevice         *device,
-                                                     GMountOperation      *mount_operation,
-                                                     GCancellable         *cancellable,
-                                                     ThunarDeviceCallback  callback,
-                                                     gpointer              user_data);
+        GMountOperation      *mount_operation,
+        GCancellable         *cancellable,
+        ThunarDeviceCallback  callback,
+        gpointer              user_data);
 
 void                 thunar_device_unmount          (ThunarDevice         *device,
-                                                     GMountOperation      *mount_operation,
-                                                     GCancellable         *cancellable,
-                                                     ThunarDeviceCallback  callback,
-                                                     gpointer              user_data);
+        GMountOperation      *mount_operation,
+        GCancellable         *cancellable,
+        ThunarDeviceCallback  callback,
+        gpointer              user_data);
 
 void                 thunar_device_eject            (ThunarDevice         *device,
-                                                     GMountOperation      *mount_operation,
-                                                     GCancellable         *cancellable,
-                                                     ThunarDeviceCallback  callback,
-                                                     gpointer              user_data);
+        GMountOperation      *mount_operation,
+        GCancellable         *cancellable,
+        ThunarDeviceCallback  callback,
+        gpointer              user_data);
 
 void                 thunar_device_reload_file      (ThunarDevice         *device);
 

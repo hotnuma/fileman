@@ -37,7 +37,7 @@ typedef struct _ThunarDetailsView      ThunarDetailsView;
 /* #XfceGtkActionEntrys provided by this widget */
 typedef enum
 {
-  THUNAR_DETAILS_VIEW_ACTION_CONFIGURE_COLUMNS,
+    THUNAR_DETAILS_VIEW_ACTION_CONFIGURE_COLUMNS,
 } ThunarDetailsViewAction;
 
 GType      thunar_details_view_get_type          (void) G_GNUC_CONST;

@@ -42,9 +42,9 @@ GType      thunar_progress_view_get_type      (void) G_GNUC_CONST;
 GtkWidget *thunar_progress_view_new_with_job  (ThunarJob          *job) G_GNUC_MALLOC;
 
 void       thunar_progress_view_set_icon_name (ThunarProgressView *view,
-                                               const gchar        *icon_name);
+        const gchar        *icon_name);
 void       thunar_progress_view_set_title     (ThunarProgressView *view,
-                                               const gchar        *title);
+        const gchar        *title);
 ThunarJob *thunar_progress_view_get_job       (ThunarProgressView *view);
 
 G_END_DECLS;

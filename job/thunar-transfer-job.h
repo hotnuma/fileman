@@ -32,10 +32,10 @@ G_BEGIN_DECLS
  **/
 typedef enum /*< enum >*/
 {
-  THUNAR_TRANSFER_JOB_COPY,
-  THUNAR_TRANSFER_JOB_LINK,
-  THUNAR_TRANSFER_JOB_MOVE,
-  THUNAR_TRANSFER_JOB_TRASH,
+    THUNAR_TRANSFER_JOB_COPY,
+    THUNAR_TRANSFER_JOB_LINK,
+    THUNAR_TRANSFER_JOB_MOVE,
+    THUNAR_TRANSFER_JOB_TRASH,
 } ThunarTransferJobType;
 
 typedef struct _ThunarTransferJobPrivate ThunarTransferJobPrivate;
@@ -52,8 +52,8 @@ typedef struct _ThunarTransferJob        ThunarTransferJob;
 GType      thunar_transfer_job_get_type (void) G_GNUC_CONST;
 
 ThunarJob *thunar_transfer_job_new        (GList                *source_file_list,
-                                           GList                *target_file_list,
-                                           ThunarTransferJobType type) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+        GList                *target_file_list,
+        ThunarTransferJobType type) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 gchar     *thunar_transfer_job_get_status (ThunarTransferJob    *job);
 

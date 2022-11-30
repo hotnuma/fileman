@@ -35,32 +35,32 @@ typedef struct _ThunarBrowser      ThunarBrowser;
 typedef struct _ThunarBrowserIface ThunarBrowserIface;
 
 typedef void (*ThunarBrowserPokeFileFunc)     (ThunarBrowser *browser,
-                                               ThunarFile    *file,
-                                               ThunarFile    *target_file,
-                                               GError        *error,
-                                               gpointer       user_data);
+        ThunarFile    *file,
+        ThunarFile    *target_file,
+        GError        *error,
+        gpointer       user_data);
 
 typedef void (*ThunarBrowserPokeDeviceFunc)   (ThunarBrowser *browser,
-                                               ThunarDevice  *volume,
-                                               ThunarFile    *mount_point,
-                                               GError        *error,
-                                               gpointer       user_data,
-                                               gboolean       cancelled);
+        ThunarDevice  *volume,
+        ThunarFile    *mount_point,
+        GError        *error,
+        gpointer       user_data,
+        gboolean       cancelled);
 
 typedef void (*ThunarBrowserPokeLocationFunc) (ThunarBrowser *browser,
-                                               GFile         *location,
-                                               ThunarFile    *file,
-                                               ThunarFile    *target_file,
-                                               GError        *error,
-                                               gpointer       user_data);
+        GFile         *location,
+        ThunarFile    *file,
+        ThunarFile    *target_file,
+        GError        *error,
+        gpointer       user_data);
 
 struct _ThunarBrowserIface
 {
-  GTypeInterface __parent__;
+    GTypeInterface __parent__;
 
-  /* signals */
+    /* signals */
 
-  /* virtual methods */
+    /* virtual methods */
 };
 
 GType thunar_browser_get_type      (void) G_GNUC_CONST;

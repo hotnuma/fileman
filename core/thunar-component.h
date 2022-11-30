@@ -34,19 +34,19 @@ typedef struct _ThunarComponent      ThunarComponent;
 
 struct _ThunarComponentIface
 {
-  GTypeInterface __parent__;
+    GTypeInterface __parent__;
 
-  /* methods */
-  GList        *(*get_selected_files) (ThunarComponent *component);
-  void          (*set_selected_files) (ThunarComponent *component,
-                                       GList           *selected_files);
+    /* methods */
+    GList        *(*get_selected_files) (ThunarComponent *component);
+    void          (*set_selected_files) (ThunarComponent *component,
+                                         GList           *selected_files);
 };
 
 GType         thunar_component_get_type           (void) G_GNUC_CONST;
 
 GList        *thunar_component_get_selected_files  (ThunarComponent *component);
 void          thunar_component_set_selected_files  (ThunarComponent *component,
-                                                    GList           *selected_files);
+        GList           *selected_files);
 
 void          thunar_component_restore_selection   (ThunarComponent *component);
 

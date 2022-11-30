@@ -47,12 +47,12 @@ typedef struct _ThunarChooserModel      ThunarChooserModel;
  **/
 typedef enum
 {
-  THUNAR_CHOOSER_MODEL_COLUMN_NAME,
-  THUNAR_CHOOSER_MODEL_COLUMN_ICON,
-  THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION,
-  THUNAR_CHOOSER_MODEL_COLUMN_STYLE,
-  THUNAR_CHOOSER_MODEL_COLUMN_WEIGHT,
-  THUNAR_CHOOSER_MODEL_N_COLUMNS,
+    THUNAR_CHOOSER_MODEL_COLUMN_NAME,
+    THUNAR_CHOOSER_MODEL_COLUMN_ICON,
+    THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION,
+    THUNAR_CHOOSER_MODEL_COLUMN_STYLE,
+    THUNAR_CHOOSER_MODEL_COLUMN_WEIGHT,
+    THUNAR_CHOOSER_MODEL_N_COLUMNS,
 } ThunarChooserModelColumn;
 
 GType               thunar_chooser_model_get_type         (void) G_GNUC_CONST;
@@ -60,8 +60,8 @@ GType               thunar_chooser_model_get_type         (void) G_GNUC_CONST;
 ThunarChooserModel *thunar_chooser_model_new              (const gchar        *content_type) G_GNUC_MALLOC;
 const gchar        *thunar_chooser_model_get_content_type (ThunarChooserModel *model);
 gboolean            thunar_chooser_model_remove           (ThunarChooserModel *model,
-                                                           GtkTreeIter        *iter,
-                                                           GError            **error);
+        GtkTreeIter        *iter,
+        GError            **error);
 
 G_END_DECLS;
 

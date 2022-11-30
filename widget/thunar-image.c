@@ -36,43 +36,43 @@
 /* Property identifiers */
 enum
 {
-  PROP_0,
-  PROP_FILE,
+    PROP_0,
+    PROP_FILE,
 };
 
 
 
 static void thunar_image_finalize             (GObject           *object);
 static void thunar_image_get_property         (GObject           *object,
-                                               guint              prop_id,
-                                               GValue            *value,
-                                               GParamSpec        *pspec);
+        guint              prop_id,
+        GValue            *value,
+        GParamSpec        *pspec);
 static void thunar_image_set_property         (GObject           *object,
-                                               guint              prop_id,
-                                               const GValue      *value,
-                                               GParamSpec        *pspec);
+        guint              prop_id,
+        const GValue      *value,
+        GParamSpec        *pspec);
 static void thunar_image_file_changed         (ThunarFileMonitor *monitor,
-                                               ThunarFile        *file,
-                                               ThunarImage       *image);
+        ThunarFile        *file,
+        ThunarImage       *image);
 
 
 
 struct _ThunarImageClass
 {
-  GtkImageClass __parent__;
+    GtkImageClass __parent__;
 };
 
 struct _ThunarImage
 {
-  GtkImage __parent__;
+    GtkImage __parent__;
 
-  ThunarImagePrivate *priv;
+    ThunarImagePrivate *priv;
 };
 
 struct _ThunarImagePrivate
 {
-  ThunarFileMonitor *monitor;
-  ThunarFile        *file;
+    ThunarFileMonitor *monitor;
+    ThunarFile        *file;
 };
 
 
@@ -84,19 +84,19 @@ G_DEFINE_TYPE_WITH_PRIVATE (ThunarImage, thunar_image, GTK_TYPE_IMAGE);
 static void
 thunar_image_class_init (ThunarImageClass *klass)
 {
-  GObjectClass *gobject_class;
+    GObjectClass *gobject_class;
 
-  gobject_class = G_OBJECT_CLASS (klass);
-  gobject_class->finalize = thunar_image_finalize;
-  gobject_class->get_property = thunar_image_get_property;
-  gobject_class->set_property = thunar_image_set_property;
+    gobject_class = G_OBJECT_CLASS (klass);
+    gobject_class->finalize = thunar_image_finalize;
+    gobject_class->get_property = thunar_image_get_property;
+    gobject_class->set_property = thunar_image_set_property;
 
-  g_object_class_install_property (gobject_class, PROP_FILE,
-                                   g_param_spec_object ("file",
-                                                        "file",
-                                                        "file",
-                                                        THUNAR_TYPE_FILE,
-                                                        G_PARAM_READWRITE));
+    g_object_class_install_property (gobject_class, PROP_FILE,
+                                     g_param_spec_object ("file",
+                                             "file",
+                                             "file",
+                                             THUNAR_TYPE_FILE,
+                                             G_PARAM_READWRITE));
 }
 
 
@@ -104,12 +104,12 @@ thunar_image_class_init (ThunarImageClass *klass)
 static void
 thunar_image_init (ThunarImage *image)
 {
-  image->priv = thunar_image_get_instance_private (image);
-  image->priv->file = NULL;
+    image->priv = thunar_image_get_instance_private (image);
+    image->priv->file = NULL;
 
-  image->priv->monitor = thunar_file_monitor_get_default ();
-  g_signal_connect (image->priv->monitor, "file-changed",
-                    G_CALLBACK (thunar_image_file_changed), image);
+    image->priv->monitor = thunar_file_monitor_get_default ();
+    g_signal_connect (image->priv->monitor, "file-changed",
+                      G_CALLBACK (thunar_image_file_changed), image);
 }
 
 
@@ -117,15 +117,15 @@ thunar_image_init (ThunarImage *image)
 static void
 thunar_image_finalize (GObject *object)
 {
-  ThunarImage *image = THUNAR_IMAGE (object);
+    ThunarImage *image = THUNAR_IMAGE (object);
 
-  g_signal_handlers_disconnect_by_func (image->priv->monitor,
-                                        thunar_image_file_changed, image);
-  g_object_unref (image->priv->monitor);
+    g_signal_handlers_disconnect_by_func (image->priv->monitor,
+                                          thunar_image_file_changed, image);
+    g_object_unref (image->priv->monitor);
 
-  thunar_image_set_file (image, NULL);
+    thunar_image_set_file (image, NULL);
 
-  (*G_OBJECT_CLASS (thunar_image_parent_class)->finalize) (object);
+    (*G_OBJECT_CLASS (thunar_image_parent_class)->finalize) (object);
 }
 
 
@@ -136,16 +136,16 @@ thunar_image_get_property (GObject    *object,
                            GValue     *value,
                            GParamSpec *pspec)
 {
-  ThunarImage *image = THUNAR_IMAGE (object);
+    ThunarImage *image = THUNAR_IMAGE (object);
 
-  switch (prop_id)
+    switch (prop_id)
     {
     case PROP_FILE:
-      g_value_set_object (value, image->priv->file);
-      break;
+        g_value_set_object (value, image->priv->file);
+        break;
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
     }
 }
 
@@ -157,16 +157,16 @@ thunar_image_set_property (GObject      *object,
                            const GValue *value,
                            GParamSpec   *pspec)
 {
-  ThunarImage *image = THUNAR_IMAGE (object);
+    ThunarImage *image = THUNAR_IMAGE (object);
 
-  switch (prop_id)
+    switch (prop_id)
     {
     case PROP_FILE:
-      thunar_image_set_file (image, g_value_get_object (value));
-      break;
+        thunar_image_set_file (image, g_value_get_object (value));
+        break;
     default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
+        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+        break;
     }
 }
 
@@ -175,25 +175,25 @@ thunar_image_set_property (GObject      *object,
 static void
 thunar_image_update (ThunarImage *image)
 {
-  ThunarIconFactory *icon_factory;
-  GtkIconTheme      *icon_theme;
-  GdkPixbuf         *icon;
-  GdkScreen         *screen;
+    ThunarIconFactory *icon_factory;
+    GtkIconTheme      *icon_theme;
+    GdkPixbuf         *icon;
+    GdkScreen         *screen;
 
-  _thunar_return_if_fail (THUNAR_IS_IMAGE (image));
+    _thunar_return_if_fail (THUNAR_IS_IMAGE (image));
 
-  if (THUNAR_IS_FILE (image->priv->file))
+    if (THUNAR_IS_FILE (image->priv->file))
     {
-      screen = gtk_widget_get_screen (GTK_WIDGET (image));
-      icon_theme = gtk_icon_theme_get_for_screen (screen);
-      icon_factory = thunar_icon_factory_get_for_icon_theme (icon_theme);
+        screen = gtk_widget_get_screen (GTK_WIDGET (image));
+        icon_theme = gtk_icon_theme_get_for_screen (screen);
+        icon_factory = thunar_icon_factory_get_for_icon_theme (icon_theme);
 
-      icon = thunar_icon_factory_load_file_icon (icon_factory, image->priv->file,
-                                                 THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+        icon = thunar_icon_factory_load_file_icon (icon_factory, image->priv->file,
+                THUNAR_FILE_ICON_STATE_DEFAULT, 48);
 
-      gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
+        gtk_image_set_from_pixbuf (GTK_IMAGE (image), icon);
 
-      g_object_unref (icon_factory);
+        g_object_unref (icon_factory);
     }
 }
 
@@ -204,12 +204,12 @@ thunar_image_file_changed (ThunarFileMonitor *monitor,
                            ThunarFile        *file,
                            ThunarImage       *image)
 {
-  _thunar_return_if_fail (THUNAR_IS_FILE_MONITOR (monitor));
-  _thunar_return_if_fail (THUNAR_IS_FILE (file));
-  _thunar_return_if_fail (THUNAR_IS_IMAGE (image));
+    _thunar_return_if_fail (THUNAR_IS_FILE_MONITOR (monitor));
+    _thunar_return_if_fail (THUNAR_IS_FILE (file));
+    _thunar_return_if_fail (THUNAR_IS_IMAGE (image));
 
-  if (file == image->priv->file)
-    thunar_image_update (image);
+    if (file == image->priv->file)
+        thunar_image_update (image);
 }
 
 
@@ -217,7 +217,7 @@ thunar_image_file_changed (ThunarFileMonitor *monitor,
 GtkWidget *
 thunar_image_new (void)
 {
-  return g_object_new (THUNAR_TYPE_IMAGE, NULL);
+    return g_object_new (THUNAR_TYPE_IMAGE, NULL);
 }
 
 
@@ -226,22 +226,22 @@ void
 thunar_image_set_file (ThunarImage *image,
                        ThunarFile  *file)
 {
-  _thunar_return_if_fail (THUNAR_IS_IMAGE (image));
+    _thunar_return_if_fail (THUNAR_IS_IMAGE (image));
 
-  if (image->priv->file != NULL)
+    if (image->priv->file != NULL)
     {
-      if (image->priv->file == file)
-        return;
+        if (image->priv->file == file)
+            return;
 
-      g_object_unref (image->priv->file);
+        g_object_unref (image->priv->file);
     }
 
-  if (file != NULL)
-    image->priv->file = g_object_ref (file);
-  else
-    image->priv->file = NULL;
+    if (file != NULL)
+        image->priv->file = g_object_ref (file);
+    else
+        image->priv->file = NULL;
 
-  thunar_image_update (image);
+    thunar_image_update (image);
 
-  g_object_notify (G_OBJECT (image), "file");
+    g_object_notify (G_OBJECT (image), "file");
 }

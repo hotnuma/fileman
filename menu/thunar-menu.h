@@ -37,32 +37,32 @@ typedef struct _ThunarMenu      ThunarMenu;
 /* For window menu, some items are shown insensitive, instead of hidden */
 typedef enum
 {
-  THUNAR_MENU_TYPE_WINDOW,
-  THUNAR_MENU_TYPE_CONTEXT_STANDARD_VIEW,
-  THUNAR_MENU_TYPE_CONTEXT_LOCATION_BUTTONS,
-  THUNAR_MENU_TYPE_CONTEXT_RENAMER,
-  THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
-  N_THUNAR_MENU_TYPE,
+    THUNAR_MENU_TYPE_WINDOW,
+    THUNAR_MENU_TYPE_CONTEXT_STANDARD_VIEW,
+    THUNAR_MENU_TYPE_CONTEXT_LOCATION_BUTTONS,
+    THUNAR_MENU_TYPE_CONTEXT_RENAMER,
+    THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
+    N_THUNAR_MENU_TYPE,
 } ThunarMenuType;
 
 /* Bundles of #GtkMenuItems, which can be created by this widget */
 typedef enum
 {
-  THUNAR_MENU_SECTION_OPEN             = 1 << 0,
-  THUNAR_MENU_SECTION_SENDTO           = 1 << 1,
-  THUNAR_MENU_SECTION_CREATE_NEW_FILES = 1 << 2,
-  THUNAR_MENU_SECTION_CUT              = 1 << 3,
-  THUNAR_MENU_SECTION_COPY_PASTE       = 1 << 4,
-  THUNAR_MENU_SECTION_TRASH_DELETE     = 1 << 5,
-  THUNAR_MENU_SECTION_EMPTY_TRASH      = 1 << 6,
-  THUNAR_MENU_SECTION_RESTORE          = 1 << 7,
-  THUNAR_MENU_SECTION_DUPLICATE        = 1 << 8,
-  THUNAR_MENU_SECTION_MAKELINK         = 1 << 9,
-  THUNAR_MENU_SECTION_RENAME           = 1 << 10,
-  THUNAR_MENU_SECTION_CUSTOM_ACTIONS   = 1 << 11,
-  THUNAR_MENU_SECTION_ZOOM             = 1 << 12,
-  THUNAR_MENU_SECTION_PROPERTIES       = 1 << 13,
-  THUNAR_MENU_SECTION_MOUNTABLE        = 1 << 14,
+    THUNAR_MENU_SECTION_OPEN             = 1 << 0,
+    THUNAR_MENU_SECTION_SENDTO           = 1 << 1,
+    THUNAR_MENU_SECTION_CREATE_NEW_FILES = 1 << 2,
+    THUNAR_MENU_SECTION_CUT              = 1 << 3,
+    THUNAR_MENU_SECTION_COPY_PASTE       = 1 << 4,
+    THUNAR_MENU_SECTION_TRASH_DELETE     = 1 << 5,
+    THUNAR_MENU_SECTION_EMPTY_TRASH      = 1 << 6,
+    THUNAR_MENU_SECTION_RESTORE          = 1 << 7,
+    THUNAR_MENU_SECTION_DUPLICATE        = 1 << 8,
+    THUNAR_MENU_SECTION_MAKELINK         = 1 << 9,
+    THUNAR_MENU_SECTION_RENAME           = 1 << 10,
+    THUNAR_MENU_SECTION_CUSTOM_ACTIONS   = 1 << 11,
+    THUNAR_MENU_SECTION_ZOOM             = 1 << 12,
+    THUNAR_MENU_SECTION_PROPERTIES       = 1 << 13,
+    THUNAR_MENU_SECTION_MOUNTABLE        = 1 << 14,
 
 } ThunarMenuSections;
 
@@ -70,7 +70,7 @@ typedef enum
 GType      thunar_menu_get_type          (void) G_GNUC_CONST;
 
 gboolean   thunar_menu_add_sections      (ThunarMenu         *menu,
-                                          ThunarMenuSections  menu_sections);
+        ThunarMenuSections  menu_sections);
 GtkWidget* thunar_menu_get_launcher      (ThunarMenu         *menu);
 void       thunar_menu_hide_accel_labels (ThunarMenu         *menu);
 

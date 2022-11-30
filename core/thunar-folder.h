@@ -44,7 +44,7 @@ gboolean      thunar_folder_get_loading            (const ThunarFolder *folder);
 gboolean      thunar_folder_has_folder_monitor     (const ThunarFolder *folder);
 
 void          thunar_folder_reload                 (ThunarFolder       *folder,
-                                                    gboolean            reload_info);
+        gboolean            reload_info);
 
 G_END_DECLS;
 

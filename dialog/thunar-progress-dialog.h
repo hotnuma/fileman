@@ -41,9 +41,9 @@ GType      thunar_progress_dialog_get_type  (void) G_GNUC_CONST;
 GtkWidget *thunar_progress_dialog_new       (void);
 GList     *thunar_progress_dialog_list_jobs (ThunarProgressDialog *dialog);
 void       thunar_progress_dialog_add_job   (ThunarProgressDialog *dialog,
-                                             ThunarJob            *job,
-                                             const gchar          *icon_name,
-                                             const gchar          *title);
+        ThunarJob            *job,
+        const gchar          *icon_name,
+        const gchar          *title);
 gboolean   thunar_progress_dialog_has_jobs  (ThunarProgressDialog *dialog);
 
 G_END_DECLS;

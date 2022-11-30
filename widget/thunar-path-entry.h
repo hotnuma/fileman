@@ -42,9 +42,9 @@ GtkWidget  *thunar_path_entry_new                   (void);
 
 ThunarFile *thunar_path_entry_get_current_file      (ThunarPathEntry *path_entry);
 void        thunar_path_entry_set_current_file      (ThunarPathEntry *path_entry,
-                                                     ThunarFile      *current_file);
+        ThunarFile      *current_file);
 void        thunar_path_entry_set_working_directory (ThunarPathEntry *path_entry,
-                                                     ThunarFile      *directory);
+        ThunarFile      *directory);
 
 G_END_DECLS;
 

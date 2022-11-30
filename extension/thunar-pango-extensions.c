@@ -36,24 +36,24 @@ static PangoAttrList *thunar_pango_attr_list_wrap (PangoAttribute *attribute, ..
 static PangoAttrList*
 thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...)
 {
-  PangoAttrList *attr_list;
-  va_list        args;
+    PangoAttrList *attr_list;
+    va_list        args;
 
-  /* allocate a new attribute list */
-  attr_list = pango_attr_list_new ();
+    /* allocate a new attribute list */
+    attr_list = pango_attr_list_new ();
 
-  /* add all specified attributes */
-  va_start (args, attribute);
-  while (attribute != NULL)
+    /* add all specified attributes */
+    va_start (args, attribute);
+    while (attribute != NULL)
     {
-      attribute->start_index = 0;
-      attribute->end_index = -1;
-      pango_attr_list_insert (attr_list, attribute);
-      attribute = va_arg (args, PangoAttribute *);
+        attribute->start_index = 0;
+        attribute->end_index = -1;
+        pango_attr_list_insert (attr_list, attribute);
+        attribute = va_arg (args, PangoAttribute *);
     }
-  va_end (args);
+    va_end (args);
 
-  return attr_list;
+    return attr_list;
 }
 
 
@@ -70,10 +70,10 @@ thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...)
 PangoAttrList*
 thunar_pango_attr_list_big (void)
 {
-  static PangoAttrList *attr_list = NULL;
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_LARGE), NULL);
-  return attr_list;
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_LARGE), NULL);
+    return attr_list;
 }
 
 
@@ -90,10 +90,10 @@ thunar_pango_attr_list_big (void)
 PangoAttrList*
 thunar_pango_attr_list_big_bold (void)
 {
-  static PangoAttrList *attr_list = NULL;
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_LARGE), pango_attr_weight_new (PANGO_WEIGHT_BOLD), NULL);
-  return attr_list;
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_LARGE), pango_attr_weight_new (PANGO_WEIGHT_BOLD), NULL);
+    return attr_list;
 }
 
 
@@ -110,10 +110,10 @@ thunar_pango_attr_list_big_bold (void)
 PangoAttrList*
 thunar_pango_attr_list_bold (void)
 {
-  static PangoAttrList *attr_list = NULL;
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_weight_new (PANGO_WEIGHT_BOLD), NULL);
-  return attr_list;
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_weight_new (PANGO_WEIGHT_BOLD), NULL);
+    return attr_list;
 }
 
 
@@ -132,12 +132,12 @@ thunar_pango_attr_list_bold (void)
 PangoAttrList*
 thunar_pango_attr_disable_hyphens (void)
 {
-  static PangoAttrList *attr_list = NULL;
+    static PangoAttrList *attr_list = NULL;
 
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_insert_hyphens_new (FALSE), NULL);
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_insert_hyphens_new (FALSE), NULL);
 
-  return attr_list;
+    return attr_list;
 }
 #endif
 
@@ -155,10 +155,10 @@ thunar_pango_attr_disable_hyphens (void)
 PangoAttrList*
 thunar_pango_attr_list_italic (void)
 {
-  static PangoAttrList *attr_list = NULL;
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_style_new (PANGO_STYLE_ITALIC), NULL);
-  return attr_list;
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_style_new (PANGO_STYLE_ITALIC), NULL);
+    return attr_list;
 }
 
 
@@ -175,10 +175,10 @@ thunar_pango_attr_list_italic (void)
 PangoAttrList*
 thunar_pango_attr_list_small_italic (void)
 {
-  static PangoAttrList *attr_list = NULL;
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_SMALL), pango_attr_style_new (PANGO_STYLE_ITALIC), NULL);
-  return attr_list;
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_SMALL), pango_attr_style_new (PANGO_STYLE_ITALIC), NULL);
+    return attr_list;
 }
 
 
@@ -195,10 +195,10 @@ thunar_pango_attr_list_small_italic (void)
 PangoAttrList*
 thunar_pango_attr_list_small (void)
 {
-  static PangoAttrList *attr_list = NULL;
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_SMALL), NULL);
-  return attr_list;
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_SMALL), NULL);
+    return attr_list;
 }
 
 
@@ -215,8 +215,8 @@ thunar_pango_attr_list_small (void)
 PangoAttrList*
 thunar_pango_attr_list_underline_single (void)
 {
-  static PangoAttrList *attr_list = NULL;
-  if (G_UNLIKELY (attr_list == NULL))
-    attr_list = thunar_pango_attr_list_wrap (pango_attr_underline_new (PANGO_UNDERLINE_SINGLE), NULL);
-  return attr_list;
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY (attr_list == NULL))
+        attr_list = thunar_pango_attr_list_wrap (pango_attr_underline_new (PANGO_UNDERLINE_SINGLE), NULL);
+    return attr_list;
 }

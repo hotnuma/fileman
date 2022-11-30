@@ -42,16 +42,16 @@ ThunarClipboardManager *thunar_clipboard_manager_get_for_display (GdkDisplay    
 gboolean                thunar_clipboard_manager_get_can_paste   (ThunarClipboardManager *manager);
 
 gboolean                thunar_clipboard_manager_has_cutted_file (ThunarClipboardManager *manager,
-                                                                  const ThunarFile       *file);
+        const ThunarFile       *file);
 
 void                    thunar_clipboard_manager_copy_files      (ThunarClipboardManager *manager,
-                                                                  GList                  *files);
+        GList                  *files);
 void                    thunar_clipboard_manager_cut_files       (ThunarClipboardManager *manager,
-                                                                  GList                  *files);
+        GList                  *files);
 void                    thunar_clipboard_manager_paste_files     (ThunarClipboardManager *manager,
-                                                                  GFile                  *target_file,
-                                                                  GtkWidget              *widget,
-                                                                  GClosure               *new_files_closure);
+        GFile                  *target_file,
+        GtkWidget              *widget,
+        GClosure               *new_files_closure);
 
 G_END_DECLS;
 

@@ -41,8 +41,8 @@ ThunarDeviceMonitor *thunar_device_monitor_get         (void);
 GList               *thunar_device_monitor_get_devices (ThunarDeviceMonitor *monitor);
 
 void                 thunar_device_monitor_set_hidden  (ThunarDeviceMonitor *monitor,
-                                                        ThunarDevice        *device,
-                                                        gboolean             hidden);
+        ThunarDevice        *device,
+        gboolean             hidden);
 
 G_END_DECLS
 

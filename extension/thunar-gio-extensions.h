@@ -40,12 +40,12 @@ gboolean  thunar_g_file_is_computer              (GFile                *file);
 gboolean  thunar_g_file_is_network               (GFile                *file);
 
 GKeyFile *thunar_g_file_query_key_file           (GFile                *file,
-                                                  GCancellable         *cancellable,
-                                                  GError              **error);
+        GCancellable         *cancellable,
+        GError              **error);
 gboolean  thunar_g_file_write_key_file           (GFile                *file,
-                                                  GKeyFile             *key_file,
-                                                  GCancellable         *cancellable,
-                                                  GError              **error);
+        GKeyFile             *key_file,
+        GCancellable         *cancellable,
+        GError              **error);
 
 gchar    *thunar_g_file_get_location             (GFile                *file);
 
@@ -56,11 +56,11 @@ gchar    *thunar_g_file_get_display_name_remote  (GFile                *file);
 gboolean  thunar_g_vfs_is_uri_scheme_supported   (const gchar          *scheme);
 
 gboolean  thunar_g_file_get_free_space           (GFile                *file,
-                                                  guint64              *fs_free_return,
-                                                  guint64              *fs_size_return);
+        guint64              *fs_free_return,
+        guint64              *fs_size_return);
 
 gchar    *thunar_g_file_get_free_space_string    (GFile                *file,
-                                                  gboolean              file_size_binary);
+        gboolean              file_size_binary);
 
 /**
  * THUNAR_TYPE_G_FILE_LIST:
@@ -83,10 +83,10 @@ GList    *thunar_g_file_list_get_parents            (GList             *list);
 #define   thunar_g_file_list_free                   thunarx_file_info_list_free
 
 gboolean  thunar_g_app_info_launch                  (GAppInfo          *info,
-                                                     GFile             *working_directory,
-                                                     GList             *path_list,
-                                                     GAppLaunchContext *context,
-                                                     GError           **error);
+        GFile             *working_directory,
+        GList             *path_list,
+        GAppLaunchContext *context,
+        GError           **error);
 
 gboolean  thunar_g_app_info_should_show             (GAppInfo          *info);
 

@@ -50,52 +50,52 @@
 int
 main (int argc, char **argv)
 {
-  ThunarApplication   *application;
-  GError              *error = NULL;
+    ThunarApplication   *application;
+    GError              *error = NULL;
 
-  /* setup translation domain */
+    /* setup translation domain */
 #ifdef ENABLE_GETTEXT
-  xfce_textdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
+    xfce_textdomain (GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
 #endif
 
-  /* setup application name */
-  g_set_application_name (_("Fileman"));
+    /* setup application name */
+    g_set_application_name (_("Fileman"));
 
 #ifdef G_ENABLE_DEBUG
-  /* Do NOT remove this line for now, If something doesn't work,
-   * fix your code instead!
-   */
-  g_log_set_always_fatal (G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
+    /* Do NOT remove this line for now, If something doesn't work,
+     * fix your code instead!
+     */
+    g_log_set_always_fatal (G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
 #endif
 
-  /* initialize xfconf */
-  if (!xfconf_init (&error))
+    /* initialize xfconf */
+    if (!xfconf_init (&error))
     {
-      g_printerr (PACKAGE_NAME ": Failed to initialize Xfconf: %s\n\n", error->message);
-      g_clear_error (&error);
+        g_printerr (PACKAGE_NAME ": Failed to initialize Xfconf: %s\n\n", error->message);
+        g_clear_error (&error);
 
-      /* disable get/set properties */
-      thunar_preferences_xfconf_init_failed ();
+        /* disable get/set properties */
+        thunar_preferences_xfconf_init_failed ();
     }
 
-  /* register additional transformation functions */
-  thunar_g_initialize_transformations ();
+    /* register additional transformation functions */
+    thunar_g_initialize_transformations ();
 
-  /* acquire a reference on the global application */
-  application = thunar_application_get ();
+    /* acquire a reference on the global application */
+    application = thunar_application_get ();
 
-  /* use the Thunar icon as default for new windows */
-  gtk_window_set_default_icon_name ("Thunar");
+    /* use the Thunar icon as default for new windows */
+    gtk_window_set_default_icon_name ("Thunar");
 
-  /* do further processing inside gapplication */
-  g_application_run (G_APPLICATION (application), argc, argv);
+    /* do further processing inside gapplication */
+    g_application_run (G_APPLICATION (application), argc, argv);
 
-  /* release the application reference */
-  g_object_unref (G_OBJECT (application));
+    /* release the application reference */
+    g_object_unref (G_OBJECT (application));
 
 #ifdef HAVE_LIBNOTIFY
-  thunar_notify_uninit ();
+    thunar_notify_uninit ();
 #endif
 
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

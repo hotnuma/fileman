@@ -42,17 +42,17 @@ ThunarIconFactory     *thunar_icon_factory_get_default        (void);
 ThunarIconFactory     *thunar_icon_factory_get_for_icon_theme (GtkIconTheme             *icon_theme);
 
 gboolean               thunar_icon_factory_get_show_thumbnail (const ThunarIconFactory  *factory,
-                                                               const ThunarFile         *file);
+        const ThunarFile         *file);
 
 GdkPixbuf             *thunar_icon_factory_load_icon          (ThunarIconFactory        *factory,
-                                                               const gchar              *name,
-                                                               gint                      size,
-                                                               gboolean                  wants_default);
+        const gchar              *name,
+        gint                      size,
+        gboolean                  wants_default);
 
 GdkPixbuf             *thunar_icon_factory_load_file_icon     (ThunarIconFactory        *factory,
-                                                               ThunarFile               *file,
-                                                               ThunarFileIconState       icon_state,
-                                                               gint                      icon_size);
+        ThunarFile               *file,
+        ThunarFileIconState       icon_state,
+        gint                      icon_size);
 
 void                   thunar_icon_factory_clear_pixmap_cache (ThunarFile               *file);
 

@@ -36,19 +36,19 @@ typedef struct _ThunarHistory      ThunarHistory;
 
 typedef enum
 {
-  THUNAR_HISTORY_MENU_BACK,
-  THUNAR_HISTORY_MENU_FORWARD,
+    THUNAR_HISTORY_MENU_BACK,
+    THUNAR_HISTORY_MENU_FORWARD,
 
 
 } ThunarHistoryMenuType;
 
 struct _ThunarHistoryClass
 {
-  GObjectClass __parent__;
+    GObjectClass __parent__;
 
-  /* external signals */
-  void         (*history_changed)   (ThunarHistory *history,
-                                     const gchar   *initial_text);
+    /* external signals */
+    void         (*history_changed)   (ThunarHistory *history,
+                                       const gchar   *initial_text);
 };
 
 GType           thunar_history_get_type         (void) G_GNUC_CONST;
@@ -61,8 +61,8 @@ ThunarFile     *thunar_history_peek_forward     (ThunarHistory         *history)
 void            thunar_history_action_back      (ThunarHistory         *history);
 void            thunar_history_action_forward   (ThunarHistory         *history);
 void            thunar_history_show_menu        (ThunarHistory         *history,
-                                                 ThunarHistoryMenuType  type,
-                                                 GtkWidget             *parent);
+        ThunarHistoryMenuType  type,
+        GtkWidget             *parent);
 
 G_END_DECLS;
 

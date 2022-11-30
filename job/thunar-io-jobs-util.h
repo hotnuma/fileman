@@ -26,16 +26,16 @@
 G_BEGIN_DECLS
 
 GFile *thunar_io_jobs_util_next_duplicate_file (ThunarJob *job,
-                                                GFile     *file,
-                                                gboolean   copy,
-                                                guint      n,
-                                                GError   **error) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+        GFile     *file,
+        gboolean   copy,
+        guint      n,
+        GError   **error) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 GFile *thunar_io_jobs_util_next_renamed_file (ThunarJob *job,
-                                              GFile     *src_file,
-                                              GFile     *tgt_file,
-                                              guint      n,
-                                              GError   **error) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+        GFile     *src_file,
+        GFile     *tgt_file,
+        guint      n,
+        GError   **error) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 
