@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2005-2007 Benedikt Meurer <benny@xfce.org>
  * Copyright (c) 2005      Jeff Franks <jcfranks@xfce.org>
@@ -67,29 +66,23 @@
 
 #define ACCEL_MAP_PATH "Thunar/accels.scm"
 
-
-
 /* the sm-client-id option is only honored while starting the primary instance,
  * and will be silently ignored on every other invocation */
-static gchar   *opt_sm_client_id = NULL;
+//static gchar *opt_sm_client_id = NULL;
 
 /* option entries */
 static const GOptionEntry option_entries[] =
 {
     { "daemon", 0, 0, G_OPTION_ARG_NONE, NULL, N_ ("Run in daemon mode"), NULL, },
-    { "sm-client-id", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING, &opt_sm_client_id, NULL, NULL, },
+//  { "sm-client-id", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING, &opt_sm_client_id, NULL, NULL, },
     { "quit", 'q', 0, G_OPTION_ARG_NONE, NULL, N_ ("Quit a running Thunar instance"), NULL, },
     { G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, NULL, NULL, NULL, },
     { NULL, 0, 0, 0, NULL, NULL, NULL, },
 };
 
-
-
 /* Prototype for the Thunar job launchers */
 typedef ThunarJob *(*Launcher) (GList *source_path_list,
                                 GList *target_path_list);
-
-
 
 /* Property identifiers */
 enum
@@ -98,22 +91,21 @@ enum
     PROP_DAEMON,
 };
 
-
-
-static void           thunar_application_finalize               (GObject                *object);
-static void           thunar_application_get_property           (GObject                *object,
-        guint                   prop_id,
-        GValue                 *value,
-        GParamSpec             *pspec);
-static void           thunar_application_set_property           (GObject                *object,
+static void thunar_application_finalize (GObject *object);
+static void thunar_application_get_property (GObject *object,
+                                             guint prop_id,
+                                             GValue *value,
+                                             GParamSpec *pspec);
+static void thunar_application_set_property (GObject *object,
         guint                   prop_id,
         const GValue           *value,
         GParamSpec             *pspec);
+
 #if ENABLE_DBUS
-static void           thunar_application_dbus_acquired_cb       (GDBusConnection        *conn,
+static void           thunar_application_dbus_acquired_cb (GDBusConnection        *conn,
         const gchar            *name,
         gpointer                user_data);
-static void           thunar_application_name_acquired_cb       (GDBusConnection        *connection,
+static void           thunar_application_name_acquired_cb (GDBusConnection        *connection,
         const gchar            *name,
         gpointer                user_data);
 static void           thunar_application_dbus_name_lost_cb      (GDBusConnection        *connection,
@@ -156,6 +148,7 @@ static void           thunar_application_launch                 (ThunarApplicati
         gboolean                update_source_folders,
         gboolean                update_target_folders,
         GClosure               *new_files_closure);
+
 #ifdef HAVE_GUDEV
 static void           thunar_application_uevent                 (GUdevClient            *client,
         const gchar            *action,
@@ -168,6 +161,7 @@ static void           thunar_application_volman_watch           (GPid           
         gpointer                user_data);
 static void           thunar_application_volman_watch_destroy   (gpointer                user_data);
 #endif
+
 static gboolean       thunar_application_show_dialogs           (gpointer                user_data);
 static void           thunar_application_show_dialogs_destroy   (gpointer                user_data);
 static GtkWidget     *thunar_application_get_progress_dialog    (ThunarApplication      *application);
@@ -182,52 +176,42 @@ struct _ThunarApplicationClass
 
 struct _ThunarApplication
 {
-    GtkApplication         __parent__;
+    GtkApplication      __parent__;
 
-#ifdef ENABLE_LIBSM
-    ThunarSessionClient   *session_client;
-#endif
+    ThunarPreferences   *preferences;
 
-    ThunarPreferences     *preferences;
-    GtkWidget             *progress_dialog;
+    gboolean            daemon;
+    GtkWidget           *progress_dialog;
+    guint               show_dialogs_timer_id;
+    GList               *files_to_launch;
 
-#ifdef ENABLE_DBUS
-    ThunarDBusService     *dbus_service;
-    guint                  dbus_owner_id_xfce;
-    guint                  dbus_owner_id_fdo;
-#endif
-
-    gboolean               daemon;
-
-    guint                  accel_map_save_id;
-    GtkAccelMap           *accel_map;
-
-    guint                  show_dialogs_timer_id;
+    guint               accel_map_save_id;
+    GtkAccelMap         *accel_map;
 
 #ifdef HAVE_GUDEV
-    GUdevClient           *udev_client;
-
-    GSList                *volman_udis;
-    guint                  volman_idle_id;
-    guint                  volman_watch_id;
+    GUdevClient         *udev_client;
+    GSList              *volman_udis;
+    guint               volman_idle_id;
+    guint               volman_watch_id;
 #endif
 
-    GList                 *files_to_launch;
+#ifdef ENABLE_LIBSM
+    ThunarSessionClient *session_client;
+#endif
 
+#ifdef ENABLE_DBUS
+    ThunarDBusService   *dbus_service;
+    guint               dbus_owner_id_xfce;
+    guint               dbus_owner_id_fdo;
+#endif
 };
-
-
 
 static GQuark thunar_application_screen_quark;
 static GQuark thunar_application_startup_id_quark;
 static GQuark thunar_application_file_quark;
 
-
-
 G_DEFINE_TYPE_EXTENDED (ThunarApplication, thunar_application, GTK_TYPE_APPLICATION, 0,
                         G_IMPLEMENT_INTERFACE (THUNAR_TYPE_BROWSER, NULL))
-
-
 
 static void
 thunar_application_class_init (ThunarApplicationClass *klass)
@@ -1201,11 +1185,6 @@ thunar_application_open_window (ThunarApplication *application,
     /* open as tab instead, if preferred */
     g_object_get (G_OBJECT (application->preferences), "misc-open-new-window-as-tab", &open_new_window_as_tab, NULL);
 
-//  if (G_UNLIKELY (!force_new_window && open_new_window_as_tab))
-//    {
-//      oooppps....
-//    }
-
     /* generate a unique role for the new window (for session management) */
     role = g_strdup_printf ("Thunar-%u-%u", (guint) time (NULL), (guint) g_random_int ());
 
@@ -1611,7 +1590,7 @@ thunar_application_move_into (ThunarApplication *application,
 
 
 
-static ThunarJob *
+static ThunarJob*
 unlink_stub (GList *source_path_list,
              GList *target_path_list)
 {

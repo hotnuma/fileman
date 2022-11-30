@@ -1,4 +1,3 @@
-/* vi:set et ai sw=2 sts=2 ts=2: */
 /*-
  * Copyright (c) 2005-2007 Benedikt Meurer <benny@xfce.org>
  * Copyright (c) 2009-2011 Jannis Pohlmann <jannis@xfce.org>
@@ -55,8 +54,7 @@
 #include <thunar-device-monitor.h>
 
 #include <glib.h>
-
-
+#include <syslog.h>
 
 /* Property identifiers */
 enum
@@ -88,8 +86,6 @@ struct _ThunarBookmark
 };
 
 typedef struct _ThunarBookmark ThunarBookmark;
-
-
 
 static void      thunar_window_screen_changed             (GtkWidget              *widget,
         GdkScreen              *old_screen,
@@ -201,8 +197,6 @@ static void      thunar_window_set_directory_specific_settings (ThunarWindow    
 static GType     thunar_window_view_type_for_directory         (ThunarWindow      *window,
         ThunarFile        *directory);
 
-
-
 struct _ThunarWindowClass
 {
     GtkWindowClass __parent__;
@@ -277,8 +271,6 @@ struct _ThunarWindow
     GClosure               *select_files_closure;
 };
 
-
-
 static XfceGtkActionEntry thunar_window_action_entries[] =
 {
     {THUNAR_WINDOW_ACTION_BACK, "<Actions>/ThunarStandardView/back", "<Alt>Left", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Back"), N_ ("Go to the previous visited folder"), "go-previous-symbolic", G_CALLBACK (thunar_window_action_back)},
@@ -294,16 +286,10 @@ static XfceGtkActionEntry thunar_window_action_entries[] =
 
 #define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_window_action_entries,G_N_ELEMENTS(thunar_window_action_entries),id)
 
-
-
 static guint window_signals[LAST_SIGNAL];
-
-
 
 G_DEFINE_TYPE_WITH_CODE (ThunarWindow, thunar_window, GTK_TYPE_WINDOW,
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_BROWSER, NULL))
-
-
 
 static void
 thunar_window_class_init (ThunarWindowClass *klass)
@@ -468,8 +454,6 @@ thunar_window_class_init (ThunarWindowClass *klass)
                                       "tab-change", 1, G_TYPE_UINT, i - 1);
     }
 }
-
-
 
 static void
 thunar_window_init (ThunarWindow *window)
@@ -1467,9 +1451,15 @@ thunar_window_action_debug (ThunarWindow *window,
     UNUSED(window);
     UNUSED(menu_item);
 
+
     GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
     const gchar *name = gtk_widget_get_name(focused);
+
     g_print("focused widget = %s\n", name);
+
+    openlog("Fileman", LOG_PID, LOG_USER);
+    syslog(LOG_INFO,"focused widget = %s\n", name);
+    closelog();
 }
 
 
