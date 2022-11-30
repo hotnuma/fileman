@@ -148,7 +148,6 @@ thunar_menu_init (ThunarMenu *menu)
 {
   menu->force_section_open = FALSE;
   menu->type = FALSE;
-//  menu->tab_support_disabled = FALSE;
   menu->change_directory_support_disabled = FALSE;
 }
 

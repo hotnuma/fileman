@@ -1,6 +1,10 @@
 
 This is an experimental fork of Thunar File Manager from XFCE desktop
 
+menus:
+thunar_tree_view_context_menu
+thunar_standard_view_context_menu
+
 <!--
 
 metadata

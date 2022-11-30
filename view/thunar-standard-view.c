@@ -3235,9 +3235,9 @@ thunar_standard_view_context_menu (ThunarStandardView *standard_view)
                                             | THUNAR_MENU_SECTION_CUSTOM_ACTIONS);
       thunar_standard_view_append_menu_items (standard_view, GTK_MENU (context_menu), NULL);
       xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (context_menu));
-      thunar_menu_add_sections (context_menu, /*THUNAR_MENU_SECTION_ZOOM
-                                            |*/ THUNAR_MENU_SECTION_PROPERTIES);
+      thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_PROPERTIES);
     }
+
   thunar_menu_hide_accel_labels (context_menu);
   gtk_widget_show_all (GTK_WIDGET (context_menu));
   thunar_window_redirect_menu_tooltips_to_statusbar (THUNAR_WINDOW (window), GTK_MENU (context_menu));
@@ -3412,25 +3412,6 @@ thunar_standard_view_get_history (ThunarStandardView *standard_view)
 
 
 /**
- * thunar_standard_view_copy_history:
- * @standard_view : a #ThunarStandardView instance.
- *
- * returns a copy of the #ThunarHistory of this #ThunarStandardView
- * The caller has to release the passed history with g_object_unref() after use.
- *
- * Return value: (transfer full): A copy of the #ThunarHistory of this #ThunarStandardView
- **/
-ThunarHistory *
-thunar_standard_view_copy_history (ThunarStandardView *standard_view)
-{
-  _thunar_return_val_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view), NULL);
-
-  return thunar_history_copy (standard_view->priv->history);
-}
-
-
-
-/**
  * thunar_standard_view_append_menu_items:
  * @standard_view : a #ThunarStandardView.
  * @menu          : the #GtkMenu to add the menu items.
@@ -3447,28 +3428,6 @@ thunar_standard_view_append_menu_items (ThunarStandardView *standard_view,
   _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
 
   (*THUNAR_STANDARD_VIEW_GET_CLASS (standard_view)->append_menu_items) (standard_view, menu, accel_group);
-}
-
-
-
-/**
- * thunar_standard_view_append_menu_item:
- * @standard_view  : Instance of a  #ThunarStandardView
- * @menu           : #GtkMenuShell to which the item should be added
- * @action         : #ThunarStandardViewAction to select which item should be added
- *
- * Adds the selected, widget specific #GtkMenuItem to the passed #GtkMenuShell
- *
- * Return value: (transfer none): The added #GtkMenuItem
- **/
-void
-thunar_standard_view_append_menu_item (ThunarStandardView      *standard_view,
-                                       GtkMenu                 *menu,
-                                       ThunarStandardViewAction action)
-{
-  _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
-
-  xfce_gtk_menu_item_new_from_action_entry (get_action_entry (action), G_OBJECT (standard_view), GTK_MENU_SHELL (menu));
 }
 
 
@@ -3575,3 +3534,5 @@ _thunar_standard_view_open_on_middle_click (ThunarStandardView *standard_view,
       g_object_unref (G_OBJECT (file));
     }
 }
+
+
