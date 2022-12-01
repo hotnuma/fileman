@@ -281,10 +281,11 @@ thunar_location_bar_install_widget (ThunarLocationBar    *bar,
             g_object_ref (bar->locationEntry);
             g_signal_connect_swapped (bar->locationEntry, "reload-requested", G_CALLBACK (thunar_location_bar_reload_requested), bar);
             g_signal_connect_swapped (bar->locationEntry, "change-directory", G_CALLBACK (thunar_navigator_change_directory), THUNAR_NAVIGATOR (bar));
-            g_signal_connect_swapped (bar->locationEntry, "open-new-tab", G_CALLBACK (thunar_navigator_open_new_tab), THUNAR_NAVIGATOR (bar));
+//            g_signal_connect_swapped (bar->locationEntry, "open-new-tab", G_CALLBACK (thunar_navigator_open_new_tab), THUNAR_NAVIGATOR (bar));
         }
         installedWidget = bar->locationEntry;
     }
+
 #if 0
     else
     {

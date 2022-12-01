@@ -102,3 +102,5 @@ void            thunar_view_set_selected_files  (ThunarView     *view,
 G_END_DECLS;
 
 #endif /* !__THUNAR_VIEW_H__ */
+
+

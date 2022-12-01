@@ -962,11 +962,13 @@ static void thunar_launcher_poke_device_finish (ThunarBrowser *browser,
         return;
     }
 
-    if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_TAB)
-    {
-        thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), mount_point);
-    }
-    else if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW)
+//    if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_TAB)
+//    {
+//        thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), mount_point);
+//    }
+//    else
+
+    if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW)
     {
         GList *directories = NULL;
         directories = g_list_append (directories, mount_point);
@@ -992,7 +994,7 @@ thunar_launcher_poke_files_finish (ThunarBrowser *browser,
 {
     ThunarLauncherPokeData *poke_data = user_data;
     gboolean                executable = TRUE;
-    gboolean                open_new_window_as_tab = TRUE;
+    //gboolean                open_new_window_as_tab = TRUE;
     GList                  *directories = NULL;
     GList                  *files = NULL;
     GList                  *lp;
@@ -1042,11 +1044,13 @@ thunar_launcher_poke_files_finish (ThunarBrowser *browser,
                 for (lp = directories; lp != NULL; lp = lp->next)
                     thunar_launcher_open_file (THUNAR_LAUNCHER (browser), lp->data, poke_data->application_to_use);
             }
-            else if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_TAB)
-            {
-                for (lp = directories; lp != NULL; lp = lp->next)
-                    thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), lp->data);
-            }
+
+//            else if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_TAB)
+//            {
+//                for (lp = directories; lp != NULL; lp = lp->next)
+//                    thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), lp->data);
+//            }
+
             else if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW)
             {
                 thunar_launcher_open_windows (THUNAR_LAUNCHER (browser), directories);
@@ -1058,13 +1062,13 @@ thunar_launcher_poke_files_finish (ThunarBrowser *browser,
                     thunar_navigator_change_directory (THUNAR_NAVIGATOR (browser), directories->data);
                 else
                 {
-                    g_object_get (G_OBJECT (THUNAR_LAUNCHER (browser)->preferences), "misc-open-new-window-as-tab", &open_new_window_as_tab, NULL);
-                    if (open_new_window_as_tab)
-                    {
-                        for (lp = directories; lp != NULL; lp = lp->next)
-                            thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), lp->data);
-                    }
-                    else
+//                    g_object_get (G_OBJECT (THUNAR_LAUNCHER (browser)->preferences), "misc-open-new-window-as-tab", &open_new_window_as_tab, NULL);
+//                    if (open_new_window_as_tab)
+//                    {
+//                        for (lp = directories; lp != NULL; lp = lp->next)
+//                            thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), lp->data);
+//                    }
+//                    else
                         thunar_launcher_open_windows (THUNAR_LAUNCHER (browser), directories);
                 }
             }
