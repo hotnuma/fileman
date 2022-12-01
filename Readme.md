@@ -3,6 +3,10 @@ This is an experimental fork of Thunar File Manager from XFCE desktop
 
 TODO : preferences options cleanup
 
+port to GtkBox
+ThunarLocationEntry
+    GtkHBox
+
 menus:
 thunar_tree_view_context_menu
 thunar_standard_view_context_menu

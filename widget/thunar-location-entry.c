@@ -33,7 +33,6 @@
 #include <thunar-marshal.h>
 #include <thunar-path-entry.h>
 #include <thunar-private.h>
-//#include <thunar-shortcuts-model.h>
 
 /* Property identifiers */
 enum
@@ -394,9 +393,9 @@ thunar_location_entry_activate (GtkWidget           *path_entry,
 }
 
 static gboolean
-thunar_location_entry_button_press_event (GtkWidget           *path_entry,
-        GdkEventButton      *event,
-        ThunarLocationEntry *location_entry)
+thunar_location_entry_button_press_event (GtkWidget         *path_entry,
+                                          GdkEventButton    *event,
+                                          ThunarLocationEntry *location_entry)
 {
     UNUSED(path_entry);
 
