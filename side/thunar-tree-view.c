@@ -415,7 +415,6 @@ thunar_tree_view_init (ThunarTreeView *view)
                                     "select-files-closure", view->new_files_closure, NULL);
 
     g_signal_connect_swapped (G_OBJECT (view->launcher), "change-directory", G_CALLBACK (thunar_tree_view_action_open), view);
-//    g_signal_connect_swapped (G_OBJECT (view->launcher), "open-new-tab", G_CALLBACK (thunar_navigator_open_new_tab), view);
     exo_binding_new (G_OBJECT (view), "current-directory", G_OBJECT (view->launcher), "current-directory");
 }
 
@@ -758,7 +757,6 @@ thunar_tree_view_button_release_event (GtkWidget      *widget,
                                        GdkEventButton *event)
 {
     ThunarTreeView *view = THUNAR_TREE_VIEW (widget);
-    gboolean        in_tab;
 
     /* check if we have an event matching the pressed button state */
     if (G_LIKELY (view->pressed_button == (gint) event->button))
@@ -770,13 +768,7 @@ thunar_tree_view_button_release_event (GtkWidget      *widget,
         }
         else if (G_UNLIKELY (event->button == 2))
         {
-            g_object_get (view->preferences, "misc-middle-click-in-tab", &in_tab, NULL);
-
-            /* holding ctrl inverts the action */
-            if ((event->state & GDK_CONTROL_MASK) != 0)
-                in_tab = !in_tab;
-
-            thunar_launcher_open_selected_folders (view->launcher, in_tab);
+            thunar_launcher_open_selected_folders (view->launcher);
 
             /* set the cursor back to the previously selected item */
             if (view->select_path != NULL)

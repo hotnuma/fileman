@@ -281,25 +281,9 @@ thunar_location_bar_install_widget (ThunarLocationBar    *bar,
             g_object_ref (bar->locationEntry);
             g_signal_connect_swapped (bar->locationEntry, "reload-requested", G_CALLBACK (thunar_location_bar_reload_requested), bar);
             g_signal_connect_swapped (bar->locationEntry, "change-directory", G_CALLBACK (thunar_navigator_change_directory), THUNAR_NAVIGATOR (bar));
-//            g_signal_connect_swapped (bar->locationEntry, "open-new-tab", G_CALLBACK (thunar_navigator_open_new_tab), THUNAR_NAVIGATOR (bar));
         }
         installedWidget = bar->locationEntry;
     }
-
-#if 0
-    else
-    {
-        if (bar->locationButtons == NULL)
-        {
-            bar->locationButtons = gtk_widget_new (THUNAR_TYPE_LOCATION_BUTTONS, "current-directory", NULL, NULL);
-            g_object_ref (bar->locationButtons);
-            g_signal_connect_swapped (bar->locationButtons, "entry-requested", G_CALLBACK (thunar_location_bar_request_entry), bar);
-            g_signal_connect_swapped (bar->locationButtons, "change-directory", G_CALLBACK (thunar_navigator_change_directory), THUNAR_NAVIGATOR (bar));
-            g_signal_connect_swapped (bar->locationButtons, "open-new-tab", G_CALLBACK (thunar_navigator_open_new_tab), THUNAR_NAVIGATOR (bar));
-        }
-        installedWidget = bar->locationButtons;
-    }
-#endif
 
     thunar_navigator_set_current_directory (THUNAR_NAVIGATOR (installedWidget), bar->current_directory);
 

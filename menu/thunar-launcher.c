@@ -962,12 +962,6 @@ static void thunar_launcher_poke_device_finish (ThunarBrowser *browser,
         return;
     }
 
-//    if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_TAB)
-//    {
-//        thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), mount_point);
-//    }
-//    else
-
     if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW)
     {
         GList *directories = NULL;
@@ -1045,12 +1039,6 @@ thunar_launcher_poke_files_finish (ThunarBrowser *browser,
                     thunar_launcher_open_file (THUNAR_LAUNCHER (browser), lp->data, poke_data->application_to_use);
             }
 
-//            else if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_TAB)
-//            {
-//                for (lp = directories; lp != NULL; lp = lp->next)
-//                    thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), lp->data);
-//            }
-
             else if (poke_data->folder_open_action == THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW)
             {
                 thunar_launcher_open_windows (THUNAR_LAUNCHER (browser), directories);
@@ -1062,14 +1050,7 @@ thunar_launcher_poke_files_finish (ThunarBrowser *browser,
                     thunar_navigator_change_directory (THUNAR_NAVIGATOR (browser), directories->data);
                 else
                 {
-//                    g_object_get (G_OBJECT (THUNAR_LAUNCHER (browser)->preferences), "misc-open-new-window-as-tab", &open_new_window_as_tab, NULL);
-//                    if (open_new_window_as_tab)
-//                    {
-//                        for (lp = directories; lp != NULL; lp = lp->next)
-//                            thunar_navigator_open_new_tab (THUNAR_NAVIGATOR (browser), lp->data);
-//                    }
-//                    else
-                        thunar_launcher_open_windows (THUNAR_LAUNCHER (browser), directories);
+                    thunar_launcher_open_windows (THUNAR_LAUNCHER (browser), directories);
                 }
             }
             else if (poke_data->folder_open_action == THUNAR_LAUNCHER_NO_ACTION)
@@ -1173,8 +1154,7 @@ thunar_launcher_widget_destroyed (ThunarLauncher *launcher,
  *
  * Will open each selected folder in a new tab/window
  **/
-void thunar_launcher_open_selected_folders (ThunarLauncher *launcher,
-        gboolean        open_in_tabs)
+void thunar_launcher_open_selected_folders (ThunarLauncher *launcher)
 {
     GList *lp;
 
@@ -1183,10 +1163,7 @@ void thunar_launcher_open_selected_folders (ThunarLauncher *launcher,
     for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
         _thunar_return_if_fail (thunar_file_is_directory (THUNAR_FILE (lp->data)));
 
-    if (open_in_tabs)
-        thunar_launcher_poke (launcher, NULL, THUNAR_LAUNCHER_OPEN_AS_NEW_TAB);
-    else
-        thunar_launcher_poke (launcher, NULL, THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW);
+    thunar_launcher_poke (launcher, NULL, THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW);
 }
 
 
@@ -1212,7 +1189,7 @@ thunar_launcher_action_open_in_new_windows (ThunarLauncher *launcher)
     if (G_UNLIKELY (launcher->files_to_process == NULL))
         return;
 
-    thunar_launcher_open_selected_folders (launcher, FALSE);
+    thunar_launcher_open_selected_folders (launcher);
 }
 
 

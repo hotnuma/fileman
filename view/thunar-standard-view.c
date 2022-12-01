@@ -3450,9 +3450,10 @@ _thunar_standard_view_open_on_middle_click (ThunarStandardView *standard_view,
         GtkTreePath        *tree_path,
         guint               event_state)
 {
+    UNUSED(event_state);
+
     GtkTreeIter     iter;
     ThunarFile     *file;
-    gboolean        in_tab;
     GtkWidget      *window;
     ThunarLauncher *launcher;
 
@@ -3465,16 +3466,9 @@ _thunar_standard_view_open_on_middle_click (ThunarStandardView *standard_view,
     {
         if (thunar_file_is_directory (file))
         {
-            /* lookup setting if we should open in a tab or a window */
-            g_object_get (G_OBJECT (standard_view->preferences), "misc-middle-click-in-tab", &in_tab, NULL);
-
-            /* holding ctrl inverts the action */
-            if ((event_state & GDK_CONTROL_MASK) != 0)
-                in_tab = !in_tab;
-
             window = gtk_widget_get_toplevel (GTK_WIDGET (standard_view));
             launcher = thunar_window_get_launcher (THUNAR_WINDOW (window));
-            thunar_launcher_open_selected_folders (launcher, in_tab);
+            thunar_launcher_open_selected_folders (launcher);
         }
         /* release the file reference */
         g_object_unref (G_OBJECT (file));

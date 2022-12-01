@@ -75,8 +75,7 @@ GType           thunar_launcher_get_type                             (void) G_GN
 void            thunar_launcher_activate_selected_files              (ThunarLauncher                 *launcher,
         ThunarLauncherFolderOpenAction  action,
         GAppInfo                       *app_info);
-void            thunar_launcher_open_selected_folders                (ThunarLauncher                 *launcher,
-        gboolean                        open_in_tabs);
+void            thunar_launcher_open_selected_folders                (ThunarLauncher                 *launcher);
 void            thunar_launcher_set_widget                           (ThunarLauncher                 *launcher,
         GtkWidget                      *widget);
 GtkWidget      *thunar_launcher_get_widget                           (ThunarLauncher                 *launcher);

@@ -23,25 +23,16 @@
 #include <thunar-navigator.h>
 #include <thunar-private.h>
 
-
-
 enum
 {
     CHANGE_DIRECTORY,
-//    OPEN_NEW_TAB,
     LAST_SIGNAL,
 };
-
-
 
 static void thunar_navigator_base_init  (gpointer klass);
 static void thunar_navigator_class_init (gpointer klass);
 
-
-
 static guint navigator_signals[LAST_SIGNAL];
-
-
 
 GType
 thunar_navigator_get_type (void)
@@ -73,8 +64,6 @@ thunar_navigator_get_type (void)
 
     return type__volatile;
 }
-
-
 
 static void
 thunar_navigator_base_init (gpointer klass)
@@ -111,20 +100,9 @@ thunar_navigator_base_init (gpointer klass)
                           g_cclosure_marshal_VOID__OBJECT,
                           G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
 
-//        navigator_signals[OPEN_NEW_TAB] =
-//            g_signal_new (I_("open-new-tab"),
-//                          G_TYPE_FROM_INTERFACE (klass),
-//                          G_SIGNAL_RUN_LAST,
-//                          G_STRUCT_OFFSET (ThunarNavigatorIface, open_new_tab),
-//                          NULL, NULL,
-//                          g_cclosure_marshal_VOID__OBJECT,
-//                          G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
-
         initialized = TRUE;
     }
 }
-
-
 
 static void
 thunar_navigator_class_init (gpointer klass)
@@ -153,8 +131,6 @@ thunar_navigator_class_init (gpointer klass)
                                                  EXO_PARAM_READWRITE));
 }
 
-
-
 /**
  * thunar_navigator_get_current_directory:
  * @navigator : a #ThunarNavigator instance.
@@ -172,8 +148,6 @@ thunar_navigator_get_current_directory (ThunarNavigator *navigator)
     return THUNAR_NAVIGATOR_GET_IFACE (navigator)->get_current_directory (navigator);
 }
 
-
-
 /**
  * thunar_navigator_set_current_directory:
  * @navigator         : a #ThunarNavigator instance.
@@ -190,8 +164,6 @@ thunar_navigator_set_current_directory (ThunarNavigator *navigator,
     _thunar_return_if_fail (current_directory == NULL || THUNAR_IS_FILE (current_directory));
     THUNAR_NAVIGATOR_GET_IFACE (navigator)->set_current_directory (navigator, current_directory);
 }
-
-
 
 /**
  * thunar_navigator_change_directory:
@@ -220,19 +192,5 @@ thunar_navigator_change_directory (ThunarNavigator *navigator,
 
     g_signal_emit (G_OBJECT (navigator), navigator_signals[CHANGE_DIRECTORY], 0, directory);
 }
-
-
-#if 0
-void
-thunar_navigator_open_new_tab (ThunarNavigator *navigator,
-                               ThunarFile      *directory)
-{
-    _thunar_return_if_fail (THUNAR_IS_NAVIGATOR (navigator));
-    _thunar_return_if_fail (THUNAR_IS_FILE (directory));
-    _thunar_return_if_fail (thunar_file_is_directory (directory));
-
-    g_signal_emit (G_OBJECT (navigator), navigator_signals[OPEN_NEW_TAB], 0, directory);
-}
-#endif
 
 
