@@ -62,7 +62,7 @@ struct _ThunarBrowserIface
     /* virtual methods */
 };
 
-GType thunar_browser_get_type (void) G_GNUC_CONST;
+GType thunar_browser_get_type () G_GNUC_CONST;
 
 void thunar_browser_poke_file (ThunarBrowser *browser,
                                ThunarFile *file,

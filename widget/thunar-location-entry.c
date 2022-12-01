@@ -35,16 +35,12 @@
 #include <thunar-private.h>
 //#include <thunar-shortcuts-model.h>
 
-
-
 /* Property identifiers */
 enum
 {
     PROP_0,
     PROP_CURRENT_DIRECTORY,
 };
-
-
 
 static void        thunar_location_entry_navigator_init           (ThunarNavigatorIface     *iface);
 static void        thunar_location_entry_finalize                 (GObject                  *object);
@@ -71,8 +67,6 @@ static void        thunar_location_entry_reload                   (GtkEntry     
         ThunarLocationEntry      *location_entry);
 static void        thunar_location_entry_emit_edit_done           (ThunarLocationEntry      *entry);
 
-
-
 struct _ThunarLocationEntryClass
 {
     GtkHBoxClass __parent__;
@@ -95,13 +89,9 @@ struct _ThunarLocationEntry
     gboolean      right_click_occurred;
 };
 
-
-
 G_DEFINE_TYPE_WITH_CODE (ThunarLocationEntry, thunar_location_entry, GTK_TYPE_BOX,
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_BROWSER, NULL)
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_NAVIGATOR, thunar_location_entry_navigator_init))
-
-
 
 static void
 thunar_location_entry_class_init (ThunarLocationEntryClass *klass)
@@ -178,8 +168,6 @@ thunar_location_entry_navigator_init (ThunarNavigatorIface *iface)
     iface->set_current_directory = thunar_location_entry_set_current_directory;
 }
 
-
-
 static void
 thunar_location_entry_init (ThunarLocationEntry *location_entry)
 {
@@ -209,8 +197,6 @@ thunar_location_entry_init (ThunarLocationEntry *location_entry)
                       G_CALLBACK (thunar_location_entry_button_press_event), location_entry);
 }
 
-
-
 static void
 thunar_location_entry_finalize (GObject *object)
 {
@@ -219,8 +205,6 @@ thunar_location_entry_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_location_entry_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_location_entry_get_property (GObject    *object,
@@ -240,8 +224,6 @@ thunar_location_entry_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_location_entry_set_property (GObject      *object,
@@ -266,15 +248,11 @@ thunar_location_entry_set_property (GObject      *object,
     }
 }
 
-
-
 static ThunarFile*
 thunar_location_entry_get_current_directory (ThunarNavigator *navigator)
 {
     return THUNAR_LOCATION_ENTRY (navigator)->current_directory;
 }
-
-
 
 static void
 thunar_location_entry_set_current_directory (ThunarNavigator *navigator,
@@ -296,8 +274,6 @@ thunar_location_entry_set_current_directory (ThunarNavigator *navigator,
     /* notify listeners */
     g_object_notify (G_OBJECT (location_entry), "current-directory");
 }
-
-
 
 void
 thunar_location_entry_accept_focus (ThunarLocationEntry *location_entry,
@@ -321,8 +297,6 @@ thunar_location_entry_accept_focus (ThunarLocationEntry *location_entry,
         gtk_editable_select_region (GTK_EDITABLE (location_entry->path_entry), 0, -1);
     }
 }
-
-
 
 static void
 thunar_location_entry_open_or_launch (ThunarLocationEntry *location_entry,
@@ -370,8 +344,6 @@ thunar_location_entry_open_or_launch (ThunarLocationEntry *location_entry,
     }
 }
 
-
-
 static void
 thunar_location_entry_poke_file_finish (ThunarBrowser *browser,
                                         ThunarFile    *file,
@@ -379,49 +351,47 @@ thunar_location_entry_poke_file_finish (ThunarBrowser *browser,
                                         GError        *error,
                                         gpointer       ignored)
 {
-    UNUSED(ignored);
-
     _thunar_return_if_fail (THUNAR_IS_LOCATION_ENTRY (browser));
     _thunar_return_if_fail (THUNAR_IS_FILE (file));
+    UNUSED(ignored);
 
-    if (error == NULL)
-    {
-        /* try to open or launch the target file */
-        thunar_location_entry_open_or_launch (THUNAR_LOCATION_ENTRY (browser),
-                                              target_file);
-    }
-    else
+    if (error != NULL)
     {
         /* display an error explaining why we couldn't open/mount the file */
         thunar_dialogs_show_error (THUNAR_LOCATION_ENTRY (browser)->path_entry,
                                    error, _("Failed to open \"%s\""),
                                    thunar_file_get_display_name (file));
+        return;
     }
+
+    /* try to open or launch the target file */
+    thunar_location_entry_open_or_launch (THUNAR_LOCATION_ENTRY (browser),
+                                          target_file);
 }
-
-
 
 static void
 thunar_location_entry_activate (GtkWidget           *path_entry,
                                 ThunarLocationEntry *location_entry)
 {
-    ThunarFile *file;
 
     _thunar_return_if_fail (THUNAR_IS_LOCATION_ENTRY (location_entry));
     _thunar_return_if_fail (location_entry->path_entry == path_entry);
 
     /* determine the current file from the path entry */
-    file = thunar_path_entry_get_current_file (THUNAR_PATH_ENTRY (path_entry));
-    if (G_LIKELY (file != NULL))
-    {
-        thunar_browser_poke_file (THUNAR_BROWSER (location_entry), file, path_entry,
-                                  thunar_location_entry_poke_file_finish, NULL);
+    ThunarFile *file =
+        thunar_path_entry_get_current_file (THUNAR_PATH_ENTRY (path_entry));
 
-        thunar_location_entry_emit_edit_done (location_entry);
-    }
+    if (G_UNLIKELY (file == NULL))
+        return;
+
+    thunar_browser_poke_file (THUNAR_BROWSER (location_entry),
+                              file,
+                              path_entry,
+                              thunar_location_entry_poke_file_finish,
+                              NULL);
+
+    thunar_location_entry_emit_edit_done (location_entry);
 }
-
-
 
 static gboolean
 thunar_location_entry_button_press_event (GtkWidget           *path_entry,
@@ -441,8 +411,6 @@ thunar_location_entry_button_press_event (GtkWidget           *path_entry,
     return FALSE;
 }
 
-
-
 static gboolean
 thunar_location_entry_reset (ThunarLocationEntry *location_entry)
 {
@@ -456,8 +424,6 @@ thunar_location_entry_reset (ThunarLocationEntry *location_entry)
 
     return TRUE;
 }
-
-
 
 static void
 thunar_location_entry_reload (GtkEntry            *entry,
@@ -475,8 +441,6 @@ thunar_location_entry_reload (GtkEntry            *entry,
         g_signal_emit_by_name (location_entry, "reload-requested");
     }
 }
-
-
 
 static void
 thunar_location_entry_emit_edit_done (ThunarLocationEntry *entry)
