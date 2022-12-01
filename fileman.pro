@@ -16,18 +16,13 @@ PKGCONFIG = \
 INCLUDEPATH = core dialog extension job menu side view widget
 
 HEADERS = \
-    core/thunar-browser.h \
     core/thunar-clipboard-manager.h \
-    core/thunar-component.h \
     core/thunar-device.h \
     core/thunar-device-monitor.h \
     core/thunar-dnd.h \
-    core/thunar-enum-types.h \
     core/thunar-file.h \
     core/thunar-file-monitor.h \
     core/thunar-folder.h \
-    core/thunar-history.h \
-    core/thunar-navigator.h \
     core/thunar-notify.h \
     core/thunar-user.h \
     core/thunar-util.h \
@@ -39,11 +34,6 @@ HEADERS = \
     dialog/thunar-progress-dialog.h \
     dialog/thunar-progress-view.h \
     dialog/thunar-properties-dialog.h \
-    extension/thunar-gdk-extensions.h \
-    extension/thunar-gio-extensions.h \
-    extension/thunar-gobject-extensions.h \
-    extension/thunar-gtk-extensions.h \
-    extension/thunar-pango-extensions.h \
     job/thunar-deep-count-job.h \
     job/thunar-io-jobs.h \
     job/thunar-io-jobs-util.h \
@@ -54,6 +44,16 @@ HEADERS = \
     menu/thunar-launcher.h \
     menu/thunar-menu.h \
     menu/thunar-sendto-model.h \
+    misc/thunar-browser.h \
+    misc/thunar-component.h \
+    misc/thunar-enum-types.h \
+    misc/thunar-gdk-extensions.h \
+    misc/thunar-gio-extensions.h \
+    misc/thunar-gobject-extensions.h \
+    misc/thunar-gtk-extensions.h \
+    misc/thunar-history.h \
+    misc/thunar-navigator.h \
+    misc/thunar-pango-extensions.h \
     side/thunar-side-pane.h \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
@@ -82,18 +82,13 @@ HEADERS = \
 
 SOURCES = \
   0Temp.c \
-    core/thunar-browser.c \
     core/thunar-clipboard-manager.c \
-    core/thunar-component.c \
     core/thunar-device.c \
     core/thunar-device-monitor.c \
     core/thunar-dnd.c \
-    core/thunar-enum-types.c \
     core/thunar-file.c \
     core/thunar-file-monitor.c \
     core/thunar-folder.c \
-    core/thunar-history.c \
-    core/thunar-navigator.c \
     core/thunar-notify.c \
     core/thunar-user.c \
     core/thunar-util.c \
@@ -105,11 +100,16 @@ SOURCES = \
     dialog/thunar-progress-dialog.c \
     dialog/thunar-progress-view.c \
     dialog/thunar-properties-dialog.c \
-    extension/thunar-gdk-extensions.c \
-    extension/thunar-gio-extensions.c \
-    extension/thunar-gobject-extensions.c \
-    extension/thunar-gtk-extensions.c \
-    extension/thunar-pango-extensions.c \
+    misc/thunar-browser.c \
+    misc/thunar-component.c \
+    misc/thunar-enum-types.c \
+    misc/thunar-gdk-extensions.c \
+    misc/thunar-gio-extensions.c \
+    misc/thunar-gobject-extensions.c \
+    misc/thunar-gtk-extensions.c \
+    misc/thunar-history.c \
+    misc/thunar-navigator.c \
+    misc/thunar-pango-extensions.c \
     job/thunar-deep-count-job.c \
     job/thunar-io-jobs.c \
     job/thunar-io-jobs-util.c \
