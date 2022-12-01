@@ -122,8 +122,7 @@ struct _ThunarStandardViewClass
     gboolean     (*delete_selected_files) (ThunarStandardView *standard_view);
 
     /* The name of the property in ThunarPreferences, that determines
-     * the last (and default) zoom-level for the view classes (i.e. in
-     * case of ThunarIconView, this is "last-icon-view-zoom-level").
+     * the last (and default) zoom-level for the view classes.
      */
     const gchar *zoom_level_property_name;
 };

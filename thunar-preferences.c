@@ -48,21 +48,15 @@
 enum
 {
     PROP_0,
-    PROP_DEFAULT_VIEW,
     PROP_HIDDEN_DEVICES,
     PROP_HIDDEN_BOOKMARKS,
-    PROP_LAST_COMPACT_VIEW_ZOOM_LEVEL,
     PROP_LAST_DETAILS_VIEW_COLUMN_ORDER,
     PROP_LAST_DETAILS_VIEW_COLUMN_WIDTHS,
     PROP_LAST_DETAILS_VIEW_FIXED_COLUMNS,
     PROP_LAST_DETAILS_VIEW_VISIBLE_COLUMNS,
     PROP_LAST_DETAILS_VIEW_ZOOM_LEVEL,
-    PROP_LAST_ICON_VIEW_ZOOM_LEVEL,
-    PROP_LAST_LOCATION_BAR,
-    PROP_LAST_MENUBAR_VISIBLE,
     PROP_LAST_SEPARATOR_POSITION,
     PROP_LAST_SHOW_HIDDEN,
-    PROP_LAST_SIDE_PANE,
     PROP_LAST_SORT_COLUMN,
     PROP_LAST_SORT_ORDER,
     PROP_LAST_STATUSBAR_VISIBLE,
@@ -141,20 +135,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
     gobject_class->set_property = thunar_preferences_set_property;
 
     /**
-     * ThunarPreferences:default-view:
-     *
-     * The name of the widget class, which should be used for the
-     * view pane in new #ThunarWindow<!---->s or "void" to use the
-     * last selected view from the "last-view" preference.
-     **/
-    preferences_props[PROP_DEFAULT_VIEW] =
-        g_param_spec_string ("default-view",
-                             "DefaultView",
-                             NULL,
-                             "void",
-                             EXO_PARAM_READWRITE);
-
-    /**
      * ThunarPreferences:hidden-bookmarks:
      *
      * List of URI's that are hidden in the bookmarks (obtained from ~/.gtk-bookmarks).
@@ -180,20 +160,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                             NULL,
                             G_TYPE_STRV,
                             EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:last-compact-view-zoom-level:
-     *
-     * The last selected #ThunarZoomLevel for the #ThunarCompactView.
-     **/
-    preferences_props[PROP_LAST_COMPACT_VIEW_ZOOM_LEVEL] =
-        g_param_spec_enum ("last-compact-view-zoom-level",
-                           "LastCompactViewZoomLevel",
-                           NULL,
-                           THUNAR_TYPE_ZOOM_LEVEL,
-                           THUNAR_ZOOM_LEVEL_25_PERCENT,
-                           EXO_PARAM_READWRITE);
-
 
     /**
      * ThunarPreferences:last-details-view-column-order:
@@ -260,45 +226,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                            EXO_PARAM_READWRITE);
 
     /**
-     * ThunarPreferences:last-icon-view-zoom-level:
-     *
-     * The last selected #ThunarZoomLevel for the #ThunarIconView.
-     **/
-    preferences_props[PROP_LAST_ICON_VIEW_ZOOM_LEVEL] =
-        g_param_spec_enum ("last-icon-view-zoom-level",
-                           "LastIconViewZoomLevel",
-                           NULL,
-                           THUNAR_TYPE_ZOOM_LEVEL,
-                           THUNAR_ZOOM_LEVEL_100_PERCENT,
-                           EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:last-location-bar:
-     *
-     * The name of the widget class, which should be used for the
-     * location bar in #ThunarWindow<!---->s or "void" to hide the
-     * location bar.
-     **/
-    preferences_props[PROP_LAST_LOCATION_BAR] =
-        g_param_spec_string ("last-location-bar",
-                             "LastLocationBar",
-                             NULL,
-                             "ThunarLocationEntry",
-                             EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:last-menubar-visible:
-     *
-     * Whether to display a menubar in new windows by default.
-     **/
-    preferences_props[PROP_LAST_MENUBAR_VISIBLE] =
-        g_param_spec_boolean ("last-menubar-visible",
-                              "LastMenubarVisible",
-                              NULL,
-                              TRUE,
-                              EXO_PARAM_READWRITE);
-
-    /**
      * ThunarPreferences:last-separator-position:
      *
      * The last position of the gutter in the main window,
@@ -334,20 +261,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                               NULL,
                               FALSE,
                               EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:last-side-pane:
-     *
-     * The name of the widget class, which should be used for the
-     * side pane in #ThunarWindow<!---->s or "void" to hide the
-     * side pane completely.
-     **/
-    preferences_props[PROP_LAST_SIDE_PANE] =
-        g_param_spec_string ("last-side-pane",
-                             "LastSidePane",
-                             NULL,
-                             "ThunarShortcutsPane",
-                             EXO_PARAM_READWRITE);
 
     /**
      * ThunarPreferences:last-sort-column:

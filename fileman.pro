@@ -13,7 +13,7 @@ PKGCONFIG = \
     libxfce4ui-2 \
     thunarx-3 \
 
-INCLUDEPATH = core dialog extension job menu side view widget
+INCLUDEPATH = core dialog job menu misc side view widget
 
 HEADERS = \
     core/thunar-clipboard-manager.h \

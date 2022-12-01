@@ -458,9 +458,6 @@ thunar_window_class_init (ThunarWindowClass *klass)
 static void
 thunar_window_init (ThunarWindow *window)
 {
-    gboolean         last_menubar_visible;
-    gchar           *last_location_bar;
-    gchar           *last_side_pane;
     GType            type;
     gint             last_separator_position;
     gint             last_window_width;
@@ -493,10 +490,7 @@ thunar_window_init (ThunarWindow *window)
                   "last-window-width", &last_window_width,
                   "last-window-height", &last_window_height,
                   "last-window-maximized", &last_window_maximized,
-                  "last-menubar-visible", &last_menubar_visible,
                   "last-separator-position", &last_separator_position,
-                  "last-location-bar", &last_location_bar,
-                  "last-side-pane", &last_side_pane,
                   "last-statusbar-visible", &last_statusbar_visible,
                   "misc-small-toolbar-icons", &small_icons,
                   NULL);
@@ -618,8 +612,6 @@ thunar_window_init (ThunarWindow *window)
     /* display the toolbar */
     gtk_widget_show_all (window->location_toolbar);
 
-    g_free (last_location_bar);
-
     /* setup setting the location bar visibility on-demand */
     g_signal_connect_object (G_OBJECT (window->preferences), "notify::last-location-bar", G_CALLBACK (thunar_window_update_location_bar_visible), window, G_CONNECT_SWAPPED);
     thunar_window_update_location_bar_visible (window);
@@ -630,7 +622,6 @@ thunar_window_init (ThunarWindow *window)
     type = THUNAR_TYPE_TREE_PANE;
 
     thunar_window_install_sidepane (window, type);
-    g_free (last_side_pane);
 
     /* synchronise the "directory-specific-settings" property with the global "misc-directory-specific-settings" property */
     exo_binding_new (G_OBJECT (window->preferences), "misc-directory-specific-settings", G_OBJECT (window), "directory-specific-settings");
@@ -1336,19 +1327,20 @@ thunar_window_update_directories (ThunarWindow *window,
 static void
 thunar_window_update_location_bar_visible (ThunarWindow *window)
 {
-    gchar *last_location_bar = NULL;
+//    gchar *last_location_bar = NULL;
 
-    g_object_get (window->preferences, "last-location-bar", &last_location_bar, NULL);
+//    g_object_get (window->preferences, "last-location-bar", &last_location_bar, NULL);
 
-    if (exo_str_is_equal (last_location_bar, g_type_name (G_TYPE_NONE)))
-    {
-        gtk_widget_hide (window->location_toolbar);
-        gtk_widget_grab_focus (window->view);
-    }
-    else
-        gtk_widget_show (window->location_toolbar);
+//    if (exo_str_is_equal (last_location_bar, g_type_name (G_TYPE_NONE)))
+//    {
+//        gtk_widget_hide (window->location_toolbar);
+//        gtk_widget_grab_focus (window->view);
+//    }
+//    else
 
-    g_free (last_location_bar);
+    gtk_widget_show (window->location_toolbar);
+
+//    g_free (last_location_bar);
 }
 
 
@@ -2008,7 +2000,7 @@ thunar_window_set_current_directory (ThunarWindow *window,
     if (G_LIKELY (current_directory != NULL))
     {
         GType  type;
-        gchar *type_name;
+        //gchar *type_name;
         gint   num_pages;
 
         /* take a reference on the file */
@@ -2021,9 +2013,10 @@ thunar_window_set_current_directory (ThunarWindow *window,
         if (num_pages == 0)
         {
             /* determine the default view type */
-            g_object_get (G_OBJECT (window->preferences), "default-view", &type_name, NULL);
-            type = g_type_from_name (type_name);
-            g_free (type_name);
+            //g_object_get (G_OBJECT (window->preferences), "default-view", &type_name, NULL);
+            //g_print("type_name = %s\n", type_name);
+            type = g_type_from_name ("void" /*type_name*/);
+            //g_free (type_name);
 
             /* set the last view type to the default view type if there is a default view type */
             if (!g_type_is_a (type, G_TYPE_NONE) && !g_type_is_a (type, G_TYPE_INVALID))

@@ -44,7 +44,6 @@ struct _ThunarLocationBar
     ThunarFile *current_directory;
 
     GtkWidget  *locationEntry;
-    //GtkWidget  *locationButtons;
 };
 
 
@@ -164,11 +163,6 @@ thunar_location_bar_finalize (GObject *object)
 
     if (bar->locationEntry)
         g_object_unref (bar->locationEntry);
-
-#if 0
-    if (bar->locationButtons)
-        g_object_unref (bar->locationButtons);
-#endif
 
     /* release from the current_directory */
     thunar_navigator_set_current_directory (THUNAR_NAVIGATOR (bar), NULL);
@@ -353,24 +347,7 @@ thunar_location_bar_request_entry (ThunarLocationBar *bar,
 static gboolean
 thunar_location_bar_settings_changed (ThunarLocationBar *bar)
 {
-    gchar *last_location_bar;
-    GType  type;
-
-    g_object_get (thunar_preferences_get(), "last-location-bar", &last_location_bar, NULL);
-
-    /* validate it */
-#if 0
-    if (!strcmp (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_BUTTONS)))
-        type = THUNAR_TYPE_LOCATION_BUTTONS;
-    else if (!strcmp (last_location_bar, g_type_name (THUNAR_TYPE_LOCATION_ENTRY)))
-        type = THUNAR_TYPE_LOCATION_ENTRY;
-    else
-#endif
-        type = THUNAR_TYPE_LOCATION_ENTRY; /* fallback */
-
-    g_free (last_location_bar);
-
-    thunar_location_bar_install_widget (bar, type);
+    thunar_location_bar_install_widget (bar, THUNAR_TYPE_LOCATION_ENTRY);
 
     return FALSE;
 }
