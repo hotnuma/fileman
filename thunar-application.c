@@ -1169,11 +1169,9 @@ thunar_application_open_window (ThunarApplication *application,
                                 gboolean           force_new_window)
 {
     UNUSED(force_new_window);
-    //GList*     list;
 
     GtkWidget *window;
     gchar     *role;
-    gboolean   open_new_window_as_tab;
 
     _thunar_return_val_if_fail (THUNAR_IS_APPLICATION (application), NULL);
     _thunar_return_val_if_fail (directory == NULL || THUNAR_IS_FILE (directory), NULL);
@@ -1181,9 +1179,6 @@ thunar_application_open_window (ThunarApplication *application,
 
     if (G_UNLIKELY (screen == NULL))
         screen = gdk_screen_get_default ();
-
-    /* open as tab instead, if preferred */
-    g_object_get (G_OBJECT (application->preferences), "misc-open-new-window-as-tab", &open_new_window_as_tab, NULL);
 
     /* generate a unique role for the new window (for session management) */
     role = g_strdup_printf ("Thunar-%u-%u", (guint) time (NULL), (guint) g_random_int ());
