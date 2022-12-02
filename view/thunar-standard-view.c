@@ -107,10 +107,10 @@ static void thunar_standard_view_unrealize (GtkWidget *widget);
 static void thunar_standard_view_grab_focus (GtkWidget *widget);
 static gboolean thunar_standard_view_draw (GtkWidget *widget, cairo_t *cr);
 static GList *thunar_standard_view_get_selected_files_component (
-        ThunarComponent *component);
+                                        ThunarComponent *component);
 static void thunar_standard_view_set_selected_files_component (
-        ThunarComponent *component,
-        GList *selected_files);
+                                            ThunarComponent *component,
+                                            GList *selected_files);
 static ThunarFile *thunar_standard_view_get_current_directory (ThunarNavigator *navigator);
 static void thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
                                                         ThunarFile *current_directory);
@@ -125,13 +125,6 @@ static ThunarZoomLevel thunar_standard_view_get_zoom_level (ThunarView *view);
 static void thunar_standard_view_set_zoom_level (ThunarView *view,
                                                  ThunarZoomLevel zoom_level);
 static void thunar_standard_view_reset_zoom_level (ThunarView *view);
-
-#if ENABLE_SPECDIR
-static void thunar_standard_view_apply_directory_specific_settings (
-        ThunarStandardView *standard_view, ThunarFile *directory);
-static void thunar_standard_view_set_directory_specific_settings (
-        ThunarStandardView *standard_view, gboolean directory_specific_settings);
-#endif
 
 static void thunar_standard_view_reload (ThunarView *view,
                  gboolean reload_info);
@@ -165,10 +158,13 @@ static void thunar_standard_view_set_selected_files_view (ThunarView *view,
 static void thunar_standard_view_select_all_files (ThunarView *view);
 static void thunar_standard_view_select_by_pattern (ThunarView *view);
 static void thunar_standard_view_selection_invert (ThunarView *view);
+
 static GClosure *thunar_standard_view_new_files_closure (ThunarStandardView *standard_view,
                  GtkWidget *source_view);
 static void thunar_standard_view_new_files (ThunarStandardView *standard_view,
                  GList *path_list);
+
+
 static gboolean thunar_standard_view_button_release_event (GtkWidget *view,
                  GdkEventButton *event,
                  ThunarStandardView *standard_view);
@@ -181,6 +177,8 @@ static gboolean thunar_standard_view_key_press_event (GtkWidget *view,
 static gboolean thunar_standard_view_scroll_event (GtkWidget *view,
                  GdkEventScroll *event,
                  ThunarStandardView *standard_view);
+
+
 static gboolean thunar_standard_view_drag_drop (GtkWidget *view,
                  GdkDragContext *context,
                  gint x,
@@ -260,11 +258,6 @@ struct _ThunarStandardViewPrivate
 
     /* zoom-level support */
     ThunarZoomLevel         zoom_level;
-
-    /* directory specific settings */
-#if ENABLE_SPECDIR
-    gboolean                directory_specific_settings;
-#endif
 
     /* scroll_to_file support */
     GHashTable             *scroll_to_files;
@@ -874,12 +867,6 @@ thunar_standard_view_set_property (GObject      *object,
         thunar_view_set_zoom_level (THUNAR_VIEW (object), g_value_get_enum (value));
         break;
 
-#if ENABLE_SPECDIR
-    case PROP_DIRECTORY_SPECIFIC_SETTINGS:
-        thunar_standard_view_set_directory_specific_settings (standard_view, g_value_get_boolean (value));
-        break;
-#endif
-
     case PROP_ACCEL_GROUP:
         thunar_standard_view_disconnect_accelerators (standard_view);
         standard_view->accel_group = g_value_dup_object (value);
@@ -1195,12 +1182,6 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
     /* store the directory in the history */
     thunar_navigator_set_current_directory (THUNAR_NAVIGATOR (standard_view->priv->history), current_directory);
 
-    /* if directory specific settings are enabled, apply them */
-#if ENABLE_SPECDIR
-  if (standard_view->priv->directory_specific_settings)
-    thunar_standard_view_apply_directory_specific_settings (standard_view, current_directory);
-#endif
-
     /* We drop the model from the view as a simple optimization to speed up
      * the process of disconnecting the model data from the view.
      */
@@ -1437,86 +1418,6 @@ thunar_standard_view_reset_zoom_level (ThunarView *view)
     g_value_unset (&value);
 }
 
-#if ENABLE_SPECDIR
-static void
-thunar_standard_view_apply_directory_specific_settings (ThunarStandardView *standard_view,
-        ThunarFile         *directory)
-{
-    const gchar *sort_column_name;
-    const gchar *sort_order_name;
-    gint         sort_column;
-    GtkSortType  sort_order;
-
-    /* get the default sort column and sort order */
-    g_object_get (G_OBJECT (standard_view->preferences), "last-sort-column", &sort_column, "last-sort-order", &sort_order, NULL);
-
-    /* get the stored directory specific settings (if any) */
-    sort_column_name = thunar_file_get_metadata_setting (directory, "sort-column");
-    sort_order_name = thunar_file_get_metadata_setting (directory, "sort-order");
-
-    /* convert the sort column name to a value */
-    if (sort_column_name != NULL)
-        thunar_column_value_from_string (sort_column_name, &sort_column);
-
-    /* convert the sort order name to a value */
-    if (sort_order_name != NULL)
-    {
-        if (g_strcmp0 (sort_order_name, "GTK_SORT_ASCENDING") == 0)
-            sort_order = GTK_SORT_ASCENDING;
-        if (g_strcmp0 (sort_order_name, "GTK_SORT_DESCENDING") == 0)
-            sort_order = GTK_SORT_DESCENDING;
-    }
-
-    /* thunar_standard_view_sort_column_changed saves the directory specific settings to the directory, but we do not
-     * want that behaviour here so we disconnect the signal before calling gtk_tree_sortable_set_sort_column_id */
-    g_signal_handlers_disconnect_by_func (G_OBJECT (standard_view->model),
-                                          G_CALLBACK (thunar_standard_view_sort_column_changed),
-                                          standard_view);
-
-    /* apply the sort column and sort order */
-    gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (standard_view->model), sort_column, sort_order);
-
-    /* keep the currently selected files selected after the change */
-    thunar_component_restore_selection (THUNAR_COMPONENT (standard_view));
-
-    /* reconnect the signal */
-    g_signal_connect (G_OBJECT (standard_view->model),
-                      "sort-column-changed",
-                      G_CALLBACK (thunar_standard_view_sort_column_changed),
-                      standard_view);
-}
-
-static void
-thunar_standard_view_set_directory_specific_settings (ThunarStandardView *standard_view,
-        gboolean            directory_specific_settings)
-{
-    /* save the setting */
-    standard_view->priv->directory_specific_settings = directory_specific_settings;
-
-    /* if there is no current directory then return  */
-    if (standard_view->priv->current_directory == NULL)
-        return;
-
-    /* apply the appropriate settings */
-    if (directory_specific_settings)
-    {
-        /* apply the directory specific settings (if any) */
-        thunar_standard_view_apply_directory_specific_settings (standard_view, standard_view->priv->current_directory);
-    }
-    else /* apply the shared settings to the current view */
-    {
-        gint          sort_column;
-        GtkSortType   sort_order;
-
-        /* apply the last sort column and sort order */
-        g_object_get (G_OBJECT (standard_view->preferences), "last-sort-column", &sort_column, "last-sort-order", &sort_order, NULL);
-        gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (standard_view->model), sort_column, sort_order);
-    }
-}
-#endif
-
-
-
 static void
 thunar_standard_view_reload (ThunarView *view,
                              gboolean    reload_info)
@@ -1536,13 +1437,6 @@ thunar_standard_view_reload (ThunarView *view,
         else
             thunar_standard_view_current_directory_destroy (file, standard_view);
     }
-
-#if ENABLE_SPECDIR
-    /* if directory specific settings are enabled, apply them. the reload might have been triggered */
-    /* specifically to ensure that any change in these settings is applied */
-    if (standard_view->priv->directory_specific_settings)
-        thunar_standard_view_apply_directory_specific_settings (standard_view, standard_view->priv->current_directory);
-#endif
 }
 
 static gboolean
