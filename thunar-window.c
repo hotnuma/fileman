@@ -62,7 +62,6 @@ enum
     PROP_0,
     PROP_CURRENT_DIRECTORY,
     PROP_ZOOM_LEVEL,
-    PROP_DIRECTORY_SPECIFIC_SETTINGS,
 };
 
 /* Signal identifiers */
@@ -192,8 +191,6 @@ static void      thunar_window_history_changed            (ThunarWindow         
 static gboolean  thunar_window_check_uca_key_activation   (ThunarWindow           *window,
         GdkEventKey            *key_event,
         gpointer                user_data);
-static void      thunar_window_set_directory_specific_settings (ThunarWindow      *window,
-        gboolean           directory_specific_settings);
 static GType     thunar_window_view_type_for_directory         (ThunarWindow      *window,
         ThunarFile        *directory);
 
@@ -344,19 +341,6 @@ thunar_window_class_init (ThunarWindowClass *klass)
                                              "zoom-level",
                                              THUNAR_TYPE_ZOOM_LEVEL,
                                              THUNAR_ZOOM_LEVEL_100_PERCENT,
-                                             EXO_PARAM_READWRITE));
-
-    /**
-     * ThunarWindow:directory-specific-settings:
-     *
-     * Whether to use directory specific settings.
-     **/
-    g_object_class_install_property (gobject_class,
-                                     PROP_DIRECTORY_SPECIFIC_SETTINGS,
-                                     g_param_spec_boolean ("directory-specific-settings",
-                                             "directory-specific-settings",
-                                             "directory-specific-settings",
-                                             FALSE,
                                              EXO_PARAM_READWRITE));
 
     /**
@@ -518,8 +502,12 @@ thunar_window_init (ThunarWindow *window)
     window->select_files_closure = g_cclosure_new_swap (G_CALLBACK (thunar_window_select_files), window, NULL);
     g_closure_ref (window->select_files_closure);
     g_closure_sink (window->select_files_closure);
-    window->launcher = g_object_new (THUNAR_TYPE_LAUNCHER, "widget", GTK_WIDGET (window),
-                                     "select-files-closure",  window->select_files_closure, NULL);
+    window->launcher = g_object_new (THUNAR_TYPE_LAUNCHER,
+                                     "widget",
+                                     GTK_WIDGET (window),
+                                     "select-files-closure",
+                                     window->select_files_closure,
+                                     NULL);
 
     exo_binding_new (G_OBJECT (window), "current-directory", G_OBJECT (window->launcher), "current-directory");
     g_signal_connect_swapped (G_OBJECT (window->launcher), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
@@ -536,25 +524,20 @@ thunar_window_init (ThunarWindow *window)
     context = gtk_widget_get_style_context (GTK_WIDGET (window));
     gtk_style_context_add_class (context, "thunar");
 
+
+    // Create widgets
     window->grid = gtk_grid_new ();
     gtk_container_add (GTK_CONTAINER (window), window->grid);
     gtk_widget_show (window->grid);
 
 
-    /* Toolbar */
+    // Toolbar
     window->toolbar = gtk_toolbar_new ();
     gtk_toolbar_set_style (GTK_TOOLBAR (window->toolbar), GTK_TOOLBAR_ICONS);
     gtk_toolbar_set_icon_size (GTK_TOOLBAR (window->toolbar),
                                small_icons ? GTK_ICON_SIZE_SMALL_TOOLBAR : GTK_ICON_SIZE_LARGE_TOOLBAR);
     gtk_widget_set_hexpand (window->toolbar, TRUE);
     gtk_grid_attach (GTK_GRID (window->grid), window->toolbar, 0, 0, 1, 1);
-
-    /* allocate the new location bar widget */
-    window->location_bar = thunar_location_bar_new ();
-    g_object_bind_property (G_OBJECT (window), "current-directory", G_OBJECT (window->location_bar), "current-directory", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped (G_OBJECT (window->location_bar), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
-    g_signal_connect_swapped (G_OBJECT (window->location_bar), "reload-requested", G_CALLBACK (thunar_window_handle_reload_request), window);
-    g_signal_connect_swapped (G_OBJECT (window->location_bar), "entry-done", G_CALLBACK (thunar_window_update_location_bar_visible), window);
 
     window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_BACK), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
     window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_FORWARD), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
@@ -575,6 +558,13 @@ thunar_window_init (ThunarWindow *window)
     gtk_toolbar_insert (GTK_TOOLBAR (window->toolbar), tool_item, -1);
     gtk_toolbar_set_show_arrow (GTK_TOOLBAR (window->toolbar), FALSE);
 
+    /* allocate the new location bar widget */
+    window->location_bar = thunar_location_bar_new ();
+    g_object_bind_property (G_OBJECT (window), "current-directory", G_OBJECT (window->location_bar), "current-directory", G_BINDING_SYNC_CREATE);
+    g_signal_connect_swapped (G_OBJECT (window->location_bar), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
+    g_signal_connect_swapped (G_OBJECT (window->location_bar), "reload-requested", G_CALLBACK (thunar_window_handle_reload_request), window);
+    g_signal_connect_swapped (G_OBJECT (window->location_bar), "entry-done", G_CALLBACK (thunar_window_update_location_bar_visible), window);
+
     /* add the location bar itself */
     gtk_container_add (GTK_CONTAINER (tool_item), window->location_bar);
 
@@ -586,8 +576,7 @@ thunar_window_init (ThunarWindow *window)
     thunar_window_update_location_bar_visible (window);
 
 
-
-
+    // Paned
     window->paned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_container_set_border_width (GTK_CONTAINER (window->paned), 0);
     gtk_widget_set_hexpand (window->paned, TRUE);
@@ -600,6 +589,13 @@ thunar_window_init (ThunarWindow *window)
     g_signal_connect_swapped (window->paned, "accept-position", G_CALLBACK (thunar_window_save_paned), window);
     g_signal_connect_swapped (window->paned, "button-release-event", G_CALLBACK (thunar_window_save_paned), window);
 
+
+    // Left pane : Treeview
+    type = THUNAR_TYPE_TREE_PANE;
+    thunar_window_install_sidepane (window, type);
+
+
+    // Right pane : GtkGrid
     window->view_box = gtk_grid_new ();
     gtk_paned_pack2 (GTK_PANED (window->paned), window->view_box, TRUE, FALSE);
     gtk_widget_show (window->view_box);
@@ -621,19 +617,17 @@ thunar_window_init (ThunarWindow *window)
     //gtk_widget_set_can_focus(window->notebook, FALSE);
 
     /* update window icon whenever preferences change */
-    g_signal_connect_object (G_OBJECT (window->preferences), "notify::misc-change-window-icon", G_CALLBACK (thunar_window_update_window_icon), window, G_CONNECT_SWAPPED);
-
-    type = THUNAR_TYPE_TREE_PANE;
-
-    thunar_window_install_sidepane (window, type);
+    g_signal_connect_object (G_OBJECT (window->preferences), "notify::misc-change-window-icon",
+                             G_CALLBACK (thunar_window_update_window_icon), window, G_CONNECT_SWAPPED);
 
     /* synchronise the "directory-specific-settings" property with the global "misc-directory-specific-settings" property */
-    exo_binding_new (G_OBJECT (window->preferences), "misc-directory-specific-settings", G_OBJECT (window), "directory-specific-settings");
+    //exo_binding_new (G_OBJECT (window->preferences), "misc-directory-specific-settings", G_OBJECT (window), "directory-specific-settings");
 
     /* setup a new statusbar */
     window->statusbar = thunar_statusbar_new ();
     gtk_widget_set_hexpand (window->statusbar, TRUE);
     gtk_grid_attach (GTK_GRID (window->view_box), window->statusbar, 0, 2, 1, 1);
+
     if (last_statusbar_visible)
         gtk_widget_show (window->statusbar);
 
@@ -749,42 +743,6 @@ static gboolean thunar_window_delete (GtkWidget *widget,
     UNUSED(event);
     UNUSED(data);
 
-#if 0
-    GtkNotebook *notebook;
-    gboolean confirm_close_multiple_tabs, do_not_ask_again;
-    gint response, n_tabs;
-
-    _thunar_return_val_if_fail (THUNAR_IS_WINDOW (widget),FALSE);
-
-    /* if we don't have muliple tabs then just exit */
-    notebook  = GTK_NOTEBOOK (THUNAR_WINDOW (widget)->notebook);
-    n_tabs = gtk_notebook_get_n_pages (GTK_NOTEBOOK (THUNAR_WINDOW (widget)->notebook));
-    if (n_tabs < 2)
-        return FALSE;
-
-    /* check if the user has disabled confirmation of closing multiple tabs, and just exit if so */
-    g_object_get (G_OBJECT (THUNAR_WINDOW (widget)->preferences),
-                  "misc-confirm-close-multiple-tabs", &confirm_close_multiple_tabs,
-                  NULL);
-    if(!confirm_close_multiple_tabs)
-        return FALSE;
-
-    /* ask the user for confirmation */
-    do_not_ask_again = FALSE;
-    response = xfce_dialog_confirm_close_tabs (GTK_WINDOW (widget), n_tabs, TRUE, &do_not_ask_again);
-
-    /* if the user requested not to be asked again, store this preference */
-    if (response != GTK_RESPONSE_CANCEL && do_not_ask_again)
-        g_object_set (G_OBJECT (THUNAR_WINDOW (widget)->preferences),
-                      "misc-confirm-close-multiple-tabs", FALSE, NULL);
-
-    if(response == GTK_RESPONSE_YES)
-        return FALSE;
-    if(response == GTK_RESPONSE_CLOSE)
-        gtk_notebook_remove_page (notebook,  gtk_notebook_get_current_page(notebook));
-    return TRUE;
-#endif
-
     return FALSE;
 }
 
@@ -831,10 +789,6 @@ thunar_window_set_property (GObject            *object,
 
     case PROP_ZOOM_LEVEL:
         thunar_window_set_zoom_level (window, g_value_get_enum (value));
-        break;
-
-    case PROP_DIRECTORY_SPECIFIC_SETTINGS:
-        thunar_window_set_directory_specific_settings (window, g_value_get_boolean (value));
         break;
 
     default:
@@ -1818,23 +1772,6 @@ thunar_window_set_zoom_level (ThunarWindow   *window,
         /* notify listeners */
         g_object_notify (G_OBJECT (window), "zoom-level");
     }
-}
-
-/**
- * thunar_window_set_directory_specific_settings:
- * @window                      : a #ThunarWindow instance.
- * @directory_specific_settings : whether to use directory specific settings in @window.
- *
- * Toggles the use of directory specific settings in @window according to @directory_specific_settings.
- **/
-void
-thunar_window_set_directory_specific_settings (ThunarWindow *window,
-        gboolean      directory_specific_settings)
-{
-    UNUSED(window);
-    UNUSED(directory_specific_settings);
-
-    return;
 }
 
 /**
