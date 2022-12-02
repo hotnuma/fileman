@@ -45,14 +45,10 @@
 #include <thunar-private.h>
 #include <thunar-user.h>
 
-
-
 /* Use native strlcpy() if available */
 #if defined(HAVE_STRLCPY)
 #define g_strlcpy(dst, src, size) (strlcpy ((dst), (src), (size)))
 #endif
-
-
 
 /* Property identifiers */
 enum
@@ -69,8 +65,6 @@ enum
     THUNAR_PERMISSIONS_STORE_COLUMN_GID,
     THUNAR_PERMISSIONS_STORE_N_COLUMNS,
 };
-
-
 
 static void                 thunar_permissions_chooser_finalize         (GObject                        *object);
 static void                 thunar_permissions_chooser_get_property     (GObject                        *object,
@@ -148,11 +142,7 @@ struct _ThunarPermissionsChooser
     GtkWidget  *job_progress;
 };
 
-
-
 G_DEFINE_TYPE (ThunarPermissionsChooser, thunar_permissions_chooser, GTK_TYPE_BOX)
-
-
 
 static void
 thunar_permissions_chooser_class_init (ThunarPermissionsChooserClass *klass)
@@ -189,8 +179,6 @@ thunar_permissions_chooser_class_init (ThunarPermissionsChooserClass *klass)
                                              FALSE,
                                              EXO_PARAM_READABLE));
 }
-
-
 
 static void
 thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
@@ -421,8 +409,6 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
     gtk_widget_show (button);
 }
 
-
-
 static void
 thunar_permissions_chooser_finalize (GObject *object)
 {
@@ -445,8 +431,6 @@ thunar_permissions_chooser_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_permissions_chooser_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_permissions_chooser_get_property (GObject    *object,
@@ -478,8 +462,6 @@ thunar_permissions_chooser_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_permissions_chooser_set_property (GObject      *object,
         guint         prop_id,
@@ -500,8 +482,6 @@ thunar_permissions_chooser_set_property (GObject      *object,
         break;
     }
 }
-
-
 
 static gboolean
 thunar_permissions_chooser_ask_recursive (ThunarPermissionsChooser *chooser)
@@ -607,8 +587,6 @@ thunar_permissions_chooser_ask_recursive (ThunarPermissionsChooser *chooser)
     return response;
 }
 
-
-
 static gboolean
 thunar_permissions_chooser_has_directory (ThunarPermissionsChooser *chooser)
 {
@@ -620,8 +598,6 @@ thunar_permissions_chooser_has_directory (ThunarPermissionsChooser *chooser)
 
     return FALSE;
 }
-
-
 
 static gboolean
 thunar_permissions_chooser_is_fixable_directory (ThunarFile *file)
@@ -639,8 +615,6 @@ thunar_permissions_chooser_is_fixable_directory (ThunarFile *file)
     return ((mode & 0111) != ((mode >> 2) & 0111));
 }
 
-
-
 static gboolean
 thunar_permissions_chooser_has_fixable_directory (ThunarPermissionsChooser *chooser)
 {
@@ -652,8 +626,6 @@ thunar_permissions_chooser_has_fixable_directory (ThunarPermissionsChooser *choo
 
     return FALSE;
 }
-
-
 
 /* free returned list with g_list_free_full (file_list, g_object_unref); */
 static GList *
@@ -672,8 +644,6 @@ thunar_permissions_chooser_get_file_list (ThunarPermissionsChooser *chooser)
 
     return file_list;
 }
-
-
 
 static void
 thunar_permissions_chooser_change_group (ThunarPermissionsChooser *chooser,
@@ -714,8 +684,6 @@ thunar_permissions_chooser_change_group (ThunarPermissionsChooser *chooser,
     g_list_free_full (file_list, g_object_unref);
     g_object_unref (job);
 }
-
-
 
 static gboolean
 thunar_permissions_chooser_change_mode (ThunarPermissionsChooser *chooser,
@@ -762,8 +730,6 @@ thunar_permissions_chooser_change_mode (ThunarPermissionsChooser *chooser,
     return TRUE;
 }
 
-
-
 static void
 thunar_permissions_chooser_access_changed (ThunarPermissionsChooser *chooser,
         GtkWidget                *combo)
@@ -809,8 +775,6 @@ thunar_permissions_chooser_access_changed (ThunarPermissionsChooser *chooser,
     }
 }
 
-
-
 static gint
 group_compare (gconstpointer group_a,
                gconstpointer group_b,
@@ -844,8 +808,6 @@ group_compare (gconstpointer group_a,
     return g_ascii_strcasecmp (thunar_group_get_name (THUNAR_GROUP (group_a)),
                                thunar_group_get_name (THUNAR_GROUP (group_b)));
 }
-
-
 
 static void
 thunar_permissions_chooser_file_changed (ThunarPermissionsChooser *chooser)
@@ -1051,8 +1013,6 @@ thunar_permissions_chooser_file_changed (ThunarPermissionsChooser *chooser)
     g_object_notify (G_OBJECT (chooser), "mutable");
 }
 
-
-
 static void
 thunar_permissions_chooser_group_changed (ThunarPermissionsChooser *chooser,
         GtkWidget                *combo)
@@ -1083,8 +1043,6 @@ thunar_permissions_chooser_group_changed (ThunarPermissionsChooser *chooser,
     }
 }
 
-
-
 static void
 thunar_permissions_chooser_program_toggled (ThunarPermissionsChooser *chooser,
         GtkWidget                *button)
@@ -1105,8 +1063,6 @@ thunar_permissions_chooser_program_toggled (ThunarPermissionsChooser *chooser,
     /* apply the new mode (only the executable bits for files) */
     thunar_permissions_chooser_change_mode (chooser, 0000, 0000, 0111, mode);
 }
-
-
 
 static void
 thunar_permissions_chooser_fixperm_clicked (ThunarPermissionsChooser *chooser,
@@ -1182,8 +1138,6 @@ thunar_permissions_chooser_fixperm_clicked (ThunarPermissionsChooser *chooser,
     }
 }
 
-
-
 static ThunarJobResponse
 thunar_permissions_chooser_job_ask (ThunarPermissionsChooser *chooser,
                                     const gchar              *message,
@@ -1209,8 +1163,6 @@ thunar_permissions_chooser_job_ask (ThunarPermissionsChooser *chooser,
     return thunar_dialogs_show_job_ask (GTK_WINDOW (toplevel), message, choices);
 }
 
-
-
 static void
 thunar_permissions_chooser_job_cancel (ThunarPermissionsChooser *chooser)
 {
@@ -1234,8 +1186,6 @@ thunar_permissions_chooser_job_cancel (ThunarPermissionsChooser *chooser)
     /* make the remaining widgets sensitive again */
     gtk_widget_set_sensitive (chooser->grid, TRUE);
 }
-
-
 
 static void
 thunar_permissions_chooser_job_error (ThunarPermissionsChooser *chooser,
@@ -1261,8 +1211,6 @@ thunar_permissions_chooser_job_error (ThunarPermissionsChooser *chooser,
     thunar_dialogs_show_job_error (GTK_WINDOW (toplevel), error);
 }
 
-
-
 static void
 thunar_permissions_chooser_job_finished (ThunarPermissionsChooser *chooser,
         ThunarJob                *job)
@@ -1274,8 +1222,6 @@ thunar_permissions_chooser_job_finished (ThunarPermissionsChooser *chooser,
     /* we can just use job_cancel(), since the job is already done */
     thunar_permissions_chooser_job_cancel (chooser);
 }
-
-
 
 static void
 thunar_permissions_chooser_job_percent (ThunarPermissionsChooser *chooser,
@@ -1289,8 +1235,6 @@ thunar_permissions_chooser_job_percent (ThunarPermissionsChooser *chooser,
     gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR (chooser->job_progress), percent / 100.0);
     gtk_widget_show (chooser->job_progress);
 }
-
-
 
 static void
 thunar_permissions_chooser_job_start (ThunarPermissionsChooser *chooser,
@@ -1318,8 +1262,6 @@ thunar_permissions_chooser_job_start (ThunarPermissionsChooser *chooser,
     gtk_widget_set_sensitive (chooser->grid, !recursive);
 }
 
-
-
 static gboolean
 thunar_permissions_chooser_row_separator (GtkTreeModel *model,
         GtkTreeIter  *iter,
@@ -1339,8 +1281,6 @@ thunar_permissions_chooser_row_separator (GtkTreeModel *model,
     return TRUE;
 }
 
-
-
 /**
  * thunar_permissions_chooser_get_files:
  * @chooser : a #ThunarPermissionsChooser.
@@ -1355,8 +1295,6 @@ thunar_permissions_chooser_get_files (ThunarPermissionsChooser *chooser)
     _thunar_return_val_if_fail (THUNAR_IS_PERMISSIONS_CHOOSER (chooser), NULL);
     return chooser->files;
 }
-
-
 
 /**
  * thunar_permissions_chooser_set_files:
@@ -1407,8 +1345,6 @@ thunar_permissions_chooser_set_files (ThunarPermissionsChooser *chooser,
     /* notify listeners */
     g_object_notify (G_OBJECT (chooser), "files");
 }
-
-
 
 /**
  * thunar_permissions_chooser_new:

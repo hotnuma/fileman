@@ -38,8 +38,6 @@
 #include <thunar-icon-factory.h>
 #include <thunar-private.h>
 
-
-
 /* Property identifiers */
 enum
 {
@@ -47,8 +45,6 @@ enum
     PROP_FILE,
     PROP_OPEN,
 };
-
-
 
 static void        thunar_chooser_dialog_dispose             (GObject                  *object);
 static void        thunar_chooser_dialog_get_property        (GObject                  *object,
@@ -119,11 +115,7 @@ struct _ThunarChooserDialog
     GtkWidget   *accept_button;
 };
 
-
-
 G_DEFINE_TYPE (ThunarChooserDialog, thunar_chooser_dialog, GTK_TYPE_DIALOG /*THUNAR_TYPE_ABSTRACT_DIALOG*/)
-
-
 
 static void
 thunar_chooser_dialog_class_init (ThunarChooserDialogClass *klass)
@@ -165,8 +157,6 @@ thunar_chooser_dialog_class_init (ThunarChooserDialogClass *klass)
                                              FALSE,
                                              G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
 }
-
-
 
 static void
 thunar_chooser_dialog_init (ThunarChooserDialog *dialog)
@@ -297,8 +287,6 @@ thunar_chooser_dialog_init (ThunarChooserDialog *dialog)
     g_signal_connect (G_OBJECT (selection), "changed", G_CALLBACK (thunar_chooser_dialog_selection_changed), dialog);
 }
 
-
-
 static void
 thunar_chooser_dialog_dispose (GObject *object)
 {
@@ -309,8 +297,6 @@ thunar_chooser_dialog_dispose (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_chooser_dialog_parent_class)->dispose) (object);
 }
-
-
 
 static void
 thunar_chooser_dialog_get_property (GObject    *object,
@@ -337,8 +323,6 @@ thunar_chooser_dialog_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_chooser_dialog_set_property (GObject      *object,
                                     guint         prop_id,
@@ -364,8 +348,6 @@ thunar_chooser_dialog_set_property (GObject      *object,
     }
 }
 
-
-
 static void
 thunar_chooser_dialog_realize (GtkWidget *widget)
 {
@@ -377,8 +359,6 @@ thunar_chooser_dialog_realize (GtkWidget *widget)
     /* update the dialog header */
     thunar_chooser_dialog_update_header (dialog);
 }
-
-
 
 static void
 thunar_chooser_dialog_response (GtkDialog *widget,
@@ -523,8 +503,6 @@ thunar_chooser_dialog_response (GtkDialog *widget,
     g_object_unref (app_info);
 }
 
-
-
 static gboolean
 thunar_chooser_dialog_selection_func (GtkTreeSelection *selection,
                                       GtkTreeModel     *model,
@@ -550,8 +528,6 @@ thunar_chooser_dialog_selection_func (GtkTreeSelection *selection,
 
     return permitted;
 }
-
-
 
 static gboolean
 thunar_chooser_dialog_context_menu (ThunarChooserDialog *dialog)
@@ -594,8 +570,6 @@ thunar_chooser_dialog_context_menu (ThunarChooserDialog *dialog)
     return TRUE;
 }
 
-
-
 static void
 thunar_chooser_dialog_update_accept (ThunarChooserDialog *dialog)
 {
@@ -629,8 +603,6 @@ thunar_chooser_dialog_update_accept (ThunarChooserDialog *dialog)
     /* update the "Ok"/"Open" button sensitivity */
     gtk_dialog_set_response_sensitive (GTK_DIALOG (dialog), GTK_RESPONSE_ACCEPT, sensitive);
 }
-
-
 
 static void
 thunar_chooser_dialog_update_header (ThunarChooserDialog *dialog)
@@ -681,8 +653,6 @@ thunar_chooser_dialog_update_header (ThunarChooserDialog *dialog)
         g_free (description);
     }
 }
-
-
 
 static void
 thunar_chooser_dialog_action_remove (ThunarChooserDialog *dialog)
@@ -754,8 +724,6 @@ thunar_chooser_dialog_action_remove (ThunarChooserDialog *dialog)
     /* cleanup */
     g_object_unref (app_info);
 }
-
-
 
 static void
 thunar_chooser_dialog_browse_clicked (GtkWidget           *button,
@@ -872,8 +840,6 @@ thunar_chooser_dialog_browse_clicked (GtkWidget           *button,
     gtk_widget_destroy (chooser);
 }
 
-
-
 static gboolean
 thunar_chooser_dialog_button_press_event (GtkWidget           *tree_view,
         GdkEventButton      *event,
@@ -906,8 +872,6 @@ thunar_chooser_dialog_button_press_event (GtkWidget           *tree_view,
     return FALSE;
 }
 
-
-
 static void
 thunar_chooser_dialog_notify_expanded (GtkExpander         *expander,
                                        GParamSpec          *pspec,
@@ -931,8 +895,6 @@ thunar_chooser_dialog_notify_expanded (GtkExpander         *expander,
     /* update the sensitivity of the "Ok"/"Open" button */
     thunar_chooser_dialog_update_accept (dialog);
 }
-
-
 
 static void
 thunar_chooser_dialog_expand (ThunarChooserDialog *dialog)
@@ -970,8 +932,6 @@ thunar_chooser_dialog_expand (ThunarChooserDialog *dialog)
         gtk_widget_grab_focus (dialog->tree_view);
 }
 
-
-
 static gboolean
 thunar_chooser_dialog_popup_menu (GtkWidget           *tree_view,
                                   ThunarChooserDialog *dialog)
@@ -983,8 +943,6 @@ thunar_chooser_dialog_popup_menu (GtkWidget           *tree_view,
     /* popup the context menu */
     return thunar_chooser_dialog_context_menu (dialog);
 }
-
-
 
 static void
 thunar_chooser_dialog_row_activated (GtkTreeView         *treeview,
@@ -1030,8 +988,6 @@ thunar_chooser_dialog_row_activated (GtkTreeView         *treeview,
     g_value_unset (&value);
 }
 
-
-
 static void
 thunar_chooser_dialog_selection_changed (GtkTreeSelection    *selection,
         ThunarChooserDialog *dialog)
@@ -1063,8 +1019,6 @@ thunar_chooser_dialog_selection_changed (GtkTreeSelection    *selection,
     thunar_chooser_dialog_update_accept (dialog);
 }
 
-
-
 /**
  * thunar_chooser_dialog_get_file:
  * @dialog : a #ThunarChooserDialog.
@@ -1080,8 +1034,6 @@ thunar_chooser_dialog_get_file (ThunarChooserDialog *dialog)
     _thunar_return_val_if_fail (THUNAR_IS_CHOOSER_DIALOG (dialog), NULL);
     return dialog->file;
 }
-
-
 
 /**
  * thunar_chooser_dialog_set_file:
@@ -1141,8 +1093,6 @@ thunar_chooser_dialog_set_file (ThunarChooserDialog *dialog,
     g_object_notify (G_OBJECT (dialog), "file");
 }
 
-
-
 /**
  * thunar_chooser_dialog_get_open:
  * @dialog : a #ThunarChooserDialog.
@@ -1157,8 +1107,6 @@ thunar_chooser_dialog_get_open (ThunarChooserDialog *dialog)
     _thunar_return_val_if_fail (THUNAR_IS_CHOOSER_DIALOG (dialog), FALSE);
     return dialog->open;
 }
-
-
 
 /**
  * thunar_chooser_dialog_set_open:
@@ -1182,8 +1130,6 @@ thunar_chooser_dialog_set_open (ThunarChooserDialog *dialog,
     /* notify listeners */
     g_object_notify (G_OBJECT (dialog), "open");
 }
-
-
 
 /**
  * thunar_show_chooser_dialog:
@@ -1259,7 +1205,5 @@ thunar_show_chooser_dialog (gpointer    parent,
     /* display the dialog */
     gtk_widget_show (dialog);
 }
-
-
 
 

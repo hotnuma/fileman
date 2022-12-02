@@ -38,16 +38,12 @@
 #include <thunar-device-monitor.h>
 #include <thunar-util.h>
 
-
-
 /* convenience macros */
 #define G_NODE(node)                 ((GNode *) (node))
 #define THUNAR_TREE_MODEL_ITEM(item) ((ThunarTreeModelItem *) (item))
 #define G_NODE_HAS_DUMMY(node)       (node->children != NULL \
                                       && node->children->data == NULL \
                                       && node->children->next == NULL)
-
-
 
 /* Property identifiers */
 enum
@@ -56,11 +52,7 @@ enum
     PROP_CASE_SENSITIVE,
 };
 
-
-
 typedef struct _ThunarTreeModelItem ThunarTreeModelItem;
-
-
 
 static void                 thunar_tree_model_tree_model_init         (GtkTreeModelIface      *iface);
 static void                 thunar_tree_model_finalize                (GObject                *object);
@@ -166,8 +158,6 @@ static gboolean             thunar_tree_model_get_case_sensitive      (ThunarTre
 static void                 thunar_tree_model_set_case_sensitive      (ThunarTreeModel        *model,
         gboolean                case_sensitive);
 
-
-
 struct _ThunarTreeModelClass
 {
     GObjectClass __parent__;
@@ -222,12 +212,8 @@ typedef struct
     GNode *node;
 } SortTuple;
 
-
-
 G_DEFINE_TYPE_WITH_CODE (ThunarTreeModel, thunar_tree_model, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, thunar_tree_model_tree_model_init))
-
-
 
 static void
 thunar_tree_model_class_init (ThunarTreeModelClass *klass)
@@ -254,8 +240,6 @@ thunar_tree_model_class_init (ThunarTreeModelClass *klass)
                                              EXO_PARAM_READWRITE));
 }
 
-
-
 static void
 thunar_tree_model_tree_model_init (GtkTreeModelIface *iface)
 {
@@ -274,8 +258,6 @@ thunar_tree_model_tree_model_init (GtkTreeModelIface *iface)
     iface->ref_node = thunar_tree_model_ref_node;
     iface->unref_node = thunar_tree_model_unref_node;
 }
-
-
 
 static void
 thunar_tree_model_init (ThunarTreeModel *model)
@@ -382,8 +364,6 @@ thunar_tree_model_init (ThunarTreeModel *model)
     g_list_free (devices);
 }
 
-
-
 static void
 thunar_tree_model_finalize (GObject *object)
 {
@@ -408,8 +388,6 @@ thunar_tree_model_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_tree_model_parent_class)->finalize) (object);
 }
 
-
-
 static void
 thunar_tree_model_get_property (GObject    *object,
                                 guint       prop_id,
@@ -429,8 +407,6 @@ thunar_tree_model_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_tree_model_set_property (GObject      *object,
@@ -452,8 +428,6 @@ thunar_tree_model_set_property (GObject      *object,
     }
 }
 
-
-
 static GtkTreeModelFlags
 thunar_tree_model_get_flags (GtkTreeModel *tree_model)
 {
@@ -461,16 +435,12 @@ thunar_tree_model_get_flags (GtkTreeModel *tree_model)
     return GTK_TREE_MODEL_ITERS_PERSIST;
 }
 
-
-
 static gint
 thunar_tree_model_get_n_columns (GtkTreeModel *tree_model)
 {
     UNUSED(tree_model);
     return THUNAR_TREE_MODEL_N_COLUMNS;
 }
-
-
 
 static GType
 thunar_tree_model_get_column_type (GtkTreeModel *tree_model,
@@ -496,8 +466,6 @@ thunar_tree_model_get_column_type (GtkTreeModel *tree_model,
         return G_TYPE_INVALID;
     }
 }
-
-
 
 static gboolean
 thunar_tree_model_get_iter (GtkTreeModel *tree_model,
@@ -532,8 +500,6 @@ thunar_tree_model_get_iter (GtkTreeModel *tree_model,
 
     return TRUE;
 }
-
-
 
 static GtkTreePath*
 thunar_tree_model_get_path (GtkTreeModel *tree_model,
@@ -597,8 +563,6 @@ thunar_tree_model_get_path (GtkTreeModel *tree_model,
     return path;
 }
 
-
-
 static void
 thunar_tree_model_get_value (GtkTreeModel *tree_model,
                              GtkTreeIter  *iter,
@@ -652,8 +616,6 @@ thunar_tree_model_get_value (GtkTreeModel *tree_model,
     }
 }
 
-
-
 static gboolean
 thunar_tree_model_iter_next (GtkTreeModel *tree_model,
                              GtkTreeIter  *iter)
@@ -670,8 +632,6 @@ thunar_tree_model_iter_next (GtkTreeModel *tree_model,
 
     return FALSE;
 }
-
-
 
 static gboolean
 thunar_tree_model_iter_children (GtkTreeModel *tree_model,
@@ -698,8 +658,6 @@ thunar_tree_model_iter_children (GtkTreeModel *tree_model,
     return FALSE;
 }
 
-
-
 static gboolean
 thunar_tree_model_iter_has_child (GtkTreeModel *tree_model,
                                   GtkTreeIter  *iter)
@@ -709,8 +667,6 @@ thunar_tree_model_iter_has_child (GtkTreeModel *tree_model,
 
     return (g_node_first_child (iter->user_data) != NULL);
 }
-
-
 
 static gint
 thunar_tree_model_iter_n_children (GtkTreeModel *tree_model,
@@ -723,8 +679,6 @@ thunar_tree_model_iter_n_children (GtkTreeModel *tree_model,
 
     return g_node_n_children ((iter == NULL) ? model->root : iter->user_data);
 }
-
-
 
 static gboolean
 thunar_tree_model_iter_nth_child (GtkTreeModel *tree_model,
@@ -747,8 +701,6 @@ thunar_tree_model_iter_nth_child (GtkTreeModel *tree_model,
 
     return FALSE;
 }
-
-
 
 static gboolean
 thunar_tree_model_iter_parent (GtkTreeModel *tree_model,
@@ -775,8 +727,6 @@ thunar_tree_model_iter_parent (GtkTreeModel *tree_model,
         return FALSE;
     }
 }
-
-
 
 static void
 thunar_tree_model_ref_node (GtkTreeModel *tree_model,
@@ -812,8 +762,6 @@ thunar_tree_model_ref_node (GtkTreeModel *tree_model,
     }
 }
 
-
-
 static void
 thunar_tree_model_unref_node (GtkTreeModel *tree_model,
                               GtkTreeIter  *iter)
@@ -840,8 +788,6 @@ thunar_tree_model_unref_node (GtkTreeModel *tree_model,
      * tree, which results in all sorts for glitches */
 }
 
-
-
 static gint
 thunar_tree_model_cmp_array (gconstpointer a,
                              gconstpointer b,
@@ -854,8 +800,6 @@ thunar_tree_model_cmp_array (gconstpointer a,
                                         THUNAR_TREE_MODEL_ITEM (((const SortTuple *) b)->node->data)->file,
                                         THUNAR_TREE_MODEL (user_data)->sort_case_sensitive);
 }
-
-
 
 static void
 thunar_tree_model_sort (ThunarTreeModel *model,
@@ -925,8 +869,6 @@ thunar_tree_model_sort (ThunarTreeModel *model,
         g_free (sort_array);
 }
 
-
-
 static gboolean
 thunar_tree_model_cleanup_idle (gpointer user_data)
 {
@@ -943,15 +885,11 @@ thunar_tree_model_cleanup_idle (gpointer user_data)
     return FALSE;
 }
 
-
-
 static void
 thunar_tree_model_cleanup_idle_destroy (gpointer user_data)
 {
     THUNAR_TREE_MODEL (user_data)->cleanup_idle_id = 0;
 }
-
-
 
 static void
 thunar_tree_model_file_changed (ThunarFileMonitor *file_monitor,
@@ -967,8 +905,6 @@ thunar_tree_model_file_changed (ThunarFileMonitor *file_monitor,
     if (thunar_file_is_directory (file))
         g_node_traverse (model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1, thunar_tree_model_node_traverse_changed, file);
 }
-
-
 
 static void
 thunar_tree_model_device_changed (ThunarDeviceMonitor *device_monitor,
@@ -1035,8 +971,6 @@ thunar_tree_model_device_changed (ThunarDeviceMonitor *device_monitor,
     gtk_tree_path_free (path);
 }
 
-
-
 static void
 thunar_tree_model_device_pre_unmount (ThunarDeviceMonitor *device_monitor,
                                       ThunarDevice        *device,
@@ -1070,8 +1004,6 @@ thunar_tree_model_device_pre_unmount (ThunarDeviceMonitor *device_monitor,
     /* add the dummy node */
     thunar_tree_model_node_insert_dummy (node, model);
 }
-
-
 
 static void
 thunar_tree_model_device_added (ThunarDeviceMonitor *device_monitor,
@@ -1128,8 +1060,6 @@ thunar_tree_model_device_added (ThunarDeviceMonitor *device_monitor,
     thunar_tree_model_node_insert_dummy (node, model);
 }
 
-
-
 static void
 thunar_tree_model_device_removed (ThunarDeviceMonitor *device_monitor,
                                   ThunarDevice        *device,
@@ -1155,8 +1085,6 @@ thunar_tree_model_device_removed (ThunarDeviceMonitor *device_monitor,
     g_node_traverse (node, G_POST_ORDER, G_TRAVERSE_ALL, -1, thunar_tree_model_node_traverse_remove, model);
 }
 
-
-
 static ThunarTreeModelItem*
 thunar_tree_model_item_new_with_file (ThunarTreeModel *model,
                                       ThunarFile      *file)
@@ -1169,8 +1097,6 @@ thunar_tree_model_item_new_with_file (ThunarTreeModel *model,
 
     return item;
 }
-
-
 
 static ThunarTreeModelItem*
 thunar_tree_model_item_new_with_device (ThunarTreeModel *model,
@@ -1198,8 +1124,6 @@ thunar_tree_model_item_new_with_device (ThunarTreeModel *model,
     return item;
 }
 
-
-
 static void
 thunar_tree_model_item_free (ThunarTreeModelItem *item)
 {
@@ -1213,8 +1137,6 @@ thunar_tree_model_item_free (ThunarTreeModelItem *item)
     /* release the item */
     g_slice_free (ThunarTreeModelItem, item);
 }
-
-
 
 static void
 thunar_tree_model_item_reset (ThunarTreeModelItem *item)
@@ -1251,8 +1173,6 @@ thunar_tree_model_item_reset (ThunarTreeModelItem *item)
     }
 }
 
-
-
 static void
 thunar_tree_model_item_load_folder (ThunarTreeModelItem *item)
 {
@@ -1265,8 +1185,6 @@ thunar_tree_model_item_load_folder (ThunarTreeModelItem *item)
                                               item, thunar_tree_model_item_load_idle_destroy);
     }
 }
-
-
 
 static void
 thunar_tree_model_item_files_added (ThunarTreeModelItem *item,
@@ -1311,8 +1229,6 @@ thunar_tree_model_item_files_added (ThunarTreeModelItem *item,
     if (G_LIKELY (node != NULL))
         thunar_tree_model_sort (model, node);
 }
-
-
 
 static void
 thunar_tree_model_item_files_removed (ThunarTreeModelItem *item,
@@ -1382,8 +1298,6 @@ thunar_tree_model_item_files_removed (ThunarTreeModelItem *item,
     }
 }
 
-
-
 static void
 thunar_tree_model_item_notify_loading (ThunarTreeModelItem *item,
                                        GParamSpec          *pspec,
@@ -1408,8 +1322,6 @@ thunar_tree_model_item_notify_loading (ThunarTreeModelItem *item,
             thunar_tree_model_node_drop_dummy (node, item->model);
     }
 }
-
-
 
 static gboolean
 thunar_tree_model_item_load_idle (gpointer user_data)
@@ -1475,15 +1387,11 @@ thunar_tree_model_item_load_idle (gpointer user_data)
     return FALSE;
 }
 
-
-
 static void
 thunar_tree_model_item_load_idle_destroy (gpointer user_data)
 {
     THUNAR_TREE_MODEL_ITEM (user_data)->load_idle_id = 0;
 }
-
-
 
 static void
 thunar_tree_model_node_insert_dummy (GNode           *parent,
@@ -1507,8 +1415,6 @@ thunar_tree_model_node_insert_dummy (GNode           *parent,
     gtk_tree_model_row_inserted (GTK_TREE_MODEL (model), path, &iter);
     gtk_tree_path_free (path);
 }
-
-
 
 static void
 thunar_tree_model_node_drop_dummy (GNode           *node,
@@ -1547,8 +1453,6 @@ thunar_tree_model_node_drop_dummy (GNode           *node,
     }
 }
 
-
-
 static gboolean
 thunar_tree_model_node_traverse_cleanup (GNode    *node,
         gpointer  user_data)
@@ -1574,8 +1478,6 @@ thunar_tree_model_node_traverse_cleanup (GNode    *node,
 
     return FALSE;
 }
-
-
 
 static gboolean
 thunar_tree_model_node_traverse_changed (GNode   *node,
@@ -1620,8 +1522,6 @@ thunar_tree_model_node_traverse_changed (GNode   *node,
     return FALSE;
 }
 
-
-
 static gboolean
 thunar_tree_model_node_traverse_remove (GNode   *node,
                                         gpointer user_data)
@@ -1655,8 +1555,6 @@ thunar_tree_model_node_traverse_remove (GNode   *node,
     return FALSE;
 }
 
-
-
 static gboolean
 thunar_tree_model_node_traverse_sort (GNode   *node,
                                       gpointer user_data)
@@ -1670,8 +1568,6 @@ thunar_tree_model_node_traverse_sort (GNode   *node,
     return FALSE;
 }
 
-
-
 static gboolean
 thunar_tree_model_node_traverse_free (GNode   *node,
                                       gpointer user_data)
@@ -1681,8 +1577,6 @@ thunar_tree_model_node_traverse_free (GNode   *node,
         thunar_tree_model_item_free (node->data);
     return FALSE;
 }
-
-
 
 static gboolean
 thunar_tree_model_node_traverse_visible (GNode    *node,
@@ -1775,8 +1669,6 @@ thunar_tree_model_node_traverse_visible (GNode    *node,
     return FALSE;
 }
 
-
-
 /**
  * thunar_tree_model_get_case_sensitive:
  * @model : a #ThunarTreeModel.
@@ -1792,8 +1684,6 @@ thunar_tree_model_get_case_sensitive (ThunarTreeModel *model)
     _thunar_return_val_if_fail (THUNAR_IS_TREE_MODEL (model), FALSE);
     return model->sort_case_sensitive;
 }
-
-
 
 /**
  * thunar_tree_model_set_case_sensitive:
@@ -1826,8 +1716,6 @@ thunar_tree_model_set_case_sensitive (ThunarTreeModel *model,
     }
 }
 
-
-
 /**
  * thunar_tree_model_set_visible_func:
  * @model : a #ThunarTreeModel.
@@ -1851,8 +1739,6 @@ thunar_tree_model_set_visible_func (ThunarTreeModel            *model,
     model->visible_data = data;
 }
 
-
-
 /**
  * thunar_tree_model_refilter:
  * @model : a #ThunarTreeModel.
@@ -1869,8 +1755,6 @@ thunar_tree_model_refilter (ThunarTreeModel *model)
     g_node_traverse (model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
                      thunar_tree_model_node_traverse_visible, model);
 }
-
-
 
 /**
  * thunar_tree_model_cleanup:
@@ -1892,8 +1776,6 @@ thunar_tree_model_cleanup (ThunarTreeModel *model)
     }
 }
 
-
-
 /**
  * thunar_tree_model_node_has_dummy:
  * @model : a #ThunarTreeModel.
@@ -1910,8 +1792,6 @@ thunar_tree_model_node_has_dummy (ThunarTreeModel *model,
     _thunar_return_val_if_fail (THUNAR_IS_TREE_MODEL (model), TRUE);
     return G_NODE_HAS_DUMMY(node);
 }
-
-
 
 /**
  * thunar_tree_model_add_child:

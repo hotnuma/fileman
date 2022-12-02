@@ -73,16 +73,12 @@
 /* Dump the file cache every X second, set to 0 to disable */
 #define DUMP_FILE_CACHE 0
 
-
-
 /* Signal identifiers */
 enum
 {
     DESTROY,
     LAST_SIGNAL,
 };
-
-
 
 static void               thunar_file_info_init                (ThunarxFileInfoIface   *iface);
 static void               thunar_file_dispose                  (GObject                *object);
@@ -116,21 +112,15 @@ static gboolean           thunar_file_is_readable              (const ThunarFile
 static gboolean           thunar_file_same_filesystem          (const ThunarFile       *file_a,
         const ThunarFile       *file_b);
 
-
-
 G_LOCK_DEFINE_STATIC (file_cache_mutex);
 G_LOCK_DEFINE_STATIC (file_content_type_mutex);
 G_LOCK_DEFINE_STATIC (file_rename_mutex);
-
-
 
 static ThunarUserManager *user_manager;
 static GHashTable        *file_cache;
 static guint32            effective_user_id;
 static GQuark             thunar_file_watch_quark;
 static guint              file_signals[LAST_SIGNAL];
-
-
 
 #define FLAG_SET_THUMB_STATE(file,new_state) G_STMT_START{ (file)->flags = ((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) | (new_state); }G_STMT_END
 #define FLAG_GET_THUMB_STATE(file)           ((file)->flags & THUNAR_FILE_FLAG_THUMB_MASK)
@@ -139,8 +129,6 @@ static guint              file_signals[LAST_SIGNAL];
 #define FLAG_IS_SET(file,flag)               (((file)->flags & (flag)) != 0)
 
 #define DEFAULT_CONTENT_TYPE "application/octet-stream"
-
-
 
 typedef enum
 {
@@ -217,8 +205,6 @@ thunar_file_dirs[] =
     { G_USER_DIRECTORY_VIDEOS,       "folder-videos" }
 };
 
-
-
 G_DEFINE_TYPE_WITH_CODE (ThunarFile, thunar_file, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (THUNARX_TYPE_FILE_INFO, thunar_file_info_init))
 
@@ -244,8 +230,6 @@ weak_ref_free (GWeakRef *ref)
 #ifdef HAVE_ATEXIT
 static gboolean thunar_file_atexit_registered = FALSE;
 
-
-
 static void
 thunar_file_atexit_foreach (gpointer key,
                             gpointer value,
@@ -259,8 +243,6 @@ thunar_file_atexit_foreach (gpointer key,
         g_print ("    GFile (%u)\n", G_OBJECT (key)->ref_count - 2);
     g_free (uri);
 }
-
-
 
 static void
 thunar_file_atexit (void)
@@ -285,8 +267,6 @@ thunar_file_atexit (void)
 #endif
 #endif
 
-
-
 #if DUMP_FILE_CACHE
 static void
 thunar_file_cache_dump_foreach (gpointer gfile,
@@ -299,8 +279,6 @@ thunar_file_cache_dump_foreach (gpointer gfile,
     g_print ("    %s\n", name);
     g_free (name);
 }
-
-
 
 static gboolean
 thunar_file_cache_dump (gpointer user_data)
@@ -322,8 +300,6 @@ thunar_file_cache_dump (gpointer user_data)
     return TRUE;
 }
 #endif
-
-
 
 static void
 thunar_file_class_init (ThunarFileClass *klass)
@@ -374,15 +350,11 @@ thunar_file_class_init (ThunarFileClass *klass)
                       G_TYPE_NONE, 0);
 }
 
-
-
 static void
 thunar_file_init (ThunarFile *file)
 {
     UNUSED(file);
 }
-
-
 
 static void
 thunar_file_info_init (ThunarxFileInfoIface *iface)
@@ -400,8 +372,6 @@ thunar_file_info_init (ThunarxFileInfoIface *iface)
     iface->changed = thunar_file_info_changed;
 }
 
-
-
 static void
 thunar_file_dispose (GObject *object)
 {
@@ -418,8 +388,6 @@ thunar_file_dispose (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_file_parent_class)->dispose) (object);
 }
-
-
 
 static void
 thunar_file_finalize (GObject *object)
@@ -470,23 +438,17 @@ thunar_file_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_file_parent_class)->finalize) (object);
 }
 
-
-
 static gchar *
 thunar_file_info_get_name (ThunarxFileInfo *file_info)
 {
     return g_strdup (thunar_file_get_basename (THUNAR_FILE (file_info)));
 }
 
-
-
 static gchar*
 thunar_file_info_get_uri (ThunarxFileInfo *file_info)
 {
     return thunar_file_dup_uri (THUNAR_FILE (file_info));
 }
-
-
 
 static gchar*
 thunar_file_info_get_parent_uri (ThunarxFileInfo *file_info)
@@ -504,23 +466,17 @@ thunar_file_info_get_parent_uri (ThunarxFileInfo *file_info)
     return uri;
 }
 
-
-
 static gchar*
 thunar_file_info_get_uri_scheme (ThunarxFileInfo *file_info)
 {
     return g_file_get_uri_scheme (THUNAR_FILE (file_info)->gfile);
 }
 
-
-
 static gchar*
 thunar_file_info_get_mime_type (ThunarxFileInfo *file_info)
 {
     return g_strdup (thunar_file_get_content_type (THUNAR_FILE (file_info)));
 }
-
-
 
 static gboolean
 thunar_file_info_has_mime_type (ThunarxFileInfo *file_info,
@@ -532,15 +488,11 @@ thunar_file_info_has_mime_type (ThunarxFileInfo *file_info,
     return g_content_type_is_a (thunar_file_get_content_type (THUNAR_FILE (file_info)), mime_type);
 }
 
-
-
 static gboolean
 thunar_file_info_is_directory (ThunarxFileInfo *file_info)
 {
     return thunar_file_is_directory (THUNAR_FILE (file_info));
 }
-
-
 
 static GFileInfo *
 thunar_file_info_get_file_info (ThunarxFileInfo *file_info)
@@ -553,8 +505,6 @@ thunar_file_info_get_file_info (ThunarxFileInfo *file_info)
         return NULL;
 }
 
-
-
 static GFileInfo *
 thunar_file_info_get_filesystem_info (ThunarxFileInfo *file_info)
 {
@@ -565,16 +515,12 @@ thunar_file_info_get_filesystem_info (ThunarxFileInfo *file_info)
                                          NULL, NULL);
 }
 
-
-
 static GFile *
 thunar_file_info_get_location (ThunarxFileInfo *file_info)
 {
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file_info), NULL);
     return g_object_ref (THUNAR_FILE (file_info)->gfile);
 }
-
-
 
 static void
 thunar_file_info_changed (ThunarxFileInfo *file_info)
@@ -590,8 +536,6 @@ thunar_file_info_changed (ThunarxFileInfo *file_info)
     /* tell the file monitor that this file changed */
     thunar_file_monitor_file_changed (file);
 }
-
-
 
 static gboolean
 thunar_file_denies_access_permission (const ThunarFile *file,
@@ -665,8 +609,6 @@ thunar_file_denies_access_permission (const ThunarFile *file,
 
     return result;
 }
-
-
 
 static void
 thunar_file_monitor_update (GFile             *path,
@@ -755,8 +697,6 @@ thunar_file_monitor_moved (ThunarFile *file,
     G_UNLOCK (file_cache_mutex);
 }
 
-
-
 void
 thunar_file_reload_parent (ThunarFile *file)
 {
@@ -780,8 +720,6 @@ thunar_file_reload_parent (ThunarFile *file)
         g_object_unref (parent);
     }
 }
-
-
 
 static void
 thunar_file_monitor (GFileMonitor     *monitor,
@@ -866,8 +804,6 @@ thunar_file_watch_destroyed (gpointer data)
     g_slice_free (ThunarFileWatch, file_watch);
 }
 
-
-
 static void
 thunar_file_watch_reconnect (ThunarFile *file)
 {
@@ -894,8 +830,6 @@ thunar_file_watch_reconnect (ThunarFile *file)
     }
 }
 
-
-
 static void
 thunar_file_set_emblem_names_ready (GObject      *source_object,
                                     GAsyncResult *result,
@@ -914,8 +848,6 @@ thunar_file_set_emblem_names_ready (GObject      *source_object,
 
     thunar_file_changed (file);
 }
-
-
 
 static void
 thunar_file_info_clear (ThunarFile *file)
@@ -967,8 +899,6 @@ thunar_file_info_clear (ThunarFile *file)
     /* set thumb state to unknown */
     FLAG_SET_THUMB_STATE (file, THUNAR_FILE_THUMB_STATE_UNKNOWN);
 }
-
-
 
 static void
 thunar_file_info_reload (ThunarFile   *file,
@@ -1090,8 +1020,6 @@ thunar_file_info_reload (ThunarFile   *file,
     g_free (casefold);
 }
 
-
-
 static void
 thunar_file_get_async_finish (GObject      *object,
                               GAsyncResult *result,
@@ -1153,8 +1081,6 @@ thunar_file_get_async_finish (GObject      *object,
         g_object_unref (data->cancellable);
     g_slice_free (ThunarFileGetData, data);
 }
-
-
 
 /**
  * thunar_file_load:
@@ -1226,8 +1152,6 @@ thunar_file_load (ThunarFile   *file,
     }
     return TRUE;
 }
-
-
 
 /**
  * thunar_file_get:
@@ -1360,10 +1284,6 @@ thunar_file_get_with_info (GFile     *gfile,
     return file;
 }
 
-
-
-
-
 /**
  * thunar_file_get_for_uri:
  * @uri   : an URI or an absolute filename.
@@ -1394,8 +1314,6 @@ thunar_file_get_for_uri (const gchar *uri,
 
     return file;
 }
-
-
 
 /**
  * thunar_file_get_async:
@@ -1440,8 +1358,6 @@ thunar_file_get_async (GFile            *location,
     }
 }
 
-
-
 /**
  * thunar_file_get_file:
  * @file : a #ThunarFile instance.
@@ -1460,8 +1376,6 @@ thunar_file_get_file (const ThunarFile *file)
     _thunar_return_val_if_fail (G_IS_FILE (file->gfile), NULL);
     return file->gfile;
 }
-
-
 
 /**
  * thunar_file_get_info:
@@ -1483,8 +1397,6 @@ thunar_file_get_info (const ThunarFile *file)
     _thunar_return_val_if_fail (file->info == NULL || G_IS_FILE_INFO (file->info), NULL);
     return file->info;
 }
-
-
 
 /**
  * thunar_file_get_parent:
@@ -1526,8 +1438,6 @@ thunar_file_get_parent (const ThunarFile *file,
     return parent;
 }
 
-
-
 /**
  * thunar_file_check_loaded:
  * @file              : a #ThunarFile instance.
@@ -1547,8 +1457,6 @@ thunar_file_check_loaded (ThunarFile *file)
 
     return (file->info != NULL);
 }
-
-
 
 /**
  * thunar_file_execute:
@@ -1765,8 +1673,6 @@ thunar_file_execute (ThunarFile  *file,
     return result;
 }
 
-
-
 /**
  * thunar_file_launch:
  * @file       : a #ThunarFile instance.
@@ -1864,8 +1770,6 @@ thunar_file_launch (ThunarFile  *file,
     return succeed;
 }
 
-
-
 /**
  * thunar_file_rename:
  * @file  : a #ThunarFile instance.
@@ -1923,8 +1827,6 @@ thunar_file_rename (ThunarFile   *file,
         return FALSE;
     }
 }
-
-
 
 /**
  * thunar_file_accepts_drop:
@@ -2078,8 +1980,6 @@ thunar_file_accepts_drop (ThunarFile     *file,
     return actions;
 }
 
-
-
 /**
  * thunar_file_get_date:
  * @file        : a #ThunarFile instance.
@@ -2118,8 +2018,6 @@ thunar_file_get_date (const ThunarFile  *file,
     return g_file_info_get_attribute_uint64 (file->info, attribute);
 }
 
-
-
 /**
  * thunar_file_get_date_string:
  * @file       : a #ThunarFile instance.
@@ -2142,8 +2040,6 @@ thunar_file_get_date_string (const ThunarFile  *file,
 {
     return thunar_util_humanize_file_time (thunar_file_get_date (file, date_type), date_style, date_custom_style);
 }
-
-
 
 /**
  * thunar_file_get_mode_string:
@@ -2220,8 +2116,6 @@ thunar_file_get_mode_string (const ThunarFile *file)
     return text;
 }
 
-
-
 /**
  * thunar_file_get_size_string:
  * @file : a #ThunarFile instance.
@@ -2240,8 +2134,6 @@ thunar_file_get_size_string (const ThunarFile *file)
     return g_format_size (thunar_file_get_size (file));
 }
 
-
-
 /**
  * thunar_file_get_size_in_bytes_string:
  * @file : a #ThunarFile instance.
@@ -2258,8 +2150,6 @@ thunar_file_get_size_in_bytes_string (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), NULL);
     return g_strdup_printf ("%'"G_GUINT64_FORMAT, thunar_file_get_size (file));
 }
-
-
 
 /**
  * thunar_file_get_size_string_formatted:
@@ -2282,8 +2172,6 @@ thunar_file_get_size_string_formatted (const ThunarFile *file, const gboolean fi
                                file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
 }
 
-
-
 /**
  * thunar_file_get_size_string_long:
  * @file             : a #ThunarFile instance.
@@ -2305,8 +2193,6 @@ thunar_file_get_size_string_long (const ThunarFile *file, const gboolean file_si
     return g_format_size_full (thunar_file_get_size (file),
                                G_FORMAT_SIZE_LONG_FORMAT | (file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
 }
-
-
 
 /**
  * thunar_file_get_volume:
@@ -2337,8 +2223,6 @@ thunar_file_get_volume (const ThunarFile *file)
     return volume;
 }
 
-
-
 /**
  * thunar_file_get_group:
  * @file : a #ThunarFile instance.
@@ -2366,8 +2250,6 @@ thunar_file_get_group (const ThunarFile *file)
     return thunar_user_manager_get_group_by_id (user_manager, gid);
 }
 
-
-
 /**
  * thunar_file_get_user:
  * @file : a #ThunarFile instance.
@@ -2394,8 +2276,6 @@ thunar_file_get_user (const ThunarFile *file)
 
     return thunar_user_manager_get_user_by_id (user_manager, uid);
 }
-
-
 
 /**
  * thunar_file_get_content_type:
@@ -2472,8 +2352,6 @@ bailout:
     return file->content_type;
 }
 
-
-
 gboolean
 thunar_file_load_content_type (ThunarFile *file)
 {
@@ -2486,8 +2364,6 @@ thunar_file_load_content_type (ThunarFile *file)
 
     return TRUE;
 }
-
-
 
 /**
  * thunar_file_get_symlink_target:
@@ -2509,8 +2385,6 @@ thunar_file_get_symlink_target (const ThunarFile *file)
     return g_file_info_get_symlink_target (file->info);
 }
 
-
-
 /**
  * thunar_file_get_basename:
  * @file : a #ThunarFile.
@@ -2525,8 +2399,6 @@ thunar_file_get_basename (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), NULL);
     return file->basename;
 }
-
-
 
 /**
  * thunar_file_is_symlink:
@@ -2547,8 +2419,6 @@ thunar_file_is_symlink (const ThunarFile *file)
     return g_file_info_get_is_symlink (file->info);
 }
 
-
-
 /**
  * thunar_file_get_size:
  * @file : a #ThunarFile instance.
@@ -2568,8 +2438,6 @@ thunar_file_get_size (const ThunarFile *file)
 
     return g_file_info_get_size (file->info);
 }
-
-
 
 /**
  * thunar_file_get_default_handler:
@@ -2608,8 +2476,6 @@ thunar_file_get_default_handler (const ThunarFile *file)
     return app_info;
 }
 
-
-
 /**
  * thunar_file_get_kind:
  * @file : a #ThunarFile instance.
@@ -2624,8 +2490,6 @@ thunar_file_get_kind (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), G_FILE_TYPE_UNKNOWN);
     return file->kind;
 }
-
-
 
 GFile *
 thunar_file_get_target_location (const ThunarFile *file)
@@ -2642,8 +2506,6 @@ thunar_file_get_target_location (const ThunarFile *file)
 
     return (uri != NULL) ? g_file_new_for_uri (uri) : NULL;
 }
-
-
 
 /**
  * thunar_file_get_mode:
@@ -2667,8 +2529,6 @@ thunar_file_get_mode (const ThunarFile *file)
         return thunar_file_is_directory (file) ? 0777 : 0666;
 }
 
-
-
 gboolean
 thunar_file_is_mounted (const ThunarFile *file)
 {
@@ -2676,16 +2536,12 @@ thunar_file_is_mounted (const ThunarFile *file)
     return FLAG_IS_SET (file, THUNAR_FILE_FLAG_IS_MOUNTED);
 }
 
-
-
 gboolean
 thunar_file_exists (const ThunarFile *file)
 {
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), FALSE);
     return g_file_query_exists (file->gfile, NULL);
 }
-
-
 
 /**
  * thunar_file_is_directory:
@@ -2702,8 +2558,6 @@ thunar_file_is_directory (const ThunarFile *file)
     return file->kind == G_FILE_TYPE_DIRECTORY;
 }
 
-
-
 /**
  * thunar_file_is_shortcut:
  * @file : a #ThunarFile instance.
@@ -2718,8 +2572,6 @@ thunar_file_is_shortcut (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), FALSE);
     return file->kind == G_FILE_TYPE_SHORTCUT;
 }
-
-
 
 /**
  * thunar_file_is_mountable:
@@ -2736,8 +2588,6 @@ thunar_file_is_mountable (const ThunarFile *file)
     return file->kind == G_FILE_TYPE_MOUNTABLE;
 }
 
-
-
 /**
  * thunar_file_is_local:
  * @file : a #ThunarFile instance.
@@ -2753,8 +2603,6 @@ thunar_file_is_local (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), FALSE);
     return g_file_has_uri_scheme (file->gfile, "file");
 }
-
-
 
 /**
  * thunar_file_is_parent:
@@ -2784,8 +2632,6 @@ thunar_file_is_parent (const ThunarFile *file,
 
     return is_parent;
 }
-
-
 
 /**
  * thunar_file_is_ancestor:
@@ -2829,8 +2675,6 @@ thunar_file_is_gfile_ancestor (const ThunarFile *file,
     return FALSE;
 }
 
-
-
 /**
  * thunar_file_is_ancestor:
  * @file     : a #ThunarFile instance.
@@ -2851,8 +2695,6 @@ thunar_file_is_ancestor (const ThunarFile *file,
 
     return thunar_file_is_gfile_ancestor (file, ancestor->gfile);
 }
-
-
 
 /**
  * thunar_file_is_executable:
@@ -2905,8 +2747,6 @@ thunar_file_is_executable (const ThunarFile *file)
     return can_execute || thunar_file_is_desktop_file (file, NULL);
 }
 
-
-
 /**
  * thunar_file_is_readable:
  * @file : a #ThunarFile instance.
@@ -2930,8 +2770,6 @@ thunar_file_is_readable (const ThunarFile *file)
     return g_file_info_get_attribute_boolean (file->info,
             G_FILE_ATTRIBUTE_ACCESS_CAN_READ);
 }
-
-
 
 /**
  * thunar_file_is_writable:
@@ -2957,8 +2795,6 @@ thunar_file_is_writable (const ThunarFile *file)
             G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
 }
 
-
-
 /**
  * thunar_file_is_hidden:
  * @file : a #ThunarFile instance.
@@ -2979,8 +2815,6 @@ thunar_file_is_hidden (const ThunarFile *file)
            || g_file_info_get_is_backup (file->info);
 }
 
-
-
 /**
  * thunar_file_is_home:
  * @file : a #ThunarFile.
@@ -2996,8 +2830,6 @@ thunar_file_is_home (const ThunarFile *file)
     return thunar_g_file_is_home (file->gfile);
 }
 
-
-
 /**
  * thunar_file_is_regular:
  * @file : a #ThunarFile.
@@ -3012,8 +2844,6 @@ thunar_file_is_regular (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), FALSE);
     return file->kind == G_FILE_TYPE_REGULAR;
 }
-
-
 
 /**
  * thunar_file_is_trashed:
@@ -3031,8 +2861,6 @@ thunar_file_is_trashed (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), FALSE);
     return thunar_g_file_is_trashed (file->gfile);
 }
-
-
 
 /**
  * thunar_file_is_desktop_file:
@@ -3103,8 +2931,6 @@ thunar_file_is_desktop_file (const ThunarFile *file,
     return TRUE;
 }
 
-
-
 /**
  * thunar_file_get_display_name:
  * @file : a #ThunarFile instance.
@@ -3120,8 +2946,6 @@ thunar_file_get_display_name (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), FALSE);
     return file->display_name;
 }
-
-
 
 /**
  * thunar_file_get_deletion_date:
@@ -3161,8 +2985,6 @@ thunar_file_get_deletion_date (const ThunarFile *file,
     return thunar_util_humanize_file_time (deletion_time, date_style, date_custom_style);
 }
 
-
-
 /**
  * thunar_file_get_original_path:
  * @file : a #ThunarFile instance.
@@ -3185,8 +3007,6 @@ thunar_file_get_original_path (const ThunarFile *file)
     return g_file_info_get_attribute_byte_string (file->info, G_FILE_ATTRIBUTE_TRASH_ORIG_PATH);
 }
 
-
-
 /**
  * thunar_file_get_item_count:
  * @file : a #ThunarFile instance.
@@ -3208,8 +3028,6 @@ thunar_file_get_item_count (const ThunarFile *file)
     return g_file_info_get_attribute_uint32 (file->info,
             G_FILE_ATTRIBUTE_TRASH_ITEM_COUNT);
 }
-
-
 
 /**
  * thunar_file_is_chmodable:
@@ -3244,8 +3062,6 @@ thunar_file_is_chmodable (const ThunarFile *file)
     }
 }
 
-
-
 /**
  * thunar_file_is_renameable:
  * @file : a #ThunarFile instance.
@@ -3269,8 +3085,6 @@ thunar_file_is_renameable (const ThunarFile *file)
             G_FILE_ATTRIBUTE_ACCESS_CAN_RENAME);
 }
 
-
-
 gboolean
 thunar_file_can_be_trashed (const ThunarFile *file)
 {
@@ -3282,8 +3096,6 @@ thunar_file_can_be_trashed (const ThunarFile *file)
     return g_file_info_get_attribute_boolean (file->info,
             G_FILE_ATTRIBUTE_ACCESS_CAN_TRASH);
 }
-
-
 
 /**
  * thunar_file_get_emblem_names:
@@ -3353,8 +3165,6 @@ thunar_file_get_emblem_names (ThunarFile *file)
     return emblems;
 }
 
-
-
 /**
  * thunar_file_set_emblem_names:
  * @file         : a #ThunarFile instance.
@@ -3413,8 +3223,6 @@ thunar_file_set_emblem_names (ThunarFile *file,
 
     g_strfreev (emblems);
 }
-
-
 
 /**
  * thunar_file_set_custom_icon:
@@ -3484,8 +3292,6 @@ thunar_file_is_desktop (const ThunarFile *file)
     return is_desktop;
 }
 
-
-
 const gchar *
 thunar_file_get_thumbnail_path (ThunarFile *file, ThunarThumbnailSize thumbnail_size)
 {
@@ -3548,8 +3354,6 @@ thunar_file_get_thumbnail_path (ThunarFile *file, ThunarThumbnailSize thumbnail_
     return file->thumbnail_path;
 }
 
-
-
 /**
  * thunar_file_get_thumb_state:
  * @file : a #ThunarFile.
@@ -3565,8 +3369,6 @@ thunar_file_get_thumb_state (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), THUNAR_FILE_THUMB_STATE_UNKNOWN);
     return FLAG_GET_THUMB_STATE (file);
 }
-
-
 
 /**
  * thunar_file_set_thumb_state:
@@ -3603,8 +3405,6 @@ thunar_file_set_thumb_state (ThunarFile          *file,
         thunar_file_monitor_file_changed (file);
 }
 
-
-
 /**
  * thunar_file_get_custom_icon:
  * @file : a #ThunarFile instance.
@@ -3621,8 +3421,6 @@ thunar_file_get_custom_icon (const ThunarFile *file)
     _thunar_return_val_if_fail (THUNAR_IS_FILE (file), NULL);
     return file->custom_icon_name;
 }
-
-
 
 /**
  * thunar_file_get_preview_icon:
@@ -3648,8 +3446,6 @@ thunar_file_get_preview_icon (const ThunarFile *file)
     return NULL;
 }
 
-
-
 GFilesystemPreviewType
 thunar_file_get_preview_type (const ThunarFile *file)
 {
@@ -3674,8 +3470,6 @@ thunar_file_get_preview_type (const ThunarFile *file)
     return preview;
 }
 
-
-
 static const gchar *
 thunar_file_get_icon_name_for_state (const gchar         *icon_name,
                                      ThunarFileIconState  icon_state)
@@ -3696,8 +3490,6 @@ thunar_file_get_icon_name_for_state (const gchar         *icon_name,
 
     return icon_name;
 }
-
-
 
 /**
  * thunar_file_get_icon_name:
@@ -3860,8 +3652,6 @@ check_names:
     return thunar_file_get_icon_name_for_state (file->icon_name, icon_state);
 }
 
-
-
 /**
  * thunar_file_watch:
  * @file : a #ThunarFile instance.
@@ -3919,8 +3709,6 @@ thunar_file_watch (ThunarFile *file)
     }
 }
 
-
-
 /**
  * thunar_file_unwatch:
  * @file : a #ThunarFile instance.
@@ -3952,8 +3740,6 @@ thunar_file_unwatch (ThunarFile *file)
         _thunar_assert_not_reached ();
     }
 }
-
-
 
 /**
  * thunar_file_reload:
@@ -3990,8 +3776,6 @@ thunar_file_reload (ThunarFile *file)
     return FALSE;
 }
 
-
-
 /**
  * thunar_file_reload_idle:
  * @file : a #ThunarFile instance.
@@ -4007,8 +3791,6 @@ thunar_file_reload_idle (ThunarFile *file)
 
     g_idle_add ((GSourceFunc) thunar_file_reload, file);
 }
-
-
 
 /**
  * thunar_file_reload_idle_unref:
@@ -4029,8 +3811,6 @@ thunar_file_reload_idle_unref (ThunarFile *file)
                      file,
                      (GDestroyNotify) g_object_unref);
 }
-
-
 
 /**
  * thunar_file_destroy:
@@ -4064,8 +3844,6 @@ thunar_file_destroy (ThunarFile *file)
         g_object_unref (G_OBJECT (file));
     }
 }
-
-
 
 /**
  * thunar_file_compare_by_type:
@@ -4133,8 +3911,6 @@ thunar_file_compare_by_type (ThunarFile *a,
     return ret;
 }
 
-
-
 /**
  * thunar_file_compare_by_name:
  * @file_a         : the first #ThunarFile.
@@ -4180,8 +3956,6 @@ thunar_file_compare_by_name (const ThunarFile *file_a,
     return result;
 }
 
-
-
 static gboolean
 thunar_file_same_filesystem (const ThunarFile *file_a,
                              const ThunarFile *file_b)
@@ -4206,8 +3980,6 @@ thunar_file_same_filesystem (const ThunarFile *file_a,
     /* compare the filesystem IDs */
     return exo_str_is_equal (filesystem_id_a, filesystem_id_b);
 }
-
-
 
 /**
  * thunar_file_cache_lookup:
@@ -4257,8 +4029,6 @@ thunar_file_cache_lookup (const GFile *file)
     return cached_file;
 }
 
-
-
 gchar *
 thunar_file_cached_display_name (const GFile *file)
 {
@@ -4282,16 +4052,12 @@ thunar_file_cached_display_name (const GFile *file)
     return display_name;
 }
 
-
-
 static gint
 compare_app_infos (gconstpointer a,
                    gconstpointer b)
 {
     return g_app_info_equal (G_APP_INFO (a), G_APP_INFO (b)) ? 0 : 1;
 }
-
-
 
 /**
  * thunar_file_list_get_applications:
@@ -4409,8 +4175,6 @@ thunar_file_list_get_applications (GList *file_list)
     return applications;
 }
 
-
-
 /**
  * thunar_file_list_to_thunar_g_file_list:
  * @file_list : a #GList of #ThunarFile<!---->s.
@@ -4434,8 +4198,6 @@ thunar_file_list_to_thunar_g_file_list (GList *file_list)
 
     return list;
 }
-
-
 
 /**
  * thunar_file_get_metadata_setting:
@@ -4474,8 +4236,6 @@ thunar_file_get_metadata_setting (ThunarFile  *file,
     return attr_value;
 }
 
-
-
 static void
 thunar_file_set_metadata_setting_finish (GObject      *source_object,
         GAsyncResult *result,
@@ -4492,8 +4252,6 @@ thunar_file_set_metadata_setting_finish (GObject      *source_object,
 
     thunar_file_changed (file);
 }
-
-
 
 /**
  * thunar_file_set_metadata_setting:
@@ -4536,8 +4294,6 @@ thunar_file_set_metadata_setting (ThunarFile  *file,
     g_object_unref (G_OBJECT (info));
 }
 
-
-
 /**
  * thunar_file_clear_directory_specific_settings:
  * @file : a #ThunarFile instance.
@@ -4565,8 +4321,6 @@ thunar_file_clear_directory_specific_settings (ThunarFile *file)
 
     thunar_file_changed (file);
 }
-
-
 
 /**
  * thunar_file_has_directory_specific_settings:

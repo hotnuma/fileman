@@ -43,12 +43,8 @@
 #include <thunar-tree-view.h>
 #include <thunar-util.h>
 
-
-
 /* the timeout (in ms) until the drag dest row will be expanded */
 #define THUNAR_TREE_VIEW_EXPAND_TIMEOUT (750)
-
-
 
 /* Property identifiers */
 enum
@@ -70,8 +66,6 @@ enum
 {
     TARGET_TEXT_URI_LIST,
 };
-
-
 
 static void                     thunar_tree_view_navigator_init               (ThunarNavigatorIface    *iface);
 static void                     thunar_tree_view_finalize                     (GObject                 *object);
@@ -164,8 +158,6 @@ static void                     thunar_tree_view_set_show_hidden              (T
 static GtkTreePath             *thunar_tree_view_get_preferred_toplevel_path  (ThunarTreeView          *view,
         ThunarFile              *file);
 
-
-
 struct _ThunarTreeViewClass
 {
     GtkTreeViewClass __parent__;
@@ -227,24 +219,16 @@ struct _ThunarTreeView
     guint                   expand_timer_id;
 };
 
-
-
 /* Target types for dropping into the tree view */
 static const GtkTargetEntry drop_targets[] =
 {
     { "text/uri-list", 0, TARGET_TEXT_URI_LIST },
 };
 
-
-
 static guint tree_view_signals[LAST_SIGNAL];
-
-
 
 G_DEFINE_TYPE_WITH_CODE (ThunarTreeView, thunar_tree_view, GTK_TYPE_TREE_VIEW,
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_NAVIGATOR, thunar_tree_view_navigator_init))
-
-
 
 static void
 thunar_tree_view_class_init (ThunarTreeViewClass *klass)
@@ -319,16 +303,12 @@ thunar_tree_view_class_init (ThunarTreeViewClass *klass)
     gtk_binding_entry_add_signal (binding_set, GDK_KEY_KP_Delete, GDK_SHIFT_MASK, "delete-selected-files", 0);
 }
 
-
-
 static void
 thunar_tree_view_navigator_init (ThunarNavigatorIface *iface)
 {
     iface->get_current_directory = thunar_tree_view_get_current_directory;
     iface->set_current_directory = thunar_tree_view_set_current_directory;
 }
-
-
 
 static void
 thunar_tree_view_init (ThunarTreeView *view)
@@ -418,8 +398,6 @@ thunar_tree_view_init (ThunarTreeView *view)
     exo_binding_new (G_OBJECT (view), "current-directory", G_OBJECT (view->launcher), "current-directory");
 }
 
-
-
 static void
 thunar_tree_view_finalize (GObject *object)
 {
@@ -469,8 +447,6 @@ thunar_tree_view_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_tree_view_parent_class)->finalize) (object);
 }
 
-
-
 static void
 thunar_tree_view_get_property (GObject    *object,
                                guint       prop_id,
@@ -492,8 +468,6 @@ thunar_tree_view_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_tree_view_set_property (GObject      *object,
@@ -517,15 +491,11 @@ thunar_tree_view_set_property (GObject      *object,
     }
 }
 
-
-
 static ThunarFile*
 thunar_tree_view_get_current_directory (ThunarNavigator *navigator)
 {
     return THUNAR_TREE_VIEW (navigator)->current_directory;
 }
-
-
 
 static void
 thunar_tree_view_set_current_directory (ThunarNavigator *navigator,
@@ -623,8 +593,6 @@ thunar_tree_view_set_current_directory (ThunarNavigator *navigator,
     g_object_notify (G_OBJECT (view), "current-directory");
 }
 
-
-
 static void
 thunar_tree_view_realize (GtkWidget *widget)
 {
@@ -639,8 +607,6 @@ thunar_tree_view_realize (GtkWidget *widget)
     view->clipboard = thunar_clipboard_manager_get_for_display (display);
 }
 
-
-
 static void
 thunar_tree_view_unrealize (GtkWidget *widget)
 {
@@ -653,8 +619,6 @@ thunar_tree_view_unrealize (GtkWidget *widget)
     /* let the parent class unrealize the widget */
     (*GTK_WIDGET_CLASS (thunar_tree_view_parent_class)->unrealize) (widget);
 }
-
-
 
 static gboolean
 thunar_tree_view_button_press_event (GtkWidget      *widget,
@@ -750,8 +714,6 @@ thunar_tree_view_button_press_event (GtkWidget      *widget,
     return result;
 }
 
-
-
 static gboolean
 thunar_tree_view_button_release_event (GtkWidget      *widget,
                                        GdkEventButton *event)
@@ -787,8 +749,6 @@ thunar_tree_view_button_release_event (GtkWidget      *widget,
     /* call the parent's release event handler */
     return (*GTK_WIDGET_CLASS (thunar_tree_view_parent_class)->button_release_event) (widget, event);
 }
-
-
 
 static gboolean
 thunar_tree_view_key_press_event(GtkWidget   *widget,
@@ -897,8 +857,6 @@ thunar_tree_view_key_press_event(GtkWidget   *widget,
     return stopPropagation;
 }
 
-
-
 static void
 thunar_tree_view_drag_data_received (GtkWidget        *widget,
                                      GdkDragContext   *context,
@@ -957,8 +915,6 @@ thunar_tree_view_drag_data_received (GtkWidget        *widget,
     }
 }
 
-
-
 static gboolean
 thunar_tree_view_drag_drop (GtkWidget      *widget,
                             GdkDragContext *context,
@@ -991,8 +947,6 @@ thunar_tree_view_drag_drop (GtkWidget      *widget,
 
     return TRUE;
 }
-
-
 
 static gboolean
 thunar_tree_view_drag_motion (GtkWidget      *widget,
@@ -1044,8 +998,6 @@ thunar_tree_view_drag_motion (GtkWidget      *widget,
     return TRUE;
 }
 
-
-
 static void
 thunar_tree_view_drag_leave (GtkWidget      *widget,
                              GdkDragContext *context,
@@ -1072,8 +1024,6 @@ thunar_tree_view_drag_leave (GtkWidget      *widget,
     (*GTK_WIDGET_CLASS (thunar_tree_view_parent_class)->drag_leave) (widget, context, timestamp);
 }
 
-
-
 static gboolean
 thunar_tree_view_popup_menu (GtkWidget *widget)
 {
@@ -1099,8 +1049,6 @@ thunar_tree_view_popup_menu (GtkWidget *widget)
     return FALSE;
 }
 
-
-
 static void
 thunar_tree_view_row_activated (GtkTreeView       *tree_view,
                                 GtkTreePath       *path,
@@ -1125,8 +1073,6 @@ thunar_tree_view_row_activated (GtkTreeView       *tree_view,
         }
     }
 }
-
-
 
 static gboolean
 thunar_tree_view_test_expand_row (GtkTreeView *tree_view,
@@ -1166,8 +1112,6 @@ thunar_tree_view_test_expand_row (GtkTreeView *tree_view,
     return !expandable;
 }
 
-
-
 static void
 thunar_tree_view_row_collapsed (GtkTreeView *tree_view,
                                 GtkTreeIter *iter,
@@ -1178,8 +1122,6 @@ thunar_tree_view_row_collapsed (GtkTreeView *tree_view,
     /* schedule a cleanup of the tree model */
     thunar_tree_model_cleanup (THUNAR_TREE_VIEW (tree_view)->model);
 }
-
-
 
 static gboolean
 thunar_tree_view_delete_selected_files (ThunarTreeView *view)
@@ -1206,8 +1148,6 @@ thunar_tree_view_delete_selected_files (ThunarTreeView *view)
     /* ...and we're done */
     return TRUE;
 }
-
-
 
 static void
 thunar_tree_view_context_menu (ThunarTreeView *view,
@@ -1294,8 +1234,6 @@ thunar_tree_view_context_menu (ThunarTreeView *view,
         g_object_unref (G_OBJECT (file));
 }
 
-
-
 static GdkDragAction
 thunar_tree_view_get_dest_actions (ThunarTreeView *view,
                                    GdkDragContext *context,
@@ -1373,8 +1311,6 @@ thunar_tree_view_get_dest_actions (ThunarTreeView *view,
     return actions;
 }
 
-
-
 static ThunarFile*
 thunar_tree_view_get_selected_file (ThunarTreeView *view)
 {
@@ -1397,8 +1333,6 @@ thunar_tree_view_get_selected_file (ThunarTreeView *view)
     return file;
 }
 
-
-
 static ThunarDevice*
 thunar_tree_view_get_selected_device (ThunarTreeView *view)
 {
@@ -1414,8 +1348,6 @@ thunar_tree_view_get_selected_device (ThunarTreeView *view)
 
     return device;
 }
-
-
 
 static void
 thunar_tree_view_action_unlink_selected_folder (ThunarTreeView *view,
@@ -1449,23 +1381,17 @@ thunar_tree_view_action_unlink_selected_folder (ThunarTreeView *view,
     }
 }
 
-
-
 static void
 thunar_tree_view_action_move_to_trash (ThunarTreeView *view)
 {
     thunar_tree_view_action_unlink_selected_folder (view, FALSE);
 }
 
-
-
 static void
 thunar_tree_view_action_delete (ThunarTreeView *view)
 {
     thunar_tree_view_action_unlink_selected_folder (view, TRUE);
 }
-
-
 
 static void
 thunar_tree_view_action_open (ThunarTreeView *view)
@@ -1498,8 +1424,6 @@ thunar_tree_view_action_open (ThunarTreeView *view)
         g_object_unref (file);
 }
 
-
-
 static void
 thunar_tree_view_open_selection (ThunarTreeView *view)
 {
@@ -1516,8 +1440,6 @@ thunar_tree_view_open_selection (ThunarTreeView *view)
         g_object_unref (file);
     }
 }
-
-
 
 static void
 thunar_tree_view_select_files (ThunarTreeView *view,
@@ -1540,8 +1462,6 @@ thunar_tree_view_select_files (ThunarTreeView *view,
         g_object_unref (file);
     }
 }
-
-
 
 static gboolean
 thunar_tree_view_visible_func (ThunarTreeModel *model,
@@ -1566,8 +1486,6 @@ thunar_tree_view_visible_func (ThunarTreeModel *model,
 
     return visible;
 }
-
-
 
 static gboolean
 thunar_tree_view_selection_func (GtkTreeSelection *selection,
@@ -1618,8 +1536,6 @@ thunar_tree_view_selection_func (GtkTreeSelection *selection,
 
     return result;
 }
-
-
 
 static gboolean
 thunar_tree_view_cursor_idle (gpointer user_data)
@@ -1760,15 +1676,11 @@ thunar_tree_view_cursor_idle (gpointer user_data)
     return !done;
 }
 
-
-
 static void
 thunar_tree_view_cursor_idle_destroy (gpointer user_data)
 {
     THUNAR_TREE_VIEW (user_data)->cursor_idle_id = 0;
 }
-
-
 
 static gboolean
 thunar_tree_view_drag_scroll_timer (gpointer user_data)
@@ -1861,15 +1773,11 @@ thunar_tree_view_drag_scroll_timer (gpointer user_data)
     return TRUE;
 }
 
-
-
 static void
 thunar_tree_view_drag_scroll_timer_destroy (gpointer user_data)
 {
     THUNAR_TREE_VIEW (user_data)->drag_scroll_timer_id = 0;
 }
-
-
 
 static gboolean
 thunar_tree_view_expand_timer (gpointer user_data)
@@ -1897,15 +1805,11 @@ thunar_tree_view_expand_timer (gpointer user_data)
     return FALSE;
 }
 
-
-
 static void
 thunar_tree_view_expand_timer_destroy (gpointer user_data)
 {
     THUNAR_TREE_VIEW (user_data)->expand_timer_id = 0;
 }
-
-
 
 /**
  * thunar_tree_view_get_show_hidden:
@@ -1922,8 +1826,6 @@ thunar_tree_view_get_show_hidden (ThunarTreeView *view)
     _thunar_return_val_if_fail (THUNAR_IS_TREE_VIEW (view), FALSE);
     return view->show_hidden;
 }
-
-
 
 /**
  * thunar_tree_view_set_show_hidden:
@@ -1956,8 +1858,6 @@ thunar_tree_view_set_show_hidden (ThunarTreeView *view,
         g_object_notify (G_OBJECT (view), "show-hidden");
     }
 }
-
-
 
 /**
  * thunar_tree_view_get_preferred_toplevel_path:
@@ -2091,8 +1991,6 @@ thunar_tree_view_get_preferred_toplevel_path (ThunarTreeView *view,
 
     return path;
 }
-
-
 
 /**
  * thunar_tree_view_new:

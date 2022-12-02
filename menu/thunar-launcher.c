@@ -52,8 +52,6 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-
-
 /**
  * SECTION:thunar-launcher
  * @Short_description: Manages creation and execution of menu-item
@@ -79,11 +77,7 @@
  * Typically a single instance of #ThunarLauncher is provided by each #ThunarWindow.
  */
 
-
-
 typedef struct _ThunarLauncherPokeData ThunarLauncherPokeData;
-
-
 
 /* Property identifiers */
 enum
@@ -96,8 +90,6 @@ enum
     PROP_SELECTED_DEVICE,
     N_PROPERTIES
 };
-
-
 
 static void                    thunar_launcher_component_init             (ThunarComponentIface           *iface);
 static void                    thunar_launcher_navigator_init             (ThunarNavigatorIface           *iface);
@@ -180,8 +172,6 @@ static void                    thunar_launcher_action_create_folder       (Thuna
 static void                    thunar_launcher_action_create_document     (ThunarLauncher                 *launcher,
         GtkWidget                      *menu_item);
 static GtkWidget              *thunar_launcher_create_document_submenu_new(ThunarLauncher                 *launcher);
-
-
 
 struct _ThunarLauncherClass
 {
@@ -274,8 +264,6 @@ G_DEFINE_TYPE_WITH_CODE (ThunarLauncher, thunar_launcher, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_NAVIGATOR, thunar_launcher_navigator_init)
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_COMPONENT, thunar_launcher_component_init))
 
-
-
 static void
 thunar_launcher_class_init (ThunarLauncherClass *klass)
 {
@@ -346,8 +334,6 @@ thunar_launcher_class_init (ThunarLauncherClass *klass)
     g_object_class_install_properties (gobject_class, N_PROPERTIES, launcher_props);
 }
 
-
-
 static void
 thunar_launcher_component_init (ThunarComponentIface *iface)
 {
@@ -355,16 +341,12 @@ thunar_launcher_component_init (ThunarComponentIface *iface)
     iface->set_selected_files = thunar_launcher_set_selected_files;
 }
 
-
-
 static void
 thunar_launcher_navigator_init (ThunarNavigatorIface *iface)
 {
     iface->get_current_directory = thunar_launcher_get_current_directory;
     iface->set_current_directory = thunar_launcher_set_current_directory;
 }
-
-
 
 static void
 thunar_launcher_init (ThunarLauncher *launcher)
@@ -376,8 +358,6 @@ thunar_launcher_init (ThunarLauncher *launcher)
     /* grab a reference on the preferences */
     launcher->preferences = thunar_preferences_get ();
 }
-
-
 
 static void
 thunar_launcher_dispose (GObject *object)
@@ -399,8 +379,6 @@ thunar_launcher_dispose (GObject *object)
     (*G_OBJECT_CLASS (thunar_launcher_parent_class)->dispose) (object);
 }
 
-
-
 static void
 thunar_launcher_finalize (GObject *object)
 {
@@ -411,8 +389,6 @@ thunar_launcher_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_launcher_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_launcher_get_property (GObject    *object,
@@ -436,8 +412,6 @@ thunar_launcher_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_launcher_set_property (GObject      *object,
@@ -476,15 +450,11 @@ thunar_launcher_set_property (GObject      *object,
     }
 }
 
-
-
 static ThunarFile*
 thunar_launcher_get_current_directory (ThunarNavigator *navigator)
 {
     return THUNAR_LAUNCHER (navigator)->current_directory;
 }
-
-
 
 static void
 thunar_launcher_set_current_directory (ThunarNavigator *navigator,
@@ -512,8 +482,6 @@ thunar_launcher_set_current_directory (ThunarNavigator *navigator,
     /* notify listeners */
     g_object_notify_by_pspec (G_OBJECT (launcher), launcher_props[PROP_CURRENT_DIRECTORY]);
 }
-
-
 
 static void
 thunar_launcher_set_selected_files (ThunarComponent *component,
@@ -595,8 +563,6 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
     }
 }
 
-
-
 /**
 * thunar_launcher_set_widget:
 * @launcher : a #ThunarLauncher.
@@ -631,8 +597,6 @@ thunar_launcher_set_widget (ThunarLauncher *launcher,
     g_object_notify_by_pspec (G_OBJECT (launcher), launcher_props[PROP_WIDGET]);
 }
 
-
-
 static void
 thunar_launcher_menu_item_activated (ThunarLauncher *launcher,
                                      GtkWidget      *menu_item)
@@ -648,8 +612,6 @@ thunar_launcher_menu_item_activated (ThunarLauncher *launcher,
     app_info = g_object_get_qdata (G_OBJECT (menu_item), thunar_launcher_appinfo_quark);
     thunar_launcher_activate_selected_files (launcher, THUNAR_LAUNCHER_CHANGE_DIRECTORY, app_info);
 }
-
-
 
 /**
  * thunar_launcher_activate_selected_files:
@@ -668,8 +630,6 @@ thunar_launcher_activate_selected_files (ThunarLauncher                 *launche
 
     thunar_launcher_poke (launcher, app_info, action);
 }
-
-
 
 static void
 thunar_launcher_execute_files (ThunarLauncher *launcher,
@@ -694,16 +654,12 @@ thunar_launcher_execute_files (ThunarLauncher *launcher,
     }
 }
 
-
-
 static guint
 thunar_launcher_g_app_info_hash (gconstpointer app_info)
 {
     UNUSED(app_info);
     return 0;
 }
-
-
 
 static void
 thunar_launcher_open_file (ThunarLauncher *launcher,
@@ -716,8 +672,6 @@ thunar_launcher_open_file (ThunarLauncher *launcher,
     thunar_launcher_open_files (launcher, files, application_to_use);
     g_list_free (files);
 }
-
-
 
 static void
 thunar_launcher_open_files (ThunarLauncher *launcher,
@@ -788,8 +742,6 @@ thunar_launcher_open_files (ThunarLauncher *launcher,
     g_hash_table_destroy (applications);
 }
 
-
-
 static void
 thunar_launcher_open_paths (GAppInfo       *app_info,
                             GList          *path_list,
@@ -843,8 +795,6 @@ thunar_launcher_open_paths (GAppInfo       *app_info,
     /* destroy the launch context */
     g_object_unref (context);
 }
-
-
 
 static void
 thunar_launcher_open_windows (ThunarLauncher *launcher,
@@ -902,8 +852,6 @@ thunar_launcher_open_windows (ThunarLauncher *launcher,
     }
 }
 
-
-
 static void
 thunar_launcher_poke (ThunarLauncher                 *launcher,
                       GAppInfo                       *application_to_use,
@@ -936,8 +884,6 @@ thunar_launcher_poke (ThunarLauncher                 *launcher,
                                   poke_data);
     }
 }
-
-
 
 static void thunar_launcher_poke_device_finish (ThunarBrowser *browser,
         ThunarDevice  *volume,
@@ -976,8 +922,6 @@ static void thunar_launcher_poke_device_finish (ThunarBrowser *browser,
 
     thunar_launcher_poke_data_free (poke_data);
 }
-
-
 
 static void
 thunar_launcher_poke_files_finish (ThunarBrowser *browser,
@@ -1094,8 +1038,6 @@ thunar_launcher_poke_files_finish (ThunarBrowser *browser,
     }
 }
 
-
-
 static ThunarLauncherPokeData *
 thunar_launcher_poke_data_new (GList                          *files_to_poke,
                                GAppInfo                       *application_to_use,
@@ -1116,8 +1058,6 @@ thunar_launcher_poke_data_new (GList                          *files_to_poke,
     return data;
 }
 
-
-
 static void
 thunar_launcher_poke_data_free (ThunarLauncherPokeData *data)
 {
@@ -1131,8 +1071,6 @@ thunar_launcher_poke_data_free (ThunarLauncherPokeData *data)
     g_slice_free (ThunarLauncherPokeData, data);
 }
 
-
-
 static void
 thunar_launcher_widget_destroyed (ThunarLauncher *launcher,
                                   GtkWidget      *widget)
@@ -1144,8 +1082,6 @@ thunar_launcher_widget_destroyed (ThunarLauncher *launcher,
     /* just reset the widget property for the launcher */
     thunar_launcher_set_widget (launcher, NULL);
 }
-
-
 
 /**
  * thunar_launcher_open_selected_folders:
@@ -1166,8 +1102,6 @@ void thunar_launcher_open_selected_folders (ThunarLauncher *launcher)
     thunar_launcher_poke (launcher, NULL, THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW);
 }
 
-
-
 static void
 thunar_launcher_action_open (ThunarLauncher *launcher)
 {
@@ -1178,8 +1112,6 @@ thunar_launcher_action_open (ThunarLauncher *launcher)
 
     thunar_launcher_activate_selected_files (launcher, THUNAR_LAUNCHER_CHANGE_DIRECTORY, NULL);
 }
-
-
 
 static void
 thunar_launcher_action_open_in_new_windows (ThunarLauncher *launcher)
@@ -1192,8 +1124,6 @@ thunar_launcher_action_open_in_new_windows (ThunarLauncher *launcher)
     thunar_launcher_open_selected_folders (launcher);
 }
 
-
-
 static void
 thunar_launcher_action_open_with_other (ThunarLauncher *launcher)
 {
@@ -1202,8 +1132,6 @@ thunar_launcher_action_open_with_other (ThunarLauncher *launcher)
     if (launcher->n_files_to_process == 1)
         thunar_show_chooser_dialog (launcher->widget, launcher->files_to_process->data, TRUE);
 }
-
-
 
 /**
  * thunar_launcher_append_accelerators:
@@ -1224,8 +1152,6 @@ void thunar_launcher_append_accelerators (ThunarLauncher *launcher,
             launcher);
 }
 
-
-
 static gboolean
 thunar_launcher_show_trash (ThunarLauncher *launcher)
 {
@@ -1236,8 +1162,6 @@ thunar_launcher_show_trash (ThunarLauncher *launcher)
     /* If we are outside waste basket, the selection is trashable and we support trash, show trash */
     return !thunar_file_is_writable (launcher->parent_folder) || ( !thunar_file_is_trashed (launcher->parent_folder) && launcher->files_to_process_trashable && thunar_g_vfs_is_uri_scheme_supported ("trash"));
 }
-
-
 
 /**
  * thunar_launcher_append_menu_item:
@@ -1530,8 +1454,6 @@ thunar_launcher_append_menu_item (ThunarLauncher       *launcher,
 }
 
 
-
-
 static void
 thunar_launcher_action_sendto_desktop (ThunarLauncher *launcher)
 {
@@ -1558,8 +1480,6 @@ thunar_launcher_action_sendto_desktop (ThunarLauncher *launcher)
     g_object_unref (desktop_file);
     thunar_g_file_list_free (files);
 }
-
-
 
 static void
 thunar_launcher_sendto_device (ThunarLauncher *launcher,
@@ -1594,8 +1514,6 @@ thunar_launcher_sendto_device (ThunarLauncher *launcher,
     thunar_g_file_list_free (files);
 }
 
-
-
 static void
 thunar_launcher_sendto_mount_finish (ThunarDevice *device,
                                      const GError *error,
@@ -1621,8 +1539,6 @@ thunar_launcher_sendto_mount_finish (ThunarDevice *device,
         thunar_launcher_sendto_device (launcher, device);
     }
 }
-
-
 
 static void
 thunar_launcher_action_sendto_device (ThunarLauncher *launcher,
@@ -1658,8 +1574,6 @@ thunar_launcher_action_sendto_device (ThunarLauncher *launcher,
         thunar_launcher_sendto_device (launcher, device);
     }
 }
-
-
 
 static GtkWidget*
 thunar_launcher_build_sendto_submenu (ThunarLauncher *launcher)
@@ -1779,8 +1693,6 @@ thunar_launcher_build_sendto_submenu (ThunarLauncher *launcher)
     return submenu;
 }
 
-
-
 static void
 thunar_launcher_action_properties (ThunarLauncher *launcher)
 {
@@ -1810,8 +1722,6 @@ thunar_launcher_action_properties (ThunarLauncher *launcher)
     }
 }
 
-
-
 static void
 thunar_launcher_action_make_link (ThunarLauncher *launcher)
 {
@@ -1839,8 +1749,6 @@ thunar_launcher_action_make_link (ThunarLauncher *launcher)
     g_object_unref (G_OBJECT (application));
     g_list_free (g_files);
 }
-
-
 
 static void
 thunar_launcher_action_duplicate (ThunarLauncher *launcher)
@@ -1871,8 +1779,6 @@ thunar_launcher_action_duplicate (ThunarLauncher *launcher)
         thunar_g_file_list_free (files_to_process);
     }
 }
-
-
 
 /**
  * thunar_launcher_append_custom_actions:
@@ -1936,8 +1842,6 @@ thunar_launcher_append_custom_actions (ThunarLauncher *launcher,
     return uca_added;
 }
 
-
-
 gboolean
 thunar_launcher_check_uca_key_activation (ThunarLauncher *launcher,
         GdkEventKey    *key_event)
@@ -1995,8 +1899,6 @@ thunar_launcher_check_uca_key_activation (ThunarLauncher *launcher,
     return uca_activated;
 }
 
-
-
 static void
 thunar_launcher_rename_error (ExoJob    *job,
                               GError    *error,
@@ -2017,8 +1919,6 @@ thunar_launcher_rename_error (ExoJob    *job,
     g_object_unref (file);
 }
 
-
-
 static void
 thunar_launcher_rename_finished (ExoJob    *job,
                                  GtkWidget *widget)
@@ -2029,8 +1929,6 @@ thunar_launcher_rename_finished (ExoJob    *job,
     g_signal_handlers_disconnect_matched (job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, widget);
     g_object_unref (job);
 }
-
-
 
 static void
 thunar_launcher_action_rename (ThunarLauncher *launcher)
@@ -2065,8 +1963,6 @@ thunar_launcher_action_rename (ThunarLauncher *launcher)
     //  }
 }
 
-
-
 static void
 thunar_launcher_action_restore (ThunarLauncher *launcher)
 {
@@ -2099,8 +1995,6 @@ thunar_launcher_action_move_to_trash (ThunarLauncher *launcher)
     g_object_unref (G_OBJECT (application));
 }
 
-
-
 static void
 thunar_launcher_action_delete (ThunarLauncher *launcher)
 {
@@ -2115,8 +2009,6 @@ thunar_launcher_action_delete (ThunarLauncher *launcher)
     thunar_application_unlink_files (application, launcher->widget, launcher->files_to_process, TRUE);
     g_object_unref (G_OBJECT (application));
 }
-
-
 
 static void
 thunar_launcher_action_trash_delete (ThunarLauncher *launcher)
@@ -2134,8 +2026,6 @@ thunar_launcher_action_trash_delete (ThunarLauncher *launcher)
         thunar_launcher_action_delete (launcher);
 }
 
-
-
 static void
 thunar_launcher_action_empty_trash (ThunarLauncher *launcher)
 {
@@ -2152,8 +2042,6 @@ thunar_launcher_action_empty_trash (ThunarLauncher *launcher)
     thunar_application_empty_trash (application, launcher->widget, NULL);
     g_object_unref (G_OBJECT (application));
 }
-
-
 
 static void
 thunar_launcher_action_create_folder (ThunarLauncher *launcher)
@@ -2195,8 +2083,6 @@ thunar_launcher_action_create_folder (ThunarLauncher *launcher)
         g_free (name);
     }
 }
-
-
 
 static void
 thunar_launcher_action_create_document (ThunarLauncher *launcher,
@@ -2266,8 +2152,6 @@ thunar_launcher_action_create_document (ThunarLauncher *launcher,
     }
 }
 
-
-
 /* helper method in order to find the parent menu for a menu item */
 static GtkWidget *
 thunar_launcher_create_document_submenu_templates_find_parent_menu (ThunarFile *file,
@@ -2304,8 +2188,6 @@ thunar_launcher_create_document_submenu_templates_find_parent_menu (ThunarFile *
 
     return parent_menu;
 }
-
-
 
 /* recursive helper method in order to create menu items for all available templates */
 static gboolean
@@ -2386,8 +2268,6 @@ thunar_launcher_create_document_submenu_templates (ThunarLauncher *launcher,
     return FALSE;
 }
 
-
-
 /**
  * thunar_launcher_create_document_submenu_new:
  * @launcher : a #ThunarLauncher instance
@@ -2457,8 +2337,6 @@ thunar_launcher_create_document_submenu_new (ThunarLauncher *launcher)
     return submenu;
 }
 
-
-
 static void
 thunar_launcher_action_cut (ThunarLauncher *launcher)
 {
@@ -2473,8 +2351,6 @@ thunar_launcher_action_cut (ThunarLauncher *launcher)
     thunar_clipboard_manager_cut_files (clipboard, launcher->files_to_process);
     g_object_unref (G_OBJECT (clipboard));
 }
-
-
 
 static void
 thunar_launcher_action_copy (ThunarLauncher *launcher)
@@ -2491,8 +2367,6 @@ thunar_launcher_action_copy (ThunarLauncher *launcher)
     g_object_unref (G_OBJECT (clipboard));
 }
 
-
-
 static void
 thunar_launcher_action_paste (ThunarLauncher *launcher)
 {
@@ -2504,8 +2378,6 @@ thunar_launcher_action_paste (ThunarLauncher *launcher)
     thunar_clipboard_manager_paste_files (clipboard, thunar_file_get_file (launcher->current_directory), launcher->widget, launcher->select_files_closure);
     g_object_unref (G_OBJECT (clipboard));
 }
-
-
 
 static void
 thunar_launcher_action_paste_into_folder (ThunarLauncher *launcher)
@@ -2535,8 +2407,6 @@ thunar_launcher_action_mount (ThunarLauncher *launcher)
     thunar_launcher_poke (launcher, NULL,THUNAR_LAUNCHER_NO_ACTION);
 }
 
-
-
 static void
 thunar_launcher_action_eject_finish (ThunarDevice  *device,
                                      const GError *error,
@@ -2561,8 +2431,6 @@ thunar_launcher_action_eject_finish (ThunarDevice  *device,
 
     g_object_unref (launcher);
 }
-
-
 
 /**
  * thunar_launcher_action_eject:
@@ -2593,8 +2461,6 @@ thunar_launcher_action_eject (ThunarLauncher *launcher)
     }
 }
 
-
-
 static void
 thunar_launcher_action_unmount_finish (ThunarDevice *device,
                                        const GError *error,
@@ -2619,8 +2485,6 @@ thunar_launcher_action_unmount_finish (ThunarDevice *device,
 
     g_object_unref (launcher);
 }
-
-
 
 /**
  * thunar_launcher_action_eject:
@@ -2651,8 +2515,6 @@ thunar_launcher_action_unmount (ThunarLauncher *launcher)
         g_object_unref (mount_operation);
     }
 }
-
-
 
 static GtkWidget*
 thunar_launcher_build_application_submenu (ThunarLauncher *launcher,
@@ -2690,8 +2552,6 @@ thunar_launcher_build_application_submenu (ThunarLauncher *launcher,
 
     return submenu;
 }
-
-
 
 /**
  * thunar_launcher_append_open_section:
@@ -2789,8 +2649,6 @@ thunar_launcher_append_open_section (ThunarLauncher *launcher,
     g_list_free_full (applications, g_object_unref);
     return TRUE;
 }
-
-
 
 /**
  * thunar_launcher_get_widget:

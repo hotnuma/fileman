@@ -56,8 +56,6 @@
 #include <thunar-size-label.h>
 #include <thunar-util.h>
 
-
-
 /* Property identifiers */
 enum
 {
@@ -72,8 +70,6 @@ enum
     RELOAD,
     LAST_SIGNAL,
 };
-
-
 
 static void     thunar_properties_dialog_dispose              (GObject                     *object);
 static void     thunar_properties_dialog_finalize             (GObject                     *object);
@@ -144,11 +140,7 @@ struct _ThunarPropertiesDialog
     GtkWidget              *permissions_chooser;
 };
 
-
-
 G_DEFINE_TYPE (ThunarPropertiesDialog, thunar_properties_dialog, GTK_TYPE_DIALOG /*THUNAR_TYPE_ABSTRACT_DIALOG*/)
-
-
 
 static void
 thunar_properties_dialog_class_init (ThunarPropertiesDialogClass *klass)
@@ -215,8 +207,6 @@ thunar_properties_dialog_class_init (ThunarPropertiesDialogClass *klass)
     gtk_binding_entry_add_signal (binding_set, GDK_KEY_F5, 0, "reload", 0);
     gtk_binding_entry_add_signal (binding_set, GDK_KEY_r, GDK_CONTROL_MASK, "reload", 0);
 }
-
-
 
 static void
 thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
@@ -580,8 +570,6 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
     gtk_widget_show (label);
 }
 
-
-
 static void
 thunar_properties_dialog_dispose (GObject *object)
 {
@@ -592,8 +580,6 @@ thunar_properties_dialog_dispose (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_properties_dialog_parent_class)->dispose) (object);
 }
-
-
 
 static void
 thunar_properties_dialog_finalize (GObject *object)
@@ -614,8 +600,6 @@ thunar_properties_dialog_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_properties_dialog_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_properties_dialog_get_property (GObject    *object,
@@ -642,8 +626,6 @@ thunar_properties_dialog_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_properties_dialog_set_property (GObject      *object,
                                        guint         prop_id,
@@ -669,8 +651,6 @@ thunar_properties_dialog_set_property (GObject      *object,
     }
 }
 
-
-
 static void
 thunar_properties_dialog_response (GtkDialog *dialog,
                                    gint       response)
@@ -691,8 +671,6 @@ thunar_properties_dialog_response (GtkDialog *dialog,
     }
 }
 
-
-
 static gboolean
 thunar_properties_dialog_reload (ThunarPropertiesDialog *dialog)
 {
@@ -701,8 +679,6 @@ thunar_properties_dialog_reload (ThunarPropertiesDialog *dialog)
 
     return dialog->files != NULL;
 }
-
-
 
 static void
 thunar_properties_dialog_rename_error (ExoJob                 *job,
@@ -725,8 +701,6 @@ thunar_properties_dialog_rename_error (ExoJob                 *job,
                                thunar_file_get_display_name (THUNAR_FILE (dialog->files->data)));
 }
 
-
-
 static void
 thunar_properties_dialog_rename_finished (ExoJob                 *job,
         ThunarPropertiesDialog *dialog)
@@ -738,8 +712,6 @@ thunar_properties_dialog_rename_finished (ExoJob                 *job,
     g_signal_handlers_disconnect_matched (job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, dialog);
     g_object_unref (job);
 }
-
-
 
 static void
 thunar_properties_dialog_name_activate (GtkWidget              *entry,
@@ -773,8 +745,6 @@ thunar_properties_dialog_name_activate (GtkWidget              *entry,
     }
 }
 
-
-
 static gboolean
 thunar_properties_dialog_name_focus_out_event (GtkWidget              *entry,
         GdkEventFocus          *event,
@@ -784,8 +754,6 @@ thunar_properties_dialog_name_focus_out_event (GtkWidget              *entry,
     thunar_properties_dialog_name_activate (entry, dialog);
     return FALSE;
 }
-
-
 
 static void
 thunar_properties_dialog_icon_button_clicked (GtkWidget              *button,
@@ -845,8 +813,6 @@ thunar_properties_dialog_icon_button_clicked (GtkWidget              *button,
     gtk_widget_destroy (chooser);
 }
 
-
-
 static void
 thunar_properties_dialog_update_providers (ThunarPropertiesDialog *dialog)
 {
@@ -888,8 +854,6 @@ thunar_properties_dialog_update_providers (ThunarPropertiesDialog *dialog)
         gtk_widget_show (lp->data);
     }
 }
-
-
 
 static void
 thunar_properties_dialog_update_single (ThunarPropertiesDialog *dialog)
@@ -1147,8 +1111,6 @@ thunar_properties_dialog_update_single (ThunarPropertiesDialog *dialog)
     g_object_unref (G_OBJECT (icon_factory));
 }
 
-
-
 static void
 thunar_properties_dialog_update_multiple (ThunarPropertiesDialog *dialog)
 {
@@ -1316,8 +1278,6 @@ thunar_properties_dialog_update_multiple (ThunarPropertiesDialog *dialog)
     }
 }
 
-
-
 static void
 thunar_properties_dialog_update (ThunarPropertiesDialog *dialog)
 {
@@ -1342,8 +1302,6 @@ thunar_properties_dialog_update (ThunarPropertiesDialog *dialog)
     }
 }
 
-
-
 /**
  * thunar_properties_dialog_new:
  * @parent: transient window or NULL;
@@ -1364,8 +1322,6 @@ thunar_properties_dialog_new (GtkWindow *parent)
                          NULL);
 }
 
-
-
 /**
  * thunar_properties_dialog_get_files:
  * @dialog : a #ThunarPropertiesDialog.
@@ -1383,8 +1339,6 @@ thunar_properties_dialog_get_files (ThunarPropertiesDialog *dialog)
     _thunar_return_val_if_fail (THUNAR_IS_PROPERTIES_DIALOG (dialog), NULL);
     return dialog->files;
 }
-
-
 
 /**
  * thunar_properties_dialog_set_files:
@@ -1453,8 +1407,6 @@ thunar_properties_dialog_set_files (ThunarPropertiesDialog *dialog,
     /* tell everybody that we have a new file here */
     g_object_notify (G_OBJECT (dialog), "files");
 }
-
-
 
 /**
  * thunar_properties_dialog_set_file:

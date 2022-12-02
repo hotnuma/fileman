@@ -33,12 +33,8 @@
 #include <thunar-private.h>
 #include <thunar-transfer-job.h>
 
-
-
 /* seconds before we show the transfer rate + remaining time */
 #define MINIMUM_TRANSFER_TIME (10 * G_USEC_PER_SEC) /* 10 seconds */
-
-
 
 /* Property identifiers */
 enum
@@ -48,11 +44,7 @@ enum
     PROP_PARALLEL_COPY_MODE,
 };
 
-
-
 typedef struct _ThunarTransferNode ThunarTransferNode;
-
-
 
 static void     thunar_transfer_job_get_property (GObject    *object,
         guint       prop_id,
@@ -68,8 +60,6 @@ static void     thunar_transfer_job_finalize     (GObject                *object
 static gboolean thunar_transfer_job_execute      (ExoJob                 *job,
         GError                **error);
 static void     thunar_transfer_node_free        (gpointer                data);
-
-
 
 struct _ThunarTransferJobClass
 {
@@ -111,11 +101,7 @@ struct _ThunarTransferNode
     gboolean            rename_confirmed;
 };
 
-
-
 G_DEFINE_TYPE (ThunarTransferJob, thunar_transfer_job, THUNAR_TYPE_JOB)
-
-
 
 static void
 thunar_transfer_job_class_init (ThunarTransferJobClass *klass)
@@ -160,8 +146,6 @@ thunar_transfer_job_class_init (ThunarTransferJobClass *klass)
                                              EXO_PARAM_READWRITE));
 }
 
-
-
 static void
 thunar_transfer_job_init (ThunarTransferJob *job)
 {
@@ -187,8 +171,6 @@ thunar_transfer_job_init (ThunarTransferJob *job)
     job->start_time = 0;
 }
 
-
-
 static void
 thunar_transfer_job_finalize (GObject *object)
 {
@@ -207,8 +189,6 @@ thunar_transfer_job_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_transfer_job_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_transfer_job_get_property (GObject     *object,
@@ -232,8 +212,6 @@ thunar_transfer_job_get_property (GObject     *object,
     }
 }
 
-
-
 static void
 thunar_transfer_job_set_property (GObject      *object,
                                   guint         prop_id,
@@ -256,8 +234,6 @@ thunar_transfer_job_set_property (GObject      *object,
     }
 }
 
-
-
 static void
 thunar_transfer_job_check_pause (ThunarTransferJob *job)
 {
@@ -267,8 +243,6 @@ thunar_transfer_job_check_pause (ThunarTransferJob *job)
         g_usleep (500 * 1000); /* 500ms pause */
     }
 }
-
-
 
 static void
 thunar_transfer_job_progress (goffset  current_num_bytes,
@@ -322,8 +296,6 @@ thunar_transfer_job_progress (goffset  current_num_bytes,
         }
     }
 }
-
-
 
 static gboolean
 thunar_transfer_job_collect_node (ThunarTransferJob  *job,
@@ -397,8 +369,6 @@ thunar_transfer_job_collect_node (ThunarTransferJob  *job,
 
     return TRUE;
 }
-
-
 
 static gboolean
 ttj_copy_file (ThunarTransferJob *job,
@@ -521,8 +491,6 @@ ttj_copy_file (ThunarTransferJob *job,
         return TRUE;
     }
 }
-
-
 
 /**
  * thunar_transfer_job_copy_file:
@@ -671,8 +639,6 @@ thunar_transfer_job_copy_file (ThunarTransferJob *job,
     g_propagate_error (error, err);
     return NULL;
 }
-
-
 
 static void
 thunar_transfer_job_copy_node (ThunarTransferJob  *job,
@@ -825,8 +791,6 @@ retry_remove:
     if (G_UNLIKELY (err != NULL))
         g_propagate_error (error, err);
 }
-
-
 
 static gboolean
 thunar_transfer_job_verify_destination (ThunarTransferJob  *transfer_job,
@@ -1164,8 +1128,6 @@ thunar_transfer_job_filter_running_jobs (GList     *jobs,
     return run_jobs;
 }
 
-
-
 static gboolean
 thunar_transfer_job_device_id_in_job_list (const char *device_fs_id,
         GList      *jobs)
@@ -1308,8 +1270,6 @@ thunar_transfer_job_fill_target_device_info (ThunarTransferJob *transfer_job,
     transfer_job->is_target_device_local = thunar_transfer_job_is_file_on_local_device (file);
 }
 
-
-
 static void
 thunar_transfer_job_determine_copy_behavior (ThunarTransferJob *transfer_job,
         gboolean          *freeze_if_src_busy_p,
@@ -1371,8 +1331,6 @@ thunar_transfer_job_determine_copy_behavior (ThunarTransferJob *transfer_job,
         *should_freeze_on_any_other_job_p = TRUE;
     }
 }
-
-
 
 /**
  * thunar_transfer_job_freeze_optional:
@@ -1447,8 +1405,6 @@ thunar_transfer_job_freeze_optional (ThunarTransferJob *transfer_job)
     if (thunar_job_is_frozen (THUNAR_JOB (transfer_job)))
         thunar_job_unfreeze (THUNAR_JOB (transfer_job));
 }
-
-
 
 static gboolean
 thunar_transfer_job_execute (ExoJob  *job,
@@ -1568,8 +1524,6 @@ thunar_transfer_job_execute (ExoJob  *job,
     }
 }
 
-
-
 static void
 thunar_transfer_node_free (gpointer data)
 {
@@ -1595,8 +1549,6 @@ thunar_transfer_node_free (gpointer data)
         node = next;
     }
 }
-
-
 
 ThunarJob *
 thunar_transfer_job_new (GList                *source_node_list,
@@ -1644,8 +1596,6 @@ thunar_transfer_job_new (GList                *source_node_list,
 
     return THUNAR_JOB (job);
 }
-
-
 
 gchar *
 thunar_transfer_job_get_status (ThunarTransferJob *job)
