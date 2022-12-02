@@ -620,9 +620,6 @@ thunar_window_init (ThunarWindow *window)
     g_signal_connect_object (G_OBJECT (window->preferences), "notify::misc-change-window-icon",
                              G_CALLBACK (thunar_window_update_window_icon), window, G_CONNECT_SWAPPED);
 
-    /* synchronise the "directory-specific-settings" property with the global "misc-directory-specific-settings" property */
-    //exo_binding_new (G_OBJECT (window->preferences), "misc-directory-specific-settings", G_OBJECT (window), "directory-specific-settings");
-
     /* setup a new statusbar */
     window->statusbar = thunar_statusbar_new ();
     gtk_widget_set_hexpand (window->statusbar, TRUE);

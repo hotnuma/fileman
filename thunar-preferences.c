@@ -64,7 +64,6 @@ enum
     PROP_LAST_WINDOW_HEIGHT,
     PROP_LAST_WINDOW_WIDTH,
     PROP_LAST_WINDOW_FULLSCREEN,
-    PROP_MISC_DIRECTORY_SPECIFIC_SETTINGS,
     PROP_MISC_VOLUME_MANAGEMENT,
     PROP_MISC_CASE_SENSITIVE,
     PROP_MISC_DATE_STYLE,
@@ -244,18 +243,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
     preferences_props[PROP_LAST_SHOW_HIDDEN] =
         g_param_spec_boolean ("last-show-hidden",
                               "LastShowHidden",
-                              NULL,
-                              FALSE,
-                              EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:misc-directory-specific-settings:
-     *
-     * Whether to use directory specific settings.
-     **/
-    preferences_props[PROP_MISC_DIRECTORY_SPECIFIC_SETTINGS] =
-        g_param_spec_boolean ("misc-directory-specific-settings",
-                              "MiscDirectorySpecificSettings",
                               NULL,
                               FALSE,
                               EXO_PARAM_READWRITE);
