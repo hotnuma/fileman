@@ -24,6 +24,7 @@
 
 G_BEGIN_DECLS;
 
+
 #define THUNAR_TYPE_RENAMER_MODE (thunar_renamer_mode_get_type ())
 
 /**
@@ -39,10 +40,10 @@ typedef enum
     THUNAR_RENAMER_MODE_NAME,
     THUNAR_RENAMER_MODE_SUFFIX,
     THUNAR_RENAMER_MODE_BOTH,
+
 } ThunarRenamerMode;
 
 GType thunar_renamer_mode_get_type (void) G_GNUC_CONST;
-
 
 
 #define THUNAR_TYPE_DATE_STYLE (thunar_date_style_get_type ())
@@ -113,12 +114,14 @@ typedef enum
 
     /* number of visible columns */
     THUNAR_N_VISIBLE_COLUMNS = THUNAR_COLUMN_FILE,
+
 } ThunarColumn;
 
-GType        thunar_column_get_type          (void)                      G_GNUC_CONST;
-const gchar* thunar_column_string_from_value (ThunarColumn  value);
-gboolean     thunar_column_value_from_string (const gchar  *value_string,
-        gint         *value);
+
+GType thunar_column_get_type () G_GNUC_CONST;
+const gchar* thunar_column_string_from_value (ThunarColumn value);
+gboolean thunar_column_value_from_string (const gchar *value_string,
+                                          gint *value);
 
 
 #define THUNAR_TYPE_ICON_SIZE (thunar_icon_size_get_type ())
@@ -141,7 +144,7 @@ typedef enum
     THUNAR_ICON_SIZE_256  = 256,
 } ThunarIconSize;
 
-GType thunar_icon_size_get_type (void) G_GNUC_CONST;
+GType thunar_icon_size_get_type () G_GNUC_CONST;
 
 
 #define THUNAR_TYPE_THUMBNAIL_MODE (thunar_thumbnail_mode_get_type ())
@@ -156,10 +159,11 @@ typedef enum
 {
     THUNAR_THUMBNAIL_MODE_NEVER,
     THUNAR_THUMBNAIL_MODE_ONLY_LOCAL,
-    THUNAR_THUMBNAIL_MODE_ALWAYS
+    THUNAR_THUMBNAIL_MODE_ALWAYS,
+
 } ThunarThumbnailMode;
 
-GType thunar_thumbnail_mode_get_type (void) G_GNUC_CONST;
+GType thunar_thumbnail_mode_get_type () G_GNUC_CONST;
 
 
 #define THUNAR_TYPE_THUMBNAIL_SIZE (thunar_thumbnail_size_get_type ())
