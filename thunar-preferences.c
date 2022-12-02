@@ -65,7 +65,6 @@ enum
     PROP_LAST_WINDOW_WIDTH,
     PROP_LAST_WINDOW_FULLSCREEN,
     PROP_MISC_DIRECTORY_SPECIFIC_SETTINGS,
-    PROP_MISC_ALWAYS_SHOW_TABS,
     PROP_MISC_VOLUME_MANAGEMENT,
     PROP_MISC_CASE_SENSITIVE,
     PROP_MISC_DATE_STYLE,
@@ -347,18 +346,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
     preferences_props[PROP_LAST_WINDOW_FULLSCREEN] =
         g_param_spec_boolean ("last-window-maximized",
                               "LastWindowMaximized",
-                              NULL,
-                              FALSE,
-                              EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:misc-always-show-tabs:
-     *
-     * If the view tabs should always be visible.
-     **/
-    preferences_props[PROP_MISC_ALWAYS_SHOW_TABS] =
-        g_param_spec_boolean ("misc-always-show-tabs",
-                              NULL,
                               NULL,
                               FALSE,
                               EXO_PARAM_READWRITE);

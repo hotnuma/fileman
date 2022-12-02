@@ -569,6 +569,8 @@ thunar_window_init (ThunarWindow *window)
     gtk_notebook_set_group_name (GTK_NOTEBOOK (window->notebook), "thunar-tabs");
     gtk_widget_show (window->notebook);
 
+    //gtk_widget_set_can_focus(window->notebook, FALSE);
+
     /* allocate the new location bar widget */
     window->location_bar = thunar_location_bar_new ();
     g_object_bind_property (G_OBJECT (window), "current-directory", G_OBJECT (window->location_bar), "current-directory", G_BINDING_SYNC_CREATE);
@@ -1066,26 +1068,6 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
 }
 
 static void
-thunar_window_notebook_show_tabs (ThunarWindow *window)
-{
-    gint       n_pages;
-    gboolean   show_tabs = TRUE;
-
-    /* check if tabs should be visible */
-    n_pages = gtk_notebook_get_n_pages (GTK_NOTEBOOK (window->notebook));
-    if (n_pages < 2)
-    {
-        g_object_get (G_OBJECT (window->preferences),
-                      "misc-always-show-tabs", &show_tabs, NULL);
-    }
-
-//  DPRINT("enter : thunar_window_notebook_show_tabs\n");
-
-    /* update visibility */
-    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (window->notebook), show_tabs);
-}
-
-static void
 thunar_window_history_changed (ThunarWindow *window)
 {
     ThunarHistory *history;
@@ -1126,8 +1108,8 @@ thunar_window_notebook_page_added (GtkWidget    *notebook,
     g_signal_connect_swapped (G_OBJECT (page), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
 
     /* update tab visibility */
-    thunar_window_notebook_show_tabs (window);
-
+    //thunar_window_notebook_show_tabs (window);
+    gtk_notebook_set_show_tabs (GTK_NOTEBOOK (window->notebook), FALSE);
 }
 
 static void
@@ -1154,11 +1136,6 @@ thunar_window_notebook_page_removed (GtkWidget    *notebook,
     {
         /* destroy the window */
         gtk_widget_destroy (GTK_WIDGET (window));
-    }
-    else
-    {
-        /* update tab visibility */
-        thunar_window_notebook_show_tabs (window);
     }
 }
 
