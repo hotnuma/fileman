@@ -1629,18 +1629,16 @@ thunar_application_unlink_files (ThunarApplication *application,
     thunar_g_file_list_free (path_list);
 }
 
-static ThunarJob *
-trash_stub (GList *source_file_list,
-            GList *target_file_list)
+static ThunarJob* trash_stub (GList *source_file_list,
+                              GList *target_file_list)
 {
     UNUSED(target_file_list);
     return thunar_io_jobs_trash_files (source_file_list);
 }
 
-void
-thunar_application_trash (ThunarApplication *application,
-                          gpointer           parent,
-                          GList             *file_list)
+void thunar_application_trash (ThunarApplication *application,
+                               gpointer           parent,
+                               GList             *file_list)
 {
     _thunar_return_if_fail (parent == NULL || GDK_IS_SCREEN (parent) || GTK_IS_WIDGET (parent));
     _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
