@@ -456,15 +456,16 @@ thunar_window_class_init (ThunarWindowClass *klass)
 static void
 thunar_window_init (ThunarWindow *window)
 {
-    GType            type;
-    gint             last_separator_position;
-    gint             last_window_width;
-    gint             last_window_height;
-    gboolean         last_window_maximized;
-    gboolean         last_statusbar_visible;
+    GType           type;
+    gint            last_separator_position;
+    gint            last_window_width;
+    gint            last_window_height;
+    gboolean        last_window_maximized;
+    gboolean        last_statusbar_visible;
     GtkToolItem     *tool_item;
-    gboolean         small_icons;
+    gboolean        small_icons;
     GtkStyleContext *context;
+
 
     /* grab a reference on the provider factory and load the providers*/
     window->provider_factory = thunarx_provider_factory_get_default ();
@@ -539,6 +540,54 @@ thunar_window_init (ThunarWindow *window)
     gtk_container_add (GTK_CONTAINER (window), window->grid);
     gtk_widget_show (window->grid);
 
+
+    /* Toolbar */
+    window->toolbar = gtk_toolbar_new ();
+    gtk_toolbar_set_style (GTK_TOOLBAR (window->toolbar), GTK_TOOLBAR_ICONS);
+    gtk_toolbar_set_icon_size (GTK_TOOLBAR (window->toolbar),
+                               small_icons ? GTK_ICON_SIZE_SMALL_TOOLBAR : GTK_ICON_SIZE_LARGE_TOOLBAR);
+    gtk_widget_set_hexpand (window->toolbar, TRUE);
+    gtk_grid_attach (GTK_GRID (window->grid), window->toolbar, 0, 0, 1, 1);
+
+    /* allocate the new location bar widget */
+    window->location_bar = thunar_location_bar_new ();
+    g_object_bind_property (G_OBJECT (window), "current-directory", G_OBJECT (window->location_bar), "current-directory", G_BINDING_SYNC_CREATE);
+    g_signal_connect_swapped (G_OBJECT (window->location_bar), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
+    g_signal_connect_swapped (G_OBJECT (window->location_bar), "reload-requested", G_CALLBACK (thunar_window_handle_reload_request), window);
+    g_signal_connect_swapped (G_OBJECT (window->location_bar), "entry-done", G_CALLBACK (thunar_window_update_location_bar_visible), window);
+
+    window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_BACK), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
+    window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_FORWARD), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
+    window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_OPEN_PARENT), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
+    xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_OPEN_HOME), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
+
+    g_signal_connect (G_OBJECT (window->toolbar_item_back), "button-press-event", G_CALLBACK (thunar_window_history_clicked), G_OBJECT (window));
+    g_signal_connect (G_OBJECT (window->toolbar_item_forward), "button-press-event", G_CALLBACK (thunar_window_history_clicked), G_OBJECT (window));
+    g_signal_connect (G_OBJECT (window), "button-press-event", G_CALLBACK (thunar_window_button_press_event), G_OBJECT (window));
+    window->signal_handler_id_history_changed = 0;
+
+    /* The UCA shortcuts need to be checked 'by hand', since we dont want to permanently keep menu items for them */
+    g_signal_connect (window, "key-press-event", G_CALLBACK (thunar_window_check_uca_key_activation), NULL);
+
+    /* add the location bar to the toolbar */
+    tool_item = gtk_tool_item_new ();
+    gtk_tool_item_set_expand (tool_item, TRUE);
+    gtk_toolbar_insert (GTK_TOOLBAR (window->toolbar), tool_item, -1);
+    gtk_toolbar_set_show_arrow (GTK_TOOLBAR (window->toolbar), FALSE);
+
+    /* add the location bar itself */
+    gtk_container_add (GTK_CONTAINER (tool_item), window->location_bar);
+
+    /* display the toolbar */
+    gtk_widget_show_all (window->toolbar);
+
+    /* setup setting the location bar visibility on-demand */
+    g_signal_connect_object (G_OBJECT (window->preferences), "notify::last-location-bar", G_CALLBACK (thunar_window_update_location_bar_visible), window, G_CONNECT_SWAPPED);
+    thunar_window_update_location_bar_visible (window);
+
+
+
+
     window->paned = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
     gtk_container_set_border_width (GTK_CONTAINER (window->paned), 0);
     gtk_widget_set_hexpand (window->paned, TRUE);
@@ -570,50 +619,6 @@ thunar_window_init (ThunarWindow *window)
     gtk_widget_show (window->notebook);
 
     //gtk_widget_set_can_focus(window->notebook, FALSE);
-
-    /* allocate the new location bar widget */
-    window->location_bar = thunar_location_bar_new ();
-    g_object_bind_property (G_OBJECT (window), "current-directory", G_OBJECT (window->location_bar), "current-directory", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped (G_OBJECT (window->location_bar), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
-    g_signal_connect_swapped (G_OBJECT (window->location_bar), "reload-requested", G_CALLBACK (thunar_window_handle_reload_request), window);
-    g_signal_connect_swapped (G_OBJECT (window->location_bar), "entry-done", G_CALLBACK (thunar_window_update_location_bar_visible), window);
-
-    /* setup the toolbar for the location bar */
-    window->toolbar = gtk_toolbar_new ();
-    gtk_toolbar_set_style (GTK_TOOLBAR (window->toolbar), GTK_TOOLBAR_ICONS);
-    gtk_toolbar_set_icon_size (GTK_TOOLBAR (window->toolbar),
-                               small_icons ? GTK_ICON_SIZE_SMALL_TOOLBAR : GTK_ICON_SIZE_LARGE_TOOLBAR);
-    gtk_widget_set_hexpand (window->toolbar, TRUE);
-    gtk_grid_attach (GTK_GRID (window->grid), window->toolbar, 0, 0, 1, 1);
-
-    window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_BACK), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
-    window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_FORWARD), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
-    window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_OPEN_PARENT), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
-    xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_OPEN_HOME), G_OBJECT (window), GTK_TOOLBAR (window->toolbar));
-
-    g_signal_connect (G_OBJECT (window->toolbar_item_back), "button-press-event", G_CALLBACK (thunar_window_history_clicked), G_OBJECT (window));
-    g_signal_connect (G_OBJECT (window->toolbar_item_forward), "button-press-event", G_CALLBACK (thunar_window_history_clicked), G_OBJECT (window));
-    g_signal_connect (G_OBJECT (window), "button-press-event", G_CALLBACK (thunar_window_button_press_event), G_OBJECT (window));
-    window->signal_handler_id_history_changed = 0;
-
-    /* The UCA shortcuts need to be checked 'by hand', since we dont want to permanently keep menu items for them */
-    g_signal_connect (window, "key-press-event", G_CALLBACK (thunar_window_check_uca_key_activation), NULL);
-
-    /* add the location bar to the toolbar */
-    tool_item = gtk_tool_item_new ();
-    gtk_tool_item_set_expand (tool_item, TRUE);
-    gtk_toolbar_insert (GTK_TOOLBAR (window->toolbar), tool_item, -1);
-    gtk_toolbar_set_show_arrow (GTK_TOOLBAR (window->toolbar), FALSE);
-
-    /* add the location bar itself */
-    gtk_container_add (GTK_CONTAINER (tool_item), window->location_bar);
-
-    /* display the toolbar */
-    gtk_widget_show_all (window->toolbar);
-
-    /* setup setting the location bar visibility on-demand */
-    g_signal_connect_object (G_OBJECT (window->preferences), "notify::last-location-bar", G_CALLBACK (thunar_window_update_location_bar_visible), window, G_CONNECT_SWAPPED);
-    thunar_window_update_location_bar_visible (window);
 
     /* update window icon whenever preferences change */
     g_signal_connect_object (G_OBJECT (window->preferences), "notify::misc-change-window-icon", G_CALLBACK (thunar_window_update_window_icon), window, G_CONNECT_SWAPPED);
@@ -740,8 +745,11 @@ static gboolean thunar_window_delete (GtkWidget *widget,
                                       GdkEvent  *event,
                                       gpointer   data )
 {
+    UNUSED(widget);
     UNUSED(event);
     UNUSED(data);
+
+#if 0
     GtkNotebook *notebook;
     gboolean confirm_close_multiple_tabs, do_not_ask_again;
     gint response, n_tabs;
@@ -775,6 +783,9 @@ static gboolean thunar_window_delete (GtkWidget *widget,
     if(response == GTK_RESPONSE_CLOSE)
         gtk_notebook_remove_page (notebook,  gtk_notebook_get_current_page(notebook));
     return TRUE;
+#endif
+
+    return FALSE;
 }
 
 static void
