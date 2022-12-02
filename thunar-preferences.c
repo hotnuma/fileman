@@ -398,7 +398,7 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                            "MiscDateStyle",
                            NULL,
                            THUNAR_TYPE_DATE_STYLE,
-                           THUNAR_DATE_STYLE_SIMPLE,
+                           THUNAR_DATE_STYLE_YYYYMMDD,
                            EXO_PARAM_READWRITE);
 
     /**

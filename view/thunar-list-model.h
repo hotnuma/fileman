@@ -33,37 +33,39 @@ typedef struct _ThunarListModel      ThunarListModel;
 #define THUNAR_IS_LIST_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_LIST_MODEL))
 #define THUNAR_LIST_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_LIST_MODEL, ThunarListModelClass))
 
-GType            thunar_list_model_get_type               (void) G_GNUC_CONST;
+GType thunar_list_model_get_type () G_GNUC_CONST;
 
-ThunarListModel *thunar_list_model_new                    (void);
+ThunarListModel* thunar_list_model_new ();
 
-ThunarFolder    *thunar_list_model_get_folder             (ThunarListModel  *store);
-void             thunar_list_model_set_folder             (ThunarListModel  *store,
-        ThunarFolder     *folder);
+ThunarFolder* thunar_list_model_get_folder (ThunarListModel *store);
+void thunar_list_model_set_folder (ThunarListModel *store,
+                                   ThunarFolder *folder);
 
-void             thunar_list_model_set_folders_first      (ThunarListModel  *store,
-        gboolean          folders_first);
+void thunar_list_model_set_folders_first (ThunarListModel *store,
+                                          gboolean folders_first);
 
-gboolean         thunar_list_model_get_show_hidden        (ThunarListModel  *store);
-void             thunar_list_model_set_show_hidden        (ThunarListModel  *store,
-        gboolean          show_hidden);
+gboolean thunar_list_model_get_show_hidden (ThunarListModel *store);
+void thunar_list_model_set_show_hidden (ThunarListModel *store,
+                                        gboolean show_hidden);
 
-gboolean         thunar_list_model_get_file_size_binary   (ThunarListModel  *store);
-void             thunar_list_model_set_file_size_binary   (ThunarListModel  *store,
-        gboolean          file_size_binary);
+gboolean thunar_list_model_get_file_size_binary (ThunarListModel *store);
+void thunar_list_model_set_file_size_binary (ThunarListModel *store,
+                                             gboolean file_size_binary);
 
-ThunarFile      *thunar_list_model_get_file               (ThunarListModel  *store,
-        GtkTreeIter      *iter);
+ThunarFile* thunar_list_model_get_file (ThunarListModel *store,
+                                        GtkTreeIter *iter);
 
 
-GList           *thunar_list_model_get_paths_for_files    (ThunarListModel  *store,
-        GList            *files);
-GList           *thunar_list_model_get_paths_for_pattern  (ThunarListModel  *store,
-        const gchar      *pattern);
+GList* thunar_list_model_get_paths_for_files (ThunarListModel *store,
+                                              GList *files);
+GList* thunar_list_model_get_paths_for_pattern (ThunarListModel *store,
+                                                const gchar *pattern);
 
-gchar           *thunar_list_model_get_statusbar_text     (ThunarListModel  *store,
-        GList            *selected_items);
+gchar* thunar_list_model_get_statusbar_text (ThunarListModel *store,
+                                             GList *selected_items);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_LIST_MODEL_H__ */
+
+

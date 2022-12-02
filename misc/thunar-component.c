@@ -25,11 +25,7 @@
 #include <thunar-component.h>
 #include <thunar-private.h>
 
-
-
 static void thunar_component_class_init (gpointer klass);
-
-
 
 GType
 thunar_component_get_type (void)
@@ -37,7 +33,7 @@ thunar_component_get_type (void)
     static volatile gsize type__volatile = 0;
     GType                 type;
 
-    if (g_once_init_enter (&type__volatile))
+    if (g_once_init_enter ((gsize*) &type__volatile))
     {
         type = g_type_register_static_simple (G_TYPE_INTERFACE,
                                               I_("ThunarComponent"),
@@ -54,8 +50,6 @@ thunar_component_get_type (void)
 
     return type__volatile;
 }
-
-
 
 static void
 thunar_component_class_init (gpointer klass)
@@ -86,8 +80,6 @@ thunar_component_class_init (gpointer klass)
                                                  EXO_PARAM_READWRITE));
 }
 
-
-
 /**
  * thunar_component_get_selected_files:
  * @component : a #ThunarComponent instance.
@@ -103,8 +95,6 @@ thunar_component_get_selected_files (ThunarComponent *component)
     _thunar_return_val_if_fail (THUNAR_IS_COMPONENT (component), NULL);
     return (*THUNAR_COMPONENT_GET_IFACE (component)->get_selected_files) (component);
 }
-
-
 
 /**
  * thunar_component_set_selected_files:
@@ -122,8 +112,6 @@ thunar_component_set_selected_files (ThunarComponent *component,
     _thunar_return_if_fail (THUNAR_IS_COMPONENT (component));
     (*THUNAR_COMPONENT_GET_IFACE (component)->set_selected_files) (component, selected_files);
 }
-
-
 
 /**
  * thunar_component_restore_selection:
@@ -143,3 +131,5 @@ thunar_component_restore_selection (ThunarComponent *component)
     thunar_component_set_selected_files (component, selected_files);
     thunar_g_file_list_free (selected_files);
 }
+
+

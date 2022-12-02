@@ -1214,10 +1214,13 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
     folder = thunar_folder_get_for_file (current_directory);
 
     /* connect the "loading" binding */
-    standard_view->loading_binding = exo_binding_new_full (G_OBJECT (folder), "loading",
-                                     G_OBJECT (standard_view), "loading",
-                                     NULL, thunar_standard_view_loading_unbound,
-                                     standard_view);
+    standard_view->loading_binding = exo_binding_new_full (G_OBJECT (folder),
+                                                           "loading",
+                                                           G_OBJECT (standard_view),
+                                                           "loading",
+                                                           NULL,
+                                                           thunar_standard_view_loading_unbound,
+                                                           standard_view);
 
     /* apply the new folder */
     thunar_list_model_set_folder (standard_view->model, folder);

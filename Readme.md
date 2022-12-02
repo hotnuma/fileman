@@ -11,6 +11,12 @@ menus:
 thunar_tree_view_context_menu
 thunar_standard_view_context_menu
 
+read folder content:
+
+    thunar_folder_reload
+        folder->job = thunar_io_jobs_list_directory (thunar_file_get_file (folder->corresponding_file));
+        
+
 #### Widget focus
 
 * search

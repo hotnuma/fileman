@@ -1039,3 +1039,5 @@ thunar_folder_reload (ThunarFolder *folder,
     /* tell all consumers that we're loading */
     g_object_notify (G_OBJECT (folder), "loading");
 }
+
+
