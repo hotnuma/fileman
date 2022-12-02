@@ -292,7 +292,7 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
         g_param_spec_string ("last-view",
                              "LastView",
                              NULL,
-                             "ThunarIconView",
+                             "ThunarDetailsView",
                              EXO_PARAM_READWRITE);
 
     /**
@@ -658,7 +658,7 @@ thunar_preferences_init (ThunarPreferences *preferences)
     {
         /* set the string we check */
         if (!xfconf_channel_has_property (preferences->channel, check_prop))
-            xfconf_channel_set_string (preferences->channel, check_prop, "ThunarIconView");
+            xfconf_channel_set_string (preferences->channel, check_prop, "ThunarDetailsView");
     }
 
     preferences->property_changed_id =

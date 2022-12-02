@@ -760,6 +760,9 @@ thunar_details_view_row_activated (GtkTreeView       *tree_view,
     window = gtk_widget_get_toplevel (GTK_WIDGET (details_view));
     launcher = thunar_window_get_launcher (THUNAR_WINDOW (window));
     thunar_launcher_activate_selected_files (launcher, THUNAR_LAUNCHER_CHANGE_DIRECTORY, NULL);
+
+    // FOCUS
+    gtk_widget_grab_focus(GTK_WIDGET(tree_view));
 }
 
 static gboolean
