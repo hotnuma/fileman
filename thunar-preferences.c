@@ -73,7 +73,6 @@ enum
     PROP_MISC_FULL_PATH_IN_TITLE,
     PROP_MISC_HORIZONTAL_WHEEL_NAVIGATES,
     PROP_MISC_IMAGE_SIZE_IN_STATUSBAR,
-    PROP_MISC_MIDDLE_CLICK_IN_TAB,
     PROP_MISC_RECURSIVE_PERMISSIONS,
     PROP_MISC_REMEMBER_GEOMETRY,
     PROP_MISC_SHOW_ABOUT_TEMPLATES,
@@ -81,7 +80,6 @@ enum
     PROP_MISC_SINGLE_CLICK,
     PROP_MISC_SINGLE_CLICK_TIMEOUT,
     PROP_MISC_SMALL_TOOLBAR_ICONS,
-    PROP_MISC_TAB_CLOSE_MIDDLE_CLICK,
     PROP_MISC_TEXT_BESIDE_ICONS,
     PROP_MISC_THUMBNAIL_MODE,
     PROP_MISC_FILE_SIZE_BINARY,
@@ -455,18 +453,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                               EXO_PARAM_READWRITE);
 
     /**
-     * ThunarPreferences:misc-middle-click-in-tab:
-     *
-     * If middle click opens a folder in a new window (FALSE) or in a new window (TRUE);
-     **/
-    preferences_props[PROP_MISC_MIDDLE_CLICK_IN_TAB] =
-        g_param_spec_boolean ("misc-middle-click-in-tab",
-                              NULL,
-                              NULL,
-                              FALSE,
-                              EXO_PARAM_READWRITE);
-
-    /**
      * ThunarPreferences:misc-recursive-permissions:
      *
      * Whether to apply permissions recursively every time the
@@ -559,19 +545,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                               NULL,
                               NULL,
                               FALSE,
-                              EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:misc-tab-close-middle-click:
-     *
-     * Whether to close tabs when the tab label is clicked with the 2nd
-     * mouse button.
-     **/
-    preferences_props[PROP_MISC_TAB_CLOSE_MIDDLE_CLICK] =
-        g_param_spec_boolean ("misc-tab-close-middle-click",
-                              NULL,
-                              NULL,
-                              TRUE,
                               EXO_PARAM_READWRITE);
 
     /**
