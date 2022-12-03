@@ -2951,8 +2951,7 @@ thunar_standard_view_size_allocate (ThunarStandardView *standard_view,
  * requests to open a context menu, e.g. by right-clicking on a file/folder or by
  * using one of the context menu shortcuts.
  **/
-void
-thunar_standard_view_context_menu (ThunarStandardView *standard_view)
+void thunar_standard_view_context_menu (ThunarStandardView *standard_view)
 {
     GtkWidget  *window;
     ThunarMenu *context_menu;
@@ -2971,7 +2970,8 @@ thunar_standard_view_context_menu (ThunarStandardView *standard_view)
                                  "launcher", thunar_window_get_launcher (THUNAR_WINDOW (window)), NULL);
     if (selected_items != NULL)
     {
-        thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_OPEN
+        thunar_menu_add_sections (context_menu,
+                                  THUNAR_MENU_SECTION_OPEN
                                   | THUNAR_MENU_SECTION_SENDTO
                                   | THUNAR_MENU_SECTION_CUT
                                   | THUNAR_MENU_SECTION_COPY_PASTE
@@ -2984,7 +2984,8 @@ thunar_standard_view_context_menu (ThunarStandardView *standard_view)
     }
     else /* right click on some empty space */
     {
-        thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_CREATE_NEW_FILES
+        thunar_menu_add_sections (context_menu,
+                                  THUNAR_MENU_SECTION_CREATE_NEW_FILES
                                   | THUNAR_MENU_SECTION_COPY_PASTE
                                   | THUNAR_MENU_SECTION_EMPTY_TRASH
                                   | THUNAR_MENU_SECTION_CUSTOM_ACTIONS);
@@ -3005,7 +3006,9 @@ thunar_standard_view_context_menu (ThunarStandardView *standard_view)
         standard_view->priv->drag_timer_event = NULL;
     }
     else
+    {
         thunar_gtk_menu_run (GTK_MENU (context_menu));
+    }
 
     g_list_free_full (selected_items, (GDestroyNotify) gtk_tree_path_free);
 
@@ -3029,13 +3032,12 @@ thunar_standard_view_context_menu (ThunarStandardView *standard_view)
  * drag (with #GDK_ACTION_ASK) will be started
  * instead.
  **/
-void
-thunar_standard_view_queue_popup (ThunarStandardView *standard_view,
-                                  GdkEventButton     *event)
+void thunar_standard_view_queue_popup (ThunarStandardView *standard_view,
+                                       GdkEventButton     *event)
 {
     GtkSettings *settings;
     GtkWidget   *view;
-    gint         delay;
+    gint        delay;
 
     _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
     _thunar_return_if_fail (event != NULL);
@@ -3062,8 +3064,10 @@ thunar_standard_view_queue_popup (ThunarStandardView *standard_view,
         standard_view->priv->drag_timer_event = gtk_get_current_event ();
 
         /* register the motion notify and the button release events on the real view */
-        g_signal_connect (G_OBJECT (view), "button-release-event", G_CALLBACK (thunar_standard_view_button_release_event), standard_view);
-        g_signal_connect (G_OBJECT (view), "motion-notify-event", G_CALLBACK (thunar_standard_view_motion_notify_event), standard_view);
+        g_signal_connect (G_OBJECT (view), "button-release-event",
+                          G_CALLBACK (thunar_standard_view_button_release_event), standard_view);
+        g_signal_connect (G_OBJECT (view), "motion-notify-event",
+                          G_CALLBACK (thunar_standard_view_motion_notify_event), standard_view);
     }
 }
 
@@ -3077,8 +3081,7 @@ thunar_standard_view_queue_popup (ThunarStandardView *standard_view,
  * Note, that this is also called internally whenever the number of
  * files in the @standard_view<!---->s model changes.
  **/
-void
-thunar_standard_view_selection_changed (ThunarStandardView *standard_view)
+void thunar_standard_view_selection_changed (ThunarStandardView *standard_view)
 {
     GtkTreeIter iter;
     GList      *lp, *selected_files;
@@ -3150,8 +3153,7 @@ thunar_standard_view_set_history (ThunarStandardView *standard_view,
  *
  * Return value: (transfer none): The #ThunarHistory of this #ThunarStandardView
  **/
-ThunarHistory*
-thunar_standard_view_get_history (ThunarStandardView *standard_view)
+ThunarHistory* thunar_standard_view_get_history (ThunarStandardView *standard_view)
 {
     return standard_view->priv->history;
 }

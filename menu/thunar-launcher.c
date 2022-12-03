@@ -96,59 +96,59 @@ static void thunar_launcher_navigator_init (ThunarNavigatorIface *iface);
 static void thunar_launcher_dispose (GObject *object);
 static void thunar_launcher_finalize (GObject *object);
 static void thunar_launcher_get_property (GObject *object,
-                                         guint prop_id,
-                                         GValue *value,
-                                         GParamSpec *pspec);
+                                          guint prop_id,
+                                          GValue *value,
+                                          GParamSpec *pspec);
 static void thunar_launcher_set_property (GObject *object,
-                                         guint prop_id,
-                                         const GValue *value,
-                                         GParamSpec *pspec);
+                                          guint prop_id,
+                                          const GValue *value,
+                                          GParamSpec *pspec);
 static ThunarFile *thunar_launcher_get_current_directory (ThunarNavigator *navigator);
 static void thunar_launcher_set_current_directory (ThunarNavigator *navigator,
-                                                     ThunarFile *current_directory);
+                                                   ThunarFile *current_directory);
 static void thunar_launcher_set_selected_files (ThunarComponent *component,
-                                                 GList *selected_files);
+                                                GList *selected_files);
 static void thunar_launcher_execute_files (ThunarLauncher *launcher,
-                                                 GList *files);
+                                           GList *files);
 static void thunar_launcher_open_file (ThunarLauncher *launcher,
-                                         ThunarFile *file,
-                                         GAppInfo *application_to_use);
+                                       ThunarFile *file,
+                                       GAppInfo *application_to_use);
 static void thunar_launcher_open_files (ThunarLauncher *launcher,
-                                         GList *files,
-                                         GAppInfo *application_to_use);
+                                        GList *files,
+                                        GAppInfo *application_to_use);
 static void thunar_launcher_open_paths (GAppInfo *app_info,
-                                         GList *file_list,
-                                         ThunarLauncher *launcher);
+                                        GList *file_list,
+                                        ThunarLauncher *launcher);
 static void thunar_launcher_open_windows (ThunarLauncher *launcher,
-                                         GList *directories);
+                                          GList *directories);
 static void thunar_launcher_poke (ThunarLauncher *launcher,
-                                     GAppInfo *application_to_use,
-                                     ThunarLauncherFolderOpenAction folder_open_action);
+                                  GAppInfo *application_to_use,
+                                  ThunarLauncherFolderOpenAction folder_open_action);
 static void thunar_launcher_poke_device_finish (ThunarBrowser *browser,
-                                                 ThunarDevice *volume,
-                                                 ThunarFile *mount_point,
-                                                 GError *error,
-                                                 gpointer user_data,
-                                                 gboolean cancelled);
+                                                ThunarDevice *volume,
+                                                ThunarFile *mount_point,
+                                                GError *error,
+                                                gpointer user_data,
+                                                gboolean cancelled);
 static void thunar_launcher_poke_files_finish (ThunarBrowser *browser,
-                                             ThunarFile *file,
-                                             ThunarFile *target_file,
-                                             GError *error,
-                                             gpointer user_data);
+                                               ThunarFile *file,
+                                               ThunarFile *target_file,
+                                               GError *error,
+                                               gpointer user_data);
 static ThunarLauncherPokeData*
 thunar_launcher_poke_data_new (GList *files_to_poke,
-                             GAppInfo *application_to_use,
-                             ThunarLauncherFolderOpenAction folder_open_action);
+                               GAppInfo *application_to_use,
+                               ThunarLauncherFolderOpenAction folder_open_action);
 static void thunar_launcher_poke_data_free (ThunarLauncherPokeData *data);
 static void thunar_launcher_widget_destroyed (ThunarLauncher *launcher,
-                                             GtkWidget *widget);
+                                              GtkWidget *widget);
 static void thunar_launcher_action_open (ThunarLauncher *launcher);
 static void thunar_launcher_action_open_in_new_windows (ThunarLauncher *launcher);
 static void thunar_launcher_action_open_with_other (ThunarLauncher *launcher);
 static void thunar_launcher_action_sendto_desktop (ThunarLauncher *launcher);
 static void thunar_launcher_action_properties (ThunarLauncher *launcher);
 static void thunar_launcher_action_sendto_device (ThunarLauncher *launcher,
-                                                     GObject *object);
+                                                  GObject *object);
 static void thunar_launcher_action_make_link (ThunarLauncher *launcher);
 static void thunar_launcher_action_duplicate (ThunarLauncher *launcher);
 static void thunar_launcher_action_rename (ThunarLauncher *launcher);
@@ -162,7 +162,7 @@ static void thunar_launcher_action_copy (ThunarLauncher *launcher);
 static void thunar_launcher_action_paste (ThunarLauncher *launcher);
 static void thunar_launcher_action_paste_into_folder (ThunarLauncher *launcher);
 static void thunar_launcher_sendto_device (ThunarLauncher *launcher,
-                                             ThunarDevice *device);
+                                           ThunarDevice *device);
 static void thunar_launcher_sendto_mount_finish (ThunarDevice *device,
                                                  const GError *error,
                                                  gpointer user_data);
@@ -171,7 +171,7 @@ static void thunar_launcher_menu_item_activated (ThunarLauncher *launcher,
                                                  GtkWidget *menu_item);
 static void thunar_launcher_action_create_folder (ThunarLauncher *launcher);
 static void thunar_launcher_action_create_document (ThunarLauncher *launcher,
-                                                     GtkWidget *menu_item);
+                                                    GtkWidget *menu_item);
 static GtkWidget *thunar_launcher_create_document_submenu_new(ThunarLauncher *launcher);
 
 struct _ThunarLauncherClass
@@ -183,27 +183,27 @@ struct _ThunarLauncher
 {
     GObject __parent__;
 
-    ThunarFile             *current_directory;
-    GList                  *files_to_process;
-    ThunarDevice           *device_to_process;
+    ThunarFile      *current_directory;
+    GList           *files_to_process;
+    ThunarDevice    *device_to_process;
 
-    gint                    n_files_to_process;
-    gint                    n_directories_to_process;
-    gint                    n_executables_to_process;
-    gint                    n_regulars_to_process;
-    gboolean                files_to_process_trashable;
-    gboolean                files_are_selected;
-    gboolean                single_directory_to_process;
+    gint            n_files_to_process;
+    gint            n_directories_to_process;
+    gint            n_executables_to_process;
+    gint            n_regulars_to_process;
+    gboolean        files_to_process_trashable;
+    gboolean        files_are_selected;
+    gboolean        single_directory_to_process;
 
-    ThunarFile             *single_folder;
-    ThunarFile             *parent_folder;
+    ThunarFile      *single_folder;
+    ThunarFile      *parent_folder;
 
-    GClosure               *select_files_closure;
+    GClosure        *select_files_closure;
 
-    ThunarPreferences      *preferences;
+    ThunarPreferences *preferences;
 
     /* Parent widget which holds the instance of the launcher */
-    GtkWidget              *widget;
+    GtkWidget       *widget;
 };
 
 static GQuark thunar_launcher_appinfo_quark;
@@ -710,6 +710,7 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
     /* disconnect from the previous files to process */
     if (launcher->files_to_process != NULL)
         thunar_g_file_list_free (launcher->files_to_process);
+
     launcher->files_to_process = NULL;
 
     /* notify listeners */
@@ -718,9 +719,10 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
     /* unref previous parent, if any */
     if (launcher->parent_folder != NULL)
         g_object_unref (launcher->parent_folder);
-    launcher->parent_folder = NULL;
 
+    launcher->parent_folder = NULL;
     launcher->files_are_selected = TRUE;
+
     if (selected_files == NULL || g_list_length (selected_files) == 0)
         launcher->files_are_selected = FALSE;
 
@@ -2192,19 +2194,23 @@ thunar_launcher_action_restore (ThunarLauncher *launcher)
     g_object_unref (G_OBJECT (application));
 }
 
-
-static void
-thunar_launcher_action_move_to_trash (ThunarLauncher *launcher)
+static void thunar_launcher_action_move_to_trash (ThunarLauncher *launcher)
 {
     ThunarApplication *application;
 
     _thunar_return_if_fail (THUNAR_IS_LAUNCHER (launcher));
 
-    if (launcher->parent_folder == NULL || launcher->files_are_selected == FALSE)
+    if (launcher->parent_folder == NULL
+        || launcher->files_are_selected == FALSE)
         return;
 
     application = thunar_application_get ();
-    thunar_application_unlink_files (application, launcher->widget, launcher->files_to_process, FALSE);
+
+    thunar_application_unlink_files (application,
+                                     launcher->widget,
+                                     launcher->files_to_process,
+                                     FALSE);
+
     g_object_unref (G_OBJECT (application));
 }
 
@@ -2879,3 +2885,5 @@ thunar_launcher_get_widget (ThunarLauncher *launcher)
     _thunar_return_val_if_fail (THUNAR_IS_LAUNCHER (launcher), NULL);
     return launcher->widget;
 }
+
+
