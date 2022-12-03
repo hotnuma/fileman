@@ -67,96 +67,96 @@ enum
     TARGET_TEXT_URI_LIST,
 };
 
-static void                     thunar_tree_view_navigator_init               (ThunarNavigatorIface    *iface);
-static void                     thunar_tree_view_finalize                     (GObject                 *object);
-static void                     thunar_tree_view_get_property                 (GObject                 *object,
-        guint                    prop_id,
-        GValue                  *value,
-        GParamSpec              *pspec);
-static void                     thunar_tree_view_set_property                 (GObject                 *object,
-        guint                    prop_id,
-        const GValue            *value,
-        GParamSpec              *pspec);
-static ThunarFile              *thunar_tree_view_get_current_directory        (ThunarNavigator         *navigator);
-static void                     thunar_tree_view_set_current_directory        (ThunarNavigator         *navigator,
-        ThunarFile              *current_directory);
-static void                     thunar_tree_view_realize                      (GtkWidget               *widget);
-static void                     thunar_tree_view_unrealize                    (GtkWidget               *widget);
-static gboolean                 thunar_tree_view_button_press_event           (GtkWidget               *widget,
-        GdkEventButton          *event);
-static gboolean                 thunar_tree_view_button_release_event         (GtkWidget               *widget,
-        GdkEventButton          *event);
-static gboolean                 thunar_tree_view_key_press_event              (GtkWidget               *widget,
-        GdkEventKey             *event);
-static void                     thunar_tree_view_drag_data_received           (GtkWidget               *widget,
-        GdkDragContext          *context,
-        gint                     x,
-        gint                     y,
-        GtkSelectionData        *selection_data,
-        guint                    info,
-        guint                    time);
-static gboolean                 thunar_tree_view_drag_drop                    (GtkWidget               *widget,
-        GdkDragContext          *context,
-        gint                     x,
-        gint                     y,
-        guint                    time);
-static gboolean                 thunar_tree_view_drag_motion                  (GtkWidget               *widget,
-        GdkDragContext          *context,
-        gint                     x,
-        gint                     y,
-        guint                    time);
-static void                     thunar_tree_view_drag_leave                   (GtkWidget               *widget,
-        GdkDragContext          *context,
-        guint                    time);
-static gboolean                 thunar_tree_view_popup_menu                   (GtkWidget               *widget);
-static void                     thunar_tree_view_row_activated                (GtkTreeView             *tree_view,
-        GtkTreePath             *path,
-        GtkTreeViewColumn       *column);
-static gboolean                 thunar_tree_view_test_expand_row              (GtkTreeView             *tree_view,
-        GtkTreeIter             *iter,
-        GtkTreePath             *path);
-static void                     thunar_tree_view_row_collapsed                (GtkTreeView             *tree_view,
-        GtkTreeIter             *iter,
-        GtkTreePath             *path);
-static gboolean                 thunar_tree_view_delete_selected_files        (ThunarTreeView          *view);
-static void                     thunar_tree_view_context_menu                 (ThunarTreeView          *view,
-        GtkTreeModel            *model,
-        GtkTreeIter             *iter);
-static GdkDragAction            thunar_tree_view_get_dest_actions             (ThunarTreeView          *view,
-        GdkDragContext          *context,
-        gint                     x,
-        gint                     y,
-        guint                    time,
-        ThunarFile             **file_return);
-static ThunarFile              *thunar_tree_view_get_selected_file            (ThunarTreeView          *view);
-static ThunarDevice            *thunar_tree_view_get_selected_device          (ThunarTreeView          *view);
-static void                     thunar_tree_view_action_unlink_selected_folder(ThunarTreeView          *view,
-        gboolean                 permanently);
-static void                     thunar_tree_view_action_move_to_trash         (ThunarTreeView          *view);
-static void                     thunar_tree_view_action_delete                (ThunarTreeView          *view);
-static void                     thunar_tree_view_action_open                  (ThunarTreeView          *view);
-static void                     thunar_tree_view_open_selection               (ThunarTreeView          *view);
-static void                     thunar_tree_view_select_files                 (ThunarTreeView          *view,
-        GList                   *files_to_selected);
-static gboolean                 thunar_tree_view_visible_func                 (ThunarTreeModel         *model,
-        ThunarFile              *file,
-        gpointer                 user_data);
-static gboolean                 thunar_tree_view_selection_func               (GtkTreeSelection        *selection,
-        GtkTreeModel            *model,
-        GtkTreePath             *path,
-        gboolean                 path_currently_selected,
-        gpointer                 user_data);
-static gboolean                 thunar_tree_view_cursor_idle                  (gpointer                 user_data);
-static void                     thunar_tree_view_cursor_idle_destroy          (gpointer                 user_data);
-static gboolean                 thunar_tree_view_drag_scroll_timer            (gpointer                 user_data);
-static void                     thunar_tree_view_drag_scroll_timer_destroy    (gpointer                 user_data);
-static gboolean                 thunar_tree_view_expand_timer                 (gpointer                 user_data);
-static void                     thunar_tree_view_expand_timer_destroy         (gpointer                 user_data);
-static gboolean                 thunar_tree_view_get_show_hidden              (ThunarTreeView          *view);
-static void                     thunar_tree_view_set_show_hidden              (ThunarTreeView          *view,
-        gboolean                 show_hidden);
-static GtkTreePath             *thunar_tree_view_get_preferred_toplevel_path  (ThunarTreeView          *view,
-        ThunarFile              *file);
+static void thunar_tree_view_navigator_init (ThunarNavigatorIface *iface);
+static void thunar_tree_view_finalize (GObject *object);
+static void thunar_tree_view_get_property (GObject *object,
+                                           guint prop_id,
+                                           GValue *value,
+                                           GParamSpec *pspec);
+static void thunar_tree_view_set_property (GObject *object,
+                                           guint prop_id,
+                                           const GValue *value,
+                                           GParamSpec *pspec);
+static ThunarFile *thunar_tree_view_get_current_directory (ThunarNavigator *navigator);
+static void thunar_tree_view_set_current_directory (ThunarNavigator *navigator,
+                                                    ThunarFile *current_directory);
+static void thunar_tree_view_realize (GtkWidget *widget);
+static void thunar_tree_view_unrealize (GtkWidget *widget);
+static gboolean thunar_tree_view_button_press_event (GtkWidget *widget,
+                                                     GdkEventButton *event);
+static gboolean thunar_tree_view_button_release_event (GtkWidget *widget,
+                                                       GdkEventButton *event);
+static gboolean thunar_tree_view_key_press_event (GtkWidget *widget,
+                                                  GdkEventKey *event);
+static void thunar_tree_view_drag_data_received (GtkWidget *widget,
+                                                 GdkDragContext *context,
+                                                 gint x,
+                                                 gint y,
+                                                 GtkSelectionData *selection_data,
+                                                 guint info,
+                                                 guint time);
+static gboolean thunar_tree_view_drag_drop (GtkWidget *widget,
+                                            GdkDragContext *context,
+                                            gint x,
+                                            gint y,
+                                            guint time);
+static gboolean thunar_tree_view_drag_motion (GtkWidget *widget,
+                                              GdkDragContext *context,
+                                              gint x,
+                                              gint y,
+                                              guint time);
+static void thunar_tree_view_drag_leave (GtkWidget *widget,
+                                         GdkDragContext *context,
+                                         guint time);
+static gboolean thunar_tree_view_popup_menu (GtkWidget *widget);
+static void thunar_tree_view_row_activated (GtkTreeView *tree_view,
+                                            GtkTreePath *path,
+                                            GtkTreeViewColumn *column);
+static gboolean thunar_tree_view_test_expand_row (GtkTreeView *tree_view,
+                                                  GtkTreeIter *iter,
+                                                  GtkTreePath *path);
+static void thunar_tree_view_row_collapsed (GtkTreeView *tree_view,
+                                            GtkTreeIter *iter,
+                                            GtkTreePath *path);
+static gboolean thunar_tree_view_delete_selected_files (ThunarTreeView *view);
+static void thunar_tree_view_context_menu (ThunarTreeView *view,
+                                           GtkTreeModel *model,
+                                           GtkTreeIter *iter);
+static GdkDragAction thunar_tree_view_get_dest_actions (ThunarTreeView *view,
+                                                        GdkDragContext *context,
+                                                        gint x,
+                                                        gint y,
+                                                        guint time,
+                                                        ThunarFile **file_return);
+static ThunarFile *thunar_tree_view_get_selected_file (ThunarTreeView *view);
+static ThunarDevice *thunar_tree_view_get_selected_device (ThunarTreeView *view);
+static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
+                                                           gboolean permanently);
+static void thunar_tree_view_action_move_to_trash (ThunarTreeView *view);
+static void thunar_tree_view_action_delete (ThunarTreeView *view);
+static void thunar_tree_view_action_open (ThunarTreeView *view);
+static void thunar_tree_view_open_selection (ThunarTreeView *view);
+static void thunar_tree_view_select_files (ThunarTreeView *view,
+                                           GList *files_to_selected);
+static gboolean thunar_tree_view_visible_func (ThunarTreeModel *model,
+                                               ThunarFile *file,
+                                               gpointer user_data);
+static gboolean thunar_tree_view_selection_func (GtkTreeSelection *selection,
+                                                 GtkTreeModel *model,
+                                                 GtkTreePath *path,
+                                                 gboolean path_currently_selected,
+                                                 gpointer user_data);
+static gboolean thunar_tree_view_cursor_idle (gpointer user_data);
+static void thunar_tree_view_cursor_idle_destroy (gpointer user_data);
+static gboolean thunar_tree_view_drag_scroll_timer (gpointer user_data);
+static void thunar_tree_view_drag_scroll_timer_destroy (gpointer user_data);
+static gboolean thunar_tree_view_expand_timer (gpointer user_data);
+static void thunar_tree_view_expand_timer_destroy (gpointer user_data);
+static gboolean thunar_tree_view_get_show_hidden (ThunarTreeView *view);
+static void thunar_tree_view_set_show_hidden (ThunarTreeView *view,
+                                              gboolean show_hidden);
+static GtkTreePath *thunar_tree_view_get_preferred_toplevel_path (ThunarTreeView *view,
+                                                                  ThunarFile *file);
 
 struct _ThunarTreeViewClass
 {
@@ -1184,14 +1184,15 @@ thunar_tree_view_context_menu (ThunarTreeView *view,
         g_object_set (G_OBJECT (view->launcher), "selected-files", files, "current-directory", view->current_directory, NULL);
         g_list_free (files);
 
-        if(thunar_g_file_is_trash    (thunar_file_get_file (file)) ||
-                thunar_g_file_is_computer (thunar_file_get_file (file)) ||
-                thunar_g_file_is_network  (thunar_file_get_file (file)))
+        if (thunar_g_file_is_trash(thunar_file_get_file (file))
+            || thunar_g_file_is_computer(thunar_file_get_file (file))
+            || thunar_g_file_is_network(thunar_file_get_file (file)))
         {
             thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
-
             thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
+
             xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (context_menu));
+
             thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_EMPTY_TRASH);
         }
         else
@@ -1217,6 +1218,7 @@ thunar_tree_view_context_menu (ThunarTreeView *view,
         thunar_launcher_append_menu_item (view->launcher, GTK_MENU_SHELL (context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
         xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (context_menu));
         thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
+
         if (thunar_device_is_mounted (device))
             thunar_menu_add_sections (context_menu, THUNAR_MENU_SECTION_PROPERTIES);
     }
@@ -1230,6 +1232,7 @@ thunar_tree_view_context_menu (ThunarTreeView *view,
     /* cleanup */
     if (G_UNLIKELY (device != NULL))
         g_object_unref (G_OBJECT (device));
+
     if (G_LIKELY (file != NULL))
         g_object_unref (G_OBJECT (file));
 }

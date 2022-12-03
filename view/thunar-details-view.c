@@ -596,10 +596,9 @@ thunar_details_view_notify_width (GtkTreeViewColumn *tree_view_column,
         }
 }
 
-static gboolean
-thunar_details_view_button_press_event (GtkTreeView       *tree_view,
-                                        GdkEventButton    *event,
-                                        ThunarDetailsView *details_view)
+static gboolean thunar_details_view_button_press_event(GtkTreeView          *tree_view,
+                                                       GdkEventButton       *event,
+                                                       ThunarDetailsView    *details_view)
 {
     GtkTreeSelection  *selection;
     GtkTreePath       *path = NULL;
@@ -618,9 +617,12 @@ thunar_details_view_button_press_event (GtkTreeView       *tree_view,
 
     /* unselect all selected items if the user clicks on an empty area
      * of the treeview and no modifier key is active */
-    if ((event->state & gtk_accelerator_get_default_mod_mask ()) == 0
-            && !gtk_tree_view_get_path_at_pos (tree_view, event->x, event->y, &path, &column, NULL, NULL))
-        gtk_tree_selection_unselect_all (selection);
+    if ((event->state & gtk_accelerator_get_default_mod_mask()) == 0
+        && !gtk_tree_view_get_path_at_pos(tree_view, event->x, event->y,
+                                          &path, &column, NULL, NULL))
+    {
+        gtk_tree_selection_unselect_all(selection);
+    }
 
     /* make sure that rubber banding is enabled */
     gtk_tree_view_set_rubber_banding (tree_view, TRUE);
@@ -664,6 +666,9 @@ thunar_details_view_button_press_event (GtkTreeView       *tree_view,
     /* open the context menu on right clicks */
     if (event->type == GDK_BUTTON_PRESS && event->button == 3)
     {
+        // FOCUS
+        gtk_widget_grab_focus (GTK_WIDGET (tree_view));
+
         if (path == NULL)
         {
             /* open the context menu */
@@ -697,6 +702,7 @@ thunar_details_view_button_press_event (GtkTreeView       *tree_view,
 
         return TRUE;
     }
+
     else if (event->type == GDK_BUTTON_PRESS && event->button == 2)
     {
         /* determine the path to the item that was middle-clicked */
@@ -760,7 +766,9 @@ thunar_details_view_row_activated (GtkTreeView       *tree_view,
 
     window = gtk_widget_get_toplevel (GTK_WIDGET (details_view));
     launcher = thunar_window_get_launcher (THUNAR_WINDOW (window));
-    thunar_launcher_activate_selected_files (launcher, THUNAR_LAUNCHER_CHANGE_DIRECTORY, NULL);
+    thunar_launcher_activate_selected_files (launcher,
+                                             THUNAR_LAUNCHER_CHANGE_DIRECTORY,
+                                             NULL);
 
     // FOCUS
     gtk_widget_grab_focus(GTK_WIDGET(tree_view));
