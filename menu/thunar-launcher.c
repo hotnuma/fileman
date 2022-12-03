@@ -95,6 +95,7 @@ static void thunar_launcher_component_init (ThunarComponentIface *iface);
 static void thunar_launcher_navigator_init (ThunarNavigatorIface *iface);
 static void thunar_launcher_dispose (GObject *object);
 static void thunar_launcher_finalize (GObject *object);
+
 static void thunar_launcher_get_property (GObject *object,
                                           guint prop_id,
                                           GValue *value,
@@ -103,11 +104,14 @@ static void thunar_launcher_set_property (GObject *object,
                                           guint prop_id,
                                           const GValue *value,
                                           GParamSpec *pspec);
+
 static ThunarFile *thunar_launcher_get_current_directory (ThunarNavigator *navigator);
 static void thunar_launcher_set_current_directory (ThunarNavigator *navigator,
                                                    ThunarFile *current_directory);
+
 static void thunar_launcher_set_selected_files (ThunarComponent *component,
                                                 GList *selected_files);
+
 static void thunar_launcher_execute_files (ThunarLauncher *launcher,
                                            GList *files);
 static void thunar_launcher_open_file (ThunarLauncher *launcher,
@@ -135,6 +139,7 @@ static void thunar_launcher_poke_files_finish (ThunarBrowser *browser,
                                                ThunarFile *target_file,
                                                GError *error,
                                                gpointer user_data);
+
 static ThunarLauncherPokeData*
 thunar_launcher_poke_data_new (GList *files_to_poke,
                                GAppInfo *application_to_use,
@@ -142,6 +147,7 @@ thunar_launcher_poke_data_new (GList *files_to_poke,
 static void thunar_launcher_poke_data_free (ThunarLauncherPokeData *data);
 static void thunar_launcher_widget_destroyed (ThunarLauncher *launcher,
                                               GtkWidget *widget);
+
 static void thunar_launcher_action_open (ThunarLauncher *launcher);
 static void thunar_launcher_action_open_in_new_windows (ThunarLauncher *launcher);
 static void thunar_launcher_action_open_with_other (ThunarLauncher *launcher);

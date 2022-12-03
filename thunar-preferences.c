@@ -60,7 +60,6 @@ enum
     PROP_LAST_SORT_COLUMN,
     PROP_LAST_SORT_ORDER,
     PROP_LAST_STATUSBAR_VISIBLE,
-    PROP_LAST_VIEW,
     PROP_LAST_WINDOW_HEIGHT,
     PROP_LAST_WINDOW_WIDTH,
     PROP_LAST_WINDOW_FULLSCREEN,
@@ -281,19 +280,6 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
                               NULL,
                               TRUE,
                               EXO_PARAM_READWRITE);
-
-    /**
-     * ThunarPreferences:last-view:
-     *
-     * The name of the widget class, which should be used for the
-     * main view component in #ThunarWindow<!---->s.
-     **/
-    preferences_props[PROP_LAST_VIEW] =
-        g_param_spec_string ("last-view",
-                             "LastView",
-                             NULL,
-                             "ThunarDetailsView",
-                             EXO_PARAM_READWRITE);
 
     /**
      * ThunarPreferences:last-window-height:

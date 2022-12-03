@@ -191,8 +191,6 @@ static void thunar_window_history_changed (ThunarWindow *window);
 static gboolean thunar_window_check_uca_key_activation (ThunarWindow *window,
                                                          GdkEventKey *key_event,
                                                          gpointer user_data);
-static GType thunar_window_view_type_for_directory (ThunarWindow *window,
-                                                     ThunarFile *directory);
 
 struct _ThunarWindowClass
 {
@@ -1002,21 +1000,28 @@ thunar_window_binding_create (ThunarWindow *window,
     window->view_bindings = g_slist_prepend (window->view_bindings, binding);
 }
 
+
+/******************************************************************************
+ *
+ * Notebook functions
+ *
+ **/
 static void
-thunar_window_notebook_switch_page (GtkWidget    *notebook,
-                                    GtkWidget    *page,
-                                    guint         page_num,
+thunar_window_notebook_switch_page (GtkWidget   *notebook,
+                                    GtkWidget   *page,
+                                    guint       page_num,
                                     ThunarWindow *window)
 {
+    _thunar_return_if_fail (window->notebook == notebook);
+    _thunar_return_if_fail (GTK_IS_NOTEBOOK (notebook));
+    _thunar_return_if_fail (THUNAR_IS_VIEW (page));
+    _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
+
     UNUSED(page_num);
+
     GSList        *view_bindings;
     ThunarFile    *current_directory;
     ThunarHistory *history;
-
-    _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
-    _thunar_return_if_fail (GTK_IS_NOTEBOOK (notebook));
-    _thunar_return_if_fail (THUNAR_IS_VIEW (page));
-    _thunar_return_if_fail (window->notebook == notebook);
 
     /* leave if nothing changed */
     if (window->view == page)
@@ -1027,6 +1032,7 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
     /* Use accelerators only on the current active tab */
     if (window->view != NULL)
         g_object_set (G_OBJECT (window->view), "accel-group", NULL, NULL);
+
     g_object_set (G_OBJECT (page), "accel-group", window->accel_group, NULL);
 
     if (G_LIKELY (window->view != NULL))
@@ -1053,14 +1059,24 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
     thunar_window_set_current_directory (window, current_directory);
 
     /* add stock bindings */
-    thunar_window_binding_create (window, window, "current-directory", page, "current-directory", G_BINDING_DEFAULT);
-    thunar_window_binding_create (window, page, "selected-files", window->launcher, "selected-files", G_BINDING_SYNC_CREATE);
-    thunar_window_binding_create (window, page, "zoom-level", window, "zoom-level", G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
+    thunar_window_binding_create (window,
+                                  window, "current-directory",
+                                  page, "current-directory",
+                                  G_BINDING_DEFAULT);
+    thunar_window_binding_create (window,
+                                  page, "selected-files",
+                                  window->launcher, "selected-files",
+                                  G_BINDING_SYNC_CREATE);
+    thunar_window_binding_create (window,
+                                  page, "zoom-level",
+                                  window, "zoom-level",
+                                  G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
 
     /* connect to the sidepane (if any) */
     if (G_LIKELY (window->sidepane != NULL))
     {
-        thunar_window_binding_create (window, page, "selected-files",
+        thunar_window_binding_create (window,
+                                      page, "selected-files",
                                       window->sidepane, "selected-files",
                                       G_BINDING_SYNC_CREATE);
     }
@@ -1877,37 +1893,22 @@ thunar_window_set_current_directory (ThunarWindow *window,
     /* connect to the new directory */
     if (G_LIKELY (current_directory != NULL))
     {
-        GType  type;
-        gint   num_pages;
-
         /* take a reference on the file */
         g_object_ref (G_OBJECT (current_directory));
-
-        num_pages = gtk_notebook_get_n_pages (GTK_NOTEBOOK (window->notebook));
-
-        /* if the window is new, get the default-view type and set it as the last-view type (if it is a valid type)
-         * so that it will be used as the initial view type for directories with no saved directory specific view type */
-        if (num_pages == 0)
-        {
-            type = g_type_from_name ("ThunarDetailsView");
-
-            /* set the last view type to the default view type if there is a default view type */
-            if (!g_type_is_a (type, G_TYPE_NONE) && !g_type_is_a (type, G_TYPE_INVALID))
-                g_object_set (G_OBJECT (window->preferences), "last-view", g_type_name (type), NULL);
-        }
-
-        type = thunar_window_view_type_for_directory (window, current_directory);
 
         window->current_directory = current_directory;
 
         /* create a new view if the window is new */
         if (window->view == NULL /*num_pages == 0*/)
         {
-            thunar_window_create_view (window, window->view, type);
+            thunar_window_create_view (window, window->view, THUNAR_TYPE_DETAILS_VIEW);
         }
 
         /* connect the "changed"/"destroy" signals */
-        g_signal_connect (G_OBJECT (current_directory), "changed", G_CALLBACK (thunar_window_current_directory_changed), window);
+        g_signal_connect (G_OBJECT (current_directory),
+                          "changed",
+                          G_CALLBACK (thunar_window_current_directory_changed),
+                          window);
 
         /* update window icon and title */
         thunar_window_current_directory_changed (current_directory, window);
@@ -2188,41 +2189,6 @@ thunar_window_history_clicked (GtkWidget      *button,
     }
 
     return FALSE;
-}
-
-/**
- * thunar_window_view_type_for_directory:
- * @window      : a #ThunarWindow instance.
- * @directory   : #ThunarFile representing the directory
- *
- * Return value: the #GType representing the view type which
- * @window would use to display @directory.
- **/
-GType
-thunar_window_view_type_for_directory (ThunarWindow *window,
-                                       ThunarFile   *directory)
-{
-    GType  type = G_TYPE_NONE;
-    gchar *type_name;
-
-    _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), G_TYPE_NONE);
-    _thunar_return_val_if_fail (THUNAR_IS_FILE (directory), G_TYPE_NONE);
-
-    /* if there is no saved view type for the directory or directory specific view types are not enabled,
-     * we use the last view type */
-    if (g_type_is_a (type, G_TYPE_NONE) || g_type_is_a (type, G_TYPE_INVALID))
-    {
-        /* determine the last view type */
-        g_object_get (G_OBJECT (window->preferences), "last-view", &type_name, NULL);
-        type = g_type_from_name (type_name);
-        g_free (type_name);
-    }
-
-    /* fallback view type, in case nothing was set */
-    if (g_type_is_a (type, G_TYPE_NONE) || g_type_is_a (type, G_TYPE_INVALID))
-        type = THUNAR_TYPE_DETAILS_VIEW; /*THUNAR_TYPE_ICON_VIEW*/
-
-    return type;
 }
 
 
