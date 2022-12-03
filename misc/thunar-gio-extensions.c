@@ -384,27 +384,24 @@ thunar_g_file_get_display_name_remote (GFile *mount_point)
 
 
 
-gboolean
-thunar_g_vfs_is_uri_scheme_supported (const gchar *scheme)
+gboolean thunar_g_vfs_is_uri_scheme_supported (const gchar *scheme)
 {
-    const gchar * const *supported_schemes;
-    gboolean             supported = FALSE;
-    guint                n;
-    GVfs                *gvfs;
 
     _thunar_return_val_if_fail (scheme != NULL && *scheme != '\0', FALSE);
 
-    gvfs = g_vfs_get_default ();
-    supported_schemes = g_vfs_get_supported_uri_schemes (gvfs);
+    GVfs *gvfs = g_vfs_get_default ();
+    const gchar *const *supported_schemes = g_vfs_get_supported_uri_schemes (gvfs);
 
     if (supported_schemes == NULL)
         return FALSE;
 
-    for (n = 0; !supported && supported_schemes[n] != NULL; ++n)
+    for (guint n = 0; supported_schemes[n] != NULL; ++n)
+    {
         if (g_strcmp0 (supported_schemes[n], scheme) == 0)
-            supported = TRUE;
+            return TRUE;
+    }
 
-    return supported;
+    return FALSE;
 }
 
 

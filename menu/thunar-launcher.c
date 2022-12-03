@@ -731,6 +731,7 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
     launcher->n_directories_to_process   = 0;
     launcher->n_executables_to_process   = 0;
     launcher->n_regulars_to_process      = 0;
+
     launcher->single_directory_to_process = FALSE;
     launcher->single_folder = NULL;
     launcher->parent_folder = NULL;
@@ -748,8 +749,8 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
         g_object_ref (lp->data);
 
         if (thunar_file_is_directory (lp->data)
-                || thunar_file_is_shortcut (lp->data)
-                || thunar_file_is_mountable (lp->data))
+            || thunar_file_is_shortcut (lp->data)
+            || thunar_file_is_mountable (lp->data))
         {
             ++launcher->n_directories_to_process;
         }
@@ -757,6 +758,7 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
         {
             if (thunar_file_is_executable (lp->data))
                 ++launcher->n_executables_to_process;
+
             ++launcher->n_regulars_to_process;
         }
 
@@ -765,6 +767,7 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
     }
 
     launcher->single_directory_to_process = (launcher->n_directories_to_process == 1 && launcher->n_files_to_process == 1);
+
     if (launcher->single_directory_to_process)
     {
         /* grab the folder of the first selected item */
@@ -776,6 +779,18 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
         /* just grab the folder of the first selected item */
         launcher->parent_folder = thunar_file_get_parent (THUNAR_FILE (launcher->files_to_process->data), NULL);
     }
+
+//    static gint count;
+//    DPRINT("%d: thunar_launcher_set_selected_files\n", count++);
+//    DPRINT("%d dirs selected\n", launcher->n_directories_to_process);
+//    DPRINT("%d files selected\n", launcher->n_regulars_to_process);
+
+//    for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
+//    {
+//        ThunarFile *file = (ThunarFile*) lp->data;
+
+//        DPRINT("%s\n", thunar_file_get_basename(file));
+//    }
 }
 
 /**
@@ -2196,15 +2211,28 @@ thunar_launcher_action_restore (ThunarLauncher *launcher)
 
 static void thunar_launcher_action_move_to_trash (ThunarLauncher *launcher)
 {
-    ThunarApplication *application;
-
     _thunar_return_if_fail (THUNAR_IS_LAUNCHER (launcher));
+
+//    if (launcher->parent_folder == NULL)
+//        g_print("parent_folder == NULL\n");
+
+//    if (launcher->files_are_selected == FALSE)
+//        g_print("files_are_selected == FALSE\n");
+
+//    for (GList *lp = launcher->files_to_process; lp != NULL; lp = lp->next)
+//    {
+//        ThunarFile *file = (ThunarFile*) lp->data;
+
+//        DPRINT("%s\n", thunar_file_get_basename(file));
+//    }
+
+//    return;
 
     if (launcher->parent_folder == NULL
         || launcher->files_are_selected == FALSE)
         return;
 
-    application = thunar_application_get ();
+    ThunarApplication *application = thunar_application_get ();
 
     thunar_application_unlink_files (application,
                                      launcher->widget,
@@ -2221,19 +2249,32 @@ thunar_launcher_action_delete (ThunarLauncher *launcher)
 
     _thunar_return_if_fail (THUNAR_IS_LAUNCHER (launcher));
 
-    if (launcher->parent_folder == NULL || launcher->files_are_selected == FALSE)
+    if (launcher->parent_folder == NULL
+        || launcher->files_are_selected == FALSE)
         return;
 
     application = thunar_application_get ();
-    thunar_application_unlink_files (application, launcher->widget, launcher->files_to_process, TRUE);
+
+    thunar_application_unlink_files (application,
+                                     launcher->widget,
+                                     launcher->files_to_process,
+                                     TRUE);
+
     g_object_unref (G_OBJECT (application));
 }
 
 static void thunar_launcher_action_trash_delete (ThunarLauncher *launcher)
 {
-    GdkModifierType event_state;
-
     _thunar_return_if_fail (THUNAR_IS_LAUNCHER (launcher));
+
+    //const gchar *wname = gtk_widget_get_name(launcher->widget);
+    //g_print("%s\n", wname);
+
+    //GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(launcher->widget));
+    //const gchar *name = gtk_widget_get_name(focused);
+    //g_print("focused widget = %s\n", name);
+
+    GdkModifierType event_state;
 
     /* when shift modifier is pressed, we delete (as well via context menu) */
     if (gtk_get_current_event_state (&event_state)

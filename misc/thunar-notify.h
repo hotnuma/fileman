@@ -25,14 +25,13 @@
 
 G_BEGIN_DECLS
 
-void thunar_notify_unmount        (ThunarDevice *device);
-
-void thunar_notify_eject          (ThunarDevice *device);
-
-void thunar_notify_finish         (ThunarDevice *device);
-
-void thunar_notify_uninit         (void);
+void thunar_notify_unmount(ThunarDevice *device);
+void thunar_notify_eject(ThunarDevice *device);
+void thunar_notify_finish(ThunarDevice *device);
+void thunar_notify_uninit();
 
 G_END_DECLS
 
 #endif /* !__THUNAR_NOTIFY_H__ */
+
+

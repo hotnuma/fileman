@@ -23,7 +23,6 @@ HEADERS = \
     core/thunar-file.h \
     core/thunar-file-monitor.h \
     core/thunar-folder.h \
-    core/thunar-notify.h \
     core/thunar-user.h \
     core/thunar-util.h \
     dialog/thunar-chooser-button.h \
@@ -53,6 +52,7 @@ HEADERS = \
     misc/thunar-gtk-extensions.h \
     misc/thunar-history.h \
     misc/thunar-navigator.h \
+    misc/thunar-notify.h \
     misc/thunar-pango-extensions.h \
     side/thunar-side-pane.h \
     side/thunar-tree-model.h \
@@ -81,7 +81,7 @@ HEADERS = \
     thunar-window.h \
 
 SOURCES = \
-  0Temp.c \
+    0Temp.c \
     core/thunar-clipboard-manager.c \
     core/thunar-device.c \
     core/thunar-device-monitor.c \
@@ -89,7 +89,6 @@ SOURCES = \
     core/thunar-file.c \
     core/thunar-file-monitor.c \
     core/thunar-folder.c \
-    core/thunar-notify.c \
     core/thunar-user.c \
     core/thunar-util.c \
     dialog/thunar-chooser-button.c \
@@ -109,6 +108,7 @@ SOURCES = \
     misc/thunar-gtk-extensions.c \
     misc/thunar-history.c \
     misc/thunar-navigator.c \
+    misc/thunar-notify.c \
     misc/thunar-pango-extensions.c \
     job/thunar-deep-count-job.c \
     job/thunar-io-jobs.c \

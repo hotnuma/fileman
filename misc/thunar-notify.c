@@ -30,12 +30,8 @@
 #include <thunar-private.h>
 
 
-
-
 #ifdef HAVE_LIBNOTIFY
 static gboolean thunar_notify_initted = FALSE;
-
-
 
 static gboolean
 thunar_notify_init (void)
@@ -58,8 +54,6 @@ thunar_notify_init (void)
 
     return thunar_notify_initted;
 }
-
-
 
 static void
 thunar_notify_show (ThunarDevice *device,
@@ -116,8 +110,6 @@ thunar_notify_show (ThunarDevice *device,
     g_free (icon_name);
 }
 
-
-
 static gboolean
 thunar_notify_device_readonly (ThunarDevice *device)
 {
@@ -144,8 +136,6 @@ thunar_notify_device_readonly (ThunarDevice *device)
     return readonly;
 }
 #endif
-
-
 
 void
 thunar_notify_unmount (ThunarDevice *device)
@@ -185,8 +175,6 @@ thunar_notify_unmount (ThunarDevice *device)
 #endif
 }
 
-
-
 void
 thunar_notify_eject (ThunarDevice *device)
 {
@@ -224,8 +212,6 @@ thunar_notify_eject (ThunarDevice *device)
 #endif
 }
 
-
-
 void
 thunar_notify_finish (ThunarDevice *device)
 {
@@ -246,8 +232,6 @@ thunar_notify_finish (ThunarDevice *device)
 #endif
 }
 
-
-
 void
 thunar_notify_uninit (void)
 {
@@ -257,3 +241,5 @@ thunar_notify_uninit (void)
         notify_uninit ();
 #endif
 }
+
+

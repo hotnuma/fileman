@@ -8,25 +8,34 @@ Biggest files :
 
 $ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 
-136442	./core/thunar-file.c
-132520	./view/thunar-standard-view.c
-116473	./menu/thunar-launcher.c
-82591	./thunar-window.c
-81911	./view/thunar-list-model.c
-76264	./side/thunar-tree-view.c
-71018	./thunar-application.c
-66126	./side/thunar-tree-model.c
-62392	./job/thunar-transfer-job.c
-54315	./dialog/thunar-permissions-chooser.c
-53828	./dialog/thunar-properties-dialog.c
-46931	./dialog/thunar-chooser-dialog.c
-44759	./job/thunar-io-jobs.c
+    136442	./core/thunar-file.c
+    132520	./view/thunar-standard-view.c
+    116473	./menu/thunar-launcher.c
+    82591	./thunar-window.c
+    81911	./view/thunar-list-model.c
+    76264	./side/thunar-tree-view.c
+    71018	./thunar-application.c
+    66126	./side/thunar-tree-model.c
+    62392	./job/thunar-transfer-job.c
+    54315	./dialog/thunar-permissions-chooser.c
+    53828	./dialog/thunar-properties-dialog.c
+    46931	./dialog/thunar-chooser-dialog.c
+    44759	./job/thunar-io-jobs.c
 
 
+supported Gvfs schemes :
+
+    scheme : file
+    scheme : trash
+    scheme : localtest
+    scheme : computer
+    scheme : burn
+    scheme : resource
 
 port to GtkBox
-ThunarLocationEntry
-    GtkHBox
+
+    ThunarLocationEntry
+        GtkHBox
 
 menus:
 thunar_tree_view_context_menu

@@ -675,7 +675,7 @@ thunar_window_init (ThunarWindow *window)
     gtk_notebook_set_group_name (GTK_NOTEBOOK (window->notebook), "thunar-tabs");
     gtk_widget_show (window->notebook);
 
-    //gtk_widget_set_can_focus(window->notebook, FALSE);
+    gtk_widget_set_can_focus(window->notebook, FALSE);
 
     /* update window icon whenever preferences change */
     g_signal_connect_object (G_OBJECT (window->preferences), "notify::misc-change-window-icon",
@@ -1377,9 +1377,8 @@ thunar_window_start_open_location (ThunarWindow *window,
     thunar_location_bar_request_entry (THUNAR_LOCATION_BAR (window->location_bar), initial_text);
 }
 
-static void
-thunar_window_action_debug (ThunarWindow *window,
-                            GtkWidget    *menu_item)
+static void thunar_window_action_debug (ThunarWindow *window,
+                                        GtkWidget *menu_item)
 {
     UNUSED(window);
     UNUSED(menu_item);
@@ -1430,7 +1429,7 @@ thunar_window_create_view (ThunarWindow *window,
     if (view != NULL)
         return;
 
-    DPRINT("enter : thunar_window_create_view\n");
+    //DPRINT("enter : thunar_window_create_view\n");
 
     /* if we have not got a current directory from the old view, use the window's current directory */
     if (current_directory == NULL && window->current_directory != NULL)
