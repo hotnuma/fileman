@@ -747,7 +747,8 @@ static void thunar_launcher_set_selected_files(ThunarComponent *component,
     if (launcher->files_are_selected)
         launcher->files_to_process = thunar_g_file_list_copy(selected_files);
     else
-        launcher->files_to_process = g_list_append(launcher->files_to_process, launcher->current_directory);
+        launcher->files_to_process = g_list_append(launcher->files_to_process,
+                                                   launcher->current_directory);
 
     /* determine the number of files/directories/executables */
     for (lp = launcher->files_to_process; lp != NULL; lp = lp->next, ++launcher->n_files_to_process)
@@ -787,17 +788,19 @@ static void thunar_launcher_set_selected_files(ThunarComponent *component,
         launcher->parent_folder = thunar_file_get_parent(THUNAR_FILE(launcher->files_to_process->data), NULL);
     }
 
-//    static gint count;
-//    DPRINT("%d: thunar_launcher_set_selected_files\n", count++);
-//    DPRINT("%d dirs selected\n", launcher->n_directories_to_process);
-//    DPRINT("%d files selected\n", launcher->n_regulars_to_process);
+#ifdef DEBUG_SELECTION
+    static gint count;
+    DPRINT("%d: thunar_launcher_set_selected_files\n", count++);
+    //DPRINT("%d dirs selected\n", launcher->n_directories_to_process);
+    //DPRINT("%d files selected\n", launcher->n_regulars_to_process);
 
-//    for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
-//    {
-//        ThunarFile *file =(ThunarFile*) lp->data;
+    for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
+    {
+        ThunarFile *file =(ThunarFile*) lp->data;
 
-//        DPRINT("%s\n", thunar_file_get_basename(file));
-//    }
+        DPRINT("%s\n", thunar_file_get_basename(file));
+    }
+#endif
 }
 
 /**
@@ -1169,7 +1172,6 @@ thunar_launcher_poke_files_finish(ThunarBrowser *browser,
 {
     ThunarLauncherPokeData *poke_data = user_data;
     gboolean                executable = TRUE;
-    //gboolean                open_new_window_as_tab = TRUE;
     GList                  *directories = NULL;
     GList                  *files = NULL;
     GList                  *lp;
@@ -1240,6 +1242,7 @@ thunar_launcher_poke_files_finish(ThunarBrowser *browser,
             }
             else
                 g_warning("'folder_open_action' was not defined");
+
             g_list_free(directories);
         }
 
@@ -1270,19 +1273,21 @@ thunar_launcher_poke_files_finish(ThunarBrowser *browser,
         /* we need to continue this until all files have been resolved */
         // We will only poke one file at a time, in order to dont use all available CPU's
         // TODO: Check if that could cause slowness
-        thunar_browser_poke_file(browser, poke_data->files_to_poke->data,
-                                 (THUNAR_LAUNCHER(browser))->widget, thunar_launcher_poke_files_finish, poke_data);
+        thunar_browser_poke_file(browser,
+                                 poke_data->files_to_poke->data,
+                                 (THUNAR_LAUNCHER(browser))->widget,
+                                 thunar_launcher_poke_files_finish,
+                                 poke_data);
     }
 }
 
-static ThunarLauncherPokeData *
-thunar_launcher_poke_data_new(GList                          *files_to_poke,
-                               GAppInfo                       *application_to_use,
-                               ThunarLauncherFolderOpenAction  folder_open_action)
+static ThunarLauncherPokeData*
+thunar_launcher_poke_data_new(GList     *files_to_poke,
+                              GAppInfo  *application_to_use,
+                              ThunarLauncherFolderOpenAction folder_open_action)
 {
-    ThunarLauncherPokeData *data;
+    ThunarLauncherPokeData *data = g_slice_new0(ThunarLauncherPokeData);
 
-    data = g_slice_new0(ThunarLauncherPokeData);
     data->files_to_poke = thunar_g_file_list_copy(files_to_poke);
     data->files_poked = NULL;
     data->application_to_use = application_to_use;
@@ -1290,6 +1295,7 @@ thunar_launcher_poke_data_new(GList                          *files_to_poke,
     /* keep a reference on the appdata */
     if (application_to_use != NULL)
         g_object_ref(application_to_use);
+
     data->folder_open_action = folder_open_action;
 
     return data;
@@ -1305,6 +1311,7 @@ thunar_launcher_poke_data_free(ThunarLauncherPokeData *data)
 
     if (data->application_to_use != NULL)
         g_object_unref(data->application_to_use);
+
     g_slice_free(ThunarLauncherPokeData, data);
 }
 
@@ -1382,22 +1389,28 @@ void thunar_launcher_append_accelerators(ThunarLauncher *launcher,
 {
     _thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    xfce_gtk_accel_map_add_entries(thunar_launcher_action_entries, G_N_ELEMENTS(thunar_launcher_action_entries));
+    xfce_gtk_accel_map_add_entries(thunar_launcher_action_entries,
+                                   G_N_ELEMENTS(thunar_launcher_action_entries));
+
     xfce_gtk_accel_group_connect_action_entries(accel_group,
-            thunar_launcher_action_entries,
-            G_N_ELEMENTS(thunar_launcher_action_entries),
-            launcher);
+                                                thunar_launcher_action_entries,
+                                                G_N_ELEMENTS(thunar_launcher_action_entries),
+                                                launcher);
 }
 
-static gboolean
-thunar_launcher_show_trash(ThunarLauncher *launcher)
+static gboolean thunar_launcher_show_trash(ThunarLauncher *launcher)
 {
     if (launcher->parent_folder == NULL)
         return FALSE;
 
     /* If the folder is read only, always show trash insensitive */
-    /* If we are outside waste basket, the selection is trashable and we support trash, show trash */
-    return !thunar_file_is_writable(launcher->parent_folder) ||( !thunar_file_is_trashed(launcher->parent_folder) && launcher->files_to_process_trashable && thunar_g_vfs_is_uri_scheme_supported("trash"));
+    /* If we are outside waste basket, the selection is trashable
+     * and we support trash, show trash */
+
+    return !thunar_file_is_writable(launcher->parent_folder)
+            || (!thunar_file_is_trashed(launcher->parent_folder)
+            && launcher->files_to_process_trashable
+            && thunar_g_vfs_is_uri_scheme_supported("trash"));
 }
 
 /**
@@ -1411,11 +1424,10 @@ thunar_launcher_show_trash(ThunarLauncher *launcher)
  *
  * Return value:(transfer none): The added #GtkMenuItem
  **/
-GtkWidget*
-thunar_launcher_append_menu_item(ThunarLauncher       *launcher,
-                                  GtkMenuShell         *menu,
-                                  ThunarLauncherAction  action,
-                                  gboolean              force)
+GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
+                                            GtkMenuShell    *menu,
+                                            ThunarLauncherAction action,
+                                            gboolean        force)
 {
     GtkWidget                *item = NULL;
     GtkWidget                *submenu;
@@ -1436,11 +1448,19 @@ thunar_launcher_append_menu_item(ThunarLauncher       *launcher,
     if (G_UNLIKELY(launcher->files_to_process == NULL) && launcher->device_to_process == NULL)
         return NULL;
 
-    switch(action)
+    switch (action)
     {
-    case THUNAR_LAUNCHER_ACTION_OPEN: /* aka "activate" */
-        return xfce_gtk_image_menu_item_new_from_icon_name(_("_Open"), ngettext("Open the selected file", "Open the selected files", launcher->n_files_to_process),
-                action_entry->accel_path, action_entry->callback, G_OBJECT(launcher), action_entry->menu_item_icon_name, menu);
+
+    case THUNAR_LAUNCHER_ACTION_OPEN:
+        return xfce_gtk_image_menu_item_new_from_icon_name(_("_Open"),
+                                                           ngettext("Open the selected file",
+                                                                    "Open the selected files",
+                                                                    launcher->n_files_to_process),
+                                                           action_entry->accel_path,
+                                                           action_entry->callback,
+                                                           G_OBJECT(launcher),
+                                                           action_entry->menu_item_icon_name,
+                                                           menu);
 
     case THUNAR_LAUNCHER_ACTION_EXECUTE:
         return xfce_gtk_image_menu_item_new_from_icon_name(_("_Execute"), ngettext("Execute the selected file", "Execute the selected files", launcher->n_files_to_process),
@@ -2220,24 +2240,30 @@ static void thunar_launcher_action_move_to_trash(ThunarLauncher *launcher)
 {
     _thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-//    if (launcher->parent_folder == NULL)
-//        g_print("parent_folder == NULL\n");
+#ifdef DEBUG_TRASH
+    DPRINT("enter : thunar_launcher_action_move_to_trash\n");
 
-//    if (launcher->files_are_selected == FALSE)
-//        g_print("files_are_selected == FALSE\n");
+    if (launcher->parent_folder == NULL)
+        g_print("parent_folder == NULL\n");
 
-//    for (GList *lp = launcher->files_to_process; lp != NULL; lp = lp->next)
-//    {
-//        ThunarFile *file =(ThunarFile*) lp->data;
-
-//        DPRINT("%s\n", thunar_file_get_basename(file));
-//    }
-
-//    return;
+    if (launcher->files_are_selected == FALSE)
+        g_print("files_are_selected == FALSE\n");
+#endif
 
     if (launcher->parent_folder == NULL
         || launcher->files_are_selected == FALSE)
         return;
+
+#ifdef DEBUG_TRASH
+    for (GList *lp = launcher->files_to_process; lp != NULL; lp = lp->next)
+    {
+        ThunarFile *file =(ThunarFile*) lp->data;
+
+        DPRINT("delete : %s\n", thunar_file_get_basename(file));
+    }
+
+    return;
+#endif
 
     ThunarApplication *application = thunar_application_get();
 
@@ -2281,6 +2307,11 @@ static void thunar_launcher_action_trash_delete(ThunarLauncher *launcher)
     //const gchar *name = gtk_widget_get_name(focused);
     //g_print("focused widget = %s\n", name);
 
+
+
+    if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
+        return;
+
     GdkModifierType event_state;
 
     /* when shift modifier is pressed, we delete(as well via context menu) */
@@ -2288,11 +2319,12 @@ static void thunar_launcher_action_trash_delete(ThunarLauncher *launcher)
             &&(event_state & GDK_SHIFT_MASK) != 0)
         thunar_launcher_action_delete(launcher);
 
-    else if (thunar_g_vfs_is_uri_scheme_supported("trash"))
-        thunar_launcher_action_move_to_trash(launcher);
+    //else if (thunar_g_vfs_is_uri_scheme_supported("trash"))
+    //    thunar_launcher_action_move_to_trash(launcher);
+    //else
+    //    thunar_launcher_action_delete(launcher);
 
-    else
-        thunar_launcher_action_delete(launcher);
+    thunar_launcher_action_move_to_trash(launcher);
 }
 
 static void

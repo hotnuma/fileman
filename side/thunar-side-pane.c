@@ -23,19 +23,14 @@
 #include <thunar-private.h>
 #include <thunar-side-pane.h>
 
-
-
 static void thunar_side_pane_class_init (gpointer klass);
 
-
-
-GType
-thunar_side_pane_get_type (void)
+GType thunar_side_pane_get_type ()
 {
     static volatile gsize type__volatile = 0;
     GType                 type;
 
-    if (g_once_init_enter (&type__volatile))
+    if (g_once_init_enter ((gsize*) &type__volatile))
     {
         type = g_type_register_static_simple (G_TYPE_INTERFACE,
                                               I_("ThunarSidePane"),
@@ -54,10 +49,7 @@ thunar_side_pane_get_type (void)
     return type__volatile;
 }
 
-
-
-static void
-thunar_side_pane_class_init (gpointer klass)
+static void thunar_side_pane_class_init (gpointer klass)
 {
     /**
      * ThunarSidePane:show-hidden:
@@ -73,8 +65,6 @@ thunar_side_pane_class_init (gpointer klass)
                                                  EXO_PARAM_READWRITE));
 }
 
-
-
 /**
  * thunar_side_pane_get_show_hidden:
  * @side_pane : a #ThunarSidePane.
@@ -85,14 +75,11 @@ thunar_side_pane_class_init (gpointer klass)
  * Return value: %TRUE if hidden folders are
  *               shown in the @side_pane.
  **/
-gboolean
-thunar_side_pane_get_show_hidden (ThunarSidePane *side_pane)
+gboolean thunar_side_pane_get_show_hidden (ThunarSidePane *side_pane)
 {
     _thunar_return_val_if_fail (THUNAR_IS_SIDE_PANE (side_pane), FALSE);
     return (*THUNAR_SIDE_PANE_GET_IFACE (side_pane)->get_show_hidden) (side_pane);
 }
-
-
 
 /**
  * thunar_side_pane_set_show_hidden:
@@ -102,11 +89,11 @@ thunar_side_pane_get_show_hidden (ThunarSidePane *side_pane)
  * If @show_hidden is %TRUE, hidden folders will be
  * shown in the @side_pane.
  **/
-void
-thunar_side_pane_set_show_hidden (ThunarSidePane *side_pane,
-                                  gboolean        show_hidden)
+void thunar_side_pane_set_show_hidden (ThunarSidePane   *side_pane,
+                                       gboolean         show_hidden)
 {
     _thunar_return_if_fail (THUNAR_IS_SIDE_PANE (side_pane));
     (*THUNAR_SIDE_PANE_GET_IFACE (side_pane)->set_show_hidden) (side_pane, show_hidden);
 }
+
 

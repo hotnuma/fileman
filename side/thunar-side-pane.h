@@ -41,12 +41,14 @@ struct _ThunarSidePaneIface
                                  gboolean        show_hidden);
 };
 
-GType    thunar_side_pane_get_type        (void) G_GNUC_CONST;
+GType thunar_side_pane_get_type() G_GNUC_CONST;
 
-gboolean thunar_side_pane_get_show_hidden (ThunarSidePane *side_pane);
-void     thunar_side_pane_set_show_hidden (ThunarSidePane *side_pane,
-        gboolean        show_hidden);
+gboolean thunar_side_pane_get_show_hidden(ThunarSidePane *side_pane);
+void thunar_side_pane_set_show_hidden(ThunarSidePane    *side_pane,
+                                      gboolean          show_hidden);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_SIDE_PANE_H__ */
+
+
