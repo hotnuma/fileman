@@ -217,8 +217,7 @@ G_DEFINE_TYPE_EXTENDED(ThunarApplication,
                        0,
                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER, NULL))
 
-static void
-thunar_application_class_init(ThunarApplicationClass *klass)
+static void thunar_application_class_init(ThunarApplicationClass *klass)
 {
     GObjectClass        *gobject_class = G_OBJECT_CLASS(klass);
     GApplicationClass   *gapplication_class = G_APPLICATION_CLASS(klass);
@@ -261,8 +260,7 @@ thunar_application_class_init(ThunarApplicationClass *klass)
                                              EXO_PARAM_READWRITE));
 }
 
-static void
-thunar_application_init(ThunarApplication *application)
+static void thunar_application_init(ThunarApplication *application)
 {
     /* we do most initialization in GApplication::startup since it is only needed
      * in the primary instance anyways */
@@ -276,24 +274,21 @@ thunar_application_init(ThunarApplication *application)
 }
 
 #ifdef ENABLE_DBUS
-static void
-thunar_application_dbus_acquired_cb(GDBusConnection *conn,
+static void thunar_application_dbus_acquired_cb(GDBusConnection *conn,
                                      const gchar     *name,
                                      gpointer         user_data)
 {
     g_debug(_("Acquired the session message bus '%s'\n"), name);
 }
 
-static void
-thunar_application_name_acquired_cb(GDBusConnection *connection,
+static void thunar_application_name_acquired_cb(GDBusConnection *connection,
                                      const gchar     *name,
                                      gpointer         user_data)
 {
     g_debug(_("Acquired the name '%s' on the session message bus\n"), name);
 }
 
-static void
-thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
+static void thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
                                       const gchar     *name,
                                       gpointer         user_data)
 {
@@ -302,8 +297,7 @@ thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
 
 /* TODO: [GTK3 Port] Check if there's a cleaner way to register */
 /* these extra dbus names(besides org.xfce.Thunar) */
-static void
-thunar_application_dbus_init(ThunarApplication *application)
+static void thunar_application_dbus_init(ThunarApplication *application)
 {
     application->dbus_owner_id_xfce = g_bus_own_name(G_BUS_TYPE_SESSION,
                                       "org.xfce.FileManager",
@@ -325,8 +319,7 @@ thunar_application_dbus_init(ThunarApplication *application)
 }
 #endif
 
-static void
-thunar_application_startup(GApplication *gapp)
+static void thunar_application_startup(GApplication *gapp)
 {
     ThunarApplication *application = THUNAR_APPLICATION(gapp);
 
@@ -376,8 +369,7 @@ thunar_application_startup(GApplication *gapp)
     thunar_application_load_css();
 }
 
-static void
-thunar_application_shutdown(GApplication *gapp)
+static void thunar_application_shutdown(GApplication *gapp)
 {
     ThunarApplication *application = THUNAR_APPLICATION(gapp);
 
@@ -430,8 +422,7 @@ thunar_application_shutdown(GApplication *gapp)
     G_APPLICATION_CLASS(thunar_application_parent_class)->shutdown(gapp);
 }
 
-static void
-thunar_application_finalize(GObject *object)
+static void thunar_application_finalize(GObject *object)
 {
     /* rule of thumb: what gets initialized in GApplication::startup is cleaned up
      * in GApplication::shutdown. Therefore, this method doesn't do very much */
@@ -439,8 +430,7 @@ thunar_application_finalize(GObject *object)
    (*G_OBJECT_CLASS(thunar_application_parent_class)->finalize)(object);
 }
 
-static int
-thunar_application_command_line(GApplication            *gapp,
+static int thunar_application_command_line(GApplication            *gapp,
                                  GApplicationCommandLine *command_line)
 {
     ThunarApplication *application  = THUNAR_APPLICATION(gapp);
@@ -503,8 +493,7 @@ out:
 
 
 #ifdef ENABLE_DBUS
-static gboolean
-thunar_application_dbus_register(GApplication           *gapp,
+static gboolean thunar_application_dbus_register(GApplication           *gapp,
                                   GDBusConnection        *connection,
                                   const gchar            *object_path,
                                   GError                **error)
@@ -521,8 +510,7 @@ thunar_application_dbus_register(GApplication           *gapp,
 #endif
 
 
-static void
-thunar_application_load_css(void)
+static void thunar_application_load_css(void)
 {
     GtkCssProvider *css_provider;
     GdkScreen *screen;
@@ -544,16 +532,14 @@ thunar_application_load_css(void)
     g_object_unref(css_provider);
 }
 
-static void
-thunar_application_activate(GApplication *gapp)
+static void thunar_application_activate(GApplication *gapp)
 {
     /* TODO */
 
     G_APPLICATION_CLASS(thunar_application_parent_class)->activate(gapp);
 }
 
-static void
-thunar_application_get_property(GObject    *object,
+static void thunar_application_get_property(GObject    *object,
                                  guint       prop_id,
                                  GValue     *value,
                                  GParamSpec *pspec)
@@ -575,8 +561,7 @@ thunar_application_get_property(GObject    *object,
     }
 }
 
-static void
-thunar_application_set_property(GObject      *object,
+static void thunar_application_set_property(GObject      *object,
                                  guint         prop_id,
                                  const GValue *value,
                                  GParamSpec   *pspec)
@@ -598,8 +583,7 @@ thunar_application_set_property(GObject      *object,
     }
 }
 
-static gboolean
-thunar_application_accel_map_save(gpointer user_data)
+static gboolean thunar_application_accel_map_save(gpointer user_data)
 {
     ThunarApplication *application = THUNAR_APPLICATION(user_data);
     gchar             *path;
@@ -620,8 +604,7 @@ thunar_application_accel_map_save(gpointer user_data)
     return FALSE;
 }
 
-static void
-thunar_application_accel_map_changed(ThunarApplication *application)
+static void thunar_application_accel_map_changed(ThunarApplication *application)
 {
     _thunar_return_if_fail(THUNAR_IS_APPLICATION(application));
 
@@ -637,17 +620,17 @@ thunar_application_accel_map_changed(ThunarApplication *application)
         g_timeout_add_seconds(10, thunar_application_accel_map_save, application);
 }
 
-static void
-thunar_application_collect_and_launch(ThunarApplication *application,
-                                       gpointer           parent,
-                                       const gchar       *icon_name,
-                                       const gchar       *title,
-                                       Launcher           launcher,
-                                       GList             *source_file_list,
-                                       GFile             *target_file,
-                                       gboolean           update_source_folders,
-                                       gboolean           update_target_folders,
-                                       GClosure          *new_files_closure)
+static void thunar_application_collect_and_launch(
+                                        ThunarApplication *application,
+                                        gpointer    parent,
+                                        const gchar *icon_name,
+                                        const gchar *title,
+                                        Launcher    launcher,
+                                        GList       *source_file_list,
+                                        GFile       *target_file,
+                                        gboolean    update_source_folders,
+                                        gboolean    update_target_folders,
+                                        GClosure    *new_files_closure)
 {
     GFile  *file;
     GError *err = NULL;
@@ -660,7 +643,7 @@ thunar_application_collect_and_launch(ThunarApplication *application,
         return;
 
     /* generate the target path list */
-    for(lp = g_list_last(source_file_list); err == NULL && lp != NULL; lp = lp->prev)
+    for (lp = g_list_last(source_file_list); err == NULL && lp != NULL; lp = lp->prev)
     {
         /* verify that we're not trying to collect a root node */
         if (G_UNLIKELY(thunar_g_file_is_root(lp->data)))
@@ -700,9 +683,8 @@ thunar_application_collect_and_launch(ThunarApplication *application,
     thunar_g_file_list_free(target_file_list);
 }
 
-static void
-thunar_application_launch_finished(ThunarJob  *job,
-                                    GList      *containing_folders)
+static void thunar_application_launch_finished(ThunarJob  *job,
+                                                GList      *containing_folders)
 {
     GList        *lp;
     ThunarFile   *file;
@@ -737,17 +719,16 @@ thunar_application_launch_finished(ThunarJob  *job,
     }
 }
 
-static void
-thunar_application_launch(ThunarApplication *application,
-                           gpointer           parent,
-                           const gchar       *icon_name,
-                           const gchar       *title,
-                           Launcher           launcher,
-                           GList             *source_file_list,
-                           GList             *target_file_list,
-                           gboolean           update_source_folders,
-                           gboolean           update_target_folders,
-                           GClosure          *new_files_closure)
+static void thunar_application_launch(ThunarApplication *application,
+                                       gpointer           parent,
+                                       const gchar       *icon_name,
+                                       const gchar       *title,
+                                       Launcher           launcher,
+                                       GList             *source_file_list,
+                                       GList             *target_file_list,
+                                       gboolean           update_source_folders,
+                                       gboolean           update_target_folders,
+                                       GClosure          *new_files_closure)
 {
     GtkWidget *dialog;
     GdkScreen *screen;
@@ -813,11 +794,10 @@ thunar_application_launch(ThunarApplication *application,
 }
 
 #ifdef HAVE_GUDEV
-static void
-thunar_application_uevent(GUdevClient       *client,
-                           const gchar       *action,
-                           GUdevDevice       *device,
-                           ThunarApplication *application)
+static void thunar_application_uevent(GUdevClient       *client,
+                                       const gchar       *action,
+                                       GUdevDevice       *device,
+                                       ThunarApplication *application)
 {
     const gchar *sysfs_path;
     gboolean     is_cdrom = FALSE;
@@ -876,8 +856,7 @@ thunar_application_uevent(GUdevClient       *client,
     }
 }
 
-static gboolean
-thunar_application_volman_idle(gpointer user_data)
+static gboolean thunar_application_volman_idle(gpointer user_data)
 {
     ThunarApplication *application = THUNAR_APPLICATION(user_data);
     GdkScreen         *screen;
@@ -944,16 +923,14 @@ thunar_application_volman_idle(gpointer user_data)
             && application->volman_udis != NULL);
 }
 
-static void
-thunar_application_volman_idle_destroy(gpointer user_data)
+static void thunar_application_volman_idle_destroy(gpointer user_data)
 {
     THUNAR_APPLICATION(user_data)->volman_idle_id = 0;
 }
 
-static void
-thunar_application_volman_watch(GPid     pid,
-                                 gint     status,
-                                 gpointer user_data)
+static void thunar_application_volman_watch(GPid     pid,
+                                             gint     status,
+                                             gpointer user_data)
 {
     UNUSED(status);
 
@@ -971,16 +948,14 @@ thunar_application_volman_watch(GPid     pid,
     g_spawn_close_pid(pid);
 }
 
-static void
-thunar_application_volman_watch_destroy(gpointer user_data)
+static void thunar_application_volman_watch_destroy(gpointer user_data)
 {
     THUNAR_APPLICATION(user_data)->volman_watch_id = 0;
 }
 
 #endif /* HAVE_GUDEV */
 
-static gboolean
-thunar_application_show_dialogs(gpointer user_data)
+static gboolean thunar_application_show_dialogs(gpointer user_data)
 {
     ThunarApplication *application = THUNAR_APPLICATION(user_data);
 
@@ -991,8 +966,7 @@ thunar_application_show_dialogs(gpointer user_data)
     return FALSE;
 }
 
-static void
-thunar_application_show_dialogs_destroy(gpointer user_data)
+static void thunar_application_show_dialogs_destroy(gpointer user_data)
 {
     THUNAR_APPLICATION(user_data)->show_dialogs_timer_id = 0;
 }
@@ -1007,8 +981,7 @@ thunar_application_show_dialogs_destroy(gpointer user_data)
  *
  * Return value: the shared #ThunarApplication instance.
  **/
-ThunarApplication*
-thunar_application_get(void)
+ThunarApplication* thunar_application_get(void)
 {
     GApplication *default_app = g_application_get_default();
 
@@ -1026,8 +999,7 @@ thunar_application_get(void)
  *
  * Return value: %TRUE if @application is in daemon mode.
  **/
-gboolean
-thunar_application_get_daemon(ThunarApplication *application)
+gboolean thunar_application_get_daemon(ThunarApplication *application)
 {
     _thunar_return_val_if_fail(THUNAR_IS_APPLICATION(application), FALSE);
     return application->daemon;
@@ -1040,9 +1012,8 @@ thunar_application_get_daemon(ThunarApplication *application)
  *
  * If @daemon is %TRUE, @application will be set into daemon mode.
  **/
-void
-thunar_application_set_daemon(ThunarApplication *application,
-                               gboolean           daemonize)
+void thunar_application_set_daemon(ThunarApplication *application,
+                                   gboolean           daemonize)
 {
     _thunar_return_if_fail(THUNAR_IS_APPLICATION(application));
 
@@ -1071,9 +1042,8 @@ thunar_application_set_daemon(ThunarApplication *application,
  * new #GtkWindowGroup for this window. This will make different
  * windows work independant(think gtk_dialog_run).
  **/
-void
-thunar_application_take_window(ThunarApplication *application,
-                                GtkWindow         *window)
+void thunar_application_take_window(ThunarApplication *application,
+                                    GtkWindow         *window)
 {
     GtkWindowGroup *group;
 
@@ -1107,12 +1077,11 @@ thunar_application_take_window(ThunarApplication *application,
  *
  * Return value: the newly allocated #ThunarWindow.
  **/
-GtkWidget*
-thunar_application_open_window(ThunarApplication *application,
-                                ThunarFile        *directory,
-                                GdkScreen         *screen,
-                                const gchar       *startup_id,
-                                gboolean           force_new_window)
+GtkWidget* thunar_application_open_window(ThunarApplication *application,
+                                            ThunarFile        *directory,
+                                            GdkScreen         *screen,
+                                            const gchar       *startup_id,
+                                            gboolean           force_new_window)
 {
     UNUSED(force_new_window);
 
@@ -1155,8 +1124,8 @@ thunar_application_open_window(ThunarApplication *application,
     return window;
 }
 
-static GtkWidget *
-thunar_application_get_progress_dialog(ThunarApplication *application)
+static GtkWidget* thunar_application_get_progress_dialog(
+                                            ThunarApplication *application)
 {
     _thunar_return_val_if_fail(THUNAR_IS_APPLICATION(application), NULL);
 
@@ -1174,12 +1143,11 @@ thunar_application_get_progress_dialog(ThunarApplication *application)
     return application->progress_dialog;
 }
 
-static void
-thunar_application_process_files_finish(ThunarBrowser  *browser,
-                                         ThunarFile     *file,
-                                         ThunarFile     *target_file,
-                                         GError         *error,
-                                         gpointer       unused)
+static void thunar_application_process_files_finish(ThunarBrowser  *browser,
+                                                     ThunarFile     *file,
+                                                     ThunarFile     *target_file,
+                                                     GError         *error,
+                                                     gpointer       unused)
 {
     UNUSED(unused);
 
@@ -1242,8 +1210,7 @@ thunar_application_process_files_finish(ThunarBrowser  *browser,
     g_application_release(G_APPLICATION(application));
 }
 
-static void
-thunar_application_process_files(ThunarApplication *application)
+static void thunar_application_process_files(ThunarApplication *application)
 {
     ThunarFile *file;
     GdkScreen  *screen;
@@ -1290,13 +1257,12 @@ thunar_application_process_files(ThunarApplication *application)
  *
  * Return value: %TRUE on success, %FALSE if @error is set.
  **/
-gboolean
-thunar_application_process_filenames(ThunarApplication *application,
-                                      const gchar       *working_directory,
-                                      gchar            **filenames,
-                                      GdkScreen         *screen,
-                                      const gchar       *startup_id,
-                                      GError           **error)
+gboolean thunar_application_process_filenames(ThunarApplication *application,
+                                              const gchar       *working_directory,
+                                              gchar            **filenames,
+                                              GdkScreen         *screen,
+                                              const gchar       *startup_id,
+                                              GError           **error)
 {
     ThunarFile *file;
     GError     *derror = NULL;
@@ -1351,7 +1317,7 @@ thunar_application_process_filenames(ThunarApplication *application,
     }
 
     /* loop over all files */
-    for(lp = file_list; lp != NULL; lp = lp->next)
+    for (lp = file_list; lp != NULL; lp = lp->next)
     {
         /* remember the screen to launch the file on */
         g_object_set_qdata(G_OBJECT(lp->data), thunar_application_screen_quark, screen);
@@ -1390,12 +1356,11 @@ thunar_application_process_filenames(ThunarApplication *application,
  * Copies all files referenced by the @source_file_list to the directory
  * referenced by @target_file. This method takes care of all user interaction.
  **/
-void
-thunar_application_copy_into(ThunarApplication *application,
-                              gpointer           parent,
-                              GList             *source_file_list,
-                              GFile             *target_file,
-                              GClosure          *new_files_closure)
+void thunar_application_copy_into(ThunarApplication *application,
+                                  gpointer           parent,
+                                  GList             *source_file_list,
+                                  GFile             *target_file,
+                                  GClosure          *new_files_closure)
 {
     gchar *display_name;
     gchar *title;
@@ -1435,12 +1400,11 @@ thunar_application_copy_into(ThunarApplication *application,
  * referenced by @target_file. This method takes care of all user
  * interaction.
  **/
-void
-thunar_application_link_into(ThunarApplication *application,
-                              gpointer           parent,
-                              GList             *source_file_list,
-                              GFile             *target_file,
-                              GClosure          *new_files_closure)
+void thunar_application_link_into(ThunarApplication *application,
+                                  gpointer           parent,
+                                  GList             *source_file_list,
+                                  GFile             *target_file,
+                                  GClosure          *new_files_closure)
 {
     gchar *display_name;
     gchar *title;
@@ -1480,12 +1444,11 @@ thunar_application_link_into(ThunarApplication *application,
  * referenced by @target_file. This method takes care of all user
  * interaction.
  **/
-void
-thunar_application_move_into(ThunarApplication *application,
-                              gpointer           parent,
-                              GList             *source_file_list,
-                              GFile             *target_file,
-                              GClosure          *new_files_closure)
+void thunar_application_move_into(ThunarApplication *application,
+                                  gpointer           parent,
+                                  GList             *source_file_list,
+                                  GFile             *target_file,
+                                  GClosure          *new_files_closure)
 {
     gchar *display_name;
     gchar *title;
@@ -1519,9 +1482,8 @@ thunar_application_move_into(ThunarApplication *application,
     }
 }
 
-static ThunarJob*
-unlink_stub(GList *source_path_list,
-             GList *target_path_list)
+static ThunarJob* unlink_stub(GList *source_path_list,
+                                GList *target_path_list)
 {
     UNUSED(target_path_list);
     return thunar_io_jobs_unlink_files(source_path_list);
@@ -1540,11 +1502,10 @@ unlink_stub(GList *source_path_list,
  * the files will be deleted permanently(after confirming the action),
  * otherwise the files will be moved to the trash.
  **/
-void
-thunar_application_unlink_files(ThunarApplication *application,
-                                 gpointer           parent,
-                                 GList             *file_list,
-                                 gboolean           permanently)
+void thunar_application_unlink_files(ThunarApplication *application,
+                                     gpointer           parent,
+                                     GList             *file_list,
+                                     gboolean           permanently)
 {
     GtkWidget *dialog;
     GtkWindow *window;
@@ -1652,9 +1613,8 @@ void thunar_application_trash(ThunarApplication *application,
                                file_list, NULL, TRUE, FALSE, NULL);
 }
 
-static ThunarJob *
-creat_stub(GList *template_file,
-            GList *target_path_list)
+static ThunarJob* creat_stub(GList *template_file,
+                            GList *target_path_list)
 {
     _thunar_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
     return thunar_io_jobs_create_files(target_path_list, template_file->data);
@@ -1673,12 +1633,11 @@ creat_stub(GList *template_file,
  * Creates empty files for all #GFile<!---->s listed in @file_list. This
  * method takes care of all user interaction.
  **/
-void
-thunar_application_creat(ThunarApplication *application,
-                          gpointer           parent,
-                          GList             *file_list,
-                          GFile             *template_file,
-                          GClosure          *new_files_closure)
+void thunar_application_creat(ThunarApplication *application,
+                              gpointer           parent,
+                              GList             *file_list,
+                              GFile             *template_file,
+                              GClosure          *new_files_closure)
 {
     GList template_list;
 
@@ -1694,9 +1653,8 @@ thunar_application_creat(ThunarApplication *application,
                                &template_list, file_list, FALSE, TRUE, new_files_closure);
 }
 
-static ThunarJob *
-mkdir_stub(GList *source_path_list,
-            GList *target_path_list)
+static ThunarJob* mkdir_stub(GList *source_path_list,
+                                GList *target_path_list)
 {
     UNUSED(target_path_list);
     return thunar_io_jobs_make_directories(source_path_list);
@@ -1715,11 +1673,10 @@ mkdir_stub(GList *source_path_list,
  * Creates all directories referenced by the @file_list. This method takes care of all user
  * interaction.
  **/
-void
-thunar_application_mkdir(ThunarApplication *application,
-                          gpointer           parent,
-                          GList             *file_list,
-                          GClosure          *new_files_closure)
+void thunar_application_mkdir(ThunarApplication *application,
+                              gpointer           parent,
+                              GList             *file_list,
+                              GClosure          *new_files_closure)
 {
     _thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     _thunar_return_if_fail(THUNAR_IS_APPLICATION(application));
@@ -1740,10 +1697,9 @@ thunar_application_mkdir(ThunarApplication *application,
  * Deletes all files and folders in the Trash after asking
  * the user to confirm the operation.
  **/
-void
-thunar_application_empty_trash(ThunarApplication *application,
-                                gpointer           parent,
-                                const gchar       *startup_id)
+void thunar_application_empty_trash(ThunarApplication *application,
+                                    gpointer           parent,
+                                    const gchar       *startup_id)
 {
     GtkWidget *dialog;
     GtkWindow *window;
@@ -1811,11 +1767,10 @@ thunar_application_empty_trash(ThunarApplication *application,
  * Restores all #ThunarFile<!---->s in the @trash_file_list to their original
  * location.
  **/
-void
-thunar_application_restore_files(ThunarApplication *application,
-                                  gpointer           parent,
-                                  GList             *trash_file_list,
-                                  GClosure          *new_files_closure)
+void thunar_application_restore_files(ThunarApplication *application,
+                                      gpointer           parent,
+                                      GList             *trash_file_list,
+                                      GClosure          *new_files_closure)
 {
     const gchar *original_uri;
     GError      *err = NULL;

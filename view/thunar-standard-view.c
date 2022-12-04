@@ -137,13 +137,15 @@ static void thunar_standard_view_scroll_to_file(ThunarView *view,
                  gboolean use_align,
                  gfloat row_align,
                  gfloat col_align);
-static GdkDragAction thunar_standard_view_get_dest_actions(ThunarStandardView *standard_view,
+static GdkDragAction thunar_standard_view_get_dest_actions(
+        ThunarStandardView *standard_view,
                  GdkDragContext *context,
                  gint x,
                  gint y,
                  guint timestamp,
                  ThunarFile **file_return);
-static ThunarFile *thunar_standard_view_get_drop_file(ThunarStandardView *standard_view,
+static ThunarFile *thunar_standard_view_get_drop_file(
+        ThunarStandardView *standard_view,
                  gint x,
                  gint y,
                  GtkTreePath **path_return);
