@@ -24,6 +24,12 @@
 
 G_BEGIN_DECLS;
 
+#ifndef NO_DPRINT
+#define DPRINT g_print
+#else
+#define DPRINT(fmt, ...) do {} while (0)
+#endif
+
 /* support macros for debugging */
 #ifdef NDEBUG
 #define _thunar_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
