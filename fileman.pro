@@ -146,6 +146,7 @@ SOURCES = \
     thunar-window.c \
 
 DISTFILES = \
+    Notes.md \
     install.sh \
     meson.build \
     Readme.md \
