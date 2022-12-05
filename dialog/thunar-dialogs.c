@@ -43,70 +43,52 @@
 #include <thunar-debug.h>
 #include <thunar-util.h>
 
-static void thunar_dialogs_select_filename(GtkWidget  *entry, ThunarFile *file);
+static void _thunar_dialogs_select_filename(GtkWidget  *entry, ThunarFile *file);
 
-/**
- * thunar_dialogs_show_create:
- * @parent       : a #GdkScreen, a #GtkWidget or %NULL.
- * @content_type : the content type of the file or folder to create.
- * @filename     : the suggested filename or %NULL.
- * @title        : the dialog title.
- *
- * Displays a Thunar create dialog  with the specified
- * parameters that asks the user to enter a name for a new file or
- * folder.
- *
- * The caller is responsible to free the returned filename using
- * g_free() when no longer needed.
- *
- * Return value: the filename entered by the user or %NULL if the user
- *               cancelled the dialog.
- **/
 gchar* thunar_dialogs_show_create(gpointer      parent,
                                   const gchar   *content_type,
                                   const gchar   *filename,
                                   const gchar   *title)
 {
-    GtkWidget         *dialog;
-    GtkWindow         *window;
-    GdkScreen         *screen;
-    GError            *error = NULL;
-    gchar             *name = NULL;
-    GtkWidget         *label;
-    GtkWidget         *grid;
-    GtkWidget         *image;
-    XfceFilenameInput *filename_input;
-    GIcon             *icon = NULL;
+    thunar_return_val_if_fail(parent == NULL
+                              || GDK_IS_SCREEN(parent)
+                              || GTK_IS_WIDGET(parent),
+                              NULL);
 
-    _thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
+    // The caller must free the returned string.
 
     /* parse the parent window and screen */
-    screen = thunar_util_parse_parent(parent, &window);
+    GtkWindow *window;
+    GdkScreen *screen = thunar_util_parse_parent(parent, &window);
 
     /* create a new dialog window */
-    dialog = gtk_dialog_new_with_buttons(title,
-                                          window,
-                                          GTK_DIALOG_MODAL
-                                          | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                          _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                          _("C_reate"), GTK_RESPONSE_OK,
-                                          NULL);
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+                                    title,
+                                    window,
+                                    GTK_DIALOG_MODAL
+                                    | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                    _("C_reate"), GTK_RESPONSE_OK,
+                                    NULL);
 
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
     gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, -1);
 
-    grid = gtk_grid_new();
+    GtkWidget *grid = gtk_grid_new();
     gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
     gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
     gtk_container_set_border_width(GTK_CONTAINER(grid), 6);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), grid, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+                       grid, TRUE, TRUE, 0);
     gtk_widget_show(grid);
 
+    GIcon *icon = NULL;
     /* try to load the icon */
     if (G_LIKELY(content_type != NULL))
         icon = g_content_type_get_icon(content_type);
 
+    GtkWidget *image;
     /* setup the image */
     if (G_LIKELY(icon != NULL))
     {
@@ -117,12 +99,19 @@ gchar* thunar_dialogs_show_create(gpointer      parent,
         gtk_widget_show(image);
     }
 
-    label = g_object_new(GTK_TYPE_LABEL, "label", _("Enter the name:"), "xalign", 0.0f, "hexpand", TRUE, NULL);
+    GtkWidget *label = g_object_new(GTK_TYPE_LABEL,
+                                    "label",
+                                    _("Enter the name:"),
+                                    "xalign", 0.0f,
+                                    "hexpand", TRUE,
+                                    NULL);
     gtk_grid_attach(GTK_GRID(grid), label, 1, 0, 1, 1);
     gtk_widget_show(label);
 
     /* set up the widget for entering the filename */
-    filename_input = g_object_new(XFCE_TYPE_FILENAME_INPUT, "original-filename", filename, NULL);
+    XfceFilenameInput *filename_input = g_object_new(XFCE_TYPE_FILENAME_INPUT,
+                                                     "original-filename", filename,
+                                                     NULL);
     gtk_widget_set_hexpand(GTK_WIDGET(filename_input), TRUE);
     gtk_widget_set_valign(GTK_WIDGET(filename_input), GTK_ALIGN_CENTER);
 
@@ -147,8 +136,11 @@ gchar* thunar_dialogs_show_create(gpointer      parent,
     if (window != NULL)
         gtk_window_set_transient_for(GTK_WINDOW(dialog), window);
 
+    gchar *name = NULL;
+
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK)
     {
+        GError *error = NULL;
         /* determine the chosen filename */
         filename = xfce_filename_input_get_text(filename_input);
 
@@ -277,7 +269,7 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
     xfce_filename_input_check(filename_input);
 
     /* select the filename without the extension */
-    thunar_dialogs_select_filename(GTK_WIDGET(xfce_filename_input_get_entry(filename_input)), file);
+    _thunar_dialogs_select_filename(GTK_WIDGET(xfce_filename_input_get_entry(filename_input)), file);
 
     /* get the size the entry requires to render the full text */
     layout = gtk_entry_get_layout(xfce_filename_input_get_entry(filename_input));
@@ -322,7 +314,9 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
     if (G_LIKELY(response != GTK_RESPONSE_NONE))
     {
         /* unregister handler */
-        g_signal_handlers_disconnect_by_func(G_OBJECT(file), gtk_widget_destroy, dialog);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(file),
+                                             gtk_widget_destroy,
+                                             dialog);
 
         gtk_widget_destroy(dialog);
     }
@@ -1027,7 +1021,7 @@ gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
     return (response == GTK_RESPONSE_OK);
 }
 
-static void thunar_dialogs_select_filename(GtkWidget  *entry,
+static void _thunar_dialogs_select_filename(GtkWidget  *entry,
                                            ThunarFile *file)
 {
     const gchar *filename;

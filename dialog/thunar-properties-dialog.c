@@ -713,8 +713,8 @@ thunar_properties_dialog_rename_finished (ExoJob                 *job,
     g_object_unref (job);
 }
 
-static void
-thunar_properties_dialog_name_activate (GtkWidget              *entry,
+static void thunar_properties_dialog_name_activate (
+                                        GtkWidget              *entry,
                                         ThunarPropertiesDialog *dialog)
 {
     UNUSED(entry);
@@ -723,7 +723,7 @@ thunar_properties_dialog_name_activate (GtkWidget              *entry,
     ThunarJob   *job;
     ThunarFile  *file;
 
-    _thunar_return_if_fail (THUNAR_IS_PROPERTIES_DIALOG (dialog));
+    thunar_return_if_fail (THUNAR_IS_PROPERTIES_DIALOG (dialog));
 
     /* check if we still have a valid file and if the user is allowed to rename */
     if (G_UNLIKELY (!gtk_widget_get_sensitive (GTK_WIDGET (xfce_filename_input_get_entry (dialog->name_entry)))

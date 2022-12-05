@@ -52,31 +52,6 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-/**
- * SECTION:thunar-launcher
- * @Short_description: Manages creation and execution of menu-item
- * @Title: ThunarLauncher
- *
- * The #ThunarLauncher class manages the creation and execution of menu-item which are used by multiple menus.
- * The management is done in a central way to prevent code duplication on various places.
- * XfceGtkActionEntry is used in order to define a list of the managed items and ease the setup of single items.
- *
- * #ThunarLauncher implements the #ThunarNavigator interface in order to use the "open in new tab" and "change directory" service.
- * It as well tracks the current directory via #ThunarNavigator.
- *
- * #ThunarLauncher implements the #ThunarComponent interface in order to track the currently selected files.
- * Based on to the current selection(and some other criteria), some menu items will not be shown, or will be insensitive.
- *
- * Files which are opened via #ThunarLauncher are poked first in order to e.g do missing mount operations.
- *
- * As well menu-item related services, like activation of selected files and opening tabs/new windows,
- * are provided by #ThunarLauncher.
- *
- * It is required to keep an instance of #ThunarLauncher open, in order to listen to accellerators which target
- * menu-items managed by #ThunarLauncher.
- * Typically a single instance of #ThunarLauncher is provided by each #ThunarWindow.
- */
-
 typedef struct _ThunarLauncherPokeData ThunarLauncherPokeData;
 
 /* Property identifiers */
@@ -2138,7 +2113,13 @@ gboolean thunar_launcher_check_uca_key_activation(ThunarLauncher *launcher,
     return uca_activated;
 }
 
-static void thunar_launcher_rename_error(ExoJob    *job,
+
+
+/******************************************************************************
+ * File rename action
+ *
+ */
+static void _thunar_launcher_rename_error(ExoJob    *job,
                                          GError    *error,
                                          GtkWidget *widget)
 {
@@ -2157,7 +2138,7 @@ static void thunar_launcher_rename_error(ExoJob    *job,
     g_object_unref(file);
 }
 
-static void thunar_launcher_rename_finished(ExoJob    *job,
+static void _thunar_launcher_rename_finished(ExoJob    *job,
                                             GtkWidget *widget)
 {
     _thunar_return_if_fail(EXO_IS_JOB(job));
@@ -2169,8 +2150,6 @@ static void thunar_launcher_rename_finished(ExoJob    *job,
 
 static void thunar_launcher_action_rename(ThunarLauncher *launcher)
 {
-    ThunarJob *job;
-    GtkWidget *window;
 
     _thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -2180,18 +2159,20 @@ static void thunar_launcher_action_rename(ThunarLauncher *launcher)
         return;
 
     /* get the window */
+    GtkWidget *window;
     window = gtk_widget_get_toplevel(launcher->widget);
 
     /* start renaming if we have exactly one selected file */
     if (g_list_length(launcher->files_to_process) == 1)
     {
         /* run the rename dialog */
+        ThunarJob *job;
         job = thunar_dialogs_show_rename_file(GTK_WINDOW(window), THUNAR_FILE(launcher->files_to_process->data));
 
         if (G_LIKELY(job != NULL))
         {
-            g_signal_connect(job, "error", G_CALLBACK(thunar_launcher_rename_error), launcher->widget);
-            g_signal_connect(job, "finished", G_CALLBACK(thunar_launcher_rename_finished), launcher->widget);
+            g_signal_connect(job, "error", G_CALLBACK(_thunar_launcher_rename_error), launcher->widget);
+            g_signal_connect(job, "finished", G_CALLBACK(_thunar_launcher_rename_finished), launcher->widget);
         }
     }
 
@@ -2200,6 +2181,9 @@ static void thunar_launcher_action_rename(ThunarLauncher *launcher)
     //    multiplefiles...
     //  }
 }
+
+
+
 
 static void thunar_launcher_action_restore(ThunarLauncher *launcher)
 {
