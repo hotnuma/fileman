@@ -676,7 +676,6 @@ static void thunar_tree_view_unrealize(GtkWidget *widget)
    (*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->unrealize)(widget);
 }
 
-
 /*
  * thunar_tree_view_delete_selected_files
  *
@@ -684,9 +683,6 @@ static void thunar_tree_view_unrealize(GtkWidget *widget)
  */
 gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
 {
-    GtkAccelKey     key;
-    GdkModifierType state;
-
     _thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
 
     if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
@@ -695,22 +691,27 @@ gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
     /* Check if there is a user defined accelerator for the delete action,
      * if there is, skip events from the hard-coded keys which are set in
      * the class of the standard view. See bug #4173. */
-    if (gtk_accel_map_lookup_entry("<Actions>/ThunarStandardView/move-to-trash", &key)
-            &&(key.accel_key != 0 || key.accel_mods != 0))
+
+    GtkAccelKey key;
+
+    if (gtk_accel_map_lookup_entry(
+                        "<Actions>/ThunarStandardView/move-to-trash",
+                        &key)
+        &&(key.accel_key != 0 || key.accel_mods != 0))
+    {
         return FALSE;
+    }
 
     /* check if we should permanently delete the files(user holds shift or no gvfs available) */
-    if ((gtk_get_current_event_state(&state)
-         && (state & GDK_SHIFT_MASK) != 0)
-        || (gtk_get_current_event_state(&state)
-        /*&& !thunar_g_vfs_is_uri_scheme_supported("trash")*/ ))
+
+    GdkModifierType state;
+
+    if (gtk_get_current_event_state(&state) && (state & GDK_SHIFT_MASK) != 0)
     {
-        //thunar_tree_view_action_delete(view);
         thunar_tree_view_action_unlink_selected_folder(view, TRUE);
     }
     else
     {
-        //thunar_tree_view_action_move_to_trash(view);
         thunar_tree_view_action_unlink_selected_folder(view, FALSE);
     }
 
@@ -718,42 +719,33 @@ gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
     return TRUE;
 }
 
-#if 0
-static void thunar_tree_view_action_move_to_trash(ThunarTreeView *view)
-{
-    thunar_tree_view_action_unlink_selected_folder(view, FALSE);
-}
-
-static void thunar_tree_view_action_delete(ThunarTreeView *view)
-{
-    thunar_tree_view_action_unlink_selected_folder(view, TRUE);
-}
-#endif
-
 static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
-                                                            gboolean        permanently)
+                                                           gboolean permanently)
 {
-    ThunarApplication *application;
-    ThunarFile        *file;
-    GList              file_list;
-
     _thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
 
     /* determine the selected file */
-    file = thunar_tree_view_get_selected_file(view);
+
+    ThunarFile *file = thunar_tree_view_get_selected_file(view);
+
     if (G_LIKELY(file != NULL))
     {
         if (thunar_file_can_be_trashed(file))
         {
             /* fake a file list */
+
+            GList file_list;
             file_list.data = file;
             file_list.next = NULL;
             file_list.prev = NULL;
 
             /* delete the file */
-            application = thunar_application_get();
+            ThunarApplication *application = thunar_application_get();
 
-            thunar_application_unlink_files(application, GTK_WIDGET(view), &file_list, permanently);
+            thunar_application_unlink_files(application,
+                                            GTK_WIDGET(view),
+                                            &file_list,
+                                            permanently);
 
             g_object_unref(G_OBJECT(application));
         }
@@ -762,7 +754,6 @@ static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
         g_object_unref(G_OBJECT(file));
     }
 }
-
 
 static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
                                                     GdkEventButton *event)

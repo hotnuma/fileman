@@ -2164,4 +2164,24 @@ thunar_window_history_clicked(GtkWidget      *button,
     return FALSE;
 }
 
+gboolean thunar_window_action_key_trash(ThunarWindow *window)
+{
+    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
+    GtkWidget *view = GTK_WIDGET(thunar_tree_pane_get_view(
+                                     THUNAR_TREE_PANE(window->sidepane)));
+
+    if (focused == view)
+    {
+        const gchar *name = gtk_widget_get_name(focused);
+
+        g_print("treeview is focused = %s\n", name);
+
+        thunar_tree_view_delete_selected_files(THUNAR_TREE_VIEW(view));
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 

@@ -1507,27 +1507,23 @@ void thunar_application_unlink_files(ThunarApplication *application,
                                      GList             *file_list,
                                      gboolean           permanently)
 {
-    GtkWidget *dialog;
-    GtkWindow *window;
-    GdkScreen *screen;
-    GList     *path_list = NULL;
-    GList     *lp;
-    gchar     *message;
-    guint      n_path_list = 0;
-    gint       response;
-
     _thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     _thunar_return_if_fail(THUNAR_IS_APPLICATION(application));
 
+    GList     *lp;
+    guint      n_path_list = 0;
+    GList     *path_list = NULL;
+
     /* determine the paths for the files */
-    for(lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
+    for (lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
     {
         /* prepend the path to the path list */
         path_list = thunar_g_file_list_prepend(path_list, thunar_file_get_file(lp->data));
 
         /* permanently delete if at least one of the file is not a local
          * file(e.g. resides in the trash) or cannot be trashed */
-        if (!thunar_file_is_local(lp->data) || !thunar_file_can_be_trashed(lp->data))
+        if (!thunar_file_is_local(lp->data)
+            || !thunar_file_can_be_trashed(lp->data))
             permanently = TRUE;
     }
 
@@ -1539,13 +1535,17 @@ void thunar_application_unlink_files(ThunarApplication *application,
     if (G_UNLIKELY(permanently))
     {
         /* parse the parent pointer */
-        screen = thunar_util_parse_parent(parent, &window);
+        GtkWindow *window;
+        GdkScreen *screen = thunar_util_parse_parent(parent, &window);
+
+        gchar     *message;
 
         /* generate the question to confirm the delete operation */
         if (G_LIKELY(n_path_list == 1))
         {
-            message = g_strdup_printf(_("Are you sure that you want to\npermanently delete \"%s\"?"),
-                                       thunar_file_get_display_name(THUNAR_FILE(file_list->data)));
+            message = g_strdup_printf(
+            _("Are you sure that you want to\npermanently delete \"%s\"?"),
+            thunar_file_get_display_name(THUNAR_FILE(file_list->data)));
         }
         else
         {
@@ -1556,21 +1556,26 @@ void thunar_application_unlink_files(ThunarApplication *application,
         }
 
         /* ask the user to confirm the delete operation */
-        dialog = gtk_message_dialog_new(window,
-                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+        GtkWidget *dialog = gtk_message_dialog_new(window,
+                                         GTK_DIALOG_MODAL
+                                         | GTK_DIALOG_DESTROY_WITH_PARENT,
                                          GTK_MESSAGE_QUESTION,
                                          GTK_BUTTONS_NONE,
                                          "%s", message);
+
         if (G_UNLIKELY(window == NULL && screen != NULL))
             gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
         gtk_dialog_add_buttons(GTK_DIALOG(dialog),
                                 _("_Cancel"), GTK_RESPONSE_CANCEL,
                                 _("_Delete"), GTK_RESPONSE_YES,
                                 NULL);
+
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-                _("If you delete a file, it is permanently lost."));
-        response = gtk_dialog_run(GTK_DIALOG(dialog));
+                            _("If you delete a file, it is permanently lost."));
+
+        gint response = gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
         g_free(message);
 
@@ -1579,8 +1584,8 @@ void thunar_application_unlink_files(ThunarApplication *application,
         {
             /* launch the "Delete" operation */
             thunar_application_launch(application, parent, "edit-delete",
-                                       _("Deleting files..."), unlink_stub,
-                                       path_list, path_list, TRUE, FALSE, NULL);
+                                      _("Deleting files..."), unlink_stub,
+                                      path_list, path_list, TRUE, FALSE, NULL);
         }
     }
     else
@@ -1617,6 +1622,7 @@ static ThunarJob* creat_stub(GList *template_file,
                             GList *target_path_list)
 {
     _thunar_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
+
     return thunar_io_jobs_create_files(target_path_list, template_file->data);
 }
 

@@ -250,4 +250,9 @@ static void thunar_tree_pane_set_show_hidden(ThunarSidePane *side_pane,
     }
 }
 
+ThunarTreeView* thunar_tree_pane_get_view(ThunarTreePane *tree_pane)
+{
+    return THUNAR_TREE_VIEW(tree_pane->view);
+}
+
 
