@@ -32,7 +32,7 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-util.h>
 
 

@@ -40,45 +40,8 @@
 #include <thunar-job.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-util.h>
-
-gboolean thunar_dialogs_show_folder_trash(GtkWindow *window)
-{
-    //GdkScreen *screen = thunar_util_parse_parent(parent, &window);
-
-    gchar *message = g_strdup_printf(
-    _("Are you sure that you want to delete folder?"));
-
-    /* ask the user to confirm the delete operation */
-    GtkWidget *dialog = gtk_message_dialog_new(
-                                        window,
-                                        GTK_DIALOG_MODAL
-                                        | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                        GTK_MESSAGE_QUESTION,
-                                        GTK_BUTTONS_NONE,
-                                        "%s",
-                                        message);
-
-//    if (G_UNLIKELY(window == NULL && screen != NULL))
-//        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
-
-    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
-                            _("_Cancel"), GTK_RESPONSE_CANCEL,
-                            _("_Delete"), GTK_RESPONSE_YES,
-                            NULL);
-
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-                        _("Secondary."));
-
-    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-    g_free(message);
-
-    /* perform the delete operation */
-    return (response == GTK_RESPONSE_YES);
-}
 
 static void thunar_dialogs_select_filename(GtkWidget  *entry, ThunarFile *file);
 
@@ -219,9 +182,11 @@ gchar* thunar_dialogs_show_create(gpointer      parent,
  * Return value: The #ThunarJob responsible for renaming the file or
  *               %NULL if there was no renaming required.
  **/
-ThunarJob* thunar_dialogs_show_rename_file(gpointer    parent,
-                                           ThunarFile *file)
+ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
 {
+    _thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
+    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+
     ThunarIconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
     const gchar       *filename;
@@ -241,9 +206,6 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer    parent,
     gint               layout_offset;
     gint               parent_width = 500;
     XfceFilenameInput *filename_input;
-
-    _thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     /* parse the parent window and screen */
     screen = thunar_util_parse_parent(parent, &window);
@@ -366,6 +328,43 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer    parent,
     }
 
     return job;
+}
+
+gboolean thunar_dialogs_show_folder_trash(GtkWindow *window)
+{
+    //GdkScreen *screen = thunar_util_parse_parent(parent, &window);
+
+    gchar *message = g_strdup_printf(
+    _("Are you sure that you want to delete folder?"));
+
+    /* ask the user to confirm the delete operation */
+    GtkWidget *dialog = gtk_message_dialog_new(
+                                        window,
+                                        GTK_DIALOG_MODAL
+                                        | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_MESSAGE_QUESTION,
+                                        GTK_BUTTONS_NONE,
+                                        "%s",
+                                        message);
+
+    //if (G_UNLIKELY(window == NULL && screen != NULL))
+    //    gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                            _("_Cancel"), GTK_RESPONSE_CANCEL,
+                            _("_Delete"), GTK_RESPONSE_YES,
+                            NULL);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                                             _("Secondary."));
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    g_free(message);
+
+    /* perform the delete operation */
+    return (response == GTK_RESPONSE_YES);
 }
 
 /**

@@ -42,7 +42,7 @@
 #include <thunar-icon-renderer.h>
 #include <thunar-list-model.h>
 #include <thunar-path-entry.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-util.h>
 
 

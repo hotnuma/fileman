@@ -30,7 +30,7 @@
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-transfer-job.h>
 
 /* seconds before we show the transfer rate + remaining time */

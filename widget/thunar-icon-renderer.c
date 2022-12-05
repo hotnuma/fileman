@@ -25,7 +25,7 @@
 #include <thunar-gdk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-icon-renderer.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

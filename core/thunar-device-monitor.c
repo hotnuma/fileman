@@ -27,7 +27,7 @@
 #endif
 
 #include <thunar-device-monitor.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-marshal.h>
 #include <thunar-preferences.h>
 

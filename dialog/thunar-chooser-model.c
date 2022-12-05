@@ -31,7 +31,7 @@
 #include <thunar-chooser-model.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

@@ -36,7 +36,7 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 /* Property identifiers */
 enum

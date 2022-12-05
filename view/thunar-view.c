@@ -20,7 +20,7 @@
 #include <config.h>
 #endif
 
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-view.h>
 
 

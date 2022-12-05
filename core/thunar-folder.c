@@ -26,7 +26,7 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-io-jobs.h>
 #include <thunar-job.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 #define DEBUG_FILE_CHANGES FALSE
 

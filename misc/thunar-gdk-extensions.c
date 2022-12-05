@@ -34,7 +34,7 @@
 #endif
 
 #include <thunar-gdk-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 static const cairo_user_data_key_t cairo_key;
 

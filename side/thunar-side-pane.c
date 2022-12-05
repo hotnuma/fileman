@@ -20,7 +20,7 @@
 #include <config.h>
 #endif
 
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-side-pane.h>
 
 static void thunar_side_pane_class_init (gpointer klass);

@@ -30,7 +30,7 @@
 #include <thunar-job.h>
 #include <thunar-marshal.h>
 #include <thunar-util.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

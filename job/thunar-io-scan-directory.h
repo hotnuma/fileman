@@ -23,7 +23,7 @@
 #include <exo/exo.h>
 
 #include <thunar-job.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 G_BEGIN_DECLS
 

@@ -41,7 +41,7 @@
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <xfconf/xfconf.h>
 
 /* Property identifiers */

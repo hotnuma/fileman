@@ -23,7 +23,7 @@
 
 #include <thunar-gtk-extensions.h>
 #include <thunar-launcher.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-window.h>
 
 

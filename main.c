@@ -40,7 +40,7 @@
 
 #include <thunar-application.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-notify.h>
 #include <thunar-preferences.h>
 

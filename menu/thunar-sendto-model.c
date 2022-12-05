@@ -32,7 +32,7 @@
 #include <gio/gdesktopappinfo.h>
 #endif
 
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-sendto-model.h>
 
 

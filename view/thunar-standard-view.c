@@ -44,7 +44,7 @@
 #include <thunar-launcher.h>
 #include <thunar-marshal.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
 #include <thunar-standard-view.h>

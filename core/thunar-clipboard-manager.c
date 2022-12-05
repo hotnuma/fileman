@@ -33,7 +33,7 @@
 #include <thunar-clipboard-manager.h>
 #include <thunar-dialogs.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

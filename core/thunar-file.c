@@ -60,7 +60,7 @@
 #include <thunar-file-monitor.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-preferences.h>
 #include <thunar-user.h>
 #include <thunar-util.h>

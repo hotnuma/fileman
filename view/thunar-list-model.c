@@ -34,7 +34,7 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-list-model.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-user.h>
 
 /* Property identifiers */

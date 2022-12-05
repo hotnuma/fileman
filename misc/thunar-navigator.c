@@ -21,7 +21,7 @@
 #endif
 
 #include <thunar-navigator.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 enum
 {

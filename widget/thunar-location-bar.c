@@ -21,7 +21,7 @@
 #endif
 
 #include <thunar-location-bar.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-navigator.h>
 #include <thunar-location-entry.h>
 //#include <thunar-location-buttons.h>

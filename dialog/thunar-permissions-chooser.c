@@ -42,7 +42,7 @@
 #include <thunar-pango-extensions.h>
 #include <thunar-permissions-chooser.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-user.h>
 
 /* Use native strlcpy() if available */

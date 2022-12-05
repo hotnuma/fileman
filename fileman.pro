@@ -58,6 +58,7 @@ HEADERS = \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
     side/thunar-tree-view.h \
+    thunar-debug.h \
     view/thunar-column-editor.h \
     view/thunar-column-model.h \
     view/thunar-details-view.h \
@@ -77,7 +78,6 @@ HEADERS = \
     thunar-application.h \
     thunar-marshal.h \
     thunar-preferences.h \
-    thunar-private.h \
     thunar-window.h \
 
 SOURCES = \

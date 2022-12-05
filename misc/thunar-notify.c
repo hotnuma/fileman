@@ -27,7 +27,7 @@
 
 #include <thunar-notify.h>
 #include <thunar-device.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 #ifdef HAVE_LIBNOTIFY

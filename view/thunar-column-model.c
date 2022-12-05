@@ -26,7 +26,7 @@
 
 #include <thunar-column-model.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

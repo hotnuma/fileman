@@ -22,7 +22,7 @@
 
 #include <thunar-device.h>
 #include <thunar-device-monitor.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-file.h>
 #include <thunar-notify.h>
 

@@ -26,7 +26,7 @@
 #include <thunar-details-view.h>
 #include <thunar-launcher.h>
 #include <thunar-gtk-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-preferences.h>
 #include <thunar-window.h>
 

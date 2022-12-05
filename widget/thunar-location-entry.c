@@ -32,7 +32,7 @@
 #include <thunar-location-entry.h>
 #include <thunar-marshal.h>
 #include <thunar-path-entry.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 /* Property identifiers */
 enum

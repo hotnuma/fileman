@@ -33,7 +33,7 @@
 #include <thunar-enum-types.h>
 #include <thunar-job.h>
 #include <thunar-marshal.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

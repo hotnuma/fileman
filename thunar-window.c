@@ -46,7 +46,7 @@
 #include <thunar-menu.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-util.h>
 #include <thunar-statusbar.h>
 #include <thunar-tree-pane.h>

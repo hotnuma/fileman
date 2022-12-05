@@ -28,7 +28,7 @@
 #include <thunar-file-monitor.h>
 #include <thunar-image.h>
 #include <thunar-icon-factory.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

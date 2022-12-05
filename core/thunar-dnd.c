@@ -28,7 +28,7 @@
 #include <thunar-dialogs.h>
 #include <thunar-dnd.h>
 #include <thunar-gtk-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

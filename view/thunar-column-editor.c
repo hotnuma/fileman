@@ -30,7 +30,7 @@
 #include <thunar-gtk-extensions.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-preferences.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

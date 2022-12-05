@@ -25,7 +25,7 @@
 #include <exo/exo.h>
 
 #include <thunar-gobject-extensions.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-statusbar.h>
 
 

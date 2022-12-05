@@ -21,7 +21,7 @@
 #endif
 
 #include <thunar-file-monitor.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 
 
 

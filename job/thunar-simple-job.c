@@ -35,7 +35,7 @@
 #include <gobject/gvaluecollector.h>
 
 #include <thunar-job.h>
-#include <thunar-private.h>
+#include <thunar-debug.h>
 #include <thunar-simple-job.h>
 
 
