@@ -25,33 +25,33 @@
 
 G_BEGIN_DECLS;
 
-gchar             *thunar_dialogs_show_create           (gpointer              parent,
-        const gchar          *content_type,
-        const gchar          *filename,
-        const gchar          *title);
-ThunarJob         *thunar_dialogs_show_rename_file      (gpointer              parent,
-        ThunarFile           *file);
-//void               thunar_dialogs_show_about            (GtkWindow            *parent,
-//                                                         const gchar          *title,
-//                                                         const gchar          *format,
-//                                                         ...) G_GNUC_PRINTF (3, 4);
-void               thunar_dialogs_show_error            (gpointer              parent,
-        const GError         *error,
-        const gchar          *format,
-        ...) G_GNUC_PRINTF (3, 4);
-ThunarJobResponse  thunar_dialogs_show_job_ask          (GtkWindow            *parent,
-        const gchar          *question,
-        ThunarJobResponse     choices);
-ThunarJobResponse  thunar_dialogs_show_job_ask_replace  (GtkWindow            *parent,
-        ThunarFile           *src_file,
-        ThunarFile           *dst_file);
-void               thunar_dialogs_show_job_error        (GtkWindow            *parent,
-        GError               *error);
-gboolean           thunar_dialogs_show_insecure_program (gpointer              parent,
-        const gchar          *title,
-        ThunarFile           *file,
-        const gchar          *command);
+gboolean thunar_dialogs_show_folder_trash(GtkWindow *window);
+
+gchar *thunar_dialogs_show_create (gpointer parent,
+                                   const gchar *content_type,
+                                   const gchar *filename,
+                                   const gchar *title);
+ThunarJob *thunar_dialogs_show_rename_file (gpointer parent,
+                                            ThunarFile *file);
+void thunar_dialogs_show_error (gpointer parent,
+                                const GError *error,
+                                const gchar *format,
+                                ...) G_GNUC_PRINTF (3, 4);
+ThunarJobResponse thunar_dialogs_show_job_ask (GtkWindow *parent,
+                                               const gchar *question,
+                                               ThunarJobResponse choices);
+ThunarJobResponse thunar_dialogs_show_job_ask_replace (GtkWindow *parent,
+                                                       ThunarFile *src_file,
+                                                       ThunarFile *dst_file);
+void thunar_dialogs_show_job_error (GtkWindow *parent,
+                                    GError *error);
+gboolean thunar_dialogs_show_insecure_program (gpointer parent,
+                                               const gchar *title,
+                                               ThunarFile *file,
+                                               const gchar *command);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_DIALOGS_H__ */
+
+

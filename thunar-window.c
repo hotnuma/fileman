@@ -2172,9 +2172,12 @@ gboolean thunar_window_action_key_trash(ThunarWindow *window)
 
     if (focused == view)
     {
-        const gchar *name = gtk_widget_get_name(focused);
+        //const gchar *name = gtk_widget_get_name(focused);
 
-        g_print("treeview is focused = %s\n", name);
+        //g_print("treeview is focused = %s\n", name);
+
+        if (thunar_dialogs_show_folder_trash(GTK_WINDOW(window)) == FALSE)
+            return TRUE;
 
         thunar_tree_view_delete_selected_files(THUNAR_TREE_VIEW(view));
 
