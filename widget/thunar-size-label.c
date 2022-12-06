@@ -35,8 +35,6 @@
 #include <thunar-debug.h>
 #include <thunar-size-label.h>
 
-
-
 /* Property identifiers */
 enum
 {
@@ -44,8 +42,6 @@ enum
     PROP_FILES,
     PROP_FILE_SIZE_BINARY
 };
-
-
 
 static void     thunar_size_label_finalize              (GObject              *object);
 static void     thunar_size_label_get_property          (GObject              *object,
@@ -75,8 +71,6 @@ static GList   *thunar_size_label_get_files             (ThunarSizeLabel      *s
 static void     thunar_size_label_set_files             (ThunarSizeLabel      *size_label,
         GList                *files);
 
-
-
 struct _ThunarSizeLabelClass
 {
     GtkHBoxClass __parent__;
@@ -96,11 +90,7 @@ struct _ThunarSizeLabel
     GtkWidget          *spinner;
 };
 
-
-
 G_DEFINE_TYPE (ThunarSizeLabel, thunar_size_label, GTK_TYPE_BOX)
-
-
 
 static void
 thunar_size_label_class_init (ThunarSizeLabelClass *klass)
@@ -137,8 +127,6 @@ thunar_size_label_class_init (ThunarSizeLabelClass *klass)
                                              TRUE,
                                              EXO_PARAM_READWRITE));
 }
-
-
 
 static void
 thunar_size_label_init (ThunarSizeLabel *size_label)
@@ -179,8 +167,6 @@ thunar_size_label_init (ThunarSizeLabel *size_label)
     gtk_widget_show (size_label->label);
 }
 
-
-
 static void
 thunar_size_label_finalize (GObject *object)
 {
@@ -203,8 +189,6 @@ thunar_size_label_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_size_label_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_size_label_get_property (GObject    *object,
@@ -230,8 +214,6 @@ thunar_size_label_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_size_label_set_property (GObject      *object,
                                 guint         prop_id,
@@ -255,8 +237,6 @@ thunar_size_label_set_property (GObject      *object,
         break;
     }
 }
-
-
 
 static gboolean
 thunar_size_label_button_press_event (GtkWidget       *ebox,
@@ -291,8 +271,6 @@ thunar_size_label_button_press_event (GtkWidget       *ebox,
 
     return FALSE;
 }
-
-
 
 static void
 thunar_size_label_files_changed (ThunarSizeLabel *size_label)
@@ -347,8 +325,6 @@ thunar_size_label_files_changed (ThunarSizeLabel *size_label)
     }
 }
 
-
-
 static void
 thunar_size_label_error (ExoJob          *job,
                          const GError    *error,
@@ -361,8 +337,6 @@ thunar_size_label_error (ExoJob          *job,
     /* setup the error text as label */
     gtk_label_set_text (GTK_LABEL (size_label->label), error->message);
 }
-
-
 
 static void
 thunar_size_label_finished (ExoJob          *job,
@@ -381,8 +355,6 @@ thunar_size_label_finished (ExoJob          *job,
     g_object_unref (size_label->job);
     size_label->job = NULL;
 }
-
-
 
 static void
 thunar_size_label_status_update (ThunarDeepCountJob *job,
@@ -430,8 +402,6 @@ thunar_size_label_status_update (ThunarDeepCountJob *job,
     }
 }
 
-
-
 /**
  * thunar_size_label_get_files:
  * @size_label : a #ThunarSizeLabel.
@@ -444,8 +414,6 @@ thunar_size_label_get_files (ThunarSizeLabel *size_label)
     _thunar_return_val_if_fail (THUNAR_IS_SIZE_LABEL (size_label), NULL);
     return size_label->files;
 }
-
-
 
 /**
  * thunar_size_label_set_files:
@@ -490,8 +458,6 @@ thunar_size_label_set_files (ThunarSizeLabel *size_label,
     /* notify listeners */
     g_object_notify (G_OBJECT (size_label), "files");
 }
-
-
 
 /**
  * thunar_size_label_new:

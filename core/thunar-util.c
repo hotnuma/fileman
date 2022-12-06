@@ -90,8 +90,6 @@ thunar_util_strrchr_offset (const gchar *str,
     return NULL;
 }
 
-
-
 /**
  * thunar_util_str_get_extension
  * @filename : an UTF-8 filename
@@ -171,8 +169,6 @@ thunar_util_str_get_extension (const gchar *filename)
     return dot;
 }
 
-
-
 void
 thunar_util_load_bookmarks (GFile               *bookmarks_file,
                             ThunarBookmarksFunc  foreach_func,
@@ -240,8 +236,6 @@ thunar_util_load_bookmarks (GFile               *bookmarks_file,
     }
 
 }
-
-
 
 /**
  * thunar_util_expand_filename:
@@ -372,8 +366,6 @@ thunar_util_expand_filename (const gchar  *filename,
     return g_strdup (filename);
 }
 
-
-
 /**
  * thunar_util_humanize_file_time:
  * @file_time         : a #guint64 timestamp.
@@ -490,8 +482,6 @@ thunar_util_humanize_file_time (guint64          file_time,
     return g_strdup (_("Unknown"));
 }
 
-
-
 /**
  * thunar_util_parse_parent:
  * @parent        : a #GtkWidget, a #GdkScreen or %NULL.
@@ -550,8 +540,6 @@ thunar_util_parse_parent (gpointer    parent,
 
     return screen;
 }
-
-
 
 /**
  * thunar_util_time_from_rfc3339:
@@ -616,8 +604,6 @@ thunar_util_time_from_rfc3339 (const gchar *date_string)
     /* translate tm to time_t */
     return mktime (&tm);
 }
-
-
 
 gchar *
 thunar_util_change_working_directory (const gchar *new_directory)

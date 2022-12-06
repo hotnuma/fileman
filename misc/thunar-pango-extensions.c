@@ -26,11 +26,7 @@
 
 #include <thunar-pango-extensions.h>
 
-
-
 static PangoAttrList *thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...) G_GNUC_MALLOC;
-
-
 
 static PangoAttrList*
 thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...)
@@ -55,8 +51,6 @@ thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...)
     return attr_list;
 }
 
-
-
 /**
  * thunar_pango_attr_list_big:
  *
@@ -74,8 +68,6 @@ thunar_pango_attr_list_big (void)
         attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_LARGE), NULL);
     return attr_list;
 }
-
-
 
 /**
  * thunar_pango_attr_list_big_bold:
@@ -95,8 +87,6 @@ thunar_pango_attr_list_big_bold (void)
     return attr_list;
 }
 
-
-
 /**
  * thunar_pango_attr_list_bold:
  *
@@ -114,8 +104,6 @@ thunar_pango_attr_list_bold (void)
         attr_list = thunar_pango_attr_list_wrap (pango_attr_weight_new (PANGO_WEIGHT_BOLD), NULL);
     return attr_list;
 }
-
-
 
 /**
  * thunar_pango_attr_disable_hyphens:
@@ -140,8 +128,6 @@ thunar_pango_attr_disable_hyphens (void)
 }
 #endif
 
-
-
 /**
  * thunar_pango_attr_list_italic:
  *
@@ -159,8 +145,6 @@ thunar_pango_attr_list_italic (void)
         attr_list = thunar_pango_attr_list_wrap (pango_attr_style_new (PANGO_STYLE_ITALIC), NULL);
     return attr_list;
 }
-
-
 
 /**
  * thunar_pango_attr_list_small_italic:
@@ -180,8 +164,6 @@ thunar_pango_attr_list_small_italic (void)
     return attr_list;
 }
 
-
-
 /**
  * thunar_pango_attr_list_small:
  *
@@ -199,8 +181,6 @@ thunar_pango_attr_list_small (void)
         attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_SMALL), NULL);
     return attr_list;
 }
-
-
 
 /**
  * thunar_pango_attr_list_underline_single:

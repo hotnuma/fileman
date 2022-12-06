@@ -33,16 +33,12 @@
 #include <thunar-icon-factory.h>
 #include <thunar-debug.h>
 
-
-
 /* Property identifiers */
 enum
 {
     PROP_0,
     PROP_CONTENT_TYPE,
 };
-
-
 
 
 static void     thunar_chooser_model_constructed    (GObject                  *object);
@@ -57,8 +53,6 @@ static void     thunar_chooser_model_set_property   (GObject                  *o
         GParamSpec               *pspec);
 static void     thunar_chooser_model_reload         (ThunarChooserModel       *model);
 
-
-
 struct _ThunarChooserModelClass
 {
     GtkTreeStoreClass __parent__;
@@ -71,11 +65,7 @@ struct _ThunarChooserModel
     gchar *content_type;
 };
 
-
-
 G_DEFINE_TYPE (ThunarChooserModel, thunar_chooser_model, GTK_TYPE_TREE_STORE)
-
-
 
 static void
 thunar_chooser_model_class_init (ThunarChooserModelClass *klass)
@@ -103,8 +93,6 @@ thunar_chooser_model_class_init (ThunarChooserModelClass *klass)
                                              EXO_PARAM_READWRITE));
 }
 
-
-
 static void
 thunar_chooser_model_init (ThunarChooserModel *model)
 {
@@ -124,8 +112,6 @@ thunar_chooser_model_init (ThunarChooserModel *model)
                                      column_types);
 }
 
-
-
 static void
 thunar_chooser_model_constructed (GObject *object)
 {
@@ -134,8 +120,6 @@ thunar_chooser_model_constructed (GObject *object)
     /* start to load the applications installed on the system */
     thunar_chooser_model_reload (model);
 }
-
-
 
 static void
 thunar_chooser_model_finalize (GObject *object)
@@ -147,8 +131,6 @@ thunar_chooser_model_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_chooser_model_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_chooser_model_get_property (GObject    *object,
@@ -171,8 +153,6 @@ thunar_chooser_model_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_chooser_model_set_property (GObject      *object,
                                    guint         prop_id,
@@ -193,8 +173,6 @@ thunar_chooser_model_set_property (GObject      *object,
         break;
     }
 }
-
-
 
 static void
 thunar_chooser_model_append (ThunarChooserModel *model,
@@ -256,16 +234,12 @@ thunar_chooser_model_append (ThunarChooserModel *model,
     }
 }
 
-
-
 static gint
 compare_app_infos (gconstpointer a,
                    gconstpointer b)
 {
     return g_app_info_equal (G_APP_INFO (a), G_APP_INFO (b)) ? 0 : 1;
 }
-
-
 
 static gint
 sort_app_infos (gconstpointer a,
@@ -274,8 +248,6 @@ sort_app_infos (gconstpointer a,
     return g_utf8_collate (g_app_info_get_name (G_APP_INFO (a)),
                            g_app_info_get_name (G_APP_INFO (b)));
 }
-
-
 
 static void
 thunar_chooser_model_reload (ThunarChooserModel *model)
@@ -324,8 +296,6 @@ thunar_chooser_model_reload (ThunarChooserModel *model)
     g_list_free (other);
 }
 
-
-
 /**
  * thunar_chooser_model_new:
  * @content_type : the content type for this model.
@@ -342,8 +312,6 @@ thunar_chooser_model_new (const gchar *content_type)
                          NULL);
 }
 
-
-
 /**
  * thunar_chooser_model_get_content_type:
  * @model : a #ThunarChooserModel.
@@ -358,8 +326,6 @@ thunar_chooser_model_get_content_type (ThunarChooserModel *model)
     _thunar_return_val_if_fail (THUNAR_IS_CHOOSER_MODEL (model), NULL);
     return model->content_type;
 }
-
-
 
 /**
  * thunar_chooser_model_remove:

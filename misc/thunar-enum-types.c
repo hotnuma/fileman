@@ -25,16 +25,12 @@
 
 #include <thunar-enum-types.h>
 
-
-
 static void                thunar_icon_size_from_zoom_level     (const GValue   *src_value,
         GValue         *dst_value);
 static void                thunar_thumbnail_size_from_icon_size (const GValue   *src_value,
         GValue         *dst_value);
 static ThunarIconSize      thunar_zoom_level_to_icon_size       (ThunarZoomLevel zoom_level);
 static ThunarThumbnailSize thunar_icon_size_to_thumbnail_size   (ThunarIconSize  icon_size);
-
-
 
 GType
 thunar_renamer_mode_get_type (void)
@@ -56,8 +52,6 @@ thunar_renamer_mode_get_type (void)
 
     return type;
 }
-
-
 
 GType
 thunar_date_style_get_type (void)
@@ -85,8 +79,6 @@ thunar_date_style_get_type (void)
 
     return type;
 }
-
-
 
 GType
 thunar_column_get_type (void)
@@ -118,8 +110,6 @@ thunar_column_get_type (void)
     return type;
 }
 
-
-
 const gchar*
 thunar_column_string_from_value (ThunarColumn value)
 {
@@ -136,8 +126,6 @@ thunar_column_string_from_value (ThunarColumn value)
 
     return enum_value->value_name;
 }
-
-
 
 gboolean
 thunar_column_value_from_string (const gchar *value_string,
@@ -157,8 +145,6 @@ thunar_column_value_from_string (const gchar *value_string,
     *value =  enum_value->value;
     return TRUE;
 }
-
-
 
 GType
 thunar_icon_size_get_type (void)
@@ -202,8 +188,6 @@ thunar_icon_size_get_type (void)
     return type;
 }
 
-
-
 GType
 thunar_recursive_permissions_get_type (void)
 {
@@ -224,8 +208,6 @@ thunar_recursive_permissions_get_type (void)
 
     return type;
 }
-
-
 
 GType
 thunar_zoom_level_get_type (void)
@@ -269,16 +251,12 @@ thunar_zoom_level_get_type (void)
     return type;
 }
 
-
-
 ThunarThumbnailSize
 thunar_zoom_level_to_thumbnail_size (ThunarZoomLevel zoom_level)
 {
     ThunarIconSize icon_size = thunar_zoom_level_to_icon_size (zoom_level);
     return thunar_icon_size_to_thumbnail_size (icon_size);
 }
-
-
 
 GType
 thunar_thumbnail_mode_get_type (void)
@@ -300,8 +278,6 @@ thunar_thumbnail_mode_get_type (void)
 
     return type;
 }
-
-
 
 GType
 thunar_thumbnail_size_get_type (void)
@@ -331,8 +307,6 @@ thunar_thumbnail_size_get_nick (ThunarThumbnailSize thumbnail_size)
     thumbnail_size_enum_value = g_enum_get_value (g_type_class_ref (THUNAR_TYPE_THUMBNAIL_SIZE), thumbnail_size);
     return thumbnail_size_enum_value->value_nick;
 }
-
-
 
 GType
 thunar_parallel_copy_mode_get_type (void)
@@ -395,8 +369,6 @@ thunar_zoom_level_to_icon_size (ThunarZoomLevel zoom_level)
     }
 }
 
-
-
 static ThunarThumbnailSize
 thunar_icon_size_to_thumbnail_size (ThunarIconSize icon_size)
 {
@@ -406,8 +378,6 @@ thunar_icon_size_to_thumbnail_size (ThunarIconSize icon_size)
     return THUNAR_THUMBNAIL_SIZE_NORMAL;
 }
 
-
-
 static void
 thunar_icon_size_from_zoom_level (const GValue *src_value,
                                   GValue       *dst_value)
@@ -415,16 +385,12 @@ thunar_icon_size_from_zoom_level (const GValue *src_value,
     g_value_set_enum (dst_value, thunar_zoom_level_to_icon_size (g_value_get_enum (src_value)));
 }
 
-
-
 static void
 thunar_thumbnail_size_from_icon_size (const GValue *src_value,
                                       GValue       *dst_value)
 {
     g_value_set_enum (dst_value, thunar_icon_size_to_thumbnail_size (g_value_get_enum (src_value)));
 }
-
-
 
 GType
 thunar_job_response_get_type (void)
@@ -456,8 +422,6 @@ thunar_job_response_get_type (void)
 
     return type;
 }
-
-
 
 GType
 thunar_file_mode_get_type (void)

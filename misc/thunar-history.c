@@ -30,8 +30,6 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-
-
 /* Property identifiers */
 enum
 {
@@ -45,8 +43,6 @@ enum
     HISTORY_CHANGED,
     LAST_SIGNAL,
 };
-
-
 
 static void            thunar_history_navigator_init         (ThunarNavigatorIface *iface);
 static void            thunar_history_finalize               (GObject              *object);
@@ -70,8 +66,6 @@ static void            thunar_history_action_back_nth        (GtkWidget         
 static void            thunar_history_action_forward_nth     (GtkWidget            *item,
         ThunarHistory        *history);
 
-
-
 struct _ThunarHistory
 {
     GObject __parent__;
@@ -87,12 +81,8 @@ static guint history_signals[LAST_SIGNAL];
 G_DEFINE_TYPE_WITH_CODE (ThunarHistory, thunar_history, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_NAVIGATOR, thunar_history_navigator_init))
 
-
-
 static GQuark thunar_history_display_name_quark;
 static GQuark thunar_history_gfile_quark;
-
-
 
 static void
 thunar_history_class_init (ThunarHistoryClass *klass)
@@ -126,8 +116,6 @@ thunar_history_class_init (ThunarHistoryClass *klass)
                       G_TYPE_NONE, 1, G_TYPE_STRING);
 }
 
-
-
 static void
 thunar_history_navigator_init (ThunarNavigatorIface *iface)
 {
@@ -135,15 +123,11 @@ thunar_history_navigator_init (ThunarNavigatorIface *iface)
     iface->set_current_directory = thunar_history_set_current_directory;
 }
 
-
-
 static void
 thunar_history_init (ThunarHistory *history)
 {
     UNUSED(history);
 }
-
-
 
 static void
 thunar_history_finalize (GObject *object)
@@ -156,8 +140,6 @@ thunar_history_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_history_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_history_get_property (GObject    *object,
@@ -180,8 +162,6 @@ thunar_history_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_history_set_property (GObject      *object,
                              guint         prop_id,
@@ -203,15 +183,11 @@ thunar_history_set_property (GObject      *object,
     }
 }
 
-
-
 static ThunarFile*
 thunar_history_get_current_directory (ThunarNavigator *navigator)
 {
     return THUNAR_HISTORY (navigator)->current_directory;
 }
-
-
 
 static GFile *
 thunar_history_get_gfile (ThunarFile *file)
@@ -229,8 +205,6 @@ thunar_history_get_gfile (ThunarFile *file)
 
     return g_object_ref (gfile);
 }
-
-
 
 static void
 thunar_history_set_current_directory (ThunarNavigator *navigator,
@@ -283,8 +257,6 @@ thunar_history_set_current_directory (ThunarNavigator *navigator,
     }
 }
 
-
-
 static void
 thunar_history_error_not_found (GFile    *goto_file,
                                 gpointer  parent)
@@ -311,8 +283,6 @@ thunar_history_error_not_found (GFile    *goto_file,
 
     g_error_free (error);
 }
-
-
 
 static void
 thunar_history_go_back (ThunarHistory  *history,
@@ -386,8 +356,6 @@ thunar_history_go_back (ThunarHistory  *history,
         thunar_navigator_change_directory (THUNAR_NAVIGATOR (history), history->current_directory);
 }
 
-
-
 static void
 thunar_history_go_forward (ThunarHistory  *history,
                            GFile          *goto_file)
@@ -458,8 +426,6 @@ thunar_history_go_forward (ThunarHistory  *history,
         thunar_navigator_change_directory (THUNAR_NAVIGATOR (history), history->current_directory);
 }
 
-
-
 void
 thunar_history_action_back (ThunarHistory *history)
 {
@@ -469,8 +435,6 @@ thunar_history_action_back (ThunarHistory *history)
     if (history->back_list != NULL)
         thunar_history_go_back (history, history->back_list->data);
 }
-
-
 
 static void
 thunar_history_action_back_nth (GtkWidget     *item,
@@ -486,8 +450,6 @@ thunar_history_action_back_nth (GtkWidget     *item,
         thunar_history_go_back (history, file);
 }
 
-
-
 void
 thunar_history_action_forward (ThunarHistory *history)
 {
@@ -497,8 +459,6 @@ thunar_history_action_forward (ThunarHistory *history)
     if (history->forward_list != NULL)
         thunar_history_go_forward (history, history->forward_list->data);
 }
-
-
 
 static void
 thunar_history_action_forward_nth (GtkWidget     *item,
@@ -513,8 +473,6 @@ thunar_history_action_forward_nth (GtkWidget     *item,
     if (G_LIKELY (file != NULL))
         thunar_history_go_forward (history, file);
 }
-
-
 
 void
 thunar_history_show_menu (ThunarHistory         *history,
@@ -610,8 +568,6 @@ thunar_history_show_menu (ThunarHistory         *history,
     thunar_gtk_menu_run (GTK_MENU (menu));
 }
 
-
-
 ThunarHistory *
 thunar_history_copy (ThunarHistory *history)
 {
@@ -639,8 +595,6 @@ thunar_history_copy (ThunarHistory *history)
     return copy;
 }
 
-
-
 /**
  * thunar_history_has_back:
  * @history : a #ThunarHistory.
@@ -656,8 +610,6 @@ thunar_history_has_back (ThunarHistory *history)
 }
 
 
-
-
 /**
  * thunar_history_has_forward:
  * @history : a #ThunarHistory.
@@ -671,8 +623,6 @@ thunar_history_has_forward (ThunarHistory *history)
 
     return history->forward_list != NULL;
 }
-
-
 
 /**
  * thunar_file_history_peek_back:
@@ -697,8 +647,6 @@ thunar_history_peek_back (ThunarHistory *history)
 
     return result;
 }
-
-
 
 /**
  * thunar_file_history_peek_forward:

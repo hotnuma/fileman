@@ -35,8 +35,6 @@
 #include <thunar-debug.h>
 #include <thunar-sendto-model.h>
 
-
-
 static void thunar_sendto_model_finalize   (GObject                *object);
 static void thunar_sendto_model_load       (ThunarSendtoModel      *sendto_model);
 static void thunar_sendto_model_event      (GFileMonitor           *monitor,
@@ -44,8 +42,6 @@ static void thunar_sendto_model_event      (GFileMonitor           *monitor,
         GFile                  *other_file,
         GFileMonitorEvent       event_type,
         gpointer                user_data);
-
-
 
 struct _ThunarSendtoModelClass
 {
@@ -60,11 +56,7 @@ struct _ThunarSendtoModel
     guint   loaded : 1;
 };
 
-
-
 G_DEFINE_TYPE (ThunarSendtoModel, thunar_sendto_model, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_sendto_model_class_init (ThunarSendtoModelClass *klass)
@@ -75,15 +67,11 @@ thunar_sendto_model_class_init (ThunarSendtoModelClass *klass)
     gobject_class->finalize = thunar_sendto_model_finalize;
 }
 
-
-
 static void
 thunar_sendto_model_init (ThunarSendtoModel *sendto_model)
 {
     sendto_model->monitors = NULL;
 }
-
-
 
 static void
 thunar_sendto_model_finalize (GObject *object)
@@ -105,8 +93,6 @@ thunar_sendto_model_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_sendto_model_parent_class)->finalize) (object);
 }
 
-
-
 static gint
 g_app_info_compare (gpointer a,
                     gpointer b)
@@ -114,8 +100,6 @@ g_app_info_compare (gpointer a,
     return g_utf8_collate (g_app_info_get_name (b),
                            g_app_info_get_name (a));
 }
-
-
 
 static void
 thunar_sendto_model_load (ThunarSendtoModel *sendto_model)
@@ -177,8 +161,6 @@ thunar_sendto_model_load (ThunarSendtoModel *sendto_model)
     g_free (specs);
 }
 
-
-
 static void
 thunar_sendto_model_event (GFileMonitor     *monitor,
                            GFile            *file,
@@ -203,8 +185,6 @@ thunar_sendto_model_event (GFileMonitor     *monitor,
     /* reload the handlers for the model */
     thunar_sendto_model_load (sendto_model);
 }
-
-
 
 /**
  * thunar_sendto_model_get_default:
@@ -232,8 +212,6 @@ thunar_sendto_model_get_default (void)
 
     return sendto_model;
 }
-
-
 
 /**
  * thunar_sendto_model_get_matching:

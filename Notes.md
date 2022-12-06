@@ -13,12 +13,14 @@
 
 #### Files
 
+
+
+
+
 ```
-core/thunar-device-monitor.c
 core/thunar-device.c
 core/thunar-dnd.c
 core/thunar-file-monitor.c
-core/thunar-file.c
 core/thunar-folder.c
 core/thunar-user.c
 core/thunar-util.c
@@ -38,7 +40,6 @@ job/thunar-job.c
 job/thunar-simple-job.c
 job/thunar-transfer-job.c
 main.c
-menu/thunar-launcher.c
 menu/thunar-menu.c
 menu/thunar-sendto-model.c
 misc/thunar-browser.c
@@ -57,14 +58,11 @@ side/thunar-tree-model.c
 side/thunar-tree-pane.c
 side/thunar-tree-view.c
 thunar-application.c
-thunar-marshal.c
 thunar-preferences.c
-thunar-window.c
 view/thunar-column-editor.c
 view/thunar-column-model.c
 view/thunar-details-view.c
 view/thunar-list-model.c
-view/thunar-standard-view.c
 view/thunar-view.c
 widget/thunar-icon-factory.c
 widget/thunar-icon-renderer.c

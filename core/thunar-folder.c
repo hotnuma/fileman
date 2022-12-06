@@ -30,8 +30,6 @@
 
 #define DEBUG_FILE_CHANGES FALSE
 
-
-
 /* property identifiers */
 enum
 {
@@ -49,8 +47,6 @@ enum
     FILES_REMOVED,
     LAST_SIGNAL,
 };
-
-
 
 static void     thunar_folder_dispose                     (GObject                *object);
 static void     thunar_folder_finalize                    (GObject                *object);
@@ -82,8 +78,6 @@ static void     thunar_folder_monitor                     (GFileMonitor         
         GFile                  *other_file,
         GFileMonitorEvent       event_type,
         gpointer                user_data);
-
-
 
 struct _ThunarFolderClass
 {
@@ -120,16 +114,10 @@ struct _ThunarFolder
     GFileMonitor      *monitor;
 };
 
-
-
 static guint  folder_signals[LAST_SIGNAL];
 static GQuark thunar_folder_quark;
 
-
-
 G_DEFINE_TYPE (ThunarFolder, thunar_folder, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_folder_constructed (GObject *object)
@@ -150,8 +138,6 @@ thunar_folder_constructed (GObject *object)
 
     G_OBJECT_CLASS (thunar_folder_parent_class)->constructed (object);
 }
-
-
 
 static void
 thunar_folder_class_init (ThunarFolderClass *klass)
@@ -260,8 +246,6 @@ thunar_folder_class_init (ThunarFolderClass *klass)
                       G_TYPE_NONE, 1, G_TYPE_POINTER);
 }
 
-
-
 static void
 thunar_folder_init (ThunarFolder *folder)
 {
@@ -273,8 +257,6 @@ thunar_folder_init (ThunarFolder *folder)
     folder->monitor = NULL;
     folder->reload_info = FALSE;
 }
-
-
 
 static void
 thunar_folder_dispose (GObject *object)
@@ -290,8 +272,6 @@ thunar_folder_dispose (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_folder_parent_class)->dispose) (object);
 }
-
-
 
 static void
 thunar_folder_finalize (GObject *object)
@@ -342,8 +322,6 @@ thunar_folder_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_folder_parent_class)->finalize) (object);
 }
 
-
-
 static void
 thunar_folder_get_property (GObject    *object,
                             guint       prop_id,
@@ -368,8 +346,6 @@ thunar_folder_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_folder_set_property (GObject      *object,
@@ -398,15 +374,11 @@ thunar_folder_set_property (GObject      *object,
     }
 }
 
-
-
 static void
 thunar_folder_real_destroy (ThunarFolder *folder)
 {
     g_signal_handlers_destroy (G_OBJECT (folder));
 }
-
-
 
 static void
 thunar_folder_error (ExoJob       *job,
@@ -419,8 +391,6 @@ thunar_folder_error (ExoJob       *job,
     /* tell the consumer about the problem */
     g_signal_emit (G_OBJECT (folder), folder_signals[ERROR], 0, error);
 }
-
-
 
 static gboolean
 thunar_folder_files_ready (ThunarJob    *job,
@@ -436,8 +406,6 @@ thunar_folder_files_ready (ThunarJob    *job,
     /* indicate that we took over ownership of the file list */
     return TRUE;
 }
-
-
 
 static gboolean
 thunar_folder_content_type_loader_idle (gpointer data)
@@ -467,8 +435,6 @@ thunar_folder_content_type_loader_idle (gpointer data)
     return FALSE;
 }
 
-
-
 static void
 thunar_folder_content_type_loader_idle_destroyed (gpointer data)
 {
@@ -476,8 +442,6 @@ thunar_folder_content_type_loader_idle_destroyed (gpointer data)
 
     THUNAR_FOLDER (data)->content_type_idle_id = 0;
 }
-
-
 
 static void
 thunar_folder_content_type_loader (ThunarFolder *folder)
@@ -492,8 +456,6 @@ thunar_folder_content_type_loader (ThunarFolder *folder)
     folder->content_type_idle_id = g_idle_add_full (G_PRIORITY_LOW, thunar_folder_content_type_loader_idle,
                                    folder, thunar_folder_content_type_loader_idle_destroyed);
 }
-
-
 
 static void
 thunar_folder_finished (ExoJob       *job,
@@ -607,8 +569,6 @@ thunar_folder_finished (ExoJob       *job,
     g_object_notify (G_OBJECT (folder), "loading");
 }
 
-
-
 static void
 thunar_folder_file_changed (ThunarFileMonitor *file_monitor,
                             ThunarFile        *file,
@@ -625,8 +585,6 @@ thunar_folder_file_changed (ThunarFileMonitor *file_monitor,
         thunar_folder_reload (folder, FALSE);
     }
 }
-
-
 
 static void
 thunar_folder_file_destroyed (ThunarFileMonitor *file_monitor,
@@ -674,8 +632,6 @@ thunar_folder_file_destroyed (ThunarFileMonitor *file_monitor,
         }
     }
 }
-
-
 
 #if DEBUG_FILE_CHANGES
 static void
@@ -731,8 +687,6 @@ thunar_file_infos_equal (ThunarFile *file,
     g_free (attrs);
 }
 #endif
-
-
 
 static void
 thunar_folder_monitor (GFileMonitor     *monitor,
@@ -862,8 +816,6 @@ thunar_folder_monitor (GFileMonitor     *monitor,
     }
 }
 
-
-
 /**
  * thunar_folder_get_for_file:
  * @file : a #ThunarFile.
@@ -920,8 +872,6 @@ thunar_folder_get_for_file (ThunarFile *file)
     return folder;
 }
 
-
-
 /**
  * thunar_folder_get_corresponding_file:
  * @folder : a #ThunarFolder instance.
@@ -941,8 +891,6 @@ thunar_folder_get_corresponding_file (const ThunarFolder *folder)
     return folder->corresponding_file;
 }
 
-
-
 /**
  * thunar_folder_get_files:
  * @folder : a #ThunarFolder instance.
@@ -958,8 +906,6 @@ thunar_folder_get_files (const ThunarFolder *folder)
     _thunar_return_val_if_fail (THUNAR_IS_FOLDER (folder), NULL);
     return folder->files;
 }
-
-
 
 /**
  * thunar_folder_get_loading:
@@ -977,8 +923,6 @@ thunar_folder_get_loading (const ThunarFolder *folder)
     return (folder->job != NULL);
 }
 
-
-
 /**
  * thunar_folder_has_folder_monitor:
  * @folder : a #ThunarFolder instance.
@@ -993,8 +937,6 @@ thunar_folder_has_folder_monitor (const ThunarFolder *folder)
     _thunar_return_val_if_fail (THUNAR_IS_FOLDER (folder), FALSE);
     return (folder->monitor != NULL);
 }
-
-
 
 /**
  * thunar_folder_reload:

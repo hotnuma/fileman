@@ -23,11 +23,7 @@
 #include <thunar-debug.h>
 #include <thunar-view.h>
 
-
-
 static void thunar_view_class_init (gpointer klass);
-
-
 
 GType
 thunar_view_get_type (void)
@@ -53,8 +49,6 @@ thunar_view_get_type (void)
 
     return type__volatile;
 }
-
-
 
 static void
 thunar_view_class_init (gpointer klass)
@@ -122,8 +116,6 @@ thunar_view_class_init (gpointer klass)
                                                  EXO_PARAM_READWRITE));
 }
 
-
-
 /**
  * thunar_view_get_loading:
  * @view : a #ThunarView instance.
@@ -139,8 +131,6 @@ thunar_view_get_loading (ThunarView *view)
     _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), FALSE);
     return (*THUNAR_VIEW_GET_IFACE (view)->get_loading) (view);
 }
-
-
 
 /**
  * thunar_view_get_statusbar_text:
@@ -159,8 +149,6 @@ thunar_view_get_statusbar_text (ThunarView *view)
     return (*THUNAR_VIEW_GET_IFACE (view)->get_statusbar_text) (view);
 }
 
-
-
 /**
  * thunar_view_get_show_hidden:
  * @view : a #ThunarView instance.
@@ -176,8 +164,6 @@ thunar_view_get_show_hidden (ThunarView *view)
     _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), FALSE);
     return (*THUNAR_VIEW_GET_IFACE (view)->get_show_hidden) (view);
 }
-
-
 
 /**
  * thunar_view_set_show_hidden:
@@ -196,8 +182,6 @@ thunar_view_set_show_hidden (ThunarView *view,
     (*THUNAR_VIEW_GET_IFACE (view)->set_show_hidden) (view, show_hidden);
 }
 
-
-
 /**
  * thunar_view_get_zoom_level:
  * @view : a #ThunarView instance.
@@ -212,8 +196,6 @@ thunar_view_get_zoom_level (ThunarView *view)
     _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), THUNAR_ZOOM_LEVEL_100_PERCENT);
     return (*THUNAR_VIEW_GET_IFACE (view)->get_zoom_level) (view);
 }
-
-
 
 /**
  * thunar_view_set_zoom_level:
@@ -231,8 +213,6 @@ thunar_view_set_zoom_level (ThunarView     *view,
     (*THUNAR_VIEW_GET_IFACE (view)->set_zoom_level) (view, zoom_level);
 }
 
-
-
 /**
  * thunar_view_reset_zoom_level:
  * @view : a #ThunarView instance.
@@ -246,8 +226,6 @@ thunar_view_reset_zoom_level (ThunarView *view)
     _thunar_return_if_fail (THUNAR_IS_VIEW (view));
     (*THUNAR_VIEW_GET_IFACE (view)->reset_zoom_level) (view);
 }
-
-
 
 /**
  * thunar_view_reload:
@@ -265,8 +243,6 @@ thunar_view_reload (ThunarView *view,
     _thunar_return_if_fail (THUNAR_IS_VIEW (view));
     (*THUNAR_VIEW_GET_IFACE (view)->reload) (view, reload_info);
 }
-
-
 
 /**
  * thunar_view_get_visible_range:
@@ -291,8 +267,6 @@ thunar_view_get_visible_range (ThunarView  *view,
     _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), FALSE);
     return (*THUNAR_VIEW_GET_IFACE (view)->get_visible_range) (view, start_file, end_file);
 }
-
-
 
 /**
  * thunar_view_scroll_to_file:
@@ -322,16 +296,12 @@ thunar_view_scroll_to_file (ThunarView *view,
     (*THUNAR_VIEW_GET_IFACE (view)->scroll_to_file) (view, file, select_file, use_align, row_align, col_align);
 }
 
-
-
 GList*
 thunar_view_get_selected_files (ThunarView *view)
 {
     _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), NULL);
     return (*THUNAR_VIEW_GET_IFACE (view)->get_selected_files) (view);
 }
-
-
 
 void
 thunar_view_set_selected_files (ThunarView *view,

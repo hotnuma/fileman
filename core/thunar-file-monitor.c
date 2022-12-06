@@ -23,8 +23,6 @@
 #include <thunar-file-monitor.h>
 #include <thunar-debug.h>
 
-
-
 /* Signal identifiers */
 enum
 {
@@ -32,8 +30,6 @@ enum
     FILE_DESTROYED,
     LAST_SIGNAL,
 };
-
-
 
 struct _ThunarFileMonitorClass
 {
@@ -45,16 +41,10 @@ struct _ThunarFileMonitor
     GObject __parent__;
 };
 
-
-
 static ThunarFileMonitor *file_monitor_default;
 static guint              file_monitor_signals[LAST_SIGNAL];
 
-
-
 G_DEFINE_TYPE (ThunarFileMonitor, thunar_file_monitor, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_file_monitor_class_init (ThunarFileMonitorClass *klass)
@@ -98,15 +88,11 @@ thunar_file_monitor_class_init (ThunarFileMonitorClass *klass)
                       G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
 }
 
-
-
 static void
 thunar_file_monitor_init (ThunarFileMonitor *monitor)
 {
     UNUSED(monitor);
 }
-
-
 
 /**
  * thunar_file_monitor_get_default:
@@ -142,8 +128,6 @@ thunar_file_monitor_get_default (void)
     return file_monitor_default;
 }
 
-
-
 /**
  * thunar_file_monitor_file_changed:
  * @file : a #ThunarFile.
@@ -160,8 +144,6 @@ thunar_file_monitor_file_changed (ThunarFile *file)
     if (G_LIKELY (file_monitor_default != NULL))
         g_signal_emit (G_OBJECT (file_monitor_default), file_monitor_signals[FILE_CHANGED], 0, file);
 }
-
-
 
 /**
  * thunar_file_monitor_file_destroyed.

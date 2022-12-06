@@ -35,12 +35,8 @@
 #include <thunar-debug.h>
 #include <thunar-util.h>
 
-
-
 /* the timeout until the sweeper is run (in seconds) */
 #define THUNAR_ICON_FACTORY_SWEEP_TIMEOUT (30)
-
-
 
 /* Property identifiers */
 enum
@@ -52,11 +48,7 @@ enum
     PROP_THUMBNAIL_SIZE,
 };
 
-
-
 typedef struct _ThunarIconKey ThunarIconKey;
-
-
 
 static void       thunar_icon_factory_dispose               (GObject                  *object);
 static void       thunar_icon_factory_finalize              (GObject                  *object);
@@ -87,8 +79,6 @@ static gboolean   thunar_icon_key_equal                     (gconstpointer      
 static void       thunar_icon_key_free                      (gpointer                  data);
 static GdkPixbuf *thunar_icon_factory_load_fallback         (ThunarIconFactory        *factory,
         gint                      size);
-
-
 
 struct _ThunarIconFactoryClass
 {
@@ -135,16 +125,10 @@ typedef struct
 }
 ThunarIconStore;
 
-
-
 static GQuark thunar_icon_factory_quark = 0;
 static GQuark thunar_icon_factory_store_quark = 0;
 
-
-
 G_DEFINE_TYPE (ThunarIconFactory, thunar_icon_factory, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_icon_factory_class_init (ThunarIconFactoryClass *klass)
@@ -203,8 +187,6 @@ thunar_icon_factory_class_init (ThunarIconFactoryClass *klass)
                                              EXO_PARAM_READWRITE));
 }
 
-
-
 static void
 thunar_icon_factory_init (ThunarIconFactory *factory)
 {
@@ -223,8 +205,6 @@ thunar_icon_factory_init (ThunarIconFactory *factory)
                           thunar_icon_key_free, g_object_unref);
 }
 
-
-
 static void
 thunar_icon_factory_dispose (GObject *object)
 {
@@ -237,8 +217,6 @@ thunar_icon_factory_dispose (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_icon_factory_parent_class)->dispose) (object);
 }
-
-
 
 static void
 thunar_icon_factory_finalize (GObject *object)
@@ -265,8 +243,6 @@ thunar_icon_factory_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_icon_factory_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_icon_factory_get_property (GObject    *object,
@@ -301,8 +277,6 @@ thunar_icon_factory_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_icon_factory_set_property (GObject      *object,
                                   guint         prop_id,
@@ -332,8 +306,6 @@ thunar_icon_factory_set_property (GObject      *object,
     }
 }
 
-
-
 static gboolean
 thunar_icon_factory_changed (GSignalInvocationHint *ihint,
                              guint                  n_param_values,
@@ -356,8 +328,6 @@ thunar_icon_factory_changed (GSignalInvocationHint *ihint,
     return TRUE;
 }
 
-
-
 static gboolean
 thunar_icon_check_sweep (ThunarIconKey *key,
                          GdkPixbuf     *pixbuf)
@@ -366,8 +336,6 @@ thunar_icon_check_sweep (ThunarIconKey *key,
 
     return (G_OBJECT (pixbuf)->ref_count == 1);
 }
-
-
 
 static gboolean
 thunar_icon_factory_sweep_timer (gpointer user_data)
@@ -388,15 +356,11 @@ thunar_icon_factory_sweep_timer (gpointer user_data)
     return FALSE;
 }
 
-
-
 static void
 thunar_icon_factory_sweep_timer_destroy (gpointer user_data)
 {
     THUNAR_ICON_FACTORY (user_data)->sweep_timer_id = 0;
 }
-
-
 
 static inline gboolean
 thumbnail_needs_frame (const GdkPixbuf *thumbnail,
@@ -443,8 +407,6 @@ thumbnail_needs_frame (const GdkPixbuf *thumbnail,
     return TRUE;
 }
 
-
-
 static GdkPixbuf*
 thunar_icon_factory_get_thumbnail_frame (void)
 {
@@ -463,8 +425,6 @@ thunar_icon_factory_get_thumbnail_frame (void)
 
     return frame;
 }
-
-
 
 static GdkPixbuf*
 thunar_icon_factory_load_from_file (ThunarIconFactory *factory,
@@ -534,8 +494,6 @@ thunar_icon_factory_load_from_file (ThunarIconFactory *factory,
 
     return pixbuf;
 }
-
-
 
 static GdkPixbuf*
 thunar_icon_factory_lookup_icon (ThunarIconFactory *factory,
@@ -613,8 +571,6 @@ thunar_icon_factory_lookup_icon (ThunarIconFactory *factory,
     return GDK_PIXBUF (g_object_ref (G_OBJECT (pixbuf)));
 }
 
-
-
 static guint
 thunar_icon_key_hash (gconstpointer data)
 {
@@ -629,8 +585,6 @@ thunar_icon_key_hash (gconstpointer data)
 
     return h;
 }
-
-
 
 static gboolean
 thunar_icon_key_equal (gconstpointer a,
@@ -647,8 +601,6 @@ thunar_icon_key_equal (gconstpointer a,
     return exo_str_is_equal (a_key->name, b_key->name);
 }
 
-
-
 static void
 thunar_icon_key_free (gpointer data)
 {
@@ -657,8 +609,6 @@ thunar_icon_key_free (gpointer data)
     g_free (key->name);
     g_slice_free (ThunarIconKey, key);
 }
-
-
 
 static void
 thunar_icon_store_free (gpointer data)
@@ -670,16 +620,12 @@ thunar_icon_store_free (gpointer data)
     g_slice_free (ThunarIconStore, store);
 }
 
-
-
 static GdkPixbuf*
 thunar_icon_factory_load_fallback (ThunarIconFactory *factory,
                                    gint               size)
 {
     return thunar_icon_factory_lookup_icon (factory, "text-x-generic", size, FALSE);
 }
-
-
 
 /**
  * thunar_icon_factory_get_default:
@@ -710,8 +656,6 @@ thunar_icon_factory_get_default (void)
 
     return factory;
 }
-
-
 
 /**
  * thunar_icon_factory_get_for_icon_theme:
@@ -760,8 +704,6 @@ thunar_icon_factory_get_for_icon_theme (GtkIconTheme *icon_theme)
     return factory;
 }
 
-
-
 /**
  * thunar_icon_factory_get_show_thumbnail:
  * @factory       : a #ThunarIconFactory instance.
@@ -799,8 +741,6 @@ thunar_icon_factory_get_show_thumbnail (const ThunarIconFactory *factory,
     /* THUNAR_THUMBNAIL_MODE_ALWAYS */
     return TRUE;
 }
-
-
 
 /**
  * thunar_icon_factory_load_icon:
@@ -844,8 +784,6 @@ thunar_icon_factory_load_icon (ThunarIconFactory        *factory,
     /* lookup the icon */
     return thunar_icon_factory_lookup_icon (factory, name, size, wants_default);
 }
-
-
 
 /**
  * thunar_icon_factory_load_file_icon:
@@ -986,8 +924,6 @@ thunar_icon_factory_load_file_icon (ThunarIconFactory  *factory,
 
     return icon;
 }
-
-
 
 /**
  * thunar_icon_factory_clear_pixmap_cache:

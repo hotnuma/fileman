@@ -37,15 +37,11 @@
 #include <thunar-debug.h>
 #include <thunar-util.h>
 
-
-
 GFile *
 thunar_g_file_new_for_home (void)
 {
     return g_file_new_for_path (xfce_get_homedir ());
 }
-
-
 
 GFile *
 thunar_g_file_new_for_root (void)
@@ -53,23 +49,17 @@ thunar_g_file_new_for_root (void)
     return g_file_new_for_uri ("file:///");
 }
 
-
-
 GFile *
 thunar_g_file_new_for_trash (void)
 {
     return g_file_new_for_uri ("trash:///");
 }
 
-
-
 GFile *
 thunar_g_file_new_for_desktop (void)
 {
     return g_file_new_for_path (g_get_user_special_dir (G_USER_DIRECTORY_DESKTOP));
 }
-
-
 
 GFile *
 thunar_g_file_new_for_bookmarks (void)
@@ -83,8 +73,6 @@ thunar_g_file_new_for_bookmarks (void)
 
     return bookmarks;
 }
-
-
 
 gboolean
 thunar_g_file_is_root (GFile *file)
@@ -102,16 +90,12 @@ thunar_g_file_is_root (GFile *file)
     return is_root;
 }
 
-
-
 gboolean
 thunar_g_file_is_trashed (GFile *file)
 {
     _thunar_return_val_if_fail (G_IS_FILE (file), FALSE);
     return g_file_has_uri_scheme (file, "trash");
 }
-
-
 
 gboolean
 thunar_g_file_is_home (GFile *file)
@@ -128,8 +112,6 @@ thunar_g_file_is_home (GFile *file)
     return is_home;
 }
 
-
-
 gboolean
 thunar_g_file_is_trash (GFile *file)
 {
@@ -144,8 +126,6 @@ thunar_g_file_is_trash (GFile *file)
 
     return is_trash;
 }
-
-
 
 gboolean
 thunar_g_file_is_computer (GFile *file)
@@ -162,8 +142,6 @@ thunar_g_file_is_computer (GFile *file)
     return is_computer;
 }
 
-
-
 gboolean
 thunar_g_file_is_network (GFile *file)
 {
@@ -178,8 +156,6 @@ thunar_g_file_is_network (GFile *file)
 
     return is_network;
 }
-
-
 
 GKeyFile *
 thunar_g_file_query_key_file (GFile              *file,
@@ -219,8 +195,6 @@ thunar_g_file_query_key_file (GFile              *file,
     }
 }
 
-
-
 gboolean
 thunar_g_file_write_key_file (GFile        *file,
                               GKeyFile     *key_file,
@@ -253,8 +227,6 @@ thunar_g_file_write_key_file (GFile        *file,
     return result;
 }
 
-
-
 gchar *
 thunar_g_file_get_location (GFile *file)
 {
@@ -268,8 +240,6 @@ thunar_g_file_get_location (GFile *file)
 
     return location;
 }
-
-
 
 gchar *
 thunar_g_file_get_display_name (GFile *file)
@@ -300,8 +270,6 @@ thunar_g_file_get_display_name (GFile *file)
 
     return display_name;
 }
-
-
 
 gchar *
 thunar_g_file_get_display_name_remote (GFile *mount_point)
@@ -382,8 +350,6 @@ thunar_g_file_get_display_name_remote (GFile *mount_point)
     return display_name;
 }
 
-
-
 gboolean thunar_g_vfs_is_uri_scheme_supported (const gchar *scheme)
 {
 
@@ -403,8 +369,6 @@ gboolean thunar_g_vfs_is_uri_scheme_supported (const gchar *scheme)
 
     return FALSE;
 }
-
-
 
 /**
  * thunar_g_file_get_free_space:
@@ -454,8 +418,6 @@ thunar_g_file_get_free_space (GFile   *file,
     return success;
 }
 
-
-
 gchar *
 thunar_g_file_get_free_space_string (GFile *file, gboolean file_size_binary)
 {
@@ -483,8 +445,6 @@ thunar_g_file_get_free_space_string (GFile *file, gboolean file_size_binary)
     return fs_string;
 }
 
-
-
 GType
 thunar_g_file_list_get_type (void)
 {
@@ -499,8 +459,6 @@ thunar_g_file_list_get_type (void)
 
     return type;
 }
-
-
 
 /**
  * thunar_g_file_list_new_from_string:
@@ -532,8 +490,6 @@ thunar_g_file_list_new_from_string (const gchar *string)
 
     return list;
 }
-
-
 
 /**
  * thunar_g_file_list_to_stringv:
@@ -571,8 +527,6 @@ thunar_g_file_list_to_stringv (GList *list)
 
     return uris;
 }
-
-
 
 /**
  * thunar_g_file_list_get_parents:
@@ -618,8 +572,6 @@ thunar_g_file_list_get_parents (GList *file_list)
     }
     return parent_folder_list;
 }
-
-
 
 gboolean
 thunar_g_app_info_launch (GAppInfo          *info,
@@ -725,8 +677,6 @@ thunar_g_app_info_launch (GAppInfo          *info,
     return result;
 }
 
-
-
 gboolean
 thunar_g_app_info_should_show (GAppInfo *info)
 {
@@ -747,8 +697,6 @@ thunar_g_app_info_should_show (GAppInfo *info)
     return TRUE;
 #endif
 }
-
-
 
 gboolean
 thunar_g_vfs_metadata_is_supported (void)

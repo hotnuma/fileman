@@ -26,13 +26,9 @@
 #include <thunar-file.h>
 #include <thunar-notify.h>
 
-
-
 typedef gboolean   (*AsyncCallbackFinish) (GObject       *object,
         GAsyncResult  *result,
         GError       **error);
-
-
 
 enum
 {
@@ -41,8 +37,6 @@ enum
     PROP_HIDDEN,
     PROP_KIND
 };
-
-
 
 static void           thunar_device_finalize               (GObject                *object);
 static void           thunar_device_get_property           (GObject                 *object,
@@ -53,8 +47,6 @@ static void           thunar_device_set_property           (GObject             
         guint                    prop_id,
         const GValue            *value,
         GParamSpec              *pspec);
-
-
 
 struct _ThunarDeviceClass
 {
@@ -91,11 +83,7 @@ typedef struct
 }
 ThunarDeviceOperation;
 
-
-
 G_DEFINE_TYPE (ThunarDevice, thunar_device, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_device_class_init (ThunarDeviceClass *klass)
@@ -136,16 +124,12 @@ thunar_device_class_init (ThunarDeviceClass *klass)
                                              | G_PARAM_CONSTRUCT_ONLY));
 }
 
-
-
 static void
 thunar_device_init (ThunarDevice *device)
 {
     device->kind = THUNAR_DEVICE_KIND_VOLUME;
     device->stamp = g_get_real_time ();
 }
-
-
 
 static void
 thunar_device_finalize (GObject *object)
@@ -157,8 +141,6 @@ thunar_device_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_device_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_device_get_property (GObject    *object,
@@ -187,8 +169,6 @@ thunar_device_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_device_set_property (GObject      *object,
@@ -219,8 +199,6 @@ thunar_device_set_property (GObject      *object,
     }
 }
 
-
-
 static ThunarDeviceOperation *
 thunar_device_operation_new (ThunarDevice         *device,
                              ThunarDeviceCallback  callback,
@@ -237,8 +215,6 @@ thunar_device_operation_new (ThunarDevice         *device,
 
     return op;
 }
-
-
 
 static void
 thunar_device_operation_finish (GObject      *object,
@@ -279,8 +255,6 @@ thunar_device_operation_finish (GObject      *object,
     g_slice_free (ThunarDeviceOperation, op);
 }
 
-
-
 static void
 thunar_device_emit_pre_unmount (ThunarDevice *device,
                                 gboolean      all_volumes)
@@ -300,8 +274,6 @@ thunar_device_emit_pre_unmount (ThunarDevice *device,
         g_object_unref (root_file);
     }
 }
-
-
 
 gchar *
 thunar_device_get_name (const ThunarDevice *device)
@@ -336,8 +308,6 @@ thunar_device_get_name (const ThunarDevice *device)
     return NULL;
 }
 
-
-
 GIcon *
 thunar_device_get_icon (const ThunarDevice *device)
 {
@@ -353,16 +323,12 @@ thunar_device_get_icon (const ThunarDevice *device)
     return NULL;
 }
 
-
-
 ThunarDeviceKind
 thunar_device_get_kind (const ThunarDevice *device)
 {
     _thunar_return_val_if_fail (THUNAR_IS_DEVICE (device), THUNAR_DEVICE_KIND_VOLUME);
     return device->kind;
 }
-
-
 
 gchar *
 thunar_device_get_identifier (const ThunarDevice *device)
@@ -391,8 +357,6 @@ thunar_device_get_identifier (const ThunarDevice *device)
     return ident;
 }
 
-
-
 gchar *
 thunar_device_get_identifier_unix (const ThunarDevice *device)
 {
@@ -410,16 +374,12 @@ thunar_device_get_identifier_unix (const ThunarDevice *device)
     return ident;
 }
 
-
-
 gboolean
 thunar_device_get_hidden (const ThunarDevice *device)
 {
     _thunar_return_val_if_fail (THUNAR_IS_DEVICE (device), FALSE);
     return device->hidden;
 }
-
-
 
 /**
  * thunar_device_can_eject:
@@ -460,8 +420,6 @@ thunar_device_can_eject (const ThunarDevice *device)
     return can_eject;
 }
 
-
-
 /**
  * thunar_device_can_mount:
  *
@@ -494,8 +452,6 @@ thunar_device_can_mount (const ThunarDevice *device)
 
     return can_mount;
 }
-
-
 
 /**
  * thunar_device_can_unmount:
@@ -531,8 +487,6 @@ thunar_device_can_unmount (const ThunarDevice *device)
     return can_unmount;
 }
 
-
-
 gboolean
 thunar_device_is_mounted (const ThunarDevice *device)
 {
@@ -561,8 +515,6 @@ thunar_device_is_mounted (const ThunarDevice *device)
 
     return is_mounted;
 }
-
-
 
 GFile *
 thunar_device_get_root (const ThunarDevice *device)
@@ -594,8 +546,6 @@ thunar_device_get_root (const ThunarDevice *device)
     return root;
 }
 
-
-
 gint
 thunar_device_sort (const ThunarDevice *device1,
                     const ThunarDevice *device2)
@@ -610,8 +560,6 @@ thunar_device_sort (const ThunarDevice *device1,
     /* sort by detect stamp */
     return device1->stamp > device2->stamp ? 1 : -1;
 }
-
-
 
 void
 thunar_device_mount (ThunarDevice         *device,
@@ -639,8 +587,6 @@ thunar_device_mount (ThunarDevice         *device,
                         op);
     }
 }
-
-
 
 /**
  * thunar_device_unmount:
@@ -693,8 +639,6 @@ thunar_device_unmount (ThunarDevice         *device,
         g_object_unref (G_OBJECT (mount));
     }
 }
-
-
 
 /**
  * thunar_device_unmount:
@@ -842,8 +786,6 @@ thunar_device_eject (ThunarDevice         *device,
         g_object_unref (G_OBJECT (mount));
     }
 }
-
-
 
 /**
  * thunar_device_reload_file:

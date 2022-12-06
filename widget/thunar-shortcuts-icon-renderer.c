@@ -30,8 +30,6 @@
 #include <thunar-shortcuts-icon-renderer.h>
 #include <thunar-device.h>
 
-
-
 /* Property identifiers */
 enum
 {
@@ -39,8 +37,6 @@ enum
     PROP_DEVICE,
     PROP_GICON,
 };
-
-
 
 static void thunar_shortcuts_icon_renderer_finalize     (GObject                          *object);
 static void thunar_shortcuts_icon_renderer_get_property (GObject                          *object,
@@ -58,8 +54,6 @@ static void thunar_shortcuts_icon_renderer_render       (GtkCellRenderer        
         const GdkRectangle               *cell_area,
         GtkCellRendererState              flags);
 
-
-
 struct _ThunarShortcutsIconRendererClass
 {
     ThunarIconRendererClass __parent__;
@@ -73,11 +67,7 @@ struct _ThunarShortcutsIconRenderer
     GIcon             *gicon;
 };
 
-
-
 G_DEFINE_TYPE (ThunarShortcutsIconRenderer, thunar_shortcuts_icon_renderer, THUNAR_TYPE_ICON_RENDERER)
-
-
 
 static void
 thunar_shortcuts_icon_renderer_class_init (ThunarShortcutsIconRendererClass *klass)
@@ -118,16 +108,12 @@ thunar_shortcuts_icon_renderer_class_init (ThunarShortcutsIconRendererClass *kla
                                              EXO_PARAM_READWRITE));
 }
 
-
-
 static void
 thunar_shortcuts_icon_renderer_init (ThunarShortcutsIconRenderer *shortcuts_icon_renderer)
 {
     /* no padding please */
     gtk_cell_renderer_set_padding (GTK_CELL_RENDERER (shortcuts_icon_renderer), 0, 0);
 }
-
-
 
 static void
 thunar_shortcuts_icon_renderer_finalize (GObject *object)
@@ -142,8 +128,6 @@ thunar_shortcuts_icon_renderer_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_shortcuts_icon_renderer_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_shortcuts_icon_renderer_get_property (GObject    *object,
@@ -169,8 +153,6 @@ thunar_shortcuts_icon_renderer_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_shortcuts_icon_renderer_set_property (GObject      *object,
@@ -200,8 +182,6 @@ thunar_shortcuts_icon_renderer_set_property (GObject      *object,
         break;
     }
 }
-
-
 
 static void
 thunar_shortcuts_icon_renderer_render (GtkCellRenderer     *renderer,
@@ -298,8 +278,6 @@ thunar_shortcuts_icon_renderer_render (GtkCellRenderer     *renderer,
                 cell_area, flags);
     }
 }
-
-
 
 /**
  * thunar_shortcuts_icon_renderer_new:

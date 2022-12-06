@@ -36,14 +36,10 @@
 
 #include <thunar-gobject-extensions.h>
 
-
-
 static void transform_string_to_boolean (const GValue *src, GValue *dst);
 static void transform_string_to_enum    (const GValue *src, GValue *dst);
 static void transform_string_to_int     (const GValue *src, GValue *dst);
 static void transform_string_to_uint    (const GValue *src, GValue *dst);
-
-
 
 static void
 transform_string_to_boolean (const GValue *src,
@@ -51,8 +47,6 @@ transform_string_to_boolean (const GValue *src,
 {
     g_value_set_boolean (dst, strcmp (g_value_get_string (src), "FALSE") != 0);
 }
-
-
 
 static void
 transform_string_to_enum (const GValue *src,
@@ -76,8 +70,6 @@ transform_string_to_enum (const GValue *src,
     g_value_set_enum (dst, value);
 }
 
-
-
 static void
 transform_string_to_int (const GValue *src,
                          GValue       *dst)
@@ -85,16 +77,12 @@ transform_string_to_int (const GValue *src,
     g_value_set_int (dst, (gint) strtol (g_value_get_string (src), NULL, 10));
 }
 
-
-
 static void
 transform_string_to_uint (const GValue *src,
                           GValue       *dst)
 {
     g_value_set_uint (dst, (guint) strtoul (g_value_get_string (src), NULL, 10));
 }
-
-
 
 /**
  * thunar_g_initialize_transformations:
@@ -116,8 +104,6 @@ thunar_g_initialize_transformations (void)
     /* register a transformation function string->enum unconditionally */
     g_value_register_transform_func (G_TYPE_STRING, G_TYPE_ENUM, transform_string_to_enum);
 }
-
-
 
 /**
  * thunar_g_strescape

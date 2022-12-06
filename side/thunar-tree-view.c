@@ -88,17 +88,11 @@ static void thunar_tree_view_realize(GtkWidget *widget);
 static void thunar_tree_view_unrealize(GtkWidget *widget);
 
 
-
-
 static void thunar_tree_view_action_open(ThunarTreeView *view);
 static void thunar_tree_view_open_selection(ThunarTreeView *view);
 
 static void thunar_tree_view_select_files(ThunarTreeView *view,
                                           GList *files_to_selected);
-
-
-
-
 
 static gboolean thunar_tree_view_button_press_event(GtkWidget *widget,
                                                     GdkEventButton *event);

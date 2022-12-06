@@ -28,15 +28,11 @@
 #include <thunar-debug.h>
 #include <thunar-statusbar.h>
 
-
-
 enum
 {
     PROP_0,
     PROP_TEXT,
 };
-
-
 
 static void        thunar_statusbar_set_property          (GObject              *object,
         guint                 prop_id,
@@ -57,11 +53,7 @@ struct _ThunarStatusbar
     guint        context_id;
 };
 
-
-
 G_DEFINE_TYPE (ThunarStatusbar, thunar_statusbar, GTK_TYPE_STATUSBAR)
-
-
 
 static void
 thunar_statusbar_class_init (ThunarStatusbarClass *klass)
@@ -100,8 +92,6 @@ thunar_statusbar_class_init (ThunarStatusbarClass *klass)
     }
 }
 
-
-
 static void
 thunar_statusbar_init (ThunarStatusbar *statusbar)
 {
@@ -111,8 +101,6 @@ thunar_statusbar_init (ThunarStatusbar *statusbar)
     gtk_widget_set_margin_top (GTK_WIDGET (statusbar), 0);
     gtk_widget_set_margin_bottom (GTK_WIDGET (statusbar), 0);
 }
-
-
 
 static void
 thunar_statusbar_set_property (GObject      *object,
@@ -136,8 +124,6 @@ thunar_statusbar_set_property (GObject      *object,
     }
 }
 
-
-
 /**
  * thunar_statusbar_set_text:
  * @statusbar : a #ThunarStatusbar instance.
@@ -155,8 +141,6 @@ thunar_statusbar_set_text (ThunarStatusbar *statusbar,
     gtk_statusbar_pop (GTK_STATUSBAR (statusbar), statusbar->context_id);
     gtk_statusbar_push (GTK_STATUSBAR (statusbar), statusbar->context_id, text);
 }
-
-
 
 /**
  * thunar_statusbar_new:

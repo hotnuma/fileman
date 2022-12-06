@@ -30,16 +30,12 @@
 #include <thunar-icon-factory.h>
 #include <thunar-debug.h>
 
-
-
 /* Property identifiers */
 enum
 {
     PROP_0,
     PROP_FILE,
 };
-
-
 
 static void thunar_image_finalize             (GObject           *object);
 static void thunar_image_get_property         (GObject           *object,
@@ -53,8 +49,6 @@ static void thunar_image_set_property         (GObject           *object,
 static void thunar_image_file_changed         (ThunarFileMonitor *monitor,
         ThunarFile        *file,
         ThunarImage       *image);
-
-
 
 struct _ThunarImageClass
 {
@@ -74,11 +68,7 @@ struct _ThunarImagePrivate
     ThunarFile        *file;
 };
 
-
-
 G_DEFINE_TYPE_WITH_PRIVATE (ThunarImage, thunar_image, GTK_TYPE_IMAGE);
-
-
 
 static void
 thunar_image_class_init (ThunarImageClass *klass)
@@ -98,8 +88,6 @@ thunar_image_class_init (ThunarImageClass *klass)
                                              G_PARAM_READWRITE));
 }
 
-
-
 static void
 thunar_image_init (ThunarImage *image)
 {
@@ -110,8 +98,6 @@ thunar_image_init (ThunarImage *image)
     g_signal_connect (image->priv->monitor, "file-changed",
                       G_CALLBACK (thunar_image_file_changed), image);
 }
-
-
 
 static void
 thunar_image_finalize (GObject *object)
@@ -126,8 +112,6 @@ thunar_image_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_image_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_image_get_property (GObject    *object,
@@ -148,8 +132,6 @@ thunar_image_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_image_set_property (GObject      *object,
                            guint         prop_id,
@@ -168,8 +150,6 @@ thunar_image_set_property (GObject      *object,
         break;
     }
 }
-
-
 
 static void
 thunar_image_update (ThunarImage *image)
@@ -196,8 +176,6 @@ thunar_image_update (ThunarImage *image)
     }
 }
 
-
-
 static void
 thunar_image_file_changed (ThunarFileMonitor *monitor,
                            ThunarFile        *file,
@@ -211,15 +189,11 @@ thunar_image_file_changed (ThunarFileMonitor *monitor,
         thunar_image_update (image);
 }
 
-
-
 GtkWidget *
 thunar_image_new (void)
 {
     return g_object_new (THUNAR_TYPE_IMAGE, NULL);
 }
-
-
 
 void
 thunar_image_set_file (ThunarImage *image,

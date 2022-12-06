@@ -2163,7 +2163,7 @@ static void _thunar_launcher_rename_error(ExoJob    *job,
 
 
 static void _thunar_launcher_rename_finished(ExoJob    *job,
-                                            GtkWidget *widget)
+                                             GtkWidget *widget)
 {
     _thunar_return_if_fail(EXO_IS_JOB(job));
 

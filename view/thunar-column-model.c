@@ -28,16 +28,12 @@
 #include <thunar-preferences.h>
 #include <thunar-debug.h>
 
-
-
 /* Signal identifiers */
 enum
 {
     COLUMNS_CHANGED,
     LAST_SIGNAL,
 };
-
-
 
 static void               thunar_column_model_tree_model_init         (GtkTreeModelIface      *iface);
 static void               thunar_column_model_finalize                (GObject                *object);
@@ -87,8 +83,6 @@ static void               thunar_column_model_notify_visible_columns  (ThunarPre
         ThunarColumnModel      *column_model);
 static gboolean           thunar_column_model_set_column_width_timer  (gpointer                user_data);
 
-
-
 struct _ThunarColumnModelClass
 {
     GObjectClass __parent__;
@@ -116,16 +110,10 @@ struct _ThunarColumnModel
     guint              save_width_timer_id;
 };
 
-
-
 static guint column_model_signals[LAST_SIGNAL];
-
-
 
 G_DEFINE_TYPE_WITH_CODE (ThunarColumnModel, thunar_column_model, G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (GTK_TYPE_TREE_MODEL, thunar_column_model_tree_model_init))
-
-
 
 static void
 thunar_column_model_class_init (ThunarColumnModelClass *klass)
@@ -153,8 +141,6 @@ thunar_column_model_class_init (ThunarColumnModelClass *klass)
                       G_TYPE_NONE, 0);
 }
 
-
-
 static void
 thunar_column_model_tree_model_init (GtkTreeModelIface *iface)
 {
@@ -171,8 +157,6 @@ thunar_column_model_tree_model_init (GtkTreeModelIface *iface)
     iface->iter_nth_child = thunar_column_model_iter_nth_child;
     iface->iter_parent = thunar_column_model_iter_parent;
 }
-
-
 
 static void
 thunar_column_model_init (ThunarColumnModel *column_model)
@@ -201,8 +185,6 @@ thunar_column_model_init (ThunarColumnModel *column_model)
     thunar_column_model_load_visible_columns (column_model);
 }
 
-
-
 static void
 thunar_column_model_finalize (GObject *object)
 {
@@ -219,8 +201,6 @@ thunar_column_model_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_column_model_parent_class)->finalize) (object);
 }
 
-
-
 static GtkTreeModelFlags
 thunar_column_model_get_flags (GtkTreeModel *tree_model)
 {
@@ -228,16 +208,12 @@ thunar_column_model_get_flags (GtkTreeModel *tree_model)
     return GTK_TREE_MODEL_LIST_ONLY;
 }
 
-
-
 static gint
 thunar_column_model_get_n_columns (GtkTreeModel *tree_model)
 {
     UNUSED(tree_model);
     return THUNAR_COLUMN_MODEL_N_COLUMNS;
 }
-
-
 
 static GType
 thunar_column_model_get_column_type (GtkTreeModel *tree_model,
@@ -260,8 +236,6 @@ thunar_column_model_get_column_type (GtkTreeModel *tree_model,
     return G_TYPE_INVALID;
 }
 
-
-
 static gboolean
 thunar_column_model_get_iter (GtkTreeModel *tree_model,
                               GtkTreeIter  *iter,
@@ -283,8 +257,6 @@ thunar_column_model_get_iter (GtkTreeModel *tree_model,
     return TRUE;
 }
 
-
-
 static GtkTreePath*
 thunar_column_model_get_path (GtkTreeModel *tree_model,
                               GtkTreeIter  *iter)
@@ -295,8 +267,6 @@ thunar_column_model_get_path (GtkTreeModel *tree_model,
     /* generate the path for the iterator */
     return gtk_tree_path_new_from_indices (GPOINTER_TO_INT (iter->user_data), -1);
 }
-
-
 
 static void
 thunar_column_model_get_value (GtkTreeModel *tree_model,
@@ -340,8 +310,6 @@ thunar_column_model_get_value (GtkTreeModel *tree_model,
     }
 }
 
-
-
 static gboolean
 thunar_column_model_iter_next (GtkTreeModel *tree_model,
                                GtkTreeIter  *iter)
@@ -358,8 +326,6 @@ thunar_column_model_iter_next (GtkTreeModel *tree_model,
     /* check if the iterator is still valid */
     return (column < THUNAR_N_VISIBLE_COLUMNS);
 }
-
-
 
 static gboolean
 thunar_column_model_iter_children (GtkTreeModel *tree_model,
@@ -379,8 +345,6 @@ thunar_column_model_iter_children (GtkTreeModel *tree_model,
     return FALSE;
 }
 
-
-
 static gboolean
 thunar_column_model_iter_has_child (GtkTreeModel *tree_model,
                                     GtkTreeIter  *iter)
@@ -390,8 +354,6 @@ thunar_column_model_iter_has_child (GtkTreeModel *tree_model,
     return FALSE;
 }
 
-
-
 static gint
 thunar_column_model_iter_n_children (GtkTreeModel *tree_model,
                                      GtkTreeIter  *iter)
@@ -400,8 +362,6 @@ thunar_column_model_iter_n_children (GtkTreeModel *tree_model,
 
     return (iter == NULL) ? THUNAR_N_VISIBLE_COLUMNS : 0;
 }
-
-
 
 static gboolean
 thunar_column_model_iter_nth_child (GtkTreeModel *tree_model,
@@ -422,8 +382,6 @@ thunar_column_model_iter_nth_child (GtkTreeModel *tree_model,
     return FALSE;
 }
 
-
-
 static gboolean
 thunar_column_model_iter_parent (GtkTreeModel *tree_model,
                                  GtkTreeIter  *iter,
@@ -434,8 +392,6 @@ thunar_column_model_iter_parent (GtkTreeModel *tree_model,
     UNUSED(child);
     return FALSE;
 }
-
-
 
 static void
 thunar_column_model_load_column_order (ThunarColumnModel *column_model)
@@ -485,8 +441,6 @@ thunar_column_model_load_column_order (ThunarColumnModel *column_model)
     g_strfreev (column_order);
 }
 
-
-
 static void
 thunar_column_model_save_column_order (ThunarColumnModel *column_model)
 {
@@ -521,8 +475,6 @@ thunar_column_model_save_column_order (ThunarColumnModel *column_model)
     g_string_free (column_order, TRUE);
 }
 
-
-
 static void
 thunar_column_model_notify_column_order (ThunarPreferences *preferences,
         GParamSpec        *pspec,
@@ -551,8 +503,6 @@ thunar_column_model_notify_column_order (ThunarPreferences *preferences,
     /* emit "columns-changed" */
     g_signal_emit (G_OBJECT (column_model), column_model_signals[COLUMNS_CHANGED], 0);
 }
-
-
 
 static void
 thunar_column_model_load_column_widths (ThunarColumnModel *column_model)
@@ -584,8 +534,6 @@ thunar_column_model_load_column_widths (ThunarColumnModel *column_model)
     g_strfreev (column_widths);
 }
 
-
-
 static void
 thunar_column_model_save_column_widths (ThunarColumnModel *column_model)
 {
@@ -615,8 +563,6 @@ thunar_column_model_save_column_widths (ThunarColumnModel *column_model)
     g_string_free (column_widths, TRUE);
 }
 
-
-
 static void
 thunar_column_model_notify_column_widths (ThunarPreferences *preferences,
         GParamSpec        *pspec,
@@ -629,8 +575,6 @@ thunar_column_model_notify_column_widths (ThunarPreferences *preferences,
     /* load the new column widths */
     thunar_column_model_load_column_widths (column_model);
 }
-
-
 
 static void
 thunar_column_model_load_visible_columns (ThunarColumnModel *column_model)
@@ -668,8 +612,6 @@ thunar_column_model_load_visible_columns (ThunarColumnModel *column_model)
     g_strfreev (visible_columns);
 }
 
-
-
 static void
 thunar_column_model_save_visible_columns (ThunarColumnModel *column_model)
 {
@@ -703,8 +645,6 @@ thunar_column_model_save_visible_columns (ThunarColumnModel *column_model)
     g_string_free (visible_columns, TRUE);
 }
 
-
-
 static void
 thunar_column_model_notify_visible_columns (ThunarPreferences *preferences,
         GParamSpec        *pspec,
@@ -734,8 +674,6 @@ thunar_column_model_notify_visible_columns (ThunarPreferences *preferences,
     g_signal_emit (G_OBJECT (column_model), column_model_signals[COLUMNS_CHANGED], 0);
 }
 
-
-
 static gboolean
 thunar_column_model_set_column_width_timer (gpointer user_data)
 {
@@ -746,8 +684,6 @@ thunar_column_model_set_column_width_timer (gpointer user_data)
 
     return FALSE;
 }
-
-
 
 /**
  * thunar_column_model_get_default:
@@ -778,8 +714,6 @@ thunar_column_model_get_default (void)
 
     return column_model;
 }
-
-
 
 /**
  * thunar_column_model_exchange:
@@ -829,8 +763,6 @@ thunar_column_model_exchange (ThunarColumnModel *column_model,
     thunar_column_model_save_column_order (column_model);
 }
 
-
-
 /**
  * thunar_column_model_get_column_for_iter:
  * @column_model : a #ThunarColumnModel.
@@ -850,8 +782,6 @@ thunar_column_model_get_column_for_iter (ThunarColumnModel *column_model,
     return column_model->order[GPOINTER_TO_INT (iter->user_data)];
 }
 
-
-
 /**
  * thunar_column_model_get_column_order:
  * @column_model : a #ThunarColumnModel.
@@ -867,8 +797,6 @@ thunar_column_model_get_column_order (ThunarColumnModel *column_model)
     _thunar_return_val_if_fail (THUNAR_IS_COLUMN_MODEL (column_model), NULL);
     return column_model->order;
 }
-
-
 
 /**
  * thunar_column_model_get_column_name:
@@ -901,8 +829,6 @@ thunar_column_model_get_column_name (ThunarColumnModel *column_model,
     return column_name;
 }
 
-
-
 /**
  * thunar_column_model_get_column_visible:
  * @column_model : a #ThunarColumnModel.
@@ -921,8 +847,6 @@ thunar_column_model_get_column_visible (ThunarColumnModel *column_model,
     _thunar_return_val_if_fail (column < THUNAR_N_VISIBLE_COLUMNS, FALSE);
     return column_model->visible[column];
 }
-
-
 
 /**
  * thunar_column_model_set_column_visible:
@@ -980,8 +904,6 @@ thunar_column_model_set_column_visible (ThunarColumnModel *column_model,
     }
 }
 
-
-
 /**
  * thunar_column_model_get_column_width:
  * @column_model : a #ThunarColumnModel.
@@ -1000,8 +922,6 @@ thunar_column_model_get_column_width (ThunarColumnModel *column_model,
     _thunar_return_val_if_fail (column < THUNAR_N_VISIBLE_COLUMNS, -1);
     return column_model->width[column];
 }
-
-
 
 /**
  * thunar_column_model_set_column_width:

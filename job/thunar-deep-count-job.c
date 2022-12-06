@@ -32,8 +32,6 @@
 #include <thunar-util.h>
 #include <thunar-debug.h>
 
-
-
 /* Signal identifiers */
 enum
 {
@@ -50,8 +48,6 @@ enum
 static void     thunar_deep_count_job_finalize   (GObject                 *object);
 static gboolean thunar_deep_count_job_execute    (ExoJob                  *job,
         GError                 **error);
-
-
 
 struct _ThunarDeepCountJobClass
 {
@@ -82,15 +78,9 @@ struct _ThunarDeepCountJob
     guint               unreadable_directory_count;
 };
 
-
-
 static guint deep_count_signals[LAST_SIGNAL];
 
-
-
 G_DEFINE_TYPE (ThunarDeepCountJob, thunar_deep_count_job, THUNAR_TYPE_JOB)
-
-
 
 static void
 thunar_deep_count_job_class_init (ThunarDeepCountJobClass *klass)
@@ -129,15 +119,11 @@ thunar_deep_count_job_class_init (ThunarDeepCountJobClass *klass)
                       G_TYPE_UINT);
 }
 
-
-
 static void
 thunar_deep_count_job_init (ThunarDeepCountJob *job)
 {
     job->query_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
 }
-
-
 
 static void
 thunar_deep_count_job_finalize (GObject *object)
@@ -148,8 +134,6 @@ thunar_deep_count_job_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_deep_count_job_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_deep_count_job_status_update (ThunarDeepCountJob *job)
@@ -164,8 +148,6 @@ thunar_deep_count_job_status_update (ThunarDeepCountJob *job)
                   job->directory_count,
                   job->unreadable_directory_count);
 }
-
-
 
 static gboolean
 thunar_deep_count_job_process (ExoJob       *job,
@@ -333,8 +315,6 @@ thunar_deep_count_job_process (ExoJob       *job,
     return !exo_job_is_cancelled (job) && success;
 }
 
-
-
 static gboolean
 thunar_deep_count_job_execute (ExoJob  *job,
                                GError **error)
@@ -393,8 +373,6 @@ thunar_deep_count_job_execute (ExoJob  *job,
 
     return success;
 }
-
-
 
 ThunarDeepCountJob *
 thunar_deep_count_job_new (GList               *files,

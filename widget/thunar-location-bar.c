@@ -46,8 +46,6 @@ struct _ThunarLocationBar
     GtkWidget  *locationEntry;
 };
 
-
-
 enum
 {
     PROP_0,
@@ -75,20 +73,14 @@ static gboolean     thunar_location_bar_settings_changed           (ThunarLocati
 static void         thunar_location_bar_on_enry_edit_done          (ThunarLocationEntry  *entry,
         ThunarLocationBar    *bar);
 
-
-
 G_DEFINE_TYPE_WITH_CODE (ThunarLocationBar, thunar_location_bar, GTK_TYPE_BIN,
                          G_IMPLEMENT_INTERFACE (THUNAR_TYPE_NAVIGATOR, thunar_location_bar_navigator_init));
-
-
 
 GtkWidget *
 thunar_location_bar_new (void)
 {
     return gtk_widget_new (THUNAR_TYPE_LOCATION_BAR, NULL);
 }
-
-
 
 static void
 thunar_location_bar_class_init (ThunarLocationBarClass *klass)
@@ -136,8 +128,6 @@ thunar_location_bar_class_init (ThunarLocationBarClass *klass)
                   G_TYPE_NONE, 0);
 }
 
-
-
 static void
 thunar_location_bar_init (ThunarLocationBar *bar)
 {
@@ -151,8 +141,6 @@ thunar_location_bar_init (ThunarLocationBar *bar)
 
     g_signal_connect_object (preferences, "notify::last-location-bar", G_CALLBACK (thunar_location_bar_settings_changed), bar, G_CONNECT_SWAPPED);
 }
-
-
 
 static void
 thunar_location_bar_finalize (GObject *object)
@@ -170,16 +158,12 @@ thunar_location_bar_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_location_bar_parent_class)->finalize) (object);
 }
 
-
-
 static void
 thunar_location_bar_navigator_init (ThunarNavigatorIface *iface)
 {
     iface->set_current_directory = thunar_location_bar_set_current_directory;
     iface->get_current_directory = thunar_location_bar_get_current_directory;
 }
-
-
 
 static void
 thunar_location_bar_get_property (GObject              *object,
@@ -199,8 +183,6 @@ thunar_location_bar_get_property (GObject              *object,
     }
 }
 
-
-
 static void thunar_location_bar_set_property   (GObject              *object,
         guint                 prop_id,
         const GValue         *value,
@@ -218,15 +200,11 @@ static void thunar_location_bar_set_property   (GObject              *object,
     }
 }
 
-
-
 static ThunarFile *
 thunar_location_bar_get_current_directory (ThunarNavigator *navigator)
 {
     return THUNAR_LOCATION_BAR (navigator)->current_directory;
 }
-
-
 
 static void
 thunar_location_bar_set_current_directory (ThunarNavigator      *navigator,
@@ -246,15 +224,11 @@ thunar_location_bar_set_current_directory (ThunarNavigator      *navigator,
     g_object_notify (G_OBJECT (bar), "current-directory");
 }
 
-
-
 static void
 thunar_location_bar_reload_requested (ThunarLocationBar *bar)
 {
     g_signal_emit_by_name (bar, "reload-requested");
 }
-
-
 
 static GtkWidget *
 thunar_location_bar_install_widget (ThunarLocationBar    *bar,
@@ -290,8 +264,6 @@ thunar_location_bar_install_widget (ThunarLocationBar    *bar,
     return installedWidget;
 }
 
-
-
 static void
 thunar_location_bar_on_enry_edit_done (ThunarLocationEntry *entry,
                                        ThunarLocationBar   *bar)
@@ -303,8 +275,6 @@ thunar_location_bar_on_enry_edit_done (ThunarLocationEntry *entry,
 
     g_signal_emit_by_name (bar, "entry-done");
 }
-
-
 
 /**
  * thunar_location_bar_request_entry
@@ -341,8 +311,6 @@ thunar_location_bar_request_entry (ThunarLocationBar *bar,
 
     g_signal_connect (child, "edit-done", G_CALLBACK (thunar_location_bar_on_enry_edit_done), bar);
 }
-
-
 
 static gboolean
 thunar_location_bar_settings_changed (ThunarLocationBar *bar)

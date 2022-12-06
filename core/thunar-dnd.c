@@ -30,16 +30,12 @@
 #include <thunar-gtk-extensions.h>
 #include <thunar-debug.h>
 
-
-
 static void
 dnd_action_selected (GtkWidget     *item,
                      GdkDragAction *dnd_action_return)
 {
     *dnd_action_return = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (item), "dnd-action"));
 }
-
-
 
 /**
  * thunar_dnd_ask:
@@ -179,8 +175,6 @@ thunar_dnd_ask (GtkWidget    *widget,
     return dnd_action;
 }
 
-
-
 /**
  * thunar_dnd_perform:
  * @widget            : the #GtkWidget on which the drop was done.
@@ -262,6 +256,4 @@ thunar_dnd_perform (GtkWidget    *widget,
 
     return succeed;
 }
-
-
 

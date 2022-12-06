@@ -55,12 +55,8 @@
 /* the interval in which the user/group cache is flushed (in seconds) */
 #define THUNAR_USER_MANAGER_FLUSH_INTERVAL (10 * 60)
 
-
-
 static void         thunar_group_finalize   (GObject          *object);
 static ThunarGroup *thunar_group_new        (guint32           id);
-
-
 
 struct _ThunarGroupClass
 {
@@ -75,11 +71,7 @@ struct _ThunarGroup
     gchar  *name;
 };
 
-
-
 G_DEFINE_TYPE (ThunarGroup, thunar_group, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_group_class_init (ThunarGroupClass *klass)
@@ -90,15 +82,11 @@ thunar_group_class_init (ThunarGroupClass *klass)
     gobject_class->finalize = thunar_group_finalize;
 }
 
-
-
 static void
 thunar_group_init (ThunarGroup *group)
 {
     UNUSED(group);
 }
-
-
 
 static void
 thunar_group_finalize (GObject *object)
@@ -111,8 +99,6 @@ thunar_group_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_group_parent_class)->finalize) (object);
 }
 
-
-
 static ThunarGroup*
 thunar_group_new (guint32 id)
 {
@@ -123,8 +109,6 @@ thunar_group_new (guint32 id)
 
     return group;
 }
-
-
 
 /**
  * thunar_group_get_id:
@@ -140,8 +124,6 @@ thunar_group_get_id (ThunarGroup *group)
     g_return_val_if_fail (THUNAR_IS_GROUP (group), 0);
     return group->id;
 }
-
-
 
 /**
  * thunar_group_get_name:
@@ -173,8 +155,6 @@ thunar_group_get_name (ThunarGroup *group)
     return group->name;
 }
 
-
-
 static void        thunar_user_finalize          (GObject         *object);
 static void        thunar_user_load              (ThunarUser      *user);
 static ThunarUser *thunar_user_new               (guint32          id);
@@ -197,15 +177,9 @@ struct _ThunarUser
     gchar       *real_name;
 };
 
-
-
 static guint32 thunar_user_effective_uid;
 
-
-
 G_DEFINE_TYPE (ThunarUser, thunar_user, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_user_class_init (ThunarUserClass *klass)
@@ -222,15 +196,11 @@ thunar_user_class_init (ThunarUserClass *klass)
     gobject_class->finalize = thunar_user_finalize;
 }
 
-
-
 static void
 thunar_user_init (ThunarUser *user)
 {
     UNUSED(user);
 }
-
-
 
 static void
 thunar_user_finalize (GObject *object)
@@ -250,8 +220,6 @@ thunar_user_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_user_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_user_load (ThunarUser *user)
@@ -304,8 +272,6 @@ thunar_user_load (ThunarUser *user)
     }
 }
 
-
-
 static ThunarUser*
 thunar_user_new (guint32 id)
 {
@@ -329,8 +295,6 @@ thunar_user_get_primary_group (ThunarUser *user)
 
     return user->primary_group;
 }
-
-
 
 /**
  * thunar_user_get_groups:
@@ -395,8 +359,6 @@ thunar_user_get_groups (ThunarUser *user)
     return user->groups;
 }
 
-
-
 /**
  * thunar_user_get_name:
  * @user : a #ThunarUser.
@@ -418,8 +380,6 @@ thunar_user_get_name (ThunarUser *user)
 
     return user->name;
 }
-
-
 
 /**
  * thunar_user_get_real_name:
@@ -443,8 +403,6 @@ thunar_user_get_real_name (ThunarUser *user)
     return user->real_name;
 }
 
-
-
 /**
  * thunar_user_is_me:
  * @user : a #ThunarUser.
@@ -463,13 +421,9 @@ thunar_user_is_me (ThunarUser *user)
 }
 
 
-
-
 static void     thunar_user_manager_finalize            (GObject                *object);
 static gboolean thunar_user_manager_flush_timer         (gpointer                user_data);
 static void     thunar_user_manager_flush_timer_destroy (gpointer                user_data);
-
-
 
 struct _ThunarUserManagerClass
 {
@@ -486,11 +440,7 @@ struct _ThunarUserManager
     guint       flush_timer_id;
 };
 
-
-
 G_DEFINE_TYPE (ThunarUserManager, thunar_user_manager, G_TYPE_OBJECT)
-
-
 
 static void
 thunar_user_manager_class_init (ThunarUserManagerClass *klass)
@@ -500,8 +450,6 @@ thunar_user_manager_class_init (ThunarUserManagerClass *klass)
     gobject_class = G_OBJECT_CLASS (klass);
     gobject_class->finalize = thunar_user_manager_finalize;
 }
-
-
 
 static void
 thunar_user_manager_init (ThunarUserManager *manager)
@@ -525,8 +473,6 @@ thunar_user_manager_init (ThunarUserManager *manager)
                               thunar_user_manager_flush_timer_destroy);
 }
 
-
-
 static void
 thunar_user_manager_finalize (GObject *object)
 {
@@ -548,8 +494,6 @@ thunar_user_manager_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_user_manager_parent_class)->finalize) (object);
 }
-
-
 
 static gboolean
 thunar_user_manager_flush_timer (gpointer user_data)
@@ -589,15 +533,11 @@ thunar_user_manager_flush_timer (gpointer user_data)
     return TRUE;
 }
 
-
-
 static void
 thunar_user_manager_flush_timer_destroy (gpointer user_data)
 {
     THUNAR_USER_MANAGER (user_data)->flush_timer_id = 0;
 }
-
-
 
 /**
  * thunar_user_manager_get_default:
@@ -625,8 +565,6 @@ thunar_user_manager_get_default (void)
 
     return manager;
 }
-
-
 
 /**
  * thunar_user_manager_get_group_by_id:
@@ -662,8 +600,6 @@ thunar_user_manager_get_group_by_id (ThunarUserManager *manager,
     return group;
 }
 
-
-
 /**
  * thunar_user_manager_get_user_by_id:
  * @manager : a #ThunarUserManager.
@@ -697,8 +633,6 @@ thunar_user_manager_get_user_by_id (ThunarUserManager *manager,
 
     return user;
 }
-
-
 
 /**
  * thunar_user_manager_get_all_groups:

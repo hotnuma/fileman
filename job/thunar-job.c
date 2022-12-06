@@ -35,8 +35,6 @@
 #include <thunar-marshal.h>
 #include <thunar-debug.h>
 
-
-
 /* Signal identifiers */
 enum
 {
@@ -50,8 +48,6 @@ enum
     LAST_SIGNAL,
 };
 
-
-
 static void              thunar_job_finalize            (GObject            *object);
 static ThunarJobResponse thunar_job_real_ask            (ThunarJob          *job,
         const gchar        *message,
@@ -59,8 +55,6 @@ static ThunarJobResponse thunar_job_real_ask            (ThunarJob          *job
 static ThunarJobResponse thunar_job_real_ask_replace    (ThunarJob          *job,
         ThunarFile         *source_file,
         ThunarFile         *target_file);
-
-
 
 struct _ThunarJobPrivate
 {
@@ -75,15 +69,9 @@ struct _ThunarJobPrivate
     gboolean          frozen; /* the job has been automaticaly paused regarding some parallel copy behavior */
 };
 
-
-
 static guint job_signals[LAST_SIGNAL];
 
-
-
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ThunarJob, thunar_job, EXO_TYPE_JOB)
-
-
 
 static gboolean
 _thunar_job_ask_accumulator (GSignalInvocationHint *ihint,
@@ -96,8 +84,6 @@ _thunar_job_ask_accumulator (GSignalInvocationHint *ihint,
     g_value_copy (handler_return, return_accu);
     return FALSE;
 }
-
-
 
 static void
 thunar_job_class_init (ThunarJobClass *klass)
@@ -250,8 +236,6 @@ thunar_job_class_init (ThunarJobClass *klass)
                       G_TYPE_NONE, 0);
 }
 
-
-
 static void
 thunar_job_init (ThunarJob *job)
 {
@@ -266,15 +250,11 @@ thunar_job_init (ThunarJob *job)
     job->priv->frozen = FALSE;
 }
 
-
-
 static void
 thunar_job_finalize (GObject *object)
 {
     (*G_OBJECT_CLASS (thunar_job_parent_class)->finalize) (object);
 }
-
-
 
 static ThunarJobResponse
 thunar_job_real_ask (ThunarJob        *job,
@@ -287,8 +267,6 @@ thunar_job_real_ask (ThunarJob        *job,
     g_signal_emit (job, job_signals[ASK], 0, message, choices, &response);
     return response;
 }
-
-
 
 static ThunarJobResponse
 thunar_job_real_ask_replace (ThunarJob  *job,
@@ -322,8 +300,6 @@ thunar_job_real_ask_replace (ThunarJob  *job,
     return response;
 }
 
-
-
 static ThunarJobResponse
 _thunar_job_ask_valist (ThunarJob        *job,
                         const gchar      *format,
@@ -355,8 +331,6 @@ _thunar_job_ask_valist (ThunarJob        *job,
 
     return response;
 }
-
-
 
 ThunarJobResponse
 thunar_job_ask_overwrite (ThunarJob   *job,
@@ -413,8 +387,6 @@ thunar_job_ask_overwrite (ThunarJob   *job,
     return response;
 }
 
-
-
 ThunarJobResponse
 thunar_job_ask_delete (ThunarJob   *job,
                        const gchar *format,
@@ -470,8 +442,6 @@ thunar_job_ask_delete (ThunarJob   *job,
     return response;
 }
 
-
-
 ThunarJobResponse
 thunar_job_ask_create (ThunarJob   *job,
                        const gchar *format,
@@ -512,8 +482,6 @@ thunar_job_ask_create (ThunarJob   *job,
 
     return response;
 }
-
-
 
 ThunarJobResponse
 thunar_job_ask_replace (ThunarJob *job,
@@ -579,8 +547,6 @@ thunar_job_ask_replace (ThunarJob *job,
     return response;
 }
 
-
-
 ThunarJobResponse
 thunar_job_ask_skip (ThunarJob   *job,
                      const gchar *format,
@@ -632,8 +598,6 @@ thunar_job_ask_skip (ThunarJob   *job,
     return response;
 }
 
-
-
 gboolean
 thunar_job_ask_no_size (ThunarJob   *job,
                         const gchar *format,
@@ -660,8 +624,6 @@ thunar_job_ask_no_size (ThunarJob   *job,
     return (response == THUNAR_JOB_RESPONSE_FORCE);
 }
 
-
-
 gboolean
 thunar_job_files_ready (ThunarJob *job,
                         GList     *file_list)
@@ -673,8 +635,6 @@ thunar_job_files_ready (ThunarJob *job,
     exo_job_emit (EXO_JOB (job), job_signals[FILES_READY], 0, file_list, &handled);
     return handled;
 }
-
-
 
 void
 thunar_job_new_files (ThunarJob   *job,
@@ -703,8 +663,6 @@ thunar_job_new_files (ThunarJob   *job,
     }
 }
 
-
-
 GList *
 thunar_job_ask_jobs (ThunarJob *job)
 {
@@ -715,8 +673,6 @@ thunar_job_ask_jobs (ThunarJob *job)
     g_signal_emit (EXO_JOB (job), job_signals[ASK_JOBS], 0, &jobs);
     return jobs;
 }
-
-
 
 void
 thunar_job_set_total_files (ThunarJob *job,
@@ -730,8 +686,6 @@ thunar_job_set_total_files (ThunarJob *job,
     job->priv->n_total_files = g_list_length (total_files);
 }
 
-
-
 void
 thunar_job_set_pausable (ThunarJob *job,
                          gboolean   pausable)
@@ -740,16 +694,12 @@ thunar_job_set_pausable (ThunarJob *job,
     job->priv->pausable = pausable;
 }
 
-
-
 gboolean
 thunar_job_is_pausable (ThunarJob *job)
 {
     _thunar_return_val_if_fail (THUNAR_IS_JOB (job), FALSE);
     return job->priv->pausable;
 }
-
-
 
 void
 thunar_job_pause (ThunarJob *job)
@@ -758,16 +708,12 @@ thunar_job_pause (ThunarJob *job)
     job->priv->paused = TRUE;
 }
 
-
-
 void
 thunar_job_resume (ThunarJob *job)
 {
     _thunar_return_if_fail (THUNAR_IS_JOB (job));
     job->priv->paused = FALSE;
 }
-
-
 
 void
 thunar_job_freeze (ThunarJob *job)
@@ -777,8 +723,6 @@ thunar_job_freeze (ThunarJob *job)
     g_signal_emit (EXO_JOB (job), job_signals[FROZEN], 0);
 }
 
-
-
 void
 thunar_job_unfreeze (ThunarJob *job)
 {
@@ -787,8 +731,6 @@ thunar_job_unfreeze (ThunarJob *job)
     g_signal_emit (EXO_JOB (job), job_signals[UNFROZEN], 0);
 }
 
-
-
 gboolean
 thunar_job_is_paused (ThunarJob *job)
 {
@@ -796,16 +738,12 @@ thunar_job_is_paused (ThunarJob *job)
     return job->priv->paused;
 }
 
-
-
 gboolean
 thunar_job_is_frozen (ThunarJob *job)
 {
     _thunar_return_val_if_fail (THUNAR_IS_JOB (job), FALSE);
     return job->priv->frozen;
 }
-
-
 
 void
 thunar_job_processing_file (ThunarJob *job,

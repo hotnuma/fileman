@@ -32,16 +32,12 @@
 #include <thunar-pango-extensions.h>
 #include <thunar-debug.h>
 
-
-
 /* Property identifiers */
 enum
 {
     PROP_0,
     PROP_FILE,
 };
-
-
 
 enum
 {
@@ -52,8 +48,6 @@ enum
     THUNAR_CHOOSER_BUTTON_STORE_COLUMN_STYLE,
     THUNAR_CHOOSER_BUTTON_STORE_N_COLUMNS
 };
-
-
 
 static void     thunar_chooser_button_finalize          (GObject             *object);
 static void     thunar_chooser_button_get_property      (GObject             *object,
@@ -77,8 +71,6 @@ static void     thunar_chooser_button_chooser_dialog    (ThunarChooserButton *ch
 static void     thunar_chooser_button_file_changed      (ThunarChooserButton *chooser_button,
         ThunarFile          *file);
 
-
-
 struct _ThunarChooserButtonClass
 {
     GtkComboBoxClass __parent__;
@@ -93,11 +85,7 @@ struct _ThunarChooserButton
     gboolean      has_default_application;
 };
 
-
-
 G_DEFINE_TYPE (ThunarChooserButton, thunar_chooser_button, GTK_TYPE_COMBO_BOX)
-
-
 
 static void
 thunar_chooser_button_class_init (ThunarChooserButtonClass *klass)
@@ -125,8 +113,6 @@ thunar_chooser_button_class_init (ThunarChooserButtonClass *klass)
                                              THUNAR_TYPE_FILE,
                                              EXO_PARAM_READWRITE));
 }
-
-
 
 static void
 thunar_chooser_button_init (ThunarChooserButton *chooser_button)
@@ -176,8 +162,6 @@ thunar_chooser_button_init (ThunarChooserButton *chooser_button)
                                     NULL);
 }
 
-
-
 static void
 thunar_chooser_button_finalize (GObject *object)
 {
@@ -191,8 +175,6 @@ thunar_chooser_button_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_chooser_button_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_chooser_button_get_property (GObject    *object,
@@ -215,8 +197,6 @@ thunar_chooser_button_get_property (GObject    *object,
     }
 }
 
-
-
 static void
 thunar_chooser_button_set_property (GObject      *object,
                                     guint         prop_id,
@@ -237,8 +217,6 @@ thunar_chooser_button_set_property (GObject      *object,
         break;
     }
 }
-
-
 
 static gboolean
 thunar_chooser_button_scroll_event (GtkWidget      *widget,
@@ -269,8 +247,6 @@ thunar_chooser_button_scroll_event (GtkWidget      *widget,
 
     return (*GTK_WIDGET_CLASS (thunar_chooser_button_parent_class)->scroll_event) (widget, event);
 }
-
-
 
 static void
 thunar_chooser_button_changed (GtkComboBox *combo_box)
@@ -327,8 +303,6 @@ thunar_chooser_button_changed (GtkComboBox *combo_box)
     }
 }
 
-
-
 static void
 thunar_chooser_button_popup (ThunarChooserButton *chooser_button)
 {
@@ -344,8 +318,6 @@ thunar_chooser_button_popup (ThunarChooserButton *chooser_button)
     }
 }
 
-
-
 static gint
 thunar_chooser_button_sort_applications (gconstpointer a,
         gconstpointer b)
@@ -356,8 +328,6 @@ thunar_chooser_button_sort_applications (gconstpointer a,
     return g_utf8_collate (g_app_info_get_name (G_APP_INFO (a)),
                            g_app_info_get_name (G_APP_INFO (b)));
 }
-
-
 
 static gboolean
 thunar_chooser_button_row_separator (GtkTreeModel *model,
@@ -377,8 +347,6 @@ thunar_chooser_button_row_separator (GtkTreeModel *model,
 
     return TRUE;
 }
-
-
 
 static void
 thunar_chooser_button_chooser_dialog (ThunarChooserButton *chooser_button)
@@ -402,8 +370,6 @@ thunar_chooser_button_chooser_dialog (ThunarChooserButton *chooser_button)
         thunar_chooser_button_file_changed (chooser_button, chooser_button->file);
     gtk_widget_destroy (dialog);
 }
-
-
 
 static void
 thunar_chooser_button_file_changed (ThunarChooserButton *chooser_button,
@@ -518,8 +484,6 @@ thunar_chooser_button_file_changed (ThunarChooserButton *chooser_button,
                                        NULL);
 }
 
-
-
 /**
  * thunar_chooser_button_new:
  *
@@ -532,8 +496,6 @@ thunar_chooser_button_new (void)
 {
     return g_object_new (THUNAR_TYPE_CHOOSER_BUTTON, NULL);
 }
-
-
 
 /**
  * thunar_chooser_button_set_file:
@@ -579,6 +541,4 @@ thunar_chooser_button_set_file (ThunarChooserButton *chooser_button,
     /* notify listeners */
     g_object_notify (G_OBJECT (chooser_button), "file");
 }
-
-
 

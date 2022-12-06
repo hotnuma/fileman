@@ -1,10 +1,10 @@
 /*-
- * Copyright (c) 2005-2006 Benedikt Meurer <benny@xfce.org>
- * Copyright (c) 2020 Alexander Schwinn <alexxcons@xfce.org>
+ * Copyright(c) 2005-2006 Benedikt Meurer <benny@xfce.org>
+ * Copyright(c) 2020 Alexander Schwinn <alexxcons@xfce.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
+ * Software Foundation; either version 2 of the License, or(at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -27,12 +27,12 @@ G_BEGIN_DECLS;
 typedef struct _ThunarLauncherClass ThunarLauncherClass;
 typedef struct _ThunarLauncher      ThunarLauncher;
 
-#define THUNAR_TYPE_LAUNCHER            (thunar_launcher_get_type ())
-#define THUNAR_LAUNCHER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_LAUNCHER, ThunarLauncher))
-#define THUNAR_LAUNCHER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
-#define THUNAR_IS_LAUNCHER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_LAUNCHER))
-#define THUNAR_IS_LAUNCHER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_LAUNCHER))
-#define THUNAR_LAUNCHER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
+#define THUNAR_TYPE_LAUNCHER            (thunar_launcher_get_type())
+#define THUNAR_LAUNCHER(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_LAUNCHER, ThunarLauncher))
+#define THUNAR_LAUNCHER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
+#define THUNAR_IS_LAUNCHER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_LAUNCHER))
+#define THUNAR_IS_LAUNCHER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_LAUNCHER))
+#define THUNAR_LAUNCHER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
 
 /* #XfceGtkActionEntrys provided by this widget */
 typedef enum
@@ -73,32 +73,32 @@ typedef enum
 
 } ThunarLauncherFolderOpenAction;
 
-GType thunar_launcher_get_type () G_GNUC_CONST;
-void thunar_launcher_activate_selected_files (ThunarLauncher *launcher,
-                                              ThunarLauncherFolderOpenAction action,
-                                              GAppInfo *app_info);
-void thunar_launcher_open_selected_folders (ThunarLauncher *launcher);
-void thunar_launcher_set_widget (ThunarLauncher *launcher,
-                                 GtkWidget *widget);
-GtkWidget *thunar_launcher_get_widget (ThunarLauncher *launcher);
-void thunar_launcher_append_accelerators (ThunarLauncher *launcher,
-                                          GtkAccelGroup *accel_group);
-GtkWidget *thunar_launcher_append_menu_item (ThunarLauncher *launcher,
+GType thunar_launcher_get_type() G_GNUC_CONST;
+void thunar_launcher_activate_selected_files(ThunarLauncher *launcher,
+                                             ThunarLauncherFolderOpenAction action,
+                                             GAppInfo *app_info);
+void thunar_launcher_open_selected_folders(ThunarLauncher *launcher);
+void thunar_launcher_set_widget(ThunarLauncher *launcher,
+                                GtkWidget *widget);
+GtkWidget *thunar_launcher_get_widget(ThunarLauncher *launcher);
+void thunar_launcher_append_accelerators(ThunarLauncher *launcher,
+                                         GtkAccelGroup *accel_group);
+GtkWidget *thunar_launcher_append_menu_item(ThunarLauncher *launcher,
+                                            GtkMenuShell *menu,
+                                            ThunarLauncherAction action,
+                                            gboolean force);
+gboolean thunar_launcher_append_open_section(ThunarLauncher *launcher,
                                              GtkMenuShell *menu,
-                                             ThunarLauncherAction action,
+                                             gboolean support_tabs,
+                                             gboolean support_change_directory,
                                              gboolean force);
-gboolean thunar_launcher_append_open_section (ThunarLauncher *launcher,
-                                              GtkMenuShell *menu,
-                                              gboolean support_tabs,
-                                              gboolean support_change_directory,
-                                              gboolean force);
-gboolean thunar_launcher_append_custom_actions (ThunarLauncher *launcher,
-                                                GtkMenuShell *menu);
-gboolean thunar_launcher_check_uca_key_activation (ThunarLauncher *launcher,
-                                                   GdkEventKey *key_event);
-void thunar_launcher_action_mount (ThunarLauncher *launcher);
-void thunar_launcher_action_unmount (ThunarLauncher *launcher);
-void thunar_launcher_action_eject (ThunarLauncher *launcher);
+gboolean thunar_launcher_append_custom_actions(ThunarLauncher *launcher,
+                                               GtkMenuShell *menu);
+gboolean thunar_launcher_check_uca_key_activation(ThunarLauncher *launcher,
+                                                  GdkEventKey *key_event);
+void thunar_launcher_action_mount(ThunarLauncher *launcher);
+void thunar_launcher_action_unmount(ThunarLauncher *launcher);
+void thunar_launcher_action_eject(ThunarLauncher *launcher);
 
 void thunar_launcher_action_rename(ThunarLauncher *launcher);
 

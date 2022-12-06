@@ -26,8 +26,6 @@
 #include <thunar-debug.h>
 #include <thunar-window.h>
 
-
-
 /**
  * SECTION:thunar-menu
  * @Short_description: Wrapper of GtkMenu to simplify the creation commonly used menu-sections in thunar
@@ -38,8 +36,6 @@
  * Based on the passed flags and selected sections, it fills itself with the requested menu-items
  * by creating them with #ThunarLauncher.
  */
-
-
 
 /* property identifiers */
 enum
@@ -82,13 +78,9 @@ struct _ThunarMenu
     ThunarMenuType   type;
 };
 
-
-
 static GQuark thunar_menu_handler_quark;
 
 G_DEFINE_TYPE (ThunarMenu, thunar_menu, GTK_TYPE_MENU)
-
-
 
 static void
 thunar_menu_class_init (ThunarMenuClass *klass)
@@ -141,8 +133,6 @@ thunar_menu_class_init (ThunarMenuClass *klass)
                                              | G_PARAM_CONSTRUCT_ONLY));
 }
 
-
-
 static void
 thunar_menu_init (ThunarMenu *menu)
 {
@@ -150,8 +140,6 @@ thunar_menu_init (ThunarMenu *menu)
     menu->type = FALSE;
     menu->change_directory_support_disabled = FALSE;
 }
-
-
 
 static void
 thunar_menu_finalize (GObject *object)
@@ -162,8 +150,6 @@ thunar_menu_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_menu_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_menu_get_property (GObject    *object,
@@ -180,8 +166,6 @@ thunar_menu_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_menu_set_property (GObject      *object,
@@ -215,8 +199,6 @@ thunar_menu_set_property (GObject      *object,
         break;
     }
 }
-
-
 
 /**
  * thunar_menu_add_sections:
@@ -329,8 +311,6 @@ thunar_menu_add_sections (ThunarMenu         *menu,
     return TRUE;
 }
 
-
-
 /**
  * thunar_menu_get_launcher:
  * @menu : a #ThunarMenu instance
@@ -343,8 +323,6 @@ thunar_menu_get_launcher (ThunarMenu *menu)
     _thunar_return_val_if_fail (THUNAR_IS_MENU (menu), NULL);
     return GTK_WIDGET (menu->launcher);
 }
-
-
 
 /**
  * thunar_menu_hide_accel_labels:

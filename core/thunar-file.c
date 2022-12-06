@@ -1182,7 +1182,6 @@ ThunarFile* thunar_file_get(GFile   *gfile,
     return file;
 }
 
-
 /**
  * thunar_file_get_with_info:
  * @uri         : an URI or an absolute filename.
@@ -3357,7 +3356,7 @@ GIcon* thunar_file_get_preview_icon(const ThunarFile *file)
 GFilesystemPreviewType thunar_file_get_preview_type(const ThunarFile *file)
 {
     GFilesystemPreviewType  preview;
-    GFileInfo              *info;
+    GFileInfo               *info;
 
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
     thunar_return_val_if_fail(G_IS_FILE(file->gfile), G_FILESYSTEM_PREVIEW_TYPE_NEVER);

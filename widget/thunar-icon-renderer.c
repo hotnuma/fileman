@@ -27,8 +27,6 @@
 #include <thunar-icon-renderer.h>
 #include <thunar-debug.h>
 
-
-
 enum
 {
     PROP_0,
@@ -38,8 +36,6 @@ enum
     PROP_FOLLOW_STATE,
     PROP_SIZE,
 };
-
-
 
 static void thunar_icon_renderer_finalize      (GObject                 *object);
 static void thunar_icon_renderer_get_property  (GObject                 *object,
@@ -65,11 +61,7 @@ static void thunar_icon_renderer_render        (GtkCellRenderer         *rendere
         const GdkRectangle      *cell_area,
         GtkCellRendererState     flags);
 
-
-
 G_DEFINE_TYPE (ThunarIconRenderer, thunar_icon_renderer, GTK_TYPE_CELL_RENDERER)
-
-
 
 static void
 thunar_icon_renderer_class_init (ThunarIconRendererClass *klass)
@@ -155,16 +147,12 @@ thunar_icon_renderer_class_init (ThunarIconRendererClass *klass)
                                              G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
 }
 
-
-
 static void
 thunar_icon_renderer_init (ThunarIconRenderer *icon_renderer)
 {
     /* use 1px padding */
     gtk_cell_renderer_set_padding (GTK_CELL_RENDERER (icon_renderer), 1, 1);
 }
-
-
 
 static void
 thunar_icon_renderer_finalize (GObject *object)
@@ -179,8 +167,6 @@ thunar_icon_renderer_finalize (GObject *object)
 
     (*G_OBJECT_CLASS (thunar_icon_renderer_parent_class)->finalize) (object);
 }
-
-
 
 static void
 thunar_icon_renderer_get_property (GObject    *object,
@@ -219,8 +205,6 @@ thunar_icon_renderer_get_property (GObject    *object,
         break;
     }
 }
-
-
 
 static void
 thunar_icon_renderer_set_property (GObject      *object,
@@ -265,8 +249,6 @@ thunar_icon_renderer_set_property (GObject      *object,
 }
 
 
-
-
 static void
 thunar_icon_renderer_get_preferred_width (GtkCellRenderer *renderer,
         GtkWidget       *widget,
@@ -284,8 +266,6 @@ thunar_icon_renderer_get_preferred_width (GtkCellRenderer *renderer,
     if (G_LIKELY (natural)) *natural = (gint) xpad * 2 + icon_renderer->size;
 }
 
-
-
 static void
 thunar_icon_renderer_get_preferred_height (GtkCellRenderer *renderer,
         GtkWidget       *widget,
@@ -302,8 +282,6 @@ thunar_icon_renderer_get_preferred_height (GtkCellRenderer *renderer,
     if (G_LIKELY (minimum)) *minimum = (gint) ypad * 2 + icon_renderer->size;
     if (G_LIKELY (natural)) *natural = (gint) ypad * 2 + icon_renderer->size;
 }
-
-
 
 static void
 thunar_icon_renderer_color_insensitive (cairo_t   *cr,
@@ -326,8 +304,6 @@ thunar_icon_renderer_color_insensitive (cairo_t   *cr,
     cairo_pattern_destroy (source);
     cairo_restore (cr);
 }
-
-
 
 static void
 thunar_icon_renderer_color_selected (cairo_t   *cr,
@@ -353,8 +329,6 @@ thunar_icon_renderer_color_selected (cairo_t   *cr,
     cairo_restore (cr);
 }
 
-
-
 static void
 thunar_icon_renderer_color_lighten (cairo_t   *cr,
                                     GtkWidget *widget)
@@ -374,8 +348,6 @@ thunar_icon_renderer_color_lighten (cairo_t   *cr,
     cairo_pattern_destroy (source);
     cairo_restore (cr);
 }
-
-
 
 static void
 thunar_icon_renderer_render (GtkCellRenderer     *renderer,
@@ -606,8 +578,6 @@ thunar_icon_renderer_render (GtkCellRenderer     *renderer,
     /* release our reference on the icon factory */
     g_object_unref (G_OBJECT (icon_factory));
 }
-
-
 
 /**
  * thunar_icon_renderer_new:

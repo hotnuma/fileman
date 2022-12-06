@@ -30,12 +30,12 @@ G_BEGIN_DECLS;
 typedef struct _ThunarWindowClass ThunarWindowClass;
 typedef struct _ThunarWindow      ThunarWindow;
 
-#define THUNAR_TYPE_WINDOW             (thunar_window_get_type())
-#define THUNAR_WINDOW(obj)             (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_WINDOW, ThunarWindow))
-#define THUNAR_WINDOW_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_WINDOW, ThunarWindowClass))
-#define THUNAR_IS_WINDOW(obj)          (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_WINDOW))
-#define THUNAR_IS_WINDOW_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_WINDOW))
-#define THUNAR_WINDOW_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_WINDOW, ThunarWindowClass))
+#define THUNAR_TYPE_WINDOW              (thunar_window_get_type())
+#define THUNAR_WINDOW(obj)              (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_WINDOW, ThunarWindow))
+#define THUNAR_WINDOW_CLASS(klass)      (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_WINDOW, ThunarWindowClass))
+#define THUNAR_IS_WINDOW(obj)           (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_WINDOW))
+#define THUNAR_IS_WINDOW_CLASS(klass)   (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_WINDOW))
+#define THUNAR_WINDOW_GET_CLASS(obj)    (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_WINDOW, ThunarWindowClass))
 
 /* #XfceGtkActionEntrys provided by this widget */
 typedef enum
@@ -55,7 +55,7 @@ typedef enum
 
 GType thunar_window_get_type() G_GNUC_CONST;
 
-ThunarFile *thunar_window_get_current_directory(ThunarWindow *window);
+ThunarFile* thunar_window_get_current_directory(ThunarWindow *window);
 void thunar_window_set_current_directory(ThunarWindow *window,
                                          ThunarFile *current_directory);
 
@@ -86,8 +86,6 @@ void thunar_window_redirect_menu_tooltips_to_statusbar(ThunarWindow *window,
 const XfceGtkActionEntry* thunar_window_get_action_entry(ThunarWindow *window,
                                                          ThunarWindowAction action);
 
-//void thunar_launcher_action_key_rename(ThunarWindow *window);
-//gboolean thunar_window_action_key_trash(ThunarWindow *window);
 GtkWidget* thunar_window_get_focused_tree_view(ThunarWindow *window);
 
 G_END_DECLS;

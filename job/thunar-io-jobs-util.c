@@ -29,8 +29,6 @@
 #include <thunar-debug.h>
 #include <thunar-util.h>
 
-
-
 /**
  * thunar_io_jobs_util_next_duplicate_file:
  * @job   : a #ThunarJob.
@@ -137,8 +135,6 @@ thunar_io_jobs_util_next_duplicate_file (ThunarJob *job,
 
     return duplicate_file;
 }
-
-
 
 /**
  * thunar_io_jobs_util_next_renamed_file:

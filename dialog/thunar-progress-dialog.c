@@ -29,11 +29,7 @@
 #include <thunar-progress-dialog.h>
 #include <thunar-progress-view.h>
 
-
-
 #define SCROLLVIEW_THRESHOLD 5
-
-
 
 static void     thunar_progress_dialog_dispose            (GObject              *object);
 static void     thunar_progress_dialog_finalize           (GObject              *object);
@@ -43,8 +39,6 @@ static gboolean thunar_progress_dialog_toggled            (ThunarProgressDialog 
         GdkEventButton       *button,
         GtkStatusIcon        *status_icon);
 static void     thunar_progress_dialog_update_status_icon (ThunarProgressDialog *dialog);
-
-
 
 struct _ThunarProgressDialogClass
 {
@@ -66,11 +60,7 @@ struct _ThunarProgressDialog
     gint           y;
 };
 
-
-
 G_DEFINE_TYPE (ThunarProgressDialog, thunar_progress_dialog, GTK_TYPE_WINDOW);
-
-
 
 static void
 thunar_progress_dialog_class_init (ThunarProgressDialogClass *klass)
@@ -84,8 +74,6 @@ thunar_progress_dialog_class_init (ThunarProgressDialogClass *klass)
     gobject_class->dispose = thunar_progress_dialog_dispose;
     gobject_class->finalize = thunar_progress_dialog_finalize;
 }
-
-
 
 static void
 thunar_progress_dialog_init (ThunarProgressDialog *dialog)
@@ -115,15 +103,11 @@ thunar_progress_dialog_init (ThunarProgressDialog *dialog)
     gtk_widget_show (dialog->content_box);
 }
 
-
-
 static void
 thunar_progress_dialog_dispose (GObject *object)
 {
     (*G_OBJECT_CLASS (thunar_progress_dialog_parent_class)->dispose) (object);
 }
-
-
 
 static void
 thunar_progress_dialog_finalize (GObject *object)
@@ -145,8 +129,6 @@ thunar_progress_dialog_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_progress_dialog_parent_class)->finalize) (object);
 }
 
-
-
 static void
 thunar_progress_dialog_shown (ThunarProgressDialog *dialog)
 {
@@ -166,8 +148,6 @@ thunar_progress_dialog_shown (ThunarProgressDialog *dialog)
     }
 }
 
-
-
 static gboolean
 thunar_progress_dialog_closed (ThunarProgressDialog *dialog)
 {
@@ -182,8 +162,6 @@ thunar_progress_dialog_closed (ThunarProgressDialog *dialog)
     /* don't destroy the dialog */
     return TRUE;
 }
-
-
 
 static gboolean
 thunar_progress_dialog_toggled (ThunarProgressDialog *dialog,
@@ -219,8 +197,6 @@ thunar_progress_dialog_toggled (ThunarProgressDialog *dialog,
     return TRUE;
 }
 
-
-
 static void
 thunar_progress_dialog_view_needs_attention (ThunarProgressDialog *dialog,
         ThunarProgressView   *view)
@@ -233,8 +209,6 @@ thunar_progress_dialog_view_needs_attention (ThunarProgressDialog *dialog,
     /* raise the dialog */
     gtk_window_present (GTK_WINDOW (dialog));
 }
-
-
 
 static void
 thunar_progress_dialog_job_finished (ThunarProgressDialog *dialog,
@@ -291,8 +265,6 @@ thunar_progress_dialog_job_finished (ThunarProgressDialog *dialog,
     }
 }
 
-
-
 static void
 thunar_progress_dialog_update_status_icon (ThunarProgressDialog *dialog)
 {
@@ -321,17 +293,11 @@ thunar_progress_dialog_update_status_icon (ThunarProgressDialog *dialog)
 }
 
 
-
-
-
-
 GtkWidget*
 thunar_progress_dialog_new (void)
 {
     return g_object_new (THUNAR_TYPE_PROGRESS_DIALOG, NULL);
 }
-
-
 
 /**
  * thunar_progress_dialog_list_jobs:
@@ -366,8 +332,6 @@ thunar_progress_dialog_list_jobs (ThunarProgressDialog *dialog)
     }
     return jobs;
 }
-
-
 
 void
 thunar_progress_dialog_add_job (ThunarProgressDialog *dialog,
@@ -434,8 +398,6 @@ thunar_progress_dialog_add_job (ThunarProgressDialog *dialog,
     if (dialog->status_icon != NULL)
         thunar_progress_dialog_update_status_icon (dialog);
 }
-
-
 
 gboolean
 thunar_progress_dialog_has_jobs (ThunarProgressDialog *dialog)

@@ -30,8 +30,6 @@
 #include <thunar-debug.h>
 #include <thunar-io-scan-directory.h>
 
-
-
 GList *
 thunar_io_scan_directory (ThunarJob          *job,
                           GFile              *file,

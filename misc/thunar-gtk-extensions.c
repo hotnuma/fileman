@@ -34,8 +34,6 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-
-
 /**
  * thunar_gtk_label_set_a11y_relation:
  * @label  : a #GtkLabel.
@@ -62,8 +60,6 @@ thunar_gtk_label_set_a11y_relation (GtkLabel  *label,
     atk_relation_set_add (relations, relation);
     g_object_unref (G_OBJECT (relation));
 }
-
-
 
 /**
  * thunar_gtk_menu_thunarx_menu_item_new:
@@ -127,8 +123,6 @@ thunar_gtk_menu_thunarx_menu_item_new (GObject      *thunarx_menu_item,
     return gtk_menu_item;
 }
 
-
-
 /**
  * thunar_gtk_menu_clean:
  * @menu : a #GtkMenu.
@@ -153,8 +147,6 @@ thunar_gtk_menu_clean (GtkMenu *menu)
     g_list_free (children);
 }
 
-
-
 /**
  * thunar_gtk_menu_run:
  * @menu : a #GtkMenu.
@@ -169,8 +161,6 @@ thunar_gtk_menu_run (GtkMenu *menu)
     gdk_event_free (event);
 }
 
-
-
 #if GTK_CHECK_VERSION (3, 24, 8)
 static void
 moved_to_rect_cb (GdkWindow          *window,
@@ -184,8 +174,6 @@ moved_to_rect_cb (GdkWindow          *window,
     g_signal_stop_emission_by_name (window, "moved-to-rect");
 }
 
-
-
 static void
 popup_menu_realized (GtkWidget *menu,
                      gpointer   user_data)
@@ -196,8 +184,6 @@ popup_menu_realized (GtkWidget *menu,
     g_signal_connect (toplevel, "moved-to-rect", G_CALLBACK (moved_to_rect_cb), menu);
 }
 #endif
-
-
 
 /**
  * thunar_gtk_menu_run_at_event:
@@ -247,8 +233,6 @@ thunar_gtk_menu_run_at_event (GtkMenu *menu,
     g_object_unref (G_OBJECT (menu));
 }
 
-
-
 /**
  * thunar_gtk_widget_set_tooltip:
  * @widget : a #GtkWidget for which to set the tooltip.
@@ -281,8 +265,6 @@ thunar_gtk_widget_set_tooltip (GtkWidget   *widget,
     g_free (tooltip);
 }
 
-
-
 /**
  * thunar_gtk_get_focused_widget:
  * Return value: (transfer none): currently focused widget or NULL, if there is none.
@@ -300,8 +282,6 @@ thunar_gtk_get_focused_widget (void)
 
     return gtk_window_get_focus (window);
 }
-
-
 
 /**
  * thunar_gtk_mount_operation_new:
@@ -326,8 +306,6 @@ thunar_gtk_mount_operation_new (gpointer parent)
     return operation;
 }
 
-
-
 /**
  * thunar_gtk_editable_can_cut:
  *
@@ -341,8 +319,6 @@ thunar_gtk_editable_can_cut (GtkEditable *editable)
            thunar_gtk_editable_can_copy (editable);
 }
 
-
-
 /**
  * thunar_gtk_editable_can_copy:
  *
@@ -354,8 +330,6 @@ thunar_gtk_editable_can_copy (GtkEditable *editable)
 {
     return gtk_editable_get_selection_bounds (editable, NULL,NULL);
 }
-
-
 
 /**
  * thunar_gtk_editable_can_paste:

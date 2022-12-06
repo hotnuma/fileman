@@ -32,8 +32,6 @@
 #include <thunar-preferences.h>
 #include <thunar-debug.h>
 
-
-
 static void thunar_column_editor_finalize           (GObject                  *object);
 static void thunar_column_editor_help_clicked       (GtkWidget                *button,
         ThunarColumnEditor       *column_editor);
@@ -49,8 +47,6 @@ static void thunar_column_editor_toggle_visibility  (GtkWidget                *b
 static void thunar_column_editor_update_buttons     (ThunarColumnEditor       *column_editor);
 static void thunar_column_editor_use_defaults       (GtkWidget                *button,
         ThunarColumnEditor       *column_editor);
-
-
 
 struct _ThunarColumnEditorClass
 {
@@ -72,11 +68,7 @@ struct _ThunarColumnEditor
     GtkWidget         *hide_button;
 };
 
-
-
 G_DEFINE_TYPE (ThunarColumnEditor, thunar_column_editor, GTK_TYPE_DIALOG /*THUNAR_TYPE_ABSTRACT_DIALOG*/)
-
-
 
 static void
 thunar_column_editor_class_init (ThunarColumnEditorClass *klass)
@@ -86,8 +78,6 @@ thunar_column_editor_class_init (ThunarColumnEditorClass *klass)
     gobject_class = G_OBJECT_CLASS (klass);
     gobject_class->finalize = thunar_column_editor_finalize;
 }
-
-
 
 static void
 thunar_column_editor_init (ThunarColumnEditor *column_editor)
@@ -282,8 +272,6 @@ thunar_column_editor_init (ThunarColumnEditor *column_editor)
     gtk_widget_grab_focus (column_editor->tree_view);
 }
 
-
-
 static void
 thunar_column_editor_finalize (GObject *object)
 {
@@ -299,8 +287,6 @@ thunar_column_editor_finalize (GObject *object)
     (*G_OBJECT_CLASS (thunar_column_editor_parent_class)->finalize) (object);
 }
 
-
-
 static void
 thunar_column_editor_help_clicked (GtkWidget          *button,
                                    ThunarColumnEditor *column_editor)
@@ -314,8 +300,6 @@ thunar_column_editor_help_clicked (GtkWidget          *button,
                            "the-file-manager-window",
                            "customizing_the_appearance");
 }
-
-
 
 static void
 thunar_column_editor_move_down (GtkWidget          *button,
@@ -341,8 +325,6 @@ thunar_column_editor_move_down (GtkWidget          *button,
             thunar_column_model_exchange (THUNAR_COLUMN_MODEL (model), &iter1, &iter2);
     }
 }
-
-
 
 static void
 thunar_column_editor_move_up (GtkWidget          *button,
@@ -378,8 +360,6 @@ thunar_column_editor_move_up (GtkWidget          *button,
     }
 }
 
-
-
 static void
 thunar_column_editor_toggled (GtkCellRendererToggle *cell_renderer,
                               const gchar           *path_string,
@@ -410,8 +390,6 @@ thunar_column_editor_toggled (GtkCellRendererToggle *cell_renderer,
     gtk_tree_path_free (path);
 }
 
-
-
 static void
 thunar_column_editor_toggle_visibility (GtkWidget          *button,
                                         ThunarColumnEditor *column_editor)
@@ -438,8 +416,6 @@ thunar_column_editor_toggle_visibility (GtkWidget          *button,
         thunar_column_model_set_column_visible (column_editor->column_model, column, !visible);
     }
 }
-
-
 
 static void
 thunar_column_editor_update_buttons (ThunarColumnEditor *column_editor)
@@ -484,8 +460,6 @@ thunar_column_editor_update_buttons (ThunarColumnEditor *column_editor)
     }
 }
 
-
-
 static void
 thunar_column_editor_use_defaults (GtkWidget          *button,
                                    ThunarColumnEditor *column_editor)
@@ -516,8 +490,6 @@ thunar_column_editor_use_defaults (GtkWidget          *button,
     selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (column_editor->tree_view));
     gtk_tree_selection_unselect_all (selection);
 }
-
-
 
 /**
  * thunar_show_column_editor:
