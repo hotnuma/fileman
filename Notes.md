@@ -5,9 +5,78 @@
     ```
     ThunarLocationEntry
         GtkHBox
-        ```
+    ```
 
 * Preferences options cleanup
+
+
+
+#### Files
+
+```
+core/thunar-device-monitor.c
+core/thunar-device.c
+core/thunar-dnd.c
+core/thunar-file-monitor.c
+core/thunar-file.c
+core/thunar-folder.c
+core/thunar-user.c
+core/thunar-util.c
+dialog/thunar-chooser-button.c
+dialog/thunar-chooser-dialog.c
+dialog/thunar-chooser-model.c
+dialog/thunar-dialogs.c
+dialog/thunar-permissions-chooser.c
+dialog/thunar-progress-dialog.c
+dialog/thunar-progress-view.c
+dialog/thunar-properties-dialog.c
+job/thunar-deep-count-job.c
+job/thunar-io-jobs-util.c
+job/thunar-io-jobs.c
+job/thunar-io-scan-directory.c
+job/thunar-job.c
+job/thunar-simple-job.c
+job/thunar-transfer-job.c
+main.c
+menu/thunar-launcher.c
+menu/thunar-menu.c
+menu/thunar-sendto-model.c
+misc/thunar-browser.c
+misc/thunar-component.c
+misc/thunar-enum-types.c
+misc/thunar-gdk-extensions.c
+misc/thunar-gio-extensions.c
+misc/thunar-gobject-extensions.c
+misc/thunar-gtk-extensions.c
+misc/thunar-history.c
+misc/thunar-navigator.c
+misc/thunar-notify.c
+misc/thunar-pango-extensions.c
+side/thunar-side-pane.c
+side/thunar-tree-model.c
+side/thunar-tree-pane.c
+side/thunar-tree-view.c
+thunar-application.c
+thunar-marshal.c
+thunar-preferences.c
+thunar-window.c
+view/thunar-column-editor.c
+view/thunar-column-model.c
+view/thunar-details-view.c
+view/thunar-list-model.c
+view/thunar-standard-view.c
+view/thunar-view.c
+widget/thunar-icon-factory.c
+widget/thunar-icon-renderer.c
+widget/thunar-image.c
+widget/thunar-location-bar.c
+widget/thunar-location-entry.c
+widget/thunar-path-entry.c
+widget/thunar-shortcuts-icon-renderer.c
+widget/thunar-size-label.c
+widget/thunar-statusbar.c
+```
+
 
 
 #### Biggest files
