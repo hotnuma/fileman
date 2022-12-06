@@ -33,12 +33,14 @@ typedef struct _ThunarChooserDialog      ThunarChooserDialog;
 #define THUNAR_IS_CHOOSER_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_CHOOSER_DIALOG))
 #define THUNAR_CHOOSER_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CHOOSER_DIALOG, ThunarChooserDialogClass))
 
-GType       thunar_chooser_dialog_get_type  (void) G_GNUC_CONST;
+GType thunar_chooser_dialog_get_type() G_GNUC_CONST;
 
-void        thunar_show_chooser_dialog      (gpointer             parent,
-        ThunarFile          *file,
-        gboolean             open);
+void thunar_show_chooser_dialog(gpointer    parent,
+                                ThunarFile  *file,
+                                gboolean    open);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_CHOOSER_DIALOG_H__ */
+
+

@@ -13,26 +13,23 @@
 
 #### Files
 
-
-
-
-
 ```
-core/thunar-device.c
+
+
+
+
 core/thunar-dnd.c
 core/thunar-file-monitor.c
 core/thunar-folder.c
 core/thunar-user.c
 core/thunar-util.c
 dialog/thunar-chooser-button.c
-dialog/thunar-chooser-dialog.c
 dialog/thunar-chooser-model.c
 dialog/thunar-dialogs.c
 dialog/thunar-progress-dialog.c
 dialog/thunar-progress-view.c
 job/thunar-deep-count-job.c
 job/thunar-io-jobs-util.c
-job/thunar-io-jobs.c
 job/thunar-io-scan-directory.c
 job/thunar-job.c
 job/thunar-simple-job.c
