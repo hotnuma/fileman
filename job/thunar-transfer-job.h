@@ -21,6 +21,7 @@
 #define __THUNAR_TRANSFER_JOB_H__
 
 #include <glib-object.h>
+#include <thunar-job.h>
 
 G_BEGIN_DECLS
 
@@ -35,6 +36,7 @@ typedef enum /*< enum >*/
     THUNAR_TRANSFER_JOB_LINK,
     THUNAR_TRANSFER_JOB_MOVE,
     THUNAR_TRANSFER_JOB_TRASH,
+
 } ThunarTransferJobType;
 
 typedef struct _ThunarTransferJobPrivate ThunarTransferJobPrivate;
@@ -48,14 +50,17 @@ typedef struct _ThunarTransferJob        ThunarTransferJob;
 #define THUNAR_IS_TRANSFER_JOB_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_TRANSFER_JOB)
 #define THUNAR_TRANSFER_JOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_TRANSFER_JOB, ThunarTransferJobClass))
 
-GType      thunar_transfer_job_get_type (void) G_GNUC_CONST;
+GType thunar_transfer_job_get_type() G_GNUC_CONST;
 
-ThunarJob *thunar_transfer_job_new        (GList                *source_file_list,
-        GList                *target_file_list,
-        ThunarTransferJobType type) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* thunar_transfer_job_new(GList    *source_file_list,
+                                   GList    *target_file_list,
+                                   ThunarTransferJobType type)
+                                   G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-gchar     *thunar_transfer_job_get_status (ThunarTransferJob    *job);
+gchar* thunar_transfer_job_get_status(ThunarTransferJob *job);
 
 G_END_DECLS
 
 #endif /* !__THUNAR_TRANSFER_JOB_H__ */
+
+

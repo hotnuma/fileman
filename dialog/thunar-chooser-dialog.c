@@ -28,7 +28,6 @@
 #include <string.h>
 #endif
 
-//#include <thunar-abstract-dialog.h>
 #include <thunar-application.h>
 #include <thunar-chooser-dialog.h>
 #include <thunar-chooser-model.h>

@@ -95,72 +95,72 @@ enum
 
 static void thunar_application_finalize(GObject *object);
 static void thunar_application_get_property(GObject *object,
-                                             guint prop_id,
-                                             GValue *value,
-                                             GParamSpec *pspec);
+                                            guint prop_id,
+                                            GValue *value,
+                                            GParamSpec *pspec);
 static void thunar_application_set_property(GObject *object,
-                                             guint prop_id,
-                                             const GValue *value,
-                                             GParamSpec *pspec);
+                                            guint prop_id,
+                                            const GValue *value,
+                                            GParamSpec *pspec);
 
 #if ENABLE_DBUS
 static void thunar_application_dbus_acquired_cb(GDBusConnection *conn,
-                                                 const gchar *name,
-                                                 gpointer user_data);
+                                                const gchar *name,
+                                                gpointer user_data);
 static void thunar_application_name_acquired_cb(GDBusConnection *connection,
+                                                const gchar *name,
+                                                gpointer user_data);
+static void thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
                                                  const gchar *name,
                                                  gpointer user_data);
-static void thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
-                                                  const gchar *name,
-                                                  gpointer user_data);
 static void thunar_application_dbus_init(ThunarApplication *application);
 static gboolean thunar_application_dbus_register(GApplication *application,
-                                                  GDBusConnection *connection,
-                                                  const gchar *object_path,
-                                                  GError **error);
+                                                 GDBusConnection *connection,
+                                                 const gchar *object_path,
+                                                 GError **error);
 #endif
 
 static void thunar_application_startup(GApplication *application);
 static void thunar_application_shutdown(GApplication *application);
 static void thunar_application_activate(GApplication *application);
 static int thunar_application_command_line(GApplication *application,
-                                            GApplicationCommandLine *command_line);
-static void thunar_application_load_css(void);
+                                           GApplicationCommandLine *command_line);
+static void thunar_application_load_css();
 static void thunar_application_accel_map_changed(ThunarApplication *application);
 static gboolean thunar_application_accel_map_save(gpointer user_data);
 static void thunar_application_collect_and_launch(ThunarApplication *application,
-                                                   gpointer parent,
-                                                   const gchar *icon_name,
-                                                   const gchar *title,
-                                                   Launcher launcher,
-                                                   GList *source_file_list,
-                                                   GFile *target_file,
-                                                   gboolean update_source_folders,
-                                                   gboolean update_target_folders,
-                                                   GClosure *new_files_closure);
+                                                  gpointer parent,
+                                                  const gchar *icon_name,
+                                                  const gchar *title,
+                                                  Launcher launcher,
+                                                  GList *source_file_list,
+                                                  GFile *target_file,
+                                                  gboolean update_source_folders,
+                                                  gboolean update_target_folders,
+                                                  GClosure *new_files_closure);
 static void thunar_application_launch_finished(ThunarJob *job,
-                                                GList *containing_folders);
+                                               GList *containing_folders);
 static void thunar_application_launch(ThunarApplication *application,
-                                       gpointer parent,
-                                       const gchar *icon_name,
-                                       const gchar *title,
-                                       Launcher launcher,
-                                       GList *source_path_list,
-                                       GList *target_path_list,
-                                       gboolean update_source_folders,
-                                       gboolean update_target_folders,
-                                       GClosure *new_files_closure);
+                                      gpointer parent,
+                                      const gchar *icon_name,
+                                      const gchar *title,
+                                      Launcher launcher,
+                                      GList *source_path_list,
+                                      GList *target_path_list,
+                                      gboolean update_source_folders,
+                                      gboolean update_target_folders,
+                                      GClosure *new_files_closure);
 
 #ifdef HAVE_GUDEV
 static void thunar_application_uevent(GUdevClient *client,
-                                       const gchar *action,
-                                       GUdevDevice *device,
-                                       ThunarApplication *application);
+                                      const gchar *action,
+                                      GUdevDevice *device,
+                                      ThunarApplication *application);
 static gboolean thunar_application_volman_idle(gpointer user_data);
 static void thunar_application_volman_idle_destroy(gpointer user_data);
 static void thunar_application_volman_watch(GPid pid,
-                                             gint status,
-                                             gpointer user_data);
+                                            gint status,
+                                            gpointer user_data);
 static void thunar_application_volman_watch_destroy(gpointer user_data);
 #endif
 
@@ -275,22 +275,22 @@ static void thunar_application_init(ThunarApplication *application)
 
 #ifdef ENABLE_DBUS
 static void thunar_application_dbus_acquired_cb(GDBusConnection *conn,
-                                     const gchar     *name,
-                                     gpointer         user_data)
+                                                const gchar     *name,
+                                                gpointer         user_data)
 {
     g_debug(_("Acquired the session message bus '%s'\n"), name);
 }
 
 static void thunar_application_name_acquired_cb(GDBusConnection *connection,
-                                     const gchar     *name,
-                                     gpointer         user_data)
+                                                const gchar     *name,
+                                                gpointer         user_data)
 {
     g_debug(_("Acquired the name '%s' on the session message bus\n"), name);
 }
 
 static void thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
-                                      const gchar     *name,
-                                      gpointer         user_data)
+                                                 const gchar     *name,
+                                                 gpointer         user_data)
 {
     g_warning(_("Name '%s' lost on the message dbus."), name);
 }
@@ -431,7 +431,7 @@ static void thunar_application_finalize(GObject *object)
 }
 
 static int thunar_application_command_line(GApplication            *gapp,
-                                 GApplicationCommandLine *command_line)
+                                           GApplicationCommandLine *command_line)
 {
     ThunarApplication *application  = THUNAR_APPLICATION(gapp);
     gboolean           daemon       = FALSE;
@@ -493,10 +493,10 @@ out:
 
 
 #ifdef ENABLE_DBUS
-static gboolean thunar_application_dbus_register(GApplication           *gapp,
-                                  GDBusConnection        *connection,
-                                  const gchar            *object_path,
-                                  GError                **error)
+static gboolean thunar_application_dbus_register(GApplication   *gapp,
+                                                 GDBusConnection *connection,
+                                                 const gchar    *object_path,
+                                                 GError         **error)
 {
     ThunarApplication *application = THUNAR_APPLICATION(gapp);
 
@@ -509,8 +509,7 @@ static gboolean thunar_application_dbus_register(GApplication           *gapp,
 }
 #endif
 
-
-static void thunar_application_load_css(void)
+static void thunar_application_load_css()
 {
     GtkCssProvider *css_provider;
     GdkScreen *screen;
@@ -540,9 +539,9 @@ static void thunar_application_activate(GApplication *gapp)
 }
 
 static void thunar_application_get_property(GObject    *object,
-                                 guint       prop_id,
-                                 GValue     *value,
-                                 GParamSpec *pspec)
+                                            guint       prop_id,
+                                            GValue     *value,
+                                            GParamSpec *pspec)
 {
     UNUSED(object);
     UNUSED(pspec);
@@ -562,9 +561,9 @@ static void thunar_application_get_property(GObject    *object,
 }
 
 static void thunar_application_set_property(GObject      *object,
-                                 guint         prop_id,
-                                 const GValue *value,
-                                 GParamSpec   *pspec)
+                                            guint         prop_id,
+                                            const GValue *value,
+                                            GParamSpec   *pspec)
 {
     UNUSED(object);
     UNUSED(pspec);
@@ -684,7 +683,7 @@ static void thunar_application_collect_and_launch(
 }
 
 static void thunar_application_launch_finished(ThunarJob  *job,
-                                                GList      *containing_folders)
+                                               GList      *containing_folders)
 {
     GList        *lp;
     ThunarFile   *file;
@@ -720,15 +719,15 @@ static void thunar_application_launch_finished(ThunarJob  *job,
 }
 
 static void thunar_application_launch(ThunarApplication *application,
-                                       gpointer           parent,
-                                       const gchar       *icon_name,
-                                       const gchar       *title,
-                                       Launcher           launcher,
-                                       GList             *source_file_list,
-                                       GList             *target_file_list,
-                                       gboolean           update_source_folders,
-                                       gboolean           update_target_folders,
-                                       GClosure          *new_files_closure)
+                                      gpointer           parent,
+                                      const gchar       *icon_name,
+                                      const gchar       *title,
+                                      Launcher           launcher,
+                                      GList             *source_file_list,
+                                      GList             *target_file_list,
+                                      gboolean           update_source_folders,
+                                      gboolean           update_target_folders,
+                                      GClosure          *new_files_closure)
 {
     GtkWidget *dialog;
     GdkScreen *screen;
@@ -795,9 +794,9 @@ static void thunar_application_launch(ThunarApplication *application,
 
 #ifdef HAVE_GUDEV
 static void thunar_application_uevent(GUdevClient       *client,
-                                       const gchar       *action,
-                                       GUdevDevice       *device,
-                                       ThunarApplication *application)
+                                      const gchar       *action,
+                                      GUdevDevice       *device,
+                                      ThunarApplication *application)
 {
     const gchar *sysfs_path;
     gboolean     is_cdrom = FALSE;
@@ -929,8 +928,8 @@ static void thunar_application_volman_idle_destroy(gpointer user_data)
 }
 
 static void thunar_application_volman_watch(GPid     pid,
-                                             gint     status,
-                                             gpointer user_data)
+                                            gint     status,
+                                            gpointer user_data)
 {
     UNUSED(status);
 
@@ -981,7 +980,7 @@ static void thunar_application_show_dialogs_destroy(gpointer user_data)
  *
  * Return value: the shared #ThunarApplication instance.
  **/
-ThunarApplication* thunar_application_get(void)
+ThunarApplication* thunar_application_get()
 {
     GApplication *default_app = g_application_get_default();
 
@@ -1078,10 +1077,10 @@ void thunar_application_take_window(ThunarApplication *application,
  * Return value: the newly allocated #ThunarWindow.
  **/
 GtkWidget* thunar_application_open_window(ThunarApplication *application,
-                                            ThunarFile        *directory,
-                                            GdkScreen         *screen,
-                                            const gchar       *startup_id,
-                                            gboolean           force_new_window)
+                                          ThunarFile        *directory,
+                                          GdkScreen         *screen,
+                                          const gchar       *startup_id,
+                                          gboolean           force_new_window)
 {
     UNUSED(force_new_window);
 
@@ -1144,10 +1143,10 @@ static GtkWidget* thunar_application_get_progress_dialog(
 }
 
 static void thunar_application_process_files_finish(ThunarBrowser  *browser,
-                                                     ThunarFile     *file,
-                                                     ThunarFile     *target_file,
-                                                     GError         *error,
-                                                     gpointer       unused)
+                                                    ThunarFile     *file,
+                                                    ThunarFile     *target_file,
+                                                    GError         *error,
+                                                    gpointer       unused)
 {
     UNUSED(unused);
 
@@ -1482,8 +1481,7 @@ void thunar_application_move_into(ThunarApplication *application,
     }
 }
 
-static ThunarJob* unlink_stub(GList *source_path_list,
-                                GList *target_path_list)
+static ThunarJob* unlink_stub(GList *source_path_list, GList *target_path_list)
 {
     UNUSED(target_path_list);
     return thunar_io_jobs_unlink_files(source_path_list);
@@ -1598,16 +1596,15 @@ void thunar_application_unlink_files(ThunarApplication *application,
     thunar_g_file_list_free(path_list);
 }
 
-static ThunarJob* trash_stub(GList *source_file_list,
-                              GList *target_file_list)
+static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
 {
     UNUSED(target_file_list);
     return thunar_io_jobs_trash_files(source_file_list);
 }
 
 void thunar_application_trash(ThunarApplication *application,
-                               gpointer           parent,
-                               GList             *file_list)
+                              gpointer  parent,
+                              GList     *file_list)
 {
     _thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     _thunar_return_if_fail(THUNAR_IS_APPLICATION(application));
@@ -1618,8 +1615,7 @@ void thunar_application_trash(ThunarApplication *application,
                                file_list, NULL, TRUE, FALSE, NULL);
 }
 
-static ThunarJob* creat_stub(GList *template_file,
-                            GList *target_path_list)
+static ThunarJob* creat_stub(GList *template_file, GList *target_path_list)
 {
     _thunar_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
 
@@ -1659,8 +1655,7 @@ void thunar_application_creat(ThunarApplication *application,
                                &template_list, file_list, FALSE, TRUE, new_files_closure);
 }
 
-static ThunarJob* mkdir_stub(GList *source_path_list,
-                                GList *target_path_list)
+static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list)
 {
     UNUSED(target_path_list);
     return thunar_io_jobs_make_directories(source_path_list);

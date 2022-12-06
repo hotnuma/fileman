@@ -36,76 +36,76 @@ typedef struct _ThunarApplication      ThunarApplication;
 #define THUNAR_IS_APPLICATION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_APPLICATION))
 #define THUNAR_APPLICATION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_APPLICATION, ThunarApplicationClass))
 
-GType                 thunar_application_get_type                   (void) G_GNUC_CONST;
+GType thunar_application_get_type() G_GNUC_CONST;
 
-ThunarApplication    *thunar_application_get                        (void);
+ThunarApplication* thunar_application_get();
 
-gboolean              thunar_application_get_daemon                 (ThunarApplication *application);
-void                  thunar_application_set_daemon                 (ThunarApplication *application,
-        gboolean           daemon);
+gboolean thunar_application_get_daemon(ThunarApplication *application);
+void thunar_application_set_daemon(ThunarApplication *application,
+                                   gboolean daemon);
 
-void                  thunar_application_take_window                (ThunarApplication *application,
-        GtkWindow         *window);
+void thunar_application_take_window(ThunarApplication *application,
+                                    GtkWindow *window);
 
-GtkWidget            *thunar_application_open_window                (ThunarApplication *application,
-        ThunarFile        *directory,
-        GdkScreen         *screen,
-        const gchar       *startup_id,
-        gboolean           force_new_window);
+GtkWidget *thunar_application_open_window(ThunarApplication *application,
+                                          ThunarFile *directory,
+                                          GdkScreen *screen,
+                                          const gchar *startup_id,
+                                          gboolean force_new_window);
 
-gboolean              thunar_application_process_filenames          (ThunarApplication *application,
-        const gchar       *working_directory,
-        gchar            **filenames,
-        GdkScreen         *screen,
-        const gchar       *startup_id,
-        GError           **error);
+gboolean thunar_application_process_filenames(ThunarApplication *application,
+                                              const gchar *working_directory,
+                                              gchar **filenames,
+                                              GdkScreen *screen,
+                                              const gchar *startup_id,
+                                              GError **error);
 
-void                  thunar_application_copy_into                 (ThunarApplication *application,
-        gpointer           parent,
-        GList             *source_file_list,
-        GFile             *target_file,
-        GClosure          *new_files_closure);
+void thunar_application_copy_into(ThunarApplication *application,
+                                  gpointer parent,
+                                  GList *source_file_list,
+                                  GFile *target_file,
+                                  GClosure *new_files_closure);
 
-void                  thunar_application_link_into                 (ThunarApplication *application,
-        gpointer           parent,
-        GList             *source_file_list,
-        GFile             *target_file,
-        GClosure          *new_files_closure);
+void thunar_application_link_into(ThunarApplication *application,
+                                  gpointer parent,
+                                  GList *source_file_list,
+                                  GFile *target_file,
+                                  GClosure *new_files_closure);
 
-void                  thunar_application_move_into                 (ThunarApplication *application,
-        gpointer           parent,
-        GList             *source_file_list,
-        GFile             *target_file,
-        GClosure          *new_files_closure);
+void thunar_application_move_into(ThunarApplication *application,
+                                  gpointer parent,
+                                  GList *source_file_list,
+                                  GFile *target_file,
+                                  GClosure *new_files_closure);
 
-void                  thunar_application_unlink_files              (ThunarApplication *application,
-        gpointer           parent,
-        GList             *file_list,
-        gboolean           permanently);
+void thunar_application_unlink_files(ThunarApplication *application,
+                                     gpointer parent,
+                                     GList *file_list,
+                                     gboolean permanently);
 
-void                  thunar_application_trash                     (ThunarApplication *application,
-        gpointer           parent,
-        GList             *file_list);
+void thunar_application_trash(ThunarApplication *application,
+                              gpointer parent,
+                              GList *file_list);
 
-void                  thunar_application_creat                     (ThunarApplication *application,
-        gpointer           parent,
-        GList             *file_list,
-        GFile             *template_file,
-        GClosure          *new_files_closure);
+void thunar_application_creat(ThunarApplication *application,
+                              gpointer parent,
+                              GList *file_list,
+                              GFile *template_file,
+                              GClosure *new_files_closure);
 
-void                  thunar_application_mkdir                     (ThunarApplication *application,
-        gpointer           parent,
-        GList             *file_list,
-        GClosure          *new_files_closure);
+void thunar_application_mkdir(ThunarApplication *application,
+                              gpointer parent,
+                              GList *file_list,
+                              GClosure *new_files_closure);
 
-void                  thunar_application_empty_trash               (ThunarApplication *application,
-        gpointer           parent,
-        const gchar       *startup_id);
+void thunar_application_empty_trash(ThunarApplication *application,
+                                    gpointer parent,
+                                    const gchar *startup_id);
 
-void                  thunar_application_restore_files             (ThunarApplication *application,
-        gpointer           parent,
-        GList             *trash_file_list,
-        GClosure          *new_files_closure);
+void thunar_application_restore_files(ThunarApplication *application,
+                                      gpointer parent,
+                                      GList *trash_file_list,
+                                      GClosure *new_files_closure);
 
 G_END_DECLS;
 
