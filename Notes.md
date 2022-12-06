@@ -56,13 +56,11 @@ misc/thunar-pango-extensions.c
 side/thunar-side-pane.c
 side/thunar-tree-model.c
 side/thunar-tree-pane.c
-side/thunar-tree-view.c
 thunar-application.c
 thunar-preferences.c
 view/thunar-column-editor.c
 view/thunar-column-model.c
 view/thunar-details-view.c
-view/thunar-list-model.c
 view/thunar-view.c
 widget/thunar-icon-factory.c
 widget/thunar-icon-renderer.c
