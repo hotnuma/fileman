@@ -1402,7 +1402,7 @@ static void thunar_window_action_debug(ThunarWindow *window,
     GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
     const gchar *name = gtk_widget_get_name(focused);
 
-    g_print("focused widget = %s\n", name);
+    DPRINT("focused widget = %s\n", name);
 
     openlog("Fileman", LOG_PID, LOG_USER);
     syslog(LOG_INFO,"focused widget = %s\n", name);
@@ -2145,7 +2145,7 @@ thunar_window_history_clicked(GtkWidget      *button,
     ThunarHistory *history;
     ThunarWindow  *window;
 
-    _thunar_return_val_if_fail(THUNAR_IS_WINDOW(data), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_WINDOW(data), FALSE);
 
     window = THUNAR_WINDOW(data);
 
@@ -2164,27 +2164,16 @@ thunar_window_history_clicked(GtkWidget      *button,
     return FALSE;
 }
 
-gboolean thunar_window_action_key_trash(ThunarWindow *window)
+GtkWidget* thunar_window_get_focused_tree_view(ThunarWindow *window)
 {
-    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
-    GtkWidget *view = GTK_WIDGET(thunar_tree_pane_get_view(
+    thunar_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
+
+    GtkWidget *tree_view = GTK_WIDGET(thunar_tree_pane_get_view(
                                      THUNAR_TREE_PANE(window->sidepane)));
 
-    if (focused == view)
-    {
-        //const gchar *name = gtk_widget_get_name(focused);
+    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
 
-        //g_print("treeview is focused = %s\n", name);
-
-        if (thunar_dialogs_show_folder_trash(GTK_WINDOW(window)) == FALSE)
-            return TRUE;
-
-        thunar_tree_view_delete_selected_files(THUNAR_TREE_VIEW(view));
-
-        return TRUE;
-    }
-
-    return FALSE;
+    return (tree_view == focused) ? tree_view : NULL;
 }
 
 

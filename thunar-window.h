@@ -86,7 +86,9 @@ void thunar_window_redirect_menu_tooltips_to_statusbar(ThunarWindow *window,
 const XfceGtkActionEntry* thunar_window_get_action_entry(ThunarWindow *window,
                                                          ThunarWindowAction action);
 
-gboolean thunar_window_action_key_trash(ThunarWindow *window);
+//void thunar_launcher_action_key_rename(ThunarWindow *window);
+//gboolean thunar_window_action_key_trash(ThunarWindow *window);
+GtkWidget* thunar_window_get_focused_tree_view(ThunarWindow *window);
 
 G_END_DECLS;
 

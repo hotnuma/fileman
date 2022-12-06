@@ -132,10 +132,10 @@ static void thunar_launcher_action_sendto_device(ThunarLauncher *launcher,
                                                  GObject *object);
 static void thunar_launcher_action_make_link(ThunarLauncher *launcher);
 static void thunar_launcher_action_duplicate(ThunarLauncher *launcher);
-static void thunar_launcher_action_rename(ThunarLauncher *launcher);
 static void thunar_launcher_action_restore(ThunarLauncher *launcher);
 
 static void thunar_launcher_action_key_trash_delete(ThunarLauncher *launcher);
+static void thunar_launcher_action_key_rename(ThunarLauncher *launcher);
 
 static void thunar_launcher_action_move_to_trash(ThunarLauncher *launcher);
 static void thunar_launcher_action_delete(ThunarLauncher *launcher);
@@ -293,12 +293,21 @@ static XfceGtkActionEntry thunar_launcher_action_entries[] =
 
     {THUNAR_LAUNCHER_ACTION_RENAME,
      "<Actions>/ThunarStandardView/rename",
-     "F2",
+     "",
      XFCE_GTK_MENU_ITEM,
      N_("_Rename..."),
      NULL,
      NULL,
      G_CALLBACK(thunar_launcher_action_rename)},
+
+    {THUNAR_LAUNCHER_ACTION_RENAME,
+     "<Actions>/ThunarStandardView/rename-2",
+     "F2",
+     XFCE_GTK_MENU_ITEM,
+     N_("_Rename..."),
+     NULL,
+     NULL,
+     G_CALLBACK(thunar_launcher_action_key_rename)},
 
     {THUNAR_LAUNCHER_ACTION_EMPTY_TRASH,
      "<Actions>/ThunarWindow/empty-trash",
@@ -2118,7 +2127,21 @@ gboolean thunar_launcher_check_uca_key_activation(ThunarLauncher *launcher,
 /******************************************************************************
  * File rename action
  *
- */
+ ******************************************************************************/
+static void thunar_launcher_action_key_rename(ThunarLauncher *launcher)
+{
+    ThunarWindow *window = THUNAR_WINDOW(launcher->widget);
+    GtkWidget *tree_view = thunar_window_get_focused_tree_view(window);
+
+    if (!tree_view)
+    {
+        thunar_launcher_action_rename(launcher);
+        return;
+    }
+
+    thunar_tree_view_rename_selected(THUNAR_TREE_VIEW(tree_view));
+}
+
 static void _thunar_launcher_rename_error(ExoJob    *job,
                                          GError    *error,
                                          GtkWidget *widget)
@@ -2138,6 +2161,7 @@ static void _thunar_launcher_rename_error(ExoJob    *job,
     g_object_unref(file);
 }
 
+
 static void _thunar_launcher_rename_finished(ExoJob    *job,
                                             GtkWidget *widget)
 {
@@ -2148,31 +2172,39 @@ static void _thunar_launcher_rename_finished(ExoJob    *job,
     g_object_unref(job);
 }
 
-static void thunar_launcher_action_rename(ThunarLauncher *launcher)
+void thunar_launcher_action_rename(ThunarLauncher *launcher)
 {
-
     _thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    if (launcher->files_to_process == NULL || g_list_length(launcher->files_to_process) == 0)
+    if (launcher->files_to_process == NULL
+        || g_list_length(launcher->files_to_process) == 0)
         return;
-    if (launcher->files_are_selected == FALSE || thunar_file_is_trashed(launcher->current_directory))
+
+    if (launcher->files_are_selected == FALSE
+        || thunar_file_is_trashed(launcher->current_directory))
         return;
 
     /* get the window */
-    GtkWidget *window;
-    window = gtk_widget_get_toplevel(launcher->widget);
+    GtkWidget *window = gtk_widget_get_toplevel(launcher->widget);
 
     /* start renaming if we have exactly one selected file */
     if (g_list_length(launcher->files_to_process) == 1)
     {
         /* run the rename dialog */
-        ThunarJob *job;
-        job = thunar_dialogs_show_rename_file(GTK_WINDOW(window), THUNAR_FILE(launcher->files_to_process->data));
+        ThunarJob *job = thunar_dialogs_show_rename_file(
+                            GTK_WINDOW(window),
+                            THUNAR_FILE(launcher->files_to_process->data));
 
         if (G_LIKELY(job != NULL))
         {
-            g_signal_connect(job, "error", G_CALLBACK(_thunar_launcher_rename_error), launcher->widget);
-            g_signal_connect(job, "finished", G_CALLBACK(_thunar_launcher_rename_finished), launcher->widget);
+            g_signal_connect(job,
+                             "error",
+                             G_CALLBACK(_thunar_launcher_rename_error),
+                             launcher->widget);
+            g_signal_connect(job,
+                             "finished",
+                             G_CALLBACK(_thunar_launcher_rename_finished),
+                             launcher->widget);
         }
     }
 
@@ -2185,22 +2217,6 @@ static void thunar_launcher_action_rename(ThunarLauncher *launcher)
 
 
 
-static void thunar_launcher_action_restore(ThunarLauncher *launcher)
-{
-    ThunarApplication *application;
-
-    _thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
-
-    if (launcher->files_are_selected == FALSE || !thunar_file_is_trashed(launcher->current_directory))
-        return;
-
-    /* restore the selected files */
-    application = thunar_application_get();
-    thunar_application_restore_files(application, launcher->widget, launcher->files_to_process, NULL);
-    g_object_unref(G_OBJECT(application));
-}
-
-
 /******************************************************************************
  * Trash or delete selected files
  *
@@ -2210,17 +2226,28 @@ static void thunar_launcher_action_key_trash_delete(ThunarLauncher *launcher)
     _thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
     _thunar_return_if_fail(THUNAR_IS_WINDOW(launcher->widget));
 
-    if (thunar_window_action_key_trash(THUNAR_WINDOW(launcher->widget)) == TRUE)
-        return;
+    ThunarWindow *window = THUNAR_WINDOW(launcher->widget);
+    GtkWidget *tree_view = thunar_window_get_focused_tree_view(window);
 
-    for (GList *lp = launcher->files_to_process; lp != NULL; lp = lp->next)
+    if (!tree_view)
     {
-        ThunarFile *file = (ThunarFile*) lp->data;
+        //for (GList *lp = launcher->files_to_process; lp != NULL; lp = lp->next)
+        //{
+        //    ThunarFile *file = (ThunarFile*) lp->data;
 
-        DPRINT("standard view delete : %s\n", thunar_file_get_basename(file));
+        //    DPRINT("standard view delete : %s\n", thunar_file_get_basename(file));
+        //}
+
+        thunar_launcher_action_trash_delete(launcher);
+
+        return;
     }
 
-    thunar_launcher_action_trash_delete(launcher);
+    if (thunar_dialogs_show_folder_trash(GTK_WINDOW(window)) == FALSE)
+        return;
+
+    thunar_tree_view_delete_selected_files(THUNAR_TREE_VIEW(tree_view));
+
 }
 
 static void thunar_launcher_action_trash_delete(ThunarLauncher *launcher)
@@ -2296,6 +2323,23 @@ static void thunar_launcher_action_empty_trash(ThunarLauncher *launcher)
     thunar_application_empty_trash(application, launcher->widget, NULL);
     g_object_unref(G_OBJECT(application));
 }
+
+static void thunar_launcher_action_restore(ThunarLauncher *launcher)
+{
+    ThunarApplication *application;
+
+    _thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
+
+    if (launcher->files_are_selected == FALSE || !thunar_file_is_trashed(launcher->current_directory))
+        return;
+
+    /* restore the selected files */
+    application = thunar_application_get();
+    thunar_application_restore_files(application, launcher->widget, launcher->files_to_process, NULL);
+    g_object_unref(G_OBJECT(application));
+}
+
+
 
 
 static void thunar_launcher_action_create_folder(ThunarLauncher *launcher)

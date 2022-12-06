@@ -36,7 +36,9 @@ typedef struct _ThunarTreeView      ThunarTreeView;
 GType thunar_tree_view_get_type() G_GNUC_CONST;
 
 GtkWidget *thunar_tree_view_new() G_GNUC_MALLOC;
+
 gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view);
+void thunar_tree_view_rename_selected(ThunarTreeView *view);
 
 G_END_DECLS;
 

@@ -79,17 +79,16 @@ static void thunar_tree_view_set_property(GObject *object,
                                           guint prop_id,
                                           const GValue *value,
                                           GParamSpec *pspec);
+
 static ThunarFile *thunar_tree_view_get_current_directory(ThunarNavigator *navigator);
 static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
                                                    ThunarFile *current_directory);
+
 static void thunar_tree_view_realize(GtkWidget *widget);
 static void thunar_tree_view_unrealize(GtkWidget *widget);
 
 
 
-
-static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
-                                                           gboolean permanently);
 
 static void thunar_tree_view_action_open(ThunarTreeView *view);
 static void thunar_tree_view_open_selection(ThunarTreeView *view);
@@ -180,6 +179,9 @@ static void thunar_tree_view_set_show_hidden(ThunarTreeView *view,
 static GtkTreePath *thunar_tree_view_get_preferred_toplevel_path(
                                                 ThunarTreeView *view,
                                                 ThunarFile *file);
+
+static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
+                                                           gboolean permanently);
 
 struct _ThunarTreeViewClass
 {
@@ -351,15 +353,13 @@ static void thunar_tree_view_class_init(ThunarTreeViewClass *klass)
 #endif
 }
 
-static void
-thunar_tree_view_navigator_init(ThunarNavigatorIface *iface)
+static void thunar_tree_view_navigator_init(ThunarNavigatorIface *iface)
 {
     iface->get_current_directory = thunar_tree_view_get_current_directory;
     iface->set_current_directory = thunar_tree_view_set_current_directory;
 }
 
-static void
-thunar_tree_view_init(ThunarTreeView *view)
+static void thunar_tree_view_init(ThunarTreeView *view)
 {
     GtkTreeViewColumn *column;
     GtkTreeSelection  *selection;
@@ -674,85 +674,6 @@ static void thunar_tree_view_unrealize(GtkWidget *widget)
 
     /* let the parent class unrealize the widget */
    (*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->unrealize)(widget);
-}
-
-/*
- * thunar_tree_view_delete_selected_files
- *
- *
- */
-gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
-{
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
-
-    if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
-        return TRUE;
-
-    /* Check if there is a user defined accelerator for the delete action,
-     * if there is, skip events from the hard-coded keys which are set in
-     * the class of the standard view. See bug #4173. */
-
-    GtkAccelKey key;
-
-    if (gtk_accel_map_lookup_entry(
-                        "<Actions>/ThunarStandardView/move-to-trash",
-                        &key)
-        &&(key.accel_key != 0 || key.accel_mods != 0))
-    {
-        return FALSE;
-    }
-
-    /* check if we should permanently delete the files(user holds shift or no gvfs available) */
-
-    GdkModifierType state;
-
-    if (gtk_get_current_event_state(&state) && (state & GDK_SHIFT_MASK) != 0)
-    {
-        thunar_tree_view_action_unlink_selected_folder(view, TRUE);
-    }
-    else
-    {
-        thunar_tree_view_action_unlink_selected_folder(view, FALSE);
-    }
-
-    /* ...and we're done */
-    return TRUE;
-}
-
-static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
-                                                           gboolean permanently)
-{
-    _thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
-
-    /* determine the selected file */
-
-    ThunarFile *file = thunar_tree_view_get_selected_file(view);
-
-    if (G_LIKELY(file != NULL))
-    {
-        if (thunar_file_can_be_trashed(file))
-        {
-            /* fake a file list */
-
-            GList file_list;
-            file_list.data = file;
-            file_list.next = NULL;
-            file_list.prev = NULL;
-
-            /* delete the file */
-            ThunarApplication *application = thunar_application_get();
-
-            thunar_application_unlink_files(application,
-                                            GTK_WIDGET(view),
-                                            &file_list,
-                                            permanently);
-
-            g_object_unref(G_OBJECT(application));
-        }
-
-        /* release the file */
-        g_object_unref(G_OBJECT(file));
-    }
 }
 
 static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
@@ -1253,37 +1174,39 @@ static void thunar_tree_view_row_collapsed(GtkTreeView *tree_view,
 }
 
 static void thunar_tree_view_context_menu(ThunarTreeView *view,
-                               GtkTreeModel   *model,
-                               GtkTreeIter    *iter)
+                                          GtkTreeModel   *model,
+                                          GtkTreeIter    *iter)
 {
-    ThunarDevice *device;
-    ThunarFile   *file;
-    GList        *files;
-    ThunarMenu   *context_menu;
-    GtkWidget    *window;
-    gboolean      file_is_available;
-
     /* verify that we're connected to the clipboard manager */
     if (G_UNLIKELY(view->clipboard == NULL))
         return;
 
     /* determine the file and device for the given iter */
+    ThunarFile   *file;
+    ThunarDevice *device;
     gtk_tree_model_get(model, iter,
-                        THUNAR_TREE_MODEL_COLUMN_FILE, &file,
-                        THUNAR_TREE_MODEL_COLUMN_DEVICE, &device,
-                        -1);
+                       THUNAR_TREE_MODEL_COLUMN_FILE, &file,
+                       THUNAR_TREE_MODEL_COLUMN_DEVICE, &device,
+                       -1);
 
-    context_menu = g_object_new(THUNAR_TYPE_MENU, "menu-type", THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
-                                 "launcher", view->launcher,
-                                 "force-section-open", TRUE, NULL);
+
+    ThunarMenu   *context_menu;
+    context_menu = g_object_new(THUNAR_TYPE_MENU,
+                                "menu-type", THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
+                                "launcher", view->launcher,
+                                "force-section-open", TRUE, NULL);
 
     g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
 
+    GList        *files;
+    gboolean      file_is_available;
     file_is_available =(device == NULL || thunar_device_is_mounted(device));
     if (file_is_available)
     {
         files = g_list_append(NULL, file);
+
         g_object_set(G_OBJECT(view->launcher), "selected-files", files, "current-directory", view->current_directory, NULL);
+
         g_list_free(files);
 
         if (thunar_g_file_is_trash(thunar_file_get_file(file))
@@ -1327,6 +1250,7 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
     thunar_menu_hide_accel_labels(context_menu);
     gtk_widget_show_all(GTK_WIDGET(context_menu));
+    GtkWidget    *window;
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
     thunar_window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
     thunar_gtk_menu_run(GTK_MENU(context_menu));
@@ -2037,6 +1961,114 @@ static GtkTreePath* thunar_tree_view_get_preferred_toplevel_path(ThunarTreeView 
     g_object_unref(home);
 
     return path;
+}
+
+
+
+/******************************************************************************
+ * thunar_tree_view_delete_selected_files
+ *
+ *
+ ******************************************************************************/
+gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
+{
+    _thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
+
+    if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
+        return TRUE;
+
+    /* Check if there is a user defined accelerator for the delete action,
+     * if there is, skip events from the hard-coded keys which are set in
+     * the class of the standard view. See bug #4173. */
+
+    GtkAccelKey key;
+
+    if (gtk_accel_map_lookup_entry(
+                        "<Actions>/ThunarStandardView/move-to-trash",
+                        &key)
+        &&(key.accel_key != 0 || key.accel_mods != 0))
+    {
+        return FALSE;
+    }
+
+    /* check if we should permanently delete the files(user holds shift or no gvfs available) */
+
+    GdkModifierType state;
+
+    if (gtk_get_current_event_state(&state) && (state & GDK_SHIFT_MASK) != 0)
+    {
+        thunar_tree_view_action_unlink_selected_folder(view, TRUE);
+    }
+    else
+    {
+        thunar_tree_view_action_unlink_selected_folder(view, FALSE);
+    }
+
+    /* ...and we're done */
+    return TRUE;
+}
+
+static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
+                                                           gboolean permanently)
+{
+    _thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+
+    /* determine the selected file */
+
+    ThunarFile *file = thunar_tree_view_get_selected_file(view);
+
+    if (G_UNLIKELY(file == NULL))
+        return;
+
+    if (thunar_file_can_be_trashed(file))
+    {
+        /* fake a file list */
+
+        GList file_list;
+        file_list.data = file;
+        file_list.next = NULL;
+        file_list.prev = NULL;
+
+        /* delete the file */
+        ThunarApplication *application = thunar_application_get();
+
+        thunar_application_unlink_files(application,
+                                        GTK_WIDGET(view),
+                                        &file_list,
+                                        permanently);
+
+        g_object_unref(G_OBJECT(application));
+    }
+
+    /* release the file */
+    g_object_unref(G_OBJECT(file));
+}
+
+
+
+/******************************************************************************
+ * thunar_tree_view_rename_selected
+ *
+ *
+ ******************************************************************************/
+void thunar_tree_view_rename_selected(ThunarTreeView *view)
+{
+    ThunarFile *file = thunar_tree_view_get_selected_file(view);
+    if (!file)
+        return;
+
+    g_object_set(G_OBJECT(view->launcher), "selected-device", NULL, NULL);
+
+    GList        *files;
+    files = g_list_append(NULL, file);
+
+    g_object_set(G_OBJECT(view->launcher), "selected-files", files, "current-directory", view->current_directory, NULL);
+    g_list_free(files);
+    g_object_unref(file);
+
+    thunar_launcher_action_rename(view->launcher);
+
+    return;
 }
 
 

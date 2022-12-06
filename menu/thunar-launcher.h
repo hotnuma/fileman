@@ -100,6 +100,8 @@ void thunar_launcher_action_mount (ThunarLauncher *launcher);
 void thunar_launcher_action_unmount (ThunarLauncher *launcher);
 void thunar_launcher_action_eject (ThunarLauncher *launcher);
 
+void thunar_launcher_action_rename(ThunarLauncher *launcher);
+
 
 G_END_DECLS;
 
