@@ -22,7 +22,7 @@
 
 #include <thunar-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 #define THUNAR_TYPE_IMAGE            (thunar_image_get_type ())
 #define THUNAR_IMAGE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_IMAGE, ThunarImage))
@@ -35,12 +35,13 @@ typedef struct _ThunarImagePrivate ThunarImagePrivate;
 typedef struct _ThunarImageClass   ThunarImageClass;
 typedef struct _ThunarImage        ThunarImage;
 
-GType      thunar_image_get_type (void) G_GNUC_CONST;
+GType thunar_image_get_type() G_GNUC_CONST;
 
-GtkWidget *thunar_image_new      (void) G_GNUC_MALLOC;
-void       thunar_image_set_file (ThunarImage *image,
-                                  ThunarFile  *file);
+GtkWidget* thunar_image_new() G_GNUC_MALLOC;
+void thunar_image_set_file(ThunarImage *image, ThunarFile  *file);
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__THUNAR_IMAGE_H__ */
+
+

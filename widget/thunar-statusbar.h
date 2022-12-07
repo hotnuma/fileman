@@ -21,7 +21,7 @@
 
 #include <gtk/gtk.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarStatusbarClass ThunarStatusbarClass;
 typedef struct _ThunarStatusbar      ThunarStatusbar;
@@ -33,10 +33,12 @@ typedef struct _ThunarStatusbar      ThunarStatusbar;
 #define THUNAR_IS_STATUSBAR_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_STATUSBAR))
 #define THUNAR_STATUSBAR_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_STATUSBAR, ThunarStatusbarClass))
 
-GType      thunar_statusbar_get_type    (void) G_GNUC_CONST;
+GType thunar_statusbar_get_type() G_GNUC_CONST;
 
-GtkWidget *thunar_statusbar_new         (void);
+GtkWidget* thunar_statusbar_new();
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__THUNAR_STATUSBAR_H__ */
+
+

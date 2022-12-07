@@ -1,9 +1,9 @@
 /*-
- * Copyright (c) 2005-2006 Benedikt Meurer <benny@xfce.org>
+ * Copyright(c) 2005-2006 Benedikt Meurer <benny@xfce.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
+ * Software Foundation; either version 2 of the License, or(at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -23,35 +23,33 @@
 #include <thunar-debug.h>
 #include <thunar-view.h>
 
-static void thunar_view_class_init (gpointer klass);
+static void thunar_view_class_init(gpointer klass);
 
-GType
-thunar_view_get_type (void)
+GType thunar_view_get_type()
 {
     static volatile gsize type__volatile = 0;
     GType                 type;
 
-    if (g_once_init_enter ((gsize*) &type__volatile))
+    if (g_once_init_enter((gsize*) &type__volatile))
     {
-        type = g_type_register_static_simple (G_TYPE_INTERFACE,
-                                              I_("ThunarView"),
-                                              sizeof (ThunarViewIface),
-                                              (GClassInitFunc) (void (*)(void)) thunar_view_class_init,
-                                              0,
-                                              NULL,
-                                              0);
+        type = g_type_register_static_simple(G_TYPE_INTERFACE,
+                                             I_("ThunarView"),
+                                             sizeof(ThunarViewIface),
+                                             (GClassInitFunc)(void(*)(void)) thunar_view_class_init,
+                                             0,
+                                             NULL,
+                                             0);
 
-        g_type_interface_add_prerequisite (type, GTK_TYPE_WIDGET);
-        g_type_interface_add_prerequisite (type, THUNAR_TYPE_COMPONENT);
+        g_type_interface_add_prerequisite(type, GTK_TYPE_WIDGET);
+        g_type_interface_add_prerequisite(type, THUNAR_TYPE_COMPONENT);
 
-        g_once_init_leave (&type__volatile, type);
+        g_once_init_leave(&type__volatile, type);
     }
 
     return type__volatile;
 }
 
-static void
-thunar_view_class_init (gpointer klass)
+static void thunar_view_class_init(gpointer klass)
 {
     /**
      * ThunarView:loading:
@@ -65,12 +63,12 @@ thunar_view_class_init (gpointer klass)
      * user visible notification about the loading state, e.g. a
      * progress bar or an animated image.
      **/
-    g_object_interface_install_property (klass,
-                                         g_param_spec_boolean ("loading",
-                                                 "loading",
-                                                 "loading",
-                                                 FALSE,
-                                                 EXO_PARAM_READABLE));
+    g_object_interface_install_property(klass,
+                                        g_param_spec_boolean("loading",
+                                                             "loading",
+                                                             "loading",
+                                                             FALSE,
+                                                             EXO_PARAM_READABLE));
 
     /**
      * ThunarView:statusbar-text:
@@ -78,15 +76,15 @@ thunar_view_class_init (gpointer klass)
      * The text to be displayed in the status bar, which is associated
      * with this #ThunarView instance. Implementations should invoke
      * #g_object_notify() on this property, whenever they have a new
-     * text to be display in the status bar (e.g. the selection changed
+     * text to be display in the status bar(e.g. the selection changed
      * or similar).
      **/
-    g_object_interface_install_property (klass,
-                                         g_param_spec_string ("statusbar-text",
-                                                 "statusbar-text",
-                                                 "statusbar-text",
-                                                 NULL,
-                                                 EXO_PARAM_READABLE));
+    g_object_interface_install_property(klass,
+                                        g_param_spec_string("statusbar-text",
+                                                            "statusbar-text",
+                                                            "statusbar-text",
+                                                            NULL,
+                                                            EXO_PARAM_READABLE));
 
     /**
      * ThunarView:show-hidden:
@@ -94,12 +92,12 @@ thunar_view_class_init (gpointer klass)
      * Tells whether to display hidden and backup files in the
      * #ThunarView or whether to hide them.
      **/
-    g_object_interface_install_property (klass,
-                                         g_param_spec_boolean ("show-hidden",
-                                                 "show-hidden",
-                                                 "show-hidden",
-                                                 FALSE,
-                                                 EXO_PARAM_READWRITE));
+    g_object_interface_install_property(klass,
+                                        g_param_spec_boolean("show-hidden",
+                                                             "show-hidden",
+                                                             "show-hidden",
+                                                             FALSE,
+                                                             EXO_PARAM_READWRITE));
 
     /**
      * ThunarView:zoom-level:
@@ -107,13 +105,13 @@ thunar_view_class_init (gpointer klass)
      * The #ThunarZoomLevel at which the items within this
      * #ThunarView should be displayed.
      **/
-    g_object_interface_install_property (klass,
-                                         g_param_spec_enum ("zoom-level",
-                                                 "zoom-level",
-                                                 "zoom-level",
-                                                 THUNAR_TYPE_ZOOM_LEVEL,
-                                                 THUNAR_ZOOM_LEVEL_100_PERCENT,
-                                                 EXO_PARAM_READWRITE));
+    g_object_interface_install_property(klass,
+                                        g_param_spec_enum("zoom-level",
+                                                          "zoom-level",
+                                                          "zoom-level",
+                                                          THUNAR_TYPE_ZOOM_LEVEL,
+                                                          THUNAR_ZOOM_LEVEL_100_PERCENT,
+                                                          EXO_PARAM_READWRITE));
 }
 
 /**
@@ -125,11 +123,11 @@ thunar_view_class_init (gpointer klass)
  *
  * Return value: %TRUE if @view is currently being loaded, else %FALSE.
  **/
-gboolean
-thunar_view_get_loading (ThunarView *view)
+gboolean thunar_view_get_loading(ThunarView *view)
 {
-    _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), FALSE);
-    return (*THUNAR_VIEW_GET_IFACE (view)->get_loading) (view);
+    _thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
+
+    return (*THUNAR_VIEW_GET_IFACE(view)->get_loading)(view);
 }
 
 /**
@@ -142,11 +140,11 @@ thunar_view_get_loading (ThunarView *view)
  * Return value: the text to be displayed in the status bar
  *               asssociated with @view.
  **/
-const gchar*
-thunar_view_get_statusbar_text (ThunarView *view)
+const gchar* thunar_view_get_statusbar_text(ThunarView *view)
 {
-    _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), NULL);
-    return (*THUNAR_VIEW_GET_IFACE (view)->get_statusbar_text) (view);
+    _thunar_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
+
+    return (*THUNAR_VIEW_GET_IFACE(view)->get_statusbar_text)(view);
 }
 
 /**
@@ -158,11 +156,11 @@ thunar_view_get_statusbar_text (ThunarView *view)
  *
  * Return value: whether @view displays hidden files.
  **/
-gboolean
-thunar_view_get_show_hidden (ThunarView *view)
+gboolean thunar_view_get_show_hidden(ThunarView *view)
 {
-    _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), FALSE);
-    return (*THUNAR_VIEW_GET_IFACE (view)->get_show_hidden) (view);
+    _thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
+
+    return (*THUNAR_VIEW_GET_IFACE(view)->get_show_hidden)(view);
 }
 
 /**
@@ -174,12 +172,11 @@ thunar_view_get_show_hidden (ThunarView *view)
  * backup files, else those files will be hidden from the user
  * interface.
  **/
-void
-thunar_view_set_show_hidden (ThunarView *view,
-                             gboolean    show_hidden)
+void thunar_view_set_show_hidden(ThunarView *view, gboolean show_hidden)
 {
-    _thunar_return_if_fail (THUNAR_IS_VIEW (view));
-    (*THUNAR_VIEW_GET_IFACE (view)->set_show_hidden) (view, show_hidden);
+    _thunar_return_if_fail(THUNAR_IS_VIEW(view));
+
+    (*THUNAR_VIEW_GET_IFACE(view)->set_show_hidden)(view, show_hidden);
 }
 
 /**
@@ -190,11 +187,11 @@ thunar_view_set_show_hidden (ThunarView *view,
  *
  * Return value: the #ThunarZoomLevel currently used for the @view.
  **/
-ThunarZoomLevel
-thunar_view_get_zoom_level (ThunarView *view)
+ThunarZoomLevel thunar_view_get_zoom_level(ThunarView *view)
 {
-    _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), THUNAR_ZOOM_LEVEL_100_PERCENT);
-    return (*THUNAR_VIEW_GET_IFACE (view)->get_zoom_level) (view);
+    _thunar_return_val_if_fail(THUNAR_IS_VIEW(view), THUNAR_ZOOM_LEVEL_100_PERCENT);
+
+    return (*THUNAR_VIEW_GET_IFACE(view)->get_zoom_level)(view);
 }
 
 /**
@@ -204,13 +201,12 @@ thunar_view_get_zoom_level (ThunarView *view)
  *
  * Sets the zoom level used for @view to @zoom_level.
  **/
-void
-thunar_view_set_zoom_level (ThunarView     *view,
-                            ThunarZoomLevel zoom_level)
+void thunar_view_set_zoom_level(ThunarView *view, ThunarZoomLevel zoom_level)
 {
-    _thunar_return_if_fail (THUNAR_IS_VIEW (view));
-    _thunar_return_if_fail (zoom_level < THUNAR_ZOOM_N_LEVELS);
-    (*THUNAR_VIEW_GET_IFACE (view)->set_zoom_level) (view, zoom_level);
+    _thunar_return_if_fail(THUNAR_IS_VIEW(view));
+    _thunar_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
+
+    (*THUNAR_VIEW_GET_IFACE(view)->set_zoom_level)(view, zoom_level);
 }
 
 /**
@@ -220,11 +216,11 @@ thunar_view_set_zoom_level (ThunarView     *view,
  * Resets the zoom level of @view to the default
  * #ThunarZoomLevel for @view.
  **/
-void
-thunar_view_reset_zoom_level (ThunarView *view)
+void thunar_view_reset_zoom_level(ThunarView *view)
 {
-    _thunar_return_if_fail (THUNAR_IS_VIEW (view));
-    (*THUNAR_VIEW_GET_IFACE (view)->reset_zoom_level) (view);
+    _thunar_return_if_fail(THUNAR_IS_VIEW(view));
+
+    (*THUNAR_VIEW_GET_IFACE(view)->reset_zoom_level)(view);
 }
 
 /**
@@ -236,12 +232,11 @@ thunar_view_reset_zoom_level (ThunarView *view)
  * contents from the underlying media. If reload_info is
  * TRUE, it will reload information for all files too.
  **/
-void
-thunar_view_reload (ThunarView *view,
-                    gboolean    reload_info)
+void thunar_view_reload(ThunarView *view, gboolean reload_info)
 {
-    _thunar_return_if_fail (THUNAR_IS_VIEW (view));
-    (*THUNAR_VIEW_GET_IFACE (view)->reload) (view, reload_info);
+    _thunar_return_if_fail(THUNAR_IS_VIEW(view));
+
+    (*THUNAR_VIEW_GET_IFACE(view)->reload)(view, reload_info);
 }
 
 /**
@@ -259,13 +254,12 @@ thunar_view_reload (ThunarView *view,
  * Return value: %TRUE if valid files were placed in @start_file
  *               and @end_file.
  **/
-gboolean
-thunar_view_get_visible_range (ThunarView  *view,
-                               ThunarFile **start_file,
-                               ThunarFile **end_file)
+gboolean thunar_view_get_visible_range(ThunarView  *view,
+                                       ThunarFile **start_file,
+                                       ThunarFile **end_file)
 {
-    _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), FALSE);
-    return (*THUNAR_VIEW_GET_IFACE (view)->get_visible_range) (view, start_file, end_file);
+    _thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
+    return(*THUNAR_VIEW_GET_IFACE(view)->get_visible_range)(view, start_file, end_file);
 }
 
 /**
@@ -281,32 +275,38 @@ thunar_view_get_visible_range (ThunarView  *view,
  * loading, it'll remember to scroll to @file later when
  * the contents are loaded.
  **/
-void
-thunar_view_scroll_to_file (ThunarView *view,
-                            ThunarFile *file,
-                            gboolean    select_file,
-                            gboolean    use_align,
-                            gfloat      row_align,
-                            gfloat      col_align)
+void thunar_view_scroll_to_file(ThunarView  *view,
+                                ThunarFile  *file,
+                                gboolean    select_file,
+                                gboolean    use_align,
+                                gfloat      row_align,
+                                gfloat      col_align)
 {
-    _thunar_return_if_fail (THUNAR_IS_VIEW (view));
-    _thunar_return_if_fail (THUNAR_IS_FILE (file));
-    _thunar_return_if_fail (row_align >= 0.0f && row_align <= 1.0f);
-    _thunar_return_if_fail (col_align >= 0.0f && col_align <= 1.0f);
-    (*THUNAR_VIEW_GET_IFACE (view)->scroll_to_file) (view, file, select_file, use_align, row_align, col_align);
+    _thunar_return_if_fail(THUNAR_IS_VIEW(view));
+    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    _thunar_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
+    _thunar_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
+
+    (*THUNAR_VIEW_GET_IFACE(view)->scroll_to_file)(view,
+                                                   file,
+                                                   select_file,
+                                                   use_align,
+                                                   row_align,
+                                                   col_align);
 }
 
-GList*
-thunar_view_get_selected_files (ThunarView *view)
+GList* thunar_view_get_selected_files(ThunarView *view)
 {
-    _thunar_return_val_if_fail (THUNAR_IS_VIEW (view), NULL);
-    return (*THUNAR_VIEW_GET_IFACE (view)->get_selected_files) (view);
+    _thunar_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
+
+    return (*THUNAR_VIEW_GET_IFACE(view)->get_selected_files)(view);
 }
 
-void
-thunar_view_set_selected_files (ThunarView *view,
-                                GList      *path_list)
+void thunar_view_set_selected_files(ThunarView *view, GList *path_list)
 {
-    _thunar_return_if_fail (THUNAR_IS_VIEW (view));
-    (*THUNAR_VIEW_GET_IFACE (view)->set_selected_files) (view, path_list);
+    _thunar_return_if_fail(THUNAR_IS_VIEW(view));
+
+    (*THUNAR_VIEW_GET_IFACE(view)->set_selected_files)(view, path_list);
 }
+
+

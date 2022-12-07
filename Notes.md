@@ -15,23 +15,12 @@
 
 ```
 
-view/thunar-details-view.c
-
-10
-
-view/thunar-view.c
-widget/thunar-icon-factory.c
-widget/thunar-icon-renderer.c
-widget/thunar-image.c
-widget/thunar-location-bar.c
-
-5
-
 widget/thunar-location-entry.c
 widget/thunar-path-entry.c
 widget/thunar-shortcuts-icon-renderer.c
 widget/thunar-size-label.c
-widget/thunar-statusbar.c
+widget/thunar-icon-factory.c
+widget/thunar-icon-renderer.c
 
 ```
 

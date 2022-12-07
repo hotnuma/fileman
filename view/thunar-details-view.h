@@ -45,3 +45,5 @@ GType thunar_details_view_get_type() G_GNUC_CONST;
 G_END_DECLS;
 
 #endif /* !__THUNAR_DETAILS_VIEW_H__ */
+
+
