@@ -38,7 +38,6 @@ typedef enum
     THUNAR_HISTORY_MENU_BACK,
     THUNAR_HISTORY_MENU_FORWARD,
 
-
 } ThunarHistoryMenuType;
 
 struct _ThunarHistoryClass
@@ -46,23 +45,24 @@ struct _ThunarHistoryClass
     GObjectClass __parent__;
 
     /* external signals */
-    void         (*history_changed)   (ThunarHistory *history,
-                                       const gchar   *initial_text);
+    void (*history_changed) (ThunarHistory *history, const gchar   *initial_text);
 };
 
-GType           thunar_history_get_type         (void) G_GNUC_CONST;
+GType           thunar_history_get_type() G_GNUC_CONST;
 
-ThunarHistory  *thunar_history_copy             (ThunarHistory         *history);
-gboolean        thunar_history_has_back         (ThunarHistory         *history);
-gboolean        thunar_history_has_forward      (ThunarHistory         *history);
-ThunarFile     *thunar_history_peek_back        (ThunarHistory         *history);
-ThunarFile     *thunar_history_peek_forward     (ThunarHistory         *history);
-void            thunar_history_action_back      (ThunarHistory         *history);
-void            thunar_history_action_forward   (ThunarHistory         *history);
-void            thunar_history_show_menu        (ThunarHistory         *history,
-        ThunarHistoryMenuType  type,
-        GtkWidget             *parent);
+ThunarHistory*  thunar_history_copy(ThunarHistory *history);
+gboolean        thunar_history_has_back(ThunarHistory *history);
+gboolean        thunar_history_has_forward(ThunarHistory *history);
+ThunarFile*     thunar_history_peek_back(ThunarHistory *history);
+ThunarFile*     thunar_history_peek_forward(ThunarHistory *history);
+void            thunar_history_action_back(ThunarHistory *history);
+void            thunar_history_action_forward(ThunarHistory *history);
+void            thunar_history_show_menu(ThunarHistory  *history,
+                                         ThunarHistoryMenuType  type,
+                                         GtkWidget      *parent);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_HISTORY_H__ */
+
+

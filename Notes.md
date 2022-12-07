@@ -15,14 +15,6 @@
 
 ```
 
-20
-
-misc/thunar-history.c
-misc/thunar-navigator.c
-misc/thunar-notify.c
-misc/thunar-pango-extensions.c
-side/thunar-side-pane.c
-
 15
 
 side/thunar-tree-pane.c

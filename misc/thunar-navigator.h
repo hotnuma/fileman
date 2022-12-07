@@ -36,7 +36,7 @@ struct _ThunarNavigatorIface
     GTypeInterface __parent__;
 
     /* methods */
-    ThunarFile *(*get_current_directory) (ThunarNavigator *navigator);
+    ThunarFile* (*get_current_directory) (ThunarNavigator *navigator);
     void        (*set_current_directory) (ThunarNavigator *navigator,
                                           ThunarFile      *current_directory);
 
@@ -45,14 +45,14 @@ struct _ThunarNavigatorIface
                                           ThunarFile      *directory);
 };
 
-GType       thunar_navigator_get_type              () G_GNUC_CONST;
+GType       thunar_navigator_get_type() G_GNUC_CONST;
 
-ThunarFile *thunar_navigator_get_current_directory (ThunarNavigator *navigator);
-void        thunar_navigator_set_current_directory (ThunarNavigator *navigator,
-                                                    ThunarFile      *current_directory);
+ThunarFile* thunar_navigator_get_current_directory(ThunarNavigator *navigator);
+void        thunar_navigator_set_current_directory(ThunarNavigator *navigator,
+                                                   ThunarFile      *current_directory);
 
-void        thunar_navigator_change_directory      (ThunarNavigator *navigator,
-                                                    ThunarFile      *directory);
+void        thunar_navigator_change_directory(ThunarNavigator *navigator,
+                                              ThunarFile      *directory);
 
 G_END_DECLS;
 

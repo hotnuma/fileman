@@ -1,9 +1,9 @@
 /*-
- * Copyright (c) 2006 Benedikt Meurer <benny@xfce.org>
+ * Copyright(c) 2006 Benedikt Meurer <benny@xfce.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
+ * Software Foundation; either version 2 of the License, or(at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -26,27 +26,27 @@
 
 #include <thunar-pango-extensions.h>
 
-static PangoAttrList *thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...) G_GNUC_MALLOC;
+static PangoAttrList* _thunar_pango_attr_list_wrap(PangoAttribute *attribute, ...)
+                                                   G_GNUC_MALLOC;
 
-static PangoAttrList*
-thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...)
+static PangoAttrList* _thunar_pango_attr_list_wrap(PangoAttribute *attribute, ...)
 {
     PangoAttrList *attr_list;
     va_list        args;
 
     /* allocate a new attribute list */
-    attr_list = pango_attr_list_new ();
+    attr_list = pango_attr_list_new();
 
     /* add all specified attributes */
-    va_start (args, attribute);
-    while (attribute != NULL)
+    va_start(args, attribute);
+    while(attribute != NULL)
     {
         attribute->start_index = 0;
         attribute->end_index = -1;
-        pango_attr_list_insert (attr_list, attribute);
-        attribute = va_arg (args, PangoAttribute *);
+        pango_attr_list_insert(attr_list, attribute);
+        attribute = va_arg(args, PangoAttribute *);
     }
-    va_end (args);
+    va_end(args);
 
     return attr_list;
 }
@@ -60,12 +60,11 @@ thunar_pango_attr_list_wrap (PangoAttribute *attribute, ...)
  *
  * Return value: a #PangoAttrList for rendering big text.
  **/
-PangoAttrList*
-thunar_pango_attr_list_big (void)
+PangoAttrList* thunar_pango_attr_list_big()
 {
     static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_LARGE), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), NULL);
     return attr_list;
 }
 
@@ -78,12 +77,11 @@ thunar_pango_attr_list_big (void)
  *
  * Return value: a #PangoAttrList for rendering big bold text.
  **/
-PangoAttrList*
-thunar_pango_attr_list_big_bold (void)
+PangoAttrList* thunar_pango_attr_list_big_bold()
 {
     static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_LARGE), pango_attr_weight_new (PANGO_WEIGHT_BOLD), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
     return attr_list;
 }
 
@@ -96,12 +94,11 @@ thunar_pango_attr_list_big_bold (void)
  *
  * Return value: a #PangoAttrList for rendering bold text.
  **/
-PangoAttrList*
-thunar_pango_attr_list_bold (void)
+PangoAttrList* thunar_pango_attr_list_bold()
 {
     static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_weight_new (PANGO_WEIGHT_BOLD), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
     return attr_list;
 }
 
@@ -115,14 +112,13 @@ thunar_pango_attr_list_bold (void)
  * Return value: a #PangoAttrList for not inserting hyphens at intra-word line
  *               breaks.
  **/
-#if PANGO_VERSION_CHECK (1, 44, 0)
-PangoAttrList*
-thunar_pango_attr_disable_hyphens (void)
+#if PANGO_VERSION_CHECK(1, 44, 0)
+PangoAttrList* thunar_pango_attr_disable_hyphens()
 {
     static PangoAttrList *attr_list = NULL;
 
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_insert_hyphens_new (FALSE), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_insert_hyphens_new(FALSE), NULL);
 
     return attr_list;
 }
@@ -137,12 +133,11 @@ thunar_pango_attr_disable_hyphens (void)
  *
  * Return value: a #PangoAttrList for rendering italic text.
  **/
-PangoAttrList*
-thunar_pango_attr_list_italic (void)
+PangoAttrList* thunar_pango_attr_list_italic()
 {
     static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_style_new (PANGO_STYLE_ITALIC), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
     return attr_list;
 }
 
@@ -155,12 +150,11 @@ thunar_pango_attr_list_italic (void)
  *
  * Return value: a #PangoAttrList for rendering small italic text.
  **/
-PangoAttrList*
-thunar_pango_attr_list_small_italic (void)
+PangoAttrList* thunar_pango_attr_list_small_italic()
 {
     static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_SMALL), pango_attr_style_new (PANGO_STYLE_ITALIC), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
     return attr_list;
 }
 
@@ -173,12 +167,11 @@ thunar_pango_attr_list_small_italic (void)
  *
  * Return value: a #PangoAttrList for rendering small text.
  **/
-PangoAttrList*
-thunar_pango_attr_list_small (void)
+PangoAttrList* thunar_pango_attr_list_small()
 {
     static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_scale_new (PANGO_SCALE_SMALL), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), NULL);
     return attr_list;
 }
 
@@ -191,11 +184,12 @@ thunar_pango_attr_list_small (void)
  *
  * Return value: a #PangoAttrList for underlining text using a single line.
  **/
-PangoAttrList*
-thunar_pango_attr_list_underline_single (void)
+PangoAttrList* thunar_pango_attr_list_underline_single()
 {
     static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY (attr_list == NULL))
-        attr_list = thunar_pango_attr_list_wrap (pango_attr_underline_new (PANGO_UNDERLINE_SINGLE), NULL);
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _thunar_pango_attr_list_wrap(pango_attr_underline_new(PANGO_UNDERLINE_SINGLE), NULL);
     return attr_list;
 }
+
+
