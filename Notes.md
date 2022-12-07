@@ -15,14 +15,6 @@
 
 ```
 
-35
-
-dialog/thunar-progress-view.c
-job/thunar-deep-count-job.c
-job/thunar-io-jobs-util.c
-job/thunar-io-scan-directory.c
-job/thunar-job.c
-
 30
 
 job/thunar-simple-job.c

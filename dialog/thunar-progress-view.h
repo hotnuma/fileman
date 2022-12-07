@@ -36,16 +36,16 @@ typedef struct _ThunarProgressView      ThunarProgressView;
 #define THUNAR_IS_PROGRESS_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_PROGRESS_VIEW))
 #define THUNAR_PROGRESS_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_PROGRESS_VIEW, ThunarProgressViewClass))
 
-GType      thunar_progress_view_get_type      (void) G_GNUC_CONST;
+GType thunar_progress_view_get_type() G_GNUC_CONST;
 
-GtkWidget *thunar_progress_view_new_with_job  (ThunarJob          *job) G_GNUC_MALLOC;
+GtkWidget* thunar_progress_view_new_with_job(ThunarJob *job) G_GNUC_MALLOC;
 
-void       thunar_progress_view_set_icon_name (ThunarProgressView *view,
-        const gchar        *icon_name);
-void       thunar_progress_view_set_title     (ThunarProgressView *view,
-        const gchar        *title);
-ThunarJob *thunar_progress_view_get_job       (ThunarProgressView *view);
+void thunar_progress_view_set_icon_name(ThunarProgressView *view, const gchar *icon_name);
+void thunar_progress_view_set_title(ThunarProgressView *view, const gchar *title);
+ThunarJob *thunar_progress_view_get_job(ThunarProgressView *view);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_PROGRESS_VIEW_H__ */
+
+

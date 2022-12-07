@@ -27,14 +27,16 @@
 
 G_BEGIN_DECLS
 
-GList *thunar_io_scan_directory (ThunarJob          *job,
-                                 GFile              *file,
-                                 GFileQueryInfoFlags flags,
-                                 gboolean            recursively,
-                                 gboolean            unlinking,
-                                 gboolean            return_thunar_files,
-                                 GError            **error);
+GList* thunar_io_scan_directory(ThunarJob          *job,
+                                GFile              *file,
+                                GFileQueryInfoFlags flags,
+                                gboolean            recursively,
+                                gboolean            unlinking,
+                                gboolean            return_thunar_files,
+                                GError            **error);
 
 G_END_DECLS
 
 #endif /* !__THUNAR_IO_SCAN_DIRECTORY_H__ */
+
+
