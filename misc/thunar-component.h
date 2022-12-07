@@ -36,9 +36,8 @@ struct _ThunarComponentIface
     GTypeInterface __parent__;
 
     /* methods */
-    GList*  (*get_selected_files)(ThunarComponent  *component);
-    void    (*set_selected_files)(ThunarComponent  *component,
-    GList   *selected_files);
+    GList*  (*get_selected_files) (ThunarComponent *component);
+    void    (*set_selected_files) (ThunarComponent *component, GList *selected_files);
 
 };
 
@@ -48,7 +47,7 @@ GList*  thunar_component_get_selected_files(ThunarComponent *component);
 void    thunar_component_set_selected_files(ThunarComponent *component,
                                             GList           *selected_files);
 
-void    thunar_component_restore_selection(ThunarComponent  *component);
+void    thunar_component_restore_selection(ThunarComponent *component);
 
 G_END_DECLS;
 

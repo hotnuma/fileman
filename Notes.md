@@ -15,14 +15,6 @@
 
 ```
 
-30
-
-job/thunar-simple-job.c
-menu/thunar-menu.c
-menu/thunar-sendto-model.c
-misc/thunar-browser.c
-misc/thunar-component.c
-
 25
 
 misc/thunar-enum-types.c

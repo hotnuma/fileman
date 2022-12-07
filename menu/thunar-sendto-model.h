@@ -33,13 +33,13 @@ typedef struct _ThunarSendtoModel      ThunarSendtoModel;
 #define THUNAR_IS_SENDTO_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_SENDTO_MODEL))
 #define THUNAR_SENDTO_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_SENDTO_MODEL))
 
-GType              thunar_sendto_model_get_type     (void) G_GNUC_CONST;
-
-ThunarSendtoModel *thunar_sendto_model_get_default  (void) G_GNUC_WARN_UNUSED_RESULT;
-
-GList             *thunar_sendto_model_get_matching (ThunarSendtoModel *sendto_model,
-        GList             *files) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-
+GType thunar_sendto_model_get_type() G_GNUC_CONST;
+ThunarSendtoModel* thunar_sendto_model_get_default() G_GNUC_WARN_UNUSED_RESULT;
+GList* thunar_sendto_model_get_matching(ThunarSendtoModel *sendto_model,
+                                        GList   *files)
+                                        G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 G_END_DECLS;
 
 #endif /* !__THUNAR_SENDTO_MODEL_H__ */
+
+

@@ -86,7 +86,7 @@ static void thunar_simple_job_finalize(GObject *object)
     (*G_OBJECT_CLASS(thunar_simple_job_parent_class)->finalize)(object);
 }
 
-static gboolean thunar_simple_job_execute(ExoJob  *job,
+static gboolean thunar_simple_job_execute(ExoJob *job,
                                           GError **error)
 {
     ThunarSimpleJob *simple_job = THUNAR_SIMPLE_JOB(job);

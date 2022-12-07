@@ -27,12 +27,12 @@ G_BEGIN_DECLS;
 typedef struct _ThunarMenuClass ThunarMenuClass;
 typedef struct _ThunarMenu      ThunarMenu;
 
-#define THUNAR_TYPE_MENU             (thunar_menu_get_type ())
-#define THUNAR_MENU(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_MENU, ThunarMenu))
-#define THUNAR_MENU_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_MENU, ThunarMenuClass))
-#define THUNAR_IS_MENU(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_MENU))
-#define THUNAR_IS_MENU_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_MENU))
-#define THUNAR_MENU_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_MENU, ThunarMenu))
+#define THUNAR_TYPE_MENU            (thunar_menu_get_type ())
+#define THUNAR_MENU(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_MENU, ThunarMenu))
+#define THUNAR_MENU_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_MENU, ThunarMenuClass))
+#define THUNAR_IS_MENU(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_MENU))
+#define THUNAR_IS_MENU_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_MENU))
+#define THUNAR_MENU_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_MENU, ThunarMenu))
 
 /* For window menu, some items are shown insensitive, instead of hidden */
 typedef enum
@@ -43,6 +43,7 @@ typedef enum
     THUNAR_MENU_TYPE_CONTEXT_RENAMER,
     THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
     N_THUNAR_MENU_TYPE,
+
 } ThunarMenuType;
 
 /* Bundles of #GtkMenuItems, which can be created by this widget */
@@ -66,14 +67,14 @@ typedef enum
 
 } ThunarMenuSections;
 
+GType thunar_menu_get_type() G_GNUC_CONST;
 
-GType      thunar_menu_get_type          (void) G_GNUC_CONST;
-
-gboolean   thunar_menu_add_sections      (ThunarMenu         *menu,
-        ThunarMenuSections  menu_sections);
-GtkWidget* thunar_menu_get_launcher      (ThunarMenu         *menu);
-void       thunar_menu_hide_accel_labels (ThunarMenu         *menu);
+gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sections);
+GtkWidget* thunar_menu_get_launcher(ThunarMenu *menu);
+void thunar_menu_hide_accel_labels(ThunarMenu *menu);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_CONTEXT_MENU_H__ */
+
+
