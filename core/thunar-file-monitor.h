@@ -33,13 +33,15 @@ typedef struct _ThunarFileMonitor      ThunarFileMonitor;
 #define THUNAR_IS_FILE_MONITOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_FILE_MONITOR))
 #define THUNAR_FILE_MONITOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_FILE_MONITOR, ThunarFileMonitorClass))
 
-GType              thunar_file_monitor_get_type       (void) G_GNUC_CONST;
+GType thunar_file_monitor_get_type() G_GNUC_CONST;
 
-ThunarFileMonitor *thunar_file_monitor_get_default    (void);
+ThunarFileMonitor *thunar_file_monitor_get_default();
 
-void               thunar_file_monitor_file_changed   (ThunarFile *file);
-void               thunar_file_monitor_file_destroyed (ThunarFile *file);
+void thunar_file_monitor_file_changed(ThunarFile *file);
+void thunar_file_monitor_file_destroyed(ThunarFile *file);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_FILE_MONITOR_H__ */
+
+

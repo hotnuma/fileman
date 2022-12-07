@@ -62,14 +62,13 @@ gchar* thunar_dialogs_show_create(gpointer      parent,
     GdkScreen *screen = thunar_util_parse_parent(parent, &window);
 
     /* create a new dialog window */
-    GtkWidget *dialog = gtk_dialog_new_with_buttons(
-                                    title,
-                                    window,
-                                    GTK_DIALOG_MODAL
-                                    | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                    _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                    _("C_reate"), GTK_RESPONSE_OK,
-                                    NULL);
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(title,
+                                                    window,
+                                                    GTK_DIALOG_MODAL
+                                                    | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                    _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                    _("C_reate"), GTK_RESPONSE_OK,
+                                                    NULL);
 
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
     gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);

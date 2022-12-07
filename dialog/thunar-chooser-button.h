@@ -33,13 +33,15 @@ typedef struct _ThunarChooserButton      ThunarChooserButton;
 #define THUNAR_IS_CHOOSER_BUTTON_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_CHOOSER_BUTTON))
 #define THUNAR_CHOOSER_BUTTON_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CHOOSER_BUTTON, ThunarChooserButtonClass))
 
-GType       thunar_chooser_button_get_type (void) G_GNUC_CONST;
+GType thunar_chooser_button_get_type() G_GNUC_CONST;
 
-GtkWidget  *thunar_chooser_button_new      (void) G_GNUC_MALLOC;
+GtkWidget* thunar_chooser_button_new() G_GNUC_MALLOC;
 
-void        thunar_chooser_button_set_file (ThunarChooserButton *chooser_button,
-        ThunarFile          *file);
+void thunar_chooser_button_set_file(ThunarChooserButton *chooser_button,
+                                    ThunarFile          *file);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_CHOOSER_BUTTON_H__ */
+
+

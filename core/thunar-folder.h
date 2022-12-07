@@ -33,18 +33,19 @@ typedef struct _ThunarFolder      ThunarFolder;
 #define THUNAR_IS_FOLDER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_FOLDER))
 #define THUNAR_FOLDER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_FOLDER, ThunarFolderClass))
 
-GType         thunar_folder_get_type               (void) G_GNUC_CONST;
+GType thunar_folder_get_type() G_GNUC_CONST;
 
-ThunarFolder *thunar_folder_get_for_file           (ThunarFile         *file);
+ThunarFolder* thunar_folder_get_for_file(ThunarFile *file);
 
-ThunarFile   *thunar_folder_get_corresponding_file (const ThunarFolder *folder);
-GList        *thunar_folder_get_files              (const ThunarFolder *folder);
-gboolean      thunar_folder_get_loading            (const ThunarFolder *folder);
-gboolean      thunar_folder_has_folder_monitor     (const ThunarFolder *folder);
+ThunarFile* thunar_folder_get_corresponding_file(const ThunarFolder *folder);
+GList* thunar_folder_get_files(const ThunarFolder *folder);
+gboolean thunar_folder_get_loading(const ThunarFolder *folder);
+gboolean thunar_folder_has_folder_monitor(const ThunarFolder *folder);
 
-void          thunar_folder_reload                 (ThunarFolder       *folder,
-        gboolean            reload_info);
+void thunar_folder_reload(ThunarFolder *folder, gboolean reload_info);
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_FOLDER_H__ */
+
+
