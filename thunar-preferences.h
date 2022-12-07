@@ -21,7 +21,7 @@
 
 #include <glib-object.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarPreferencesClass ThunarPreferencesClass;
 typedef struct _ThunarPreferences      ThunarPreferences;
@@ -33,12 +33,14 @@ typedef struct _ThunarPreferences      ThunarPreferences;
 #define THUNAR_IS_PREFERENCES_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_PREFERENCES))
 #define THUNAR_PREFERENCES_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_PREFERENCES, ThunarPreferencesClass))
 
-GType              thunar_preferences_get_type           (void) G_GNUC_CONST;
+GType thunar_preferences_get_type() G_GNUC_CONST;
 
-ThunarPreferences *thunar_preferences_get                (void);
+ThunarPreferences *thunar_preferences_get();
 
-void               thunar_preferences_xfconf_init_failed (void);
+void thunar_preferences_xfconf_init_failed();
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__THUNAR_PREFERENCES_H__ */
+
+

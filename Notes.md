@@ -15,12 +15,6 @@
 
 ```
 
-15
-
-side/thunar-tree-pane.c
-thunar-preferences.c
-view/thunar-column-editor.c
-view/thunar-column-model.c
 view/thunar-details-view.c
 
 10

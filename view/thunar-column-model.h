@@ -21,7 +21,7 @@
 
 #include <thunar-enum-types.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarColumnModelClass ThunarColumnModelClass;
 typedef struct _ThunarColumnModel      ThunarColumnModel;
@@ -47,36 +47,39 @@ typedef enum
     THUNAR_COLUMN_MODEL_COLUMN_MUTABLE,
     THUNAR_COLUMN_MODEL_COLUMN_VISIBLE,
     THUNAR_COLUMN_MODEL_N_COLUMNS,
+
 } ThunarColumnModelColumn;
 
-GType               thunar_column_model_get_type            (void) G_GNUC_CONST;
+GType thunar_column_model_get_type() G_GNUC_CONST;
 
-ThunarColumnModel  *thunar_column_model_get_default         (void);
+ThunarColumnModel* thunar_column_model_get_default();
 
-void                thunar_column_model_exchange            (ThunarColumnModel *column_model,
-        GtkTreeIter       *iter1,
-        GtkTreeIter       *iter2);
+void thunar_column_model_exchange(ThunarColumnModel *column_model,
+                                  GtkTreeIter *iter1,
+                                  GtkTreeIter *iter2);
 
-ThunarColumn        thunar_column_model_get_column_for_iter (ThunarColumnModel *column_model,
-        GtkTreeIter       *iter);
+ThunarColumn thunar_column_model_get_column_for_iter(ThunarColumnModel *column_model,
+                                                     GtkTreeIter *iter);
 
-const ThunarColumn *thunar_column_model_get_column_order    (ThunarColumnModel *column_model);
+const ThunarColumn *thunar_column_model_get_column_order(ThunarColumnModel *column_model);
 
-const gchar        *thunar_column_model_get_column_name     (ThunarColumnModel *column_model,
-        ThunarColumn       column);
+const gchar *thunar_column_model_get_column_name(ThunarColumnModel *column_model,
+                                                 ThunarColumn column);
 
-gboolean            thunar_column_model_get_column_visible  (ThunarColumnModel *column_model,
-        ThunarColumn       column);
-void                thunar_column_model_set_column_visible  (ThunarColumnModel *column_model,
-        ThunarColumn       column,
-        gboolean           visible);
+gboolean thunar_column_model_get_column_visible(ThunarColumnModel *column_model,
+                                                ThunarColumn column);
+void thunar_column_model_set_column_visible(ThunarColumnModel *column_model,
+                                            ThunarColumn column,
+                                            gboolean visible);
 
-gint                thunar_column_model_get_column_width    (ThunarColumnModel *column_model,
-        ThunarColumn       column);
-void                thunar_column_model_set_column_width    (ThunarColumnModel *column_model,
-        ThunarColumn       column,
-        gint               width);
+gint thunar_column_model_get_column_width(ThunarColumnModel *column_model,
+                                          ThunarColumn column);
+void thunar_column_model_set_column_width(ThunarColumnModel *column_model,
+                                          ThunarColumn column,
+                                          gint width);
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__THUNAR_COLUMN_MODEL_H__ */
+
+

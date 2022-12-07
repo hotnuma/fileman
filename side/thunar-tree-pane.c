@@ -60,8 +60,8 @@ struct _ThunarTreePane
 {
     GtkScrolledWindow __parent__;
 
-    ThunarFile *current_directory;
-    GtkWidget  *view;
+    ThunarFile  *current_directory;
+    GtkWidget   *view;
     gboolean    show_hidden;
 };
 
@@ -147,9 +147,9 @@ static void thunar_tree_pane_dispose(GObject *object)
 }
 
 static void thunar_tree_pane_get_property(GObject    *object,
-                               guint       prop_id,
-                               GValue     *value,
-                               GParamSpec *pspec)
+                                          guint       prop_id,
+                                          GValue     *value,
+                                          GParamSpec *pspec)
 {
     switch (prop_id)
     {
@@ -175,9 +175,9 @@ static void thunar_tree_pane_get_property(GObject    *object,
 }
 
 static void thunar_tree_pane_set_property(GObject      *object,
-                               guint         prop_id,
-                               const GValue *value,
-                               GParamSpec   *pspec)
+                                          guint         prop_id,
+                                          const GValue *value,
+                                          GParamSpec   *pspec)
 {
     switch (prop_id)
     {

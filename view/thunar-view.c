@@ -31,7 +31,7 @@ thunar_view_get_type (void)
     static volatile gsize type__volatile = 0;
     GType                 type;
 
-    if (g_once_init_enter (&type__volatile))
+    if (g_once_init_enter ((gsize*) &type__volatile))
     {
         type = g_type_register_static_simple (G_TYPE_INTERFACE,
                                               I_("ThunarView"),
