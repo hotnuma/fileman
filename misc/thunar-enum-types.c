@@ -1,10 +1,10 @@
 /*-
- * Copyright (c) 2006-2007 Benedikt Meurer <benny@xfce.org>
- * Copyright (c) 2009 Jannis Pohlmann <jannis@xfce.org>
+ * Copyright(c) 2006-2007 Benedikt Meurer <benny@xfce.org>
+ * Copyright(c) 2009 Jannis Pohlmann <jannis@xfce.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
+ * Software Foundation; either version 2 of the License, or(at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -25,40 +25,37 @@
 
 #include <thunar-enum-types.h>
 
-static void                thunar_icon_size_from_zoom_level     (const GValue   *src_value,
-        GValue         *dst_value);
-static void                thunar_thumbnail_size_from_icon_size (const GValue   *src_value,
-        GValue         *dst_value);
-static ThunarIconSize      thunar_zoom_level_to_icon_size       (ThunarZoomLevel zoom_level);
-static ThunarThumbnailSize thunar_icon_size_to_thumbnail_size   (ThunarIconSize  icon_size);
+static void thunar_icon_size_from_zoom_level(const GValue *src_value, GValue *dst_value);
+static void thunar_thumbnail_size_from_icon_size(const GValue *src_value,
+                                                 GValue *dst_value);
+static ThunarIconSize thunar_zoom_level_to_icon_size(ThunarZoomLevel zoom_level);
+static ThunarThumbnailSize thunar_icon_size_to_thumbnail_size(ThunarIconSize icon_size);
 
-GType
-thunar_renamer_mode_get_type (void)
+GType thunar_renamer_mode_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
-            { THUNAR_RENAMER_MODE_NAME,   "THUNAR_RENAMER_MODE_NAME",   N_ ("Name only"),       },
-            { THUNAR_RENAMER_MODE_SUFFIX, "THUNAR_RENAMER_MODE_SUFFIX", N_ ("Suffix only"),     },
-            { THUNAR_RENAMER_MODE_BOTH,   "THUNAR_RENAMER_MODE_BOTH",   N_ ("Name and Suffix"), },
+            { THUNAR_RENAMER_MODE_NAME,   "THUNAR_RENAMER_MODE_NAME",   N_("Name only"),       },
+            { THUNAR_RENAMER_MODE_SUFFIX, "THUNAR_RENAMER_MODE_SUFFIX", N_("Suffix only"),     },
+            { THUNAR_RENAMER_MODE_BOTH,   "THUNAR_RENAMER_MODE_BOTH",   N_("Name and Suffix"), },
             { 0,                          NULL,                         NULL,                   },
         };
 
-        type = g_enum_register_static (I_("ThunarRenamerMode"), values);
+        type = g_enum_register_static(I_("ThunarRenamerMode"), values);
     }
 
     return type;
 }
 
-GType
-thunar_date_style_get_type (void)
+GType thunar_date_style_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
@@ -74,52 +71,50 @@ thunar_date_style_get_type (void)
             { 0,                          NULL,                         NULL,       },
         };
 
-        type = g_enum_register_static (I_("ThunarDateStyle"), values);
+        type = g_enum_register_static(I_("ThunarDateStyle"), values);
     }
 
     return type;
 }
 
-GType
-thunar_column_get_type (void)
+GType thunar_column_get_type(void)
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
-            { THUNAR_COLUMN_DATE_ACCESSED, "THUNAR_COLUMN_DATE_ACCESSED", N_ ("Date Accessed"), },
-            { THUNAR_COLUMN_DATE_MODIFIED, "THUNAR_COLUMN_DATE_MODIFIED", N_ ("Date Modified"), },
-            { THUNAR_COLUMN_GROUP,         "THUNAR_COLUMN_GROUP",         N_ ("Group"),         },
-            { THUNAR_COLUMN_MIME_TYPE,     "THUNAR_COLUMN_MIME_TYPE",     N_ ("MIME Type"),     },
-            { THUNAR_COLUMN_NAME,          "THUNAR_COLUMN_NAME",          N_ ("Name"),          },
-            { THUNAR_COLUMN_OWNER,         "THUNAR_COLUMN_OWNER",         N_ ("Owner"),         },
-            { THUNAR_COLUMN_PERMISSIONS,   "THUNAR_COLUMN_PERMISSIONS",   N_ ("Permissions"),   },
-            { THUNAR_COLUMN_SIZE,          "THUNAR_COLUMN_SIZE",          N_ ("Size"),          },
-            { THUNAR_COLUMN_SIZE_IN_BYTES, "THUNAR_COLUMN_SIZE_IN_BYTES", N_ ("Size in Bytes"), },
-            { THUNAR_COLUMN_TYPE,          "THUNAR_COLUMN_TYPE",          N_ ("Type"),          },
-            { THUNAR_COLUMN_FILE,          "THUNAR_COLUMN_FILE",          N_ ("File"),          },
-            { THUNAR_COLUMN_FILE_NAME,     "THUNAR_COLUMN_FILE_NAME",     N_ ("File Name"),     },
+            { THUNAR_COLUMN_DATE_ACCESSED, "THUNAR_COLUMN_DATE_ACCESSED", N_("Date Accessed"), },
+            { THUNAR_COLUMN_DATE_MODIFIED, "THUNAR_COLUMN_DATE_MODIFIED", N_("Date Modified"), },
+            { THUNAR_COLUMN_GROUP,         "THUNAR_COLUMN_GROUP",         N_("Group"),         },
+            { THUNAR_COLUMN_MIME_TYPE,     "THUNAR_COLUMN_MIME_TYPE",     N_("MIME Type"),     },
+            { THUNAR_COLUMN_NAME,          "THUNAR_COLUMN_NAME",          N_("Name"),          },
+            { THUNAR_COLUMN_OWNER,         "THUNAR_COLUMN_OWNER",         N_("Owner"),         },
+            { THUNAR_COLUMN_PERMISSIONS,   "THUNAR_COLUMN_PERMISSIONS",   N_("Permissions"),   },
+            { THUNAR_COLUMN_SIZE,          "THUNAR_COLUMN_SIZE",          N_("Size"),          },
+            { THUNAR_COLUMN_SIZE_IN_BYTES, "THUNAR_COLUMN_SIZE_IN_BYTES", N_("Size in Bytes"), },
+            { THUNAR_COLUMN_TYPE,          "THUNAR_COLUMN_TYPE",          N_("Type"),          },
+            { THUNAR_COLUMN_FILE,          "THUNAR_COLUMN_FILE",          N_("File"),          },
+            { THUNAR_COLUMN_FILE_NAME,     "THUNAR_COLUMN_FILE_NAME",     N_("File Name"),     },
             { 0,                           NULL,                          NULL,                 },
         };
 
-        type = g_enum_register_static (I_("ThunarColumn"), values);
+        type = g_enum_register_static(I_("ThunarColumn"), values);
     }
 
     return type;
 }
 
-const gchar*
-thunar_column_string_from_value (ThunarColumn value)
+const gchar* thunar_column_string_from_value(ThunarColumn value)
 {
     GEnumClass *enum_class;
     GEnumValue *enum_value;
 
-    enum_class = g_type_class_ref (THUNAR_TYPE_COLUMN);
-    enum_value = g_enum_get_value (enum_class, value);
+    enum_class = g_type_class_ref(THUNAR_TYPE_COLUMN);
+    enum_value = g_enum_get_value(enum_class, value);
 
-    g_type_class_unref (enum_class);
+    g_type_class_unref(enum_class);
 
     if (enum_value == NULL)
         return NULL;
@@ -127,17 +122,16 @@ thunar_column_string_from_value (ThunarColumn value)
     return enum_value->value_name;
 }
 
-gboolean
-thunar_column_value_from_string (const gchar *value_string,
-                                 gint        *value)
+gboolean thunar_column_value_from_string(const gchar *value_string,
+                                         gint        *value)
 {
     GEnumClass *enum_class;
     GEnumValue *enum_value;
 
-    enum_class = g_type_class_ref (THUNAR_TYPE_COLUMN);
-    enum_value = g_enum_get_value_by_name (enum_class, value_string);
+    enum_class = g_type_class_ref(THUNAR_TYPE_COLUMN);
+    enum_value = g_enum_get_value_by_name(enum_class, value_string);
 
-    g_type_class_unref (enum_class);
+    g_type_class_unref(enum_class);
 
     if (enum_value == NULL)
         return FALSE;
@@ -146,12 +140,11 @@ thunar_column_value_from_string (const gchar *value_string,
     return TRUE;
 }
 
-GType
-thunar_icon_size_get_type (void)
+GType thunar_icon_size_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
@@ -179,21 +172,20 @@ thunar_icon_size_get_type (void)
             { 0,                     NULL,                         NULL,     },
         };
 
-        type = g_enum_register_static (I_("ThunarIconSize"), values);
+        type = g_enum_register_static(I_("ThunarIconSize"), values);
 
         /* register transformation function for ThunarIconSize->ThunarThumbnailSize */
-        g_value_register_transform_func (type, THUNAR_TYPE_THUMBNAIL_SIZE, thunar_thumbnail_size_from_icon_size);
+        g_value_register_transform_func(type, THUNAR_TYPE_THUMBNAIL_SIZE, thunar_thumbnail_size_from_icon_size);
     }
 
     return type;
 }
 
-GType
-thunar_recursive_permissions_get_type (void)
+GType thunar_recursive_permissions_get_type(void)
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
@@ -203,18 +195,17 @@ thunar_recursive_permissions_get_type (void)
             { 0,                                   NULL,                                  NULL,     },
         };
 
-        type = g_enum_register_static (I_("ThunarRecursivePermissions"), values);
+        type = g_enum_register_static(I_("ThunarRecursivePermissions"), values);
     }
 
     return type;
 }
 
-GType
-thunar_zoom_level_get_type (void)
+GType thunar_zoom_level_get_type(void)
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
@@ -242,28 +233,26 @@ thunar_zoom_level_get_type (void)
             { 0,                             NULL,                              NULL,   },
         };
 
-        type = g_enum_register_static (I_("ThunarZoomLevel"), values);
+        type = g_enum_register_static(I_("ThunarZoomLevel"), values);
 
         /* register transformation function for ThunarZoomLevel->ThunarIconSize */
-        g_value_register_transform_func (type, THUNAR_TYPE_ICON_SIZE, thunar_icon_size_from_zoom_level);
+        g_value_register_transform_func(type, THUNAR_TYPE_ICON_SIZE, thunar_icon_size_from_zoom_level);
     }
 
     return type;
 }
 
-ThunarThumbnailSize
-thunar_zoom_level_to_thumbnail_size (ThunarZoomLevel zoom_level)
+ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
 {
-    ThunarIconSize icon_size = thunar_zoom_level_to_icon_size (zoom_level);
-    return thunar_icon_size_to_thumbnail_size (icon_size);
+    ThunarIconSize icon_size = thunar_zoom_level_to_icon_size(zoom_level);
+    return thunar_icon_size_to_thumbnail_size(icon_size);
 }
 
-GType
-thunar_thumbnail_mode_get_type (void)
+GType thunar_thumbnail_mode_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
@@ -273,18 +262,17 @@ thunar_thumbnail_mode_get_type (void)
             { 0,                                NULL,                               NULL,         },
         };
 
-        type = g_enum_register_static (I_("ThunarThumbnailMode"), values);
+        type = g_enum_register_static(I_("ThunarThumbnailMode"), values);
     }
 
     return type;
 }
 
-GType
-thunar_thumbnail_size_get_type (void)
+GType thunar_thumbnail_size_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
@@ -293,27 +281,25 @@ thunar_thumbnail_size_get_type (void)
             { 0,                             NULL,                           NULL,     },
         };
 
-        type = g_enum_register_static (I_("ThunarThumbnailSize"), values);
+        type = g_enum_register_static(I_("ThunarThumbnailSize"), values);
     }
 
     return type;
 }
 
-const char*
-thunar_thumbnail_size_get_nick (ThunarThumbnailSize thumbnail_size)
+const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
 {
     GEnumValue *thumbnail_size_enum_value;
 
-    thumbnail_size_enum_value = g_enum_get_value (g_type_class_ref (THUNAR_TYPE_THUMBNAIL_SIZE), thumbnail_size);
+    thumbnail_size_enum_value = g_enum_get_value(g_type_class_ref(THUNAR_TYPE_THUMBNAIL_SIZE), thumbnail_size);
     return thumbnail_size_enum_value->value_nick;
 }
 
-GType
-thunar_parallel_copy_mode_get_type (void)
+GType thunar_parallel_copy_mode_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GEnumValue values[] =
         {
@@ -324,7 +310,7 @@ thunar_parallel_copy_mode_get_type (void)
             { 0,                                                 NULL,                                                NULL,                      },
         };
 
-        type = g_enum_register_static (I_("ThunarParallelCopyMode"), values);
+        type = g_enum_register_static(I_("ThunarParallelCopyMode"), values);
     }
 
     return type;
@@ -339,10 +325,9 @@ thunar_parallel_copy_mode_get_type (void)
  *
  * Return value: the #ThunarIconSize for @zoom_level.
  **/
-static ThunarIconSize
-thunar_zoom_level_to_icon_size (ThunarZoomLevel zoom_level)
+static ThunarIconSize thunar_zoom_level_to_icon_size(ThunarZoomLevel zoom_level)
 {
-    switch (zoom_level)
+    switch(zoom_level)
     {
     case THUNAR_ZOOM_LEVEL_25_PERCENT:
         return THUNAR_ICON_SIZE_16;
@@ -369,8 +354,7 @@ thunar_zoom_level_to_icon_size (ThunarZoomLevel zoom_level)
     }
 }
 
-static ThunarThumbnailSize
-thunar_icon_size_to_thumbnail_size (ThunarIconSize icon_size)
+static ThunarThumbnailSize thunar_icon_size_to_thumbnail_size(ThunarIconSize icon_size)
 {
     if (icon_size > THUNAR_ICON_SIZE_128)
         return THUNAR_THUMBNAIL_SIZE_LARGE;
@@ -378,26 +362,21 @@ thunar_icon_size_to_thumbnail_size (ThunarIconSize icon_size)
     return THUNAR_THUMBNAIL_SIZE_NORMAL;
 }
 
-static void
-thunar_icon_size_from_zoom_level (const GValue *src_value,
-                                  GValue       *dst_value)
+static void thunar_icon_size_from_zoom_level(const GValue *src_value, GValue *dst_value)
 {
-    g_value_set_enum (dst_value, thunar_zoom_level_to_icon_size (g_value_get_enum (src_value)));
+    g_value_set_enum(dst_value, thunar_zoom_level_to_icon_size(g_value_get_enum(src_value)));
 }
 
-static void
-thunar_thumbnail_size_from_icon_size (const GValue *src_value,
-                                      GValue       *dst_value)
+static void thunar_thumbnail_size_from_icon_size(const GValue *src_value, GValue *dst_value)
 {
-    g_value_set_enum (dst_value, thunar_icon_size_to_thumbnail_size (g_value_get_enum (src_value)));
+    g_value_set_enum(dst_value, thunar_icon_size_to_thumbnail_size(g_value_get_enum(src_value)));
 }
 
-GType
-thunar_job_response_get_type (void)
+GType thunar_job_response_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY (type == G_TYPE_INVALID))
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         static const GFlagsValue values[] =
         {
@@ -417,14 +396,13 @@ thunar_job_response_get_type (void)
             { 0,                               NULL,                              NULL          }
         };
 
-        type = g_flags_register_static (I_("ThunarJobResponse"), values);
+        type = g_flags_register_static(I_("ThunarJobResponse"), values);
     }
 
     return type;
 }
 
-GType
-thunar_file_mode_get_type (void)
+GType thunar_file_mode_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
@@ -450,7 +428,10 @@ thunar_file_mode_get_type (void)
             { 0,                          NULL,                         NULL        }
         };
 
-        type = g_flags_register_static ("ThunarFileMode", values);
+        type = g_flags_register_static("ThunarFileMode", values);
     }
+
     return type;
 }
+
+

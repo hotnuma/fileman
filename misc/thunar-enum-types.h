@@ -24,7 +24,6 @@
 
 G_BEGIN_DECLS;
 
-
 #define THUNAR_TYPE_RENAMER_MODE (thunar_renamer_mode_get_type ())
 
 /**
@@ -43,8 +42,7 @@ typedef enum
 
 } ThunarRenamerMode;
 
-GType thunar_renamer_mode_get_type (void) G_GNUC_CONST;
-
+GType thunar_renamer_mode_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_DATE_STYLE (thunar_date_style_get_type ())
 
@@ -66,10 +64,10 @@ typedef enum
     THUNAR_DATE_STYLE_MMDDYYYY,
     THUNAR_DATE_STYLE_DDMMYYYY,
     THUNAR_DATE_STYLE_CUSTOM,
+
 } ThunarDateStyle;
 
-GType thunar_date_style_get_type (void) G_GNUC_CONST;
-
+GType thunar_date_style_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_COLUMN (thunar_column_get_type ())
 
@@ -117,12 +115,9 @@ typedef enum
 
 } ThunarColumn;
 
-
-GType thunar_column_get_type () G_GNUC_CONST;
-const gchar* thunar_column_string_from_value (ThunarColumn value);
-gboolean thunar_column_value_from_string (const gchar *value_string,
-                                          gint *value);
-
+GType       thunar_column_get_type() G_GNUC_CONST;
+const gchar* thunar_column_string_from_value(ThunarColumn value);
+gboolean    thunar_column_value_from_string(const gchar *value_string, gint *value);
 
 #define THUNAR_TYPE_ICON_SIZE (thunar_icon_size_get_type ())
 
@@ -142,10 +137,10 @@ typedef enum
     THUNAR_ICON_SIZE_160  = 160,
     THUNAR_ICON_SIZE_192  = 192,
     THUNAR_ICON_SIZE_256  = 256,
+
 } ThunarIconSize;
 
-GType thunar_icon_size_get_type () G_GNUC_CONST;
-
+GType thunar_icon_size_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_THUMBNAIL_MODE (thunar_thumbnail_mode_get_type ())
 
@@ -163,8 +158,7 @@ typedef enum
 
 } ThunarThumbnailMode;
 
-GType thunar_thumbnail_mode_get_type () G_GNUC_CONST;
-
+GType thunar_thumbnail_mode_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_THUMBNAIL_SIZE (thunar_thumbnail_size_get_type ())
 
@@ -176,12 +170,13 @@ GType thunar_thumbnail_mode_get_type () G_GNUC_CONST;
 typedef enum
 {
     THUNAR_THUMBNAIL_SIZE_NORMAL,
-    THUNAR_THUMBNAIL_SIZE_LARGE
+    THUNAR_THUMBNAIL_SIZE_LARGE,
+
 } ThunarThumbnailSize;
 
-GType       thunar_thumbnail_size_get_type (void)                               G_GNUC_CONST;
-const char* thunar_thumbnail_size_get_nick (ThunarThumbnailSize thumbnail_size) G_GNUC_CONST;
-
+GType       thunar_thumbnail_size_get_type() G_GNUC_CONST;
+const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
+                                           G_GNUC_CONST;
 
 #define THUNAR_TYPE_PARALLEL_COPY_MODE (thunar_parallel_copy_mode_get_type ())
 
@@ -197,11 +192,11 @@ typedef enum
     THUNAR_PARALLEL_COPY_MODE_NEVER,
     THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL,
     THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES,
-    THUNAR_PARALLEL_COPY_MODE_ALWAYS
+    THUNAR_PARALLEL_COPY_MODE_ALWAYS,
+
 } ThunarParallelCopyMode;
 
-GType thunar_parallel_copy_mode_get_type (void) G_GNUC_CONST;
-
+GType thunar_parallel_copy_mode_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_RECURSIVE_PERMISSIONS (thunar_recursive_permissions_get_type ())
 
@@ -218,10 +213,10 @@ typedef enum
     THUNAR_RECURSIVE_PERMISSIONS_ASK,
     THUNAR_RECURSIVE_PERMISSIONS_ALWAYS,
     THUNAR_RECURSIVE_PERMISSIONS_NEVER,
+
 } ThunarRecursivePermissionsMode;
 
-GType thunar_recursive_permissions_get_type (void) G_GNUC_CONST;
-
+GType thunar_recursive_permissions_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_ZOOM_LEVEL (thunar_zoom_level_get_type ())
 
@@ -245,11 +240,12 @@ typedef enum
 
     /*< private >*/
     THUNAR_ZOOM_N_LEVELS,
+
 } ThunarZoomLevel;
 
-GType               thunar_zoom_level_get_type            (void)                       G_GNUC_CONST;
-ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size   (ThunarZoomLevel zoom_level) G_GNUC_CONST;
-
+GType   thunar_zoom_level_get_type() G_GNUC_CONST;
+ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
+                                                        G_GNUC_CONST;
 
 #define THUNAR_TYPE_JOB_RESPONSE (thunar_job_response_get_type ())
 
@@ -286,11 +282,11 @@ typedef enum /*< flags >*/
     THUNAR_JOB_RESPONSE_SKIP_ALL    = 1 << 10,
     THUNAR_JOB_RESPONSE_RENAME      = 1 << 11,
     THUNAR_JOB_RESPONSE_RENAME_ALL  = 1 << 12,
+
 } ThunarJobResponse;
 #define THUNAR_JOB_RESPONSE_MAX_INT 12
 
-GType thunar_job_response_get_type (void) G_GNUC_CONST;
-
+GType thunar_job_response_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_FILE_MODE (thunar_file_mode_get_type ())
 
@@ -316,10 +312,13 @@ typedef enum /*< flags >*/
     THUNAR_FILE_MODE_OTH_READ   = 00004,
     THUNAR_FILE_MODE_OTH_WRITE  = 00002,
     THUNAR_FILE_MODE_OTH_EXEC   = 00001,
+
 } ThunarFileMode;
 
-GType thunar_file_mode_get_type (void) G_GNUC_CONST;
+GType thunar_file_mode_get_type() G_GNUC_CONST;
 
 G_END_DECLS;
 
 #endif /* !__THUNAR_ENUM_TYPES_H__ */
+
+

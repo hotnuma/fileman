@@ -84,7 +84,7 @@ static ThunarFile* thunar_launcher_get_current_directory(ThunarNavigator *naviga
 static void thunar_launcher_set_current_directory(ThunarNavigator *navigator,
                                                    ThunarFile *current_directory);
 
-static void _thunar_launcher_set_selected_files(ThunarComponent *component,
+static void thunar_launcher_set_selected_files(ThunarComponent *component,
                                                 GList *selected_files);
 
 static void _thunar_launcher_execute_files(ThunarLauncher *launcher,
@@ -538,7 +538,7 @@ static void thunar_launcher_class_init(ThunarLauncherClass *klass)
 static void thunar_launcher_component_init(ThunarComponentIface *iface)
 {
     iface->get_selected_files = (gpointer) exo_noop_null;
-    iface->set_selected_files = _thunar_launcher_set_selected_files;
+    iface->set_selected_files = thunar_launcher_set_selected_files;
 }
 
 static void thunar_launcher_navigator_init(ThunarNavigatorIface *iface)
@@ -673,14 +673,14 @@ static void thunar_launcher_set_current_directory(ThunarNavigator *navigator,
 
         /* update files_to_process if not initialized yet */
         if (launcher->files_to_process == NULL)
-            _thunar_launcher_set_selected_files(THUNAR_COMPONENT(navigator), NULL);
+            thunar_launcher_set_selected_files(THUNAR_COMPONENT(navigator), NULL);
     }
 
     /* notify listeners */
     g_object_notify_by_pspec(G_OBJECT(launcher), launcher_props[PROP_CURRENT_DIRECTORY]);
 }
 
-static void _thunar_launcher_set_selected_files(ThunarComponent *component,
+static void thunar_launcher_set_selected_files(ThunarComponent *component,
                                                 GList           *selected_files)
 {
     ThunarLauncher *launcher = THUNAR_LAUNCHER(component);
@@ -783,7 +783,7 @@ static void _thunar_launcher_set_selected_files(ThunarComponent *component,
 
 
 /******************************************************************************
-* Set launcher widget
+* Set/get launcher widget
 *
 *
 */
@@ -796,6 +796,12 @@ static void _thunar_launcher_widget_destroyed(ThunarLauncher *launcher,
 
     /* just reset the widget property for the launcher */
     thunar_launcher_set_widget(launcher, NULL);
+}
+
+GtkWidget* thunar_launcher_get_widget(ThunarLauncher *launcher)
+{
+    _thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
+    return launcher->widget;
 }
 
 void thunar_launcher_set_widget(ThunarLauncher *launcher,
@@ -826,6 +832,13 @@ void thunar_launcher_set_widget(ThunarLauncher *launcher,
     g_object_notify_by_pspec(G_OBJECT(launcher), launcher_props[PROP_WIDGET]);
 }
 
+
+
+/******************************************************************************
+ *
+ *
+ *
+ */
 static void thunar_launcher_menu_item_activated(ThunarLauncher *launcher,
                                                 GtkWidget      *menu_item)
 {
@@ -2963,20 +2976,6 @@ gboolean thunar_launcher_append_open_section(ThunarLauncher *launcher,
 
     g_list_free_full(applications, g_object_unref);
     return TRUE;
-}
-
-/**
- * thunar_launcher_get_widget:
- * @launcher : a #ThunarLauncher instance
- *
- * Will return the parent widget of this #ThunarLauncher
- *
- * Return value:(transfer none): the parent widget of this #ThunarLauncher
- **/
-GtkWidget* thunar_launcher_get_widget(ThunarLauncher *launcher)
-{
-    _thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
-    return launcher->widget;
 }
 
 

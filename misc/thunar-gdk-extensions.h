@@ -25,14 +25,14 @@
 G_BEGIN_DECLS;
 
 #if 0
-GdkScreen *thunar_gdk_screen_open (const gchar *display_name,
-                                   GError **error);
+GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
+                                  GError **error);
 #endif
 
-void thunar_gdk_cairo_set_source_pixbuf (cairo_t *cr,
-                                         GdkPixbuf *pixbuf,
-                                         gdouble pixbuf_x,
-                                         gdouble pixbuf_y);
+void thunar_gdk_cairo_set_source_pixbuf(cairo_t *cr,
+                                        GdkPixbuf *pixbuf,
+                                        gdouble pixbuf_x,
+                                        gdouble pixbuf_y);
 
 G_END_DECLS;
 

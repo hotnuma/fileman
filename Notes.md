@@ -15,14 +15,6 @@
 
 ```
 
-25
-
-misc/thunar-enum-types.c
-misc/thunar-gdk-extensions.c
-misc/thunar-gio-extensions.c
-misc/thunar-gobject-extensions.c
-misc/thunar-gtk-extensions.c
-
 20
 
 misc/thunar-history.c

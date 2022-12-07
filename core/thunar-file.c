@@ -115,10 +115,10 @@ G_LOCK_DEFINE_STATIC(file_content_type_mutex);
 G_LOCK_DEFINE_STATIC(file_rename_mutex);
 
 static ThunarUserManager *user_manager;
-static GHashTable   *file_cache;
-static guint32      effective_user_id;
-static GQuark       thunar_file_watch_quark;
-static guint        file_signals[LAST_SIGNAL];
+static GHashTable       *file_cache;
+static guint32          effective_user_id;
+static GQuark           thunar_file_watch_quark;
+static guint            file_signals[LAST_SIGNAL];
 
 #define FLAG_SET_THUMB_STATE(file,new_state) G_STMT_START{(file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); }G_STMT_END
 #define FLAG_GET_THUMB_STATE(file)  ((file)->flags & THUNAR_FILE_FLAG_THUMB_MASK)
