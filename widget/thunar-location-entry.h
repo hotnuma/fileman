@@ -1,9 +1,9 @@
 /*-
- * Copyright (c) 2005 Benedikt Meurer <benny@xfce.org>
+ * Copyright(c) 2005 Benedikt Meurer <benny@xfce.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
- * Software Foundation; either version 2 of the License, or (at your option)
+ * Software Foundation; either version 2 of the License, or(at your option)
  * any later version.
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
@@ -21,22 +21,25 @@
 
 #include <thunar-location-bar.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarLocationEntryClass ThunarLocationEntryClass;
 typedef struct _ThunarLocationEntry      ThunarLocationEntry;
 
-#define THUNAR_TYPE_LOCATION_ENTRY            (thunar_location_entry_get_type ())
-#define THUNAR_LOCATION_ENTRY(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntry))
-#define THUNAR_LOCATION_ENTRY_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntryClass))
-#define THUNAR_IS_LOCATION_ENTRY(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_LOCATION_ENTRY))
-#define THUNAR_IS_LOCATION_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_LOCATION_ENTRY))
-#define THUNAR_LOCATION_ENTRY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntryClass))
+#define THUNAR_TYPE_LOCATION_ENTRY            (thunar_location_entry_get_type())
+#define THUNAR_LOCATION_ENTRY(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntry))
+#define THUNAR_LOCATION_ENTRY_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntryClass))
+#define THUNAR_IS_LOCATION_ENTRY(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_LOCATION_ENTRY))
+#define THUNAR_IS_LOCATION_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_LOCATION_ENTRY))
+#define THUNAR_LOCATION_ENTRY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntryClass))
 
-GType      thunar_location_entry_get_type (void) G_GNUC_CONST;
+GType thunar_location_entry_get_type() G_GNUC_CONST;
 
-void       thunar_location_entry_accept_focus (ThunarLocationEntry *entry, const gchar *initial_text);
+void thunar_location_entry_accept_focus(ThunarLocationEntry *entry,
+                                        const gchar *initial_text);
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__THUNAR_LOCATION_ENTRY_H__ */
+
+

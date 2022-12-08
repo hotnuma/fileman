@@ -107,6 +107,7 @@ app_sources = [
     'thunar-window.c',
 ]
 
+
 executable(
     'fileman',
     c_args : c_args,

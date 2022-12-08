@@ -15,12 +15,7 @@
 
 ```
 
-widget/thunar-location-entry.c
-widget/thunar-path-entry.c
 widget/thunar-shortcuts-icon-renderer.c
-widget/thunar-size-label.c
-widget/thunar-icon-factory.c
-widget/thunar-icon-renderer.c
 
 ```
 
