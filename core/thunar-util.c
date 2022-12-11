@@ -179,9 +179,9 @@ void thunar_util_load_bookmarks(GFile               *bookmarks_file,
     gint         row_num = 1;
     GFile       *file;
 
-    _thunar_return_if_fail(G_IS_FILE(bookmarks_file));
-    _thunar_return_if_fail(g_file_is_native(bookmarks_file));
-    _thunar_return_if_fail(foreach_func != NULL);
+    thunar_return_if_fail(G_IS_FILE(bookmarks_file));
+    thunar_return_if_fail(g_file_is_native(bookmarks_file));
+    thunar_return_if_fail(foreach_func != NULL);
 
     /* determine the path to the GTK+ bookmarks file */
     bookmarks_path = g_file_get_path(bookmarks_file);
@@ -495,7 +495,7 @@ GdkScreen* thunar_util_parse_parent(gpointer    parent,
     GdkScreen *screen;
     GtkWidget *window = NULL;
 
-    _thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
+    thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
 
     /* determine the proper parent */
     if (parent == NULL)
@@ -602,7 +602,7 @@ gchar* thunar_util_change_working_directory(const gchar *new_directory)
 {
     gchar *old_directory;
 
-    _thunar_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
+    thunar_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
 
     /* try to determine the current working directory */
     old_directory = g_get_current_dir();

@@ -535,7 +535,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer     *renderer,
                     break;
 
                 default:
-                    _thunar_assert_not_reached();
+                    thunar_assert_not_reached();
                 }
 
                 /* render the emblem */

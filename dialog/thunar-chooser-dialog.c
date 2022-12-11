@@ -528,7 +528,7 @@ static gboolean thunar_chooser_dialog_context_menu(ThunarChooserDialog *dialog)
     GtkWidget        *menu;
     GAppInfo         *app_info;
 
-    _thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
 
     /* determine the selected row */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
@@ -568,7 +568,7 @@ static void thunar_chooser_dialog_update_accept(ThunarChooserDialog *dialog)
     gboolean          sensitive = FALSE;
     GValue            value = { 0, };
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
 
     if (gtk_expander_get_expanded(GTK_EXPANDER(dialog->custom_expander)))
     {
@@ -599,8 +599,8 @@ static void thunar_chooser_dialog_update_header(ThunarChooserDialog *dialog)
     gchar       *description;
     gchar       *text;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
-    _thunar_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
 
     /* check if we have a valid file set */
     if (G_UNLIKELY(dialog->file == NULL))
@@ -652,7 +652,7 @@ static void thunar_chooser_dialog_action_remove(ThunarChooserDialog *dialog)
     GError           *error = NULL;
     gint              response;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
 
     /* determine the selected row */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
@@ -832,9 +832,9 @@ static gboolean thunar_chooser_dialog_button_press_event(GtkWidget           *tr
     GtkTreeSelection *selection;
     GtkTreePath      *path;
 
-    _thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
-    _thunar_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    _thunar_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
+    thunar_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    thunar_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
 
     /* check if we should popup the context menu */
     if (G_LIKELY(event->button == 3 && event->type == GDK_BUTTON_PRESS))
@@ -863,8 +863,8 @@ static void thunar_chooser_dialog_notify_expanded(GtkExpander         *expander,
     UNUSED(pspec);
     GtkTreeSelection *selection;
 
-    _thunar_return_if_fail(GTK_IS_EXPANDER(expander));
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(GTK_IS_EXPANDER(expander));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
 
     /* clear the application selection whenever the expander
      * is expanded to avoid confusion for the user.
@@ -885,7 +885,7 @@ static void thunar_chooser_dialog_expand(ThunarChooserDialog *dialog)
     GtkTreePath  *path;
     GtkTreeIter   iter;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
 
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(dialog->tree_view));
 
@@ -917,9 +917,9 @@ static void thunar_chooser_dialog_expand(ThunarChooserDialog *dialog)
 static gboolean thunar_chooser_dialog_popup_menu(GtkWidget           *tree_view,
                                                  ThunarChooserDialog *dialog)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
-    _thunar_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    _thunar_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
+    thunar_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    thunar_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
 
     /* popup the context menu */
     return thunar_chooser_dialog_context_menu(dialog);
@@ -936,8 +936,8 @@ static void thunar_chooser_dialog_row_activated(GtkTreeView         *treeview,
     GtkTreeIter   iter;
     GValue        value = { 0, };
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
-    _thunar_return_if_fail(GTK_IS_TREE_VIEW(treeview));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(GTK_IS_TREE_VIEW(treeview));
 
     /* determine the current chooser model */
     model = gtk_tree_view_get_model(treeview);
@@ -1010,7 +1010,7 @@ static void thunar_chooser_dialog_selection_changed(GtkTreeSelection    *selecti
  **/
 static ThunarFile* thunar_chooser_dialog_get_file(ThunarChooserDialog *dialog)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), NULL);
     return dialog->file;
 }
 
@@ -1026,8 +1026,8 @@ static void thunar_chooser_dialog_set_file(ThunarChooserDialog *dialog,
 {
     ThunarChooserModel *model;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
-    _thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     /* disconnect from the previous file */
     if (G_LIKELY(dialog->file != NULL))
@@ -1081,7 +1081,7 @@ static void thunar_chooser_dialog_set_file(ThunarChooserDialog *dialog,
  **/
 static gboolean thunar_chooser_dialog_get_open(ThunarChooserDialog *dialog)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog), FALSE);
     return dialog->open;
 }
 
@@ -1095,7 +1095,7 @@ static gboolean thunar_chooser_dialog_get_open(ThunarChooserDialog *dialog)
 static void thunar_chooser_dialog_set_open(ThunarChooserDialog *dialog,
                                            gboolean             open)
 {
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
 
     /* apply the new state */
     dialog->open = open;
@@ -1132,8 +1132,8 @@ void thunar_show_chooser_dialog(gpointer    parent,
     GtkWidget         *dialog;
     GtkWidget         *window = NULL;
 
-    _thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* determine the screen for the dialog */
     if (G_UNLIKELY(parent == NULL))

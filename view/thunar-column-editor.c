@@ -287,8 +287,8 @@ static void thunar_column_editor_finalize(GObject *object)
 static void _thunar_column_editor_help_clicked(GtkWidget          *button,
                                                ThunarColumnEditor *column_editor)
 {
-    _thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
-    _thunar_return_if_fail(GTK_IS_BUTTON(button));
+    thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
+    thunar_return_if_fail(GTK_IS_BUTTON(button));
 
     /* open the user manual */
     xfce_dialog_show_help(GTK_WINDOW(gtk_widget_get_toplevel(button)),
@@ -305,8 +305,8 @@ static void _thunar_column_editor_move_down(GtkWidget          *button,
     GtkTreeIter       iter1;
     GtkTreeIter       iter2;
 
-    _thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
-    _thunar_return_if_fail(GTK_IS_BUTTON(button));
+    thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
+    thunar_return_if_fail(GTK_IS_BUTTON(button));
 
     /* determine the selected tree iterator */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_editor->tree_view));
@@ -330,8 +330,8 @@ static void _thunar_column_editor_move_up(GtkWidget          *button,
     GtkTreeIter       iter1;
     GtkTreeIter       iter2;
 
-    _thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
-    _thunar_return_if_fail(GTK_IS_BUTTON(button));
+    thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
+    thunar_return_if_fail(GTK_IS_BUTTON(button));
 
     /* determine the selected tree iterator */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_editor->tree_view));
@@ -363,9 +363,9 @@ static void _thunar_column_editor_toggled(GtkCellRendererToggle *cell_renderer,
     GtkTreeIter  iter;
     gboolean     visible;
 
-    _thunar_return_if_fail(GTK_IS_CELL_RENDERER_TOGGLE(cell_renderer));
-    _thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
-    _thunar_return_if_fail(path_string != NULL);
+    thunar_return_if_fail(GTK_IS_CELL_RENDERER_TOGGLE(cell_renderer));
+    thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
+    thunar_return_if_fail(path_string != NULL);
 
     /* determine the tree path for the string */
     path = gtk_tree_path_new_from_string(path_string);
@@ -391,8 +391,8 @@ static void _thunar_column_editor_toggle_visibility(GtkWidget          *button,
     GtkTreeIter       iter;
     gboolean          visible;
 
-    _thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
-    _thunar_return_if_fail(GTK_IS_BUTTON(button));
+    thunar_return_if_fail(THUNAR_IS_COLUMN_EDITOR(column_editor));
+    thunar_return_if_fail(GTK_IS_BUTTON(button));
 
     /* determine the selected tree iterator */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_editor->tree_view));
@@ -500,7 +500,7 @@ void thunar_show_column_editor(gpointer parent)
     GtkWidget *dialog;
     GdkScreen *screen = NULL;
 
-    _thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* determine the screen for the dialog */
     if (G_UNLIKELY(parent == NULL))

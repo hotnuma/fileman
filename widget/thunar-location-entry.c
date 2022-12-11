@@ -296,8 +296,8 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
 {
     GError *error = NULL;
 
-    _thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* check if the file is mounted */
     if (thunar_file_is_mounted(file))
@@ -342,8 +342,8 @@ static void thunar_location_entry_poke_file_finish(ThunarBrowser *browser,
                                                    GError        *error,
                                                    gpointer       ignored)
 {
-    _thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(browser));
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(browser));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
     UNUSED(ignored);
 
     if (error != NULL)
@@ -364,8 +364,8 @@ static void thunar_location_entry_activate(GtkWidget           *path_entry,
                                            ThunarLocationEntry *location_entry)
 {
 
-    _thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
-    _thunar_return_if_fail(location_entry->path_entry == path_entry);
+    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    thunar_return_if_fail(location_entry->path_entry == path_entry);
 
     /* determine the current file from the path entry */
     ThunarFile *file =
@@ -390,7 +390,7 @@ static gboolean thunar_location_entry_button_press_event(
 {
     UNUSED(path_entry);
 
-    _thunar_return_val_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry), FALSE);
 
     /* check if the context menu was triggered */
     if (event->type == GDK_BUTTON_PRESS && event->button == 3)
@@ -422,7 +422,7 @@ static void thunar_location_entry_reload(GtkEntry            *entry,
     UNUSED(entry);
     UNUSED(event);
 
-    _thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
 
     if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
     {

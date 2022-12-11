@@ -210,7 +210,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     gboolean   item_added;
     gboolean   force = menu->type == THUNAR_MENU_TYPE_WINDOW || menu->type == THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW;
 
-    _thunar_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
 
     if (menu_sections & THUNAR_MENU_SECTION_CREATE_NEW_FILES)
     {
@@ -312,7 +312,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
  **/
 GtkWidget* thunar_menu_get_launcher(ThunarMenu *menu)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
     return GTK_WIDGET(menu->launcher);
 }
 
@@ -326,7 +326,7 @@ void thunar_menu_hide_accel_labels(ThunarMenu *menu)
 {
     GList *children, *lp;
 
-    _thunar_return_if_fail(THUNAR_IS_MENU(menu));
+    thunar_return_if_fail(THUNAR_IS_MENU(menu));
 
     children = gtk_container_get_children(GTK_CONTAINER(menu));
     for(lp = children; lp != NULL; lp = lp->next)

@@ -251,8 +251,8 @@ static void thunar_chooser_button_changed(GtkComboBox *combo_box)
     GAppInfo            *app_info;
     GError              *error = NULL;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
-    _thunar_return_if_fail(GTK_IS_LIST_STORE(chooser_button->store));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(GTK_IS_LIST_STORE(chooser_button->store));
 
     /* verify that we still have a valid file */
     if (G_UNLIKELY(chooser_button->file == NULL))
@@ -299,7 +299,7 @@ static void thunar_chooser_button_changed(GtkComboBox *combo_box)
 
 static void thunar_chooser_button_popup(ThunarChooserButton *chooser_button)
 {
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
 
     if (!chooser_button->has_default_application)
     {
@@ -313,8 +313,8 @@ static void thunar_chooser_button_popup(ThunarChooserButton *chooser_button)
 
 static gint thunar_chooser_button_sort_applications(gconstpointer a, gconstpointer b)
 {
-    _thunar_return_val_if_fail(G_IS_APP_INFO(a), -1);
-    _thunar_return_val_if_fail(G_IS_APP_INFO(b), -1);
+    thunar_return_val_if_fail(G_IS_APP_INFO(a), -1);
+    thunar_return_val_if_fail(G_IS_APP_INFO(b), -1);
 
     return g_utf8_collate(g_app_info_get_name(G_APP_INFO(a)),
                            g_app_info_get_name(G_APP_INFO(b)));
@@ -343,7 +343,7 @@ static void thunar_chooser_button_chooser_dialog(ThunarChooserButton *chooser_bu
     GtkWidget *toplevel;
     GtkWidget *dialog;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
 
     /* determine the toplevel window for the chooser */
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser_button));
@@ -371,9 +371,9 @@ static void thunar_chooser_button_file_changed(ThunarChooserButton *chooser_butt
     gchar       *description;
     guint        i = 0;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
-    _thunar_return_if_fail(chooser_button->file == file);
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(chooser_button->file == file);
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* clear the store */
     gtk_list_store_clear(chooser_button->store);
@@ -494,8 +494,8 @@ GtkWidget* thunar_chooser_button_new()
 void thunar_chooser_button_set_file(ThunarChooserButton *chooser_button,
                                     ThunarFile          *file)
 {
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
-    _thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     /* check if we already use that file */
     if (G_UNLIKELY(chooser_button->file == file))

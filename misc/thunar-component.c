@@ -89,7 +89,7 @@ static void thunar_component_class_init(gpointer klass)
  **/
 GList* thunar_component_get_selected_files(ThunarComponent *component)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_COMPONENT(component), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_COMPONENT(component), NULL);
     return(*THUNAR_COMPONENT_GET_IFACE(component)->get_selected_files)(component);
 }
 
@@ -105,8 +105,8 @@ GList* thunar_component_get_selected_files(ThunarComponent *component)
 void thunar_component_set_selected_files(ThunarComponent *component,
                                          GList           *selected_files)
 {
-    _thunar_return_if_fail(THUNAR_IS_COMPONENT(component));
-   (*THUNAR_COMPONENT_GET_IFACE(component)->set_selected_files)(component, selected_files);
+    thunar_return_if_fail(THUNAR_IS_COMPONENT(component));
+    (*THUNAR_COMPONENT_GET_IFACE(component)->set_selected_files)(component, selected_files);
 }
 
 /**
@@ -120,7 +120,7 @@ void thunar_component_restore_selection(ThunarComponent *component)
 {
     GList           *selected_files;
 
-    _thunar_return_if_fail(THUNAR_IS_COMPONENT(component));
+    thunar_return_if_fail(THUNAR_IS_COMPONENT(component));
 
     selected_files = thunar_g_file_list_copy(thunar_component_get_selected_files(component));
     thunar_component_set_selected_files(component, selected_files);

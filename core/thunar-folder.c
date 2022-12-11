@@ -355,7 +355,7 @@ static void thunar_folder_set_property(GObject      *object,
         break;
 
     case PROP_LOADING:
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
         break;
 
     default:
@@ -373,8 +373,8 @@ static void thunar_folder_error(ExoJob       *job,
                                 GError       *error,
                                 ThunarFolder *folder)
 {
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(THUNAR_IS_JOB(job));
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(THUNAR_IS_JOB(job));
 
     /* tell the consumer about the problem */
     g_signal_emit(G_OBJECT(folder), folder_signals[ERROR], 0, error);
@@ -384,8 +384,8 @@ static gboolean thunar_folder_files_ready(ThunarJob    *job,
                                           GList        *files,
                                           ThunarFolder *folder)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
-    _thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
 
     /* merge the list with the existing list of new files */
     folder->new_files = g_list_concat(folder->new_files, files);
@@ -399,7 +399,7 @@ static gboolean thunar_folder_content_type_loader_idle(gpointer data)
     ThunarFolder *folder;
     GList        *lp;
 
-    _thunar_return_val_if_fail(THUNAR_IS_FOLDER(data), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FOLDER(data), FALSE);
 
     folder = THUNAR_FOLDER(data);
 
@@ -423,15 +423,15 @@ static gboolean thunar_folder_content_type_loader_idle(gpointer data)
 
 static void thunar_folder_content_type_loader_idle_destroyed(gpointer data)
 {
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(data));
+    thunar_return_if_fail(THUNAR_IS_FOLDER(data));
 
     THUNAR_FOLDER(data)->content_type_idle_id = 0;
 }
 
 static void thunar_folder_content_type_loader(ThunarFolder *folder)
 {
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(folder->content_type_idle_id == 0);
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(folder->content_type_idle_id == 0);
 
     /* set the pointer to the start of the list */
     folder->content_type_ptr = folder->files;
@@ -447,10 +447,10 @@ static void thunar_folder_finished(ExoJob *job, ThunarFolder *folder)
     GList      *files;
     GList      *lp;
 
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(THUNAR_IS_JOB(job));
-    _thunar_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
-    _thunar_return_if_fail(folder->content_type_idle_id == 0);
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    thunar_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
+    thunar_return_if_fail(folder->content_type_idle_id == 0);
 
     /* check if we need to merge new files with existing files */
     if (G_UNLIKELY(folder->files != NULL))
@@ -555,9 +555,9 @@ static void thunar_folder_file_changed(ThunarFileMonitor *file_monitor,
                                        ThunarFile        *file,
                                        ThunarFolder      *folder)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
 
     /* check if the corresponding file changed... */
     if (G_UNLIKELY(folder->corresponding_file == file))
@@ -575,9 +575,9 @@ static void thunar_folder_file_destroyed(ThunarFileMonitor *file_monitor,
     GList    *lp;
     gboolean  restart = FALSE;
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
 
     /* check if the corresponding file was destroyed */
     if (G_UNLIKELY(folder->corresponding_file == file))
@@ -679,11 +679,11 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
     GList         list;
     gboolean      restart = FALSE;
 
-    _thunar_return_if_fail(G_IS_FILE_MONITOR(monitor));
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(folder->monitor == monitor);
-    _thunar_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
-    _thunar_return_if_fail(G_IS_FILE(event_file));
+    thunar_return_if_fail(G_IS_FILE_MONITOR(monitor));
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(folder->monitor == monitor);
+    thunar_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
+    thunar_return_if_fail(G_IS_FILE(event_file));
 
     /* check on which file the event occurred */
     if (!g_file_equal(event_file, thunar_file_get_file(folder->corresponding_file)))
@@ -811,13 +811,13 @@ ThunarFolder* thunar_folder_get_for_file(ThunarFile *file)
 {
     ThunarFolder *folder;
 
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* make sure the file is loaded */
     if (!thunar_file_check_loaded(file))
         return NULL;
 
-    _thunar_return_val_if_fail(thunar_file_is_directory(file), NULL);
+    thunar_return_val_if_fail(thunar_file_is_directory(file), NULL);
 
     /* load if the file is not a folder */
     if (!thunar_file_is_directory(file))
@@ -862,7 +862,7 @@ ThunarFolder* thunar_folder_get_for_file(ThunarFile *file)
  **/
 ThunarFile* thunar_folder_get_corresponding_file(const ThunarFolder *folder)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
     return folder->corresponding_file;
 }
 
@@ -877,7 +877,7 @@ ThunarFile* thunar_folder_get_corresponding_file(const ThunarFolder *folder)
  **/
 GList* thunar_folder_get_files(const ThunarFolder *folder)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
     return folder->files;
 }
 
@@ -892,7 +892,7 @@ GList* thunar_folder_get_files(const ThunarFolder *folder)
  **/
 gboolean thunar_folder_get_loading(const ThunarFolder *folder)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
     return(folder->job != NULL);
 }
 
@@ -906,7 +906,7 @@ gboolean thunar_folder_get_loading(const ThunarFolder *folder)
  **/
 gboolean thunar_folder_has_folder_monitor(const ThunarFolder *folder)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
     return(folder->monitor != NULL);
 }
 
@@ -921,7 +921,7 @@ gboolean thunar_folder_has_folder_monitor(const ThunarFolder *folder)
 void thunar_folder_reload(ThunarFolder *folder,
                           gboolean      reload_info)
 {
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
 
     /* reload file info too? */
     folder->reload_info = reload_info;

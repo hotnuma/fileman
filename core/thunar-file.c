@@ -509,7 +509,7 @@ static void thunar_file_info_changed(ThunarxFileInfo *file_info)
 {
     ThunarFile *file = THUNAR_FILE(file_info);
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file_info));
+    thunar_return_if_fail(THUNAR_IS_FILE(file_info));
 
     /* set the new thumbnail state manually, so we only emit file
      * changed once */
@@ -596,7 +596,7 @@ static void thunar_file_monitor_update(GFile                *path,
 {
     ThunarFile *file;
 
-    _thunar_return_if_fail(G_IS_FILE(path));
+    thunar_return_if_fail(G_IS_FILE(path));
     file = thunar_file_cache_lookup(path);
 
     if (G_LIKELY(file != NULL))
@@ -626,8 +626,8 @@ static void thunar_file_move_thumbnail_cache_file(GFile *old_file,
     ThunarApplication    *application;
     ThunarThumbnailCache *thumbnail_cache;
 
-    _thunar_return_if_fail(G_IS_FILE(old_file));
-    _thunar_return_if_fail(G_IS_FILE(new_file));
+    thunar_return_if_fail(G_IS_FILE(old_file));
+    thunar_return_if_fail(G_IS_FILE(new_file));
 
     application = thunar_application_get();
     thumbnail_cache = thunar_application_get_thumbnail_cache(application);
@@ -678,7 +678,7 @@ void thunar_file_reload_parent(ThunarFile *file)
 {
     ThunarFile *parent = NULL;
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     if (thunar_file_has_parent(file))
     {
@@ -706,9 +706,9 @@ static void thunar_file_monitor(GFileMonitor    *monitor,
     ThunarFile *file = THUNAR_FILE(user_data);
     ThunarFile *other_file;
 
-    _thunar_return_if_fail(G_IS_FILE_MONITOR(monitor));
-    _thunar_return_if_fail(G_IS_FILE(event_path));
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(G_IS_FILE_MONITOR(monitor));
+    thunar_return_if_fail(G_IS_FILE(event_path));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     if (g_file_equal(event_path, file->gfile))
     {
@@ -823,7 +823,7 @@ static void thunar_file_set_emblem_names_ready(GObject      *source_object,
 
 static void thunar_file_info_clear(ThunarFile *file)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* release the current file info */
     if (file->info != NULL)
@@ -883,8 +883,8 @@ static void thunar_file_info_reload(ThunarFile   *file,
     gchar       *casefold;
     gchar       *path;
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
-    _thunar_return_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info));
 
     if (G_LIKELY(file->info != NULL))
     {
@@ -904,7 +904,7 @@ static void thunar_file_info_reload(ThunarFile   *file,
 
     /* determine the basename */
     file->basename = g_file_get_basename(file->gfile);
-    _thunar_assert(file->basename != NULL);
+    thunar_assert(file->basename != NULL);
 
     /* problematic files with content type reading */
     if (strcmp(file->basename, "kmsg") == 0
@@ -1001,8 +1001,8 @@ static void thunar_file_get_async_finish(GObject    *object,
     GError            *error = NULL;
     GFile             *location = G_FILE(object);
 
-    _thunar_return_if_fail(G_IS_FILE(location));
-    _thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
+    thunar_return_if_fail(G_IS_FILE(location));
+    thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
 
     /* finish querying the file information */
     file_info = g_file_query_info_finish(location, result, &error);
@@ -1292,8 +1292,8 @@ void thunar_file_get_async(GFile            *location,
     ThunarFile        *file;
     ThunarFileGetData *data;
 
-    _thunar_return_if_fail(G_IS_FILE(location));
-    _thunar_return_if_fail(func != NULL);
+    thunar_return_if_fail(G_IS_FILE(location));
+    thunar_return_if_fail(func != NULL);
 
     /* check if we already have a cached version of that file */
     file = thunar_file_cache_lookup(location);
@@ -1969,7 +1969,7 @@ guint64 thunar_file_get_date(const ThunarFile  *file,
         attribute = G_FILE_ATTRIBUTE_TIME_MODIFIED;
         break;
     default:
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
     }
 
     return g_file_info_get_attribute_uint64(file->info, attribute);
@@ -2252,7 +2252,7 @@ const gchar* thunar_file_get_content_type(ThunarFile *file)
             goto bailout;
 
         /* make sure this is not loaded in the general info */
-        _thunar_assert(file->info == NULL
+        thunar_assert(file->info == NULL
                         || !g_file_info_has_attribute(file->info, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE));
 
         if (G_UNLIKELY(file->kind == G_FILE_TYPE_DIRECTORY))
@@ -3096,8 +3096,8 @@ void thunar_file_set_emblem_names(ThunarFile *file,
     gint        n;
     GFileInfo  *info;
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
-    _thunar_return_if_fail(G_IS_FILE_INFO(file->info));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(G_IS_FILE_INFO(file->info));
 
     /* allocate a zero-terminated array for the emblem names */
     emblems = g_new0(gchar *, g_list_length(emblem_names) + 1);
@@ -3292,7 +3292,7 @@ ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file)
 void thunar_file_set_thumb_state(ThunarFile *file,
                                  ThunarFileThumbState state)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* check if the state changes */
     if (thunar_file_get_thumb_state(file) == state)
@@ -3578,7 +3578,7 @@ void thunar_file_watch(ThunarFile *file)
     ThunarFileWatch *file_watch;
     GError          *error = NULL;
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     file_watch = g_object_get_qdata(G_OBJECT(file), thunar_file_watch_quark);
     if (file_watch == NULL)
@@ -3608,7 +3608,7 @@ void thunar_file_watch(ThunarFile *file)
     else if (G_LIKELY(!file->no_file_watch))
     {
         /* increase watch count */
-        _thunar_return_if_fail(G_IS_FILE_MONITOR(file_watch->monitor));
+        thunar_return_if_fail(G_IS_FILE_MONITOR(file_watch->monitor));
         file_watch->watch_count++;
     }
 }
@@ -3624,7 +3624,7 @@ void thunar_file_unwatch(ThunarFile *file)
 {
     ThunarFileWatch *file_watch;
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     if (G_UNLIKELY(file->no_file_watch))
     {
@@ -3640,7 +3640,7 @@ void thunar_file_unwatch(ThunarFile *file)
     }
     else
     {
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
     }
 }
 
@@ -3688,7 +3688,7 @@ gboolean thunar_file_reload(ThunarFile *file)
  **/
 void thunar_file_reload_idle(ThunarFile *file)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     g_idle_add((GSourceFunc) thunar_file_reload, file);
 }
@@ -3704,7 +3704,7 @@ void thunar_file_reload_idle(ThunarFile *file)
  **/
 void thunar_file_reload_idle_unref(ThunarFile *file)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
                     (GSourceFunc) thunar_file_reload,
@@ -3724,7 +3724,7 @@ void thunar_file_reload_idle_unref(ThunarFile *file)
  **/
 void thunar_file_destroy(ThunarFile *file)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     if (!FLAG_IS_SET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION))
     {
@@ -4157,8 +4157,8 @@ void thunar_file_set_metadata_setting(ThunarFile  *file,
     GFileInfo *info;
     gchar     *attr_name;
 
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
-    _thunar_return_if_fail(G_IS_FILE_INFO(file->info));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(G_IS_FILE_INFO(file->info));
 
     /* convert the setting name to an attribute name */
     attr_name = g_strdup_printf("metadata::thunar-%s", setting_name);
@@ -4189,7 +4189,7 @@ void thunar_file_set_metadata_setting(ThunarFile  *file,
  **/
 void thunar_file_clear_directory_specific_settings(ThunarFile *file)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     if (file->info == NULL)
         return;

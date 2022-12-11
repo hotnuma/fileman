@@ -53,7 +53,7 @@ static cairo_surface_t* thunar_gdk_cairo_create_surface(const GdkPixbuf *pixbuf)
     guchar          *p, *q;
     guchar          *end;
 
-    _thunar_return_val_if_fail(GDK_IS_PIXBUF(pixbuf), NULL);
+    thunar_return_val_if_fail(GDK_IS_PIXBUF(pixbuf), NULL);
 
     /* get pixbuf information */
     width = gdk_pixbuf_get_width(pixbuf);
@@ -166,8 +166,8 @@ GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
     GSList      *displays;
     GSList      *dp;
 
-    _thunar_return_val_if_fail(display_name != NULL, NULL);
-    _thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    thunar_return_val_if_fail(display_name != NULL, NULL);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     /* check if the default screen should be opened */
     if (G_UNLIKELY(*display_name == '\0'))

@@ -456,7 +456,7 @@ static GType thunar_tree_model_get_column_type(GtkTreeModel *tree_model,
         return THUNAR_TYPE_DEVICE;
 
     default:
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
         return G_TYPE_INVALID;
     }
 }
@@ -471,7 +471,7 @@ static gboolean thunar_tree_model_get_iter(GtkTreeModel *tree_model,
     gint             depth;
     gint             n;
 
-    _thunar_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
+    thunar_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
 
     /* determine the path depth */
     depth = gtk_tree_path_get_depth(path);
@@ -504,8 +504,8 @@ static GtkTreePath* thunar_tree_model_get_path(GtkTreeModel *tree_model,
     GNode           *node;
     gint             n;
 
-    _thunar_return_val_if_fail(iter->user_data != NULL, NULL);
-    _thunar_return_val_if_fail(iter->stamp == model->stamp, NULL);
+    thunar_return_val_if_fail(iter->user_data != NULL, NULL);
+    thunar_return_val_if_fail(iter->stamp == model->stamp, NULL);
 
     /* determine the node for the iterator */
     node = iter->user_data;
@@ -564,9 +564,9 @@ static void thunar_tree_model_get_value(GtkTreeModel *tree_model,
     ThunarTreeModel     *model = THUNAR_TREE_MODEL(tree_model);
     GNode               *node = iter->user_data;
 
-    _thunar_return_if_fail(iter->user_data != NULL);
-    _thunar_return_if_fail(iter->stamp == model->stamp);
-    _thunar_return_if_fail(column < THUNAR_TREE_MODEL_N_COLUMNS);
+    thunar_return_if_fail(iter->user_data != NULL);
+    thunar_return_if_fail(iter->stamp == model->stamp);
+    thunar_return_if_fail(column < THUNAR_TREE_MODEL_N_COLUMNS);
 
     /* determine the item for the node */
     item = node->data;
@@ -602,7 +602,7 @@ static void thunar_tree_model_get_value(GtkTreeModel *tree_model,
         break;
 
     default:
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
         break;
     }
 }
@@ -610,8 +610,8 @@ static void thunar_tree_model_get_value(GtkTreeModel *tree_model,
 static gboolean thunar_tree_model_iter_next(GtkTreeModel *tree_model,
                                             GtkTreeIter  *iter)
 {
-    _thunar_return_val_if_fail(iter->stamp == THUNAR_TREE_MODEL(tree_model)->stamp, FALSE);
-    _thunar_return_val_if_fail(iter->user_data != NULL, FALSE);
+    thunar_return_val_if_fail(iter->stamp == THUNAR_TREE_MODEL(tree_model)->stamp, FALSE);
+    thunar_return_val_if_fail(iter->user_data != NULL, FALSE);
 
     /* check if we have any further nodes in this row */
     if (g_node_next_sibling(iter->user_data) != NULL)
@@ -630,8 +630,8 @@ static gboolean thunar_tree_model_iter_children(GtkTreeModel *tree_model,
     ThunarTreeModel *model = THUNAR_TREE_MODEL(tree_model);
     GNode           *children;
 
-    _thunar_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
-    _thunar_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
+    thunar_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
+    thunar_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
 
     if (G_LIKELY(parent != NULL))
         children = g_node_first_child(parent->user_data);
@@ -650,8 +650,8 @@ static gboolean thunar_tree_model_iter_children(GtkTreeModel *tree_model,
 static gboolean thunar_tree_model_iter_has_child(GtkTreeModel *tree_model,
                                                  GtkTreeIter  *iter)
 {
-    _thunar_return_val_if_fail(iter->stamp == THUNAR_TREE_MODEL(tree_model)->stamp, FALSE);
-    _thunar_return_val_if_fail(iter->user_data != NULL, FALSE);
+    thunar_return_val_if_fail(iter->stamp == THUNAR_TREE_MODEL(tree_model)->stamp, FALSE);
+    thunar_return_val_if_fail(iter->user_data != NULL, FALSE);
 
     return(g_node_first_child(iter->user_data) != NULL);
 }
@@ -661,8 +661,8 @@ static gint thunar_tree_model_iter_n_children(GtkTreeModel *tree_model,
 {
     ThunarTreeModel *model = THUNAR_TREE_MODEL(tree_model);
 
-    _thunar_return_val_if_fail(iter == NULL || iter->user_data != NULL, 0);
-    _thunar_return_val_if_fail(iter == NULL || iter->stamp == model->stamp, 0);
+    thunar_return_val_if_fail(iter == NULL || iter->user_data != NULL, 0);
+    thunar_return_val_if_fail(iter == NULL || iter->stamp == model->stamp, 0);
 
     return g_node_n_children((iter == NULL) ? model->root : iter->user_data);
 }
@@ -675,8 +675,8 @@ static gboolean thunar_tree_model_iter_nth_child(GtkTreeModel *tree_model,
     ThunarTreeModel *model = THUNAR_TREE_MODEL(tree_model);
     GNode           *child;
 
-    _thunar_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
-    _thunar_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
+    thunar_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
+    thunar_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
 
     child = g_node_nth_child((parent != NULL) ? parent->user_data : model->root, n);
     if (G_LIKELY(child != NULL))
@@ -695,9 +695,9 @@ static gboolean thunar_tree_model_iter_parent(GtkTreeModel *tree_model,
     ThunarTreeModel *model = THUNAR_TREE_MODEL(tree_model);
     GNode           *parent;
 
-    _thunar_return_val_if_fail(iter != NULL, FALSE);
-    _thunar_return_val_if_fail(child->user_data != NULL, FALSE);
-    _thunar_return_val_if_fail(child->stamp == model->stamp, FALSE);
+    thunar_return_val_if_fail(iter != NULL, FALSE);
+    thunar_return_val_if_fail(child->user_data != NULL, FALSE);
+    thunar_return_val_if_fail(child->stamp == model->stamp, FALSE);
 
     /* check if we have a parent for iter */
     parent = G_NODE(child->user_data)->parent;
@@ -720,8 +720,8 @@ static void thunar_tree_model_ref_node(GtkTreeModel *tree_model,
     ThunarTreeModel     *model = THUNAR_TREE_MODEL(tree_model);
     GNode               *node;
 
-    _thunar_return_if_fail(iter->user_data != NULL);
-    _thunar_return_if_fail(iter->stamp == model->stamp);
+    thunar_return_if_fail(iter->user_data != NULL);
+    thunar_return_if_fail(iter->stamp == model->stamp);
 
     /* determine the node for the iterator */
     node = G_NODE(iter->user_data);
@@ -753,8 +753,8 @@ static void thunar_tree_model_unref_node(GtkTreeModel *tree_model,
     ThunarTreeModel     *model = THUNAR_TREE_MODEL(tree_model);
     GNode               *node;
 
-    _thunar_return_if_fail(iter->user_data != NULL);
-    _thunar_return_if_fail(iter->stamp == model->stamp);
+    thunar_return_if_fail(iter->user_data != NULL);
+    thunar_return_if_fail(iter->stamp == model->stamp);
 
     /* determine the node for the iterator */
     node = G_NODE(iter->user_data);
@@ -775,7 +775,7 @@ static gint thunar_tree_model_cmp_array(gconstpointer a,
                                         gconstpointer b,
                                         gpointer      user_data)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(user_data), 0);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(user_data), 0);
 
     /* just sort by name(case-sensitive) */
     return thunar_file_compare_by_name(THUNAR_TREE_MODEL_ITEM(((const SortTuple *) a)->node->data)->file,
@@ -794,7 +794,7 @@ static void thunar_tree_model_sort(ThunarTreeModel *model,
     gint        *new_order;
     guint        n;
 
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* determine the number of children of the node */
     n_children = g_node_n_children(node);
@@ -810,8 +810,8 @@ static void thunar_tree_model_sort(ThunarTreeModel *model,
     /* generate the sort array of tuples */
     for(child_node = g_node_first_child(node), n = 0; n < n_children; child_node = g_node_next_sibling(child_node), ++n)
     {
-        _thunar_return_if_fail(child_node != NULL);
-        _thunar_return_if_fail(child_node->data != NULL);
+        thunar_return_if_fail(child_node != NULL);
+        thunar_return_if_fail(child_node->data != NULL);
 
         sort_array[n].node = child_node;
         sort_array[n].offset = n;
@@ -875,10 +875,10 @@ thunar_tree_model_file_changed(ThunarFileMonitor *file_monitor,
                                 ThunarFile        *file,
                                 ThunarTreeModel   *model)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
-    _thunar_return_if_fail(model->file_monitor == file_monitor);
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(model->file_monitor == file_monitor);
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* traverse the model and emit "row-changed" for the file's nodes */
     if (thunar_file_is_directory(file))
@@ -895,10 +895,10 @@ static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor
     GFile               *mount_point;
     GNode               *node;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
-    _thunar_return_if_fail(model->device_monitor == device_monitor);
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(model->device_monitor == device_monitor);
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* lookup the volume in the item list */
     for(node = model->root->children; node != NULL; node = node->next)
@@ -909,8 +909,8 @@ static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor
     }
 
     /* verify that we actually found the item */
-    _thunar_assert(item != NULL);
-    _thunar_assert(item->device == device);
+    thunar_assert(item != NULL);
+    thunar_assert(item->device == device);
 
     /* check if the volume is mounted and we don't have a file yet */
     if (thunar_device_is_mounted(device) && item->file == NULL)
@@ -956,11 +956,11 @@ static void thunar_tree_model_device_pre_unmount(ThunarDeviceMonitor *device_mon
 {
     GNode *node;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
-    _thunar_return_if_fail(model->device_monitor == device_monitor);
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    _thunar_return_if_fail(G_IS_FILE(root_file));
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(model->device_monitor == device_monitor);
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(G_IS_FILE(root_file));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* lookup the node for the volume(if visible) */
     for(node = model->root->children; node != NULL; node = node->next)
@@ -991,10 +991,10 @@ static void thunar_tree_model_device_added(ThunarDeviceMonitor *device_monitor,
     GtkTreeIter          iter;
     GNode               *node;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
-    _thunar_return_if_fail(model->device_monitor == device_monitor);
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(model->device_monitor == device_monitor);
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* check if the new node should be inserted after "File System" or "Network" */
     if (model->network && thunar_device_get_kind(device) == THUNAR_DEVICE_KIND_MOUNT_REMOTE)
@@ -1042,10 +1042,10 @@ static void thunar_tree_model_device_removed(ThunarDeviceMonitor *device_monitor
 {
     GNode *node;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
-    _thunar_return_if_fail(model->device_monitor == device_monitor);
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(model->device_monitor == device_monitor);
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* find the device */
     for(node = model->root->children; node != NULL; node = node->next)
@@ -1053,8 +1053,8 @@ static void thunar_tree_model_device_removed(ThunarDeviceMonitor *device_monitor
             break;
 
     /* something is broken if we don't have an item here */
-    _thunar_assert(node != NULL);
-    _thunar_assert(THUNAR_TREE_MODEL_ITEM(node->data)->device == device);
+    thunar_assert(node != NULL);
+    thunar_assert(THUNAR_TREE_MODEL_ITEM(node->data)->device == device);
 
     /* drop the node from the model */
     g_node_traverse(node, G_POST_ORDER, G_TRAVERSE_ALL, -1, thunar_tree_model_node_traverse_remove, model);
@@ -1148,7 +1148,7 @@ static void thunar_tree_model_item_reset(ThunarTreeModelItem *item)
 
 static void thunar_tree_model_item_load_folder(ThunarTreeModelItem *item)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(item->file) || THUNAR_IS_DEVICE(item->device));
+    thunar_return_if_fail(THUNAR_IS_FILE(item->file) || THUNAR_IS_DEVICE(item->device));
 
     /* schedule the "load" idle source(if not already done) */
     if (G_LIKELY(item->load_idle_id == 0 && item->folder == NULL))
@@ -1167,9 +1167,9 @@ static void thunar_tree_model_item_files_added(ThunarTreeModelItem *item,
     GNode               *node = NULL;
     GList               *lp;
 
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(item->folder == folder);
-    _thunar_return_if_fail(model->visible_func != NULL);
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(item->folder == folder);
+    thunar_return_if_fail(model->visible_func != NULL);
 
     /* process all specified files */
     for(lp = files; lp != NULL; lp = lp->next)
@@ -1191,7 +1191,7 @@ static void thunar_tree_model_item_files_added(ThunarTreeModelItem *item,
         /* lookup the node for the item(on-demand) */
         if (G_UNLIKELY(node == NULL))
             node = g_node_find(model->root, G_POST_ORDER, G_TRAVERSE_ALL, item);
-        _thunar_return_if_fail(node != NULL);
+        thunar_return_if_fail(node != NULL);
 
         thunar_tree_model_add_child(model, node, file);
     }
@@ -1213,12 +1213,12 @@ static void thunar_tree_model_item_files_removed(ThunarTreeModelItem *item,
     GList           *lp;
     GSList          *inv_link;
 
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(item->folder == folder);
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(item->folder == folder);
 
     /* determine the node for the folder */
     node = g_node_find(model->root, G_POST_ORDER, G_TRAVERSE_ALL, item);
-    _thunar_return_if_fail(node != NULL);
+    thunar_return_if_fail(node != NULL);
 
     /* check if the node has any visible children */
     if (G_LIKELY(node->children != NULL))
@@ -1275,16 +1275,16 @@ static void thunar_tree_model_item_notify_loading(ThunarTreeModelItem *item,
     UNUSED(pspec);
     GNode *node;
 
-    _thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    _thunar_return_if_fail(item->folder == folder);
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(item->model));
+    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    thunar_return_if_fail(item->folder == folder);
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(item->model));
 
     /* be sure to drop the dummy child node once the folder is loaded */
     if (G_LIKELY(!thunar_folder_get_loading(folder)))
     {
         /* lookup the node for the item... */
         node = g_node_find(item->model->root, G_POST_ORDER, G_TRAVERSE_ALL, item);
-        _thunar_return_if_fail(node != NULL);
+        thunar_return_if_fail(node != NULL);
 
         /* ...and drop the dummy for the node */
         if (G_NODE_HAS_DUMMY(node))
@@ -1301,7 +1301,7 @@ static gboolean thunar_tree_model_item_load_idle(gpointer user_data)
     GNode               *node;
 #endif
 
-    _thunar_return_val_if_fail(item->folder == NULL, FALSE);
+    thunar_return_val_if_fail(item->folder == NULL, FALSE);
 
 #ifndef NDEBUG
     /* find the node in the tree */
@@ -1310,7 +1310,7 @@ static gboolean thunar_tree_model_item_load_idle(gpointer user_data)
     /* debug check to make sure the node is empty or contains a dummy node.
      * if this is not true, the node already contains sub folders which means
      * something went wrong. */
-    _thunar_return_val_if_fail(node->children == NULL || G_NODE_HAS_DUMMY(node), FALSE);
+    thunar_return_val_if_fail(node->children == NULL || G_NODE_HAS_DUMMY(node), FALSE);
 #endif
 
     THUNAR_THREADS_ENTER
@@ -1367,8 +1367,8 @@ static void thunar_tree_model_node_insert_dummy(GNode           *parent,
     GtkTreeIter  iter;
     GtkTreePath *path;
 
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    _thunar_return_if_fail(g_node_n_children(parent) == 0);
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(g_node_n_children(parent) == 0);
 
     /* add the dummy node */
     node = g_node_append_data(parent, NULL);
@@ -1388,8 +1388,8 @@ static void thunar_tree_model_node_drop_dummy(GNode           *node,
     GtkTreePath *path;
     GtkTreeIter  iter;
 
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    _thunar_return_if_fail(G_NODE_HAS_DUMMY(node) && g_node_n_children(node) == 1);
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(G_NODE_HAS_DUMMY(node) && g_node_n_children(node) == 1);
 
     /* determine the iterator for the dummy */
     GTK_TREE_ITER_INIT(iter, model->stamp, node->children);
@@ -1492,7 +1492,7 @@ static gboolean thunar_tree_model_node_traverse_remove(GNode   *node,
     GtkTreeIter      iter;
     GtkTreePath     *path;
 
-    _thunar_return_val_if_fail(node->children == NULL, FALSE);
+    thunar_return_val_if_fail(node->children == NULL, FALSE);
 
     /* determine the iterator for the node */
     GTK_TREE_ITER_INIT(iter, model->stamp, node);
@@ -1550,8 +1550,8 @@ static gboolean thunar_tree_model_node_traverse_visible(GNode    *node,
     ThunarTreeModelItem *parent, *child;
     ThunarFile          *file;
 
-    _thunar_return_val_if_fail(model->visible_func != NULL, FALSE);
-    _thunar_return_val_if_fail(item == NULL || item->file == NULL || THUNAR_IS_FILE(item->file), FALSE);
+    thunar_return_val_if_fail(model->visible_func != NULL, FALSE);
+    thunar_return_val_if_fail(item == NULL || item->file == NULL || THUNAR_IS_FILE(item->file), FALSE);
 
     if (G_LIKELY(item != NULL && item->file != NULL))
     {
@@ -1590,7 +1590,7 @@ static gboolean thunar_tree_model_node_traverse_visible(GNode    *node,
                 lnext = lp->next;
                 file = THUNAR_FILE(lp->data);
 
-                _thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+                thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
                 if (model->visible_func(model, file, model->visible_data))
                 {
@@ -1639,7 +1639,7 @@ static gboolean thunar_tree_model_node_traverse_visible(GNode    *node,
  **/
 static gboolean thunar_tree_model_get_case_sensitive(ThunarTreeModel *model)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
     return model->sort_case_sensitive;
 }
 
@@ -1654,7 +1654,7 @@ static gboolean thunar_tree_model_get_case_sensitive(ThunarTreeModel *model)
 static void thunar_tree_model_set_case_sensitive(ThunarTreeModel *model,
                                                  gboolean         case_sensitive)
 {
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* normalize the setting */
     case_sensitive = !!case_sensitive;
@@ -1687,8 +1687,8 @@ void thunar_tree_model_set_visible_func(ThunarTreeModel            *model,
                                         ThunarTreeModelVisibleFunc  func,
                                         gpointer                    data)
 {
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    _thunar_return_if_fail(func != NULL);
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(func != NULL);
 
     /* set the new visiblity function and user data */
     model->visible_func = func;
@@ -1704,7 +1704,7 @@ void thunar_tree_model_set_visible_func(ThunarTreeModel            *model,
  **/
 void thunar_tree_model_refilter(ThunarTreeModel *model)
 {
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* traverse all nodes to update their visibility */
     g_node_traverse(model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
@@ -1720,7 +1720,7 @@ void thunar_tree_model_refilter(ThunarTreeModel *model)
  **/
 void thunar_tree_model_cleanup(ThunarTreeModel *model)
 {
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* schedule an idle cleanup, if not already done */
     if (model->cleanup_idle_id == 0)
@@ -1742,7 +1742,7 @@ void thunar_tree_model_cleanup(ThunarTreeModel *model)
 gboolean thunar_tree_model_node_has_dummy(ThunarTreeModel *model,
                                           GNode           *node)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
     return G_NODE_HAS_DUMMY(node);
 }
 
@@ -1764,8 +1764,8 @@ void thunar_tree_model_add_child(ThunarTreeModel *model,
     GtkTreeIter          child_iter;
     GtkTreePath         *child_path;
 
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* allocate a new item for the file */
     child_item = thunar_tree_model_item_new_with_file(model, file);

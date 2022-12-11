@@ -76,8 +76,8 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     GList                  *lp;
     guint                   n;
 
-    _thunar_return_val_if_fail(thunar_file_is_directory(folder), 0);
-    _thunar_return_val_if_fail(GTK_IS_WIDGET(widget), 0);
+    thunar_return_val_if_fail(thunar_file_is_directory(folder), 0);
+    thunar_return_val_if_fail(GTK_IS_WIDGET(widget), 0);
 
     /* connect to the provider factory */
     factory = thunarx_provider_factory_get_default();
@@ -201,9 +201,9 @@ gboolean thunar_dnd_perform(GtkWidget    *widget,
     gboolean           succeed = TRUE;
     GError            *error = NULL;
 
-    _thunar_return_val_if_fail(GTK_IS_WIDGET(widget), FALSE);
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    _thunar_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
+    thunar_return_val_if_fail(GTK_IS_WIDGET(widget), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
 
     /* query a reference on the application object */
     application = thunar_application_get();

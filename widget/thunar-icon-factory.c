@@ -206,7 +206,7 @@ static void thunar_icon_factory_dispose(GObject *object)
 {
     ThunarIconFactory *factory = THUNAR_ICON_FACTORY(object);
 
-    _thunar_return_if_fail(THUNAR_IS_ICON_FACTORY(factory));
+    thunar_return_if_fail(THUNAR_IS_ICON_FACTORY(factory));
 
     if (G_UNLIKELY(factory->sweep_timer_id != 0))
         g_source_remove(factory->sweep_timer_id);
@@ -218,7 +218,7 @@ static void thunar_icon_factory_finalize(GObject *object)
 {
     ThunarIconFactory *factory = THUNAR_ICON_FACTORY(object);
 
-    _thunar_return_if_fail(THUNAR_IS_ICON_FACTORY(factory));
+    thunar_return_if_fail(THUNAR_IS_ICON_FACTORY(factory));
 
     /* clear the icon cache hash table */
     g_hash_table_destroy(factory->icon_cache);
@@ -334,7 +334,7 @@ static gboolean thunar_icon_factory_sweep_timer(gpointer user_data)
 {
     ThunarIconFactory *factory = THUNAR_ICON_FACTORY(user_data);
 
-    _thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), FALSE);
 
     THUNAR_THREADS_ENTER
 
@@ -428,7 +428,7 @@ static GdkPixbuf* thunar_icon_factory_load_from_file(ThunarIconFactory *factory,
     gint       width;
     gint       height;
 
-    _thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
 
     /* try to load the image from the file */
     pixbuf = gdk_pixbuf_new_from_file(path, NULL);
@@ -493,9 +493,9 @@ static GdkPixbuf* thunar_icon_factory_lookup_icon(ThunarIconFactory *factory,
     GtkIconInfo   *icon_info;
     GdkPixbuf     *pixbuf = NULL;
 
-    _thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
-    _thunar_return_val_if_fail(name != NULL && *name != '\0', NULL);
-    _thunar_return_val_if_fail(size > 0, NULL);
+    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
+    thunar_return_val_if_fail(name != NULL && *name != '\0', NULL);
+    thunar_return_val_if_fail(size > 0, NULL);
 
     /* prepare the lookup key */
     lookup_key.name =(gchar *) name;
@@ -652,7 +652,7 @@ ThunarIconFactory* thunar_icon_factory_get_for_icon_theme(GtkIconTheme *icon_the
 {
     ThunarIconFactory *factory;
 
-    _thunar_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
+    thunar_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
     /* generate the quark on-demand */
     if (G_UNLIKELY(thunar_icon_factory_quark == 0))
@@ -694,8 +694,8 @@ gboolean thunar_icon_factory_get_show_thumbnail(const ThunarIconFactory *factory
 {
     GFilesystemPreviewType preview;
 
-    _thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
-    _thunar_return_val_if_fail(file == NULL || THUNAR_IS_FILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
+    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
+    thunar_return_val_if_fail(file == NULL || THUNAR_IS_FILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
 
     if (file == NULL
             || factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_NEVER)
@@ -742,8 +742,8 @@ GdkPixbuf* thunar_icon_factory_load_icon(ThunarIconFactory        *factory,
                                          gint                      size,
                                          gboolean                  wants_default)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
-    _thunar_return_val_if_fail(size > 0, NULL);
+    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
+    thunar_return_val_if_fail(size > 0, NULL);
 
     /* cannot happen unless there's no XSETTINGS manager
      * for the default screen, but just in case...
@@ -787,9 +787,9 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
     const gchar     *custom_icon;
     ThunarIconStore *store;
 
-    _thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    _thunar_return_val_if_fail(icon_size > 0, NULL);
+    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    thunar_return_val_if_fail(icon_size > 0, NULL);
 
     /* check if we have a stored icon on the file and it is still valid */
     store = g_object_get_qdata(G_OBJECT(file), thunar_icon_factory_store_quark);
@@ -908,7 +908,7 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
  **/
 void thunar_icon_factory_clear_pixmap_cache(ThunarFile *file)
 {
-    _thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* unset the data */
     if (thunar_icon_factory_store_quark != 0)

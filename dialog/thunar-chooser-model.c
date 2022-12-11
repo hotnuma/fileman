@@ -178,9 +178,9 @@ static void thunar_chooser_model_append(ThunarChooserModel *model,
     GList      *lp;
     gboolean    inserted_infos = FALSE;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_MODEL(model));
-    _thunar_return_if_fail(title != NULL);
-    _thunar_return_if_fail(icon_name != NULL);
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_MODEL(model));
+    thunar_return_if_fail(title != NULL);
+    thunar_return_if_fail(icon_name != NULL);
 
     icon = g_themed_icon_new(icon_name);
 
@@ -244,8 +244,8 @@ static void thunar_chooser_model_reload(ThunarChooserModel *model)
     GList *other = NULL;
     GList *recommended;
 
-    _thunar_return_if_fail(THUNAR_IS_CHOOSER_MODEL(model));
-    _thunar_return_if_fail(model->content_type != NULL);
+    thunar_return_if_fail(THUNAR_IS_CHOOSER_MODEL(model));
+    thunar_return_if_fail(model->content_type != NULL);
 
     gtk_tree_store_clear(GTK_TREE_STORE(model));
 
@@ -308,7 +308,7 @@ ThunarChooserModel* thunar_chooser_model_new(const gchar *content_type)
  **/
 const gchar* thunar_chooser_model_get_content_type(ThunarChooserModel *model)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_CHOOSER_MODEL(model), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_CHOOSER_MODEL(model), NULL);
     return model->content_type;
 }
 
@@ -331,9 +331,9 @@ gboolean thunar_chooser_model_remove(ThunarChooserModel *model,
     GAppInfo *app_info;
     gboolean  succeed;
 
-    _thunar_return_val_if_fail(THUNAR_IS_CHOOSER_MODEL(model), FALSE);
-    _thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    _thunar_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), iter), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_CHOOSER_MODEL(model), FALSE);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    thunar_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), iter), FALSE);
 
     /* determine the app info for the iter */
     gtk_tree_model_get(GTK_TREE_MODEL(model),

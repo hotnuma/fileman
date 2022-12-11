@@ -49,8 +49,8 @@ void thunar_gtk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
     AtkRelation    *relation;
     AtkObject      *object;
 
-    _thunar_return_if_fail(GTK_IS_WIDGET(widget));
-    _thunar_return_if_fail(GTK_IS_LABEL(label));
+    thunar_return_if_fail(GTK_IS_WIDGET(widget));
+    thunar_return_if_fail(GTK_IS_LABEL(label));
 
     object = gtk_widget_get_accessible(widget);
     relations = atk_object_ref_relation_set(gtk_widget_get_accessible(GTK_WIDGET(label)));
@@ -195,7 +195,7 @@ void thunar_gtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
     GMainLoop *loop;
     gulong     signal_id;
 
-    _thunar_return_if_fail(GTK_IS_MENU(menu));
+    thunar_return_if_fail(GTK_IS_MENU(menu));
 
     /* take over the floating reference on the menu */
     g_object_ref_sink(G_OBJECT(menu));
@@ -237,8 +237,8 @@ void thunar_gtk_widget_set_tooltip(GtkWidget   *widget, const gchar *format, ...
     va_list  var_args;
     gchar   *tooltip;
 
-    _thunar_return_if_fail(GTK_IS_WIDGET(widget));
-    _thunar_return_if_fail(g_utf8_validate(format, -1, NULL));
+    thunar_return_if_fail(GTK_IS_WIDGET(widget));
+    thunar_return_if_fail(g_utf8_validate(format, -1, NULL));
 
     /* determine the tooltip */
     va_start(var_args, format);

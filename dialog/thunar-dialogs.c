@@ -175,8 +175,8 @@ gchar* thunar_dialogs_show_create(gpointer      parent,
  **/
 ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
 {
-    _thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     ThunarIconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
@@ -388,7 +388,7 @@ void thunar_dialogs_show_error(gpointer      parent,
     GList     *children;
     GList     *lp;
 
-    _thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* do not display error dialog for already handled errors */
     if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
@@ -461,8 +461,8 @@ ThunarJobResponse thunar_dialogs_show_job_ask(GtkWindow        *parent,
     gint         n;
     gboolean     has_cancel = FALSE;
 
-    _thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    _thunar_return_val_if_fail(g_utf8_validate(question, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
+    thunar_return_val_if_fail(g_utf8_validate(question, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* try to separate the question into primary and secondary parts */
     separator = strstr(question, ": ");
@@ -614,7 +614,7 @@ static void thunar_dialogs_show_job_ask_replace_callback(GtkWidget *button,
 {
     gint response;
 
-    _thunar_return_if_fail(GTK_IS_DIALOG(user_data));
+    thunar_return_if_fail(GTK_IS_DIALOG(user_data));
 
     response = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "response-id"));
     gtk_dialog_response(GTK_DIALOG(user_data), response);
@@ -661,9 +661,9 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     gint               response;
     gboolean           file_size_binary;
 
-    _thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
+    thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* determine the style used to format dates */
     preferences = thunar_preferences_get();
@@ -875,8 +875,8 @@ void thunar_dialogs_show_job_error(GtkWindow *parent,
     GString     *secondary = g_string_sized_new(256);
     GString     *primary = g_string_sized_new(256);
 
-    _thunar_return_if_fail(parent == NULL || GTK_IS_WINDOW(parent));
-    _thunar_return_if_fail(error != NULL && error->message != NULL);
+    thunar_return_if_fail(parent == NULL || GTK_IS_WINDOW(parent));
+    thunar_return_if_fail(error != NULL && error->message != NULL);
 
     /* try to separate the message into primary and secondary parts */
     separator = strstr(error->message, ": ");
@@ -935,8 +935,8 @@ gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
     GFileInfo      *info;
     GError         *err = NULL;
 
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    _thunar_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
 
     /* parse the parent window and screen */
     screen = thunar_util_parse_parent(parent, &window);

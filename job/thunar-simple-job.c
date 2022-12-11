@@ -93,8 +93,8 @@ static gboolean thunar_simple_job_execute(ExoJob *job,
     gboolean         success = TRUE;
     GError          *err = NULL;
 
-    _thunar_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), FALSE);
-    _thunar_return_val_if_fail(simple_job->func != NULL, FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), FALSE);
+    thunar_return_val_if_fail(simple_job->func != NULL, FALSE);
 
     /* try to execute the job using the supplied function */
     success =(*simple_job->func)(THUNAR_JOB(job), simple_job->param_values, &err);
@@ -191,7 +191,7 @@ ThunarJob* thunar_simple_job_launch(ThunarSimpleJobFunc func,
 
 GArray* thunar_simple_job_get_param_values(ThunarSimpleJob *job)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), NULL);
     return job->param_values;
 }
 

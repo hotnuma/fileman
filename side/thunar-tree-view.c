@@ -1406,7 +1406,7 @@ static void thunar_tree_view_open_selection(ThunarTreeView *view)
 {
     ThunarFile *file;
 
-    _thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
 
     /* determine the selected file */
     file = thunar_tree_view_get_selected_file(view);
@@ -1423,7 +1423,7 @@ static void thunar_tree_view_select_files(ThunarTreeView *view,
 {
     ThunarFile *file = NULL;
 
-    _thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
 
     /* check if we have exactly one new path */
     if (G_UNLIKELY(files_to_selected == NULL || files_to_selected->next != NULL))
@@ -1446,9 +1446,9 @@ static gboolean thunar_tree_view_visible_func(ThunarTreeModel *model,
     ThunarTreeView *view;
     gboolean        visible = TRUE;
 
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(user_data), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(user_data), FALSE);
 
     /* if show_hidden is TRUE, nothing is filtered */
     view = THUNAR_TREE_VIEW(user_data);
@@ -1790,7 +1790,7 @@ static void thunar_tree_view_expand_timer_destroy(gpointer user_data)
  **/
 static gboolean thunar_tree_view_get_show_hidden(ThunarTreeView *view)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
 
     return view->show_hidden;
 }
@@ -1806,8 +1806,8 @@ static gboolean thunar_tree_view_get_show_hidden(ThunarTreeView *view)
 static void thunar_tree_view_set_show_hidden(ThunarTreeView *view,
                                              gboolean        show_hidden)
 {
-    _thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
-    _thunar_return_if_fail(THUNAR_IS_TREE_MODEL(view->model));
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(view->model));
 
     /* normalize the value */
     show_hidden = !!show_hidden;
@@ -1853,7 +1853,7 @@ static GtkTreePath* thunar_tree_view_get_preferred_toplevel_path(
     GFile        *root;
     GFile        *best_match;
 
-    _thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* get active toplevel path and check if we can use it */
     gtk_tree_view_get_cursor(GTK_TREE_VIEW(view), &path, NULL);
@@ -1969,7 +1969,7 @@ static GtkTreePath* thunar_tree_view_get_preferred_toplevel_path(
  ******************************************************************************/
 gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
 
     if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
         return TRUE;
@@ -2008,7 +2008,7 @@ gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
 static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
                                                            gboolean permanently)
 {
-    _thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
 
     /* determine the selected file */
 

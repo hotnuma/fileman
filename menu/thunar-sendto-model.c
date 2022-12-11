@@ -237,7 +237,7 @@ GList* thunar_sendto_model_get_matching(ThunarSendtoModel *sendto_model, GList *
     const gchar **mime_types;
     const gchar  *content_type;
 
-    _thunar_return_val_if_fail(THUNAR_IS_SENDTO_MODEL(sendto_model), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_SENDTO_MODEL(sendto_model), NULL);
 
     /* no files, no sendto actions */
     if (G_UNLIKELY(files == NULL))

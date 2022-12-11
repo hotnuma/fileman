@@ -77,7 +77,7 @@ static void thunar_side_pane_class_init(gpointer klass)
  **/
 gboolean thunar_side_pane_get_show_hidden(ThunarSidePane *side_pane)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_SIDE_PANE(side_pane), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_SIDE_PANE(side_pane), FALSE);
 
     return (*THUNAR_SIDE_PANE_GET_IFACE(side_pane)->get_show_hidden)(side_pane);
 }
@@ -92,7 +92,7 @@ gboolean thunar_side_pane_get_show_hidden(ThunarSidePane *side_pane)
  **/
 void thunar_side_pane_set_show_hidden(ThunarSidePane *side_pane, gboolean show_hidden)
 {
-    _thunar_return_if_fail(THUNAR_IS_SIDE_PANE(side_pane));
+    thunar_return_if_fail(THUNAR_IS_SIDE_PANE(side_pane));
 
     (*THUNAR_SIDE_PANE_GET_IFACE(side_pane)->set_show_hidden)(side_pane, show_hidden);
 }

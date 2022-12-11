@@ -983,10 +983,10 @@ static gboolean thunar_path_entry_parse(ThunarPathEntry *path_entry,
     gchar       *filename;
     gchar       *path;
 
-    _thunar_return_val_if_fail(THUNAR_IS_PATH_ENTRY(path_entry), FALSE);
-    _thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    _thunar_return_val_if_fail(folder_part != NULL, FALSE);
-    _thunar_return_val_if_fail(file_part != NULL, FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_PATH_ENTRY(path_entry), FALSE);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    thunar_return_val_if_fail(folder_part != NULL, FALSE);
+    thunar_return_val_if_fail(file_part != NULL, FALSE);
 
     /* expand the filename */
     filename = thunar_util_expand_filename(gtk_entry_get_text(GTK_ENTRY(path_entry)),
@@ -1099,7 +1099,7 @@ GtkWidget* thunar_path_entry_new()
  **/
 ThunarFile* thunar_path_entry_get_current_file(ThunarPathEntry *path_entry)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_PATH_ENTRY(path_entry), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_PATH_ENTRY(path_entry), NULL);
     return path_entry->current_file;
 }
 
@@ -1120,8 +1120,8 @@ void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
     gchar    *tmp;
     gboolean  is_uri = FALSE;
 
-    _thunar_return_if_fail(THUNAR_IS_PATH_ENTRY(path_entry));
-    _thunar_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
+    thunar_return_if_fail(THUNAR_IS_PATH_ENTRY(path_entry));
+    thunar_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
 
     file =(current_file != NULL) ? thunar_file_get_file(current_file) : NULL;
     if (G_UNLIKELY(file == NULL))
@@ -1196,8 +1196,8 @@ void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
 void thunar_path_entry_set_working_directory(ThunarPathEntry *path_entry,
                                              ThunarFile      *working_directory)
 {
-    _thunar_return_if_fail(THUNAR_IS_PATH_ENTRY(path_entry));
-    _thunar_return_if_fail(working_directory == NULL || THUNAR_IS_FILE(working_directory));
+    thunar_return_if_fail(THUNAR_IS_PATH_ENTRY(path_entry));
+    thunar_return_if_fail(working_directory == NULL || THUNAR_IS_FILE(working_directory));
 
     if (G_LIKELY(path_entry->working_directory != NULL))
         g_object_unref(path_entry->working_directory);

@@ -323,10 +323,10 @@ static void thunar_device_monitor_volume_added(GVolumeMonitor      *volume_monit
                                                GVolume             *volume,
                                                ThunarDeviceMonitor *monitor)
 {
-    _thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
-    _thunar_return_if_fail(G_IS_VOLUME(volume));
+    thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
+    thunar_return_if_fail(G_IS_VOLUME(volume));
 
     /* check that the volume is not in the internal list already */
     if (g_list_find(monitor->hidden_volumes, volume) != NULL)
@@ -350,10 +350,10 @@ static void thunar_device_monitor_volume_removed(GVolumeMonitor      *volume_mon
     ThunarDevice *device;
     GList        *lp;
 
-    _thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
-    _thunar_return_if_fail(G_IS_VOLUME(volume));
+    thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
+    thunar_return_if_fail(G_IS_VOLUME(volume));
 
     /* remove the volume */
     lp = g_list_find(monitor->hidden_volumes, volume);
@@ -371,7 +371,7 @@ static void thunar_device_monitor_volume_removed(GVolumeMonitor      *volume_mon
         device = g_hash_table_lookup(monitor->devices, volume);
 
         /* meh */
-        _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+        thunar_return_if_fail(THUNAR_IS_DEVICE(device));
         if (G_UNLIKELY(device == NULL))
             return;
 
@@ -391,10 +391,10 @@ static void thunar_device_monitor_volume_changed(GVolumeMonitor      *volume_mon
     ThunarDevice *device;
     gchar        *id;
 
-    _thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
-    _thunar_return_if_fail(G_IS_VOLUME(volume));
+    thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
+    thunar_return_if_fail(G_IS_VOLUME(volume));
 
     lp = g_list_find(monitor->hidden_volumes, volume);
     if (lp != NULL)
@@ -427,7 +427,7 @@ static void thunar_device_monitor_volume_changed(GVolumeMonitor      *volume_mon
         device = g_hash_table_lookup(monitor->devices, volume);
 
         /* meh */
-        _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+        thunar_return_if_fail(THUNAR_IS_DEVICE(device));
         if (G_UNLIKELY(device == NULL))
             return;
 
@@ -446,10 +446,10 @@ static void thunar_device_monitor_mount_added(GVolumeMonitor      *volume_monito
     GVolume          *volume;
     gchar            *id;
 
-    _thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
-    _thunar_return_if_fail(G_IS_MOUNT(mount));
+    thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
+    thunar_return_if_fail(G_IS_MOUNT(mount));
 
     /* check if the mount is not already known */
     if (g_hash_table_lookup(monitor->devices, mount) != NULL)
@@ -527,10 +527,10 @@ static void thunar_device_monitor_mount_removed(GVolumeMonitor *volume_monitor,
     GVolume      *volume;
     GFile        *root_file;
 
-    _thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
-    _thunar_return_if_fail(G_IS_MOUNT(mount));
+    thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
+    thunar_return_if_fail(G_IS_MOUNT(mount));
 
     /* check if we have a device for this mount */
     device = g_hash_table_lookup(monitor->devices, mount);
@@ -570,10 +570,10 @@ static void thunar_device_monitor_mount_changed(GVolumeMonitor      *volume_moni
 {
     ThunarDevice *device;
 
-    _thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
-    _thunar_return_if_fail(G_IS_MOUNT(mount));
+    thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
+    thunar_return_if_fail(G_IS_MOUNT(mount));
 
     /* check if we have a device for this mount */
     device = g_hash_table_lookup(monitor->devices, mount);
@@ -592,10 +592,10 @@ static void thunar_device_monitor_mount_pre_unmount(GVolumeMonitor      *volume_
     GVolume      *volume;
     GFile        *root_file;
 
-    _thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
-    _thunar_return_if_fail(G_IS_MOUNT(mount));
+    thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
+    thunar_return_if_fail(G_IS_MOUNT(mount));
 
     /* check if we have a device for this mount */
     device = g_hash_table_lookup(monitor->devices, mount);
@@ -628,7 +628,7 @@ static void thunar_device_monitor_list_prepend(gpointer key,
     UNUSED(key);
     GList **list = user_data;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(value));
+    thunar_return_if_fail(THUNAR_IS_DEVICE(value));
     *list = g_list_prepend(*list, g_object_ref(value));
 }
 
@@ -653,7 +653,7 @@ GList* thunar_device_monitor_get_devices(ThunarDeviceMonitor *monitor)
 {
     GList *list = NULL;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor), NULL);
 
     g_hash_table_foreach(monitor->devices, thunar_device_monitor_list_prepend, &list);
 
@@ -670,8 +670,8 @@ void thunar_device_monitor_set_hidden(ThunarDeviceMonitor *monitor,
     guint   n;
     guint   pos;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
 
     id = thunar_device_get_identifier(device);
     if (id == NULL)

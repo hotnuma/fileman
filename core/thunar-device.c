@@ -176,7 +176,7 @@ static void thunar_device_set_property(GObject      *object,
     {
     case PROP_DEVICE:
         device->device = g_value_dup_object(value);
-        _thunar_assert(G_IS_VOLUME(device->device) || G_IS_MOUNT(device->device));
+        thunar_assert(G_IS_VOLUME(device->device) || G_IS_MOUNT(device->device));
         break;
 
     case PROP_HIDDEN:
@@ -217,8 +217,8 @@ static void thunar_device_operation_finish(GObject      *object,
     ThunarDeviceOperation *op = user_data;
     GError                *error = NULL;
 
-    _thunar_return_if_fail(G_IS_OBJECT(object));
-    _thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
+    thunar_return_if_fail(G_IS_OBJECT(object));
+    thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
 
     /* remove notification */
     thunar_notify_finish(op->device);
@@ -272,7 +272,7 @@ gchar* thunar_device_get_name(const ThunarDevice *device)
     GFile *mount_point;
     gchar *display_name = NULL;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -294,28 +294,28 @@ gchar* thunar_device_get_name(const ThunarDevice *device)
         return display_name;
     }
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return NULL;
 }
 
 GIcon* thunar_device_get_icon(const ThunarDevice *device)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
 
     if (G_IS_VOLUME(device->device))
         return g_volume_get_icon(device->device);
     else if (G_IS_MOUNT(device->device))
         return g_mount_get_icon(device->device);
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return NULL;
 }
 
 ThunarDeviceKind thunar_device_get_kind(const ThunarDevice *device)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), THUNAR_DEVICE_KIND_VOLUME);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), THUNAR_DEVICE_KIND_VOLUME);
     return device->kind;
 }
 
@@ -323,7 +323,7 @@ gchar* thunar_device_get_identifier(const ThunarDevice *device)
 {
     gchar *ident = NULL;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -340,7 +340,7 @@ gchar* thunar_device_get_identifier(const ThunarDevice *device)
             ident = g_mount_get_name(device->device);
     }
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return ident;
 }
@@ -349,21 +349,21 @@ gchar* thunar_device_get_identifier_unix(const ThunarDevice *device)
 {
     gchar *ident = NULL;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
 
     if (G_IS_VOLUME(device->device))
         ident = g_volume_get_identifier(device->device, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
     else if (G_IS_MOUNT(device->device))
         return NULL;
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return ident;
 }
 
 gboolean thunar_device_get_hidden(const ThunarDevice *device)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
     return device->hidden;
 }
 
@@ -377,7 +377,7 @@ gboolean thunar_device_can_eject(const ThunarDevice *device)
     gboolean  can_eject = FALSE;
     GDrive   *drive;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -400,7 +400,7 @@ gboolean thunar_device_can_eject(const ThunarDevice *device)
         can_eject = g_mount_can_eject(device->device) || g_mount_can_unmount(device->device);
     }
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return can_eject;
 }
@@ -415,7 +415,7 @@ gboolean thunar_device_can_mount(const ThunarDevice *device)
     gboolean  can_mount = FALSE;
     GMount   *volume_mount;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -432,7 +432,7 @@ gboolean thunar_device_can_mount(const ThunarDevice *device)
         can_mount = FALSE;
     }
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return can_mount;
 }
@@ -447,7 +447,7 @@ gboolean thunar_device_can_unmount(const ThunarDevice *device)
     gboolean  can_unmount = FALSE;
     GMount   *volume_mount;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -465,7 +465,7 @@ gboolean thunar_device_can_unmount(const ThunarDevice *device)
         can_unmount = g_mount_can_unmount(device->device);
     }
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return can_unmount;
 }
@@ -475,7 +475,7 @@ gboolean thunar_device_is_mounted(const ThunarDevice *device)
     gboolean  is_mounted = FALSE;
     GMount   *volume_mount;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -493,7 +493,7 @@ gboolean thunar_device_is_mounted(const ThunarDevice *device)
         is_mounted = TRUE;
     }
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return is_mounted;
 }
@@ -503,7 +503,7 @@ GFile* thunar_device_get_root(const ThunarDevice *device)
     GFile  *root = NULL;
     GMount *volume_mount;
 
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -522,7 +522,7 @@ GFile* thunar_device_get_root(const ThunarDevice *device)
         root = g_mount_get_root(device->device);
     }
     else
-        _thunar_assert_not_reached();
+        thunar_assert_not_reached();
 
     return root;
 }
@@ -530,8 +530,8 @@ GFile* thunar_device_get_root(const ThunarDevice *device)
 gint thunar_device_sort(const ThunarDevice *device1,
                         const ThunarDevice *device2)
 {
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device1), 0);
-    _thunar_return_val_if_fail(THUNAR_IS_DEVICE(device2), 0);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device1), 0);
+    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device2), 0);
 
     /* sort mounts above volumes */
     if (G_OBJECT_TYPE(device1->device) != G_OBJECT_TYPE(device2->device))
@@ -549,10 +549,10 @@ void thunar_device_mount(ThunarDevice         *device,
 {
     ThunarDeviceOperation *op;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    _thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
-    _thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
-    _thunar_return_if_fail(callback != NULL);
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
+    thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
+    thunar_return_if_fail(callback != NULL);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -581,10 +581,10 @@ void thunar_device_unmount(ThunarDevice         *device,
     ThunarDeviceOperation *op;
     GMount                *mount;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    _thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
-    _thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
-    _thunar_return_if_fail(callback != NULL);
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
+    thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
+    thunar_return_if_fail(callback != NULL);
 
     /* get the mount from the volume or use existing mount */
     if (G_IS_VOLUME(device->device))
@@ -634,10 +634,10 @@ void thunar_device_eject(ThunarDevice         *device,
     GVolume               *volume;
     GDrive                *drive;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    _thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
-    _thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
-    _thunar_return_if_fail(callback != NULL);
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
+    thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
+    thunar_return_if_fail(callback != NULL);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -774,7 +774,7 @@ void thunar_device_reload_file(ThunarDevice *device)
     ThunarFile *file;
     GFile      *mount_point;
 
-    _thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
 
     mount_point = thunar_device_get_root(device);
 

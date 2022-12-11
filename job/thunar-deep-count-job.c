@@ -132,7 +132,7 @@ static void thunar_deep_count_job_finalize(GObject *object)
 
 static void thunar_deep_count_job_status_update(ThunarDeepCountJob *job)
 {
-    _thunar_return_if_fail(THUNAR_IS_DEEP_COUNT_JOB(job));
+    thunar_return_if_fail(THUNAR_IS_DEEP_COUNT_JOB(job));
 
     exo_job_emit(EXO_JOB(job),
                   deep_count_signals[STATUS_UPDATE],
@@ -159,10 +159,10 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
     const gchar        *fs_id;
     gboolean            toplevel_file =(toplevel_fs_id == NULL);
 
-    _thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    _thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
-    _thunar_return_val_if_fail(file_info == NULL || G_IS_FILE_INFO(file_info), FALSE);
-    _thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(file_info == NULL || G_IS_FILE_INFO(file_info), FALSE);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* abort if job was already cancelled */
     if (exo_job_is_cancelled(job))
@@ -316,8 +316,8 @@ static gboolean thunar_deep_count_job_execute(ExoJob *job, GError **error)
     GList              *lp;
     GFile              *gfile;
 
-    _thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    _thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* don't start the job if it was already cancelled */
     if (exo_job_set_error_if_cancelled(job, error))
@@ -369,7 +369,7 @@ ThunarDeepCountJob* thunar_deep_count_job_new(GList *files, GFileQueryInfoFlags 
 {
     ThunarDeepCountJob *job;
 
-    _thunar_return_val_if_fail(files != NULL, NULL);
+    thunar_return_val_if_fail(files != NULL, NULL);
 
     job = g_object_new(THUNAR_TYPE_DEEP_COUNT_JOB, NULL);
     job->files = g_list_copy(files);
