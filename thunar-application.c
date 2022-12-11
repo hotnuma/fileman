@@ -517,17 +517,19 @@ static void thunar_application_load_css()
     css_provider = gtk_css_provider_new();
 
     gtk_css_provider_load_from_data(css_provider,
-                                     /* for the pathbar-buttons any margin looks ugly*/
-                                     ".path-bar-button { margin-right: 0; }"
-                                     /* remove extra border between side pane and view */
-                                     ".shortcuts-pane { border-right-width: 0px; }"
-                                     /* add missing top border to side pane */
-                                     ".shortcuts-pane { border-top-style: solid; }"
-                                     /* make border thicker during DnD */
-                                     ".standard-view { border-left-width: 0px; border-right-width: 0px; }"
-                                     ".standard-view:drop(active) { border-width: 2px; }", -1, NULL);
+                 /* for the pathbar-buttons any margin looks ugly*/
+                 ".path-bar-button { margin-right: 0; }"
+                 /* remove extra border between side pane and view */
+                 ".shortcuts-pane { border-right-width: 0px; }"
+                 /* add missing top border to side pane */
+                 ".shortcuts-pane { border-top-style: solid; }"
+                 /* make border thicker during DnD */
+                 ".standard-view { border-left-width: 0px; border-right-width: 0px; }"
+                 ".standard-view:drop(active) { border-width: 2px; }", -1, NULL);
     screen = gdk_screen_get_default();
-    gtk_style_context_add_provider_for_screen(screen, GTK_STYLE_PROVIDER(css_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_style_context_add_provider_for_screen(screen,
+                                              GTK_STYLE_PROVIDER(css_provider),
+                                              GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     g_object_unref(css_provider);
 }
 
@@ -866,7 +868,11 @@ static gboolean thunar_application_volman_idle(gpointer user_data)
     char              *display = NULL;
 
     /* check if volume management is enabled(otherwise, we don't spawn anything, but clear the list here) */
-    g_object_get(G_OBJECT(application->preferences), "misc-volume-management", &misc_volume_management, NULL);
+    g_object_get(G_OBJECT(application->preferences),
+                 "misc-volume-management",
+                 &misc_volume_management,
+                 NULL);
+
     if (G_LIKELY(misc_volume_management))
     {
         /* check if we don't already have a handler, and we have a pending UDI */
@@ -987,7 +993,10 @@ ThunarApplication* thunar_application_get()
     if (default_app)
         return THUNAR_APPLICATION(g_object_ref(default_app));
     else
-        return g_object_ref_sink(g_object_new(THUNAR_TYPE_APPLICATION, "application-id", "org.hotnuma.Fileman", NULL));
+        return g_object_ref_sink(g_object_new(THUNAR_TYPE_APPLICATION,
+                                              "application-id",
+                                              "org.hotnuma.Fileman",
+                                              NULL));
 }
 
 /**
