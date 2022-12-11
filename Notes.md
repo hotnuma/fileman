@@ -10,6 +10,21 @@
 * Preferences options cleanup
 
 
+#### Volman
+
+* command
+    
+spawn volman: 
+/sys/devices/pci0000:00/0000:00:08.1/0000:38:00.4/usb6/6-1
+thunar-volman: Périphérique USB de type « usb » non pris en charge.
+spawn volman: 
+/sys/devices/pci0000:00/0000:00:08.1/0000:38:00.4/usb6/6-1/6-1:1.0
+thunar-volman: Périphérique USB de type « usb-storage » non pris en charge.
+spawn volman: 
+/sys/devices/pci0000:00/0000:00:08.1/0000:38:00.4/usb6/6-1/6-1:1.0/host9/target9:0:0/9:0:0:0/block/sdc
+thunar-volman: Périphérique bloc de type « disk » inconnu.
+spawn volman: 
+/sys/devices/pci0000:00/0000:00:08.1/0000:38:00.4/usb6/6-1/6-1:1.0/host9/target9:0:0/9:0:0:0/block/sdc/sdc1
 
 #### Files
 

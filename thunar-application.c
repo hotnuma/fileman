@@ -326,7 +326,6 @@ static void thunar_application_startup(GApplication *gapp)
 #ifdef HAVE_GUDEV
     static const gchar *subsystems[] = { "block", "input", "usb", NULL };
 #endif
-    gchar              *path;
 
     /* initialize the application */
     application->preferences = thunar_preferences_get();
@@ -338,7 +337,7 @@ static void thunar_application_startup(GApplication *gapp)
     /* connect to the client in order to be notified when devices are plugged in
      * or disconnected from the computer */
     g_signal_connect(application->udev_client, "uevent",
-                      G_CALLBACK(thunar_application_uevent), application);
+                     G_CALLBACK(thunar_application_uevent), application);
 #endif
 
 #ifdef ENABLE_DBUS
@@ -353,7 +352,7 @@ static void thunar_application_startup(GApplication *gapp)
 #endif
 
     /* check if we have a saved accel map */
-    path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
+    gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
     if (G_LIKELY(path != NULL))
     {
         /* load the accel map */
@@ -364,7 +363,8 @@ static void thunar_application_startup(GApplication *gapp)
     /* watch for changes */
     application->accel_map = gtk_accel_map_get();
     g_signal_connect_swapped(G_OBJECT(application->accel_map), "changed",
-                              G_CALLBACK(thunar_application_accel_map_changed), application);
+                             G_CALLBACK(thunar_application_accel_map_changed),
+                             application);
 
     thunar_application_load_css();
 }
@@ -490,7 +490,6 @@ out:
     else
         return EXIT_SUCCESS;
 }
-
 
 #ifdef ENABLE_DBUS
 static gboolean thunar_application_dbus_register(GApplication   *gapp,
@@ -800,11 +799,6 @@ static void thunar_application_uevent(GUdevClient       *client,
                                       GUdevDevice       *device,
                                       ThunarApplication *application)
 {
-    const gchar *sysfs_path;
-    gboolean     is_cdrom = FALSE;
-    gboolean     has_media = FALSE;
-    GSList      *lp;
-
     _thunar_return_if_fail(G_UDEV_IS_CLIENT(client));
     _thunar_return_if_fail(action != NULL && *action != '\0');
     _thunar_return_if_fail(G_UDEV_IS_DEVICE(device));
@@ -812,16 +806,28 @@ static void thunar_application_uevent(GUdevClient       *client,
     _thunar_return_if_fail(client == application->udev_client);
 
     /* determine the sysfs path of the device */
-    sysfs_path = g_udev_device_get_sysfs_path(device);
+    const gchar *sysfs_path = g_udev_device_get_sysfs_path(device);
+
+    //if (sysfs_path)
+    //{
+    //    DPRINT("sysfs_path: %s\n", sysfs_path);
+    //}
 
     /* check if the device is a CD drive */
-    is_cdrom = g_udev_device_get_property_as_boolean(device, "ID_CDROM");
-    has_media = g_udev_device_get_property_as_boolean(device, "ID_CDROM_MEDIA");
+    gboolean is_cdrom = g_udev_device_get_property_as_boolean(device, "ID_CDROM");
+    gboolean has_media = g_udev_device_get_property_as_boolean(device, "ID_CDROM_MEDIA");
 
     /* distinguish between "add", "change" and "remove" actions, ignore "move" */
     if (g_strcmp0(action, "add") == 0
-            ||(is_cdrom && has_media && g_strcmp0(action, "change") == 0))
+        || (is_cdrom && has_media && g_strcmp0(action, "change") == 0))
     {
+        // test if devtype is a partition
+        const gchar *devtype = g_udev_device_get_devtype(device);
+        if (!devtype || g_strcmp0(devtype, "partition") != 0)
+            return;
+
+        //DPRINT("add device...\n");
+
         /* only insert the path if we don't have it already */
         if (g_slist_find_custom(application->volman_udis, sysfs_path,
                                 (GCompareFunc)(void(*)(void)) g_utf8_collate) == NULL)
@@ -831,20 +837,23 @@ static void thunar_application_uevent(GUdevClient       *client,
 
             /* check if there's currently no active or scheduled handler */
             if (G_LIKELY(application->volman_idle_id == 0
-                          && application->volman_watch_id == 0))
+                         && application->volman_watch_id == 0))
             {
                 /* schedule a new handler using the idle source, which invokes the handler */
                 application->volman_idle_id =
-                    g_idle_add_full(G_PRIORITY_LOW, thunar_application_volman_idle,
-                                     application, thunar_application_volman_idle_destroy);
+                    g_idle_add_full(G_PRIORITY_LOW,
+                                    thunar_application_volman_idle,
+                                    application,
+                                    thunar_application_volman_idle_destroy);
             }
         }
     }
     else if (g_strcmp0(action, "remove") == 0)
     {
         /* look for the sysfs path in the list of pending paths */
-        lp = g_slist_find_custom(application->volman_udis, sysfs_path,
-                                 (GCompareFunc)(void(*)(void)) g_utf8_collate);
+        GSList *lp = g_slist_find_custom(application->volman_udis,
+                                         sysfs_path,
+                                        (GCompareFunc)(void(*)(void)) g_utf8_collate);
 
         if (G_LIKELY(lp != NULL))
         {
@@ -879,7 +888,7 @@ static gboolean thunar_application_volman_idle(gpointer user_data)
         if (application->volman_watch_id == 0 && application->volman_udis != NULL)
         {
             /* generate the argument list for the volman */
-            argv = g_new(gchar *, 4);
+            argv = g_new(gchar*, 4);
             argv[0] = g_strdup("thunar-volman");
             argv[1] = g_strdup("--device-added");
             argv[2] = application->volman_udis->data;
