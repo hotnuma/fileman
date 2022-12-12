@@ -427,7 +427,7 @@ static void thunar_application_finalize(GObject *object)
     /* rule of thumb: what gets initialized in GApplication::startup is cleaned up
      * in GApplication::shutdown. Therefore, this method doesn't do very much */
 
-   (*G_OBJECT_CLASS(thunar_application_parent_class)->finalize)(object);
+    (*G_OBJECT_CLASS(thunar_application_parent_class)->finalize)(object);
 }
 
 static int thunar_application_command_line(GApplication            *gapp,
@@ -471,6 +471,8 @@ static int thunar_application_command_line(GApplication            *gapp,
     }
     else if (!daemon)
     {
+        //DPRINT("bla\n");
+
         if (!thunar_application_process_filenames(application, cwd, cwd_list, NULL, NULL, &error))
         {
             /* we failed to process the filenames or the bulk rename failed */
@@ -1102,6 +1104,8 @@ GtkWidget* thunar_application_open_window(ThunarApplication *application,
 {
     UNUSED(force_new_window);
 
+    //DPRINT("thunar_application_open_window\n");
+
     GtkWidget *window;
     gchar     *role;
 
@@ -1229,10 +1233,12 @@ static void thunar_application_process_files_finish(ThunarBrowser  *browser,
 
 static void thunar_application_process_files(ThunarApplication *application)
 {
+    thunar_return_if_fail(THUNAR_IS_APPLICATION(application));
+
+    //DPRINT("thunar_application_process_files\n");
+
     ThunarFile *file;
     GdkScreen  *screen;
-
-    thunar_return_if_fail(THUNAR_IS_APPLICATION(application));
 
     /* don't do anything if no files are to be processed */
     if (application->files_to_launch == NULL)

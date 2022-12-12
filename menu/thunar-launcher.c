@@ -2370,7 +2370,7 @@ static void thunar_launcher_action_create_folder(ThunarLauncher *launcher)
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    DPRINT("thunar_launcher_action_create_folder\n");
+    //DPRINT("thunar_launcher_action_create_folder\n");
 
     if (thunar_file_is_trashed(launcher->current_directory))
         return;
