@@ -1,0 +1,524 @@
+dialog/thunar-chooser-dialog.c:144:                                             EXO_PARAM_READWRITE));
+dialog/thunar-chooser-dialog.c:155:                                             G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
+dialog/thunar-chooser-dialog.c:219:    renderer = g_object_new(EXO_TYPE_CELL_RENDERER_ICON, "follow-state", FALSE, "size", 24, NULL);
+dialog/thunar-chooser-dialog.c:243:    exo_binding_new_with_negation(G_OBJECT(dialog->custom_expander), "expanded", G_OBJECT(dialog->tree_view), "sensitive");
+dialog/thunar-chooser-dialog.c:268:    exo_binding_new(G_OBJECT(dialog), "open", G_OBJECT(dialog->default_button), "visible");
+dialog/thunar-progress-view.c:121:                                             EXO_PARAM_READWRITE));
+dialog/thunar-progress-view.c:129:                                             EXO_PARAM_READWRITE));
+dialog/thunar-progress-view.c:137:                                             EXO_PARAM_READWRITE));
+dialog/thunar-progress-view.c:183:    exo_binding_new(G_OBJECT(view), "icon-name", G_OBJECT(image), "icon-name");
+dialog/thunar-progress-view.c:241:    exo_binding_new(G_OBJECT(view), "title", G_OBJECT(label), "label");
+dialog/thunar-progress-view.c:261:        exo_job_cancel(EXO_JOB(view->job));
+dialog/thunar-progress-view.c:367:        exo_job_cancel(EXO_JOB(view->job));
+dialog/thunar-progress-view.c:621:    if (exo_str_is_equal(view->icon_name, icon_name))
+dialog/thunar-progress-view.c:635:    if (exo_str_is_equal(view->title, title))
+dialog/thunar-chooser-model.c:91:                                             EXO_PARAM_READWRITE));
+dialog/thunar-chooser-button.c:113:                                             EXO_PARAM_READWRITE));
+dialog/thunar-chooser-button.c:355:    exo_binding_new(G_OBJECT(chooser_button), "file", G_OBJECT(dialog), "file");
+dialog/thunar-permissions-chooser.c:165:                                             EXO_PARAM_READWRITE));
+dialog/thunar-permissions-chooser.c:179:                                             EXO_PARAM_READABLE));
+dialog/thunar-permissions-chooser.c:235:    exo_binding_new(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->access_combos[2]), "sensitive");
+dialog/thunar-permissions-chooser.c:262:    exo_binding_new(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->group_combo), "sensitive");
+dialog/thunar-permissions-chooser.c:281:    exo_binding_new(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->access_combos[1]), "sensitive");
+dialog/thunar-permissions-chooser.c:315:    exo_binding_new(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->access_combos[0]), "sensitive");
+dialog/thunar-permissions-chooser.c:338:    exo_binding_new(G_OBJECT(chooser->program_button), "visible", G_OBJECT(label), "visible");
+dialog/thunar-permissions-chooser.c:339:    exo_binding_new(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->program_button), "sensitive");
+dialog/thunar-permissions-chooser.c:348:    exo_binding_new(G_OBJECT(chooser), "mutable", G_OBJECT(hbox), "sensitive");
+dialog/thunar-permissions-chooser.c:349:    exo_binding_new(G_OBJECT(chooser->program_button), "visible", G_OBJECT(hbox), "visible");
+dialog/thunar-permissions-chooser.c:365:    exo_binding_new(G_OBJECT(chooser), "mutable", G_OBJECT(hbox), "sensitive");
+dialog/thunar-permissions-chooser.c:377:    exo_binding_new(G_OBJECT(chooser->fixperm_label), "visible", G_OBJECT(hbox), "visible");
+dialog/thunar-permissions-chooser.c:390:    exo_binding_new(G_OBJECT(chooser->fixperm_button), "visible", G_OBJECT(hbox), "visible");
+dialog/thunar-permissions-chooser.c:400:    exo_binding_new(G_OBJECT(chooser->job_progress), "visible", G_OBJECT(hbox), "visible");
+dialog/thunar-permissions-chooser.c:418:        exo_job_cancel(EXO_JOB(chooser->job));
+dialog/thunar-permissions-chooser.c:1168:    exo_job_cancel(EXO_JOB(chooser->job));
+dialog/thunar-properties-dialog.c:172:                                             EXO_PARAM_READWRITE));
+dialog/thunar-properties-dialog.c:185:                                             EXO_PARAM_READWRITE));
+dialog/thunar-properties-dialog.c:224:    exo_binding_new(G_OBJECT(dialog->preferences), "misc-file-size-binary",
+dialog/thunar-properties-dialog.c:286:    exo_binding_new(G_OBJECT(dialog->single_box), "visible", G_OBJECT(dialog->name_entry), "visible");
+dialog/thunar-properties-dialog.c:296:    exo_binding_new_with_negation(G_OBJECT(dialog->single_box), "visible", G_OBJECT(box), "visible");
+dialog/thunar-properties-dialog.c:314:    exo_binding_new(G_OBJECT(box), "visible", G_OBJECT(dialog->names_label), "visible");
+dialog/thunar-properties-dialog.c:332:    exo_binding_new(G_OBJECT(dialog->kind_ebox), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:353:    exo_binding_new(G_OBJECT(dialog->openwith_chooser), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:368:    exo_binding_new(G_OBJECT(dialog->link_label), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:387:    exo_binding_new(G_OBJECT(dialog->origin_label), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:402:    exo_binding_new(G_OBJECT(dialog->location_label), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:428:    exo_binding_new(G_OBJECT(dialog->deleted_label), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:443:    exo_binding_new(G_OBJECT(dialog->modified_label), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:458:    exo_binding_new(G_OBJECT(dialog->accessed_label), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:468:    exo_binding_new(G_OBJECT(dialog->accessed_label), "visible", G_OBJECT(spacer), "visible");
+dialog/thunar-properties-dialog.c:483:    exo_binding_new(G_OBJECT(dialog), "files", G_OBJECT(label), "files");
+dialog/thunar-properties-dialog.c:497:    exo_binding_new(G_OBJECT(box), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:503:    exo_binding_new(G_OBJECT(dialog->volume_image), "visible", G_OBJECT(box), "visible");
+dialog/thunar-properties-dialog.c:509:    exo_binding_new(G_OBJECT(dialog->volume_label), "visible", G_OBJECT(dialog->volume_image), "visible");
+dialog/thunar-properties-dialog.c:525:    exo_binding_new(G_OBJECT(dialog->freespace_vbox), "visible", G_OBJECT(label), "visible");
+dialog/thunar-properties-dialog.c:551:    exo_binding_new(G_OBJECT(dialog), "files", G_OBJECT(dialog->permissions_chooser), "files");
+dialog/thunar-properties-dialog.c:666:    thunar_return_if_fail(EXO_IS_JOB(job));
+dialog/thunar-properties-dialog.c:686:    thunar_return_if_fail(EXO_IS_JOB(job));
+dialog/thunar-properties-dialog.c:759:    chooser = exo_icon_chooser_dialog_new(title, GTK_WINDOW(dialog),
+dialog/thunar-properties-dialog.c:769:        exo_icon_chooser_dialog_set_icon(EXO_ICON_CHOOSER_DIALOG(chooser), custom_icon);
+dialog/thunar-properties-dialog.c:775:        icon = exo_icon_chooser_dialog_get_icon(EXO_ICON_CHOOSER_DIALOG(chooser));
+dialog/thunar-dialogs.c:305:        if (G_LIKELY(!exo_str_is_equal(filename, text)))
+dialog/thunar-dialogs.c:951:    if (exo_str_looks_like_an_uri(command))
+dialog/thunar-progress-dialog.c:316:        if (job != NULL && !exo_job_is_cancelled(EXO_JOB(job)))
+thunar-preferences.c:142:                           EXO_PARAM_READWRITE);
+thunar-preferences.c:156:                           EXO_PARAM_READWRITE);
+thunar-preferences.c:169:                            EXO_PARAM_READWRITE);
+thunar-preferences.c:182:                            EXO_PARAM_READWRITE);
+thunar-preferences.c:195:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:207:                            EXO_PARAM_READWRITE);
+thunar-preferences.c:220:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:233:                         EXO_PARAM_READWRITE);
+thunar-preferences.c:245:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:258:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:271:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:282:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:295:                         EXO_PARAM_READWRITE);
+thunar-preferences.c:308:                         EXO_PARAM_READWRITE);
+thunar-preferences.c:321:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:334:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:346:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:359:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:371:                            EXO_PARAM_READWRITE);
+thunar-preferences.c:387:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:399:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:412:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:425:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:439:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:453:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:469:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:482:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:495:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:507:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:522:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:534:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:547:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:560:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:572:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:585:                          EXO_PARAM_READWRITE);
+thunar-preferences.c:597:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:610:                             EXO_PARAM_READWRITE);
+thunar-preferences.c:624:                          EXO_PARAM_READWRITE);
+widget/thunar-icon-factory.c:156:                                                        EXO_PARAM_READABLE));
+widget/thunar-icon-factory.c:171:                                                      EXO_PARAM_READWRITE));
+widget/thunar-icon-factory.c:185:                                                      EXO_PARAM_READWRITE));
+widget/thunar-icon-factory.c:467:            tmp = exo_gdk_pixbuf_scale_down(pixbuf, TRUE, MAX(1, max_height), MAX(1, max_height));
+widget/thunar-icon-factory.c:477:            tmp = exo_gdk_pixbuf_frame(pixbuf, frame, 4, 3, 5, 6);
+widget/thunar-icon-factory.c:585:    return exo_str_is_equal(a_key->name, b_key->name);
+widget/thunar-icon-factory.c:672:        exo_binding_new(G_OBJECT(factory->preferences),
+widget/thunar-icon-factory.c:751:    if (G_UNLIKELY(exo_str_is_empty(name)))
+widget/thunar-location-entry.c:175:    exo_binding_new(G_OBJECT(location_entry), "current-directory", G_OBJECT(location_entry->path_entry), "current-file");
+widget/thunar-shortcuts-icon-renderer.c:97:                                                        EXO_PARAM_READWRITE));
+widget/thunar-shortcuts-icon-renderer.c:111:                                                        EXO_PARAM_READWRITE));
+widget/thunar-shortcuts-icon-renderer.c:243:                temp = exo_gdk_pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
+widget/thunar-icon-renderer.c:93:                                                        EXO_PARAM_READWRITE));
+widget/thunar-icon-renderer.c:106:                                                        EXO_PARAM_READWRITE));
+widget/thunar-icon-renderer.c:120:                                        G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
+widget/thunar-icon-renderer.c:136:                                                         EXO_PARAM_READWRITE));
+widget/thunar-icon-renderer.c:152:                                        G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
+widget/thunar-icon-renderer.c:411:        temp = exo_gdk_pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
+widget/thunar-icon-renderer.c:497:                    temp = exo_gdk_pixbuf_scale_ratio(emblem, emblem_size);
+widget/thunar-path-entry.c:179:                                             EXO_PARAM_READWRITE));
+widget/thunar-path-entry.c:190:                              1, G_MAXINT, 16, EXO_PARAM_READABLE));
+widget/thunar-path-entry.c:516:    if (G_UNLIKELY(exo_str_looks_like_an_uri(text)))
+widget/thunar-statusbar.c:79:                                                        EXO_PARAM_WRITABLE));
+widget/thunar-location-bar.c:90:    klass->reload_requested = exo_noop;
+widget/thunar-size-label.c:115:                                        EXO_PARAM_READWRITE));
+widget/thunar-size-label.c:128:                                                         EXO_PARAM_READWRITE));
+widget/thunar-size-label.c:139:    exo_binding_new(G_OBJECT(size_label->preferences), "misc-file-size-binary",
+widget/thunar-size-label.c:156:    exo_binding_new(G_OBJECT(size_label->spinner), "visible", G_OBJECT(ebox), "visible");
+widget/thunar-size-label.c:177:        exo_job_cancel(EXO_JOB(size_label->job));
+widget/thunar-size-label.c:251:            exo_job_cancel(EXO_JOB(size_label->job));
+widget/thunar-size-label.c:283:        exo_job_cancel(EXO_JOB(size_label->job));
+widget/thunar-size-label.c:304:        exo_job_launch(EXO_JOB(size_label->job));
+view/thunar-details-view.c:195:                                             EXO_PARAM_READWRITE));
+view/thunar-details-view.c:213:    tree_view = exo_tree_view_new();
+view/thunar-details-view.c:307:    exo_binding_new(G_OBJECT(THUNAR_STANDARD_VIEW(details_view)->preferences),
+view/thunar-list-model.c:263:                              EXO_PARAM_READWRITE);
+view/thunar-list-model.c:276:                           EXO_PARAM_READWRITE);
+view/thunar-list-model.c:288:                             EXO_PARAM_READWRITE);
+view/thunar-list-model.c:300:                             EXO_PARAM_READWRITE);
+view/thunar-list-model.c:312:                              EXO_PARAM_READWRITE);
+view/thunar-list-model.c:324:                           EXO_PARAM_READABLE);
+view/thunar-list-model.c:336:                              EXO_PARAM_READWRITE);
+view/thunar-list-model.c:348:                              EXO_PARAM_READWRITE);
+view/thunar-column-editor.c:115:    gtk_box_pack_start(GTK_BOX(exo_gtk_dialog_get_action_area(GTK_DIALOG(column_editor))), button, FALSE, FALSE, 0);
+view/thunar-column-editor.c:116:    gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(exo_gtk_dialog_get_action_area(GTK_DIALOG(column_editor))), button, TRUE);
+view/thunar-column-editor.c:256:    exo_mutual_binding_new_with_negation(G_OBJECT(column_editor->preferences), "last-details-view-fixed-columns", G_OBJECT(button), "active");
+view/thunar-view.c:71:                                                             EXO_PARAM_READABLE));
+view/thunar-view.c:87:                                                            EXO_PARAM_READABLE));
+view/thunar-view.c:100:                                                             EXO_PARAM_READWRITE));
+view/thunar-view.c:114:                                                          EXO_PARAM_READWRITE));
+view/thunar-standard-view.c:418:                                       EXO_PARAM_READWRITE));
+view/thunar-standard-view.c:430:                             EXO_PARAM_READABLE);
+view/thunar-standard-view.c:442:                             EXO_PARAM_READABLE);
+view/thunar-standard-view.c:454:                              EXO_PARAM_READWRITE);
+view/thunar-standard-view.c:570:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-case-sensitive", G_OBJECT(standard_view->model), "case-sensitive");
+view/thunar-standard-view.c:571:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-style", G_OBJECT(standard_view->model), "date-style");
+view/thunar-standard-view.c:572:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-custom-style", G_OBJECT(standard_view->model), "date-custom-style");
+view/thunar-standard-view.c:573:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-folders-first", G_OBJECT(standard_view->model), "folders-first");
+view/thunar-standard-view.c:574:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-file-size-binary", G_OBJECT(standard_view->model), "file-size-binary");
+view/thunar-standard-view.c:579:    exo_binding_new(G_OBJECT(standard_view), "zoom-level", G_OBJECT(standard_view->icon_renderer), "size");
+view/thunar-standard-view.c:592:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(standard_view->name_renderer), "follow-prelit");*/
+view/thunar-standard-view.c:652:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(view), "single-click");
+view/thunar-standard-view.c:653:    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click-timeout", G_OBJECT(view), "single-click-timeout");
+view/thunar-standard-view.c:700:        exo_binding_unbind(standard_view->loading_binding);
+view/thunar-standard-view.c:900:    exo_binding_new(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size");
+view/thunar-standard-view.c:1140:        exo_binding_unbind(standard_view->loading_binding);
+view/thunar-standard-view.c:1197:    standard_view->loading_binding = exo_binding_new_full(G_OBJECT(folder),
+side/thunar-tree-model.c:242:                                             EXO_PARAM_READWRITE));
+side/thunar-tree-model.c:280:    model->visible_func =(ThunarTreeModelVisibleFunc)(void(*)(void)) exo_noop_true;
+side/thunar-tree-view.c:321:                                                         EXO_PARAM_READWRITE));
+side/thunar-tree-view.c:382:    exo_binding_new(G_OBJECT(view->preferences), "misc-case-sensitive",
+side/thunar-tree-view.c:419:    exo_binding_new(G_OBJECT(view->preferences), "tree-icon-size",
+side/thunar-tree-view.c:422:    exo_binding_new(G_OBJECT(view->preferences), "tree-icon-emblems",
+side/thunar-tree-view.c:455:    exo_binding_new(G_OBJECT(view), "current-directory", G_OBJECT(view->launcher), "current-directory");
+side/thunar-tree-pane.c:105:    iface->get_selected_files =(gpointer) exo_noop_null;
+side/thunar-tree-pane.c:106:    iface->set_selected_files =(gpointer) exo_noop;
+side/thunar-tree-pane.c:132:    exo_binding_new(G_OBJECT(tree_pane), "show-hidden", G_OBJECT(tree_pane->view), "show-hidden");
+side/thunar-tree-pane.c:133:    exo_binding_new(G_OBJECT(tree_pane), "current-directory", G_OBJECT(tree_pane->view), "current-directory");
+side/thunar-side-pane.c:65:                                                             EXO_PARAM_READWRITE));
+core/thunar-util.c:416:                    return exo_strdup_strftime(_("Today at %X"), &tfile);
+core/thunar-util.c:429:                    return exo_strdup_strftime(_("Yesterday at %X"), &tfile);
+core/thunar-util.c:446:                return exo_strdup_strftime(date_format, &tfile);
+core/thunar-util.c:452:            return exo_strdup_strftime("%c", &tfile);
+core/thunar-util.c:456:            return exo_strdup_strftime("%Y-%m-%d %H:%M:%S", &tfile);
+core/thunar-util.c:460:            return exo_strdup_strftime("%m-%d-%Y %H:%M:%S", &tfile);
+core/thunar-util.c:464:            return exo_strdup_strftime("%d-%m-%Y %H:%M:%S", &tfile);
+core/thunar-util.c:472:            return exo_strdup_strftime(date_custom_style, &tfile);
+core/thunar-folder.c:177:                                             EXO_PARAM_READABLE));
+core/thunar-device.c:102:                                             EXO_PARAM_READWRITE
+core/thunar-device.c:111:                                             EXO_PARAM_READWRITE));
+core/thunar-device.c:121:                                             EXO_PARAM_READWRITE
+core/thunar-file.c:934:            if (G_UNLIKELY(exo_str_is_empty(file->custom_icon_name)))
+core/thunar-file.c:1488:        if (G_LIKELY(exo_str_is_equal(type, "Application")))
+core/thunar-file.c:1525:        else if (exo_str_is_equal(type, "Link"))
+core/thunar-file.c:3386:    if (exo_str_is_empty(icon_name))
+core/thunar-file.c:3880:    return exo_str_is_equal(filesystem_id_a, filesystem_id_b);
+core/thunar-user.c:252:            t = exo_str_replace(user->real_name, "&", name);
+core/thunar-clipboard-manager.c:143:                                             EXO_PARAM_READABLE));
+core/thunar-device-monitor.c:136:                                             EXO_PARAM_READWRITE));
+core/thunar-device-monitor.c:182:    exo_binding_new(G_OBJECT(monitor->preferences), "hidden-devices",
+thunar-window.c:385:                                             EXO_PARAM_READWRITE));
+thunar-window.c:400:                                             EXO_PARAM_READWRITE));
+thunar-window.c:567:    exo_binding_new(G_OBJECT(window), "current-directory", G_OBJECT(window->launcher), "current-directory");
+thunar-window.c:1190:    exo_binding_new(G_OBJECT(view), "display-name", G_OBJECT(label), "label");
+thunar-window.c:1191:    exo_binding_new(G_OBJECT(view), "tooltip-text", G_OBJECT(label), "tooltip-text");
+thunar-window.c:1276://    if (exo_str_is_equal(last_location_bar, g_type_name(G_TYPE_NONE)))
+thunar-window.c:1336:        exo_binding_new(G_OBJECT(window), "current-directory", G_OBJECT(window->sidepane), "current-directory");
+thunar-window.c:1961:        if (!exo_str_looks_like_an_uri(uris[n]))
+job/thunar-job.c:73:G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(ThunarJob, thunar_job, EXO_TYPE_JOB)
+job/thunar-job.c:317:    exo_job_emit(EXO_JOB(job), job_signals[ASK], 0, message, choices, &response);
+job/thunar-job.c:322:        exo_job_cancel(EXO_JOB(job));
+job/thunar-job.c:336:    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+job/thunar-job.c:388:    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+job/thunar-job.c:438:    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+job/thunar-job.c:464:        exo_job_cancel(EXO_JOB(job));
+job/thunar-job.c:482:    if (G_UNLIKELY(exo_job_set_error_if_cancelled(EXO_JOB(job), error)))
+job/thunar-job.c:510:    exo_job_emit(EXO_JOB(job), job_signals[ASK_REPLACE], 0,
+job/thunar-job.c:527:        exo_job_cancel(EXO_JOB(job));
+job/thunar-job.c:541:    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+job/thunar-job.c:589:    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+job/thunar-job.c:609:    exo_job_emit(EXO_JOB(job), job_signals[FILES_READY], 0, file_list, &handled);
+job/thunar-job.c:634:        exo_job_emit(EXO_JOB(job), job_signals[NEW_FILES], 0, file_list);
+job/thunar-job.c:644:    g_signal_emit(EXO_JOB(job), job_signals[ASK_JOBS], 0, &jobs);
+job/thunar-job.c:686:    g_signal_emit(EXO_JOB(job), job_signals[FROZEN], 0);
+job/thunar-job.c:693:    g_signal_emit(EXO_JOB(job), job_signals[UNFROZEN], 0);
+job/thunar-job.c:726:    exo_job_info_message(EXO_JOB(job), "%s", display_name);
+job/thunar-job.c:731:        exo_job_percent(EXO_JOB(job),(n_processed * 100.0) / job->priv->n_total_files);
+job/thunar-simple-job.c:67:    exojob_class = EXO_JOB_CLASS(klass);
+job/thunar-simple-job.c:104:        g_assert(err != NULL || exo_job_is_cancelled(job));
+job/thunar-simple-job.c:108:        if (exo_job_set_error_if_cancelled(job, error))
+job/thunar-simple-job.c:189:    return THUNAR_JOB(exo_job_launch(EXO_JOB(simple_job)));
+job/thunar-io-scan-directory.c:57:    if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-scan-directory.c:73:        cancellable = exo_job_get_cancellable(EXO_JOB(job));
+job/thunar-io-scan-directory.c:79:    if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-scan-directory.c:105:    while(job == NULL || !exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-scan-directory.c:170:    else if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
+job/thunar-io-jobs.c:54:            err == NULL && lp != NULL && !exo_job_is_cancelled(EXO_JOB(job));
+job/thunar-io-jobs.c:68:    if (err != NULL || exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:70:        if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs.c:141:        template_stream = g_file_read(template_file, exo_job_get_cancellable(EXO_JOB(job)), &err);
+job/thunar-io-jobs.c:151:            err == NULL && lp != NULL && !exo_job_is_cancelled(EXO_JOB(job));
+job/thunar-io-jobs.c:163:                                exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:167:        if (exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:181:                                          exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:185:                if (exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:210:                    if (_thunar_io_jobs_delete_file(lp->data, exo_job_get_cancellable(EXO_JOB(job)), &err))
+job/thunar-io-jobs.c:245:                                        exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:264:    if (exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:305:            err == NULL && lp != NULL && !exo_job_is_cancelled(EXO_JOB(job));
+job/thunar-io-jobs.c:315:        if (!g_file_make_directory(lp->data, exo_job_get_cancellable(EXO_JOB(job)), &err))
+job/thunar-io-jobs.c:323:                if (exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:330:                                          exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:334:                if (exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:359:                    if (_thunar_io_jobs_delete_file(lp->data, exo_job_get_cancellable(EXO_JOB(job)), &err))
+job/thunar-io-jobs.c:397:    if (exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:436:    exo_job_info_message(EXO_JOB(job), _("Preparing..."));
+job/thunar-io-jobs.c:442:    if (err != NULL || exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:444:        if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs.c:458:            lp != NULL && !exo_job_is_cancelled(EXO_JOB(job));
+job/thunar-io-jobs.c:472:        if (_thunar_io_jobs_delete_file(lp->data, exo_job_get_cancellable(EXO_JOB(job)), &err))
+job/thunar-io-jobs.c:484:                                      exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:488:            if (exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:525:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs.c:550:    return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
+job/thunar-io-jobs.c:566:    return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
+job/thunar-io-jobs.c:587:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs.c:610:                                           exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:633:                                                   exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:665:            if (exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
+job/thunar-io-jobs.c:673:                _thunar_io_jobs_delete_file(target_file, exo_job_get_cancellable(EXO_JOB(job)), &err);
+job/thunar-io-jobs.c:786:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs.c:794:        g_file_trash(lp->data, exo_job_get_cancellable(EXO_JOB(job)), &err);
+job/thunar-io-jobs.c:806:                _thunar_io_jobs_delete_file(lp->data, exo_job_get_cancellable(EXO_JOB(job)), &err);
+job/thunar-io-jobs.c:841:    return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
+job/thunar-io-jobs.c:896:                                  exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:909:                                         exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:918:                                         exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:923:        if (err != NULL && !exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:1035:                                  exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:1067:                                         exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-io-jobs.c:1072:        if (err != NULL && !exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-io-jobs.c:1141:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs.c:1161:    else if (exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
+job/thunar-io-jobs.c:1183:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
+job/thunar-io-jobs.c:1227:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs.c:1235:    if (thunar_file_rename(file, display_name, exo_job_get_cancellable(EXO_JOB(job)), TRUE, &err))
+job/thunar-io-jobs.c:1237:        exo_job_send_to_mainloop(EXO_JOB(job),
+job/thunar-io-jobs-util.c:75:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs-util.c:82:                              exo_job_get_cancellable(EXO_JOB(job)), &err);
+job/thunar-io-jobs-util.c:180:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-io-jobs-util.c:187:                              exo_job_get_cancellable(EXO_JOB(job)), &err);
+job/thunar-deep-count-job.c:91:    job_class = EXO_JOB_CLASS(klass);
+job/thunar-deep-count-job.c:137:    exo_job_emit(EXO_JOB(job),
+job/thunar-deep-count-job.c:168:    if (exo_job_is_cancelled(job))
+job/thunar-deep-count-job.c:182:                                  exo_job_get_cancellable(job),
+job/thunar-deep-count-job.c:191:    if (exo_job_is_cancelled(job))
+job/thunar-deep-count-job.c:225:                                                exo_job_get_cancellable(job),
+job/thunar-deep-count-job.c:228:        if (!exo_job_is_cancelled(job))
+job/thunar-deep-count-job.c:252:                while(!exo_job_is_cancelled(job))
+job/thunar-deep-count-job.c:256:                                 exo_job_get_cancellable(job),
+job/thunar-deep-count-job.c:263:                    if (!exo_job_is_cancelled(job))
+job/thunar-deep-count-job.c:308:    return !exo_job_is_cancelled(job) && success;
+job/thunar-deep-count-job.c:323:    if (exo_job_set_error_if_cancelled(job, error))
+job/thunar-deep-count-job.c:344:        g_assert(err != NULL || exo_job_is_cancelled(job));
+job/thunar-deep-count-job.c:348:        if (exo_job_set_error_if_cancelled(job, error))
+job/thunar-deep-count-job.c:359:    else if (!exo_job_is_cancelled(job))
+job/thunar-transfer-job.c:116:    exojob_class = EXO_JOB_CLASS(klass);
+job/thunar-transfer-job.c:130:                                             EXO_PARAM_READWRITE));
+job/thunar-transfer-job.c:145:                                             EXO_PARAM_READWRITE));
+job/thunar-transfer-job.c:151:    exo_binding_new(G_OBJECT(job->preferences), "misc-file-size-binary",
+job/thunar-transfer-job.c:153:    exo_binding_new(G_OBJECT(job->preferences), "misc-parallel-copy-mode",
+job/thunar-transfer-job.c:235:    while(thunar_job_is_paused(THUNAR_JOB(job)) && !exo_job_is_cancelled(EXO_JOB(job)))
+job/thunar-transfer-job.c:284:            exo_job_percent(EXO_JOB(job), new_percentage);
+job/thunar-transfer-job.c:307:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-transfer-job.c:314:                              exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-transfer-job.c:385:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-transfer-job.c:390:                                          exo_job_get_cancellable(EXO_JOB(job)));
+job/thunar-transfer-job.c:392:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-transfer-job.c:397:                                          exo_job_get_cancellable(EXO_JOB(job)));
+job/thunar-transfer-job.c:399:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-transfer-job.c:407:        if (!g_file_delete(target_file, exo_job_get_cancellable(EXO_JOB(job)), &err))
+job/thunar-transfer-job.c:416:                 exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-transfer-job.c:450:                                                 exo_job_get_cancellable(EXO_JOB(job)));
+job/thunar-transfer-job.c:453:            if (!exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
+job/thunar-transfer-job.c:459:                                   exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-transfer-job.c:468:                                           exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-transfer-job.c:532:    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+job/thunar-transfer-job.c:673:                                  exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-transfer-job.c:684:        exo_job_info_message(EXO_JOB(job), "%s", g_file_info_get_display_name(info));
+job/thunar-transfer-job.c:735:                                        exo_job_get_cancellable(EXO_JOB(job)),
+job/thunar-transfer-job.c:815:                      exo_job_get_cancellable(EXO_JOB(transfer_job)),
+job/thunar-transfer-job.c:827:                                   exo_job_get_cancellable(EXO_JOB(transfer_job)),
+job/thunar-transfer-job.c:883:    exo_job_info_message(job, _("Trying to restore \"%s\""),
+job/thunar-transfer-job.c:890:        parent_exists = g_file_query_exists(target_parent, exo_job_get_cancellable(job));
+job/thunar-transfer-job.c:895:    if (exo_job_set_error_if_cancelled(job, error))
+job/thunar-transfer-job.c:930:                exo_job_get_cancellable(job),
+job/thunar-transfer-job.c:933:            if (!exo_job_is_cancelled(job))
+job/thunar-transfer-job.c:988:                                              exo_job_get_cancellable(job),
+job/thunar-transfer-job.c:990:        if (!move_rename_successful && !exo_job_is_cancelled(job) &&((*error)->code == G_IO_ERROR_EXISTS))
+job/thunar-transfer-job.c:1011:    exo_job_info_message(job, _("Trying to move \"%s\""),
+job/thunar-transfer-job.c:1017:                                   exo_job_get_cancellable(job),
+job/thunar-transfer-job.c:1032:                                           exo_job_get_cancellable(job),
+job/thunar-transfer-job.c:1072:    else if (!exo_job_is_cancelled(job) &&
+job/thunar-transfer-job.c:1082:        exo_job_info_message(job, _("Could not move \"%s\" directly. "
+job/thunar-transfer-job.c:1106:        if (!exo_job_is_cancelled(EXO_JOB(job)) && !thunar_job_is_paused(job) && !thunar_job_is_frozen(job))
+job/thunar-transfer-job.c:1211:                           exo_job_get_cancellable(EXO_JOB(transfer_job)),
+job/thunar-transfer-job.c:1240:                                       exo_job_get_cancellable(EXO_JOB(transfer_job)),
+job/thunar-transfer-job.c:1377:        if (exo_job_is_cancelled(EXO_JOB(transfer_job)))
+job/thunar-transfer-job.c:1410:    if (exo_job_set_error_if_cancelled(job, error))
+job/thunar-transfer-job.c:1413:    exo_job_info_message(job, _("Collecting files..."));
+job/thunar-transfer-job.c:1431:                                  exo_job_get_cancellable(job),
+thunar-application.c:260:                                             EXO_PARAM_READWRITE));
+thunar-application.c:1308:        if (g_path_is_absolute(filenames[n]) || exo_str_looks_like_an_uri(filenames[n]))
+menu/thunar-launcher.c:497:                            EXO_PARAM_WRITABLE);
+menu/thunar-launcher.c:540:    iface->get_selected_files = (gpointer) exo_noop_null;
+menu/thunar-launcher.c:2172:    thunar_return_if_fail(EXO_IS_JOB(job));
+menu/thunar-launcher.c:2188:    thunar_return_if_fail(EXO_IS_JOB(job));
+misc/thunar-navigator.c:128:                                                 EXO_PARAM_READWRITE));
+misc/thunar-component.c:78:                                                 EXO_PARAM_READWRITE));
+misc/thunar-gobject-extensions.c:60:        if (exo_str_is_equal(klass->values[n].value_name, g_value_get_string (src)))
+dialog/thunar-properties-dialog.c:274:    dialog->name_entry = g_object_new(XFCE_TYPE_FILENAME_INPUT, NULL);
+dialog/thunar-properties-dialog.c:277:    gtk_label_set_mnemonic_widget(GTK_LABEL(label), GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)));
+dialog/thunar-properties-dialog.c:280:    g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
+dialog/thunar-properties-dialog.c:282:    g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
+dialog/thunar-properties-dialog.c:644:        xfce_dialog_show_help(GTK_WINDOW(dialog), "thunar",
+dialog/thunar-properties-dialog.c:674:    gtk_entry_set_text(GTK_ENTRY(xfce_filename_input_get_entry(dialog->name_entry)),
+dialog/thunar-properties-dialog.c:707:    if (G_UNLIKELY(!gtk_widget_get_sensitive(GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)))
+dialog/thunar-properties-dialog.c:713:    new_name = xfce_filename_input_get_text(dialog->name_entry);
+dialog/thunar-properties-dialog.c:903:    gtk_editable_set_editable(GTK_EDITABLE(xfce_filename_input_get_entry(dialog->name_entry)),
+dialog/thunar-properties-dialog.c:906:    if (G_LIKELY(strcmp(name, xfce_filename_input_get_text(dialog->name_entry)) != 0))
+dialog/thunar-properties-dialog.c:908:        gtk_entry_set_text(xfce_filename_input_get_entry(dialog->name_entry), name);
+dialog/thunar-properties-dialog.c:911:        gtk_widget_grab_focus(GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)));
+dialog/thunar-properties-dialog.c:922:                gtk_editable_select_region(GTK_EDITABLE(xfce_filename_input_get_entry(dialog->name_entry)), 0, offset);
+dialog/thunar-dialogs.c:111:    XfceFilenameInput *filename_input = g_object_new(XFCE_TYPE_FILENAME_INPUT,
+dialog/thunar-dialogs.c:119:    g_signal_connect_swapped(filename_input, "text-invalid", G_CALLBACK(xfce_filename_input_desensitise_widget),
+dialog/thunar-dialogs.c:121:    g_signal_connect_swapped(filename_input, "text-valid", G_CALLBACK(xfce_filename_input_sensitise_widget),
+dialog/thunar-dialogs.c:126:                                        GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
+dialog/thunar-dialogs.c:130:    xfce_filename_input_check(filename_input);
+dialog/thunar-dialogs.c:144:        filename = xfce_filename_input_get_text(filename_input);
+dialog/thunar-dialogs.c:251:    filename_input = g_object_new(XFCE_TYPE_FILENAME_INPUT, "original-filename", filename, NULL);
+dialog/thunar-dialogs.c:257:    g_signal_connect_swapped(filename_input, "text-invalid", G_CALLBACK(xfce_filename_input_desensitise_widget),
+dialog/thunar-dialogs.c:259:    g_signal_connect_swapped(filename_input, "text-valid", G_CALLBACK(xfce_filename_input_sensitise_widget),
+dialog/thunar-dialogs.c:264:                                        GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
+dialog/thunar-dialogs.c:268:    xfce_filename_input_check(filename_input);
+dialog/thunar-dialogs.c:271:    _thunar_dialogs_select_filename(GTK_WIDGET(xfce_filename_input_get_entry(filename_input)), file);
+dialog/thunar-dialogs.c:274:    layout = gtk_entry_get_layout(xfce_filename_input_get_entry(filename_input));
+dialog/thunar-dialogs.c:276:    gtk_entry_get_layout_offsets(xfce_filename_input_get_entry(filename_input), &layout_offset, NULL);
+dialog/thunar-dialogs.c:302:        text = xfce_filename_input_get_text(filename_input);
+dialog/thunar-progress-dialog.c:229:        xfce_widget_reparent(dialog->content_box, dialog->vbox);
+dialog/thunar-progress-dialog.c:371:        xfce_widget_reparent(dialog->content_box, viewport);
+widget/thunar-path-entry.c:1005:            *folder_part = g_strdup(xfce_get_homedir());
+widget/thunar-path-entry.c:1019:                path = xfce_get_homefile(*folder_part, NULL);
+view/thunar-details-view.c:141:     XFCE_GTK_MENU_ITEM,
+view/thunar-details-view.c:148:#define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_details_view_action_entries,G_N_ELEMENTS(thunar_details_view_action_entries),id)
+view/thunar-details-view.c:182:    xfce_gtk_translate_action_entries(thunar_details_view_action_entries, G_N_ELEMENTS(thunar_details_view_action_entries));
+view/thunar-details-view.c:893:    xfce_gtk_accel_map_add_entries(thunar_details_view_action_entries, G_N_ELEMENTS(thunar_details_view_action_entries));
+view/thunar-details-view.c:894:    xfce_gtk_accel_group_connect_action_entries(accel_group,
+view/thunar-details-view.c:912:    xfce_gtk_accel_group_disconnect_action_entries(accel_group,
+view/thunar-details-view.c:935:    xfce_gtk_menu_item_new_from_action_entry(get_action_entry(THUNAR_DETAILS_VIEW_ACTION_CONFIGURE_COLUMNS), G_OBJECT(details_view), GTK_MENU_SHELL(menu));
+view/thunar-column-editor.c:294:    xfce_dialog_show_help(GTK_WINDOW(gtk_widget_get_toplevel(button)),
+view/thunar-standard-view.c:330:     XFCE_GTK_MENU_ITEM,
+view/thunar-standard-view.c:339:     XFCE_GTK_MENU_ITEM,
+view/thunar-standard-view.c:348:     XFCE_GTK_MENU_ITEM,
+view/thunar-standard-view.c:355:#define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_standard_view_action_entries,G_N_ELEMENTS(thunar_standard_view_action_entries),id)
+view/thunar-standard-view.c:401:    xfce_gtk_translate_action_entries(thunar_standard_view_action_entries, G_N_ELEMENTS(thunar_standard_view_action_entries));
+view/thunar-standard-view.c:2964:        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+view/thunar-standard-view.c:3164:    xfce_gtk_accel_map_add_entries(thunar_standard_view_action_entries, G_N_ELEMENTS(thunar_standard_view_action_entries));
+view/thunar-standard-view.c:3165:    xfce_gtk_accel_group_connect_action_entries(standard_view->accel_group,
+view/thunar-standard-view.c:3190:    xfce_gtk_accel_group_disconnect_action_entries(standard_view->accel_group,
+side/thunar-tree-view.c:1214:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+side/thunar-tree-view.c:1239:        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+core/thunar-util.c:282:            return g_strdup(xfce_get_homedir());
+core/thunar-util.c:291:            replacement = xfce_get_homedir();
+core/thunar-file.c:1504:                    command = xfce_expand_desktop_entry_field_codes(exec, uri_list, icon_name,
+core/thunar-file.c:1563:        command = xfce_expand_desktop_entry_field_codes(exec, uri_list, NULL, NULL, NULL, FALSE);
+core/thunar-file.c:1622:        result = xfce_spawn_on_screen(thunar_util_parse_parent(parent, NULL),
+core/thunar-file.c:3252:                file->thumbnail_path = g_build_filename(xfce_get_homedir(),
+core/thunar-file.c:3445:                else if (strcmp(path, xfce_get_homedir()) == 0)
+thunar-window.c:269:     XFCE_GTK_IMAGE_MENU_ITEM,
+thunar-window.c:278:     XFCE_GTK_IMAGE_MENU_ITEM,
+thunar-window.c:287:     XFCE_GTK_IMAGE_MENU_ITEM,
+thunar-window.c:296:     XFCE_GTK_IMAGE_MENU_ITEM,
+thunar-window.c:305:     XFCE_GTK_IMAGE_MENU_ITEM,
+thunar-window.c:314:     XFCE_GTK_IMAGE_MENU_ITEM,
+thunar-window.c:323:     XFCE_GTK_CHECK_MENU_ITEM,
+thunar-window.c:332:     XFCE_GTK_IMAGE_MENU_ITEM,
+thunar-window.c:339:#define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_window_action_entries,G_N_ELEMENTS(thunar_window_action_entries),id)
+thunar-window.c:371:    xfce_gtk_translate_action_entries(thunar_window_action_entries, G_N_ELEMENTS(thunar_window_action_entries));
+thunar-window.c:517:    xfce_gtk_accel_map_add_entries(thunar_window_action_entries, G_N_ELEMENTS(thunar_window_action_entries));
+thunar-window.c:518:    xfce_gtk_accel_group_connect_action_entries(window->accel_group,
+thunar-window.c:597:    window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry(get_action_entry(THUNAR_WINDOW_ACTION_BACK), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+thunar-window.c:598:    window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry(get_action_entry(THUNAR_WINDOW_ACTION_FORWARD), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+thunar-window.c:599:    window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry(get_action_entry(THUNAR_WINDOW_ACTION_OPEN_PARENT), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+thunar-window.c:600:    xfce_gtk_tool_button_new_from_action_entry(get_action_entry(THUNAR_WINDOW_ACTION_OPEN_HOME), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+thunar-application.c:355:    gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
+thunar-application.c:598:    path = xfce_resource_save_location(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH, TRUE);
+thunar-application.c:903:            screen = xfce_gdk_screen_get_active(NULL);
+menu/thunar-launcher.c:204:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:213:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:222:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:231:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:242:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:251:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:260:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:269:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:278:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:287:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:296:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:305:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:314:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:323:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:333:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:342:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:351:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:360:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:369:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:378:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:387:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:396:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:405:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:414:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:423:     XFCE_GTK_IMAGE_MENU_ITEM,
+menu/thunar-launcher.c:432:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:441:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:450:     XFCE_GTK_MENU_ITEM,
+menu/thunar-launcher.c:457:#define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_launcher_action_entries,G_N_ELEMENTS(thunar_launcher_action_entries),id)
+menu/thunar-launcher.c:479:    xfce_gtk_translate_action_entries(thunar_launcher_action_entries, G_N_ELEMENTS(thunar_launcher_action_entries));
+menu/thunar-launcher.c:1385:    xfce_gtk_accel_map_add_entries(thunar_launcher_action_entries,
+menu/thunar-launcher.c:1388:    xfce_gtk_accel_group_connect_action_entries(accel_group,
+menu/thunar-launcher.c:1448:        return xfce_gtk_image_menu_item_new_from_icon_name(_("_Open"),
+menu/thunar-launcher.c:1459:        return xfce_gtk_image_menu_item_new_from_icon_name(_("_Execute"), ngettext("Execute the selected file", "Execute the selected files", launcher->n_files_to_process),
+menu/thunar-launcher.c:1467:        item = xfce_gtk_menu_item_new(label_text, tooltip_text, action_entry->accel_path, action_entry->callback, G_OBJECT(launcher), menu);
+menu/thunar-launcher.c:1473:        return xfce_gtk_menu_item_new(action_entry->menu_item_label_text, action_entry->menu_item_tooltip_text,
+menu/thunar-launcher.c:1479:        item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1494:        item = xfce_gtk_menu_item_new(label_text, tooltip_text, action_entry->accel_path, action_entry->callback,
+menu/thunar-launcher.c:1505:        item = xfce_gtk_menu_item_new(action_entry->menu_item_label_text, action_entry->menu_item_tooltip_text,
+menu/thunar-launcher.c:1518:        item = xfce_gtk_menu_item_new(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
+menu/thunar-launcher.c:1528:            item = xfce_gtk_menu_item_new(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
+menu/thunar-launcher.c:1545:        item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
+menu/thunar-launcher.c:1562:        item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
+menu/thunar-launcher.c:1572:                item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, action_entry->menu_item_tooltip_text, action_entry->accel_path,
+menu/thunar-launcher.c:1587:        item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1598:        item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1608:            item = xfce_gtk_image_menu_item_new_from_icon_name(
+menu/thunar-launcher.c:1622:            item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
+menu/thunar-launcher.c:1632:            item = xfce_gtk_image_menu_item_new_from_icon_name(
+menu/thunar-launcher.c:1646:            item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
+menu/thunar-launcher.c:1656:        item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1665:            item = xfce_gtk_image_menu_item_new_from_icon_name(
+menu/thunar-launcher.c:1677:            item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1686:        return xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1691:        return xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1696:        item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1701:        return xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+menu/thunar-launcher.c:1859:            item = xfce_gtk_image_menu_item_new_from_icon_name(label_text, tooltip_text, action_entry->accel_path, action_entry->callback,
+menu/thunar-launcher.c:1887:        item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(thunar_launcher_action_sendto_device),
+menu/thunar-launcher.c:1924:            item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(thunar_launcher_menu_item_activated),
+menu/thunar-launcher.c:2572:        item = xfce_gtk_image_menu_item_new(thunar_file_get_display_name(file), NULL, NULL, NULL, NULL, image, GTK_MENU_SHELL(parent_menu));
+menu/thunar-launcher.c:2654:        item = xfce_gtk_image_menu_item_new(label_text, NULL, NULL, NULL, NULL, NULL, GTK_MENU_SHELL(submenu));
+menu/thunar-launcher.c:2665:    xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(submenu));
+menu/thunar-launcher.c:2666:    xfce_gtk_image_menu_item_new_from_icon_name(_("_Empty File"), NULL, NULL, G_CALLBACK(thunar_launcher_action_create_document),
+menu/thunar-launcher.c:2870:        item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(thunar_launcher_menu_item_activated), G_OBJECT(launcher), image, GTK_MENU_SHELL(submenu));
+menu/thunar-launcher.c:2878:        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(submenu));
+menu/thunar-launcher.c:2936:        menu_item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(thunar_launcher_menu_item_activated),
+menu/thunar-launcher.c:2953:        xfce_gtk_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(thunar_launcher_menu_item_activated), G_OBJECT(launcher), menu);
+menu/thunar-launcher.c:2965:        menu_item = xfce_gtk_menu_item_new(_("Open With"),
+menu/thunar-sendto-model.c:113:    specs = xfce_resource_match(XFCE_RESOURCE_DATA, "Thunar/sendto/*.desktop", TRUE);
+menu/thunar-sendto-model.c:117:        path = xfce_resource_lookup(XFCE_RESOURCE_DATA, specs[n]);
+menu/thunar-sendto-model.c:250:        datadirs = xfce_resource_dirs(XFCE_RESOURCE_DATA);
+menu/thunar-menu.c:224:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:233:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:239:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:254:        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:262:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:267:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:272:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:283:        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:288:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:298:            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+menu/thunar-menu.c:333:        xfce_gtk_menu_item_set_accel_label(lp->data, NULL);
+main.c:55:    xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
+misc/thunar-gtk-extensions.c:99:    gtk_menu_item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, accel_path,
+misc/thunar-history.c:533:        item = xfce_gtk_image_menu_item_new(display_name, parse_name, NULL,
+misc/thunar-gio-extensions.c:42:    return g_file_new_for_path(xfce_get_homedir());
