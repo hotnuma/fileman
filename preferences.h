@@ -10,6 +10,7 @@ typedef struct
     int window_height;
     int window_maximized;
     int separator_position;
+    CString *column_widths;
 
 } Preferences;
 

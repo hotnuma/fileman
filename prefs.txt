@@ -12,3 +12,7 @@ thunar-application.c:53:#include <thunar-preferences.h>
 menu/thunar-launcher.c:43:#include <thunar-preferences.h>
 main.c:45:#include <thunar-preferences.h>
 misc/thunar-gio-extensions.c:36:#include <thunar-preferences.h>
+
+
+<property name="last-details-view-column-widths" type="string"
+value="50,123,50,50,347,50,50,73,50,91"/>

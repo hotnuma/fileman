@@ -16,6 +16,7 @@ Preferences* get_preferences()
 void prefs_cleanup()
 {
     cstr_free(_prefs.filepath);
+    cstr_free(_prefs.column_widths);
 }
 
 void prefs_file_read()
@@ -30,6 +31,9 @@ void prefs_file_read()
         cstr_append(_prefs.filepath, ".conf");
     }
 
+    if (!_prefs.column_widths)
+        _prefs.column_widths = cstr_new_size(32);
+
     CIniFileAuto *file = cinifile_new();
     cinifile_read(file, c_str(_prefs.filepath));
 
@@ -39,6 +43,7 @@ void prefs_file_read()
     cinisection_int(section, &_prefs.window_height, "WindowHeight", 480);
     cinisection_int(section, &_prefs.window_maximized, "WindowMaximized", 0);
     cinisection_int(section, &_prefs.separator_position, "SeparatorPosition", 200);
+    cinisection_value(section, _prefs.column_widths, "ColumnWidths", "");
 }
 
 void prefs_write()
@@ -62,6 +67,9 @@ void prefs_write()
     cfile_write(outfile, c_str(line));
 
     cstr_fmt(line, "SeparatorPosition=%d\n", _prefs.separator_position);
+    cfile_write(outfile, c_str(line));
+
+    cstr_fmt(line, "ColumnWidths=%s\n", c_str(_prefs.column_widths));
     cfile_write(outfile, c_str(line));
 }
 
