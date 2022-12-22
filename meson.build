@@ -86,7 +86,6 @@ app_sources = [
     'side/thunar-tree-model.c',
     'side/thunar-tree-pane.c',
     'side/thunar-tree-view.c',
-    'view/thunar-column-editor.c',
     'view/thunar-column-model.c',
     'view/thunar-details-view.c',
     'view/thunar-list-model.c',

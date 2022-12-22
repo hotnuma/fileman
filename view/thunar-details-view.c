@@ -22,7 +22,8 @@
 
 #include <gdk/gdkkeysyms.h>
 
-#include <thunar-column-editor.h>
+//#include <thunar-column-editor.h>
+#include <thunar-column-model.h>
 #include <thunar-details-view.h>
 #include <thunar-launcher.h>
 #include <thunar-gtk-extensions.h>
@@ -131,6 +132,13 @@ struct _ThunarDetailsView
     /* event source id for thunar_details_view_zoom_level_changed_reload_fixed_columns */
     guint idle_id;
 };
+
+static void thunar_show_column_editor(gpointer parent)
+{
+    UNUSED(parent);
+
+    return;
+}
 
 static XfceGtkActionEntry thunar_details_view_action_entries[] =
 {

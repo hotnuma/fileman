@@ -61,7 +61,6 @@ HEADERS = \
     side/thunar-tree-pane.h \
     side/thunar-tree-view.h \
     thunar-debug.h \
-    view/thunar-column-editor.h \
     view/thunar-column-model.h \
     view/thunar-details-view.h \
     view/thunar-list-model.h \
@@ -127,7 +126,6 @@ SOURCES = \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \
     side/thunar-tree-view.c \
-    view/thunar-column-editor.c \
     view/thunar-column-model.c \
     view/thunar-details-view.c \
     view/thunar-list-model.c \
