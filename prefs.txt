@@ -1,6 +1,3 @@
-dialog/thunar-properties-dialog.c:51:#include <thunar-preferences.h>
-dialog/thunar-dialogs.c:42:#include <thunar-preferences.h>
-thunar-preferences.c:43:#include <thunar-preferences.h>
 widget/thunar-icon-factory.c:34:#include <thunar-preferences.h>
 widget/thunar-location-bar.c:27:#include <thunar-preferences.h>
 widget/thunar-size-label.c:34:#include <thunar-preferences.h>

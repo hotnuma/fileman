@@ -39,7 +39,6 @@
 #include <thunar-io-jobs.h>
 #include <thunar-job.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-util.h>
 
@@ -637,8 +636,6 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
                                                       ThunarFile *dst_file)
 {
     ThunarIconFactory *icon_factory;
-    ThunarPreferences *preferences;
-    ThunarDateStyle    date_style;
     GtkIconTheme      *icon_theme;
     GtkWidget         *dialog;
     GtkWidget         *grid;
@@ -654,23 +651,14 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     GtkWidget         *renameall_button;
     GtkWidget         *rename_button;
     GdkPixbuf         *icon;
-    gchar             *date_custom_style;
     gchar             *date_string;
     gchar             *size_string;
     gchar             *text;
     gint               response;
-    gboolean           file_size_binary;
 
     thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
     thunar_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
     thunar_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
-
-    /* determine the style used to format dates */
-    preferences = thunar_preferences_get();
-    g_object_get(G_OBJECT(preferences), "misc-date-style", &date_style, NULL);
-    g_object_get(G_OBJECT(preferences), "misc-date-custom-style", &date_custom_style, NULL);
-    g_object_get(G_OBJECT(preferences), "misc-file-size-binary", &file_size_binary, NULL);
-    g_object_unref(G_OBJECT(preferences));
 
     /* setup the confirmation dialog */
     dialog = gtk_dialog_new();
@@ -793,6 +781,12 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     gtk_grid_attach(GTK_GRID(grid), image, 1, 2, 1, 1);
     g_object_unref(G_OBJECT(icon));
     gtk_widget_show(image);
+
+
+    /* determine the style used to format dates */
+    ThunarDateStyle date_style = THUNAR_DATE_STYLE_YYYYMMDD;
+    gchar *date_custom_style = NULL;
+    gboolean file_size_binary = TRUE;
 
     size_string = thunar_file_get_size_string_long(dst_file, file_size_binary);
     date_string = thunar_file_get_date_string(dst_file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
