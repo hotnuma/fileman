@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <stdbool.h>
+
 #define PACKAGE_NAME "fileman"
 #define BINDIR "/usr/bin"
 

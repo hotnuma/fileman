@@ -1,6 +1,3 @@
-view/thunar-details-view.c:30:#include <thunar-preferences.h>
-view/thunar-list-model.c:36:#include <thunar-preferences.h>
-view/thunar-column-editor.c:31:#include <thunar-preferences.h>
 view/thunar-column-model.c:28:#include <thunar-preferences.h>
 view/thunar-standard-view.h:26:#include <thunar-preferences.h>
 side/thunar-tree-model.c:35:#include <thunar-preferences.h>

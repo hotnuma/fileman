@@ -28,7 +28,6 @@
 #include <thunar-dialogs.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 
 static void thunar_column_editor_finalize(GObject *object);
@@ -56,8 +55,6 @@ struct _ThunarColumnEditorClass
 struct _ThunarColumnEditor
 {
     GtkDialog __parent__;
-
-    ThunarPreferences *preferences;
 
     ThunarColumnModel *column_model;
 
@@ -92,9 +89,6 @@ static void thunar_column_editor_init(ThunarColumnEditor *column_editor)
     GtkWidget         *grid;
     GtkWidget         *vbox;
     GtkWidget         *swin;
-
-    /* grab a reference on the preferences */
-    column_editor->preferences = thunar_preferences_get();
 
     /* grab a reference on the shared column model */
     column_editor->column_model = thunar_column_model_get_default();
@@ -253,7 +247,7 @@ static void thunar_column_editor_init(ThunarColumnEditor *column_editor)
 
     /* create the "Automatically expand columns as needed" button */
     button = gtk_check_button_new_with_mnemonic(_("Automatically _expand columns as needed"));
-    exo_mutual_binding_new_with_negation(G_OBJECT(column_editor->preferences), "last-details-view-fixed-columns", G_OBJECT(button), "active");
+
     gtk_grid_attach(GTK_GRID(grid), button, 0, 1, 1, 1);
     thunar_gtk_label_set_a11y_relation(GTK_LABEL(label), button);
     gtk_widget_show(button);
@@ -277,9 +271,6 @@ static void thunar_column_editor_finalize(GObject *object)
     /* release our reference on the shared column model */
     g_signal_handlers_disconnect_matched(G_OBJECT(column_editor->column_model), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, column_editor);
     g_object_unref(G_OBJECT(column_editor->column_model));
-
-    /* release our reference on the preferences */
-    g_object_unref(G_OBJECT(column_editor->preferences));
 
    (*G_OBJECT_CLASS(thunar_column_editor_parent_class)->finalize)(object);
 }
@@ -455,19 +446,20 @@ static void _thunar_column_editor_use_defaults(GtkWidget          *button,
                                                ThunarColumnEditor *column_editor)
 {
     UNUSED(button);
+
+#if 0
     static const gchar *PROPERTY_NAMES[] =
     {
         "last-details-view-column-order",
         "last-details-view-visible-columns",
     };
 
-    GtkTreeSelection *selection;
     GParamSpec       *pspec;
     GValue            value = { 0, };
     guint             n;
 
     /* reset the given properties to its default values */
-    for(n = 0; n < G_N_ELEMENTS(PROPERTY_NAMES); ++n)
+    for (n = 0; n < G_N_ELEMENTS(PROPERTY_NAMES); ++n)
     {
         pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(column_editor->preferences), PROPERTY_NAMES[n]);
         g_value_init(&value, pspec->value_type);
@@ -475,8 +467,10 @@ static void _thunar_column_editor_use_defaults(GtkWidget          *button,
         g_object_set_property(G_OBJECT(column_editor->preferences), PROPERTY_NAMES[n], &value);
         g_value_unset(&value);
     }
+#endif
 
     /* reset the tree view selection */
+    GtkTreeSelection *selection;
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_editor->tree_view));
     gtk_tree_selection_unselect_all(selection);
 }

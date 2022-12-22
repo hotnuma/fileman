@@ -27,7 +27,6 @@
 #include <thunar-launcher.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-debug.h>
-#include <thunar-preferences.h>
 #include <thunar-window.h>
 
 /* Property identifiers */
@@ -191,7 +190,7 @@ static void thunar_details_view_class_init(ThunarDetailsViewClass *klass)
                                      g_param_spec_boolean("fixed-columns",
                                              "fixed-columns",
                                              "fixed-columns",
-                                             FALSE,
+                                             TRUE,
                                              EXO_PARAM_READWRITE));
 }
 

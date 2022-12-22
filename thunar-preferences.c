@@ -191,7 +191,7 @@ static void thunar_preferences_class_init(ThunarPreferencesClass *klass)
         g_param_spec_boolean("last-details-view-fixed-columns",
                              "LastDetailsViewFixedColumns",
                              NULL,
-                             FALSE,
+                             TRUE,
                              EXO_PARAM_READWRITE);
 
     /**
@@ -216,7 +216,7 @@ static void thunar_preferences_class_init(ThunarPreferencesClass *klass)
                           "LastDetailsViewZoomLevel",
                           NULL,
                           THUNAR_TYPE_ZOOM_LEVEL,
-                          THUNAR_ZOOM_LEVEL_38_PERCENT,
+                          THUNAR_ZOOM_LEVEL_25_PERCENT,
                           EXO_PARAM_READWRITE);
 
     /**

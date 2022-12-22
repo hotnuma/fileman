@@ -33,7 +33,6 @@
 #include <thunar-file-monitor.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-list-model.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-user.h>
 
@@ -1678,8 +1677,7 @@ static void thunar_list_model_set_date_style(ThunarListModel *store,
  **/
 static const char* thunar_list_model_get_date_custom_style(ThunarListModel *store)
 {
-    thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store),
-                               THUNAR_DATE_STYLE_SIMPLE);
+    thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), NULL);
 
     return store->date_custom_style;
 }
@@ -2264,8 +2262,6 @@ gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
     gchar             *description;
     GSequenceIter     *row;
     GSequenceIter     *end;
-    ThunarPreferences *preferences;
-    gboolean           show_image_size;
     gboolean           show_file_size_binary_format;
     GList             *relevant_files = NULL;
 
@@ -2371,9 +2367,8 @@ gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
         {
             /* check if the size should be visible in the statusbar, disabled by
              * default to avoid high i/o  */
-            preferences = thunar_preferences_get();
-            g_object_get(preferences, "misc-image-size-in-statusbar", &show_image_size, NULL);
-            g_object_unref(preferences);
+
+            gboolean show_image_size = false;
 
             if (show_image_size)
             {
@@ -2387,6 +2382,7 @@ gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
                     g_free(text);
                     text = s;
                 }
+
                 g_free(absolute_path);
             }
         }
