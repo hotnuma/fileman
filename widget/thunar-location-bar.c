@@ -24,7 +24,6 @@
 #include <thunar-debug.h>
 #include <thunar-navigator.h>
 #include <thunar-location-entry.h>
-#include <thunar-preferences.h>
 
 struct _ThunarLocationBarClass
 {
@@ -126,15 +125,10 @@ static void thunar_location_bar_class_init(ThunarLocationBarClass *klass)
 
 static void thunar_location_bar_init(ThunarLocationBar *bar)
 {
-    ThunarPreferences *preferences = thunar_preferences_get();
-
     bar->current_directory = NULL;
     bar->locationEntry = NULL;
-    //bar->locationButtons = NULL;
 
     thunar_location_bar_settings_changed(bar);
-
-    g_signal_connect_object(preferences, "notify::last-location-bar", G_CALLBACK(thunar_location_bar_settings_changed), bar, G_CONNECT_SWAPPED);
 }
 
 static void thunar_location_bar_finalize(GObject *object)

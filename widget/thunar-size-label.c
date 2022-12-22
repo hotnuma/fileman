@@ -31,7 +31,6 @@
 
 #include <thunar-deep-count-job.h>
 #include <thunar-gtk-extensions.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-size-label.h>
 
@@ -79,7 +78,6 @@ struct _ThunarSizeLabel
     GtkHBox             __parent__;
 
     ThunarDeepCountJob  *job;
-    ThunarPreferences   *preferences;
 
     GList               *files;
     gboolean            file_size_binary;
@@ -134,13 +132,6 @@ static void thunar_size_label_init(ThunarSizeLabel *size_label)
 
     gtk_orientable_set_orientation(GTK_ORIENTABLE(size_label), GTK_ORIENTATION_HORIZONTAL);
 
-    /* binary file size */
-    size_label->preferences = thunar_preferences_get();
-    exo_binding_new(G_OBJECT(size_label->preferences), "misc-file-size-binary",
-                     G_OBJECT(size_label), "file-size-binary");
-    g_signal_connect_swapped(G_OBJECT(size_label->preferences), "notify::misc-file-size-binary",
-                              G_CALLBACK(thunar_size_label_files_changed), size_label);
-
     /* configure the box */
     gtk_box_set_spacing(GTK_BOX(size_label), 6);
 
@@ -180,10 +171,6 @@ static void thunar_size_label_finalize(GObject *object)
 
     /* reset the file property */
     thunar_size_label_set_files(size_label, NULL);
-
-    /* disconnect from the preferences */
-    g_signal_handlers_disconnect_by_func(size_label->preferences, thunar_size_label_files_changed, size_label);
-    g_object_unref(size_label->preferences);
 
    (*G_OBJECT_CLASS(thunar_size_label_parent_class)->finalize)(object);
 }

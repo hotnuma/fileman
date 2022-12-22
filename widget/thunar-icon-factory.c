@@ -31,7 +31,6 @@
 
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-util.h>
 
@@ -87,8 +86,6 @@ struct _ThunarIconFactoryClass
 struct _ThunarIconFactory
 {
     GObject __parent__;
-
-    ThunarPreferences   *preferences;
 
     GHashTable          *icon_cache;
 
@@ -167,7 +164,7 @@ static void thunar_icon_factory_class_init(ThunarIconFactoryClass *klass)
                                                       "thumbnail-mode",
                                                       "thumbnail-mode",
                                                       THUNAR_TYPE_THUMBNAIL_MODE,
-                                                      THUNAR_THUMBNAIL_MODE_ONLY_LOCAL,
+                                                      THUNAR_THUMBNAIL_MODE_NEVER,
                                                       EXO_PARAM_READWRITE));
 
     /**
@@ -187,7 +184,7 @@ static void thunar_icon_factory_class_init(ThunarIconFactoryClass *klass)
 
 static void thunar_icon_factory_init(ThunarIconFactory *factory)
 {
-    factory->thumbnail_mode = THUNAR_THUMBNAIL_MODE_ONLY_LOCAL;
+    factory->thumbnail_mode = THUNAR_THUMBNAIL_MODE_NEVER;
     factory->thumbnail_size = THUNAR_THUMBNAIL_SIZE_NORMAL;
 
     /* connect emission hook for the "changed" signal on the GtkIconTheme class. We use the emission
@@ -234,7 +231,7 @@ static void thunar_icon_factory_finalize(GObject *object)
     }
 
     /* disconnect from the preferences */
-    g_object_unref(G_OBJECT(factory->preferences));
+    //g_object_unref(G_OBJECT(factory->preferences));
 
     (*G_OBJECT_CLASS(thunar_icon_factory_parent_class)->finalize)(object);
 }
@@ -667,12 +664,6 @@ ThunarIconFactory* thunar_icon_factory_get_for_icon_theme(GtkIconTheme *icon_the
         factory->icon_theme = GTK_ICON_THEME(g_object_ref(G_OBJECT(icon_theme)));
         g_object_set_qdata(G_OBJECT(factory->icon_theme), thunar_icon_factory_quark, factory);
 
-        /* connect the "show-thumbnails" property to the global preference */
-        factory->preferences = thunar_preferences_get();
-        exo_binding_new(G_OBJECT(factory->preferences),
-                         "misc-thumbnail-mode",
-                         G_OBJECT(factory),
-                         "thumbnail-mode");
     }
     else
     {
