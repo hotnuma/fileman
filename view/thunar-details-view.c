@@ -22,7 +22,6 @@
 
 #include <gdk/gdkkeysyms.h>
 
-//#include <thunar-column-editor.h>
 #include <thunar-column-model.h>
 #include <thunar-details-view.h>
 #include <thunar-launcher.h>
@@ -309,12 +308,6 @@ static void thunar_details_view_init(ThunarDetailsView *details_view)
 
     /* apply the initial column order and visibility from the column model */
     thunar_details_view_columns_changed(details_view->column_model, details_view);
-
-    /* synchronize the "fixed-columns" property */
-    exo_binding_new(G_OBJECT(THUNAR_STANDARD_VIEW(details_view)->preferences),
-                     "last-details-view-fixed-columns",
-                     G_OBJECT(details_view),
-                     "fixed-columns");
 
     /* apply fixed column widths if we start in fixed column mode */
     if (G_UNLIKELY(details_view->fixed_columns))
@@ -985,7 +978,7 @@ static void thunar_details_view_set_fixed_columns(ThunarDetailsView *details_vie
             gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))), FALSE);
 
         /* apply the new setting to all columns */
-        for(column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
+        for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
         {
             /* apply the new column mode */
             if (G_LIKELY(fixed_columns))

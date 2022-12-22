@@ -546,7 +546,7 @@ static void thunar_standard_view_init(ThunarStandardView *standard_view)
     standard_view->priv->scroll_to_files = g_hash_table_new_full(g_file_hash,(GEqualFunc) g_file_equal, g_object_unref, g_object_unref);
 
     /* grab a reference on the preferences */
-    standard_view->preferences = thunar_preferences_get();
+    //standard_view->preferences = thunar_preferences_get();
 
     /* initialize the scrolled window */
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(standard_view),
@@ -567,11 +567,16 @@ static void thunar_standard_view_init(ThunarStandardView *standard_view)
     g_signal_connect(G_OBJECT(standard_view->model), "rows-reordered", G_CALLBACK(thunar_standard_view_rows_reordered), standard_view);
     g_signal_connect(G_OBJECT(standard_view->model), "error", G_CALLBACK(thunar_standard_view_error), standard_view);
 
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-case-sensitive", G_OBJECT(standard_view->model), "case-sensitive");
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-style", G_OBJECT(standard_view->model), "date-style");
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-custom-style", G_OBJECT(standard_view->model), "date-custom-style");
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-folders-first", G_OBJECT(standard_view->model), "folders-first");
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-file-size-binary", G_OBJECT(standard_view->model), "file-size-binary");
+//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-case-sensitive",
+//                    G_OBJECT(standard_view->model), "case-sensitive");
+//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-style",
+//                    G_OBJECT(standard_view->model), "date-style");
+//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-custom-style",
+//                    G_OBJECT(standard_view->model), "date-custom-style");
+//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-folders-first",
+//                    G_OBJECT(standard_view->model), "folders-first");
+//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-file-size-binary",
+//                    G_OBJECT(standard_view->model), "file-size-binary");
 
     /* setup the icon renderer */
     standard_view->icon_renderer = thunar_icon_renderer_new();
@@ -618,10 +623,7 @@ thunar_standard_view_constructor(GType  type,
                                  GObjectConstructParam *construct_properties)
 {
     ThunarStandardView *standard_view;
-    ThunarZoomLevel     zoom_level;
     GtkAdjustment      *adjustment;
-    ThunarColumn        sort_column;
-    GtkSortType         sort_order;
     GtkWidget          *view;
     GObject            *object;
 
@@ -634,11 +636,15 @@ thunar_standard_view_constructor(GType  type,
     standard_view = THUNAR_STANDARD_VIEW(object);
 
     /* setup the default zoom-level, determined from the "last-<view>-zoom-level" preference */
-    g_object_get(G_OBJECT(standard_view->preferences), THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name, &zoom_level, NULL);
+    //g_object_get(G_OBJECT(standard_view->preferences),
+    //  THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name, &zoom_level, NULL);
+
+    ThunarZoomLevel zoom_level = THUNAR_ZOOM_LEVEL_25_PERCENT;
     thunar_view_set_zoom_level(THUNAR_VIEW(standard_view), zoom_level);
 
     /* save the "zoom-level" as "last-<view>-zoom-level" whenever the user changes the zoom level */
-    g_object_bind_property(object, "zoom-level", G_OBJECT(standard_view->preferences), THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name, G_BINDING_DEFAULT);
+//    g_object_bind_property(object, "zoom-level", G_OBJECT(standard_view->preferences),
+//                           THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name, G_BINDING_DEFAULT);
 
     /* determine the real view widget(treeview or iconview) */
     view = gtk_bin_get_child(GTK_BIN(object));
@@ -649,11 +655,15 @@ thunar_standard_view_constructor(GType  type,
     g_object_set(G_OBJECT(view), "model", standard_view->model, NULL);
 
     /* apply the single-click settings to the view */
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(view), "single-click");
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click-timeout", G_OBJECT(view), "single-click-timeout");
+//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(view), "single-click");
+//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click-timeout", G_OBJECT(view), "single-click-timeout");
 
     /* apply the default sort column and sort order */
-    g_object_get(G_OBJECT(standard_view->preferences), "last-sort-column", &sort_column, "last-sort-order", &sort_order, NULL);
+//    g_object_get(G_OBJECT(standard_view->preferences), "last-sort-column",
+//                 &sort_column, "last-sort-order", &sort_order, NULL);
+
+    ThunarColumn sort_column = THUNAR_COLUMN_NAME;
+    GtkSortType sort_order = GTK_SORT_ASCENDING;
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(standard_view->model), sort_column, sort_order);
 
     /* stay informed about changes to the sort column/order */
@@ -771,7 +781,7 @@ static void thunar_standard_view_finalize(GObject *object)
     thunar_g_file_list_free(standard_view->priv->new_files_path_list);
 
     /* release our reference on the preferences */
-    g_object_unref(G_OBJECT(standard_view->preferences));
+    //g_object_unref(G_OBJECT(standard_view->preferences));
 
     /* disconnect from the list model */
     g_signal_handlers_disconnect_matched(G_OBJECT(standard_view->model), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, standard_view);
@@ -1389,18 +1399,22 @@ static void thunar_standard_view_set_zoom_level(ThunarView     *view,
 
 static void thunar_standard_view_reset_zoom_level(ThunarView *view)
 {
-    ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(view);
-    const gchar        *property_name;
-    GParamSpec         *pspec;
-    GValue              value = { 0, };
+    UNUSED(view);
 
-    /* determine the default zoom level from the preferences */
-    property_name = THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name;
-    pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(standard_view->preferences), property_name);
-    g_value_init(&value, THUNAR_TYPE_ZOOM_LEVEL);
-    g_param_value_set_default(pspec, &value);
-    g_object_set_property(G_OBJECT(view), "zoom-level", &value);
-    g_value_unset(&value);
+//    ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(view);
+//    const gchar        *property_name;
+//    GParamSpec         *pspec;
+//    GValue              value = { 0, };
+
+//    /* determine the default zoom level from the preferences */
+//    property_name = THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name;
+
+//    pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(standard_view->preferences), property_name);
+
+//    g_value_init(&value, THUNAR_TYPE_ZOOM_LEVEL);
+//    g_param_value_set_default(pspec, &value);
+//    g_object_set_property(G_OBJECT(view), "zoom-level", &value);
+//    g_value_unset(&value);
 }
 
 static void thunar_standard_view_reload(ThunarView *view,
@@ -2043,7 +2057,6 @@ static gboolean thunar_standard_view_scroll_event(
 {
     UNUSED(view);
     GdkScrollDirection scrolling_direction;
-    gboolean           misc_horizontal_wheel_navigates;
 
     thunar_return_val_if_fail(THUNAR_IS_STANDARD_VIEW(standard_view), FALSE);
 
@@ -2063,18 +2076,21 @@ static gboolean thunar_standard_view_scroll_event(
         return FALSE;
     }
 
-    if (G_UNLIKELY(scrolling_direction == GDK_SCROLL_LEFT || scrolling_direction == GDK_SCROLL_RIGHT))
-    {
-        /* check if we should use the horizontal mouse wheel for navigation */
-        g_object_get(G_OBJECT(standard_view->preferences), "misc-horizontal-wheel-navigates", &misc_horizontal_wheel_navigates, NULL);
-        if (G_UNLIKELY(misc_horizontal_wheel_navigates))
-        {
-            if (scrolling_direction == GDK_SCROLL_LEFT)
-                thunar_history_action_back(standard_view->priv->history);
-            else
-                thunar_history_action_forward(standard_view->priv->history);
-        }
-    }
+//    if (G_UNLIKELY(scrolling_direction == GDK_SCROLL_LEFT || scrolling_direction == GDK_SCROLL_RIGHT))
+//    {
+//        gboolean misc_horizontal_wheel_navigates = false;
+//        /* check if we should use the horizontal mouse wheel for navigation */
+//        g_object_get(G_OBJECT(standard_view->preferences), "misc-horizontal-wheel-navigates",
+//                     &misc_horizontal_wheel_navigates, NULL);
+
+//        if (G_UNLIKELY(misc_horizontal_wheel_navigates))
+//        {
+//            if (scrolling_direction == GDK_SCROLL_LEFT)
+//                thunar_history_action_back(standard_view->priv->history);
+//            else
+//                thunar_history_action_forward(standard_view->priv->history);
+//        }
+//    }
 
     /* zoom-in/zoom-out on control+mouse wheel */
     if ((event->state & GDK_CONTROL_MASK) != 0 &&(scrolling_direction == GDK_SCROLL_UP || scrolling_direction == GDK_SCROLL_DOWN))
@@ -2732,8 +2748,6 @@ static void thunar_standard_view_sort_column_changed(
                                             GtkTreeSortable    *tree_sortable,
                                             ThunarStandardView *standard_view)
 {
-    GtkSortType      sort_order;
-    gint             sort_column;
 
     thunar_return_if_fail(GTK_IS_TREE_SORTABLE(tree_sortable));
     thunar_return_if_fail(THUNAR_IS_STANDARD_VIEW(standard_view));
@@ -2741,39 +2755,18 @@ static void thunar_standard_view_sort_column_changed(
     /* keep the currently selected files selected after the change */
     thunar_component_restore_selection(THUNAR_COMPONENT(standard_view));
 
+    GtkSortType      sort_order;
+    gint             sort_column;
+
     /* determine the new sort column and sort order, and save them */
     if (gtk_tree_sortable_get_sort_column_id(tree_sortable, &sort_column, &sort_order))
     {
 #if 0
-        if (standard_view->priv->directory_specific_settings)
-        {
-            const gchar *sort_column_name;
-            const gchar *sort_order_name;
-
-            /* save the sort column name */
-            sort_column_name = thunar_column_string_from_value(sort_column);
-            if (sort_column_name != NULL)
-            thunar_file_set_metadata_setting(standard_view->priv->current_directory, "sort-column", sort_column_name);
-
-            /* convert the sort order to a string */
-            if (sort_order == GTK_SORT_ASCENDING)
-            sort_order_name = "GTK_SORT_ASCENDING";
-            if (sort_order == GTK_SORT_DESCENDING)
-            sort_order_name = "GTK_SORT_DESCENDING";
-
-            /* save the sort order */
-            thunar_file_set_metadata_setting(standard_view->priv->current_directory, "sort-order", sort_order_name);
-        }
-        else
-        {
-#endif
-            /* remember the new values as default */
-            g_object_set(G_OBJECT(standard_view->preferences),
-                          "last-sort-column", sort_column,
-                          "last-sort-order", sort_order,
-                          NULL);
-#if 0
-        }
+        /* remember the new values as default */
+        g_object_set(G_OBJECT(standard_view->preferences),
+                      "last-sort-column", sort_column,
+                      "last-sort-order", sort_order,
+                      NULL);
 #endif
     }
 }

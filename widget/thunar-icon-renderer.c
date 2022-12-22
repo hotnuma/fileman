@@ -148,7 +148,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                         "size",
                                         "size",
                                         THUNAR_TYPE_ICON_SIZE,
-                                        THUNAR_ICON_SIZE_32,
+                                        THUNAR_ICON_SIZE_16,
                                         G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
 }
 

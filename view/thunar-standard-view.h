@@ -23,7 +23,6 @@
 #include <thunar-history.h>
 #include <thunar-icon-factory.h>
 #include <thunar-list-model.h>
-#include <thunar-preferences.h>
 #include <thunar-view.h>
 
 G_BEGIN_DECLS;
@@ -130,8 +129,6 @@ struct _ThunarStandardViewClass
 struct _ThunarStandardView
 {
     GtkScrolledWindow   __parent__;
-
-    ThunarPreferences   *preferences;
 
     ThunarListModel     *model;
 

@@ -34,7 +34,6 @@
 #include <thunar-job.h>
 #include <thunar-marshal.h>
 #include <thunar-menu.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-shortcuts-icon-renderer.h>
@@ -193,7 +192,6 @@ struct _ThunarTreeView
 {
     GtkTreeView             __parent__;
     ThunarClipboardManager  *clipboard;
-    ThunarPreferences       *preferences;
     GtkCellRenderer         *icon_renderer;
     ThunarFile              *current_directory;
     ThunarTreeModel         *model;
@@ -226,11 +224,6 @@ struct _ThunarTreeView
      * button-release-event should activate.
      */
     gint                    pressed_button;
-
-    /* id of the signal used to queue a resize on the
-     * column whenever the shortcuts icon size is changed.
-     */
-    gulong                  queue_resize_signal_id;
 
     /* set cursor to current directory idle source */
     guint                   cursor_idle_id;
@@ -362,11 +355,6 @@ static void thunar_tree_view_init(ThunarTreeView *view)
     /* grab a reference on the provider factory */
     view->provider_factory = thunarx_provider_factory_get_default();
 
-    /* grab a reference on the preferences; be sure to redraw the view
-     * whenever the "tree-icon-emblems" preference changes.
-     */
-    view->preferences = thunar_preferences_get();
-
 #ifdef ENABLE_TREEDELETE
     g_signal_connect_swapped(G_OBJECT(view->preferences),
                          "notify::tree-icon-emblems",
@@ -375,12 +363,6 @@ static void thunar_tree_view_init(ThunarTreeView *view)
 
     /* Create a tree model for this tree view */
     view->model = g_object_new(THUNAR_TYPE_TREE_MODEL, NULL);
-
-    /* synchronize the the global "misc-case-sensitive" preference */
-    g_object_set_data_full(G_OBJECT(view->model), I_("thunar-preferences"),
-                           view->preferences, g_object_unref);
-    exo_binding_new(G_OBJECT(view->preferences), "misc-case-sensitive",
-                    G_OBJECT(view->model), "case-sensitive");
 
     thunar_tree_model_set_visible_func(view->model, thunar_tree_view_visible_func, view);
     gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(view->model));
@@ -398,13 +380,6 @@ static void thunar_tree_view_init(ThunarTreeView *view)
                           NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
 
-    /* queue a resize on the column whenever the icon size is changed */
-    view->queue_resize_signal_id = g_signal_connect_swapped(
-                                        G_OBJECT(view->preferences),
-                                        "notify::tree-icon-size",
-                                        G_CALLBACK(gtk_tree_view_column_queue_resize),
-                                        column);
-
     /* allocate the special icon renderer */
     view->icon_renderer = thunar_shortcuts_icon_renderer_new();
     gtk_tree_view_column_pack_start(column, view->icon_renderer, FALSE);
@@ -412,15 +387,6 @@ static void thunar_tree_view_init(ThunarTreeView *view)
                                         "file", THUNAR_TREE_MODEL_COLUMN_FILE,
                                         "device", THUNAR_TREE_MODEL_COLUMN_DEVICE,
                                         NULL);
-
-    /* sync the "emblems" property of the icon renderer with the "tree-icon-emblems" preference
-     * and the "size" property of the renderer with the "tree-icon-size" preference.
-     */
-    exo_binding_new(G_OBJECT(view->preferences), "tree-icon-size",
-                    G_OBJECT(view->icon_renderer), "size");
-
-    exo_binding_new(G_OBJECT(view->preferences), "tree-icon-emblems",
-                    G_OBJECT(view->icon_renderer), "emblems");
 
     /* allocate the text renderer */
     renderer = gtk_cell_renderer_text_new();
@@ -465,9 +431,6 @@ static void thunar_tree_view_finalize(GObject *object)
     /* release the provider factory */
     g_object_unref(G_OBJECT(view->provider_factory));
 
-    /* disconnect the queue resize signal handler */
-    g_signal_handler_disconnect(G_OBJECT(view->preferences), view->queue_resize_signal_id);
-
     /* be sure to cancel the cursor idle source */
     if (G_UNLIKELY(view->cursor_idle_id != 0))
         g_source_remove(view->cursor_idle_id);
@@ -486,9 +449,6 @@ static void thunar_tree_view_finalize(GObject *object)
 
     /* reset the current-directory property */
     thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(view), NULL);
-
-    /* release our reference on the preferences */
-    g_object_unref(G_OBJECT(view->preferences));
 
     /* free the tree model */
     g_object_unref(G_OBJECT(view->model));
