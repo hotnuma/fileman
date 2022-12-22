@@ -153,6 +153,7 @@ DISTFILES = \
     install.sh \
     meson.build \
     Readme.md \
+    prefs.txt \
     thunar-marshal.list \
 
 

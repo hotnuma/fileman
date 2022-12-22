@@ -48,7 +48,6 @@
 #include <thunar-marshal.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-permissions-chooser.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-size-label.h>
@@ -109,8 +108,6 @@ struct _ThunarPropertiesDialog
 
     ThunarxProviderFactory *provider_factory;
     GList                  *provider_pages;
-
-    ThunarPreferences      *preferences;
 
     GList                  *files;
     gboolean                file_size_binary;
@@ -208,23 +205,12 @@ static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *kla
 
 static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
 {
-    //GtkWidget *chooser;
     GtkWidget *grid;
     GtkWidget *label;
     GtkWidget *box;
     GtkWidget *spacer;
     guint      row = 0;
     GtkWidget *image;
-
-    /* acquire a reference on the preferences and monitor the
-       "misc-date-style" and "misc-file-size-binary" settings */
-    dialog->preferences = thunar_preferences_get();
-    g_signal_connect_swapped(G_OBJECT(dialog->preferences), "notify::misc-date-style",
-                              G_CALLBACK(thunar_properties_dialog_reload), dialog);
-    exo_binding_new(G_OBJECT(dialog->preferences), "misc-file-size-binary",
-                     G_OBJECT(dialog), "file-size-binary");
-    g_signal_connect_swapped(G_OBJECT(dialog->preferences), "notify::misc-file-size-binary",
-                              G_CALLBACK(thunar_properties_dialog_reload), dialog);
 
     dialog->provider_factory = thunarx_provider_factory_get_default();
 
@@ -567,12 +553,7 @@ static void thunar_properties_dialog_dispose(GObject *object)
 static void thunar_properties_dialog_finalize(GObject *object)
 {
     ThunarPropertiesDialog *dialog = THUNAR_PROPERTIES_DIALOG(object);
-
     thunar_return_if_fail(dialog->files == NULL);
-
-    /* disconnect from the preferences */
-    g_signal_handlers_disconnect_by_func(dialog->preferences, thunar_properties_dialog_reload, dialog);
-    g_object_unref(dialog->preferences);
 
     /* release the provider property pages */
     g_list_free_full(dialog->provider_pages, g_object_unref);
@@ -835,7 +816,6 @@ static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *di
 static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialog)
 {
     ThunarIconFactory *icon_factory;
-    ThunarDateStyle    date_style;
     GtkIconTheme      *icon_theme;
     const gchar       *content_type;
     const gchar       *name;
@@ -843,7 +823,6 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     GVolume           *volume;
     GIcon             *gicon;
     glong              offset;
-    gchar             *date_custom_style;
     gchar             *date;
     gchar             *display_name;
     gchar             *fs_string;
@@ -871,9 +850,6 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(dialog)));
     icon_factory = thunar_icon_factory_get_for_icon_theme(icon_theme);
 
-    /* determine the style used to format dates */
-    g_object_get(G_OBJECT(dialog->preferences), "misc-date-style", &date_style, NULL);
-    g_object_get(G_OBJECT(dialog->preferences), "misc-date-custom-style", &date_custom_style, NULL);
 
     /* update the properties dialog title */
     str = g_strdup_printf(_("%s - Properties"), thunar_file_get_display_name(file));
@@ -990,6 +966,10 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     {
         gtk_widget_hide(dialog->location_label);
     }
+
+    /* determine the style used to format dates */
+    ThunarDateStyle date_style = THUNAR_DATE_STYLE_YYYYMMDD;
+    gchar *date_custom_style = NULL;
 
     /* update the deleted time */
     date = thunar_file_get_deletion_date(file, date_style, date_custom_style);
