@@ -29,7 +29,6 @@
 #include <thunar-device-monitor.h>
 #include <thunar-debug.h>
 #include <thunar-marshal.h>
-#include <thunar-preferences.h>
 
 /* signal identifiers */
 enum
@@ -110,7 +109,6 @@ struct _ThunarDeviceMonitor
     GList              *hidden_volumes;
 
     /* user defined hidden volumes */
-    ThunarPreferences  *preferences;
     gchar             **hidden_devices;
 };
 
@@ -178,10 +176,6 @@ static void thunar_device_monitor_init(ThunarDeviceMonitor *monitor)
     GList *list;
     GList *lp;
 
-    monitor->preferences = thunar_preferences_get();
-    exo_binding_new(G_OBJECT(monitor->preferences), "hidden-devices",
-                     G_OBJECT(monitor), "hidden-devices");
-
     /* table for GVolume/GMount(key) -> ThunarDevice(value) */
     monitor->devices = g_hash_table_new_full(g_direct_hash, g_direct_equal, g_object_unref, g_object_unref);
 
@@ -190,7 +184,7 @@ static void thunar_device_monitor_init(ThunarDeviceMonitor *monitor)
 
     /* load all volumes */
     list = g_volume_monitor_get_volumes(monitor->volume_monitor);
-    for(lp = list; lp != NULL; lp = lp->next)
+    for (lp = list; lp != NULL; lp = lp->next)
     {
         thunar_device_monitor_volume_added(monitor->volume_monitor, lp->data, monitor);
         g_object_unref(G_OBJECT(lp->data));
@@ -221,7 +215,6 @@ static void thunar_device_monitor_finalize(GObject *object)
     ThunarDeviceMonitor *monitor = THUNAR_DEVICE_MONITOR(object);
 
     /* release properties */
-    g_object_unref(monitor->preferences);
     g_strfreev(monitor->hidden_devices);
 
     /* detatch from the monitor */
@@ -700,8 +693,6 @@ void thunar_device_monitor_set_hidden(ThunarDeviceMonitor *monitor,
     else
         g_free(id);
 
-    /* store new list */
-    g_object_set(G_OBJECT(monitor->preferences), "hidden-devices", devices, NULL);
     g_strfreev(devices);
 }
 

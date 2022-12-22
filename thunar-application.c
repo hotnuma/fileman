@@ -50,7 +50,6 @@
 #include <thunar-gdk-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-io-jobs.h>
-#include <thunar-preferences.h>
 #include <preferences.h>
 #include <thunar-debug.h>
 #include <thunar-progress-dialog.h>
@@ -180,8 +179,6 @@ struct _ThunarApplication
 {
     GtkApplication      __parent__;
 
-    ThunarPreferences   *preferences;
-
     gboolean            daemon;
     GtkWidget           *progress_dialog;
     guint               show_dialogs_timer_id;
@@ -268,7 +265,6 @@ static void thunar_application_init(ThunarApplication *application)
 
     application->files_to_launch = NULL;
     application->progress_dialog = NULL;
-    application->preferences     = NULL;
 
     g_application_set_flags(G_APPLICATION(application), G_APPLICATION_HANDLES_COMMAND_LINE);
     g_application_add_main_option_entries(G_APPLICATION(application), option_entries);
@@ -329,9 +325,6 @@ static void thunar_application_startup(GApplication *gapp)
 #ifdef HAVE_GUDEV
     static const gchar *subsystems[] = { "block", "input", "usb", NULL };
 #endif
-
-    /* initialize the application */
-    application->preferences = thunar_preferences_get();
 
 #ifdef HAVE_GUDEV
     /* establish connection with udev */
@@ -411,9 +404,6 @@ static void thunar_application_shutdown(GApplication *gapp)
     /* drop any running "show dialogs" timer */
     if (G_UNLIKELY(application->show_dialogs_timer_id != 0))
         g_source_remove(application->show_dialogs_timer_id);
-
-    /* disconnect from the preferences */
-    g_object_unref(G_OBJECT(application->preferences));
 
     /* disconnect from the session manager */
 #ifdef ENABLE_LIBSM
@@ -873,17 +863,13 @@ static gboolean thunar_application_volman_idle(gpointer user_data)
 {
     ThunarApplication *application = THUNAR_APPLICATION(user_data);
     GdkScreen         *screen;
-    gboolean           misc_volume_management;
     GError            *err = NULL;
     gchar            **argv;
     GPid               pid;
     char              *display = NULL;
 
     /* check if volume management is enabled(otherwise, we don't spawn anything, but clear the list here) */
-    g_object_get(G_OBJECT(application->preferences),
-                 "misc-volume-management",
-                 &misc_volume_management,
-                 NULL);
+    gboolean misc_volume_management = true;
 
     if (G_LIKELY(misc_volume_management))
     {

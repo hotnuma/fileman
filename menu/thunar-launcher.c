@@ -40,7 +40,6 @@
 #include <thunar-icon-factory.h>
 #include <thunar-io-scan-directory.h>
 #include <thunar-launcher.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-sendto-model.h>
@@ -175,8 +174,6 @@ struct _ThunarLauncher
     ThunarFile      *parent_folder;
 
     GClosure        *select_files_closure;
-
-    ThunarPreferences *preferences;
 
     /* Parent widget which holds the instance of the launcher */
     GtkWidget       *widget;
@@ -552,9 +549,6 @@ static void thunar_launcher_init(ThunarLauncher *launcher)
     launcher->files_to_process = NULL;
     launcher->select_files_closure = NULL;
     launcher->device_to_process = NULL;
-
-    /* grab a reference on the preferences */
-    launcher->preferences = thunar_preferences_get();
 }
 
 static void thunar_launcher_dispose(GObject *object)
@@ -578,10 +572,7 @@ static void thunar_launcher_dispose(GObject *object)
 
 static void thunar_launcher_finalize(GObject *object)
 {
-    ThunarLauncher *launcher = THUNAR_LAUNCHER(object);
-
-    /* release the preferences reference */
-    g_object_unref(launcher->preferences);
+    //ThunarLauncher *launcher = THUNAR_LAUNCHER(object);
 
    (*G_OBJECT_CLASS(thunar_launcher_parent_class)->finalize)(object);
 }
@@ -1428,7 +1419,6 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
     gchar                    *label_text;
     gchar                    *tooltip_text;
     const XfceGtkActionEntry *action_entry = get_action_entry(action);
-    gboolean                  show_delete_item;
     gboolean                  show_item;
     ThunarClipboardManager   *clipboard;
     ThunarFile               *parent;
@@ -1440,6 +1430,8 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
     /* This may occur when the thunar-window is build */
     if (G_UNLIKELY(launcher->files_to_process == NULL) && launcher->device_to_process == NULL)
         return NULL;
+
+    gboolean show_delete_item = false;
 
     switch (action)
     {
@@ -1549,7 +1541,6 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
 
 
     case THUNAR_LAUNCHER_ACTION_DELETE:
-        g_object_get(G_OBJECT(launcher->preferences), "misc-show-delete-action", &show_delete_item, NULL);
         if (thunar_launcher_show_trash(launcher) && !show_delete_item)
             return NULL;
 

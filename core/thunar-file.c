@@ -61,7 +61,6 @@
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-debug.h>
-#include <thunar-preferences.h>
 #include <thunar-user.h>
 #include <thunar-util.h>
 #include <thunar-dialogs.h>
@@ -2643,7 +2642,6 @@ gboolean thunar_file_is_ancestor(const ThunarFile *file,
  **/
 gboolean thunar_file_is_executable(const ThunarFile *file)
 {
-    ThunarPreferences *preferences;
     gboolean           can_execute = FALSE;
     gboolean           exec_shell_scripts = FALSE;
     const gchar       *content_type;
@@ -2663,11 +2661,6 @@ gboolean thunar_file_is_executable(const ThunarFile *file)
 
             if (can_execute)
             {
-                /* check if the shell scripts should be executed or opened by default */
-                preferences = thunar_preferences_get();
-                g_object_get(preferences, "misc-exec-shell-scripts-by-default", &exec_shell_scripts, NULL);
-                g_object_unref(preferences);
-
                 /* do never execute plain text files which are not shell scripts but marked executable */
                 if (g_strcmp0(content_type, "text/plain") == 0)
                     can_execute = FALSE;

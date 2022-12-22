@@ -29,7 +29,6 @@
 #include <thunar-io-scan-directory.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
-#include <thunar-preferences.h>
 #include <thunar-debug.h>
 #include <thunar-transfer-job.h>
 
@@ -87,7 +86,6 @@ struct _ThunarTransferJob
     guint64                 file_progress;
     guint64                 transfer_rate;
 
-    ThunarPreferences       *preferences;
     gboolean                file_size_binary;
     ThunarParallelCopyMode  parallel_copy_mode;
 };
@@ -147,12 +145,6 @@ static void thunar_transfer_job_class_init(ThunarTransferJobClass *klass)
 
 static void thunar_transfer_job_init(ThunarTransferJob *job)
 {
-    job->preferences = thunar_preferences_get();
-    exo_binding_new(G_OBJECT(job->preferences), "misc-file-size-binary",
-                     G_OBJECT(job), "file-size-binary");
-    exo_binding_new(G_OBJECT(job->preferences), "misc-parallel-copy-mode",
-                     G_OBJECT(job), "parallel-copy-mode");
-
     job->type = 0;
     job->source_node_list = NULL;
     job->source_device_fs_id = NULL;
@@ -181,8 +173,6 @@ static void thunar_transfer_job_finalize(GObject *object)
         g_free(job->target_device_fs_id);
 
     thunar_g_file_list_free(job->target_file_list);
-
-    g_object_unref(job->preferences);
 
    (*G_OBJECT_CLASS(thunar_transfer_job_parent_class)->finalize)(object);
 }
@@ -232,7 +222,9 @@ static void thunar_transfer_job_set_property(GObject      *object,
 static void thunar_transfer_job_check_pause(ThunarTransferJob *job)
 {
     thunar_return_if_fail(THUNAR_IS_TRANSFER_JOB(job));
-    while(thunar_job_is_paused(THUNAR_JOB(job)) && !exo_job_is_cancelled(EXO_JOB(job)))
+
+    while (thunar_job_is_paused(THUNAR_JOB(job))
+           && !exo_job_is_cancelled(EXO_JOB(job)))
     {
         g_usleep(500 * 1000); /* 500ms pause */
     }

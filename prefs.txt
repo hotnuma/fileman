@@ -1,12 +1,5 @@
-side/thunar-tree-view.c:37:#include <thunar-preferences.h>
-core/thunar-file.c:64:#include <thunar-preferences.h>
-core/thunar-device-monitor.c:32:#include <thunar-preferences.h>
-job/thunar-transfer-job.c:32:#include <thunar-preferences.h>
-thunar-application.c:53:#include <thunar-preferences.h>
-menu/thunar-launcher.c:43:#include <thunar-preferences.h>
-main.c:45:#include <thunar-preferences.h>
-misc/thunar-gio-extensions.c:36:#include <thunar-preferences.h>
 view/thunar-column-model.c:28:#include <thunar-preferences.h>
+main.c:45:#include <thunar-preferences.h>
 
 
 <property name="last-details-view-column-widths" type="string"
