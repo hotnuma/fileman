@@ -4,9 +4,10 @@ CONFIG = c11 link_pkgconfig
 DEFINES = GTK HAVE_CONFIG_H
 
 PKGCONFIG = \
+    gtk+-3.0 \
+    tinyc \
     gudev-1.0 \
     libnotify \
-    gtk+-3.0 \
     exo-2 \
     libxfconf-0 \
     libxfce4util-1.0 \
@@ -54,6 +55,7 @@ HEADERS = \
     misc/thunar-navigator.h \
     misc/thunar-notify.h \
     misc/thunar-pango-extensions.h \
+    preferences.h \
     side/thunar-side-pane.h \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
@@ -120,6 +122,7 @@ SOURCES = \
     menu/thunar-launcher.c \
     menu/thunar-menu.c \
     menu/thunar-sendto-model.c \
+    preferences.c \
     side/thunar-side-pane.c \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \

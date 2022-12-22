@@ -51,6 +51,7 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-io-jobs.h>
 #include <thunar-preferences.h>
+#include <preferences.h>
 #include <thunar-debug.h>
 #include <thunar-progress-dialog.h>
 #include <thunar-util.h>
@@ -323,6 +324,8 @@ static void thunar_application_startup(GApplication *gapp)
 {
     ThunarApplication *application = THUNAR_APPLICATION(gapp);
 
+    prefs_file_read();
+
 #ifdef HAVE_GUDEV
     static const gchar *subsystems[] = { "block", "input", "usb", NULL };
 #endif
@@ -372,6 +375,9 @@ static void thunar_application_startup(GApplication *gapp)
 static void thunar_application_shutdown(GApplication *gapp)
 {
     ThunarApplication *application = THUNAR_APPLICATION(gapp);
+
+    prefs_write();
+    prefs_cleanup();
 
     /* unqueue all files waiting to be processed */
     thunar_g_file_list_free(application->files_to_launch);
@@ -809,11 +815,6 @@ static void thunar_application_uevent(GUdevClient       *client,
 
     /* determine the sysfs path of the device */
     const gchar *sysfs_path = g_udev_device_get_sysfs_path(device);
-
-    //if (sysfs_path)
-    //{
-    //    DPRINT("sysfs_path: %s\n", sysfs_path);
-    //}
 
     /* check if the device is a CD drive */
     gboolean is_cdrom = g_udev_device_get_property_as_boolean(device, "ID_CDROM");

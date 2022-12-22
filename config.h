@@ -4,6 +4,9 @@
 #define PACKAGE_NAME "fileman"
 #define BINDIR "/usr/bin"
 
+#define APP_DISPLAY_NAME "Fileman"
+#define APP_NAME "fileman"
+
 //https://stackoverflow.com/questions/7090998/
 #define UNUSED(x) (void)(x)
 

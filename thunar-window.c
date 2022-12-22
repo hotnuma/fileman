@@ -45,7 +45,7 @@
 #include <thunar-marshal.h>
 #include <thunar-menu.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-preferences.h>
+#include <preferences.h>
 #include <thunar-debug.h>
 #include <thunar-util.h>
 #include <thunar-statusbar.h>
@@ -108,9 +108,6 @@ static gboolean thunar_window_tab_change(ThunarWindow *window,
                                          gint nth);
 static void thunar_window_realize(GtkWidget *widget);
 static void thunar_window_unrealize(GtkWidget *widget);
-static gboolean thunar_window_configure_event(GtkWidget *widget,
-                                              GdkEventConfigure *event);
-
 static void thunar_window_notebook_switch_page(GtkWidget *notebook,
                                                GtkWidget *page,
                                                guint page_num,
@@ -168,8 +165,6 @@ static void thunar_window_device_changed(ThunarDeviceMonitor *device_monitor,
                                          ThunarDevice *device,
                                          ThunarWindow *window);
 static gboolean thunar_window_save_paned(ThunarWindow *window);
-static gboolean thunar_window_save_geometry_timer(gpointer user_data);
-static void thunar_window_save_geometry_timer_destroy(gpointer user_data);
 static void thunar_window_set_zoom_level(ThunarWindow *window,
                                          ThunarZoomLevel zoom_level);
 static void thunar_window_update_window_icon(ThunarWindow *window);
@@ -213,8 +208,6 @@ struct _ThunarWindow
     GList                  *thunarx_preferences_providers;
 
     ThunarClipboardManager *clipboard;
-
-    ThunarPreferences      *preferences;
 
     ThunarIconFactory      *icon_factory;
 
@@ -359,7 +352,6 @@ static void thunar_window_class_init(ThunarWindowClass *klass)
     gtkwidget_class = GTK_WIDGET_CLASS(klass);
     gtkwidget_class->realize = thunar_window_realize;
     gtkwidget_class->unrealize = thunar_window_unrealize;
-    gtkwidget_class->configure_event = thunar_window_configure_event;
 
     klass->reload = thunar_window_reload;
     klass->zoom_in = NULL;
@@ -496,22 +488,14 @@ static void thunar_window_class_init(ThunarWindowClass *klass)
 static void thunar_window_init(ThunarWindow *window)
 {
     GType           type;
-    gint            last_separator_position;
-    gint            last_window_width;
-    gint            last_window_height;
-    gboolean        last_window_maximized;
-    gboolean        last_statusbar_visible;
     GtkToolItem     *tool_item;
-    gboolean        small_icons;
     GtkStyleContext *context;
 
+    Preferences *prefs = get_preferences();
 
     /* grab a reference on the provider factory and load the providers*/
     window->provider_factory = thunarx_provider_factory_get_default();
     window->thunarx_preferences_providers = thunarx_provider_factory_list_providers(window->provider_factory, THUNARX_TYPE_PREFERENCES_PROVIDER);
-
-    /* grab a reference on the preferences */
-    window->preferences = thunar_preferences_get();
 
     window->accel_group = gtk_accel_group_new();
     xfce_gtk_accel_map_add_entries(thunar_window_action_entries, G_N_ELEMENTS(thunar_window_action_entries));
@@ -522,16 +506,7 @@ static void thunar_window_init(ThunarWindow *window)
 
     gtk_window_add_accel_group(GTK_WINDOW(window), window->accel_group);
 
-    /* get all properties for init */
-    g_object_get(G_OBJECT(window->preferences),
-                  "last-show-hidden", &window->show_hidden,
-                  "last-window-width", &last_window_width,
-                  "last-window-height", &last_window_height,
-                  "last-window-maximized", &last_window_maximized,
-                  "last-separator-position", &last_separator_position,
-                  "last-statusbar-visible", &last_statusbar_visible,
-                  "misc-small-toolbar-icons", &small_icons,
-                  NULL);
+    window->show_hidden = false;
 
     /* update the visual on screen_changed events */
     g_signal_connect(window, "screen-changed", G_CALLBACK(thunar_window_screen_changed), NULL);
@@ -568,11 +543,11 @@ static void thunar_window_init(ThunarWindow *window)
     g_signal_connect_swapped(G_OBJECT(window->launcher), "change-directory", G_CALLBACK(thunar_window_set_current_directory), window);
     thunar_launcher_append_accelerators(window->launcher, window->accel_group);
 
-    /* determine the default window size from the preferences */
-    gtk_window_set_default_size(GTK_WINDOW(window), last_window_width, last_window_height);
+    gtk_window_set_default_size(GTK_WINDOW(window),
+                                prefs->window_width,
+                                prefs->window_height);
 
-    /* restore the maxized state of the window */
-    if (G_UNLIKELY(last_window_maximized))
+    if (G_UNLIKELY(prefs->window_maximized))
         gtk_window_maximize(GTK_WINDOW(window));
 
     /* add thunar style class for easier theming */
@@ -589,8 +564,8 @@ static void thunar_window_init(ThunarWindow *window)
     // Toolbar
     window->toolbar = gtk_toolbar_new();
     gtk_toolbar_set_style(GTK_TOOLBAR(window->toolbar), GTK_TOOLBAR_ICONS);
-    gtk_toolbar_set_icon_size(GTK_TOOLBAR(window->toolbar),
-                               small_icons ? GTK_ICON_SIZE_SMALL_TOOLBAR : GTK_ICON_SIZE_LARGE_TOOLBAR);
+    gtk_toolbar_set_icon_size(
+        GTK_TOOLBAR(window->toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
     gtk_widget_set_hexpand(window->toolbar, TRUE);
     gtk_grid_attach(GTK_GRID(window->grid), window->toolbar, 0, 0, 1, 1);
 
@@ -626,10 +601,7 @@ static void thunar_window_init(ThunarWindow *window)
     /* display the toolbar */
     gtk_widget_show_all(window->toolbar);
 
-    /* setup setting the location bar visibility on-demand */
-    g_signal_connect_object(G_OBJECT(window->preferences), "notify::last-location-bar", G_CALLBACK(thunar_window_update_location_bar_visible), window, G_CONNECT_SWAPPED);
     thunar_window_update_location_bar_visible(window);
-
 
     // Paned
     window->paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
@@ -640,7 +612,7 @@ static void thunar_window_init(ThunarWindow *window)
     gtk_widget_show(window->paned);
 
     /* determine the last separator position and apply it to the paned view */
-    gtk_paned_set_position(GTK_PANED(window->paned), last_separator_position);
+    gtk_paned_set_position(GTK_PANED(window->paned), prefs->separator_position);
     g_signal_connect_swapped(window->paned, "accept-position", G_CALLBACK(thunar_window_save_paned), window);
     g_signal_connect_swapped(window->paned, "button-release-event", G_CALLBACK(thunar_window_save_paned), window);
 
@@ -671,17 +643,12 @@ static void thunar_window_init(ThunarWindow *window)
 
     gtk_widget_set_can_focus(window->notebook, FALSE);
 
-    /* update window icon whenever preferences change */
-    g_signal_connect_object(G_OBJECT(window->preferences), "notify::misc-change-window-icon",
-                             G_CALLBACK(thunar_window_update_window_icon), window, G_CONNECT_SWAPPED);
-
     /* setup a new statusbar */
     window->statusbar = thunar_statusbar_new();
     gtk_widget_set_hexpand(window->statusbar, TRUE);
     gtk_grid_attach(GTK_GRID(window->view_box), window->statusbar, 0, 2, 1, 1);
 
-    if (last_statusbar_visible)
-        gtk_widget_show(window->statusbar);
+    gtk_widget_show(window->statusbar);
 
     if (G_LIKELY(window->view != NULL))
         thunar_window_binding_create(window, window->view, "statusbar-text", window->statusbar, "text", G_BINDING_SYNC_CREATE);
@@ -774,9 +741,6 @@ static void thunar_window_finalize(GObject *object)
     /* release our reference on the provider factory */
     g_object_unref(window->provider_factory);
 
-    /* release the preferences reference */
-    g_object_unref(window->preferences);
-
     g_closure_invalidate(window->select_files_closure);
     g_closure_unref(window->select_files_closure);
 
@@ -791,7 +755,27 @@ static gboolean thunar_window_delete(GtkWidget *widget,
     UNUSED(event);
     UNUSED(data);
 
-    return FALSE;
+    Preferences *prefs = get_preferences();
+    GtkWindow *window = GTK_WINDOW(widget);
+
+    if (gtk_widget_get_visible(GTK_WIDGET(widget)))
+    {
+        GdkWindowState state = gdk_window_get_state(
+                                            gtk_widget_get_window(widget));
+
+        prefs->window_maximized = ((state & (GDK_WINDOW_STATE_MAXIMIZED
+                                             | GDK_WINDOW_STATE_FULLSCREEN))
+                                    != 0);
+
+        if (!prefs->window_maximized)
+        {
+            gtk_window_get_size(window,
+                                &prefs->window_width,
+                                &prefs->window_height);
+        }
+    }
+
+    return false;
 }
 
 static void thunar_window_get_property(GObject    *object,
@@ -923,34 +907,6 @@ static void thunar_window_unrealize(GtkWidget *widget)
     /* drop the reference on the clipboard manager, we do this after letting the GtkWidget class
      * unrealise the window to prevent the clipboard being disposed during the unrealize  */
     g_object_unref(G_OBJECT(window->clipboard));
-}
-
-static gboolean thunar_window_configure_event(GtkWidget         *widget,
-                                              GdkEventConfigure *event)
-{
-    ThunarWindow *window = THUNAR_WINDOW(widget);
-    GtkAllocation widget_allocation;
-
-    gtk_widget_get_allocation(widget, &widget_allocation);
-
-    /* check if we have a new dimension here */
-    if (widget_allocation.width != event->width || widget_allocation.height != event->height)
-    {
-        /* drop any previous timer source */
-        if (window->save_geometry_timer_id != 0)
-            g_source_remove(window->save_geometry_timer_id);
-
-        /* check if we should schedule another save timer */
-        if (gtk_widget_get_visible(widget))
-        {
-            /* save the geometry one second after the last configure event */
-            window->save_geometry_timer_id = g_timeout_add_seconds_full(G_PRIORITY_LOW, 1, thunar_window_save_geometry_timer,
-                                             window, thunar_window_save_geometry_timer_destroy);
-        }
-    }
-
-    /* let Gtk+ handle the configure event */
-    return(*GTK_WIDGET_CLASS(thunar_window_parent_class)->configure_event)(widget, event);
 }
 
 static void thunar_window_binding_destroyed(gpointer data,
@@ -1269,33 +1225,18 @@ void thunar_window_update_directories(ThunarWindow *window,
 
 static void thunar_window_update_location_bar_visible(ThunarWindow *window)
 {
-//    gchar *last_location_bar = NULL;
-
-//    g_object_get(window->preferences, "last-location-bar", &last_location_bar, NULL);
-
-//    if (exo_str_is_equal(last_location_bar, g_type_name(G_TYPE_NONE)))
-//    {
-//        gtk_widget_hide(window->location_toolbar);
-//        gtk_widget_grab_focus(window->view);
-//    }
-//    else
-
     gtk_widget_show(window->toolbar);
-
-//    g_free(last_location_bar);
 }
 
 static void thunar_window_update_window_icon(ThunarWindow *window)
 {
-    gboolean      change_window_icon;
-    GtkIconTheme *icon_theme;
-    const gchar  *icon_name = "folder";
+    const gchar *icon_name = "folder";
 
-    g_object_get(window->preferences, "misc-change-window-icon", &change_window_icon, NULL);
+    gboolean change_window_icon = true;
 
     if (change_window_icon)
     {
-        icon_theme = gtk_icon_theme_get_for_screen(gtk_window_get_screen(GTK_WINDOW(window)));
+        GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(gtk_window_get_screen(GTK_WINDOW(window)));
         icon_name = thunar_file_get_icon_name(window->current_directory,
                                                THUNAR_FILE_ICON_STATE_DEFAULT,
                                                icon_theme);
@@ -1348,10 +1289,6 @@ static void thunar_window_install_sidepane(ThunarWindow *window,
         if (type == THUNAR_TYPE_TREE_PANE)
             thunar_side_pane_set_show_hidden(THUNAR_SIDE_PANE(window->sidepane), window->show_hidden);
     }
-
-    /* remember the setting */
-    if (gtk_widget_get_visible(GTK_WIDGET(window)))
-        g_object_set(G_OBJECT(window->preferences), "last-side-pane", g_type_name(type), NULL);
 }
 
 static void thunar_window_start_open_location(ThunarWindow *window,
@@ -1573,14 +1510,12 @@ static void thunar_window_action_show_hidden(ThunarWindow *window)
 
     if (G_LIKELY(window->sidepane != NULL))
         thunar_side_pane_set_show_hidden(THUNAR_SIDE_PANE(window->sidepane), window->show_hidden);
-
-    g_object_set(G_OBJECT(window->preferences), "last-show-hidden", window->show_hidden, NULL);
 }
 
 static void thunar_window_current_directory_changed(ThunarFile *current_directory,
                                                     ThunarWindow *window)
 {
-    gboolean      show_full_path;
+    gboolean      show_full_path = false;
     gchar        *parse_name = NULL;
     const gchar  *name;
 
@@ -1588,8 +1523,6 @@ static void thunar_window_current_directory_changed(ThunarFile *current_director
     thunar_return_if_fail(THUNAR_IS_FILE(current_directory));
     thunar_return_if_fail(window->current_directory == current_directory);
 
-    /* get name of directory or full path */
-    g_object_get(G_OBJECT(window->preferences), "misc-full-path-in-title", &show_full_path, NULL);
     if (G_UNLIKELY(show_full_path))
         name = parse_name = g_file_get_parse_name(thunar_file_get_file(current_directory));
     else
@@ -1720,59 +1653,11 @@ static gboolean thunar_window_save_paned(ThunarWindow *window)
 {
     thunar_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
 
-    g_object_set(G_OBJECT(window->preferences), "last-separator-position",
-                  gtk_paned_get_position(GTK_PANED(window->paned)), NULL);
+    Preferences *prefs = get_preferences();
+    prefs->separator_position = gtk_paned_get_position(GTK_PANED(window->paned));
 
     /* for button release event */
-    return FALSE;
-}
-
-static gboolean thunar_window_save_geometry_timer(gpointer user_data)
-{
-    GdkWindowState state;
-    ThunarWindow  *window = THUNAR_WINDOW(user_data);
-    gboolean       remember_geometry;
-    gint           width;
-    gint           height;
-
-    THUNAR_THREADS_ENTER
-
-    /* check if we should remember the window geometry */
-    g_object_get(G_OBJECT(window->preferences), "misc-remember-geometry", &remember_geometry, NULL);
-    if (G_LIKELY(remember_geometry))
-    {
-        /* check if the window is still visible */
-        if (gtk_widget_get_visible(GTK_WIDGET(window)))
-        {
-            /* determine the current state of the window */
-            state = gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(window)));
-
-            /* don't save geometry for maximized or fullscreen windows */
-            if ((state &(GDK_WINDOW_STATE_MAXIMIZED | GDK_WINDOW_STATE_FULLSCREEN)) == 0)
-            {
-                /* determine the current width/height of the window... */
-                gtk_window_get_size(GTK_WINDOW(window), &width, &height);
-
-                /* ...and remember them as default for new windows */
-                g_object_set(G_OBJECT(window->preferences), "last-window-width", width, "last-window-height", height,
-                              "last-window-maximized", FALSE, NULL);
-            }
-            else
-            {
-                /* only store that the window is full screen */
-                g_object_set(G_OBJECT(window->preferences), "last-window-maximized", TRUE, NULL);
-            }
-        }
-    }
-
-    THUNAR_THREADS_LEAVE
-
-    return FALSE;
-}
-
-static void thunar_window_save_geometry_timer_destroy(gpointer user_data)
-{
-    THUNAR_WINDOW(user_data)->save_geometry_timer_id = 0;
+    return false;
 }
 
 /**
@@ -2015,15 +1900,13 @@ ThunarLauncher* thunar_window_get_launcher(ThunarWindow *window)
     return window->launcher;
 }
 
-static void
-thunar_window_redirect_menu_tooltips_to_statusbar_recursive(
-                                                        GtkWidget    *menu_item,
-                                                        ThunarWindow *window)
+static void thunar_window_redirect_menu_tooltips_to_statusbar_recursive(GtkWidget *menu_item,
+                                                                        ThunarWindow *window)
 {
-    GtkWidget  *submenu;
 
     if (GTK_IS_MENU_ITEM(menu_item))
     {
+        GtkWidget  *submenu;
         submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu_item));
         if (submenu != NULL)
             gtk_container_foreach(GTK_CONTAINER(submenu),(GtkCallback)(void(*)(void)) thunar_window_redirect_menu_tooltips_to_statusbar_recursive, window);

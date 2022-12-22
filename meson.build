@@ -32,9 +32,10 @@ app_includes = [
 ]
 
 app_deps = [
+    dependency('gtk+-3.0'),
+    dependency('tinyc'),
     dependency('libnotify'),
     dependency('gudev-1.0'),
-    dependency('gtk+-3.0'),
     dependency('exo-2'),
     dependency('libxfconf-0'),
     dependency('libxfce4util-1.0'),
@@ -101,12 +102,12 @@ app_sources = [
     'widget/thunar-size-label.c',
     'widget/thunar-statusbar.c',
     'main.c',
+    'preferences.c',
     'thunar-application.c',
     'thunar-marshal.c',
     'thunar-preferences.c',
     'thunar-window.c',
 ]
-
 
 executable(
     'fileman',
