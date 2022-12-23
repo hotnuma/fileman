@@ -562,16 +562,16 @@ static void thunar_standard_view_init(ThunarStandardView *standard_view)
     g_signal_connect(G_OBJECT(standard_view->model), "rows-reordered", G_CALLBACK(thunar_standard_view_rows_reordered), standard_view);
     g_signal_connect(G_OBJECT(standard_view->model), "error", G_CALLBACK(thunar_standard_view_error), standard_view);
 
-//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-case-sensitive",
-//                    G_OBJECT(standard_view->model), "case-sensitive");
-//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-style",
-//                    G_OBJECT(standard_view->model), "date-style");
-//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-custom-style",
-//                    G_OBJECT(standard_view->model), "date-custom-style");
-//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-folders-first",
-//                    G_OBJECT(standard_view->model), "folders-first");
-//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-file-size-binary",
-//                    G_OBJECT(standard_view->model), "file-size-binary");
+    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-case-sensitive",
+    //                G_OBJECT(standard_view->model), "case-sensitive");
+    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-style",
+    //                G_OBJECT(standard_view->model), "date-style");
+    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-custom-style",
+    //                G_OBJECT(standard_view->model), "date-custom-style");
+    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-folders-first",
+    //                G_OBJECT(standard_view->model), "folders-first");
+    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-file-size-binary",
+    //                G_OBJECT(standard_view->model), "file-size-binary");
 
     /* setup the icon renderer */
     standard_view->icon_renderer = thunar_icon_renderer_new();
@@ -650,12 +650,12 @@ thunar_standard_view_constructor(GType  type,
     g_object_set(G_OBJECT(view), "model", standard_view->model, NULL);
 
     /* apply the single-click settings to the view */
-//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(view), "single-click");
-//    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click-timeout", G_OBJECT(view), "single-click-timeout");
+    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(view), "single-click");
+    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click-timeout", G_OBJECT(view), "single-click-timeout");
 
     /* apply the default sort column and sort order */
-//    g_object_get(G_OBJECT(standard_view->preferences), "last-sort-column",
-//                 &sort_column, "last-sort-order", &sort_order, NULL);
+    //g_object_get(G_OBJECT(standard_view->preferences), "last-sort-column",
+    //             &sort_column, "last-sort-order", &sort_order, NULL);
 
     ThunarColumn sort_column = THUNAR_COLUMN_NAME;
     GtkSortType sort_order = GTK_SORT_ASCENDING;
@@ -701,8 +701,14 @@ static void thunar_standard_view_dispose(GObject *object)
     ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(object);
 
     /* unregister the "loading" binding */
+    //if (G_UNLIKELY(standard_view->loading_binding != NULL))
+    //    exo_binding_unbind(standard_view->loading_binding);
+
     if (G_UNLIKELY(standard_view->loading_binding != NULL))
-        exo_binding_unbind(standard_view->loading_binding);
+    {
+        g_object_unref(standard_view->loading_binding);
+        standard_view->loading_binding = NULL;
+    }
 
     /* be sure to cancel any pending drag autoscroll timer */
     if (G_UNLIKELY(standard_view->priv->drag_scroll_timer_id != 0))
@@ -1141,8 +1147,15 @@ thunar_standard_view_set_current_directory(ThunarNavigator *navigator,
         return;
 
     /* disconnect any previous "loading" binding */
+
+    //if (G_LIKELY(standard_view->loading_binding != NULL))
+    //    exo_binding_unbind(standard_view->loading_binding);
+
     if (G_LIKELY(standard_view->loading_binding != NULL))
-        exo_binding_unbind(standard_view->loading_binding);
+    {
+        g_object_unref(standard_view->loading_binding);
+        standard_view->loading_binding = NULL;
+    }
 
     /* store the current scroll position */
     if (current_directory != NULL)
@@ -1199,15 +1212,26 @@ thunar_standard_view_set_current_directory(ThunarNavigator *navigator,
     folder = thunar_folder_get_for_file(current_directory);
 
     /* connect the "loading" binding */
-    standard_view->loading_binding = exo_binding_new_full(G_OBJECT(folder),
-                                                           "loading",
-                                                           G_OBJECT(standard_view),
-                                                           "loading",
-                                                           NULL,
-                                                           thunar_standard_view_loading_unbound,
-                                                           standard_view);
+    //standard_view->loading_binding = exo_binding_new_full(G_OBJECT(folder),
+    //                                                      "loading",
+    //                                                      G_OBJECT(standard_view),
+    //                                                      "loading",
+    //                                                      NULL,
+    //                                                      thunar_standard_view_loading_unbound,
+    //                                                      standard_view);
 
-    /* apply the new folder */
+    standard_view->loading_binding =
+        g_object_bind_property_full(folder,
+                                    "loading",
+                                    standard_view,
+                                    "loading",
+                                    G_BINDING_SYNC_CREATE,
+                                    NULL,
+                                    NULL,
+                                    standard_view,
+                                    thunar_standard_view_loading_unbound);
+
+      /* apply the new folder */
     thunar_list_model_set_folder(standard_view->model, folder);
     g_object_unref(G_OBJECT(folder));
 

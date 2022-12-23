@@ -275,7 +275,18 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
      */
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_grid_attach(GTK_GRID(grid), box, 0, row, 1, 1);
-    exo_binding_new_with_negation(G_OBJECT(dialog->single_box), "visible", G_OBJECT(box), "visible");
+
+    //exo_binding_new_with_negation(G_OBJECT(dialog->single_box),
+    //                              "visible",
+    //                              G_OBJECT(box),
+    //                              "visible");
+
+    g_object_bind_property(G_OBJECT(dialog->single_box),
+                           "visible",
+                           G_OBJECT(box),
+                           "visible",
+                           G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
+
 
     image = gtk_image_new_from_icon_name("text-x-generic", GTK_ICON_SIZE_DIALOG);
     gtk_box_pack_start(GTK_BOX(box), image, FALSE, TRUE, 0);

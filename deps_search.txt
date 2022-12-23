@@ -2,7 +2,6 @@ exo_binding_new
 exo_binding_new_full
 exo_binding_new_with_negation
 exo_binding_unbind
-exo_mutual_binding_new_with_negation
 
 EXO_ICON_CHOOSER_DIALOG
 exo_icon_chooser_dialog_get_icon
@@ -45,11 +44,13 @@ xfce_gtk_accel_group_disconnect_action_entries
 xfce_gtk_accel_map_add_entries
 
 XFCE_GTK_CHECK_MENU_ITEM
+
 xfce_gtk_get_action_entry_by_id
 
 XFCE_GTK_IMAGE_MENU_ITEM
 xfce_gtk_image_menu_item_new
 xfce_gtk_image_menu_item_new_from_icon_name
+
 xfce_gtk_menu_append_seperator
 
 XFCE_GTK_MENU_ITEM
