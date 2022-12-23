@@ -21,7 +21,6 @@
 #include <config.h>
 
 #include <libext.h>
-#include <exo/exo.h>
 
 #include <thunar-gobject-extensions.h>
 #include <thunar-debug.h>

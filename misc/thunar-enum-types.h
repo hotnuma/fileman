@@ -20,7 +20,7 @@
 #ifndef __THUNAR_ENUM_TYPES_H__
 #define __THUNAR_ENUM_TYPES_H__
 
-#include <exo/exo.h>
+#include <libext.h>
 
 G_BEGIN_DECLS;
 

@@ -28,7 +28,7 @@
 #include <string.h>
 #endif
 
-#include <exo/exo.h>
+#include <libext.h>
 
 #include <thunar-enum-types.h>
 #include <thunar-job.h>

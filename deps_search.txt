@@ -18,8 +18,8 @@ exo_icon_chooser_dialog_set_icon
 EXO_JOB
 EXO_TYPE_JOB
 EXO_IS_JOB
-exo_job_cancel
 EXO_JOB_CLASS
+exo_job_cancel
 exo_job_emit
 exo_job_get_cancellable
 exo_job_info_message

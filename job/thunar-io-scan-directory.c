@@ -23,7 +23,7 @@
 
 #include <gio/gio.h>
 
-#include <exo/exo.h>
+#include <libext.h>
 
 #include <thunar-gio-extensions.h>
 #include <thunar-job.h>

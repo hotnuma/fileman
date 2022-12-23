@@ -32,7 +32,7 @@
 #include <string.h>
 #endif
 
-#include <exo/exo.h>
+#include <libext.h>
 
 #include <thunar-gobject-extensions.h>
 

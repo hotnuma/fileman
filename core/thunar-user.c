@@ -30,7 +30,6 @@
 #include <glib-object.h>
 
 #include <libext.h>
-#include <exo/exo.h>
 
 #include <thunar-user.h>
 #include <thunar-util.h>

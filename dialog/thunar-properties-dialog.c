@@ -26,7 +26,6 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <libext.h>
-#include <exo/exo.h>
 #include <libxfce4ui/libxfce4ui.h>
 
 #include <thunar-application.h>

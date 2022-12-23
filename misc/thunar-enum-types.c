@@ -21,7 +21,7 @@
 #include <config.h>
 #endif
 
-#include <exo/exo.h>
+#include <libext.h>
 
 #include <thunar-enum-types.h>
 

@@ -20,7 +20,7 @@
 #ifndef __THUNAR_IO_SCAN_DIRECTORY_H__
 #define __THUNAR_IO_SCAN_DIRECTORY_H__
 
-#include <exo/exo.h>
+#include <libext.h>
 
 #include <thunar-job.h>
 #include <thunar-debug.h>

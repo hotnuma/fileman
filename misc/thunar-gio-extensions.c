@@ -28,7 +28,7 @@
 #include <gio/gdesktopappinfo.h>
 #endif
 
-#include <exo/exo.h>
+#include <libext.h>
 #include <libxfce4util/libxfce4util.h>
 
 #include <thunar-file.h>

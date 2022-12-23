@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #endif
 
-#include <exo/exo.h>
+#include <libext.h>
 
 #include <thunar-gtk-extensions.h>
 #include <thunar-debug.h>

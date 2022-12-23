@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <gtk/gtk.h>
+#include <exo/exo.h>
 
 #define E_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
 #define E_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)

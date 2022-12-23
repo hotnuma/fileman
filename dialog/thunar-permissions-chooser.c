@@ -24,7 +24,6 @@
 #include <unistd.h>
 
 #include <libext.h>
-#include <exo/exo.h>
 
 #include <thunar-dialogs.h>
 #include <thunar-enum-types.h>
