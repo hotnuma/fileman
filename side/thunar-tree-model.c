@@ -271,7 +271,8 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
 
     /* initialize the model data */
     model->sort_case_sensitive = TRUE;
-    model->visible_func =(ThunarTreeModelVisibleFunc)(void(*)(void)) exo_noop_true;
+    model->visible_func =
+        (ThunarTreeModelVisibleFunc)(void(*)(void)) e_noop_true;
     model->visible_data = NULL;
     model->cleanup_idle_id = 0;
 

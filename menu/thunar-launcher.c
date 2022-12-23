@@ -529,7 +529,7 @@ static void thunar_launcher_class_init(ThunarLauncherClass *klass)
 
 static void thunar_launcher_component_init(ThunarComponentIface *iface)
 {
-    iface->get_selected_files = (gpointer) exo_noop_null;
+    iface->get_selected_files = (gpointer) e_noop_null;
     iface->set_selected_files = thunar_launcher_set_selected_files;
 }
 

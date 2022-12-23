@@ -16,9 +16,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-location-bar.h>
 #include <thunar-debug.h>
@@ -86,7 +86,7 @@ static void thunar_location_bar_class_init(ThunarLocationBarClass *klass)
     gobject_class->set_property = thunar_location_bar_set_property;
     gobject_class->finalize = thunar_location_bar_finalize;
 
-    klass->reload_requested = exo_noop;
+    klass->reload_requested = e_noop;
 
     /* Override ThunarNavigator's properties */
     g_object_class_override_property(gobject_class, PROP_CURRENT_DIRECTORY, "current-directory");

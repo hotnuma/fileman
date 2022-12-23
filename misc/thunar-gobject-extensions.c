@@ -54,10 +54,12 @@ static void transform_string_to_enum(const GValue *src, GValue *dst)
 
     /* determine the enum value matching the src... */
     klass = g_type_class_ref (G_VALUE_TYPE (dst));
+
     for (n = 0; n < klass->n_values; ++n)
     {
         value = klass->values[n].value;
-        if (exo_str_is_equal(klass->values[n].value_name, g_value_get_string (src)))
+
+        if (g_strcmp0(klass->values[n].value_name, g_value_get_string (src)) == 0)
             break;
     }
     g_type_class_unref(klass);

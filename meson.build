@@ -68,6 +68,7 @@ app_sources = [
     'job/thunar-job.c',
     'job/thunar-simple-job.c',
     'job/thunar-transfer-job.c',
+    'libext/libext.c',
     'menu/thunar-launcher.c',
     'menu/thunar-menu.c',
     'menu/thunar-sendto-model.c',

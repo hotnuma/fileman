@@ -575,7 +575,7 @@ static gboolean thunar_icon_key_equal(gconstpointer a, gconstpointer b)
         return FALSE;
 
     /* do a full string comparison on the names */
-    return exo_str_is_equal(a_key->name, b_key->name);
+    return (g_strcmp0(a_key->name, b_key->name) == 0);
 }
 
 static void thunar_icon_key_free(gpointer data)
@@ -735,7 +735,7 @@ GdkPixbuf* thunar_icon_factory_load_icon(ThunarIconFactory        *factory,
     /* cannot happen unless there's no XSETTINGS manager
      * for the default screen, but just in case...
      */
-    if (G_UNLIKELY(exo_str_is_empty(name)))
+    if (G_UNLIKELY(!name ||!*name))
     {
         /* check if the caller will happly accept the fallback icon */
         if (G_LIKELY(wants_default))

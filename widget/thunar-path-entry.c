@@ -506,7 +506,7 @@ static void thunar_path_entry_changed(GtkEditable *editable)
 
     /* parse the entered string(handling URIs properly) */
     text = gtk_entry_get_text(GTK_ENTRY(path_entry));
-    if (G_UNLIKELY(exo_str_looks_like_an_uri(text)))
+    if (G_UNLIKELY(e_str_looks_like_an_uri(text)))
     {
         /* try to parse the URI text */
         escaped_text = g_uri_escape_string(text, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);

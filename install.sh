@@ -1,6 +1,11 @@
 #!/usr/bin/bash
 
-BASEDIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+BASEDIR="$(dirname -- "$(readlink -f -- "$0";)")"
+
+dest=$BASEDIR/build
+if [[ -d $dest ]]; then
+    rm -rf $dest
+fi
 
 glib-genmarshal \
     --prefix=_thunar_marshal \

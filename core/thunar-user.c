@@ -18,35 +18,18 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
-
-#ifdef HAVE_GRP_H
 #include <grp.h>
-#endif
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_PWD_H
 #include <pwd.h>
-#endif
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
 #include <glib-object.h>
 
+#include <libext.h>
 #include <exo/exo.h>
 
 #include <thunar-user.h>
@@ -249,7 +232,7 @@ static void thunar_user_load(ThunarUser *user)
             name[0] = g_ascii_toupper(name[0]);
 
             /* replace all occurances of '&' */
-            t = exo_str_replace(user->real_name, "&", name);
+            t = e_str_replace(user->real_name, "&", name);
             g_free(user->real_name);
             user->real_name = t;
 

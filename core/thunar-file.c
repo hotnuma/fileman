@@ -930,7 +930,7 @@ static void thunar_file_info_reload(ThunarFile   *file,
                                      G_KEY_FILE_DESKTOP_KEY_ICON,
                                      NULL);
 
-            if (G_UNLIKELY(exo_str_is_empty(file->custom_icon_name)))
+            if (G_UNLIKELY(!file->custom_icon_name || !*file->custom_icon_name))
             {
                 /* make sure we set null if the string is empty else the assertion in
                  * thunar_icon_factory_lookup_icon() will fail */
@@ -1484,7 +1484,7 @@ gboolean thunar_file_execute(ThunarFile  *file,
         }
 
         type = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_TYPE, NULL);
-        if (G_LIKELY(exo_str_is_equal(type, "Application")))
+        if (G_LIKELY(g_strcmp0(type, "Application") == 0))
         {
             exec = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_EXEC, NULL);
             if (G_LIKELY(exec != NULL))
@@ -1521,7 +1521,7 @@ gboolean thunar_file_execute(ThunarFile  *file,
                              _("No Exec field specified"));
             }
         }
-        else if (exo_str_is_equal(type, "Link"))
+        else if (g_strcmp0(type, "Link") == 0)
         {
             url = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_URL, NULL);
             if (G_LIKELY(url != NULL))
@@ -3376,7 +3376,7 @@ static const gchar* thunar_file_get_icon_name_for_state(
                                                 const gchar         *icon_name,
                                                 ThunarFileIconState  icon_state)
 {
-    if (exo_str_is_empty(icon_name))
+    if (!icon_name || !*icon_name)
         return NULL;
 
     /* check if we have an accept icon for the icon we found */
@@ -3870,7 +3870,7 @@ static gboolean thunar_file_same_filesystem(const ThunarFile *file_a,
                       G_FILE_ATTRIBUTE_ID_FILESYSTEM);
 
     /* compare the filesystem IDs */
-    return exo_str_is_equal(filesystem_id_a, filesystem_id_b);
+    return (g_strcmp0(filesystem_id_a, filesystem_id_b) == 0);
 }
 
 /**

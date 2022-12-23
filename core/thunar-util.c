@@ -18,40 +18,17 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_PWD_H
 #include <pwd.h>
-#endif
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-#ifdef HAVE_TIME_H
 #include <time.h>
-#endif
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
-#ifdef G_PLATFORM_WIN32
-#include <direct.h>
-#include <glib/gwin32.h>
-#endif
+#include <libext.h>
 
 #include <thunar-debug.h>
 #include <thunar-util.h>
@@ -413,7 +390,7 @@ gchar* thunar_util_humanize_file_time(guint64          file_time,
                 else /* if (date_style == THUNAR_DATE_STYLE_SHORT) */
                 {
                     /* TRANSLATORS: file was modified less than one day ago */
-                    return exo_strdup_strftime(_("Today at %X"), &tfile);
+                    return e_strdup_strftime(_("Today at %X"), &tfile);
                 }
             }
             else if (diff == 1)
@@ -426,7 +403,7 @@ gchar* thunar_util_humanize_file_time(guint64          file_time,
                 else /* if (date_style == THUNAR_DATE_STYLE_SHORT) */
                 {
                     /* TRANSLATORS: file was modified less than two days ago */
-                    return exo_strdup_strftime(_("Yesterday at %X"), &tfile);
+                    return e_strdup_strftime(_("Yesterday at %X"), &tfile);
                 }
             }
             else
@@ -443,25 +420,25 @@ gchar* thunar_util_humanize_file_time(guint64          file_time,
                 }
 
                 /* format the date string accordingly */
-                return exo_strdup_strftime(date_format, &tfile);
+                return e_strdup_strftime(date_format, &tfile);
             }
         }
         else if (date_style == THUNAR_DATE_STYLE_LONG)
         {
             /* use long, date(1)-like format string */
-            return exo_strdup_strftime("%c", &tfile);
+            return e_strdup_strftime("%c", &tfile);
         }
         else if (date_style == THUNAR_DATE_STYLE_YYYYMMDD)
         {
-            return exo_strdup_strftime("%Y-%m-%d %H:%M:%S", &tfile);
+            return e_strdup_strftime("%Y-%m-%d %H:%M:%S", &tfile);
         }
         else if (date_style == THUNAR_DATE_STYLE_MMDDYYYY)
         {
-            return exo_strdup_strftime("%m-%d-%Y %H:%M:%S", &tfile);
+            return e_strdup_strftime("%m-%d-%Y %H:%M:%S", &tfile);
         }
         else if (date_style == THUNAR_DATE_STYLE_DDMMYYYY)
         {
-            return exo_strdup_strftime("%d-%m-%Y %H:%M:%S", &tfile);
+            return e_strdup_strftime("%d-%m-%Y %H:%M:%S", &tfile);
         }
         else /* if (date_style == THUNAR_DATE_STYLE_CUSTOM) */
         {
@@ -469,7 +446,7 @@ gchar* thunar_util_humanize_file_time(guint64          file_time,
                 return g_strdup("");
 
             /* use custom date formatting */
-            return exo_strdup_strftime(date_custom_style, &tfile);
+            return e_strdup_strftime(date_custom_style, &tfile);
         }
     }
 

@@ -17,21 +17,13 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STDARG_H
 #include <stdarg.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
 
 #include <libxfce4ui/libxfce4ui.h>
+#include <libext.h>
 
 #include <thunar-dialogs.h>
 #include <thunar-gtk-extensions.h>
@@ -301,7 +293,7 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
         text = xfce_filename_input_get_text(filename_input);
 
         /* check if we have a new name here */
-        if (G_LIKELY(!exo_str_is_equal(filename, text)))
+        if (G_LIKELY(g_strcmp0(filename, text) != 0))
         {
             /* try to rename the file */
             job = thunar_io_jobs_rename_file(file, text);
@@ -942,7 +934,7 @@ gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
                                          "this program, click Cancel."),
                             thunar_file_get_display_name(file));
     g_string_append(secondary, "\n\n");
-    if (exo_str_looks_like_an_uri(command))
+    if (e_str_looks_like_an_uri(command))
         g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
     else
         g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);
