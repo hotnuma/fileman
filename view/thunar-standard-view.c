@@ -576,7 +576,7 @@ static void thunar_standard_view_init(ThunarStandardView *standard_view)
     /* setup the icon renderer */
     standard_view->icon_renderer = thunar_icon_renderer_new();
     g_object_ref_sink(G_OBJECT(standard_view->icon_renderer));
-    exo_binding_new(G_OBJECT(standard_view), "zoom-level", G_OBJECT(standard_view->icon_renderer), "size");
+    g_object_bind_property(G_OBJECT(standard_view), "zoom-level", G_OBJECT(standard_view->icon_renderer), "size", G_BINDING_SYNC_CREATE);
 
     /* setup the name renderer */
     standard_view->name_renderer = g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
@@ -908,7 +908,7 @@ static void thunar_standard_view_realize(GtkWidget *widget)
     /* determine the icon factory for the screen on which we are realized */
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
     standard_view->icon_factory = thunar_icon_factory_get_for_icon_theme(icon_theme);
-    exo_binding_new(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size");
+    g_object_bind_property(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size", G_BINDING_SYNC_CREATE);
 }
 
 static void thunar_standard_view_unrealize(GtkWidget *widget)

@@ -1,8 +1,3 @@
-exo_binding_new
-exo_binding_new_full
-exo_binding_new_with_negation
-exo_binding_unbind
-
 EXO_ICON_CHOOSER_DIALOG
 exo_icon_chooser_dialog_get_icon
 exo_icon_chooser_dialog_new

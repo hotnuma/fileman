@@ -534,7 +534,7 @@ static void thunar_window_init(ThunarWindow *window)
                                      window->select_files_closure,
                                      NULL);
 
-    exo_binding_new(G_OBJECT(window), "current-directory", G_OBJECT(window->launcher), "current-directory");
+    g_object_bind_property(G_OBJECT(window), "current-directory", G_OBJECT(window->launcher), "current-directory", G_BINDING_SYNC_CREATE);
     g_signal_connect_swapped(G_OBJECT(window->launcher), "change-directory", G_CALLBACK(thunar_window_set_current_directory), window);
     thunar_launcher_append_accelerators(window->launcher, window->accel_group);
 
@@ -1138,8 +1138,8 @@ static GtkWidget* thunar_window_notebook_insert(ThunarWindow  *window,
     label_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
     label = gtk_label_new(NULL);
-    exo_binding_new(G_OBJECT(view), "display-name", G_OBJECT(label), "label");
-    exo_binding_new(G_OBJECT(view), "tooltip-text", G_OBJECT(label), "tooltip-text");
+    g_object_bind_property(G_OBJECT(view), "display-name", G_OBJECT(label), "label", G_BINDING_SYNC_CREATE);
+    g_object_bind_property(G_OBJECT(view), "tooltip-text", G_OBJECT(label), "tooltip-text", G_BINDING_SYNC_CREATE);
     gtk_widget_set_has_tooltip(label, TRUE);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
     gtk_widget_set_margin_start(GTK_WIDGET(label), 3);
@@ -1269,7 +1269,7 @@ static void thunar_window_install_sidepane(ThunarWindow *window,
         /* allocate the new side pane widget */
         window->sidepane = g_object_new(type, NULL);
         gtk_widget_set_size_request(window->sidepane, 0, -1);
-        exo_binding_new(G_OBJECT(window), "current-directory", G_OBJECT(window->sidepane), "current-directory");
+        g_object_bind_property(G_OBJECT(window), "current-directory", G_OBJECT(window->sidepane), "current-directory", G_BINDING_SYNC_CREATE);
         g_signal_connect_swapped(G_OBJECT(window->sidepane), "change-directory", G_CALLBACK(thunar_window_set_current_directory), window);
         context = gtk_widget_get_style_context(window->sidepane);
         gtk_style_context_add_class(context, "sidebar");
