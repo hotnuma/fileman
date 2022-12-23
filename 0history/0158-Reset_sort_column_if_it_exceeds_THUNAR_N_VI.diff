@@ -1,0 +1,82 @@
+diff --git a/thunar/thunar-enum-types.c b/thunar/thunar-enum-types.c
+index 1f71d044..4bf6457a 100644
+--- a/thunar/thunar-enum-types.c
++++ b/thunar/thunar-enum-types.c
+@@ -146,8 +146,8 @@ thunar_column_string_from_value (ThunarColumn value)
+ 
+ 
+ gboolean
+-thunar_column_value_from_string (const gchar *value_string,
+-                                 gint        *value)
++thunar_column_value_from_string (const gchar  *value_string,
++                                 ThunarColumn *value)
+ {
+   GEnumClass *enum_class;
+   GEnumValue *enum_value;
+diff --git a/thunar/thunar-enum-types.h b/thunar/thunar-enum-types.h
+index 0d65a54e..d9b35b35 100644
+--- a/thunar/thunar-enum-types.h
++++ b/thunar/thunar-enum-types.h
+@@ -127,8 +127,8 @@ typedef enum
+ 
+ GType        thunar_column_get_type          (void)                      G_GNUC_CONST;
+ const gchar* thunar_column_string_from_value (ThunarColumn  value);
+-gboolean     thunar_column_value_from_string (const gchar  *value_string,
+-                                              gint         *value);
++gboolean     thunar_column_value_from_string (const gchar   *value_string,
++                                              ThunarColumn  *value);
+ 
+ 
+ #define THUNAR_TYPE_ICON_SIZE (thunar_icon_size_get_type ())
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index edcfd431..f05c6969 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -1687,7 +1687,7 @@ thunar_standard_view_apply_directory_specific_settings (ThunarStandardView *stan
+   const gchar *sort_column_name;
+   const gchar *sort_order_name;
+   const gchar *zoom_level_name;
+-  gint         sort_column;
++  ThunarColumn sort_column;
+   GtkSortType  sort_order;
+   gint         zoom_level;
+ 
+@@ -1703,16 +1703,20 @@ thunar_standard_view_apply_directory_specific_settings (ThunarStandardView *stan
+   if (sort_column_name != NULL)
+     thunar_column_value_from_string (sort_column_name, &sort_column);
+ 
++  /* Out of range ? --> Fallback to sort by NAME column. */
++  if (sort_column >= THUNAR_N_VISIBLE_COLUMNS)
++    sort_column = THUNAR_COLUMN_NAME;
++
+   /* convert the sort order name to a value */
+   if (sort_order_name != NULL)
+     {
+-      if (g_strcmp0 (sort_order_name, "GTK_SORT_ASCENDING") == 0)
+-        sort_order = GTK_SORT_ASCENDING;
+       if (g_strcmp0 (sort_order_name, "GTK_SORT_DESCENDING") == 0)
+         sort_order = GTK_SORT_DESCENDING;
++      else
++        sort_order = GTK_SORT_ASCENDING;
+     }
+ 
+-  /* convert the sort column name to a value */
++  /* convert the zoom level name to a value */
+   if (zoom_level_name != NULL)
+     {
+       if (thunar_zoom_level_value_from_string (zoom_level_name, &zoom_level) == TRUE)
+@@ -1761,11 +1765,13 @@ thunar_standard_view_set_directory_specific_settings (ThunarStandardView *standa
+     }
+   else /* apply the shared settings to the current view */
+     {
+-      gint          sort_column;
++      ThunarColumn  sort_column;
+       GtkSortType   sort_order;
+ 
+       /* apply the last sort column and sort order */
+       g_object_get (G_OBJECT (standard_view->preferences), "last-sort-column", &sort_column, "last-sort-order", &sort_order, NULL);
++      if (sort_column >= THUNAR_N_VISIBLE_COLUMNS)
++        sort_column = THUNAR_COLUMN_NAME;
+       gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (standard_view->model), sort_column, sort_order);
+     }
+ }

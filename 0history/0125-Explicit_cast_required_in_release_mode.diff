@@ -1,0 +1,13 @@
+diff --git a/thunar/thunar-progress-dialog.c b/thunar/thunar-progress-dialog.c
+index 0577178c..d48b7588 100644
+--- a/thunar/thunar-progress-dialog.c
++++ b/thunar/thunar-progress-dialog.c
+@@ -204,7 +204,7 @@ thunar_progress_dialog_launch_view (ThunarProgressDialog *dialog,
+       g_value_init (&title, G_TYPE_STRING);
+       g_object_get_property (G_OBJECT (view), "title", &title);
+       g_info ("Job \"%s\" does not exist in waiting list",
+-              g_value_get_string (&title));
++              (gchar *) g_value_get_string (&title));
+     }
+ }
+ 

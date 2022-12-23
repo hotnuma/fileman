@@ -1,0 +1,121 @@
+diff --git a/thunar/thunar-action-manager.c b/thunar/thunar-action-manager.c
+index 2a04a1e3..fa92bfc4 100644
+--- a/thunar/thunar-action-manager.c
++++ b/thunar/thunar-action-manager.c
+@@ -2513,7 +2513,7 @@ thunar_action_manager_action_move_to_trash (ThunarActionManager *action_mgr)
+     return;
+ 
+   application = thunar_application_get ();
+-  thunar_application_unlink_files (application, action_mgr->widget, action_mgr->files_to_process, FALSE);
++  thunar_application_unlink_files (application, action_mgr->widget, action_mgr->files_to_process, FALSE, TRUE);
+   g_object_unref (G_OBJECT (application));
+ }
+ 
+@@ -2530,7 +2530,7 @@ thunar_action_manager_action_delete (ThunarActionManager *action_mgr)
+     return TRUE;
+ 
+   application = thunar_application_get ();
+-  thunar_application_unlink_files (application, action_mgr->widget, action_mgr->files_to_process, TRUE);
++  thunar_application_unlink_files (application, action_mgr->widget, action_mgr->files_to_process, TRUE, TRUE);
+   g_object_unref (G_OBJECT (application));
+ 
+   /* required in case of shortcut activation, in order to signal that the accel key got handled */
+diff --git a/thunar/thunar-application.c b/thunar/thunar-application.c
+index f51ef10c..4961a241 100644
+--- a/thunar/thunar-application.c
++++ b/thunar/thunar-application.c
+@@ -2344,6 +2344,7 @@ unlink_stub (GList *source_path_list,
+  * @parent      : a #GdkScreen, a #GtkWidget or %NULL.
+  * @file_list   : the list of #ThunarFile<!---->s that should be deleted.
+  * @permanently : whether to unlink the files permanently.
++ * @warn        : whether to warn the user if deleting permanently.
+  *
+  * Deletes all files in the @file_list and takes care of all user interaction.
+  *
+@@ -2355,7 +2356,8 @@ void
+ thunar_application_unlink_files (ThunarApplication *application,
+                                  gpointer           parent,
+                                  GList             *file_list,
+-                                 gboolean           permanently)
++                                 gboolean           permanently,
++                                 gboolean           warn)
+ {
+   GtkWidget *dialog;
+   GtkWindow *window;
+@@ -2386,7 +2388,7 @@ thunar_application_unlink_files (ThunarApplication *application,
+     return;
+ 
+   /* ask the user to confirm if deleting permanently */
+-  if (G_UNLIKELY (permanently))
++  if (G_UNLIKELY (permanently) && warn)
+     {
+       /* parse the parent pointer */
+       screen = thunar_util_parse_parent (parent, &window);
+@@ -2434,6 +2436,12 @@ thunar_application_unlink_files (ThunarApplication *application,
+                                      path_list, path_list, TRUE, FALSE, THUNAR_OPERATION_LOG_OPERATIONS, NULL);
+         }
+     }
++  else if (G_UNLIKELY (permanently))
++    {
++      thunar_application_launch (application, parent, "edit-delete",
++                                 _("Deleting files..."), unlink_stub,
++                                 path_list, path_list, TRUE, FALSE, THUNAR_OPERATION_LOG_OPERATIONS, NULL);
++    }
+   else
+     {
+       /* launch the "Move to Trash" operation */
+diff --git a/thunar/thunar-application.h b/thunar/thunar-application.h
+index 00b34ffd..a339af2e 100644
+--- a/thunar/thunar-application.h
++++ b/thunar/thunar-application.h
+@@ -142,7 +142,8 @@ void                  thunar_application_move_files                (ThunarApplic
+ void                  thunar_application_unlink_files              (ThunarApplication       *application,
+                                                                     gpointer                 parent,
+                                                                     GList                   *file_list,
+-                                                                    gboolean                 permanently);
++                                                                    gboolean                 permanently,
++                                                                    gboolean                 warn);
+ 
+ void                  thunar_application_trash                     (ThunarApplication       *application,
+                                                                     gpointer                 parent,
+diff --git a/thunar/thunar-dbus-service.c b/thunar/thunar-dbus-service.c
+index 557fbd8c..ca5e927b 100644
+--- a/thunar/thunar-dbus-service.c
++++ b/thunar/thunar-dbus-service.c
+@@ -1515,7 +1515,7 @@ thunar_dbus_service_unlink_files (ThunarDBusFileManager  *object,
+         {
+           /* tell the application to move the specified files to the trash */
+           application = thunar_application_get ();
+-          thunar_application_unlink_files (application, screen, file_list, TRUE);
++          thunar_application_unlink_files (application, screen, file_list, TRUE, TRUE);
+           g_object_unref (application);
+         }
+ 
+diff --git a/thunar/thunar-job-operation.c b/thunar/thunar-job-operation.c
+index 5697f3a2..e7ee0977 100644
+--- a/thunar/thunar-job-operation.c
++++ b/thunar/thunar-job-operation.c
+@@ -425,7 +425,9 @@ thunar_job_operation_execute (ThunarJobOperation *job_operation,
+             thunar_file_list = g_list_append (thunar_file_list, thunar_file);
+           }
+ 
+-        thunar_application_unlink_files (application, NULL, thunar_file_list, TRUE);
++        /* perform permanent deletion without warning, because we can bring back the file with
++         * an undo or a redo (depending on whether a redo or an undo caused the deletion) */
++        thunar_application_unlink_files (application, NULL, thunar_file_list, TRUE, FALSE);
+ 
+         thunar_g_list_free_full (thunar_file_list);
+         break;
+diff --git a/thunar/thunar-tree-view.c b/thunar/thunar-tree-view.c
+index 760c5fb0..42bd61e2 100644
+--- a/thunar/thunar-tree-view.c
++++ b/thunar/thunar-tree-view.c
+@@ -1455,7 +1455,7 @@ thunar_tree_view_action_unlink_selected_folder (ThunarTreeView *view,
+ 
+           /* delete the file */
+           application = thunar_application_get ();
+-          thunar_application_unlink_files (application, GTK_WIDGET (view), &file_list, permanently);
++          thunar_application_unlink_files (application, GTK_WIDGET (view), &file_list, permanently, TRUE);
+           g_object_unref (G_OBJECT (application));
+         }
+ 

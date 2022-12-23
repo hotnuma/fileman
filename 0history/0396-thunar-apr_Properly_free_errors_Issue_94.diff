@@ -1,0 +1,22 @@
+diff --git a/plugins/thunar-apr/thunar-apr-desktop-page.c b/plugins/thunar-apr/thunar-apr-desktop-page.c
+index dad47c48..7b11f505 100644
+--- a/plugins/thunar-apr/thunar-apr-desktop-page.c
++++ b/plugins/thunar-apr/thunar-apr-desktop-page.c
+@@ -1056,7 +1056,7 @@ thunar_apr_desktop_page_program_toggled (GtkWidget            *button,
+   if (error != NULL)
+     {
+       g_warning ("Error while setting execution flag : %s", error->message);
+-      g_free (error);
++      g_error_free (error);
+       return;
+     }
+ 
+@@ -1091,7 +1091,7 @@ thunar_apr_desktop_page_trusted_toggled (GtkWidget            *button,
+   if (error != NULL)
+     {
+       g_warning ("Error while setting safety flag : %s", error->message);
+-      g_free (error);
++      g_error_free (error);
+       return;
+     }
+ 

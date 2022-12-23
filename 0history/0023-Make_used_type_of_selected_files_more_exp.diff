@@ -1,0 +1,131 @@
+diff --git a/thunar/thunar-component.c b/thunar/thunar-component.c
+index 126cbecf..eaed115d 100644
+--- a/thunar/thunar-component.c
++++ b/thunar/thunar-component.c
+@@ -93,10 +93,10 @@ thunar_component_class_init (gpointer klass)
+  * thunar_component_get_selected_files:
+  * @component : a #ThunarComponent instance.
+  *
+- * Returns the set of selected files. Check the description
++ * Returns the set of selected #ThunarFile<!---->s. Check the description
+  * of the :selected-files property for details.
+  *
+- * Return value: the set of selected files.
++ * Return value: the set of selected #ThunarFile<!---->s.
+  **/
+ GList*
+ thunar_component_get_selected_files (ThunarComponent *component)
+diff --git a/thunar/thunar-renamer-dialog.c b/thunar/thunar-renamer-dialog.c
+index 142d589f..ec29dd12 100644
+--- a/thunar/thunar-renamer-dialog.c
++++ b/thunar/thunar-renamer-dialog.c
+@@ -177,7 +177,7 @@ struct _ThunarRenamerDialog
+   /* the current directory used for the "Add Files" dialog */
+   ThunarFile          *current_directory;
+ 
+-  /* the list of currently selected files */
++  /* #GList of currently selected #ThunarFile<!---->s */
+   GList               *selected_files;
+ 
+   /* whether the dialog should act like a standalone application */
+diff --git a/thunar/thunar-shortcuts-pane.c b/thunar/thunar-shortcuts-pane.c
+index 554d1769..df0ef648 100644
+--- a/thunar/thunar-shortcuts-pane.c
++++ b/thunar/thunar-shortcuts-pane.c
+@@ -74,6 +74,8 @@ struct _ThunarShortcutsPane
+   GtkScrolledWindow __parent__;
+ 
+   ThunarFile       *current_directory;
++
++  /* #GList of currently selected #ThunarFile<!---->s */
+   GList            *selected_files;
+ 
+   GtkWidget        *view;
+@@ -331,10 +333,10 @@ thunar_shortcuts_pane_set_selected_files (ThunarComponent *component,
+ {
+   ThunarShortcutsPane *shortcuts_pane = THUNAR_SHORTCUTS_PANE (component);
+ 
+-  /* disconnect from the previously selected files... */
++  /* disconnect from the previously selected thunar files... */
+   thunar_g_file_list_free (shortcuts_pane->selected_files);
+ 
+-  /* ...and take a copy of the newly selected files */
++  /* ...and take a copy of the newly selected thunar files */
+   shortcuts_pane->selected_files = thunar_g_file_list_copy (selected_files);
+ 
+   /* notify listeners */
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 0ac57b38..464818a5 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -332,7 +332,7 @@ struct _ThunarStandardViewPrivate
+   gfloat                  scroll_to_row_align;
+   gfloat                  scroll_to_col_align;
+ 
+-  /* selected_files support */
++  /* #GList of currently selected #ThunarFile<!---->s */
+   GList                  *selected_files;
+   guint                   restore_selection_idle_id;
+ 
+@@ -3733,7 +3733,7 @@ void
+ thunar_standard_view_selection_changed (ThunarStandardView *standard_view)
+ {
+   GtkTreeIter iter;
+-  GList      *lp, *selected_files;
++  GList      *lp, *selected_thunar_files;
+ 
+   _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
+ 
+@@ -3749,8 +3749,8 @@ thunar_standard_view_selection_changed (ThunarStandardView *standard_view)
+   thunar_g_file_list_free (standard_view->priv->selected_files);
+ 
+   /* determine the new list of selected files (replacing GtkTreePath's with ThunarFile's) */
+-  selected_files = (*THUNAR_STANDARD_VIEW_GET_CLASS (standard_view)->get_selected_items) (standard_view);
+-  for (lp = selected_files; lp != NULL; lp = lp->next)
++  selected_thunar_files = (*THUNAR_STANDARD_VIEW_GET_CLASS (standard_view)->get_selected_items) (standard_view);
++  for (lp = selected_thunar_files; lp != NULL; lp = lp->next)
+     {
+       /* determine the iterator for the path */
+       gtk_tree_model_get_iter (GTK_TREE_MODEL (standard_view->model), &iter, lp->data);
+@@ -3763,7 +3763,7 @@ thunar_standard_view_selection_changed (ThunarStandardView *standard_view)
+     }
+ 
+   /* and setup the new selected files list */
+-  standard_view->priv->selected_files = selected_files;
++  standard_view->priv->selected_files = selected_thunar_files;
+ 
+   /* update the statusbar text */
+   thunar_standard_view_update_statusbar_text (standard_view);
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 21aaa272..f74d0b96 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -3035,7 +3035,7 @@ thunar_window_replace_view (ThunarWindow *window,
+   ThunarFile     *current_directory = NULL;
+   GtkWidget      *new_view;
+   ThunarHistory  *history = NULL;
+-  GList          *selected_files = NULL;
++  GList          *selected_thunar_files = NULL;
+   gint            page_num;
+   gboolean        is_current_view;
+ 
+@@ -3070,7 +3070,7 @@ thunar_window_replace_view (ThunarWindow *window,
+         g_object_ref (current_directory);
+ 
+       /* remember the file selection from the old view */
+-      selected_files = thunar_g_file_list_copy (thunar_component_get_selected_files (THUNAR_COMPONENT (view)));
++      selected_thunar_files = thunar_g_file_list_copy (thunar_component_get_selected_files (THUNAR_COMPONENT (view)));
+ 
+       /* save the history of the current view */
+       history = NULL;
+@@ -3116,8 +3116,8 @@ thunar_window_replace_view (ThunarWindow *window,
+     gtk_widget_destroy (view);
+ 
+   /* restore the file selection */
+-  thunar_component_set_selected_files (THUNAR_COMPONENT (new_view), selected_files);
+-  thunar_g_file_list_free (selected_files);
++  thunar_component_set_selected_files (THUNAR_COMPONENT (new_view), selected_thunar_files);
++  thunar_g_file_list_free (selected_thunar_files);
+ 
+   /* remember the last view type if this is the active view and directory specific settings are not enabled */
+   if (is_current_view && !window->directory_specific_settings && gtk_widget_get_visible (GTK_WIDGET (window)) && view_type != G_TYPE_NONE)

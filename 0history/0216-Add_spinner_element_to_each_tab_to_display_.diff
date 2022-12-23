@@ -1,0 +1,260 @@
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index a3e24f3b..8416739b 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -62,6 +62,7 @@ enum
+ enum
+ {
+   ERROR,
++  SEARCH_DONE,
+   LAST_SIGNAL,
+ };
+ 
+@@ -228,6 +229,7 @@ struct _ThunarListModelClass
+   /* signals */
+   void (*error) (ThunarListModel *store,
+                  const GError    *error);
++  void (*search_done) (void);
+ };
+ 
+ struct _ThunarListModel
+@@ -421,6 +423,22 @@ thunar_list_model_class_init (ThunarListModelClass *klass)
+                   NULL, NULL,
+                   g_cclosure_marshal_VOID__POINTER,
+                   G_TYPE_NONE, 1, G_TYPE_POINTER);
++
++  /**
++   * ThunarListModel::search-done:
++   * @store : a #ThunarListModel.
++   * @error : a #GError that describes the problem.
++   *
++   * Emitted when a recursive search finishes.
++   **/
++  list_model_signals[SEARCH_DONE] =
++      g_signal_new (I_("search-done"),
++                    G_TYPE_FROM_CLASS (klass),
++                    G_SIGNAL_RUN_LAST,
++                    G_STRUCT_OFFSET (ThunarListModelClass, search_done),
++                    NULL, NULL,
++                    NULL,
++                    G_TYPE_NONE, 0);
+ }
+ 
+ 
+@@ -2164,6 +2182,8 @@ search_finished (ThunarJob       *job,
+ 
+   thunar_g_list_free_full (store->files_to_add);
+   store->files_to_add = NULL;
++
++  g_signal_emit_by_name (store, "search-done");
+ }
+ 
+ 
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 5d072257..151e22f3 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -68,6 +68,7 @@ enum
+   PROP_0,
+   PROP_CURRENT_DIRECTORY,
+   PROP_LOADING,
++  PROP_SEARCHING,
+   PROP_DISPLAY_NAME,
+   PROP_FULL_PARSED_PATH,
+   PROP_SELECTED_FILES,
+@@ -129,6 +130,7 @@ static void                 thunar_standard_view_set_current_directory      (Thu
+ static gboolean             thunar_standard_view_get_loading                (ThunarView               *view);
+ static void                 thunar_standard_view_set_loading                (ThunarStandardView       *standard_view,
+                                                                              gboolean                  loading);
++static gboolean             thunar_standard_view_get_searching              (ThunarView               *view);
+ static const gchar         *thunar_standard_view_get_statusbar_text         (ThunarView               *view);
+ static gboolean             thunar_standard_view_get_show_hidden            (ThunarView               *view);
+ static void                 thunar_standard_view_set_show_hidden            (ThunarView               *view,
+@@ -243,6 +245,8 @@ static void                 thunar_standard_view_rows_reordered             (Thu
+ static void                 thunar_standard_view_error                      (ThunarListModel          *model,
+                                                                              const GError             *error,
+                                                                              ThunarStandardView       *standard_view);
++static void                 thunar_standard_view_search_done                (ThunarListModel          *model,
++                                                                             ThunarStandardView       *standard_view);
+ static void                 thunar_standard_view_sort_column_changed        (GtkTreeSortable          *tree_sortable,
+                                                                              ThunarStandardView       *standard_view);
+ static void                 thunar_standard_view_loading_unbound            (gpointer                  user_data);
+@@ -360,6 +364,10 @@ struct _ThunarStandardViewPrivate
+   /* current search query, used to allow switching between views with different (or NULL) search queries */
+   gchar                  *search_query;
+ 
++  /* if you are wondering why we don't check if search_query is NULL instead of adding a new variable,
++   * we don't want to show the spinner when the search query is empty (i.e. "") */
++  gboolean                active_search;
++
+   /* used to restore the view type after a search is completed */
+   GType                   type;
+ };
+@@ -552,6 +560,20 @@ thunar_standard_view_class_init (ThunarStandardViewClass *klass)
+                                                    FALSE,
+                                                    EXO_PARAM_READWRITE));
+ 
++  /**
++   * ThunarStandardView:searching:
++   *
++   * Whether the folder associated with this view is
++   * currently being searched.
++   **/
++  standard_view_props[PROP_SEARCHING] =
++      g_param_spec_override ("searching",
++                             g_param_spec_boolean ("searching",
++                                                   "searching",
++                                                   "searching",
++                                                   FALSE,
++                                                   EXO_PARAM_READABLE));
++
+   /**
+    * ThunarStandardView:display-name:
+    *
+@@ -758,6 +780,7 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
+   standard_view->priv->row_changed_id = g_signal_connect (G_OBJECT (standard_view->model), "row-changed", G_CALLBACK (thunar_standard_view_row_changed), standard_view);
+   g_signal_connect (G_OBJECT (standard_view->model), "rows-reordered", G_CALLBACK (thunar_standard_view_rows_reordered), standard_view);
+   g_signal_connect (G_OBJECT (standard_view->model), "error", G_CALLBACK (thunar_standard_view_error), standard_view);
++  g_signal_connect (G_OBJECT (standard_view->model), "search-done", G_CALLBACK (thunar_standard_view_search_done), standard_view);
+   g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-case-sensitive", G_OBJECT (standard_view->model), "case-sensitive", G_BINDING_SYNC_CREATE);
+   g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-date-style", G_OBJECT (standard_view->model), "date-style", G_BINDING_SYNC_CREATE);
+   g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-date-custom-style", G_OBJECT (standard_view->model), "date-custom-style", G_BINDING_SYNC_CREATE);
+@@ -804,6 +827,7 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
+   standard_view->accel_group = NULL;
+ 
+   standard_view->priv->search_query = NULL;
++  standard_view->priv->active_search = FALSE;
+   standard_view->priv->type = 0;
+ }
+ 
+@@ -1042,6 +1066,10 @@ thunar_standard_view_get_property (GObject    *object,
+       g_value_set_boolean (value, thunar_view_get_loading (THUNAR_VIEW (object)));
+       break;
+ 
++    case PROP_SEARCHING:
++      g_value_set_boolean (value, thunar_standard_view_get_searching (THUNAR_VIEW (object)));
++      break;
++
+     case PROP_DISPLAY_NAME:
+       current_directory = thunar_navigator_get_current_directory (THUNAR_NAVIGATOR (object));
+       if (THUNAR_STANDARD_VIEW (object)->priv->search_query != NULL)
+@@ -1544,6 +1572,14 @@ thunar_standard_view_get_loading (ThunarView *view)
+ 
+ 
+ 
++static gboolean
++thunar_standard_view_get_searching (ThunarView *view)
++{
++  return THUNAR_STANDARD_VIEW (view)->priv->active_search;
++}
++
++
++
+ static void
+ thunar_standard_view_set_loading (ThunarStandardView *standard_view,
+                                   gboolean            loading)
+@@ -3313,6 +3349,22 @@ thunar_standard_view_error (ThunarListModel    *model,
+ 
+ 
+ 
++static void
++thunar_standard_view_search_done (ThunarListModel    *model,
++                                  ThunarStandardView *standard_view)
++{
++  _thunar_return_if_fail (THUNAR_IS_LIST_MODEL (model));
++  _thunar_return_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view));
++  _thunar_return_if_fail (standard_view->model == model);
++
++  standard_view->priv->active_search = FALSE;
++
++  /* notify listeners */
++  g_object_notify_by_pspec (G_OBJECT (standard_view), standard_view_props[PROP_SEARCHING]);
++}
++
++
++
+ static void
+ thunar_standard_view_sort_column_changed (GtkTreeSortable    *tree_sortable,
+                                           ThunarStandardView *standard_view)
+@@ -4194,6 +4246,9 @@ thunar_standard_view_set_searching (ThunarStandardView *standard_view,
+   if (standard_view == NULL)
+     return;
+ 
++  if (standard_view->priv->search_query != NULL && search_query == NULL)
++    thunar_standard_view_search_done (standard_view->model, standard_view);
++
+   /* save the new query (used for switching between views) */
+   g_free (standard_view->priv->search_query);
+   standard_view->priv->search_query = g_strdup (search_query);
+@@ -4213,6 +4268,15 @@ thunar_standard_view_set_searching (ThunarStandardView *standard_view,
+ 
+   /* change the display name in the tab */
+   g_object_notify_by_pspec (G_OBJECT (standard_view), standard_view_props[PROP_DISPLAY_NAME]);
++
++
++  if (search_query != NULL && g_strcmp0 (search_query, "") != 0)
++    standard_view->priv->active_search = TRUE;
++  else
++    standard_view->priv->active_search = FALSE;
++
++  /* notify listeners */
++  g_object_notify_by_pspec (G_OBJECT (standard_view), standard_view_props[PROP_SEARCHING]);
+ }
+ 
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 812b5c43..60cc402c 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -1985,6 +1985,7 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
+   /* add stock bindings */
+   thunar_window_binding_create (window, window, "current-directory", page, "current-directory", G_BINDING_DEFAULT);
+   thunar_window_binding_create (window, page, "loading", window->spinner, "active", G_BINDING_SYNC_CREATE);
++  thunar_window_binding_create (window, page, "searching", window->spinner, "active", G_BINDING_SYNC_CREATE);
+   thunar_window_binding_create (window, page, "selected-files", window->launcher, "selected-files", G_BINDING_SYNC_CREATE);
+   thunar_window_binding_create (window, page, "zoom-level", window, "zoom-level", G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
+ 
+@@ -2354,6 +2355,7 @@ thunar_window_notebook_insert_page (ThunarWindow  *window,
+   GtkWidget      *label;
+   GtkWidget      *label_box;
+   GtkWidget      *button;
++  GtkWidget      *spinner;
+   GtkWidget      *icon;
+   ThunarColumn    sort_column;
+   GtkSortType     sort_order;
+@@ -2408,6 +2410,17 @@ thunar_window_notebook_insert_page (ThunarWindow  *window,
+   gtk_box_pack_start (GTK_BOX (label_box), label, TRUE, TRUE, 0);
+   gtk_widget_show (label);
+ 
++  spinner = gtk_spinner_new ();
++  gtk_box_pack_start (GTK_BOX (label_box), spinner, FALSE, FALSE, 0);
++  gtk_widget_show (spinner);
++
++  g_object_bind_property (G_OBJECT (spinner), "active",
++                          G_OBJECT (spinner), "visible",
++                          G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (view), "searching",
++                          G_OBJECT (spinner), "active",
++                          G_BINDING_SYNC_CREATE);
++
+   button = gtk_button_new ();
+   gtk_box_pack_start (GTK_BOX (label_box), button, FALSE, FALSE, 0);
+   gtk_widget_set_can_default (button, FALSE);
+@@ -3086,6 +3099,7 @@ gboolean
+ thunar_window_action_cancel_search (ThunarWindow *window)
+ {
+   _thunar_return_val_if_fail (THUNAR_IS_LOCATION_BAR (window->location_bar), FALSE);
++  _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
+ 
+   if (window->is_searching == FALSE)
+     return TRUE;
+@@ -4331,6 +4345,9 @@ thunar_window_action_show_hidden (ThunarWindow *window)
+ gboolean
+ thunar_window_action_search (ThunarWindow *window)
+ {
++  _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
++
++  /* initiate search */
+   thunar_window_start_open_location (window, SEARCH_PREFIX);
+ 
+   /* required in case of shortcut activation, in order to signal that the accel key got handled */

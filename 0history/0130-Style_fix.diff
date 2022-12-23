@@ -1,0 +1,13 @@
+diff --git a/thunar/thunar-io-jobs-util.c b/thunar/thunar-io-jobs-util.c
+index 827ff59d..a8d40da0 100644
+--- a/thunar/thunar-io-jobs-util.c
++++ b/thunar/thunar-io-jobs-util.c
+@@ -53,7 +53,7 @@
+  * Return value: the #GFile referencing the @n<!---->th copy or link
+  *               of @file or %NULL on error/cancellation.
+  **/
+-GFile *
++GFile*
+ thunar_io_jobs_util_next_duplicate_file (ThunarJob *job,
+                                          GFile     *file,
+                                          gboolean   copy,

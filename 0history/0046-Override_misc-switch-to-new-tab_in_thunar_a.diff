@@ -1,0 +1,50 @@
+diff --git a/thunar/thunar-application.c b/thunar/thunar-application.c
+index 60441cab..953980e6 100644
+--- a/thunar/thunar-application.c
++++ b/thunar/thunar-application.c
+@@ -1316,7 +1316,7 @@ thunar_application_open_window (ThunarApplication *application,
+           list = g_list_last (list);
+ 
+           if (directory != NULL)
+-              thunar_window_notebook_open_new_tab (THUNAR_WINDOW (list->data), directory);
++              thunar_window_notebook_add_new_tab (THUNAR_WINDOW (list->data), directory, TRUE);
+           
+           /* bring the window to front */
+           gtk_window_present (list->data);
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 9e0ea203..95bf2e8b 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -293,9 +293,6 @@ static void      thunar_window_trash_infobar_clicked           (GtkInfoBar
+                                                                 gint                    response_id,
+                                                                 ThunarWindow           *window);
+ static void      thunar_window_trash_selection_updated         (ThunarWindow           *window);
+-static void      thunar_window_notebook_add_new_tab            (ThunarWindow           *window,
+-                                                                ThunarFile             *directory,
+-                                                                gboolean                force_switch_to_new_tab);
+ 
+ 
+ 
+@@ -2258,7 +2255,7 @@ thunar_window_split_view_is_active (ThunarWindow *window)
+ 
+ 
+ 
+-static void
++void
+ thunar_window_notebook_add_new_tab (ThunarWindow *window,
+                                     ThunarFile   *directory,
+                                     gboolean      force_switch_to_new_tab)
+diff --git a/thunar/thunar-window.h b/thunar/thunar-window.h
+index fe145f73..9d089d30 100644
+--- a/thunar/thunar-window.h
++++ b/thunar/thunar-window.h
+@@ -117,6 +117,9 @@ void                      thunar_window_update_directories                  (Thu
+                                                                              ThunarFile          *new_directory);
+ void                      thunar_window_notebook_open_new_tab               (ThunarWindow        *window,
+                                                                              ThunarFile          *directory);
++void                      thunar_window_notebook_add_new_tab                (ThunarWindow        *window,
++                                                                             ThunarFile          *directory,
++                                                                             gboolean             force_switch_to_new_tab);
+ gboolean                  thunar_window_has_shortcut_sidepane               (ThunarWindow        *window);
+ GtkWidget*                thunar_window_get_sidepane                        (ThunarWindow        *window);
+ void                      thunar_window_append_menu_item                    (ThunarWindow        *window,

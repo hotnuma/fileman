@@ -1,0 +1,30 @@
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 0a2a2584..30a0d7db 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -1785,6 +1785,16 @@ thunar_window_action_switch_previous_tab (ThunarWindow *window)
+ 
+ 
+ 
++static void
++thunar_window_clipboard_manager_changed (GtkWidget *widget)
++{
++  ThunarWindow *window = THUNAR_WINDOW (widget);
++
++  thunar_window_reload (window, FALSE);
++}
++
++
++
+ static void
+ thunar_window_realize (GtkWidget *widget)
+ {
+@@ -1798,7 +1808,7 @@ thunar_window_realize (GtkWidget *widget)
+    */
+   window->clipboard = thunar_clipboard_manager_get_for_display (gtk_widget_get_display (widget));
+   g_signal_connect_swapped (G_OBJECT (window->clipboard), "changed",
+-                            G_CALLBACK (gtk_widget_queue_draw), widget);
++                            G_CALLBACK (thunar_window_clipboard_manager_changed), widget);
+ }
+ 
+ 

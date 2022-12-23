@@ -1,0 +1,13 @@
+diff --git a/thunar/thunar-thumbnailer.c b/thunar/thunar-thumbnailer.c
+index 47b474b2..132cce4c 100644
+--- a/thunar/thunar-thumbnailer.c
++++ b/thunar/thunar-thumbnailer.c
+@@ -555,7 +555,7 @@ thunar_thumbnailer_init (ThunarThumbnailer *thumbnailer)
+   /* grab a reference on the preferences */
+   thumbnailer->preferences = thunar_preferences_get ();
+ 
+-  g_object_bind_property (G_OBJECT (thunar_preferences_get ()),
++  g_object_bind_property (G_OBJECT (thumbnailer->preferences),
+                           "misc-thumbnail-max-file-size",
+                           G_OBJECT (thumbnailer),
+                           "thumbnail-max-file-size",

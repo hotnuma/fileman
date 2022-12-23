@@ -1,0 +1,39 @@
+diff --git a/thunar/thunar-enum-types.h b/thunar/thunar-enum-types.h
+index a46f90cd..25837961 100644
+--- a/thunar/thunar-enum-types.h
++++ b/thunar/thunar-enum-types.h
+@@ -80,6 +80,7 @@ GType thunar_date_style_get_type (void) G_GNUC_CONST;
+  * @THUNAR_COLUMN_DATE_ACCESSED : last access time.
+  * @THUNAR_COLUMN_DATE_MODIFIED : last modification time.
+  * @THUNAR_COLUMN_DATE_DELETED  : deletion time.
++ * @THUNAR_COLUMN_RECENCY       : time of modification of recent info.
+  * @THUNAR_COLUMN_LOCATION      : file location.
+  * @THUNAR_COLUMN_GROUP         : group's name.
+  * @THUNAR_COLUMN_MIME_TYPE     : mime type (e.g. "text/plain").
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index ebb5baf0..eb6e90d4 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -626,6 +626,9 @@ thunar_list_model_get_column_type (GtkTreeModel *model,
+     case THUNAR_COLUMN_DATE_DELETED:
+       return G_TYPE_STRING;
+ 
++    case THUNAR_COLUMN_RECENCY:
++      return G_TYPE_STRING;
++
+     case THUNAR_COLUMN_LOCATION:
+       return G_TYPE_STRING;
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 1b570d35..0a2a2584 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -3330,6 +3330,8 @@ thunar_window_action_detailed_view (ThunarWindow *window)
+   thunar_window_action_view_changed (window, THUNAR_TYPE_DETAILS_VIEW);
+   thunar_details_view_set_date_deleted_column_visible (THUNAR_DETAILS_VIEW (window->view),
+                                                        thunar_file_is_trash (window->current_directory));
++  thunar_details_view_set_recency_column_visible (THUNAR_DETAILS_VIEW (window->view),
++                                                  thunar_file_is_recent (window->current_directory));
+ }
+ 
+ 

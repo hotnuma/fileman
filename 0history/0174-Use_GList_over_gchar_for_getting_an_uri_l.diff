@@ -1,0 +1,112 @@
+diff --git a/thunar/thunar-session-client.c b/thunar/thunar-session-client.c
+index 2f9e951e..dff111c9 100644
+--- a/thunar/thunar-session-client.c
++++ b/thunar/thunar-session-client.c
+@@ -357,10 +357,9 @@ thunar_session_client_save_yourself (SmcConn              connection,
+ {
+   ThunarApplication *application;
+   const gchar       *role;
+-  gchar            **uris;
++  GList             *uri, *uris; // list of uri strings
+   GList             *windows;
+   GList             *lp;
+-  guint              n;
+   FILE              *fp;
+   gint               active_page;
+ 
+@@ -396,16 +395,17 @@ thunar_session_client_save_yourself (SmcConn              connection,
+                   fprintf (fp, "[%s]\n", role);
+                   fprintf (fp, "PAGE=%d\n", active_page);
+                   fprintf (fp, "URI=");
+-                  for (n = 0; uris[n] != NULL; n++)
++                  for (uri = uris; uri != NULL; uri = uri->next)
+                     {
+-                      fprintf (fp, "%s", uris[n]);
+-                      if (G_LIKELY (uris[n + 1] != NULL))
++                      gchar* uri_string = uri->data;
++                      fprintf (fp, "%s", uri_string);
++                      if (G_LIKELY (uri->next != NULL))
+                         fprintf (fp, ";");
+                     }
+                   fprintf (fp, "\n\n");
+ 
+                   /* cleanup */
+-                  g_strfreev (uris);
++                  g_list_free_full (uris, g_free);
+                 }
+ 
+               /* cleanup */
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 889d085e..93d44f3e 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -2504,6 +2504,14 @@ thunar_window_notebook_add_new_tab (ThunarWindow        *window,
+   GType          view_type;
+   gboolean       switch_to_new_tab;
+ 
++  if (thunar_file_is_directory (directory) == FALSE)
++    {
++      char *uri = thunar_file_dup_uri (directory);
++      g_warning ("Skipping to add tab. The passed URI is not a directory: %s", uri);
++      g_free (uri);
++      return;
++    }
++
+   /* save the history of the current view */
+   if (THUNAR_IS_STANDARD_VIEW (window->view))
+     {
+@@ -4560,13 +4568,13 @@ thunar_window_scroll_to_file (ThunarWindow *window,
+ 
+ 
+ 
+-gchar **
++GList*
+ thunar_window_get_directories (ThunarWindow *window,
+                                gint         *active_page)
+ {
+   gint         n;
+   gint         n_pages;
+-  gchar      **uris;
++  GList       *uris = NULL;
+   GtkWidget   *view;
+   ThunarFile  *directory;
+ 
+@@ -4576,20 +4584,19 @@ thunar_window_get_directories (ThunarWindow *window,
+   if (G_UNLIKELY (n_pages == 0))
+     return NULL;
+ 
+-  /* create array of uris */
+-  uris = g_new0 (gchar *, n_pages + 1);
+   for (n = 0; n < n_pages; n++)
+     {
+       /* get the view */
+       view = gtk_notebook_get_nth_page (GTK_NOTEBOOK (window->notebook_selected), n);
+-      _thunar_return_val_if_fail (THUNAR_IS_NAVIGATOR (view), FALSE);
++      if (THUNAR_IS_NAVIGATOR (view) == FALSE)
++        continue;
+ 
+       /* get the directory of the view */
+       directory = thunar_navigator_get_current_directory (THUNAR_NAVIGATOR (view));
+-      _thunar_return_val_if_fail (THUNAR_IS_FILE (directory), FALSE);
++      if (THUNAR_IS_FILE (directory) == FALSE)
++        continue;
+ 
+-      /* add to array */
+-      uris[n] = thunar_file_dup_uri (directory);
++      uris = g_list_append (uris, thunar_file_dup_uri (directory));
+     }
+ 
+   /* selected tab */
+diff --git a/thunar/thunar-window.h b/thunar/thunar-window.h
+index c8d3c027..921db388 100644
+--- a/thunar/thunar-window.h
++++ b/thunar/thunar-window.h
+@@ -111,7 +111,7 @@ void                      thunar_window_scroll_to_file                      (Thu
+                                                                              gboolean             use_align,
+                                                                              gfloat               row_align,
+                                                                              gfloat               col_align);
+-gchar                   **thunar_window_get_directories                     (ThunarWindow        *window,
++GList                    *thunar_window_get_directories                     (ThunarWindow        *window,
+                                                                              gint                *active_page);
+ gboolean                  thunar_window_set_directories                     (ThunarWindow        *window,
+                                                                              gchar              **uris,

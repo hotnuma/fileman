@@ -1,0 +1,1223 @@
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index c620e433..21959263 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -470,7 +470,7 @@ static void
+ thunar_list_model_dispose (GObject *object)
+ {
+   /* unlink from the folder (if any) */
+-  thunar_list_model_set_folder (THUNAR_LIST_MODEL (object), NULL);
++  thunar_list_model_set_folder (THUNAR_LIST_MODEL (object), NULL, NULL);
+ 
+   (*G_OBJECT_CLASS (thunar_list_model_parent_class)->dispose) (object);
+ }
+@@ -566,7 +566,7 @@ thunar_list_model_set_property (GObject      *object,
+       break;
+ 
+     case PROP_FOLDER:
+-      thunar_list_model_set_folder (store, g_value_get_object (value));
++      thunar_list_model_set_folder (store, g_value_get_object (value), NULL);
+       break;
+ 
+     case PROP_FOLDERS_FIRST:
+@@ -1319,7 +1319,7 @@ thunar_list_model_folder_destroy (ThunarFolder    *folder,
+   _thunar_return_if_fail (THUNAR_IS_LIST_MODEL (store));
+   _thunar_return_if_fail (THUNAR_IS_FOLDER (folder));
+ 
+-  thunar_list_model_set_folder (store, NULL);
++  thunar_list_model_set_folder (store, NULL, NULL);
+ 
+   /* TODO: What to do when the folder is deleted? */
+ }
+@@ -1339,7 +1339,7 @@ thunar_list_model_folder_error (ThunarFolder    *folder,
+   g_signal_emit (G_OBJECT (store), list_model_signals[ERROR], 0, error);
+ 
+   /* reset the current folder */
+-  thunar_list_model_set_folder (store, NULL);
++  thunar_list_model_set_folder (store, NULL, NULL);
+ }
+ 
+ 
+@@ -1965,18 +1965,68 @@ thunar_list_model_get_folder (ThunarListModel *store)
+ 
+ 
+ 
++static GList*
++search_directory (GList       *files,
++                  ThunarFile  *directory,
++                  gchar       *search_query_c)
++{
++  ThunarFolder *folder;
++  GList        *temp_files;
++  const gchar  *display_name;
++  gchar        *display_name_c; /* converted to ignore case */
++  gchar        *uri;
++
++  folder     = thunar_folder_get_for_file (directory);
++  temp_files = thunar_folder_get_files (folder);
++
++  for (; temp_files != NULL; temp_files = temp_files->next)
++    {
++      /* don't allow duplicates for files that exist in `recent:///` */
++      uri = thunar_file_dup_uri (temp_files->data);
++      if (gtk_recent_manager_has_item (gtk_recent_manager_get_default(), uri) == TRUE)
++        {
++          g_free (uri);
++          continue;
++        }
++
++      /* prepare entry display name */
++      display_name = thunar_file_get_display_name (temp_files->data);
++      display_name_c = g_utf8_casefold (display_name, strlen (display_name));
++
++      /* search substring */
++      if (g_strrstr (display_name_c, search_query_c) != NULL)
++        {
++          files = g_list_prepend (files, temp_files->data);
++          g_object_ref (temp_files->data);
++        }
++
++      /* free memory */
++      g_free (uri);
++      g_free (display_name_c);
++    }
++
++  g_object_unref (folder);
++
++  return files;
++}
++
++
++
+ /**
+  * thunar_list_model_set_folder:
+- * @store  : a valid #ThunarListModel.
+- * @folder : a #ThunarFolder or %NULL.
++ * @store                       : a valid #ThunarListModel.
++ * @folder                      : a #ThunarFolder or %NULL.
++ * @search_query                : a #string or %NULL.
+  **/
+ void
+ thunar_list_model_set_folder (ThunarListModel *store,
+-                              ThunarFolder    *folder)
++                              ThunarFolder    *folder,
++                              gchar           *search_query)
+ {
+   GtkTreePath   *path;
+   gboolean       has_handler;
+   GList         *files;
++  GList         *search_files; /* used to free results of a search */
+   GSequenceIter *row;
+   GSequenceIter *end;
+   GSequenceIter *next;
+@@ -1984,9 +2034,7 @@ thunar_list_model_set_folder (ThunarListModel *store,
+   _thunar_return_if_fail (THUNAR_IS_LIST_MODEL (store));
+   _thunar_return_if_fail (folder == NULL || THUNAR_IS_FOLDER (folder));
+ 
+-  /* check if we're not already using that folder */
+-  if (G_UNLIKELY (store->folder == folder))
+-    return;
++  search_files = NULL;
+ 
+   /* unlink from the previously active folder (if any) */
+   if (G_LIKELY (store->folder != NULL))
+@@ -2042,13 +2090,59 @@ thunar_list_model_set_folder (ThunarListModel *store,
+     {
+       g_object_ref (G_OBJECT (folder));
+ 
+-      /* get the already loaded files */
+-      files = thunar_folder_get_files (folder);
++      /* get the already loaded files or search for files matching the search_query */
++      if (search_query == NULL)
++        {
++          files = thunar_folder_get_files (folder);
++        }
++      else
++        {
++          GList       *recent_infos;
++          GList       *lp;
++          gchar       *search_query_c; /* converted to ignore case */
++          const gchar *display_name;
++          gchar       *display_name_c; /* converted to ignore case */
++
++          recent_infos   = gtk_recent_manager_get_items (gtk_recent_manager_get_default ());
++          search_query_c = g_utf8_casefold (search_query, strlen (search_query));
++          files = NULL;
++
++          /* search the current folder */
++          files = search_directory (files, thunar_folder_get_corresponding_file (folder), search_query_c);
++
++          /* search GtkRecent */
++          for (lp = recent_infos; lp != NULL; lp = lp->next)
++            {
++              if (!gtk_recent_info_exists (lp->data))
++                continue;
++
++              /* prepare entry display name */
++              display_name = gtk_recent_info_get_display_name (lp->data);
++              display_name_c = g_utf8_casefold (display_name, strlen (display_name));
++
++              /* search substring */
++              if (g_strrstr (display_name_c, search_query_c) != NULL)
++                files = g_list_prepend (files, thunar_file_get_for_uri (gtk_recent_info_get_uri (lp->data), NULL));
++
++              /* free memory */
++              g_free (display_name_c);
++            }
++
++          search_files = files;
++          g_list_free_full (recent_infos, (void (*) (void*)) gtk_recent_info_unref);
++        }
+ 
+       /* insert the files */
+       if (files != NULL)
+         thunar_list_model_files_added (folder, files, store);
+ 
++      /* free search files, thunar_list_model_files_added has added its own references */
++      if (search_files != NULL)
++        {
++          thunar_g_list_free_full (search_files);
++          search_files = NULL;
++        }
++
+       /* connect signals to the new folder */
+       g_signal_connect (G_OBJECT (store->folder), "destroy", G_CALLBACK (thunar_list_model_folder_destroy), store);
+       g_signal_connect (G_OBJECT (store->folder), "error", G_CALLBACK (thunar_list_model_folder_error), store);
+diff --git a/thunar/thunar-list-model.h b/thunar/thunar-list-model.h
+index 2328c83a..a27afab4 100644
+--- a/thunar/thunar-list-model.h
++++ b/thunar/thunar-list-model.h
+@@ -40,7 +40,8 @@ ThunarListModel *thunar_list_model_new                    (void);
+ 
+ ThunarFolder    *thunar_list_model_get_folder             (ThunarListModel  *store);
+ void             thunar_list_model_set_folder             (ThunarListModel  *store,
+-                                                           ThunarFolder     *folder);
++                                                           ThunarFolder     *folder,
++                                                           gchar            *search_query);
+ 
+ void             thunar_list_model_set_folders_first      (ThunarListModel  *store,
+                                                            gboolean          folders_first);
+diff --git a/thunar/thunar-location-bar.c b/thunar/thunar-location-bar.c
+index c069e02a..81f9337b 100644
+--- a/thunar/thunar-location-bar.c
++++ b/thunar/thunar-location-bar.c
+@@ -27,6 +27,9 @@
+ #include <thunar/thunar-location-entry.h>
+ #include <thunar/thunar-location-buttons.h>
+ #include <thunar/thunar-preferences.h>
++#include <thunar/thunar-util.h>
++#include <thunar/thunar-window.h>
++
+ 
+ 
+ struct _ThunarLocationBarClass
+@@ -34,8 +37,8 @@ struct _ThunarLocationBarClass
+   GtkBinClass __parent__;
+ 
+   /* signals */
+-  void (*reload_requested) (void);
+   void (*entry_done) (void);
++  void (*reload_requested) (void);
+ };
+ 
+ struct _ThunarLocationBar
+@@ -46,6 +49,8 @@ struct _ThunarLocationBar
+ 
+   GtkWidget  *locationEntry;
+   GtkWidget  *locationButtons;
++
++  gboolean    is_searching;
+ };
+ 
+ 
+@@ -367,3 +372,36 @@ thunar_location_bar_settings_changed (ThunarLocationBar *bar)
+ }
+ 
+ 
++
++/**
++ * thunar_location_bar_cancel_search
++ * @bar          : The #ThunarLocationBar
++ *
++ * Cancels the search for the location bar and its children.
++ */
++void
++thunar_location_bar_cancel_search (ThunarLocationBar *bar)
++{
++  if (bar->locationEntry != NULL)
++    thunar_location_entry_cancel_search (THUNAR_LOCATION_ENTRY (bar->locationEntry));
++}
++
++
++
++/**
++ * thunar_location_bar_get_search_query:
++ * @entry        : a #ThunarLocationBar.
++ *
++ * Returns a copy of the search query in the text field of @entry or NULL if there is no search query.
++ *
++ * It's the responsibility of the caller to free the returned string using `g_free`.
++ **/
++gchar*
++thunar_location_bar_get_search_query (ThunarLocationBar *entry)
++{
++  return (entry->locationEntry != NULL) ? thunar_location_entry_get_search_query (THUNAR_LOCATION_ENTRY (entry->locationEntry)) : "";
++}
++
++
++
++
+diff --git a/thunar/thunar-location-bar.h b/thunar/thunar-location-bar.h
+index 0703cfb0..c5434077 100644
+--- a/thunar/thunar-location-bar.h
++++ b/thunar/thunar-location-bar.h
+@@ -39,6 +39,10 @@ GtkWidget *thunar_location_bar_new           (void);
+ 
+ void       thunar_location_bar_request_entry (ThunarLocationBar *bar, const gchar *initial_text);
+ 
++void       thunar_location_bar_cancel_search (ThunarLocationBar *bar);
++
++gchar*     thunar_location_bar_get_search_query (ThunarLocationBar *entry);
++
+ G_END_DECLS;
+ 
+ #endif /* !__THUNAR_LOCATION_BAR_H__ */
+diff --git a/thunar/thunar-location-buttons.c b/thunar/thunar-location-buttons.c
+index f293b5de..3b91e029 100644
+--- a/thunar/thunar-location-buttons.c
++++ b/thunar/thunar-location-buttons.c
+@@ -67,6 +67,7 @@ static void           thunar_location_buttons_set_current_directory       (Thuna
+                                                                            ThunarFile                 *current_directory);
+ static void           thunar_location_buttons_unmap                       (GtkWidget                  *widget);
+ static void           thunar_location_buttons_on_filler_clicked           (ThunarLocationButtons      *buttons);
++static void           thunar_location_buttons_on_search_clicked           (ThunarLocationButtons      *buttons);
+ static void           thunar_location_buttons_get_preferred_width         (GtkWidget                  *widget,
+                                                                            gint                       *minimum,
+                                                                            gint                       *natural);
+@@ -130,7 +131,7 @@ struct _ThunarLocationButtonsClass
+ {
+   GtkContainerClass __parent__;
+ 
+-  void (*entry_requested)(const gchar *initial_text);
++  void (*entry_requested) (const gchar *initial_text);
+ };
+ 
+ struct _ThunarLocationButtons
+@@ -140,6 +141,7 @@ struct _ThunarLocationButtons
+   GtkWidget         *left_slider;
+   GtkWidget         *right_slider;
+   GtkWidget         *filler_widget;
++  GtkWidget         *search_widget;
+ 
+   ThunarFile        *current_directory;
+ 
+@@ -229,6 +231,15 @@ thunar_location_buttons_on_filler_clicked (ThunarLocationButtons *buttons)
+ 
+ 
+ 
++static void
++thunar_location_buttons_on_search_clicked (ThunarLocationButtons *buttons)
++{
++  GtkWidget *window = gtk_widget_get_toplevel (GTK_WIDGET (buttons));
++  thunar_window_action_search (THUNAR_WINDOW (window));
++}
++
++
++
+ static void
+ thunar_location_buttons_init (ThunarLocationButtons *buttons)
+ {
+@@ -270,6 +281,17 @@ thunar_location_buttons_init (ThunarLocationButtons *buttons)
+   gtk_container_add (GTK_CONTAINER (buttons), buttons->filler_widget);
+   gtk_widget_show (buttons->filler_widget);
+ 
++  buttons->search_widget = gtk_button_new ();
++  g_signal_connect_swapped (buttons->search_widget, "clicked", G_CALLBACK (thunar_location_buttons_on_search_clicked), buttons);
++
++  icon = gtk_image_new_from_icon_name ("system-search-symbolic", GTK_ICON_SIZE_BUTTON);
++  gtk_widget_set_halign (icon, GTK_ALIGN_END);
++  gtk_container_add (GTK_CONTAINER (buttons->search_widget), icon);
++  gtk_widget_show (icon);
++
++  gtk_container_add (GTK_CONTAINER (buttons), buttons->search_widget);
++  gtk_widget_show (buttons->search_widget);
++
+   g_object_set (buttons, "valign", GTK_ALIGN_CENTER, NULL);
+ 
+   /* setup style classes */
+@@ -285,6 +307,8 @@ thunar_location_buttons_init (ThunarLocationButtons *buttons)
+                                "path-bar-button");
+   gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET (buttons->filler_widget)),
+                                "path-bar-button");
++  gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET (buttons->search_widget)),
++                               "path-bar-button");
+ 
+   buttons->launcher =  g_object_new (THUNAR_TYPE_LAUNCHER, "widget", GTK_WIDGET (buttons), NULL);
+   g_signal_connect_swapped (G_OBJECT (buttons->launcher), "change-directory", G_CALLBACK (thunar_location_buttons_set_current_directory), buttons);
+@@ -530,6 +554,7 @@ thunar_location_buttons_get_path_for_child (GtkContainer *container,
+         */
+       visible_children = NULL;
+       visible_children = g_list_prepend (visible_children, path_bar->right_slider);
++      visible_children = g_list_prepend (visible_children, path_bar->search_widget);
+       visible_children = g_list_prepend (visible_children, path_bar->filler_widget);
+ 
+       for (l = path_bar->list; l; l = l->next)
+@@ -652,6 +677,7 @@ thunar_location_buttons_size_allocate (GtkWidget     *widget,
+   GtkAllocation          folder_button_allocation;
+   GtkAllocation          first_slider_allocation;  /* left slider if direction is LTR */
+   GtkAllocation          second_slider_allocation; /* right slider if direction is LTR */
++  GtkAllocation          search_allocation;
+   GtkAllocation          filler_allocation;
+   GList                 *lp;
+   gint                   required_width_total = 0;
+@@ -679,19 +705,25 @@ thunar_location_buttons_size_allocate (GtkWidget     *widget,
+   second_slider_allocation.height = available_space.height;
+   second_slider_allocation.y = available_space.y;
+ 
++  search_allocation.width = buttons->slider_width;
++  search_allocation.height = available_space.height;
++  search_allocation.y = available_space.y;
++
+   if (G_LIKELY (direction == GTK_TEXT_DIR_LTR))
+     {
+       first_slider_allocation.x = available_space.x;
+       second_slider_allocation.x = available_space.x + available_space.width - buttons->slider_width;
++      search_allocation.x = available_space.x + available_space.width - buttons->slider_width - search_allocation.width;
+     }
+   else
+     {
+       first_slider_allocation.x = available_space.x + available_space.width - buttons->slider_width;
+       second_slider_allocation.x = available_space.x;
++      search_allocation.x = available_space.x + buttons->slider_width;
+     }
+ 
+   gtk_widget_get_preferred_width (buttons->filler_widget, &filler_allocation.width, NULL);
+-  required_width_total += buttons->slider_width * 2 + filler_allocation.width;
++  required_width_total += buttons->slider_width * 2 + filler_allocation.width + search_allocation.width;
+   filler_allocation.height = available_space.height;
+   filler_allocation.y = available_space.y;
+ 
+@@ -715,7 +747,7 @@ thunar_location_buttons_size_allocate (GtkWidget     *widget,
+   else
+     {
+       /* reset calculation for required_width_total .. we need to cut off some folders */
+-      required_width_total = first_slider_allocation.width + second_slider_allocation.width + filler_allocation.width;
++      required_width_total = first_slider_allocation.width + second_slider_allocation.width + search_allocation.width + filler_allocation.width;
+ 
+       /* No scrolling defined ? Use last button as fixed start! */
+       if(buttons->last_visible_button == NULL && buttons->first_visible_button == NULL)
+@@ -783,8 +815,10 @@ thunar_location_buttons_size_allocate (GtkWidget     *widget,
+   /* allocate the sliders */
+   gtk_widget_get_preferred_width (GTK_WIDGET (buttons->left_slider), &temp_width, NULL); //to dont get gtk warnings
+   gtk_widget_get_preferred_width (GTK_WIDGET (buttons->right_slider), &temp_width, NULL);
++  gtk_widget_get_preferred_width (GTK_WIDGET (buttons->search_widget), &temp_width, NULL);
+   gtk_widget_size_allocate (buttons->left_slider, &first_slider_allocation);
+   gtk_widget_size_allocate (buttons->right_slider, &second_slider_allocation);
++  gtk_widget_size_allocate (buttons->search_widget, &search_allocation);
+   thunar_location_buttons_update_sliders (buttons);
+ 
+   if (need_reorder)
+@@ -908,6 +942,9 @@ thunar_location_buttons_forall (GtkContainer *container,
+ 
+   if (buttons->filler_widget != NULL && include_internals)
+     (*callback) (buttons->filler_widget, callback_data);
++
++  if (buttons->filler_widget != NULL && include_internals)
++    (*callback) (buttons->search_widget, callback_data);
+ }
+ 
+ 
+diff --git a/thunar/thunar-location-entry.c b/thunar/thunar-location-entry.c
+index ec946253..bdda01ab 100644
+--- a/thunar/thunar-location-entry.c
++++ b/thunar/thunar-location-entry.c
+@@ -35,6 +35,9 @@
+ #include <thunar/thunar-path-entry.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-shortcuts-model.h>
++#include <thunar/thunar-util.h>
++#include <thunar/thunar-folder.h>
++#include <thunar/thunar-window.h>
+ 
+ 
+ 
+@@ -67,6 +70,10 @@ static gboolean    thunar_location_entry_button_press_event       (GtkWidget
+                                                                    ThunarLocationEntry      *location_entry);
+ static gboolean    thunar_location_entry_reset                    (ThunarLocationEntry      *location_entry);
+ static void        thunar_location_entry_emit_edit_done           (ThunarLocationEntry      *entry);
++static void        thunar_location_entry_search                   (GtkEntry                 *entry,
++                                                                   GtkEntryIconPosition      icon_pos,
++                                                                   GdkEvent                 *event,
++                                                                   ThunarLocationEntry      *location_entry);
+ 
+ 
+ 
+@@ -78,8 +85,7 @@ struct _ThunarLocationEntryClass
+   gboolean (*reset) (ThunarLocationEntry *location_entry);
+ 
+   /* externally visible signals */
+-  void (*reload_requested) (void);
+-  void (*edit_done) (void);
++  void (*edit_done)     (void);
+ };
+ 
+ struct _ThunarLocationEntry
+@@ -90,6 +96,7 @@ struct _ThunarLocationEntry
+   GtkWidget    *path_entry;
+ 
+   gboolean      right_click_occurred;
++  gboolean      is_searching;
+ };
+ 
+ 
+@@ -179,8 +186,13 @@ thunar_location_entry_init (ThunarLocationEntry *location_entry)
+   gtk_box_pack_start (GTK_BOX (location_entry), location_entry->path_entry, TRUE, TRUE, 0);
+   gtk_widget_show (location_entry->path_entry);
+ 
+-  /* make sure the edit-done signal is emitted upon moving the focus somewhere else */
+-  g_signal_connect_swapped (location_entry->path_entry, "focus-out-event", G_CALLBACK (thunar_location_entry_emit_edit_done), location_entry);
++  /* put the search button at the end of the entry */
++  gtk_entry_set_icon_from_icon_name (GTK_ENTRY (location_entry->path_entry),
++                                     GTK_ENTRY_ICON_SECONDARY, "system-search-symbolic");
++  gtk_entry_set_icon_tooltip_text (GTK_ENTRY (location_entry->path_entry),
++                                   GTK_ENTRY_ICON_SECONDARY, _("Search for files"));
++  g_signal_connect (G_OBJECT (location_entry->path_entry), "icon-release",
++                    G_CALLBACK (thunar_location_entry_search), location_entry);
+ 
+   /* ...except if it is grabbed by the context menu */
+   location_entry->right_click_occurred = FALSE;
+@@ -283,6 +295,18 @@ thunar_location_entry_accept_focus (ThunarLocationEntry *location_entry,
+   /* give the keyboard focus to the path entry */
+   gtk_widget_grab_focus (location_entry->path_entry);
+ 
++  /* setup search if the initial_text signifies a search operation, otherwise setup location editing */
++  location_entry->is_searching = (initial_text != NULL && thunar_util_is_a_search_query (initial_text) == TRUE);
++  if (location_entry->is_searching)
++    {
++      g_signal_handlers_disconnect_by_func (location_entry->path_entry, G_CALLBACK (thunar_location_entry_emit_edit_done), location_entry);
++    }
++  else
++    {
++      /* make sure the edit-done signal is emitted upon moving the focus somewhere else */
++      g_signal_connect_swapped (location_entry->path_entry, "focus-out-event", G_CALLBACK (thunar_location_entry_emit_edit_done), location_entry);
++    }
++
+   /* check if we have an initial text for the location bar */
+   if (G_LIKELY (initial_text != NULL))
+     {
+@@ -435,8 +459,8 @@ thunar_location_entry_reset (ThunarLocationEntry *location_entry)
+ static void
+ thunar_location_entry_emit_edit_done (ThunarLocationEntry *entry)
+ {
+-  /* do not emit signal if the context menu was opened */
+-  if (entry->right_click_occurred == FALSE)
++  /* do not emit the signal if the context menu was opened or a search is active */
++  if (entry->right_click_occurred == FALSE && entry->is_searching == FALSE)
+     {
+       g_signal_emit_by_name (entry, "edit-done");
+     }
+@@ -445,3 +469,60 @@ thunar_location_entry_emit_edit_done (ThunarLocationEntry *entry)
+ }
+ 
+ 
++
++/**
++ * thunar_location_entry_cancel_search
++ * @entry          : The #ThunarLocationEntry
++ *
++ * Cancels the search for the location entry and its path entry.
++ */
++void
++thunar_location_entry_cancel_search (ThunarLocationEntry *entry)
++{
++  ThunarFolder *folder = thunar_folder_get_for_file (thunar_navigator_get_current_directory (THUNAR_NAVIGATOR (entry)));
++  thunar_folder_reload (folder, TRUE);
++  g_object_unref (folder);
++
++  entry->is_searching = FALSE;
++  entry->right_click_occurred = FALSE;
++  thunar_location_entry_emit_edit_done (entry);
++
++  thunar_path_entry_cancel_search (THUNAR_PATH_ENTRY (entry->path_entry));
++  thunar_path_entry_set_current_file (THUNAR_PATH_ENTRY (entry->path_entry), entry->current_directory);
++}
++
++
++
++/**
++ * thunar_location_entry_get_search_query:
++ * @entry        : a #ThunarLocationEntry.
++ *
++ * Returns a copy of the search query in the text field of the path_entry of @entry or NULL if there is no search query.
++ *
++ * It's the responsibility of the caller to free the returned string using `g_free`.
++ **/
++gchar*
++thunar_location_entry_get_search_query (ThunarLocationEntry *entry)
++{
++  return thunar_path_entry_get_search_query (THUNAR_PATH_ENTRY (entry->path_entry));
++}
++
++
++
++static void
++thunar_location_entry_search (GtkEntry            *entry,
++                              GtkEntryIconPosition icon_pos,
++                              GdkEvent            *event,
++                              ThunarLocationEntry *location_entry)
++{
++  _thunar_return_if_fail (THUNAR_IS_LOCATION_ENTRY (location_entry));
++
++  if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
++    {
++      GtkWidget *window = gtk_widget_get_toplevel (GTK_WIDGET (location_entry));
++      thunar_window_action_search (THUNAR_WINDOW (window));
++    }
++}
++
++
++
+diff --git a/thunar/thunar-location-entry.h b/thunar/thunar-location-entry.h
+index 11e2a2af..046a26ed 100644
+--- a/thunar/thunar-location-entry.h
++++ b/thunar/thunar-location-entry.h
+@@ -34,9 +34,12 @@ typedef struct _ThunarLocationEntry      ThunarLocationEntry;
+ #define THUNAR_IS_LOCATION_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_LOCATION_ENTRY))
+ #define THUNAR_LOCATION_ENTRY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntryClass))
+ 
+-GType      thunar_location_entry_get_type (void) G_GNUC_CONST;
++GType      thunar_location_entry_get_type         (void) G_GNUC_CONST;
+ 
+-void       thunar_location_entry_accept_focus (ThunarLocationEntry *entry, const gchar *initial_text);
++void       thunar_location_entry_accept_focus     (ThunarLocationEntry *entry, const gchar *initial_text);
++
++void       thunar_location_entry_cancel_search    (ThunarLocationEntry *entry);
++gchar     *thunar_location_entry_get_search_query (ThunarLocationEntry *entry);
+ 
+ G_END_DECLS;
+ 
+diff --git a/thunar/thunar-path-entry.c b/thunar/thunar-path-entry.c
+index 3f05d0fa..fe9f041b 100644
+--- a/thunar/thunar-path-entry.c
++++ b/thunar/thunar-path-entry.c
+@@ -45,6 +45,7 @@
+ #include <thunar/thunar-path-entry.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-util.h>
++#include <thunar/thunar-window.h>
+ 
+ 
+ 
+@@ -142,6 +143,8 @@ struct _ThunarPathEntry
+   guint              in_change : 1;
+   guint              has_completion : 1;
+   guint              check_completion_idle_id;
++
++  gboolean           search_mode;
+ };
+ 
+ 
+@@ -272,6 +275,9 @@ thunar_path_entry_init (ThunarPathEntry *path_entry)
+   /* connect the icon signals */
+   g_signal_connect (G_OBJECT (path_entry), "icon-press", G_CALLBACK (thunar_path_entry_icon_press_event), NULL);
+   g_signal_connect (G_OBJECT (path_entry), "icon-release", G_CALLBACK (thunar_path_entry_icon_release_event), NULL);
++
++  /* disabled initially */
++  path_entry->search_mode = FALSE;
+ }
+ 
+ 
+@@ -487,6 +493,13 @@ thunar_path_entry_key_press_event (GtkWidget   *widget,
+       /* we handled the event */
+       return TRUE;
+     }
++  /* cancel search with `Escape` */
++  if (G_UNLIKELY (path_entry->search_mode == TRUE && event->keyval == GDK_KEY_Escape && (event->state & GDK_CONTROL_MASK) == 0))
++    {
++      GtkWidget *window = gtk_widget_get_toplevel (widget);
++      thunar_window_action_cancel_search (THUNAR_WINDOW (window));
++      return TRUE;
++    }
+ 
+   return FALSE;
+ }
+@@ -560,33 +573,51 @@ thunar_path_entry_changed (GtkEditable *editable)
+ 
+   /* parse the entered string (handling URIs properly) */
+   text = gtk_entry_get_text (GTK_ENTRY (path_entry));
+-  if (G_UNLIKELY (exo_str_looks_like_an_uri (text)))
++
++  if (G_UNLIKELY (text != NULL && thunar_util_is_a_search_query (text)) == TRUE)
+     {
+-      /* try to parse the URI text */
+-      escaped_text = g_uri_escape_string (text, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);
+-      file_path = g_file_new_for_uri (escaped_text);
+-      g_free (escaped_text);
+-
+-      /* use the same file if the text assumes we're in a directory */
+-      if (g_str_has_suffix (text, "/"))
+-        folder_path = G_FILE (g_object_ref (G_OBJECT (file_path)));
+-      else
+-        folder_path = g_file_get_parent (file_path);
++      GtkWidget *window = gtk_widget_get_toplevel (GTK_WIDGET (editable));
++      path_entry->search_mode = TRUE;
++      update_icon = TRUE;
++      thunar_window_update_search (THUNAR_WINDOW (window));
+     }
+-  else if (thunar_path_entry_parse (path_entry, &folder_part, &file_part, NULL))
++  else
+     {
+-      /* determine the folder path */
+-      folder_path = g_file_new_for_path (folder_part);
+-
+-      /* determine the relative file path */
+-      if (G_LIKELY (*file_part != '\0'))
+-        file_path = g_file_resolve_relative_path (folder_path, file_part);
+-      else
+-        file_path = g_object_ref (folder_path);
+-
+-      /* cleanup the part strings */
+-      g_free (folder_part);
+-      g_free (file_part);
++      /* cancel search when part of 'Search: ' is deleted */
++      if (path_entry->search_mode == TRUE)
++        {
++          GtkWidget *window = gtk_widget_get_toplevel (GTK_WIDGET (editable));
++          thunar_window_action_cancel_search (THUNAR_WINDOW (window));
++        }
++      /* location/folder-path code */
++      if (G_UNLIKELY (exo_str_looks_like_an_uri (text)))
++        {
++          /* try to parse the URI text */
++          escaped_text = g_uri_escape_string (text, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);
++          file_path = g_file_new_for_uri (escaped_text);
++          g_free (escaped_text);
++
++          /* use the same file if the text assumes we're in a directory */
++          if (g_str_has_suffix (text, "/"))
++            folder_path = G_FILE (g_object_ref (G_OBJECT (file_path)));
++          else
++            folder_path = g_file_get_parent (file_path);
++        }
++      else if (thunar_path_entry_parse (path_entry, &folder_part, &file_part, NULL))
++        {
++          /* determine the folder path */
++          folder_path = g_file_new_for_path (folder_part);
++
++          /* determine the relative file path */
++          if (G_LIKELY (*file_part != '\0'))
++            file_path = g_file_resolve_relative_path (folder_path, file_part);
++          else
++            file_path = g_object_ref (folder_path);
++
++          /* cleanup the part strings */
++          g_free (folder_part);
++          g_free (file_part);
++        }
+     }
+ 
+   /* determine new current file/folder from the paths */
+@@ -619,7 +650,7 @@ thunar_path_entry_changed (GtkEditable *editable)
+       model = gtk_entry_completion_get_model (completion);
+       g_object_ref (G_OBJECT (model));
+       gtk_entry_completion_set_model (completion, NULL);
+-      thunar_list_model_set_folder (THUNAR_LIST_MODEL (model), folder);
++      thunar_list_model_set_folder (THUNAR_LIST_MODEL (model), folder, NULL);
+       gtk_entry_completion_set_model (completion, model);
+       g_object_unref (G_OBJECT (model));
+ 
+@@ -673,6 +704,14 @@ thunar_path_entry_update_icon (ThunarPathEntry *path_entry)
+   GtkIconTheme       *icon_theme;
+   gint                icon_size;
+ 
++  if (path_entry->search_mode == TRUE)
++    {
++      gtk_entry_set_icon_from_icon_name (GTK_ENTRY (path_entry),
++                                         GTK_ENTRY_ICON_PRIMARY,
++                                         "system-search");
++      return;
++    }
++
+   if (path_entry->icon_factory == NULL)
+     {
+       icon_theme = gtk_icon_theme_get_for_screen (gtk_widget_get_screen (GTK_WIDGET (path_entry)));
+@@ -1294,3 +1333,39 @@ thunar_path_entry_set_working_directory (ThunarPathEntry *path_entry,
+   if (THUNAR_IS_FILE (working_directory))
+     path_entry->working_directory = g_object_ref (thunar_file_get_file (working_directory));
+ }
++
++
++
++/**
++ * thunar_path_entry_get_search_query:
++ * @path_entry        : a #ThunarPathEntry.
++ *
++ * Returns a copy of the search query in the text field of the @path_entry or NULL if the path_entry doesn't contain
++ * a search query.
++ *
++ * It's the responsibility of the caller to free the returned string using `g_free`.
++ **/
++gchar*
++thunar_path_entry_get_search_query (ThunarPathEntry *path_entry)
++{
++  unsigned long search_prefix_length;
++  const gchar *text = gtk_entry_get_text (GTK_ENTRY (path_entry));
++  search_prefix_length = strlen (SEARCH_PREFIX);
++
++  _thunar_return_val_if_fail (THUNAR_IS_PATH_ENTRY (path_entry), NULL);
++  _thunar_return_val_if_fail (strncmp (text, SEARCH_PREFIX, search_prefix_length) == 0, NULL);
++
++  return strlen(text) > search_prefix_length ? g_strdup (&text[search_prefix_length]) : NULL;
++}
++
++
++
++void
++thunar_path_entry_cancel_search (ThunarPathEntry *path_entry)
++{
++  _thunar_return_if_fail (THUNAR_IS_PATH_ENTRY (path_entry));
++
++  path_entry->search_mode = FALSE;
++
++  gtk_widget_grab_focus (gtk_widget_get_parent (GTK_WIDGET (path_entry)));
++}
+diff --git a/thunar/thunar-path-entry.h b/thunar/thunar-path-entry.h
+index 41bbb8f0..dd47ba56 100644
+--- a/thunar/thunar-path-entry.h
++++ b/thunar/thunar-path-entry.h
+@@ -45,6 +45,8 @@ void        thunar_path_entry_set_current_file      (ThunarPathEntry *path_entry
+                                                      ThunarFile      *current_file);
+ void        thunar_path_entry_set_working_directory (ThunarPathEntry *path_entry,
+                                                      ThunarFile      *directory);
++gchar      *thunar_path_entry_get_search_query      (ThunarPathEntry *path_entry);
++void        thunar_path_entry_cancel_search         (ThunarPathEntry *path_entry);
+ 
+ G_END_DECLS;
+ 
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 36ecfbbc..190e5cd6 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -351,6 +351,9 @@ struct _ThunarStandardViewPrivate
+ 
+   /* current sort_order (GTK_SORT_ASCENDING || GTK_SORT_DESCENDING) */
+   GtkSortType             sort_order;
++
++  /* current search query, used to allow switching between views with different (or NULL) search queries */
++  gchar                  *search_query;
+ };
+ 
+ static XfceGtkActionEntry thunar_standard_view_action_entries[] =
+@@ -726,6 +729,8 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
+   gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET (standard_view)), "standard-view");
+ 
+   standard_view->accel_group = NULL;
++
++  standard_view->priv->search_query = NULL;
+ }
+ 
+ static void thunar_standard_view_store_sort_column  (ThunarStandardView *standard_view)
+@@ -965,8 +970,16 @@ thunar_standard_view_get_property (GObject    *object,
+ 
+     case PROP_DISPLAY_NAME:
+       current_directory = thunar_navigator_get_current_directory (THUNAR_NAVIGATOR (object));
+-      if (current_directory != NULL)
+-        g_value_set_static_string (value, thunar_file_get_display_name (current_directory));
++      if (THUNAR_STANDARD_VIEW (object)->priv->search_query != NULL)
++        {
++          gchar *label = g_strjoin (NULL, "Search for '", THUNAR_STANDARD_VIEW (object)->priv->search_query, "' in ", thunar_file_get_display_name (current_directory), NULL);
++          g_value_take_string (value, label);
++        }
++      else
++        {
++          if (current_directory != NULL)
++            g_value_set_static_string (value, thunar_file_get_display_name (current_directory));
++        }
+       break;
+ 
+     case PROP_TOOLTIP_TEXT:
+@@ -1368,7 +1381,7 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
+       g_object_set (G_OBJECT (gtk_bin_get_child (GTK_BIN (standard_view))), "model", NULL, NULL);
+ 
+       /* reset the folder for the model */
+-      thunar_list_model_set_folder (standard_view->model, NULL);
++      thunar_list_model_set_folder (standard_view->model, NULL, NULL);
+ 
+       /* reconnect the model to the view */
+       g_object_set (G_OBJECT (gtk_bin_get_child (GTK_BIN (standard_view))), "model", standard_view->model, NULL);
+@@ -1411,7 +1424,7 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
+                                  thunar_standard_view_loading_unbound);
+ 
+   /* apply the new folder */
+-  thunar_list_model_set_folder (standard_view->model, folder);
++  thunar_list_model_set_folder (standard_view->model, folder, NULL);
+   g_object_unref (G_OBJECT (folder));
+ 
+   /* reconnect our model to the view */
+@@ -4049,3 +4062,43 @@ _thunar_standard_view_open_on_middle_click (ThunarStandardView *standard_view,
+       g_object_unref (G_OBJECT (file));
+     }
+ }
++
++
++
++/**
++ * thunar_standard_view_set_searching:
++ * @standard_view : a #ThunarStandardView.
++ * @search_query : the search string.
++ *
++ * If @search_query is not NULL a search is initialized for this view. If it is NULL and the view is displaying
++ * the results of a previous search it reverts to its normal contents.
++ **/
++void
++thunar_standard_view_set_searching (ThunarStandardView *standard_view,
++                                    gchar              *search_query)
++{
++  /* can be called from a change in the path entry when the tab switches and a new directory is set
++   * which in turn sets a new location (see thunar_window_notebook_switch_page) */
++  if (standard_view == NULL)
++    return;
++
++  /* save the new query (used for switching between views) */
++  g_free (standard_view->priv->search_query);
++  standard_view->priv->search_query = g_strdup (search_query);
++
++  /* initiate the search */
++  g_object_ref (G_OBJECT (thunar_list_model_get_folder (standard_view->model))); /* temporarily hold a reference so the folder doesn't get deleted */
++  thunar_list_model_set_folder (standard_view->model, thunar_list_model_get_folder (standard_view->model), search_query);
++  g_object_unref (G_OBJECT (thunar_list_model_get_folder (standard_view->model))); /* reference no longer needed */
++
++  /* change the display name in the tab */
++  g_object_notify_by_pspec (G_OBJECT (standard_view), standard_view_props[PROP_DISPLAY_NAME]);
++}
++
++
++
++gchar*
++thunar_standard_view_get_search_query (ThunarStandardView *standard_view)
++{
++  return standard_view->priv->search_query;
++}
+diff --git a/thunar/thunar-standard-view.h b/thunar/thunar-standard-view.h
+index e5766c20..990166f7 100644
+--- a/thunar/thunar-standard-view.h
++++ b/thunar/thunar-standard-view.h
+@@ -178,6 +178,10 @@ void           _thunar_standard_view_open_on_middle_click (ThunarStandardView
+                                                            GtkTreePath              *tree_path,
+                                                            guint                     event_state);
+ 
++void           thunar_standard_view_set_searching         (ThunarStandardView       *standard_view,
++                                                           gchar                    *search_query);
++gchar         *thunar_standard_view_get_search_query      (ThunarStandardView       *standard_view);
++
+ G_END_DECLS;
+ 
+ #endif /* !__THUNAR_STANDARD_VIEW_H__ */
+diff --git a/thunar/thunar-util.c b/thunar/thunar-util.c
+index 3b9f92c2..aaf2b6bc 100644
+--- a/thunar/thunar-util.c
++++ b/thunar/thunar-util.c
+@@ -63,6 +63,8 @@
+ 
+ 
+ 
++const char *SEARCH_PREFIX = "Search: ";
++
+ /**
+  * thunar_util_strrchr_offset:
+  * @str:    haystack
+@@ -722,3 +724,17 @@ thunar_util_next_new_file_name (ThunarFile   *dir,
+ 
+   return new_name;
+ }
++
++
++
++/**
++ * thunar_util_is_a_search_query
++ * @string : the string to check
++ *
++ * Return value: a boolean that is TRUE if @string starts with 'Search: '.
++**/
++gboolean
++thunar_util_is_a_search_query (const gchar *string)
++{
++  return strncmp (string, SEARCH_PREFIX, strlen (SEARCH_PREFIX)) == 0;
++}
+diff --git a/thunar/thunar-util.h b/thunar/thunar-util.h
+index 3d42ab10..3449821a 100644
+--- a/thunar/thunar-util.h
++++ b/thunar/thunar-util.h
+@@ -68,6 +68,9 @@ gchar     *thunar_util_change_working_directory (const gchar    *new_directory)
+ void       thunar_setup_display_cb              (gpointer        data);
+ gchar*     thunar_util_next_new_file_name       (ThunarFile     *dir,
+                                                  const gchar    *file_name);
++gboolean   thunar_util_is_a_search_query        (const gchar    *string);
++
++extern const char *SEARCH_PREFIX;
+ 
+ G_END_DECLS;
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 5adf9953..3e02cfe7 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -304,6 +304,7 @@ static void      thunar_window_trash_infobar_clicked           (GtkInfoBar
+ static void      thunar_window_trash_selection_updated         (ThunarWindow           *window);
+ static void      thunar_window_recent_reload                   (GtkRecentManager       *recent_manager,
+                                                                 ThunarWindow           *window);
++static void      thunar_window_catfish_dialog_configure        (GtkWidget              *entry);
+ 
+ 
+ 
+@@ -361,6 +362,10 @@ struct _ThunarWindow
+   GtkWidget              *view;
+   GtkWidget              *statusbar;
+ 
++  /* search */
++  GtkWidget              *catfish_search_button;
++  gchar                  *search_query;
++
+   GType                   view_type;
+   GSList                 *view_bindings;
+ 
+@@ -459,6 +464,8 @@ static XfceGtkActionEntry thunar_window_action_entries[] =
+     { THUNAR_WINDOW_ACTION_FORWARD,                        "<Actions>/ThunarStandardView/forward",                   "<Alt>Right",           XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Forward"),                N_ ("Go to the next visited folder"),                                                "go-next-symbolic",        G_CALLBACK (thunar_window_action_forward),             },
+     { THUNAR_WINDOW_ACTION_SWITCH_PREV_TAB,                "<Actions>/ThunarWindow/switch-previous-tab",             "<Primary>Page_Up",     XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Previous Tab"),          N_ ("Switch to Previous Tab"),                                                       "go-previous",             G_CALLBACK (thunar_window_action_switch_previous_tab), },
+     { THUNAR_WINDOW_ACTION_SWITCH_NEXT_TAB,                "<Actions>/ThunarWindow/switch-next-tab",                 "<Primary>Page_Down",   XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Next Tab"),              N_ ("Switch to Next Tab"),                                                           "go-next",                 G_CALLBACK (thunar_window_action_switch_next_tab),     },
++    { THUNAR_WINDOW_ACTION_SEARCH,                         "<Actions>/ThunarWindow/search",                          "<Primary>f",           XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Search for files"),       N_ ("Search for a specific file in the current folder and recent:///"),              "",                        G_CALLBACK (thunar_window_action_search),              },
++    { THUNAR_WINDOW_ACTION_CANCEL_SEARCH,                  "<Actions>/ThunarWindow/cancel-search",                   "Escape",               XFCE_GTK_MENU_ITEM,       N_ ("Cancel search for files"),NULL,                                                                                "",                        G_CALLBACK (thunar_window_action_cancel_search),       },
+     { 0,                                                   "<Actions>/ThunarWindow/open-file-menu",                  "F10",                  0,                        NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_action_open_file_menu),      },
+ };
+ 
+@@ -911,10 +918,16 @@ thunar_window_init (ThunarWindow *window)
+   /* synchronise the "directory-specific-settings" property with the global "misc-directory-specific-settings" property */
+   g_object_bind_property (G_OBJECT (window->preferences), "misc-directory-specific-settings", G_OBJECT (window), "directory-specific-settings", G_BINDING_SYNC_CREATE);
+ 
++  /* setup the `Show More...` button that appears at the bottom of the view after a search is completed */
++  window->catfish_search_button = gtk_button_new_with_label ("Show More...");
++  gtk_grid_attach (GTK_GRID (window->view_box), window->catfish_search_button, 0, 3, 1, 1);
++  g_signal_connect_swapped (window->catfish_search_button, "clicked", G_CALLBACK (thunar_window_catfish_dialog_configure), window);
++  gtk_widget_hide (window->catfish_search_button);
++
+   /* setup a new statusbar */
+   window->statusbar = thunar_statusbar_new ();
+   gtk_widget_set_hexpand (window->statusbar, TRUE);
+-  gtk_grid_attach (GTK_GRID (window->view_box), window->statusbar, 0, 3, 1, 1);
++  gtk_grid_attach (GTK_GRID (window->view_box), window->statusbar, 0, 4, 1, 1);
+   if (last_statusbar_visible)
+     gtk_widget_show (window->statusbar);
+ 
+@@ -938,6 +951,8 @@ thunar_window_init (ThunarWindow *window)
+ 
+   /* update recent */
+   g_signal_connect (G_OBJECT (gtk_recent_manager_get_default()), "changed", G_CALLBACK (thunar_window_recent_reload), window);
++
++  window->search_query = NULL;
+ }
+ 
+ 
+@@ -1321,6 +1336,7 @@ thunar_window_update_go_menu (ThunarWindow *window,
+   xfce_gtk_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_OPEN_NETWORK), G_OBJECT (window), GTK_MENU_SHELL (menu));
+   xfce_gtk_menu_append_seperator (GTK_MENU_SHELL (menu));
+   xfce_gtk_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_OPEN_LOCATION), G_OBJECT (window), GTK_MENU_SHELL (menu));
++  xfce_gtk_menu_item_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_SEARCH), G_OBJECT (window), GTK_MENU_SHELL (menu));
+   gtk_widget_show_all (GTK_WIDGET (menu));
+ 
+   thunar_window_redirect_menu_tooltips_to_statusbar (window, GTK_MENU (menu));
+@@ -1712,8 +1728,7 @@ thunar_window_tab_change (ThunarWindow *window,
+   _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), FALSE);
+ 
+   /* Alt+0 is 10th tab */
+-  gtk_notebook_set_current_page (GTK_NOTEBOOK (window->notebook_selected),
+-                                 nth == -1 ? 9 : nth);
++  thunar_window_notebook_set_current_tab (window, nth == -1 ? 9 : nth);
+ 
+   return TRUE;
+ }
+@@ -1733,7 +1748,7 @@ thunar_window_action_switch_next_tab (ThunarWindow *window)
+   pages = gtk_notebook_get_n_pages (GTK_NOTEBOOK (window->notebook_selected));
+   new_page = (current_page + 1) % pages;
+ 
+-  gtk_notebook_set_current_page (GTK_NOTEBOOK (window->notebook_selected), new_page);
++  thunar_window_notebook_set_current_tab (window, new_page);
+ }
+ 
+ 
+@@ -1751,7 +1766,7 @@ thunar_window_action_switch_previous_tab (ThunarWindow *window)
+   pages = gtk_notebook_get_n_pages (GTK_NOTEBOOK (window->notebook_selected));
+   new_page = (current_page - 1) % pages;
+ 
+-  gtk_notebook_set_current_page (GTK_NOTEBOOK (window->notebook_selected), new_page);
++  thunar_window_notebook_set_current_tab (window, new_page);
+ }
+ 
+ 
+@@ -1953,6 +1968,16 @@ thunar_window_notebook_switch_page (GtkWidget    *notebook,
+   thunar_standard_view_selection_changed (THUNAR_STANDARD_VIEW (page));
+ 
+   gtk_widget_grab_focus (page);
++
++  /* if the view has an ongoing search operation take that into account, otherwise cancel the current search (if there is one) */
++  if (thunar_standard_view_get_search_query (THUNAR_STANDARD_VIEW (page)) != NULL)
++    {
++      gchar *str = g_strjoin (NULL, SEARCH_PREFIX, thunar_standard_view_get_search_query (THUNAR_STANDARD_VIEW (page)), NULL);
++      thunar_window_start_open_location (window, str);
++      g_free (str);
++    }
++  else if (window->search_query != NULL)
++    thunar_window_action_cancel_search (window);
+ }
+ 
+ 
+@@ -2458,7 +2483,7 @@ thunar_window_notebook_add_new_tab (ThunarWindow        *window,
+     || behavior == THUNAR_NEW_TAB_BEHAVIOR_SWITCH)
+     {
+       page_num = gtk_notebook_page_num (GTK_NOTEBOOK (window->notebook_selected), view);
+-      gtk_notebook_set_current_page (GTK_NOTEBOOK (window->notebook_selected), page_num);
++      thunar_window_notebook_set_current_tab (window, page_num);
+     }
+ 
+   /* take focus on the new view */
+@@ -2838,6 +2863,39 @@ thunar_window_start_open_location (ThunarWindow *window,
+   /* temporary show the location toolbar, even if it is normally hidden */
+   gtk_widget_show (window->location_toolbar);
+   thunar_location_bar_request_entry (THUNAR_LOCATION_BAR (window->location_bar), initial_text);
++
++  /* setup a search if required */
++  if (initial_text != NULL && thunar_util_is_a_search_query (initial_text) == TRUE)
++    {
++      thunar_window_update_search (window);
++    }
++}
++
++
++
++void
++thunar_window_update_search (ThunarWindow *window)
++{
++  g_free (window->search_query);
++  window->search_query = thunar_location_bar_get_search_query (THUNAR_LOCATION_BAR (window->location_bar));
++  thunar_standard_view_set_searching (THUNAR_STANDARD_VIEW (window->view), window->search_query);
++  if (window->search_query != NULL)
++    gtk_widget_show (window->catfish_search_button);
++  else
++    gtk_widget_hide (window->catfish_search_button);
++}
++
++
++
++void
++thunar_window_action_cancel_search (ThunarWindow *window)
++{
++  _thunar_return_if_fail (THUNAR_IS_LOCATION_BAR (window->location_bar));
++
++  thunar_location_bar_cancel_search (THUNAR_LOCATION_BAR (window->location_bar));
++  thunar_standard_view_set_searching (THUNAR_STANDARD_VIEW (window->view), NULL);
++  gtk_widget_hide (window->catfish_search_button);
++  window->search_query = NULL;
+ }
+ 
+ 
+@@ -3346,7 +3404,7 @@ thunar_window_replace_view (ThunarWindow *window,
+     {
+       /* switch to the new view */
+       page_num = gtk_notebook_page_num (GTK_NOTEBOOK (window->notebook_selected), new_view);
+-      gtk_notebook_set_current_page (GTK_NOTEBOOK (window->notebook_selected), page_num);
++      thunar_window_notebook_set_current_tab (window, page_num);
+ 
+       /* take focus on the new view */
+       gtk_widget_grab_focus (new_view);
+@@ -3925,6 +3983,14 @@ thunar_window_action_show_hidden (ThunarWindow *window)
+ 
+ 
+ 
++void
++thunar_window_action_search (ThunarWindow *window)
++{
++  thunar_window_start_open_location (window, SEARCH_PREFIX);
++}
++
++
++
+ static void
+ thunar_window_action_open_file_menu (ThunarWindow *window)
+ {
+@@ -4507,7 +4573,7 @@ thunar_window_set_directories (ThunarWindow   *window,
+     }
+ 
+   /* select the page */
+-  gtk_notebook_set_current_page (GTK_NOTEBOOK (window->notebook_selected), active_page);
++  thunar_window_notebook_set_current_tab (window, active_page);
+ 
+   /* we succeeded if new pages have been opened */
+   return gtk_notebook_get_n_pages (GTK_NOTEBOOK (window->notebook_selected)) > 0;
+@@ -4759,7 +4825,7 @@ thunar_window_open_home_clicked   (GtkWidget      *button,
+           page_num = gtk_notebook_get_current_page (GTK_NOTEBOOK (window->notebook_selected));
+           thunar_window_notebook_add_new_tab (window, window->current_directory, THUNAR_NEW_TAB_BEHAVIOR_SWITCH);
+           thunar_window_action_open_home (window);
+-          gtk_notebook_set_current_page (GTK_NOTEBOOK (window->notebook_selected), page_num);
++          thunar_window_notebook_set_current_tab (window, page_num);
+         }
+       else
+         {
+@@ -4868,3 +4934,34 @@ thunar_window_recent_reload (GtkRecentManager *recent_manager,
+   if (thunar_file_is_in_recent (window->current_directory))
+     thunar_window_action_reload (window, NULL);
+ }
++
++
++
++static void
++thunar_window_catfish_dialog_configure (GtkWidget *entry)
++{
++  GError    *err = NULL;
++  gchar     *argv[4];
++  GdkScreen *screen;
++  char      *display = NULL;
++
++  /* prepare the argument vector */
++  argv[0] = (gchar *) "catfish";
++  argv[1] = THUNAR_WINDOW (entry)->search_query;
++  argv[2] = (gchar *) "--start";
++  argv[3] = NULL;
++
++  screen = gtk_widget_get_screen (entry);
++
++  if (screen != NULL)
++    display = g_strdup (gdk_display_get_name (gdk_screen_get_display (screen)));
++
++  /* invoke the configuration interface of Catfish */
++  if (!g_spawn_async (NULL, argv, NULL, G_SPAWN_SEARCH_PATH, thunar_setup_display_cb, display, NULL, &err))
++    {
++      thunar_dialogs_show_error (entry, err, _("Failed to launch search with Catfish"));
++      g_error_free (err);
++    }
++
++  g_free (display);
++}
+diff --git a/thunar/thunar-window.h b/thunar/thunar-window.h
+index c20942b5..ce059525 100644
+--- a/thunar/thunar-window.h
++++ b/thunar/thunar-window.h
+@@ -96,6 +96,8 @@ typedef enum
+   THUNAR_WINDOW_ACTION_ABOUT,
+   THUNAR_WINDOW_ACTION_SWITCH_PREV_TAB,
+   THUNAR_WINDOW_ACTION_SWITCH_NEXT_TAB,
++  THUNAR_WINDOW_ACTION_SEARCH,
++  THUNAR_WINDOW_ACTION_CANCEL_SEARCH,
+ 
+ } ThunarWindowAction;
+ 
+@@ -139,6 +141,11 @@ const XfceGtkActionEntry* thunar_window_get_action_entry                    (Thu
+                                                                              ThunarWindowAction   action);
+  void                     thunar_window_show_and_select_files               (ThunarWindow        *window,
+                                                                              GList               *files_to_select);
++void                      thunar_window_update_search                       (ThunarWindow        *window);
++void                      thunar_window_action_cancel_search                (ThunarWindow        *window);
++void                      thunar_window_action_search                       (ThunarWindow        *window);
++
++
+ G_END_DECLS;
+ 
+ #endif /* !__THUNAR_WINDOW_H__ */

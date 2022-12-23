@@ -1,0 +1,268 @@
+diff --git a/thunar/thunar-gobject-extensions.c b/thunar/thunar-gobject-extensions.c
+index c22646ab..79236f68 100644
+--- a/thunar/thunar-gobject-extensions.c
++++ b/thunar/thunar-gobject-extensions.c
+@@ -172,6 +172,98 @@ thunar_g_strescape (const gchar *source)
+ 
+ 
+ 
++/**
++ * thunar_g_utf8_normalize_for_search
++ * @str               : The string to normalize, zero-terminated.
++ * @strip_diacritics  : Remove diacritics, leaving only base characters.
++ * @casefold          : Fold case, to ignore letter case distinctions.
++ *
++ * Canonicalize a UTF-8 string into a form suitable for substring
++ * matching against other strings passed through this function with the
++ * same options. The strings produced by this function cannot be
++ * transformed back into the original string. They can however be
++ * matched against each other with functions like g_strrstr() that
++ * aren't Unicode-aware.
++ *
++ * The implementation is currently not locale-aware, and relies only on
++ * what GLib can do. It may change, so these strings should not be
++ * persisted to disk and reused later.
++ *
++ * Do not use these strings for sorting. Use g_utf8_collate_key()
++ * instead.
++ *
++ * Like g_utf8_normalize(), this returns NULL if the string is not valid
++ * UTF-8.
++ *
++ * Return value: (transfer full): The normalized string, or NULL. Free non-NULL values with g_free() after use.
++ **/
++
++gchar*
++thunar_g_utf8_normalize_for_search (const gchar *str,
++                                    gboolean     strip_diacritics,
++                                    gboolean     casefold)
++{
++  gchar *normalized;
++  gchar *folded;
++
++  /* g_utf8_normalize() and g_utf8_next_char() both require valid UTF-8 */
++  if (g_utf8_validate (str, -1, NULL) == FALSE)
++    return NULL;
++
++  /* Optionally remove combining characters as a crude way of doing diacritic stripping */
++  if (strip_diacritics == TRUE)
++    {
++      /* decompose composed characters to <base-char + combining-marks> */
++      gchar *tmp = g_utf8_normalize (str, -1, G_NORMALIZE_DEFAULT);
++
++      /* Discard the combining characters/marks/accents */
++      /* GStrings keep track of where their ends are, so it's efficient */
++      GString *stripped = g_string_sized_new (strlen (tmp));
++      gunichar c;
++      for (gchar *i = tmp; *i != '\0'; i = g_utf8_next_char (i))
++        {
++          c = g_utf8_get_char (i);
++          if (G_LIKELY (g_unichar_combining_class (c) == 0))
++            g_string_append_unichar (stripped, c);
++          /* We can limit it by Unicode block here if this turns out to be
++           * too aggressive and makes searches work badly for particular
++           * scripts */
++        }
++      g_free (tmp);
++
++      tmp = g_string_free (stripped, FALSE); /* transfers buffer ownership */
++      normalized = g_utf8_normalize (tmp, -1, G_NORMALIZE_ALL_COMPOSE);
++      g_free (tmp);
++    }
++  else  /* strip_diacritics == FALSE */
++    {
++      normalized = g_utf8_normalize (str, -1, G_NORMALIZE_ALL_COMPOSE);
++    }
++
++  /* String representation is now normalized the way we want it:
++   *
++   * 1. Combining chars have been stripped off if requested.
++   *
++   * 2. Compatibility chars like SUPERSCRIPT THREE are collapsed to
++   *    their standard representations (DIGIT THREE, in this case).
++   *
++   * 3. If any combining chars are left, they are now composed back onto
++   *    their base char. Otherwise a single LATIN LETTER A in a pattern
++   *    wpould match LATIN LETTER A followed by COMBINING GRAVE ACCENT.
++   */
++
++  /* permit case-insensitive matching, if required */
++  if (casefold == FALSE)
++    return normalized;
++
++  /* remove case distinctions (not locale aware) */
++  folded = g_utf8_casefold (normalized, strlen (normalized));
++  g_free (normalized);
++  return folded;
++}
++
++
++
+ /**
+  * thunar_g_app_info_equal
+  * @appinfo1  : The first g_app_info object
+diff --git a/thunar/thunar-gobject-extensions.h b/thunar/thunar-gobject-extensions.h
+index 19bda057..d19d57f9 100644
+--- a/thunar/thunar-gobject-extensions.h
++++ b/thunar/thunar-gobject-extensions.h
+@@ -39,6 +39,9 @@ G_BEGIN_DECLS;
+ 
+ void     thunar_g_initialize_transformations (void);
+ gchar*   thunar_g_strescape                  (const gchar *source);
++gchar*   thunar_g_utf8_normalize_for_search  (const gchar *str,
++                                              gboolean     strip_diacritics,
++                                              gboolean     casefold);
+ gboolean thunar_g_app_info_equal             (gpointer     appinfo1,
+                                               gpointer     appinfo2);
+ void     thunar_g_object_set_guint_data      (GObject     *object,
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index 1e3db364..6413aac2 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -2272,7 +2272,7 @@ thunar_list_model_search_folder (ThunarListModel           *model,
+ 
+       /* prepare entry display name */
+       display_name = g_file_info_get_display_name (info);
+-      display_name_c = g_utf8_casefold (display_name, strlen (display_name));
++      display_name_c = thunar_g_utf8_normalize_for_search (display_name, TRUE, TRUE);
+ 
+       /* search for all substrings */
+       matched = TRUE;
+@@ -2416,9 +2416,9 @@ thunar_list_model_set_folder (ThunarListModel *store,
+         }
+       else
+         {
+-          gchar *search_query_c; /* converted to ignore case */
++          gchar *search_query_c;  /* normalized */
+ 
+-          search_query_c = g_utf8_casefold (search_query, strlen (search_query));
++          search_query_c = thunar_g_utf8_normalize_for_search (search_query, TRUE, TRUE);
+           files = NULL;
+ 
+           /* search the current folder
+@@ -2756,7 +2756,8 @@ thunar_list_model_get_paths_for_files (ThunarListModel *store,
+  * thunar_list_model_get_paths_for_pattern:
+  * @store          : a #ThunarListModel instance.
+  * @pattern        : the pattern to match.
+- * @case_sensitive : %TRUE to use case sensitive search.
++ * @case_sensitive    : %TRUE to use case sensitive search.
++ * @match_diacritics : %TRUE to use case sensitive search.
+  *
+  * Looks up all rows in the @store that match @pattern and returns
+  * a list of #GtkTreePath<!---->s corresponding to the rows.
+@@ -2771,16 +2772,17 @@ thunar_list_model_get_paths_for_files (ThunarListModel *store,
+ GList*
+ thunar_list_model_get_paths_for_pattern (ThunarListModel *store,
+                                          const gchar     *pattern,
+-                                         gboolean         case_sensitive)
++                                         gboolean         case_sensitive,
++                                         gboolean         match_diacritics)
+ {
+   GPatternSpec  *pspec;
+-  gchar         *case_folded_pattern;
++  gchar         *normalized_pattern;
+   GList         *paths = NULL;
+   GSequenceIter *row;
+   GSequenceIter *end;
+   ThunarFile    *file;
+   const gchar   *display_name;
+-  gchar         *case_folded_display_name;
++  gchar         *normalized_display_name;
+   gboolean       name_matched;
+   gint           i = 0;
+ 
+@@ -2788,14 +2790,9 @@ thunar_list_model_get_paths_for_pattern (ThunarListModel *store,
+   _thunar_return_val_if_fail (g_utf8_validate (pattern, -1, NULL), NULL);
+ 
+   /* compile the pattern */
+-  if (case_sensitive)
+-    pspec = g_pattern_spec_new (pattern);
+-  else
+-    {
+-      case_folded_pattern = g_utf8_casefold (pattern, strlen (pattern));
+-      pspec = g_pattern_spec_new (case_folded_pattern);
+-      g_free (case_folded_pattern);
+-    }
++  normalized_pattern = thunar_g_utf8_normalize_for_search (pattern, !match_diacritics, !case_sensitive);
++  pspec = g_pattern_spec_new (normalized_pattern);
++  g_free (normalized_pattern);
+ 
+   row = g_sequence_get_begin_iter (store->rows);
+   end = g_sequence_get_end_iter (store->rows);
+@@ -2806,14 +2803,9 @@ thunar_list_model_get_paths_for_pattern (ThunarListModel *store,
+       file = g_sequence_get (row);
+       display_name = thunar_file_get_display_name (file);
+ 
+-      if (case_sensitive)
+-        name_matched = g_pattern_match_string (pspec, display_name);
+-      else
+-        {
+-          case_folded_display_name = g_utf8_casefold (display_name, strlen (display_name));
+-          name_matched = g_pattern_match_string (pspec, case_folded_display_name);
+-          g_free (case_folded_display_name);
+-        }
++      normalized_display_name = thunar_g_utf8_normalize_for_search (display_name, !match_diacritics, !case_sensitive);
++      name_matched = g_pattern_match_string (pspec, normalized_display_name);
++      g_free (normalized_display_name);
+ 
+       if (name_matched)
+         {
+diff --git a/thunar/thunar-list-model.h b/thunar/thunar-list-model.h
+index 1fe967ae..f20907f2 100644
+--- a/thunar/thunar-list-model.h
++++ b/thunar/thunar-list-model.h
+@@ -69,7 +69,8 @@ GList           *thunar_list_model_get_paths_for_files    (ThunarListModel  *sto
+                                                            GList            *files);
+ GList           *thunar_list_model_get_paths_for_pattern  (ThunarListModel  *store,
+                                                            const gchar      *pattern,
+-                                                           gboolean          case_sensitive);
++                                                           gboolean          case_sensitive,
++                                                           gboolean          match_diacritics);
+ 
+ gchar           *thunar_list_model_get_statusbar_text     (ThunarListModel  *store,
+                                                            GList            *selected_items);
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 3abb135a..e52cb733 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -2337,6 +2337,7 @@ thunar_standard_view_select_by_pattern (ThunarView *view)
+   GtkWidget          *label;
+   GtkWidget          *entry;
+   GtkWidget          *case_sensitive_button;
++  GtkWidget          *match_diacritics_button;
+   GList              *paths;
+   GList              *lp;
+   gint                response;
+@@ -2344,6 +2345,7 @@ thunar_standard_view_select_by_pattern (ThunarView *view)
+   const gchar        *pattern;
+   gchar              *pattern_extended = NULL;
+   gboolean            case_sensitive;
++  gboolean            match_diacritics;
+   gint                row = 0;
+ 
+   _thunar_return_val_if_fail (THUNAR_IS_STANDARD_VIEW (standard_view), FALSE);
+@@ -2388,6 +2390,11 @@ thunar_standard_view_select_by_pattern (ThunarView *view)
+   gtk_grid_attach_next_to (grid, case_sensitive_button, entry, GTK_POS_BOTTOM, 1, 1);
+   gtk_widget_show (case_sensitive_button);
+ 
++  match_diacritics_button = gtk_check_button_new_with_mnemonic (_("_Match diacritics"));
++  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (match_diacritics_button), FALSE);
++  gtk_grid_attach_next_to (grid, match_diacritics_button, case_sensitive_button, GTK_POS_BOTTOM, 1, 1);
++  gtk_widget_show (match_diacritics_button);
++
+   response = gtk_dialog_run (GTK_DIALOG (dialog));
+   if (response == GTK_RESPONSE_OK)
+     {
+@@ -2405,8 +2412,11 @@ thunar_standard_view_select_by_pattern (ThunarView *view)
+       /* get case sensitivity option */
+       case_sensitive = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (case_sensitive_button));
+ 
++      /* get ignore diacritics option */
++      match_diacritics = gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (match_diacritics_button));
++
+       /* select all files that match pattern */
+-      paths = thunar_list_model_get_paths_for_pattern (standard_view->model, pattern, case_sensitive);
++      paths = thunar_list_model_get_paths_for_pattern (standard_view->model, pattern, case_sensitive, match_diacritics);
+       THUNAR_STANDARD_VIEW_GET_CLASS (standard_view)->unselect_all (standard_view);
+ 
+       /* set the cursor and scroll to the first selected item */

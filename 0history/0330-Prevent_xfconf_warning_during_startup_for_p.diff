@@ -1,0 +1,56 @@
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 3d578628..4c259e89 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -666,7 +666,7 @@ thunar_standard_view_class_init (ThunarStandardViewClass *klass)
+                          NULL,
+                          THUNAR_TYPE_COLUMN,
+                          THUNAR_COLUMN_NAME,
+-                         EXO_PARAM_WRITABLE);
++                         EXO_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
+ 
+   /**
+    * ThunarStandardView:sort-order:
+@@ -693,7 +693,7 @@ thunar_standard_view_class_init (ThunarStandardViewClass *klass)
+                          NULL,
+                          GTK_TYPE_SORT_TYPE,
+                          GTK_SORT_ASCENDING,
+-                         EXO_PARAM_WRITABLE);
++                         EXO_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
+ 
+   /* override ThunarComponent's properties */
+   g_iface = g_type_default_interface_peek (THUNAR_TYPE_COMPONENT);
+@@ -903,8 +903,6 @@ thunar_standard_view_constructor (GType                  type,
+   ThunarStandardView *standard_view;
+   ThunarZoomLevel     zoom_level;
+   GtkAdjustment      *adjustment;
+-  ThunarColumn        sort_column;
+-  GtkSortType         sort_order;
+   GtkWidget          *view;
+   GObject            *object;
+ 
+@@ -936,8 +934,7 @@ thunar_standard_view_constructor (GType                  type,
+   g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-single-click-timeout", G_OBJECT (view), "single-click-timeout", G_BINDING_SYNC_CREATE);
+ 
+   /* apply the default sort column and sort order */
+-  g_object_get (G_OBJECT (standard_view->preferences), "last-sort-column", &sort_column, "last-sort-order", &sort_order, NULL);
+-  gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (standard_view->model), sort_column, sort_order);
++  gtk_tree_sortable_set_sort_column_id (GTK_TREE_SORTABLE (standard_view->model), standard_view->priv->sort_column_default, standard_view->priv->sort_order_default);
+ 
+   /* stay informed about changes to the sort column/order */
+   g_signal_connect (G_OBJECT (standard_view->model), "sort-column-changed", G_CALLBACK (thunar_standard_view_sort_column_changed), standard_view);
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 7150de96..8b3c4187 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -2414,10 +2414,6 @@ thunar_window_notebook_insert_page (ThunarWindow  *window,
+                                   "sort-order-default", sort_order, NULL);
+   thunar_view_set_show_hidden (THUNAR_VIEW (view), window->show_hidden);
+ 
+-  /* If directory specific settings are disabled, directly use the sort settings of the current view for it */
+-  if (!window->directory_specific_settings)
+-    g_object_set (view, "sort-column", sort_column, "sort-order", sort_order, NULL);
+-
+   gtk_widget_show (view);
+ 
+   /* set the history of the view if a history is provided */

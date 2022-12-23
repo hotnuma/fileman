@@ -1,0 +1,497 @@
+diff --git a/.gitignore b/.gitignore
+index 587d9e5a..84b0296d 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -58,6 +58,7 @@ docs/reference/thunarx/thunarx-undeclared.txt
+ docs/reference/thunarx/thunarx-undocumented.txt
+ docs/reference/thunarx/thunarx-unused.txt
+ docs/reference/thunarx/thunarx.args
++docs/reference/thunarx/thunarx.actions
+ docs/reference/thunarx/thunarx.hierarchy
+ docs/reference/thunarx/thunarx.interfaces
+ docs/reference/thunarx/thunarx.prerequisites
+@@ -66,6 +67,31 @@ docs/reference/thunarx/version.xml
+ docs/reference/thunarx/tmpl/*.bak
+ docs/reference/thunarx/tmpl/.*.swp
+ docs/reference/thunarx/tmpl/thunarx-unused.sgml
++docs/reference/thunar/xml
++docs/reference/thunar/html
++docs/reference/thunar/*.stamp
++docs/reference/thunar/.*.swp
++docs/reference/thunar/*.bak
++docs/reference/thunar/thunar-decl-list.txt
++docs/reference/thunar/thunar-decl.txt
++docs/reference/thunar/thunar-header.txt
++docs/reference/thunar/thunar-overrides.txt
++docs/reference/thunar/thunar-scan.c
++docs/reference/thunar/thunar-sections.txt
++docs/reference/thunar/thunar-undeclared.txt
++docs/reference/thunar/thunar-undocumented.txt
++docs/reference/thunar/thunar-unused.txt
++docs/reference/thunar/thunar.args
++docs/reference/thunar/thunar.actions
++docs/reference/thunar/thunar.hierarchy
++docs/reference/thunar/thunar.interfaces
++docs/reference/thunar/thunar.prerequisites
++docs/reference/thunar/thunar.signals
++docs/reference/thunar/thunar.types
++docs/reference/thunar/version.xml
++docs/reference/thunar/tmpl/*.bak
++docs/reference/thunar/tmpl/.*.swp
++docs/reference/thunar/tmpl/thunar-unused.sgml
+ examples/.*.swp
+ examples/tex-open-terminal/.*.swp
+ icons/.*.swp
+diff --git a/configure.ac.in b/configure.ac.in
+index 9769e36d..1c6407cf 100644
+--- a/configure.ac.in
++++ b/configure.ac.in
+@@ -233,6 +233,8 @@ docs/papers/Makefile
+ docs/reference/Makefile
+ docs/reference/thunarx/Makefile
+ docs/reference/thunarx/version.xml
++docs/reference/thunar/Makefile
++docs/reference/thunar/version.xml
+ examples/Makefile
+ examples/tex-open-terminal/Makefile
+ icons/Makefile
+diff --git a/docs/reference/Makefile.am b/docs/reference/Makefile.am
+index 02abfeb0..b0e8be5c 100644
+--- a/docs/reference/Makefile.am
++++ b/docs/reference/Makefile.am
+@@ -1,4 +1,5 @@
+ SUBDIRS =								\
++	thunar								\
+ 	thunarx
+ 
+ # vi:set ts=8 sw=8 noet ai nocindent syntax=automake:
+diff --git a/docs/reference/thunar/Makefile.am b/docs/reference/thunar/Makefile.am
+new file mode 100644
+index 00000000..cb0bce54
+--- /dev/null
++++ b/docs/reference/thunar/Makefile.am
+@@ -0,0 +1,82 @@
++# The name of the module.
++DOC_MODULE=thunar
++
++# The top-level SGML file.
++DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.xml
++
++# Extra options to supply to gtkdoc-scan
++SCAN_OPTIONS=--deprecated-guards="EXO_DISABLE_DEPRECATED" --rebuild-sections --rebuild-types
++
++# The directory containing the source code. Relative to $(srcdir)
++DOC_SOURCE_DIR=$(top_srcdir)/thunar
++
++# Extra options to supply to gtkdoc-mkdb
++MKDB_OPTIONS=--xml-mode --output-format=xml
++
++# Extra options to supply to gtkdoc-fixref
++FIXXREF_OPTIONS=
++
++# Used for dependencies
++HFILE_GLOB=$(top_srcdir)/thunar/*.h
++CFILE_GLOB=$(top_srcdir)/thunar/*.c
++
++# Header files to ignore when scanning
++IGNORE_HFILES=							\
++	thunar-private.h					\
++	thunar-dbus-freedesktop-interfaces.h			\
++	thunar-dbus-service-infos.h				\
++	thunar-marshal.h					\
++	stamp-thunar-marshal.h					\
++	thunar-thumbnailer-proxy.h				\
++	thunar-thumbnail-cache-proxy.h				\
++	thunar-resources.h
++
++
++# Extra files to add when scanning (relative to $srcdir)
++EXTRA_HFILES=
++
++# Images to copy into HTML directory
++HTML_IMAGES =
++
++# Extra SGML files that are included by DOC_MAIN_SGML_FILE
++content_files =
++
++# CFLAGS and LDFLAGS for compiling scan program. Only needed
++# if $(DOC_MODULE).types is non-empty.
++GTKDOC_CFLAGS =	 							\
++	-I$(top_srcdir) 						\
++	-I$(top_srcdir)/thunar			\
++	-I$(top_builddir) 					\
++	$(GTK_CFLAGS)								\
++	$(GTK_DOC_EXTRA_CFLAGS)			\
++	$(EXO_CFLAGS)								\
++	$(GIO_CFLAGS)								\
++	$(GTHREAD_CFLAGS)						\
++	$(GUDEV_CFLAGS)							\
++	$(LIBNOTIFY_CFLAGS)						\
++	$(LIBSM_CFLAGS)							\
++	$(LIBXFCE4UI_CFLAGS)						\
++	$(LIBXFCE4KBD_PRIVATE_CFLAGS) 					\
++	$(XFCONF_CFLAGS)						\
++	$(PANGO_CFLAGS)							\
++	$(PLATFORM_CFLAGS)
++
++GTKDOC_LIBS =  								\
++	$(GTK_LIBS)							\
++	$(top_builddir)/thunarx/libthunarx-$(THUNARX_VERSION_API).la	\
++	$(top_builddir)/thunar/thunar.a					\
++	$(EXO_LIBS)							\
++	$(GIO_LIBS)							\
++	$(GTHREAD_LIBS)							\
++	$(GMODULE_LIBS)							\
++	$(GUDEV_LIBS)							\
++	$(LIBNOTIFY_LIBS)						\
++	$(LIBSM_LIBS)							\
++	$(LIBXFCE4UI_LIBS)						\
++	$(LIBXFCE4KBD_PRIVATE_LIBS)					\
++	$(XFCONF_LIBS)							\
++	$(PANGO_LIBS)
++
++include $(top_srcdir)/gtk-doc.make
++
++# vi:set ts=8 sw=8 noet ai nocindent syntax=automake:
+diff --git a/docs/reference/thunar/thunar-docs.xml b/docs/reference/thunar/thunar-docs.xml
+new file mode 100644
+index 00000000..bf2c2a23
+--- /dev/null
++++ b/docs/reference/thunar/thunar-docs.xml
+@@ -0,0 +1,268 @@
++<?xml version="1.0"?>
++<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
++                      "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd"
++[
++  <!ENTITY ThunarNotify SYSTEM "xml/thunar-notify.xml">
++  <!ENTITY ThunarMenu SYSTEM "xml/thunar-menu.xml">
++  <!ENTITY ThunarDbusService SYSTEM "xml/thunar-dbus-service.xml">
++  <!ENTITY ThunarRenamerProgress SYSTEM "xml/thunar-renamer-progress.xml">
++  <!ENTITY ThunarGioExtensions SYSTEM "xml/thunar-gio-extensions.xml">
++  <!ENTITY ThunarPropertiesDialog SYSTEM "xml/thunar-properties-dialog.xml">
++  <!ENTITY ThunarShortcutsModel SYSTEM "xml/thunar-shortcuts-model.xml">
++  <!ENTITY ThunarIconRenderer SYSTEM "xml/thunar-icon-renderer.xml">
++  <!ENTITY ThunarIoScanDirectory SYSTEM "xml/thunar-io-scan-directory.xml">
++  <!ENTITY ThunarShortcutsIconRenderer SYSTEM "xml/thunar-shortcuts-icon-renderer.xml">
++  <!ENTITY ThunarPreferencesDialog SYSTEM "xml/thunar-preferences-dialog.xml">
++  <!ENTITY ThunarTreePane SYSTEM "xml/thunar-tree-pane.xml">
++  <!ENTITY ThunarApplication SYSTEM "xml/thunar-application.xml">
++  <!ENTITY ThunarRenamerPair SYSTEM "xml/thunar-renamer-pair.xml">
++  <!ENTITY ThunarShortcutsView SYSTEM "xml/thunar-shortcuts-view.xml">
++  <!ENTITY ThunarLocationButtons SYSTEM "xml/thunar-location-buttons.xml">
++  <!ENTITY ThunarBrowser SYSTEM "xml/thunar-browser.xml">
++  <!ENTITY ThunarSendtoModel SYSTEM "xml/thunar-sendto-model.xml">
++  <!ENTITY ThunarUtil SYSTEM "xml/thunar-util.xml">
++  <!ENTITY ThunarPreferences SYSTEM "xml/thunar-preferences.xml">
++  <!ENTITY ThunarStandardView SYSTEM "xml/thunar-standard-view.xml">
++  <!ENTITY ThunarHistory SYSTEM "xml/thunar-history.xml">
++  <!ENTITY ThunarSidePane SYSTEM "xml/thunar-side-pane.xml">
++  <!ENTITY ThunarEnumTypes SYSTEM "xml/thunar-enum-types.xml">
++  <!ENTITY ThunarGobjectExtensions SYSTEM "xml/thunar-gobject-extensions.xml">
++  <!ENTITY ThunarFileMonitor SYSTEM "xml/thunar-file-monitor.xml">
++  <!ENTITY ThunarDetailsView SYSTEM "xml/thunar-details-view.xml">
++  <!ENTITY ThunarDialogs SYSTEM "xml/thunar-dialogs.xml">
++  <!ENTITY ThunarImage SYSTEM "xml/thunar-image.xml">
++  <!ENTITY ThunarUser SYSTEM "xml/thunar-user.xml">
++  <!ENTITY ThunarLocationButton SYSTEM "xml/thunar-location-button.xml">
++  <!ENTITY ThunarRenamerModel SYSTEM "xml/thunar-renamer-model.xml">
++  <!ENTITY ThunarSizeLabel SYSTEM "xml/thunar-size-label.xml">
++  <!ENTITY ThunarClipboardManager SYSTEM "xml/thunar-clipboard-manager.xml">
++  <!ENTITY ThunarAbstractDialog SYSTEM "xml/thunar-abstract-dialog.xml">
++  <!ENTITY ThunarAbstractIconView SYSTEM "xml/thunar-abstract-icon-view.xml">
++  <!ENTITY ThunarDeviceMonitor SYSTEM "xml/thunar-device-monitor.xml">
++  <!ENTITY ThunarIoJobs SYSTEM "xml/thunar-io-jobs.xml">
++  <!ENTITY ThunarDeepCountJob SYSTEM "xml/thunar-deep-count-job.xml">
++  <!ENTITY ThunarIconView SYSTEM "xml/thunar-icon-view.xml">
++  <!ENTITY ThunarChooserButton SYSTEM "xml/thunar-chooser-button.xml">
++  <!ENTITY ThunarPermissionsChooser SYSTEM "xml/thunar-permissions-chooser.xml">
++  <!ENTITY ThunarFolder SYSTEM "xml/thunar-folder.xml">
++  <!ENTITY ThunarIoJobsUtil SYSTEM "xml/thunar-io-jobs-util.xml">
++  <!ENTITY ThunarRenamerDialog SYSTEM "xml/thunar-renamer-dialog.xml">
++  <!ENTITY ThunarGtkExtensions SYSTEM "xml/thunar-gtk-extensions.xml">
++  <!ENTITY ThunarLocationEntry SYSTEM "xml/thunar-location-entry.xml">
++  <!ENTITY ThunarDnd SYSTEM "xml/thunar-dnd.xml">
++  <!ENTITY ThunarLauncher SYSTEM "xml/thunar-launcher.xml">
++  <!ENTITY ThunarEmblemChooser SYSTEM "xml/thunar-emblem-chooser.xml">
++  <!ENTITY ThunarSessionClient SYSTEM "xml/thunar-session-client.xml">
++  <!ENTITY ThunarShortcutsPane SYSTEM "xml/thunar-shortcuts-pane.xml">
++  <!ENTITY ThunarJob SYSTEM "xml/thunar-job.xml">
++  <!ENTITY ThunarPangoExtensions SYSTEM "xml/thunar-pango-extensions.xml">
++  <!ENTITY ThunarStatusbar SYSTEM "xml/thunar-statusbar.xml">
++  <!ENTITY ThunarLocationBar SYSTEM "xml/thunar-location-bar.xml">
++  <!ENTITY ThunarColumnEditor SYSTEM "xml/thunar-column-editor.xml">
++  <!ENTITY ThunarListModel SYSTEM "xml/thunar-list-model.xml">
++  <!ENTITY ThunarIce SYSTEM "xml/thunar-ice.xml">
++  <!ENTITY ThunarWindow SYSTEM "xml/thunar-window.xml">
++  <!ENTITY ThunarFile SYSTEM "xml/thunar-file.xml">
++  <!ENTITY ThunarIconFactory SYSTEM "xml/thunar-icon-factory.xml">
++  <!ENTITY ThunarPathEntry SYSTEM "xml/thunar-path-entry.xml">
++  <!ENTITY ThunarSimpleJob SYSTEM "xml/thunar-simple-job.xml">
++  <!ENTITY ThunarChooserDialog SYSTEM "xml/thunar-chooser-dialog.xml">
++  <!ENTITY ThunarComponent SYSTEM "xml/thunar-component.xml">
++  <!ENTITY ThunarTransferJob SYSTEM "xml/thunar-transfer-job.xml">
++  <!ENTITY ThunarTreeView SYSTEM "xml/thunar-tree-view.xml">
++  <!ENTITY ThunarDevice SYSTEM "xml/thunar-device.xml">
++  <!ENTITY ThunarView SYSTEM "xml/thunar-view.xml">
++  <!ENTITY ThunarChooserModel SYSTEM "xml/thunar-chooser-model.xml">
++  <!ENTITY ThunarNavigator SYSTEM "xml/thunar-navigator.xml">
++  <!ENTITY ThunarCompactView SYSTEM "xml/thunar-compact-view.xml">
++  <!ENTITY ThunarColumnModel SYSTEM "xml/thunar-column-model.xml">
++  <!ENTITY ThunarTreeModel SYSTEM "xml/thunar-tree-model.xml">
++  <!ENTITY ThunarProgressDialog SYSTEM "xml/thunar-progress-dialog.xml">
++  <!ENTITY ThunarGdkExtensions SYSTEM "xml/thunar-gdk-extensions.xml">
++  <!ENTITY ThunarProgressView SYSTEM "xml/thunar-progress-view.xml">
++
++  <!ENTITY % local.common.attrib "xmlns:xi  CDATA  #FIXED 'http://www.w3.org/2003/XInclude'">
++  <!ENTITY % gtkdocentities SYSTEM "xml/gtkdocentities.ent">
++  %gtkdocentities;
++]>
++
++<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
++  <bookinfo>
++    <title>Thunar Internal Functions Reference Manual</title>
++    <releaseinfo>
++      For &package_string;.
++      The latest version of this documentation can be found on-line at
++      <ulink role="online-location" url="https://developer.xfce.org/&package_name;/index.html">https://developer.xfce.org/&package_name;/</ulink>.
++    </releaseinfo>
++    <copyright>
++      <year>2021</year>
++      <holder>The Xfce Development Team</holder>
++    </copyright>
++  </bookinfo>
++
++  <part id="glib-gtk-extensions">
++    <title>Glib/GTK Extensions</title>
++    <xi:include href="xml/thunar-gobject-extensions.xml"/>
++    <xi:include href="xml/thunar-gio-extensions.xml"/>
++    <xi:include href="xml/thunar-gtk-extensions.xml"/>
++    <xi:include href="xml/thunar-gdk-extensions.xml"/>
++    <xi:include href="xml/thunar-pango-extensions.xml"/>
++  </part>
++  <part id="thunar-objects">
++    <title>Thunar Backend Objects</title>
++
++    <chapter>
++      <title>File Abstraction</title>
++      <xi:include href="xml/thunar-file.xml"/>
++      <xi:include href="xml/thunar-file-monitor.xml"/>
++      <xi:include href="xml/thunar-folder.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Device Management</title>
++      <xi:include href="xml/thunar-device.xml"/>
++      <xi:include href="xml/thunar-device-monitor.xml"/>
++      <xi:include href="xml/thunar-notify.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Parallel Tasks</title>
++      <xi:include href="xml/thunar-job.xml"/>
++      <xi:include href="xml/thunar-simple-job.xml"/>
++      <xi:include href="xml/thunar-io-jobs.xml"/>
++      <xi:include href="xml/thunar-io-jobs-util.xml"/>
++      <xi:include href="xml/thunar-io-scan-directory.xml"/>
++      <xi:include href="xml/thunar-deep-count-job.xml"/>
++      <xi:include href="xml/thunar-transfer-job.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>X Session / DBus Management</title>
++      <xi:include href="xml/thunar-session-client.xml"/>
++      <xi:include href="xml/thunar-ice.xml"/>
++      <xi:include href="xml/thunar-dbus-service.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Miscellaneous</title>
++      <xi:include href="xml/thunar-util.xml"/>
++      <xi:include href="xml/thunar-enum-types.xml"/>
++      <xi:include href="xml/thunar-preferences.xml"/>
++      <xi:include href="xml/thunar-user.xml"/>
++    </chapter>
++  </part>
++
++  <part id="thunar-view">
++    <title>Main Screen UI Widgets</title>
++    <chapter>
++      <title>Navigation Control</title>
++      <xi:include href="xml/thunar-window.xml"/>
++      <xi:include href="xml/thunar-navigator.xml"/>
++      <xi:include href="xml/thunar-browser.xml"/>
++      <xi:include href="xml/thunar-history.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Main View</title>
++      <xi:include href="xml/thunar-view.xml"/>
++      <xi:include href="xml/thunar-standard-view.xml"/>
++      <xi:include href="xml/thunar-abstract-icon-view.xml"/>
++      <xi:include href="xml/thunar-icon-view.xml"/>
++      <xi:include href="xml/thunar-details-view.xml"/>
++      <xi:include href="xml/thunar-compact-view.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Side Pane</title>
++      <xi:include href="xml/thunar-side-pane.xml"/>
++      <xi:include href="xml/thunar-shortcuts-pane.xml"/>
++      <xi:include href="xml/thunar-shortcuts-view.xml"/>
++      <xi:include href="xml/thunar-tree-pane.xml"/>
++      <xi:include href="xml/thunar-tree-view.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Location Bar</title>
++      <xi:include href="xml/thunar-location-bar.xml"/>
++      <xi:include href="xml/thunar-location-buttons.xml"/>
++      <xi:include href="xml/thunar-location-button.xml"/>
++      <xi:include href="xml/thunar-location-entry.xml"/>
++      <xi:include href="xml/thunar-path-entry.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Status Bar</title>
++      <xi:include href="xml/thunar-statusbar.xml"/>
++    </chapter>
++  </part>
++
++  <part id="thunar-widgets">
++    <title>Other Thunar UI Widgets</title>
++    <chapter>
++      <title>Chooser</title>
++      <xi:include href="xml/thunar-emblem-chooser.xml"/>
++      <xi:include href="xml/thunar-chooser-dialog.xml"/>
++      <xi:include href="xml/thunar-permissions-chooser.xml"/>
++      <xi:include href="xml/thunar-chooser-button.xml"/>
++      <xi:include href="xml/thunar-chooser-model.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Dialog</title>
++      <xi:include href="xml/thunar-dialogs.xml"/>
++      <xi:include href="xml/thunar-abstract-dialog.xml"/>
++      <xi:include href="xml/thunar-column-editor.xml"/>
++      <xi:include href="xml/thunar-preferences-dialog.xml"/>
++      <xi:include href="xml/thunar-progress-dialog.xml"/> <!-- Duplicated on purpose -->
++      <xi:include href="xml/thunar-properties-dialog.xml"/>
++      <xi:include href="xml/thunar-renamer-dialog.xml"/> <!-- Duplicated on purpose -->
++      <xi:include href="xml/thunar-size-label.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Entry Model</title>
++      <xi:include href="xml/thunar-column-model.xml"/>
++      <xi:include href="xml/thunar-list-model.xml"/>
++      <xi:include href="xml/thunar-renamer-model.xml"/> <!-- Duplicated on purpose -->
++      <xi:include href="xml/thunar-shortcuts-model.xml"/>
++      <xi:include href="xml/thunar-sendto-model.xml"/>
++      <xi:include href="xml/thunar-tree-model.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>File Selection</title>
++      <xi:include href="xml/thunar-clipboard-manager.xml"/>
++      <xi:include href="xml/thunar-dnd.xml"/>
++      <xi:include href="xml/thunar-component.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>File/Applicaton Launcher</title>
++      <xi:include href="xml/thunar-menu.xml"/>
++      <xi:include href="xml/thunar-application.xml"/>
++      <xi:include href="xml/thunar-launcher.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Image/Icon</title>
++      <xi:include href="xml/thunar-image.xml"/>
++      <xi:include href="xml/thunar-icon-factory.xml"/>
++      <xi:include href="xml/thunar-icon-renderer.xml"/>
++      <xi:include href="xml/thunar-shortcuts-icon-renderer.xml"/>
++    </chapter>
++
++    <chapter>
++      <title>Progress</title>
++      <xi:include href="xml/thunar-progress-view.xml"/>
++      <xi:include href="xml/thunar-progress-dialog.xml"/> <!-- Duplicated on purpose -->
++    </chapter>
++
++    <chapter>
++      <title>Renamer</title>
++      <xi:include href="xml/thunar-renamer-progress.xml"/>
++      <xi:include href="xml/thunar-renamer-model.xml"/> <!-- Duplicated on purpose -->
++      <xi:include href="xml/thunar-renamer-dialog.xml"/> <!-- Duplicated on purpose -->
++      <xi:include href="xml/thunar-renamer-pair.xml"/>
++    </chapter>
++  </part>
++</book>
+diff --git a/docs/reference/thunar/thunar-overrides.txt b/docs/reference/thunar/thunar-overrides.txt
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/docs/reference/thunar/version.xml.in b/docs/reference/thunar/version.xml.in
+new file mode 100644
+index 00000000..a24f9877
+--- /dev/null
++++ b/docs/reference/thunar/version.xml.in
+@@ -0,0 +1 @@
++@PACKAGE_VERSION@
+diff --git a/docs/reference/thunarx/thunarx-docs.xml b/docs/reference/thunarx/thunarx-docs.xml
+index 131639d9..c13461ad 100644
+--- a/docs/reference/thunarx/thunarx-docs.xml
++++ b/docs/reference/thunarx/thunarx-docs.xml
+@@ -21,7 +21,7 @@
+ 
+ <book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
+   <bookinfo>
+-    <title>&package_name; Reference Manual</title>
++    <title>thunarx Reference Manual</title>
+     <releaseinfo>
+       For &package_string;.
+       The latest version of this documentation can be found on-line at
+diff --git a/thunar/Makefile.am b/thunar/Makefile.am
+index 6f9c5025..8f8497dc 100644
+--- a/thunar/Makefile.am
++++ b/thunar/Makefile.am
+@@ -203,6 +203,12 @@ thunar_SOURCES =							\
+ 	thunar-window.c							\
+ 	thunar-window.h
+ 
++noinst_LIBRARIES = thunar.a
++thunar_a_SOURCES =
++thunar_a_LIBADD = 							\
++	$(filter %.o, $(thunar_SOURCES:%.c=thunar-%.o))			\
++	$(wildcard $(top_builddir)/thunarx/.libs/*.o)
++
+ thunar_CFLAGS =								\
+ 	$(EXO_CFLAGS)							\
+ 	$(GIO_CFLAGS)							\
+@@ -261,7 +267,7 @@ uninstall-local:
+ 	-( cd $(DESTDIR)$(bindir) ; test -h Thunar && rm -f Thunar )
+ 
+ clean-local:
+-	rm -f *.core core core.* *.o
++	rm -f *.core core core.* *.o *.a
+ 
+ DISTCLEANFILES =							\
+ 	thunar-settings.desktop
+@@ -333,3 +339,5 @@ EXTRA_DIST =								\
+ 	thunar-settings							\
+ 	thunar.gresource.xml					\
+ 	$(desktop_in_files)
++
++dist-hook: thunar.a
+diff --git a/thunar/thunar-gtk-extensions.c b/thunar/thunar-gtk-extensions.c
+index f1a18e65..f2197c0f 100644
+--- a/thunar/thunar-gtk-extensions.c
++++ b/thunar/thunar-gtk-extensions.c
+@@ -225,7 +225,7 @@ thunar_gtk_menu_run_at_event (GtkMenu *menu, GdkEvent *event)
+  * @...    : additional arguments for @format.
+  *
+  * Sets the tooltip for the @widget to a string generated
+- * from the @format and the additional arguments in @...<!--->.
++ * from the @format and the additional arguments in @...<!---->.
+  **/
+ void
+ thunar_gtk_widget_set_tooltip (GtkWidget   *widget,

@@ -1,0 +1,375 @@
+diff --git a/plugins/thunar-uca/thunar-uca-editor.c b/plugins/thunar-uca/thunar-uca-editor.c
+index 5a1cd17f..1fe905e3 100644
+--- a/plugins/thunar-uca/thunar-uca-editor.c
++++ b/plugins/thunar-uca/thunar-uca-editor.c
+@@ -70,6 +70,7 @@ struct _ThunarUcaEditor
+   GtkWidget   *shortcut_button;
+   GtkWidget   *sn_button;
+   GtkWidget   *patterns_entry;
++  GtkWidget   *range_entry;
+   GtkWidget   *directories_button;
+   GtkWidget   *audio_files_button;
+   GtkWidget   *image_files_button;
+@@ -118,6 +119,7 @@ thunar_uca_editor_class_init (ThunarUcaEditorClass *klass)
+   gtk_widget_class_bind_template_child (widget_class, ThunarUcaEditor, shortcut_button);
+   gtk_widget_class_bind_template_child (widget_class, ThunarUcaEditor, sn_button);
+   gtk_widget_class_bind_template_child (widget_class, ThunarUcaEditor, patterns_entry);
++  gtk_widget_class_bind_template_child (widget_class, ThunarUcaEditor, range_entry);
+   gtk_widget_class_bind_template_child (widget_class, ThunarUcaEditor, directories_button);
+   gtk_widget_class_bind_template_child (widget_class, ThunarUcaEditor, audio_files_button);
+   gtk_widget_class_bind_template_child (widget_class, ThunarUcaEditor, image_files_button);
+@@ -572,6 +574,7 @@ thunar_uca_editor_load (ThunarUcaEditor *uca_editor,
+   ThunarUcaTypes types;
+   gchar         *description;
+   gchar         *patterns;
++  gchar         *range;
+   gchar         *command;
+   gchar         *icon_name;
+   gchar         *name;
+@@ -589,6 +592,7 @@ thunar_uca_editor_load (ThunarUcaEditor *uca_editor,
+   gtk_tree_model_get (GTK_TREE_MODEL (uca_model), iter,
+                       THUNAR_UCA_MODEL_COLUMN_DESCRIPTION, &description,
+                       THUNAR_UCA_MODEL_COLUMN_PATTERNS, &patterns,
++                      THUNAR_UCA_MODEL_COLUMN_RANGE, &range,
+                       THUNAR_UCA_MODEL_COLUMN_COMMAND, &command,
+                       THUNAR_UCA_MODEL_COLUMN_TYPES, &types,
+                       THUNAR_UCA_MODEL_COLUMN_ICON_NAME, &icon_name,
+@@ -618,12 +622,14 @@ thunar_uca_editor_load (ThunarUcaEditor *uca_editor,
+   gtk_entry_set_text (GTK_ENTRY (uca_editor->patterns_entry), (patterns != NULL) ? patterns : "");
+   gtk_entry_set_text (GTK_ENTRY (uca_editor->command_entry), (command != NULL) ? command : "");
+   gtk_entry_set_text (GTK_ENTRY (uca_editor->name_entry), (name != NULL) ? name : "");
++  gtk_entry_set_text (GTK_ENTRY (uca_editor->range_entry), (range != NULL) ? range : "");
+   gtk_entry_set_text (GTK_ENTRY (uca_editor->sub_menu_entry), (submenu != NULL) ? submenu : "");
+   gtk_button_set_label (GTK_BUTTON (uca_editor->shortcut_button), (accel_label != NULL) ? accel_label : _("None"));
+   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (uca_editor->sn_button), startup_notify);
+ 
+   /* cleanup */
+   g_free (description);
++  g_free (range);
+   g_free (patterns);
+   g_free (command);
+   g_free (icon_name);
+@@ -673,6 +679,7 @@ thunar_uca_editor_save (ThunarUcaEditor *uca_editor,
+                            gtk_entry_get_text (GTK_ENTRY (uca_editor->command_entry)),
+                            gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (uca_editor->sn_button)),
+                            gtk_entry_get_text (GTK_ENTRY (uca_editor->patterns_entry)),
++                           gtk_entry_get_text (GTK_ENTRY (uca_editor->range_entry)),
+                            thunar_uca_editor_get_types (uca_editor),
+                            uca_editor->accel_key,
+                            uca_editor->accel_mods);
+diff --git a/plugins/thunar-uca/thunar-uca-editor.ui b/plugins/thunar-uca/thunar-uca-editor.ui
+index f837e16c..5b37c418 100644
+--- a/plugins/thunar-uca/thunar-uca-editor.ui
++++ b/plugins/thunar-uca/thunar-uca-editor.ui
+@@ -624,6 +624,37 @@
+                 </child>
+                 <child>
+                   <object class="GtkLabel" id="label17">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="label" translatable="yes">_Range (min-max):</property>
++                    <property name="use_underline">True</property>
++                    <property name="mnemonic_widget">range_entry</property>
++                    <property name="xalign">0</property>
++                    <accessibility>
++                      <relation type="label-for" target="range_entry"/>
++                    </accessibility>
++                  </object>
++                  <packing>
++                    <property name="left_attach">0</property>
++                    <property name="top_attach">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkEntry" id="range_entry">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="tooltip_text" translatable="yes">If the command should operate on say two or three files, enter the numerical range 2-3. If there are no limits, this string should be empty.</property>
++                    <property name="hexpand">True</property>
++                    <property name="activates_default">True</property>
++                    <property name="text" translatable="yes">*</property>
++                  </object>
++                  <packing>
++                    <property name="left_attach">1</property>
++                    <property name="top_attach">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="label18">
+                     <property name="visible">True</property>
+                     <property name="can_focus">False</property>
+                     <property name="label" translatable="yes">Appears if selection contains:</property>
+@@ -632,7 +663,7 @@
+                   </object>
+                   <packing>
+                     <property name="left_attach">0</property>
+-                    <property name="top_attach">1</property>
++                    <property name="top_attach">2</property>
+                     <property name="width">2</property>
+                   </packing>
+                 </child>
+@@ -732,7 +763,7 @@
+                   </object>
+                   <packing>
+                     <property name="left_attach">0</property>
+-                    <property name="top_attach">2</property>
++                    <property name="top_attach">3</property>
+                     <property name="width">2</property>
+                   </packing>
+                 </child>
+@@ -758,7 +789,7 @@
+                       </packing>
+                     </child>
+                     <child>
+-                      <object class="GtkLabel" id="label18">
++                      <object class="GtkLabel" id="label19">
+                         <property name="visible">True</property>
+                         <property name="can_focus">False</property>
+                         <property name="label" translatable="yes">This page lists the conditions under which the action will appear in the file managers context menus. The file patterns are specified as a list of simple file patterns separated by semicolons (e.g. *.txt;*.doc). For an action to appear in the context menu of a file or folder, at least one of these patterns must match the name of the file or folder. Additionally, you can specify that the action should only appear for certain kinds of files.</property>
+@@ -775,7 +806,7 @@
+                   </object>
+                   <packing>
+                     <property name="left_attach">0</property>
+-                    <property name="top_attach">4</property>
++                    <property name="top_attach">5</property>
+                     <property name="width">2</property>
+                   </packing>
+                 </child>
+@@ -793,7 +824,7 @@
+                   </object>
+                   <packing>
+                     <property name="left_attach">0</property>
+-                    <property name="top_attach">3</property>
++                    <property name="top_attach">4</property>
+                     <property name="width">2</property>
+                   </packing>
+                 </child>
+diff --git a/plugins/thunar-uca/thunar-uca-model.c b/plugins/thunar-uca/thunar-uca-model.c
+index 02b4292e..69091ebb 100644
+--- a/plugins/thunar-uca/thunar-uca-model.c
++++ b/plugins/thunar-uca/thunar-uca-model.c
+@@ -80,6 +80,7 @@ typedef enum
+   PARSER_COMMAND,
+   PARSER_STARTUP_NOTIFY,
+   PARSER_PATTERNS,
++  PARSER_RANGE,
+   PARSER_DESCRIPTION,
+   PARSER_DIRECTORIES,
+   PARSER_AUDIO_FILES,
+@@ -170,6 +171,7 @@ struct _ThunarUcaModelItem
+   gchar         *command;
+   guint          startup_notify : 1;
+   gchar        **patterns;
++  gchar         *range;
+   ThunarUcaTypes types;
+ 
+   /* derived attributes */
+@@ -192,6 +194,7 @@ typedef struct
+   GString        *command;
+   GString        *patterns;
+   GString        *description;
++  GString        *range;
+   gboolean        startup_notify;
+   gboolean        description_use;
+   guint           description_match;
+@@ -339,6 +342,9 @@ thunar_uca_model_get_column_type (GtkTreeModel *tree_model,
+     case THUNAR_UCA_MODEL_COLUMN_PATTERNS:
+       return G_TYPE_STRING;
+ 
++    case THUNAR_UCA_MODEL_COLUMN_RANGE:
++      return G_TYPE_STRING;
++
+     case THUNAR_UCA_MODEL_COLUMN_TYPES:
+       return G_TYPE_UINT;
+ 
+@@ -452,6 +458,10 @@ thunar_uca_model_get_value (GtkTreeModel *tree_model,
+       g_value_take_string (value, str);
+       break;
+ 
++    case THUNAR_UCA_MODEL_COLUMN_RANGE:
++      g_value_set_static_string (value, item->range);
++      break;
++
+     case THUNAR_UCA_MODEL_COLUMN_TYPES:
+       g_value_set_uint (value, item->types);
+       break;
+@@ -585,6 +595,7 @@ thunar_uca_model_load_from_file (ThunarUcaModel *uca_model,
+   parser.icon_name = g_string_new (NULL);
+   parser.command = g_string_new (NULL);
+   parser.patterns = g_string_new (NULL);
++  parser.range = g_string_new (NULL);
+   parser.description = g_string_new (NULL);
+   parser.startup_notify = FALSE;
+   parser.unique_id_generated = FALSE;
+@@ -599,6 +610,7 @@ thunar_uca_model_load_from_file (ThunarUcaModel *uca_model,
+   g_markup_parse_context_free (context);
+   g_string_free (parser.description, TRUE);
+   g_string_free (parser.patterns, TRUE);
++  g_string_free (parser.range, TRUE);
+   g_string_free (parser.command, TRUE);
+   g_string_free (parser.icon_name, TRUE);
+   g_string_free (parser.unique_id, TRUE);
+@@ -623,6 +635,7 @@ thunar_uca_model_item_reset (ThunarUcaModelItem *item)
+ {
+   /* release the previous values... */
+   g_strfreev (item->patterns);
++  g_free (item->range);
+   g_free (item->description);
+   g_free (item->command);
+   g_free (item->name);
+@@ -682,6 +695,7 @@ start_element_handler (GMarkupParseContext *context,
+           g_string_truncate (parser->unique_id, 0);
+           g_string_truncate (parser->command, 0);
+           g_string_truncate (parser->patterns, 0);
++          g_string_truncate (parser->range, 0);
+           g_string_truncate (parser->description, 0);
+           xfce_stack_push (parser->stack, PARSER_ACTION);
+         }
+@@ -744,6 +758,11 @@ start_element_handler (GMarkupParseContext *context,
+           g_string_truncate (parser->patterns, 0);
+           xfce_stack_push (parser->stack, PARSER_PATTERNS);
+         }
++      else if (strcmp (element_name, "range") == 0)
++        {
++          g_string_truncate (parser->range, 0);
++          xfce_stack_push (parser->stack, PARSER_RANGE);
++        }
+       else if (strcmp (element_name, "description") == 0)
+         {
+           for (n = 0; attribute_names[n] != NULL; ++n)
+@@ -853,6 +872,7 @@ end_element_handler (GMarkupParseContext *context,
+                                    parser->command->str,
+                                    parser->startup_notify,
+                                    parser->patterns->str,
++                                   parser->range->str,
+                                    parser->types,
+                                    0, 0);
+ 
+@@ -894,6 +914,11 @@ end_element_handler (GMarkupParseContext *context,
+         goto unknown_element;
+       break;
+ 
++    case PARSER_RANGE:
++      if (strcmp (element_name, "range") != 0)
++        goto unknown_element;
++      break;
++
+     case PARSER_DESCRIPTION:
+       if (strcmp (element_name, "description") != 0)
+         goto unknown_element;
+@@ -988,6 +1013,10 @@ text_handler (GMarkupParseContext *context,
+       g_string_append_len (parser->patterns, text, text_len);
+       break;
+ 
++    case PARSER_RANGE:
++      g_string_append_len (parser->range, text, text_len);
++      break;
++
+     case PARSER_DESCRIPTION:
+       if (parser->description_use)
+         g_string_append_len (parser->description, text, text_len);
+@@ -1116,6 +1145,7 @@ thunar_uca_model_match (ThunarUcaModel *uca_model,
+   GList              *lp;
+   gint                n_files;
+   gint                i, m, n;
++  gint                upper, lower;
+   gchar              *path_test;
+ 
+   g_return_val_if_fail (THUNAR_UCA_IS_MODEL (uca_model), NULL);
+@@ -1160,6 +1190,22 @@ thunar_uca_model_match (ThunarUcaModel *uca_model,
+     {
+       /* check if we can just ignore this item */
+       item = (ThunarUcaModelItem *) lp->data;
++      upper = n_files;
++      lower = n_files;
++
++      if (item->range != NULL)
++        {
++          gchar **limits = g_strsplit (item->range, "-", 2);
++          if (limits[0] != NULL && limits[1] != NULL)
++            {
++              lower = g_strtod (limits[0], NULL);
++              upper = g_strtod (limits[1], NULL);
++            }
++          g_strfreev (limits);
++        }
++
++      if ((n_files > upper) || (n_files < lower))
++        continue;
+       if (!item->multiple_selection && n_files > 1)
+         continue;
+ 
+@@ -1331,7 +1377,7 @@ thunar_uca_model_remove (ThunarUcaModel *uca_model,
+  * @uca_model          : a #ThunarUcaModel.
+  * @iter               : the #GtkTreeIter of the item to update.
+  * @name               : the name of the item.
+- * @submenu           : the submenu structure in which the item is placed.
++ * @submenu            : the submenu structure in which the item is placed.
+  * @unique_id          : a unique ID for the item.
+  * @description        : the description of the item.
+  * @icon               : the icon for the item.
+@@ -1352,6 +1398,7 @@ thunar_uca_model_update (ThunarUcaModel *uca_model,
+                          const gchar    *command,
+                          gboolean        startup_notify,
+                          const gchar    *patterns,
++                         const gchar    *range,
+                          ThunarUcaTypes  types,
+                          guint           accel_key,
+                          GdkModifierType accel_mods)
+@@ -1377,6 +1424,8 @@ thunar_uca_model_update (ThunarUcaModel *uca_model,
+     item->icon_name = g_strdup (icon);
+   if (G_LIKELY (command != NULL && *command != '\0'))
+     item->command = g_strdup (command);
++  if (G_LIKELY (range != NULL && *range != '\0'))
++    item->range = g_strdup (range);
+   if (G_LIKELY (description != NULL && *description != '\0'))
+     item->description = g_strdup (description);
+   item->types = types;
+@@ -1486,6 +1535,7 @@ thunar_uca_model_save (ThunarUcaModel *uca_model,
+                                          "\t<unique-id>%s</unique-id>\n"
+                                          "\t<command>%s</command>\n"
+                                          "\t<description>%s</description>\n"
++                                         "\t<range>%s</range>\n"
+                                          "\t<patterns>%s</patterns>\n",
+                                          (item->icon_name != NULL) ? item->icon_name : "",
+                                          (item->name != NULL) ? item->name : "",
+@@ -1493,6 +1543,7 @@ thunar_uca_model_save (ThunarUcaModel *uca_model,
+                                          (item->unique_id != NULL) ? item->unique_id : "",
+                                          (item->command != NULL) ? item->command : "",
+                                          (item->description != NULL) ? item->description : "",
++                                         (item->range != NULL) ? item->range : "",
+                                          patterns);
+       fprintf (fp, "%s", escaped);
+       g_free (patterns);
+diff --git a/plugins/thunar-uca/thunar-uca-model.h b/plugins/thunar-uca/thunar-uca-model.h
+index dad95e04..b8210cac 100644
+--- a/plugins/thunar-uca/thunar-uca-model.h
++++ b/plugins/thunar-uca/thunar-uca-model.h
+@@ -46,6 +46,7 @@ typedef enum
+   THUNAR_UCA_MODEL_COLUMN_COMMAND,
+   THUNAR_UCA_MODEL_COLUMN_STARTUP_NOTIFY,
+   THUNAR_UCA_MODEL_COLUMN_PATTERNS,
++  THUNAR_UCA_MODEL_COLUMN_RANGE,
+   THUNAR_UCA_MODEL_COLUMN_TYPES,
+   THUNAR_UCA_MODEL_COLUMN_STOCK_LABEL,
+   THUNAR_UCA_MODEL_N_COLUMNS,
+@@ -98,6 +99,7 @@ void            thunar_uca_model_update         (ThunarUcaModel         *uca_mod
+                                                  const gchar            *command,
+                                                  gboolean                startup_notify,
+                                                  const gchar            *patterns,
++                                                 const gchar            *range,
+                                                  ThunarUcaTypes          types,
+                                                  guint                   accel_key,
+                                                  GdkModifierType         accel_mods);
+diff --git a/plugins/thunar-uca/uca.xml.in b/plugins/thunar-uca/uca.xml.in
+index 175b4bcb..f9e210ba 100644
+--- a/plugins/thunar-uca/uca.xml.in
++++ b/plugins/thunar-uca/uca.xml.in
+@@ -38,6 +38,7 @@
+   <action>
+     <icon>utilities-terminal</icon>
+     <patterns>*</patterns>
++    <range></range>
+     <_name>Open Terminal Here</_name>
+     <command>exo-open --working-directory %f --launch TerminalEmulator</command>
+     <_description>Example for a custom action</_description>

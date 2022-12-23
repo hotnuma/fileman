@@ -1,0 +1,101 @@
+diff --git a/thunar/thunar-io-scan-directory.c b/thunar/thunar-io-scan-directory.c
+index 7b1867f4..822a351b 100644
+--- a/thunar/thunar-io-scan-directory.c
++++ b/thunar/thunar-io-scan-directory.c
+@@ -155,6 +155,12 @@ thunar_io_scan_directory (ThunarJob          *job,
+           /* create new file info using Gfile*/
+           recent_info = info;
+           info = g_file_query_info (child_file, namespace, flags, cancellable, &err);
++
++          if (G_UNLIKELY (info == NULL))
++            {
++              g_object_unref (recent_info);
++              break;
++            }
+         }
+       else
+         {
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index 916ce2e0..a3e24f3b 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -2210,6 +2210,8 @@ thunar_list_model_search_folder (ThunarListModel  *model,
+           file = g_file_new_for_uri (g_file_info_get_attribute_string (info, G_FILE_ATTRIBUTE_STANDARD_TARGET_URI));
+           g_object_unref (info);
+           info = g_file_query_info (file, namespace, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS, cancellable, NULL);
++          if (G_UNLIKELY (info == NULL))
++            break;
+         }
+       else
+         file = g_file_get_child (directory, g_file_info_get_name (info));
+diff --git a/thunar/thunar-location-bar.c b/thunar/thunar-location-bar.c
+index 50a97b51..81fcdf65 100644
+--- a/thunar/thunar-location-bar.c
++++ b/thunar/thunar-location-bar.c
+@@ -381,14 +381,15 @@ thunar_location_bar_cancel_search (ThunarLocationBar *bar)
+  * thunar_location_bar_get_search_query:
+  * @entry        : a #ThunarLocationBar.
+  *
+- * Returns a copy of the search query in the text field of @entry or NULL if there is no search query.
++ * Returns a copy of the search query in the text field of @entry or "" if the path_entry doesn't contain
++ * a search query.
+  *
+  * It's the responsibility of the caller to free the returned string using `g_free`.
+  **/
+ gchar*
+ thunar_location_bar_get_search_query (ThunarLocationBar *entry)
+ {
+-  return (entry->locationEntry != NULL) ? thunar_location_entry_get_search_query (THUNAR_LOCATION_ENTRY (entry->locationEntry)) : "";
++  return (entry->locationEntry != NULL) ? thunar_location_entry_get_search_query (THUNAR_LOCATION_ENTRY (entry->locationEntry)) : g_strdup ("");
+ }
+ 
+ 
+diff --git a/thunar/thunar-location-entry.c b/thunar/thunar-location-entry.c
+index ba3f03bb..89b66f05 100644
+--- a/thunar/thunar-location-entry.c
++++ b/thunar/thunar-location-entry.c
+@@ -495,7 +495,8 @@ thunar_location_entry_cancel_search (ThunarLocationEntry *entry)
+  * thunar_location_entry_get_search_query:
+  * @entry        : a #ThunarLocationEntry.
+  *
+- * Returns a copy of the search query in the text field of the path_entry of @entry or NULL if there is no search query.
++ * Returns a copy of the search query in the text field of the path_entry of @entry "" if the path_entry doesn't contain
++ * a search query.
+  *
+  * It's the responsibility of the caller to free the returned string using `g_free`.
+  **/
+diff --git a/thunar/thunar-path-entry.c b/thunar/thunar-path-entry.c
+index fe9f041b..ad7de598 100644
+--- a/thunar/thunar-path-entry.c
++++ b/thunar/thunar-path-entry.c
+@@ -1340,7 +1340,7 @@ thunar_path_entry_set_working_directory (ThunarPathEntry *path_entry,
+  * thunar_path_entry_get_search_query:
+  * @path_entry        : a #ThunarPathEntry.
+  *
+- * Returns a copy of the search query in the text field of the @path_entry or NULL if the path_entry doesn't contain
++ * Returns a copy of the search query in the text field of the @path_entry or "" if the path_entry doesn't contain
+  * a search query.
+  *
+  * It's the responsibility of the caller to free the returned string using `g_free`.
+@@ -1355,7 +1355,7 @@ thunar_path_entry_get_search_query (ThunarPathEntry *path_entry)
+   _thunar_return_val_if_fail (THUNAR_IS_PATH_ENTRY (path_entry), NULL);
+   _thunar_return_val_if_fail (strncmp (text, SEARCH_PREFIX, search_prefix_length) == 0, NULL);
+ 
+-  return strlen(text) > search_prefix_length ? g_strdup (&text[search_prefix_length]) : NULL;
++  return strlen(text) > search_prefix_length ? g_strdup (&text[search_prefix_length]) : g_strdup ("");
+ }
+ 
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index f53660de..52cd62cd 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -3054,7 +3054,7 @@ thunar_window_update_search (ThunarWindow *window)
+   g_free (window->search_query);
+   window->search_query = thunar_location_bar_get_search_query (THUNAR_LOCATION_BAR (window->location_bar));
+   thunar_standard_view_set_searching (THUNAR_STANDARD_VIEW (window->view), window->search_query);
+-  if (window->search_query != NULL)
++  if (window->search_query != NULL && g_strcmp0 (window->search_query, "") != 0)
+     gtk_widget_show (window->catfish_search_button);
+   else
+     gtk_widget_hide (window->catfish_search_button);

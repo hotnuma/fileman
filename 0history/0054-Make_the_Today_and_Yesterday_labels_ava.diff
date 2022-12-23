@@ -1,0 +1,130 @@
+diff --git a/thunar/thunar-enum-types.c b/thunar/thunar-enum-types.c
+index f09be321..8dc826b9 100644
+--- a/thunar/thunar-enum-types.c
++++ b/thunar/thunar-enum-types.c
+@@ -69,16 +69,17 @@ thunar_date_style_get_type (void)
+     {
+       static const GEnumValue values[] =
+       {
+-        { THUNAR_DATE_STYLE_SIMPLE,   "THUNAR_DATE_STYLE_SIMPLE",   "simple",   },
+-        { THUNAR_DATE_STYLE_SHORT,    "THUNAR_DATE_STYLE_SHORT",    "short",    },
+-        { THUNAR_DATE_STYLE_LONG,     "THUNAR_DATE_STYLE_LONG",     "long",     },
+-        { THUNAR_DATE_STYLE_YYYYMMDD, "THUNAR_DATE_STYLE_YYYYMMDD", "yyyymmdd", },
+-        { THUNAR_DATE_STYLE_MMDDYYYY, "THUNAR_DATE_STYLE_MMDDYYYY", "mmddyyyy", },
+-        { THUNAR_DATE_STYLE_DDMMYYYY, "THUNAR_DATE_STYLE_DDMMYYYY", "ddmmyyyy", },
+-        { THUNAR_DATE_STYLE_CUSTOM,   "THUNAR_DATE_STYLE_CUSTOM",   "custom",   },
++        { THUNAR_DATE_STYLE_SIMPLE,         "THUNAR_DATE_STYLE_SIMPLE",         "simple",         },
++        { THUNAR_DATE_STYLE_SHORT,          "THUNAR_DATE_STYLE_SHORT",          "short",          },
++        { THUNAR_DATE_STYLE_LONG,           "THUNAR_DATE_STYLE_LONG",           "long",           },
++        { THUNAR_DATE_STYLE_YYYYMMDD,       "THUNAR_DATE_STYLE_YYYYMMDD",       "yyyymmdd",       },
++        { THUNAR_DATE_STYLE_MMDDYYYY,       "THUNAR_DATE_STYLE_MMDDYYYY",       "mmddyyyy",       },
++        { THUNAR_DATE_STYLE_DDMMYYYY,       "THUNAR_DATE_STYLE_DDMMYYYY",       "ddmmyyyy",       },
++        { THUNAR_DATE_STYLE_CUSTOM,         "THUNAR_DATE_STYLE_CUSTOM",         "custom",         },
++        { THUNAR_DATE_STYLE_CUSTOM_SIMPLE,  "THUNAR_DATE_STYLE_CUSTOM_SIMPLE",  "custom_simple",  },
+         /* to stay backward compartible*/
+-        { THUNAR_DATE_STYLE_YYYYMMDD, "THUNAR_DATE_STYLE_ISO",      "iso",      },
+-        { 0,                          NULL,                         NULL,       },
++        { THUNAR_DATE_STYLE_YYYYMMDD,       "THUNAR_DATE_STYLE_ISO",            "iso",            },
++        { 0,                                NULL,                               NULL,             },
+       };
+ 
+       type = g_enum_register_static (I_("ThunarDateStyle"), values);
+diff --git a/thunar/thunar-enum-types.h b/thunar/thunar-enum-types.h
+index 6e39baa4..176fe95e 100644
+--- a/thunar/thunar-enum-types.h
++++ b/thunar/thunar-enum-types.h
+@@ -66,6 +66,7 @@ typedef enum
+   THUNAR_DATE_STYLE_MMDDYYYY,
+   THUNAR_DATE_STYLE_DDMMYYYY,
+   THUNAR_DATE_STYLE_CUSTOM,
++  THUNAR_DATE_STYLE_CUSTOM_SIMPLE,
+ } ThunarDateStyle;
+ 
+ GType thunar_date_style_get_type (void) G_GNUC_CONST;
+diff --git a/thunar/thunar-preferences-dialog.c b/thunar/thunar-preferences-dialog.c
+index 9f2293d7..336d23cf 100644
+--- a/thunar/thunar-preferences-dialog.c
++++ b/thunar/thunar-preferences-dialog.c
+@@ -247,7 +247,7 @@ on_date_format_changed (GtkWidget *combo,
+   _thunar_return_if_fail (GTK_IS_COMBO_BOX (combobox));
+   _thunar_return_if_fail (GTK_IS_WIDGET (customFormat));
+ 
+-  if (gtk_combo_box_get_active (combobox) == THUNAR_DATE_STYLE_CUSTOM)
++  if (gtk_combo_box_get_active (combobox) == THUNAR_DATE_STYLE_CUSTOM || gtk_combo_box_get_active (combobox) == THUNAR_DATE_STYLE_CUSTOM_SIMPLE)
+     gtk_widget_set_visible (customFormat, TRUE);
+   else
+     gtk_widget_set_visible (customFormat, FALSE);
+@@ -492,6 +492,7 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+ 
+   /* TRANSLATORS: custom date format */
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Custom"));
++  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Today / Custom"));
+   exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-date-style", G_OBJECT (combo), "active");
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+@@ -513,7 +514,7 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-date-custom-style", G_OBJECT (entry), "text");
+   g_signal_connect (G_OBJECT (combo), "changed", G_CALLBACK (on_date_format_changed), entry);
+   gtk_grid_attach (GTK_GRID (grid), entry, 1, 1, 1, 1);
+-  if (gtk_combo_box_get_active (GTK_COMBO_BOX (combo)) == THUNAR_DATE_STYLE_CUSTOM)
++  if (gtk_combo_box_get_active (GTK_COMBO_BOX (combo)) == THUNAR_DATE_STYLE_CUSTOM || gtk_combo_box_get_active (GTK_COMBO_BOX (combo)) == THUNAR_DATE_STYLE_CUSTOM_SIMPLE)
+     gtk_widget_set_visible (entry, TRUE);
+ 
+   /*
+diff --git a/thunar/thunar-util.c b/thunar/thunar-util.c
+index 918b8239..a5e2b414 100644
+--- a/thunar/thunar-util.c
++++ b/thunar/thunar-util.c
+@@ -401,7 +401,7 @@ thunar_util_humanize_file_time (guint64          file_time,
+   gint         diff;
+ 
+   /* check if the file_time is valid */
+-  if (G_UNLIKELY (file_time != 0))
++  if (G_UNLIKELY (file_time == 0))
+       return g_strdup (_("Unknown"));
+ 
+   ftime = (time_t) file_time;
+@@ -410,7 +410,7 @@ thunar_util_humanize_file_time (guint64          file_time,
+   tfile = *localtime (&ftime);
+ 
+   /* check which style to use to format the time */
+-  if (date_style == THUNAR_DATE_STYLE_SIMPLE || date_style == THUNAR_DATE_STYLE_SHORT)
++  if (date_style == THUNAR_DATE_STYLE_SIMPLE || date_style == THUNAR_DATE_STYLE_SHORT || date_style == THUNAR_DATE_STYLE_CUSTOM_SIMPLE)
+     {
+       /* setup the dates for the time values */
+       g_date_set_time_t (&dfile, (time_t) ftime);
+@@ -420,7 +420,7 @@ thunar_util_humanize_file_time (guint64          file_time,
+       diff = g_date_get_julian (&dnow) - g_date_get_julian (&dfile);
+       if (diff == 0)
+         {
+-          if (date_style == THUNAR_DATE_STYLE_SIMPLE)
++          if (date_style == THUNAR_DATE_STYLE_SIMPLE || date_style == THUNAR_DATE_STYLE_CUSTOM_SIMPLE)
+             {
+               /* TRANSLATORS: file was modified less than one day ago */
+               return g_strdup (_("Today"));
+@@ -433,7 +433,7 @@ thunar_util_humanize_file_time (guint64          file_time,
+         }
+       else if (diff == 1)
+         {
+-          if (date_style == THUNAR_DATE_STYLE_SIMPLE)
++          if (date_style == THUNAR_DATE_STYLE_SIMPLE || date_style == THUNAR_DATE_STYLE_CUSTOM_SIMPLE)
+             {
+               /* TRANSLATORS: file was modified less than two days ago */
+               return g_strdup (_("Yesterday"));
+@@ -446,7 +446,15 @@ thunar_util_humanize_file_time (guint64          file_time,
+         }
+       else
+         {
+-          if (diff > 1 && diff < 7)
++          if (date_style == THUNAR_DATE_STYLE_CUSTOM_SIMPLE)
++            {
++              if (date_custom_style == NULL)
++                return g_strdup ("");
++
++              /* use custom date formatting */
++              return exo_strdup_strftime (date_custom_style, &tfile);
++            }
++          else if (diff > 1 && diff < 7)
+             {
+               /* Days from last week */
+               date_format = (date_style == THUNAR_DATE_STYLE_SIMPLE) ? "%A" : _("%A at %X");

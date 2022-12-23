@@ -1,0 +1,350 @@
+diff --git a/thunar/thunar-file.c b/thunar/thunar-file.c
+index 756b488d..65aebb26 100644
+--- a/thunar/thunar-file.c
++++ b/thunar/thunar-file.c
+@@ -172,6 +172,7 @@ struct _ThunarFile
+   gchar                *custom_icon_name;
+   gchar                *display_name;
+   gchar                *basename;
++  const gchar          *device_type;
+   gchar                *thumbnail_path;
+ 
+   /* sorting */
+@@ -949,6 +950,9 @@ thunar_file_info_clear (ThunarFile *file)
+   g_free (file->icon_name);
+   file->icon_name = NULL;
+ 
++  /* device type */
++  file->device_type = NULL;
++
+   /* free collate keys */
+   if (file->collate_key_nocase != file->collate_key)
+     g_free (file->collate_key_nocase);
+@@ -3886,6 +3890,29 @@ thunar_file_get_icon_name (ThunarFile          *file,
+ 
+ 
+ 
++/**
++ * thunar_file_get_device_type:
++ * @file : a #ThunarFile instance.
++ *
++ * Returns : (transfer none) (nullable): the string of the device type.
++ */
++const gchar *
++thunar_file_get_device_type (ThunarFile *file)
++{
++  _thunar_return_val_if_fail (THUNAR_IS_FILE (file), NULL);
++
++  if (file->kind != G_FILE_TYPE_MOUNTABLE)
++    return NULL;
++
++  if (G_LIKELY (file->device_type != NULL))
++    return file->device_type;
++
++  file->device_type = thunar_g_file_guess_device_type (file->gfile);
++  return file->device_type;
++}
++
++
++
+ /**
+  * thunar_file_watch:
+  * @file : a #ThunarFile instance.
+diff --git a/thunar/thunar-file.h b/thunar/thunar-file.h
+index ac9e1ade..f06d394b 100644
+--- a/thunar/thunar-file.h
++++ b/thunar/thunar-file.h
+@@ -246,6 +246,7 @@ GFilesystemPreviewType thunar_file_get_preview_type      (const ThunarFile *file
+ const gchar      *thunar_file_get_icon_name              (ThunarFile              *file,
+                                                           ThunarFileIconState      icon_state,
+                                                           GtkIconTheme            *icon_theme);
++const gchar      *thunar_file_get_device_type            (ThunarFile              *file);
+ 
+ void              thunar_file_watch                      (ThunarFile              *file);
+ void              thunar_file_unwatch                    (ThunarFile              *file);
+diff --git a/thunar/thunar-gio-extensions.c b/thunar/thunar-gio-extensions.c
+index f25f4500..394a1032 100644
+--- a/thunar/thunar-gio-extensions.c
++++ b/thunar/thunar-gio-extensions.c
+@@ -40,6 +40,44 @@
+ 
+ 
+ 
++/* See : https://freedesktop.org/wiki/Specifications/icon-naming-spec/ */
++static struct
++{
++  const gchar *icon_name;
++  const gchar *type;
++}
++device_icon_name [] =
++{
++  /* Implementation specific */
++  { "multimedia-player-apple-ipod-touch" , N_("iPod touch") },
++  { "computer-apple-ipad"                , N_("iPad") },
++  { "phone-apple-iphone"                 , N_("iPhone") },
++  { "drive-harddisk-solidstate"          , N_("Solid State Drive") },
++  { "drive-harddisk-system"              , N_("System Drive") },
++  { "drive-harddisk-usb"                 , N_("USB Drive") },
++  { "drive-removable-media-usb"          , N_("USB Drive") },
++
++  /* Freedesktop icon-naming-spec */
++  { "camera*"                , N_("Camera") },
++  { "drive-harddisk*"        , N_("Harddisk") },
++  { "drive-optical*"         , N_("Optical Drive") },
++  { "drive-removable-media*" , N_("Removable Drive") },
++  { "media-flash*"           , N_("Flash Drive") },
++  { "media-floppy*"          , N_("Floppy") },
++  { "media-optical*"         , N_("Optical Media") },
++  { "media-tape*"            , N_("Tape") },
++  { "multimedia-player*"     , N_("Multimedia Player") },
++  { "pda*"                   , N_("PDA") },
++  { "phone*"                 , N_("Phone") },
++  { NULL                     , NULL }
++};
++
++
++
++static const gchar *guess_device_type_from_icon_name (const gchar * icon_name);
++
++
++
+ GFile *
+ thunar_g_file_new_for_home (void)
+ {
+@@ -272,6 +310,57 @@ thunar_g_file_get_location (GFile *file)
+ 
+ 
+ 
++static const gchar *
++guess_device_type_from_icon_name (const gchar * icon_name)
++{
++  for (int i = 0; device_icon_name[i].type != NULL ; i++)
++    {
++      if (g_pattern_match_simple (device_icon_name[i].icon_name, icon_name))
++        return g_dgettext (NULL, device_icon_name[i].type);
++    }
++  return NULL;
++}
++
++
++
++/**
++ * thunar_g_file_guess_device_type:
++ * @file : a #GFile instance.
++ *
++ * Returns : (transfer none) (nullable): the string of the device type.
++ */
++const gchar *
++thunar_g_file_guess_device_type (GFile *file)
++{
++  GFileInfo         *fileinfo    = NULL;
++  GIcon             *icon        = NULL;
++  const gchar       *icon_name   = NULL;
++  const gchar       *device_type = NULL;
++
++  _thunar_return_val_if_fail (G_IS_FILE (file), NULL);
++
++  fileinfo = g_file_query_info (file,
++                                G_FILE_ATTRIBUTE_STANDARD_ICON,
++                                G_FILE_QUERY_INFO_NONE, NULL, NULL);
++  if (fileinfo == NULL)
++    return NULL;
++
++  icon = g_file_info_get_icon (fileinfo);
++  if (!G_IS_THEMED_ICON (icon))
++    {
++      g_object_unref (fileinfo);
++      return NULL;
++    }
++
++  icon_name = g_themed_icon_get_names (G_THEMED_ICON (icon))[0];
++  device_type = guess_device_type_from_icon_name (icon_name);
++  g_object_unref (fileinfo);
++
++  return device_type;
++}
++
++
++
+ gchar *
+ thunar_g_file_get_display_name (GFile *file)
+ {
+diff --git a/thunar/thunar-gio-extensions.h b/thunar/thunar-gio-extensions.h
+index 7b6944cc..5b183971 100644
+--- a/thunar/thunar-gio-extensions.h
++++ b/thunar/thunar-gio-extensions.h
+@@ -25,42 +25,43 @@
+ 
+ G_BEGIN_DECLS
+ 
+-GFile    *thunar_g_file_new_for_home             (void);
+-GFile    *thunar_g_file_new_for_root             (void);
+-GFile    *thunar_g_file_new_for_trash            (void);
+-GFile    *thunar_g_file_new_for_desktop          (void);
+-GFile    *thunar_g_file_new_for_computer         (void);
+-GFile    *thunar_g_file_new_for_bookmarks        (void);
++GFile       *thunar_g_file_new_for_home             (void);
++GFile       *thunar_g_file_new_for_root             (void);
++GFile       *thunar_g_file_new_for_trash            (void);
++GFile       *thunar_g_file_new_for_desktop          (void);
++GFile       *thunar_g_file_new_for_computer         (void);
++GFile       *thunar_g_file_new_for_bookmarks        (void);
+ 
+-gboolean  thunar_g_file_is_root                  (GFile                *file);
+-gboolean  thunar_g_file_is_trashed               (GFile                *file);
+-gboolean  thunar_g_file_is_home                  (GFile                *file);
+-gboolean  thunar_g_file_is_trash                 (GFile                *file);
+-gboolean  thunar_g_file_is_computer              (GFile                *file);
+-gboolean  thunar_g_file_is_network               (GFile                *file);
++gboolean     thunar_g_file_is_root                  (GFile                *file);
++gboolean     thunar_g_file_is_trashed               (GFile                *file);
++gboolean     thunar_g_file_is_home                  (GFile                *file);
++gboolean     thunar_g_file_is_trash                 (GFile                *file);
++gboolean     thunar_g_file_is_computer              (GFile                *file);
++gboolean     thunar_g_file_is_network               (GFile                *file);
+ 
+-GKeyFile *thunar_g_file_query_key_file           (GFile                *file,
+-                                                  GCancellable         *cancellable,
+-                                                  GError              **error);
+-gboolean  thunar_g_file_write_key_file           (GFile                *file,
+-                                                  GKeyFile             *key_file,
+-                                                  GCancellable         *cancellable,
+-                                                  GError              **error);
++GKeyFile    *thunar_g_file_query_key_file           (GFile                *file,
++                                                     GCancellable         *cancellable,
++                                                     GError              **error);
++gboolean     thunar_g_file_write_key_file           (GFile                *file,
++                                                     GKeyFile             *key_file,
++                                                     GCancellable         *cancellable,
++                                                     GError              **error);
+ 
+-gchar    *thunar_g_file_get_location             (GFile                *file);
++gchar       *thunar_g_file_get_location             (GFile                *file);
+ 
+-gchar    *thunar_g_file_get_display_name         (GFile                *file);
++const gchar *thunar_g_file_guess_device_type        (GFile                *file);
++gchar       *thunar_g_file_get_display_name         (GFile                *file);
+ 
+-gchar    *thunar_g_file_get_display_name_remote  (GFile                *file);
++gchar       *thunar_g_file_get_display_name_remote  (GFile                *file);
+ 
+-gboolean  thunar_g_vfs_is_uri_scheme_supported   (const gchar          *scheme);
++gboolean     thunar_g_vfs_is_uri_scheme_supported   (const gchar          *scheme);
+ 
+-gboolean  thunar_g_file_get_free_space           (GFile                *file,
+-                                                  guint64              *fs_free_return,
+-                                                  guint64              *fs_size_return);
++gboolean     thunar_g_file_get_free_space           (GFile                *file,
++                                                     guint64              *fs_free_return,
++                                                     guint64              *fs_size_return);
+ 
+-gchar    *thunar_g_file_get_free_space_string    (GFile                *file,
+-                                                  gboolean              file_size_binary);
++gchar       *thunar_g_file_get_free_space_string    (GFile                *file,
++                                                     gboolean              file_size_binary);
+ 
+ /**
+  * THUNAR_TYPE_G_FILE_LIST:
+@@ -70,27 +71,27 @@ gchar    *thunar_g_file_get_free_space_string    (GFile                *file,
+  **/
+ #define THUNAR_TYPE_G_FILE_LIST (thunar_g_file_list_get_type ())
+ 
+-GType     thunar_g_file_list_get_type               (void);
++GType        thunar_g_file_list_get_type               (void);
+ 
+-GList    *thunar_g_file_list_new_from_string        (const gchar       *string);
+-gchar   **thunar_g_file_list_to_stringv             (GList             *list);
+-GList    *thunar_g_file_list_get_parents            (GList             *list);
++GList       *thunar_g_file_list_new_from_string        (const gchar       *string);
++gchar      **thunar_g_file_list_to_stringv             (GList             *list);
++GList       *thunar_g_file_list_get_parents            (GList             *list);
+ 
+ /* deep copy jobs for GLists */
+-#define   thunar_g_list_append_deep(list,object)    g_list_append (list, g_object_ref (G_OBJECT (object)))
+-#define   thunar_g_list_prepend_deep(list,object)   g_list_prepend (list, g_object_ref (G_OBJECT (object)))
+-#define   thunar_g_list_copy_deep                   thunarx_file_info_list_copy
+-#define   thunar_g_list_free_full                   thunarx_file_info_list_free
++#define      thunar_g_list_append_deep(list,object)    g_list_append (list, g_object_ref (G_OBJECT (object)))
++#define      thunar_g_list_prepend_deep(list,object)   g_list_prepend (list, g_object_ref (G_OBJECT (object)))
++#define      thunar_g_list_copy_deep                   thunarx_file_info_list_copy
++#define      thunar_g_list_free_full                   thunarx_file_info_list_free
+ 
+-gboolean  thunar_g_app_info_launch                  (GAppInfo          *info,
+-                                                     GFile             *working_directory,
+-                                                     GList             *path_list,
+-                                                     GAppLaunchContext *context,
+-                                                     GError           **error);
++gboolean     thunar_g_app_info_launch                  (GAppInfo          *info,
++                                                        GFile             *working_directory,
++                                                        GList             *path_list,
++                                                        GAppLaunchContext *context,
++                                                        GError           **error);
+ 
+-gboolean  thunar_g_app_info_should_show             (GAppInfo          *info);
++gboolean     thunar_g_app_info_should_show             (GAppInfo          *info);
+ 
+-gboolean  thunar_g_vfs_metadata_is_supported        (void);
++gboolean     thunar_g_vfs_metadata_is_supported        (void);
+ 
+ 
+ G_END_DECLS
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index 54fafb21..75d66b2d 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -706,10 +706,12 @@ thunar_list_model_get_value (GtkTreeModel *model,
+ {
+   ThunarGroup *group;
+   const gchar *content_type;
++  const gchar *device_type;
+   const gchar *name;
+   const gchar *real_name;
+   ThunarUser  *user;
+   ThunarFile  *file;
++  GFile       *g_file;
+   gchar       *str;
+ 
+   _thunar_return_if_fail (THUNAR_IS_LIST_MODEL (model));
+@@ -801,6 +803,15 @@ thunar_list_model_get_value (GtkTreeModel *model,
+ 
+     case THUNAR_COLUMN_SIZE:
+       g_value_init (value, G_TYPE_STRING);
++      if (thunar_file_is_mountable (file))
++        {
++          g_file = thunar_file_get_target_location (file);
++          if (g_file == NULL)
++            break;
++          g_value_take_string (value, thunar_g_file_get_free_space_string (g_file, THUNAR_LIST_MODEL (model)->file_size_binary));
++          g_object_unref (g_file);
++          break;
++        }
+       if (!thunar_file_is_directory (file))
+         g_value_take_string (value, thunar_file_get_size_string_formatted (file, THUNAR_LIST_MODEL (model)->file_size_binary));
+       break;
+@@ -813,12 +824,21 @@ thunar_list_model_get_value (GtkTreeModel *model,
+     case THUNAR_COLUMN_TYPE:
+       g_value_init (value, G_TYPE_STRING);
+       if (G_UNLIKELY (thunar_file_is_symlink (file)))
+-        g_value_take_string (value, g_strdup_printf (_("link to %s"), thunar_file_get_symlink_target (file)));
+-      else
+         {
+-          content_type = thunar_file_get_content_type (file);
+-          if (content_type != NULL)
+-            g_value_take_string (value, g_content_type_get_description (content_type));
++          g_value_take_string (value, g_strdup_printf (_("link to %s"), thunar_file_get_symlink_target (file)));
++          break;
++        }
++      device_type = thunar_file_get_device_type (file);
++      if (device_type != NULL)
++        {
++          g_value_take_string (value, g_strdup (device_type));
++          break;
++        }
++      content_type = thunar_file_get_content_type (file);
++      if (content_type != NULL)
++        {
++          g_value_take_string (value, g_content_type_get_description (content_type));
++          break;
+         }
+       break;
+ 

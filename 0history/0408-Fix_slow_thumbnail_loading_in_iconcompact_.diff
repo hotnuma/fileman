@@ -1,0 +1,13 @@
+diff --git a/thunar/thunar-thumbnailer.c b/thunar/thunar-thumbnailer.c
+index 09d517f8..966e831a 100644
+--- a/thunar/thunar-thumbnailer.c
++++ b/thunar/thunar-thumbnailer.c
+@@ -1154,7 +1154,7 @@ thunar_thumbnailer_queue_files (ThunarThumbnailer   *thumbnailer,
+   if (success)
+     {
+       thumbnailer->jobs = g_slist_prepend (thumbnailer->jobs, job);
+-      if (request != NULL)
++      if (*request != 0)
+         *request = job->request;
+     }
+   else

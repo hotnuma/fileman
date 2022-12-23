@@ -1,0 +1,60 @@
+diff --git a/configure.ac.in b/configure.ac.in
+index 8c36fe5c..5e3cc6a7 100644
+--- a/configure.ac.in
++++ b/configure.ac.in
+@@ -152,7 +152,7 @@ XDT_CHECK_PACKAGE([GMODULE], [gmodule-2.0], [2.56.0])
+ XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.22.0])
+ XDT_CHECK_PACKAGE([GDK_PIXBUF], [gdk-pixbuf-2.0], [2.14.0])
+ XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.17.1])
+-XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-2], [4.17.2])
++XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-2], [4.17.3])
+ XDT_CHECK_PACKAGE([LIBXFCE4KBD_PRIVATE], [libxfce4kbd-private-3], [4.17.2])
+ XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.12.0])
+ XDT_CHECK_PACKAGE([PANGO], [pango], [1.38.0])
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 0120686e..7d042afc 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -2637,6 +2637,9 @@ thunar_standard_view_key_press_event (GtkWidget          *view,
+       return TRUE;
+     }
+ 
++  if (xfce_gtk_handle_tab_accels (event, standard_view->accel_group, standard_view, thunar_standard_view_action_entries, THUNAR_STANDARD_VIEW_N_ACTIONS) == TRUE)
++    return TRUE;
++
+   return FALSE;
+ }
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 83de10fe..0afbf4ad 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -4046,7 +4046,8 @@ thunar_window_propagate_key_event (GtkWindow* window,
+                                    GdkEvent  *key_event,
+                                    gpointer   user_data)
+ {
+-  GtkWidget* focused_widget;
++  GtkWidget    *focused_widget;
++  ThunarWindow *thunar_window = THUNAR_WINDOW (window);
+ 
+   _thunar_return_val_if_fail (THUNAR_IS_WINDOW (window), GDK_EVENT_PROPAGATE);
+ 
+@@ -4061,6 +4062,18 @@ thunar_window_propagate_key_event (GtkWindow* window,
+   if (focused_widget != NULL && GTK_IS_EDITABLE (focused_widget))
+     return gtk_window_propagate_key_event (window, (GdkEventKey *) key_event);
+ 
++  /* GTK ignores the Tab accelerator by default, handle it manually */
++  if (xfce_gtk_handle_tab_accels ((GdkEventKey *) key_event, thunar_window->accel_group, thunar_window, thunar_window_action_entries, THUNAR_WINDOW_N_ACTIONS) == TRUE)
++    return TRUE;
++
++  /* ThunarLauncher doesn't handle it own shortcuts, so ThunarWindow will handle any Tab-accelerated actions */
++  if (xfce_gtk_handle_tab_accels ((GdkEventKey *) key_event, thunar_window->accel_group, thunar_window->launcher, thunar_launcher_get_action_entries (), THUNAR_LAUNCHER_N_ACTIONS) == TRUE)
++    return TRUE;
++
++  /* ThunarStatusbar doesn't handle it own shortcuts, so ThunarWindow will handle any Tab-accelerated actions */
++  if (xfce_gtk_handle_tab_accels ((GdkEventKey *) key_event, thunar_window->accel_group, thunar_window->statusbar, thunar_statusbar_get_action_entries (), THUNAR_STATUS_BAR_N_ACTIONS) == TRUE)
++    return TRUE;
++
+   return GDK_EVENT_PROPAGATE;
+ }
+ 

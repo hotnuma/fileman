@@ -1,0 +1,717 @@
+diff --git a/thunar/thunar-enum-types.c b/thunar/thunar-enum-types.c
+index eb2db2b4..4976568d 100644
+--- a/thunar/thunar-enum-types.c
++++ b/thunar/thunar-enum-types.c
+@@ -234,6 +234,26 @@ thunar_recursive_permissions_get_type (void)
+ }
+ 
+ 
++GType
++thunar_recursive_search_get_type (void)
++{
++  static GType type = G_TYPE_INVALID;
++  if (G_UNLIKELY (type == G_TYPE_INVALID))
++    {
++      static const GEnumValue values[] =
++        {
++          { THUNAR_RECURSIVE_SEARCH_LOCAL,    "THUNAR_RECURSIVE_SEARCH_LOCAL",        "local",    },
++          { THUNAR_RECURSIVE_SEARCH_ALWAYS,   "THUNAR_RECURSIVE_SEARCH_ALWAYS",       "always",   },
++          { THUNAR_RECURSIVE_SEARCH_NEVER,    "THUNAR_RECURSIVE_SEARCH_NEVER",        "never",    },
++          { 0,                                NULL,                                    NULL,      },
++        };
++
++      type = g_enum_register_static (I_("ThunarRecursiveSearch"), values);
++    }
++
++  return type;
++}
++
+ 
+ GType
+ thunar_zoom_level_get_type (void)
+diff --git a/thunar/thunar-enum-types.h b/thunar/thunar-enum-types.h
+index 1ae8fe1d..4cfa5a31 100644
+--- a/thunar/thunar-enum-types.h
++++ b/thunar/thunar-enum-types.h
+@@ -235,6 +235,25 @@ typedef enum
+ GType thunar_recursive_permissions_get_type (void) G_GNUC_CONST;
+ 
+ 
++#define THUNAR_TYPE_RECURSIVE_SEARCH (thunar_recursive_search_get_type ())
++
++/**
++ * ThunarRecursiveSearchMode:
++ * @THUNAR_RECURSIVE_SEARCH_LOCAL       : do recursive search only locally.
++ * @THUNAR_RECURSIVE_SEARCH_ALWAYS      : always do recursive search.
++ * @THUNAR_RECURSIVE_SEARCH_NEVER       : never do recursive search.
++ *
++ **/
++typedef enum
++{
++  THUNAR_RECURSIVE_SEARCH_LOCAL,
++  THUNAR_RECURSIVE_SEARCH_ALWAYS,
++  THUNAR_RECURSIVE_SEARCH_NEVER,
++} ThunarRecursiveSearchMode;
++
++GType thunar_recursive_search_get_type (void) G_GNUC_CONST;
++
++
+ #define THUNAR_TYPE_ZOOM_LEVEL (thunar_zoom_level_get_type ())
+ 
+ /**
+diff --git a/thunar/thunar-gio-extensions.c b/thunar/thunar-gio-extensions.c
+index ead8be6c..0c712b9a 100644
+--- a/thunar/thunar-gio-extensions.c
++++ b/thunar/thunar-gio-extensions.c
+@@ -1109,3 +1109,67 @@ thunar_g_vfs_metadata_is_supported (void)
+ 
+   return metadata_is_supported;
+ }
++
++
++
++/**
++ * thunar_g_file_is_on_local_device:
++ * @file : the source or target #GFile to test.
++ *
++ * Tries to find if the @file is on a local device or not.
++ * Local device if (all conditions should match):
++ * - the file has a 'file' uri scheme.
++ * - the file is located on devices not handled by the #GVolumeMonitor (GVFS).
++ * - the device is handled by #GVolumeMonitor (GVFS) and cannot be unmounted
++ *   (USB key/disk, fuse mounts, Samba shares, PTP devices).
++ *
++ * The target @file may not exist yet when this function is used, so recurse
++ * the parent directory, possibly reaching the root mountpoint.
++ *
++ * This should be enough to determine if a @file is on a local device or not.
++ *
++ * Return value: %TRUE if #GFile @file is on a so-called local device.
++ **/
++gboolean
++thunar_g_file_is_on_local_device (GFile *file)
++{
++  gboolean  is_local;
++  GFile    *target_file;
++  GFile    *target_parent;
++  GMount   *file_mount;
++
++  _thunar_return_val_if_fail (file != NULL, TRUE);
++  if (g_file_has_uri_scheme (file, "file") == FALSE)
++    return FALSE;
++  target_file = g_object_ref (file); /* start with file */
++  is_local = FALSE;
++  while (target_file != NULL)
++    {
++      if (g_file_query_exists (target_file, NULL))
++        {
++          /* file_mount will be NULL for local files on local partitions/devices */
++          file_mount = g_file_find_enclosing_mount (target_file, NULL, NULL);
++          if (file_mount == NULL)
++            is_local = TRUE;
++          else
++            {
++              /* mountpoints which cannot be unmounted are local devices.
++               * attached devices like USB key/disk, fuse mounts, Samba shares,
++               * PTP devices can always be unmounted and are considered remote/slow. */
++              is_local = ! g_mount_can_unmount (file_mount);
++              g_object_unref (file_mount);
++            }
++          break;
++        }
++      else /* file or parent directory does not exist (yet) */
++        {
++          /* query the parent directory */
++          target_parent = g_file_get_parent (target_file);
++          g_object_unref (target_file);
++          target_file = target_parent;
++        }
++    }
++  g_object_unref (target_file);
++  return is_local;
++}
++
+diff --git a/thunar/thunar-gio-extensions.h b/thunar/thunar-gio-extensions.h
+index 5462c3d8..7957f9ac 100644
+--- a/thunar/thunar-gio-extensions.h
++++ b/thunar/thunar-gio-extensions.h
+@@ -114,6 +114,8 @@ gboolean     thunar_g_app_info_should_show             (GAppInfo          *info)
+ 
+ gboolean     thunar_g_vfs_metadata_is_supported        (void);
+ 
++gboolean     thunar_g_file_is_on_local_device          (GFile             *file);
++
+ G_END_DECLS
+ 
+ #endif /* !__THUNAR_GIO_EXTENSIONS_H__ */
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index 125bace0..dcf96e32 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -72,153 +72,152 @@ typedef gint (*ThunarSortFunc) (const ThunarFile *a,
+                                 const ThunarFile *b,
+                                 gboolean          case_sensitive);
+ 
+-
+-
+-static void               thunar_list_model_tree_model_init       (GtkTreeModelIface      *iface);
+-static void               thunar_list_model_drag_dest_init        (GtkTreeDragDestIface   *iface);
+-static void               thunar_list_model_sortable_init         (GtkTreeSortableIface   *iface);
+-static void               thunar_list_model_dispose               (GObject                *object);
+-static void               thunar_list_model_finalize              (GObject                *object);
+-static void               thunar_list_model_get_property          (GObject                *object,
+-                                                                   guint                   prop_id,
+-                                                                   GValue                 *value,
+-                                                                   GParamSpec             *pspec);
+-static void               thunar_list_model_set_property          (GObject                *object,
+-                                                                   guint                   prop_id,
+-                                                                   const GValue           *value,
+-                                                                   GParamSpec             *pspec);
+-static GtkTreeModelFlags  thunar_list_model_get_flags             (GtkTreeModel           *model);
+-static gint               thunar_list_model_get_n_columns         (GtkTreeModel           *model);
+-static GType              thunar_list_model_get_column_type       (GtkTreeModel           *model,
+-                                                                   gint                    idx);
+-static gboolean           thunar_list_model_get_iter              (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter,
+-                                                                   GtkTreePath            *path);
+-static GtkTreePath       *thunar_list_model_get_path              (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter);
+-static void               thunar_list_model_get_value             (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter,
+-                                                                   gint                    column,
+-                                                                   GValue                 *value);
+-static gboolean           thunar_list_model_iter_next             (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter);
+-static gboolean           thunar_list_model_iter_children         (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter,
+-                                                                   GtkTreeIter            *parent);
+-static gboolean           thunar_list_model_iter_has_child        (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter);
+-static gint               thunar_list_model_iter_n_children       (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter);
+-static gboolean           thunar_list_model_iter_nth_child        (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter,
+-                                                                   GtkTreeIter            *parent,
+-                                                                   gint                    n);
+-static gboolean           thunar_list_model_iter_parent           (GtkTreeModel           *model,
+-                                                                   GtkTreeIter            *iter,
+-                                                                   GtkTreeIter            *child);
+-static gboolean           thunar_list_model_drag_data_received    (GtkTreeDragDest        *dest,
+-                                                                   GtkTreePath            *path,
+-                                                                   GtkSelectionData       *data);
+-static gboolean           thunar_list_model_row_drop_possible     (GtkTreeDragDest        *dest,
+-                                                                   GtkTreePath            *path,
+-                                                                   GtkSelectionData       *data);
+-static gboolean           thunar_list_model_get_sort_column_id    (GtkTreeSortable        *sortable,
+-                                                                   gint                   *sort_column_id,
+-                                                                   GtkSortType            *order);
+-static void               thunar_list_model_set_sort_column_id    (GtkTreeSortable        *sortable,
+-                                                                   gint                    sort_column_id,
+-                                                                   GtkSortType             order);
+-static void               thunar_list_model_set_default_sort_func (GtkTreeSortable        *sortable,
+-                                                                   GtkTreeIterCompareFunc  func,
+-                                                                   gpointer                data,
+-                                                                   GDestroyNotify          destroy);
+-static void               thunar_list_model_set_sort_func         (GtkTreeSortable        *sortable,
+-                                                                   gint                    sort_column_id,
+-                                                                   GtkTreeIterCompareFunc  func,
+-                                                                   gpointer                data,
+-                                                                   GDestroyNotify          destroy);
+-static gboolean           thunar_list_model_has_default_sort_func (GtkTreeSortable        *sortable);
+-static gint               thunar_list_model_cmp_func              (gconstpointer           a,
+-                                                                   gconstpointer           b,
+-                                                                   gpointer                user_data);
+-static void               thunar_list_model_sort                  (ThunarListModel        *store);
+-static void               thunar_list_model_file_changed          (ThunarFileMonitor      *file_monitor,
+-                                                                   ThunarFile             *file,
+-                                                                   ThunarListModel        *store);
+-static void               thunar_list_model_folder_destroy        (ThunarFolder           *folder,
+-                                                                   ThunarListModel        *store);
+-static void               thunar_list_model_folder_error          (ThunarFolder           *folder,
+-                                                                   const GError           *error,
+-                                                                   ThunarListModel        *store);
+-static void               thunar_list_model_files_added           (ThunarFolder           *folder,
+-                                                                   GList                  *files,
+-                                                                   ThunarListModel        *store);
+-static void               thunar_list_model_files_removed         (ThunarFolder           *folder,
+-                                                                   GList                  *files,
+-                                                                   ThunarListModel        *store);
+-static gint               sort_by_date                            (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive,
+-                                                                   gint                    type);
+-static gint               sort_by_date_created                    (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_date_accessed                   (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_date_modified                   (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_date_deleted                    (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_recency                         (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_location                        (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_group                           (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_mime_type                       (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_owner                           (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_permissions                     (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_size                            (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_size_in_bytes                   (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-static gint               sort_by_type                            (const ThunarFile       *a,
+-                                                                   const ThunarFile       *b,
+-                                                                   gboolean                case_sensitive);
+-
+-static gboolean           thunar_list_model_get_case_sensitive    (ThunarListModel        *store);
+-static void               thunar_list_model_set_case_sensitive    (ThunarListModel        *store,
+-                                                                   gboolean                case_sensitive);
+-static ThunarDateStyle    thunar_list_model_get_date_style        (ThunarListModel        *store);
+-static void               thunar_list_model_set_date_style        (ThunarListModel        *store,
+-                                                                   ThunarDateStyle         date_style);
+-static const char*        thunar_list_model_get_date_custom_style (ThunarListModel        *store);
+-static void               thunar_list_model_set_date_custom_style (ThunarListModel        *store,
+-                                                                   const char             *date_custom_style);
+-static gint               thunar_list_model_get_num_files         (ThunarListModel        *store);
+-static gboolean           thunar_list_model_get_folders_first     (ThunarListModel        *store);
+-static ThunarJob*         thunar_list_model_job_search_directory  (ThunarListModel        *model,
+-                                                                   const gchar            *search_query_c,
+-                                                                   ThunarFile             *directory);
+-static void               thunar_list_model_search_folder         (ThunarListModel        *model,
+-                                                                   ThunarJob              *job,
+-                                                                   gchar                  *uri,
+-                                                                   const gchar            *search_query_c);
+-static void               thunar_list_model_cancel_search_job     (ThunarListModel        *model);
++static void               thunar_list_model_tree_model_init       (GtkTreeModelIface           *iface);
++static void               thunar_list_model_drag_dest_init        (GtkTreeDragDestIface        *iface);
++static void               thunar_list_model_sortable_init         (GtkTreeSortableIface        *iface);
++static void               thunar_list_model_dispose               (GObject                     *object);
++static void               thunar_list_model_finalize              (GObject                     *object);
++static void               thunar_list_model_get_property          (GObject                     *object,
++                                                                   guint                        prop_id,
++                                                                   GValue                      *value,
++                                                                   GParamSpec                  *pspec);
++static void               thunar_list_model_set_property          (GObject                     *object,
++                                                                   guint                        prop_id,
++                                                                   const GValue                *value,
++                                                                   GParamSpec                  *pspec);
++static GtkTreeModelFlags  thunar_list_model_get_flags             (GtkTreeModel                *model);
++static gint               thunar_list_model_get_n_columns         (GtkTreeModel                *model);
++static GType              thunar_list_model_get_column_type       (GtkTreeModel                *model,
++                                                                   gint                         idx);
++static gboolean           thunar_list_model_get_iter              (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter,
++                                                                   GtkTreePath                 *path);
++static GtkTreePath       *thunar_list_model_get_path              (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter);
++static void               thunar_list_model_get_value             (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter,
++                                                                   gint                         column,
++                                                                   GValue                      *value);
++static gboolean           thunar_list_model_iter_next             (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter);
++static gboolean           thunar_list_model_iter_children         (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter,
++                                                                   GtkTreeIter                 *parent);
++static gboolean           thunar_list_model_iter_has_child        (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter);
++static gint               thunar_list_model_iter_n_children       (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter);
++static gboolean           thunar_list_model_iter_nth_child        (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter,
++                                                                   GtkTreeIter                 *parent,
++                                                                   gint                         n);
++static gboolean           thunar_list_model_iter_parent           (GtkTreeModel                *model,
++                                                                   GtkTreeIter                 *iter,
++                                                                   GtkTreeIter                 *child);
++static gboolean           thunar_list_model_drag_data_received    (GtkTreeDragDest             *dest,
++                                                                   GtkTreePath                 *path,
++                                                                   GtkSelectionData            *data);
++static gboolean           thunar_list_model_row_drop_possible     (GtkTreeDragDest             *dest,
++                                                                   GtkTreePath                 *path,
++                                                                   GtkSelectionData            *data);
++static gboolean           thunar_list_model_get_sort_column_id    (GtkTreeSortable             *sortable,
++                                                                   gint                        *sort_column_id,
++                                                                   GtkSortType                 *order);
++static void               thunar_list_model_set_sort_column_id    (GtkTreeSortable             *sortable,
++                                                                   gint                         sort_column_id,
++                                                                   GtkSortType                  order);
++static void               thunar_list_model_set_default_sort_func (GtkTreeSortable             *sortable,
++                                                                   GtkTreeIterCompareFunc       func,
++                                                                   gpointer                     data,
++                                                                   GDestroyNotify               destroy);
++static void               thunar_list_model_set_sort_func         (GtkTreeSortable             *sortable,
++                                                                   gint                         sort_column_id,
++                                                                   GtkTreeIterCompareFunc       func,
++                                                                   gpointer                     data,
++                                                                   GDestroyNotify               destroy);
++static gboolean           thunar_list_model_has_default_sort_func (GtkTreeSortable             *sortable);
++static gint               thunar_list_model_cmp_func              (gconstpointer                a,
++                                                                   gconstpointer                b,
++                                                                   gpointer                     user_data);
++static void               thunar_list_model_sort                  (ThunarListModel             *store);
++static void               thunar_list_model_file_changed          (ThunarFileMonitor           *file_monitor,
++                                                                   ThunarFile                  *file,
++                                                                   ThunarListModel             *store);
++static void               thunar_list_model_folder_destroy        (ThunarFolder                *folder,
++                                                                   ThunarListModel             *store);
++static void               thunar_list_model_folder_error          (ThunarFolder                *folder,
++                                                                   const GError                *error,
++                                                                   ThunarListModel             *store);
++static void               thunar_list_model_files_added           (ThunarFolder                *folder,
++                                                                   GList                       *files,
++                                                                   ThunarListModel             *store);
++static void               thunar_list_model_files_removed         (ThunarFolder                *folder,
++                                                                   GList                       *files,
++                                                                   ThunarListModel             *store);
++static gint               sort_by_date                            (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive,
++                                                                   gint                         type);
++static gint               sort_by_date_created                    (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_date_accessed                   (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_date_modified                   (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_date_deleted                    (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_recency                         (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_location                        (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_group                           (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_mime_type                       (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_owner                           (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_permissions                     (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_size                            (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_size_in_bytes                   (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++static gint               sort_by_type                            (const ThunarFile            *a,
++                                                                   const ThunarFile            *b,
++                                                                   gboolean                     case_sensitive);
++    
++static gboolean           thunar_list_model_get_case_sensitive    (ThunarListModel             *store);
++static void               thunar_list_model_set_case_sensitive    (ThunarListModel             *store,
++                                                                   gboolean                     case_sensitive);
++static ThunarDateStyle    thunar_list_model_get_date_style        (ThunarListModel             *store);
++static void               thunar_list_model_set_date_style        (ThunarListModel             *store,
++                                                                   ThunarDateStyle              date_style);
++static const char*        thunar_list_model_get_date_custom_style (ThunarListModel             *store);
++static void               thunar_list_model_set_date_custom_style (ThunarListModel             *store,
++                                                                   const char                  *date_custom_style);
++static gint               thunar_list_model_get_num_files         (ThunarListModel             *store);
++static gboolean           thunar_list_model_get_folders_first     (ThunarListModel             *store);
++static ThunarJob*         thunar_list_model_job_search_directory  (ThunarListModel             *model,
++                                                                   const gchar                 *search_query_c,
++                                                                   ThunarFile                  *directory);
++static void               thunar_list_model_search_folder         (ThunarListModel             *model,
++                                                                   ThunarJob                   *job,
++                                                                   gchar                       *uri,
++                                                                   const gchar                 *search_query_c,
++                                                                   enum ThunarListModelSearch   search_type);
++static void               thunar_list_model_cancel_search_job     (ThunarListModel             *model);
+ 
+ 
+ 
+@@ -2107,9 +2106,23 @@ _thunar_job_search_directory (ThunarJob  *job,
+                                GArray     *param_values,
+                                GError    **error)
+ {
+-  ThunarListModel *model;
+-  ThunarFile      *directory;
+-  const char      *search_query_c;
++  ThunarListModel            *model;
++  ThunarFile                 *directory;
++  const char                 *search_query_c;
++  ThunarPreferences          *preferences;
++  gboolean                    is_source_device_local;
++  ThunarRecursiveSearchMode   mode;
++  enum ThunarListModelSearch  search_type;
++
++  search_type = THUNAR_LIST_MODEL_SEARCH_NON_RECURSIVE;
++
++  /* grab a reference on the preferences */
++  preferences = thunar_preferences_get ();
++
++  /* determine the current recursive search mode */
++  g_object_get (G_OBJECT (preferences), "misc-recursive-search", &mode, NULL);
++
++  g_object_unref (preferences);
+ 
+   if (exo_job_set_error_if_cancelled (EXO_JOB (job), error))
+     return FALSE;
+@@ -2118,7 +2131,11 @@ _thunar_job_search_directory (ThunarJob  *job,
+   search_query_c = g_value_get_string (&g_array_index (param_values, GValue, 1));
+   directory = g_value_get_object (&g_array_index (param_values, GValue, 2));
+ 
+-  thunar_list_model_search_folder (model, job, thunar_file_dup_uri (directory), search_query_c);
++  is_source_device_local = thunar_g_file_is_on_local_device (thunar_file_get_file (directory));
++  if (mode == THUNAR_RECURSIVE_SEARCH_ALWAYS || (mode == THUNAR_RECURSIVE_SEARCH_LOCAL && is_source_device_local))
++    search_type = THUNAR_LIST_MODEL_SEARCH_RECURSIVE;
++
++  thunar_list_model_search_folder (model, job, thunar_file_dup_uri (directory), search_query_c, search_type);
+ 
+   return TRUE;
+ }
+@@ -2189,10 +2206,11 @@ search_finished (ThunarJob       *job,
+ 
+ 
+ static void
+-thunar_list_model_search_folder (ThunarListModel  *model,
+-                                 ThunarJob        *job,
+-                                 gchar            *uri,
+-                                 const gchar      *search_query_c)
++thunar_list_model_search_folder (ThunarListModel           *model,
++                                 ThunarJob                 *job,
++                                 gchar                     *uri,
++                                 const gchar               *search_query_c,
++                                 enum ThunarListModelSearch search_type)
+ {
+   GCancellable    *cancellable;
+   GFileEnumerator *enumerator;
+@@ -2247,9 +2265,9 @@ thunar_list_model_search_folder (ThunarListModel  *model,
+         }
+ 
+       /* handle directories */
+-      if (type == G_FILE_TYPE_DIRECTORY)
++      if (type == G_FILE_TYPE_DIRECTORY && search_type == THUNAR_LIST_MODEL_SEARCH_RECURSIVE)
+         {
+-          thunar_list_model_search_folder (model, job, g_file_get_uri (file), search_query_c);
++          thunar_list_model_search_folder (model, job, g_file_get_uri (file), search_query_c, search_type);
+           /* continue; don't add non-leaf directories in the results */
+         }
+ 
+diff --git a/thunar/thunar-list-model.h b/thunar/thunar-list-model.h
+index f1c2ee2e..1fe967ae 100644
+--- a/thunar/thunar-list-model.h
++++ b/thunar/thunar-list-model.h
+@@ -28,6 +28,12 @@ G_BEGIN_DECLS;
+ typedef struct _ThunarListModelClass ThunarListModelClass;
+ typedef struct _ThunarListModel      ThunarListModel;
+ 
++typedef enum ThunarListModelSearch
++{
++    THUNAR_LIST_MODEL_SEARCH_RECURSIVE,
++    THUNAR_LIST_MODEL_SEARCH_NON_RECURSIVE
++}  ThunarListModelSearch;
++
+ #define THUNAR_TYPE_LIST_MODEL            (thunar_list_model_get_type ())
+ #define THUNAR_LIST_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_LIST_MODEL, ThunarListModel))
+ #define THUNAR_LIST_MODEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_LIST_MODEL, ThunarListModelClass))
+diff --git a/thunar/thunar-preferences-dialog.c b/thunar/thunar-preferences-dialog.c
+index 7266ff59..97b2cd4e 100644
+--- a/thunar/thunar-preferences-dialog.c
++++ b/thunar/thunar-preferences-dialog.c
+@@ -1008,6 +1008,7 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_set_margin_top (GTK_WIDGET (grid), 6);
+   gtk_widget_set_margin_start (GTK_WIDGET (grid), 12);
+   gtk_container_add (GTK_CONTAINER (frame), grid);
++  gtk_grid_set_column_homogeneous (GTK_GRID (grid), TRUE);
+   gtk_widget_show (grid);
+ 
+   label = gtk_label_new_with_mnemonic (_("Transfer files in parallel:"));
+@@ -1113,6 +1114,47 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
+   gtk_widget_show (frame);
+ 
++  label = gtk_label_new (_("Search"));
++  gtk_label_set_attributes (GTK_LABEL (label), thunar_pango_attr_list_bold ());
++  gtk_frame_set_label_widget (GTK_FRAME (frame), label);
++  gtk_widget_show (label);
++
++  /* new grid */
++  row = 0;
++
++  grid = gtk_grid_new ();
++  gtk_grid_set_column_spacing (GTK_GRID (grid), 12);
++  gtk_grid_set_row_spacing (GTK_GRID (grid), 6);
++  gtk_widget_set_margin_top (GTK_WIDGET (grid), 6);
++  gtk_widget_set_margin_start (GTK_WIDGET (grid), 12);
++  gtk_container_add (GTK_CONTAINER (frame), grid);
++  gtk_grid_set_column_homogeneous (GTK_GRID (grid), TRUE);
++  gtk_widget_show (grid);
++
++  label = gtk_label_new_with_mnemonic (_("Include subfolders"));
++  gtk_label_set_xalign (GTK_LABEL (label), 0.0f);
++  gtk_grid_attach (GTK_GRID (grid), label, 0, row, 1, 1);
++  gtk_widget_show (label);
++
++  combo = gtk_combo_box_text_new ();
++  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Local Files Only"));
++  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Always"));
++  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Never"));
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-recursive-search",
++                          G_OBJECT (combo),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
++  gtk_widget_set_hexpand (combo, TRUE);
++  gtk_grid_attach (GTK_GRID (grid), combo, 1, row, 1, 1);
++  thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
++  gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
++  gtk_widget_show (combo);
++
++  frame = g_object_new (GTK_TYPE_FRAME, "border-width", 0, "shadow-type", GTK_SHADOW_NONE, NULL);
++  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
++  gtk_widget_show (frame);
++
+   label = gtk_label_new (_("Folder Permissions"));
+   gtk_label_set_attributes (GTK_LABEL (label), thunar_pango_attr_list_bold ());
+   gtk_frame_set_label_widget (GTK_FRAME (frame), label);
+diff --git a/thunar/thunar-preferences.c b/thunar/thunar-preferences.c
+index 723e95c1..7fb7cda9 100644
+--- a/thunar/thunar-preferences.c
++++ b/thunar/thunar-preferences.c
+@@ -95,6 +95,7 @@ enum
+   PROP_MISC_MIDDLE_CLICK_IN_TAB,
+   PROP_MISC_OPEN_NEW_WINDOW_AS_TAB,
+   PROP_MISC_RECURSIVE_PERMISSIONS,
++  PROP_MISC_RECURSIVE_SEARCH,
+   PROP_MISC_REMEMBER_GEOMETRY,
+   PROP_MISC_SHOW_ABOUT_TEMPLATES,
+   PROP_MISC_SHOW_DELETE_ACTION,
+@@ -760,6 +761,19 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
+                          THUNAR_RECURSIVE_PERMISSIONS_ASK,
+                          EXO_PARAM_READWRITE);
+ 
++  /**
++   * ThunarPreferences:misc-recursive-search:
++   *
++   * Whether to search only in the current folder or recursively
++  **/
++  preferences_props[PROP_MISC_RECURSIVE_SEARCH] =
++       g_param_spec_enum ("misc-recursive-search",
++                          "MiscRecursiveSearch",
++                          NULL,
++                          THUNAR_TYPE_RECURSIVE_SEARCH,
++                          THUNAR_RECURSIVE_SEARCH_ALWAYS,
++                          EXO_PARAM_READWRITE);
++
+   /**
+    * ThunarPreferences:misc-remember-geometry:
+    *
+diff --git a/thunar/thunar-transfer-job.c b/thunar/thunar-transfer-job.c
+index 75ff0c11..38fab108 100644
+--- a/thunar/thunar-transfer-job.c
++++ b/thunar/thunar-transfer-job.c
+@@ -1373,67 +1373,6 @@ thunar_transfer_job_device_id_in_job_list (const char *device_fs_id,
+ }
+ 
+ 
+-/**
+- * thunar_transfer_job_is_file_on_local_device:
+- * @file : the source or target #GFile to test.
+- *
+- * Tries to find if the @file is on a local device or not.
+- * Local device if (all conditions should match):
+- * - the file has a 'file' uri scheme.
+- * - the file is located on devices not handled by the #GVolumeMonitor (GVFS).
+- * - the device is handled by #GVolumeMonitor (GVFS) and cannot be unmounted
+- *   (USB key/disk, fuse mounts, Samba shares, PTP devices).
+- *
+- * The target @file may not exist yet when this function is used, so recurse
+- * the parent directory, possibly reaching the root mountpoint.
+- *
+- * This should be enough to determine if a @file is on a local device or not.
+- *
+- * Return value: %TRUE if #GFile @file is on a so-called local device.
+- **/
+-static gboolean
+-thunar_transfer_job_is_file_on_local_device (GFile *file)
+-{
+-  gboolean  is_local;
+-  GFile    *target_file;
+-  GFile    *target_parent;
+-  GMount   *file_mount;
+-
+-  _thunar_return_val_if_fail (file != NULL, TRUE);
+-  if (g_file_has_uri_scheme (file, "file") == FALSE)
+-    return FALSE;
+-  target_file = g_object_ref (file); /* start with file */
+-  is_local = FALSE;
+-  while (target_file != NULL)
+-    {
+-      if (g_file_query_exists (target_file, NULL))
+-        {
+-          /* file_mount will be NULL for local files on local partitions/devices */
+-          file_mount = g_file_find_enclosing_mount (target_file, NULL, NULL);
+-          if (file_mount == NULL)
+-            is_local = TRUE;
+-          else
+-            {
+-              /* mountpoints which cannot be unmounted are local devices.
+-               * attached devices like USB key/disk, fuse mounts, Samba shares,
+-               * PTP devices can always be unmounted and are considered remote/slow. */
+-              is_local = ! g_mount_can_unmount (file_mount);
+-              g_object_unref (file_mount);
+-            }
+-          break;
+-        }
+-      else /* file or parent directory does not exist (yet) */
+-        {
+-          /* query the parent directory */
+-          target_parent = g_file_get_parent (target_file);
+-          g_object_unref (target_file);
+-          target_file = target_parent;
+-        }
+-    }
+-  g_object_unref (target_file);
+-  return is_local;
+-}
+-
+ 
+ static void
+ thunar_transfer_job_fill_source_device_info (ThunarTransferJob *transfer_job,
+@@ -1451,7 +1390,7 @@ thunar_transfer_job_fill_source_device_info (ThunarTransferJob *transfer_job,
+       transfer_job->source_device_fs_id = g_strdup (g_file_info_get_attribute_string (file_info, G_FILE_ATTRIBUTE_ID_FILESYSTEM));
+       g_object_unref (file_info);
+     }
+-  transfer_job->is_source_device_local = thunar_transfer_job_is_file_on_local_device (file);
++  transfer_job->is_source_device_local = thunar_g_file_is_on_local_device (file);
+ }
+ 
+ 
+@@ -1491,7 +1430,7 @@ thunar_transfer_job_fill_target_device_info (ThunarTransferJob *transfer_job,
+         }
+     }
+   g_object_unref (target_file);
+-  transfer_job->is_target_device_local = thunar_transfer_job_is_file_on_local_device (file);
++  transfer_job->is_target_device_local = thunar_g_file_is_on_local_device (file);
+ }
+ 
+ 

@@ -1,0 +1,649 @@
+diff --git a/configure.ac.in b/configure.ac.in
+index c2ee3797..b9ea8e37 100644
+--- a/configure.ac.in
++++ b/configure.ac.in
+@@ -146,10 +146,10 @@ dnl ***********************************
+ dnl *** Check for required packages ***
+ dnl ***********************************
+ XDT_CHECK_PACKAGE([EXO], [exo-2], [4.17.0])
+-XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.50.0])
+-XDT_CHECK_PACKAGE([GIO], [gio-2.0], [2.50.0])
+-XDT_CHECK_PACKAGE([GTHREAD], [gthread-2.0], [2.50.0])
+-XDT_CHECK_PACKAGE([GMODULE], [gmodule-2.0], [2.50.0])
++XDT_CHECK_PACKAGE([GLIB], [glib-2.0], [2.56.0])
++XDT_CHECK_PACKAGE([GIO], [gio-2.0], [2.56.0])
++XDT_CHECK_PACKAGE([GTHREAD], [gthread-2.0], [2.56.0])
++XDT_CHECK_PACKAGE([GMODULE], [gmodule-2.0], [2.56.0])
+ XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.22.0])
+ XDT_CHECK_PACKAGE([GDK_PIXBUF], [gdk-pixbuf-2.0], [2.14.0])
+ XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.17.0])
+@@ -158,8 +158,8 @@ XDT_CHECK_PACKAGE([LIBXFCE4KBD_PRIVATE], [libxfce4kbd-private-3], [4.12.0])
+ XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.12.0])
+ XDT_CHECK_PACKAGE([PANGO], [pango], [1.38.0])
+ 
+-AC_DEFINE(GLIB_VERSION_MIN_REQUIRED, GLIB_VERSION_2_50, [Ignore post 2.50 deprecations])
+-AC_DEFINE(GLIB_VERSION_MAX_ALLOWED, GLIB_VERSION_2_50, [Prevent post 2.50 APIs])
++AC_DEFINE(GLIB_VERSION_MIN_REQUIRED, GLIB_VERSION_2_56, [Ignore post 2.56 deprecations])
++AC_DEFINE(GLIB_VERSION_MAX_ALLOWED, GLIB_VERSION_2_56, [Prevent post 2.56 APIs])
+ 
+ dnl ******************************
+ dnl *** GObject Instrospection ***
+diff --git a/docs/reference/thunarx/thunarx.actions b/docs/reference/thunarx/thunarx.actions
+deleted file mode 100644
+index e69de29b..00000000
+diff --git a/thunar/thunar-enum-types.c b/thunar/thunar-enum-types.c
+index f79f1937..6b6e8153 100644
+--- a/thunar/thunar-enum-types.c
++++ b/thunar/thunar-enum-types.c
+@@ -524,3 +524,26 @@ thunar_file_mode_get_type (void)
+     }
+   return type;
+ }
++
++
++
++GType
++thunar_use_partial_get_type (void)
++{
++  static GType type = G_TYPE_INVALID;
++
++  if (G_UNLIKELY (type == G_TYPE_INVALID))
++    {
++      static const GEnumValue values[] =
++      {
++        { THUNAR_USE_PARTIAL_MODE_DISABLED,    "THUNAR_USE_PARTIAL_MODE_NEVER",    N_("Never"),},
++        { THUNAR_USE_PARTIAL_MODE_REMOTE_ONLY, "THUNAR_USE_PARTIAL_MODE_REMOTE",   N_("Only for remote location"),},
++        { THUNAR_USE_PARTIAL_MODE_ALWAYS,      "THUNAR_USE_PARTIAL_MODE_ALWAYS",   N_("Always"),},
++        { 0,                                NULL,                               NULL,},
++      };
++
++      type = g_enum_register_static (I_("ThunarUsePartialMode"), values);
++    }
++
++  return type;
++}
+diff --git a/thunar/thunar-enum-types.h b/thunar/thunar-enum-types.h
+index b0908a4c..39405320 100644
+--- a/thunar/thunar-enum-types.h
++++ b/thunar/thunar-enum-types.h
+@@ -328,6 +328,25 @@ GType thunar_file_mode_get_type (void) G_GNUC_CONST;
+ 
+ 
+ 
++#define THUNAR_TYPE_USE_PARTIAL_MODE (thunar_use_partial_get_type ())
++
++/**
++ * ThunarUsePartialMode:
++ * @THUNAR_USE_PARTIAL_MODE_DISABLED    : Disable *.partial~
++ * @THUNAR_USE_PARTIAL_MODE_REMOTE_ONLY : Only when src/dst is remote
++ * @THUNAR_USE_PARTIAL_MODE_ALWAYS      : Always copy to *.partial~
++ **/
++typedef enum
++{
++  THUNAR_USE_PARTIAL_MODE_DISABLED,
++  THUNAR_USE_PARTIAL_MODE_REMOTE_ONLY,
++  THUNAR_USE_PARTIAL_MODE_ALWAYS,
++} ThunarUsePartialMode;
++
++GType thunar_use_partial_get_type (void) G_GNUC_CONST;
++
++
++
+ /**
+  * ThunarNewTabBehavior:
+  * @THUNAR_NEW_TAB_BEHAVIOR_FOLLOW_PREFERENCE   : switching to the new tab or not is controlled by a preference.
+diff --git a/thunar/thunar-gio-extensions.c b/thunar/thunar-gio-extensions.c
+index 46837dc2..a5cd89b1 100644
+--- a/thunar/thunar-gio-extensions.c
++++ b/thunar/thunar-gio-extensions.c
+@@ -645,6 +645,115 @@ thunar_g_file_list_get_type (void)
+ 
+ 
+ 
++/**
++ * thunar_g_file_copy:
++ * @source                 : input #GFile
++ * @destination            : destination #GFile
++ * @flags                  : set of #GFileCopyFlags
++ * @use_partial            : option to use *.partial~
++ * @cancellable            : (nullable): optional GCancellable object
++ * @progress_callback      : (nullable) (scope call): function to callback with progress information
++ * @progress_callback_data : (clousure): user data to pass to @progress_callback
++ * @error                  : (nullable): #GError to set on error
++ *
++ * Calls g_file_copy() if @use_partial is not enabled.
++ * If enabled, copies files to *.partial~ first and then
++ * renames *.partial~ into its original name.
++ *
++ * Return value: %TRUE on success, %FALSE otherwise.
++ **/
++gboolean
++thunar_g_file_copy (GFile                *source,
++                    GFile                *destination,
++                    GFileCopyFlags        flags,
++                    gboolean              use_partial,
++                    GCancellable         *cancellable,
++                    GFileProgressCallback progress_callback,
++                    gpointer              progress_callback_data,
++                    GError              **error)
++{
++  gboolean            success;
++  GFileQueryInfoFlags query_flags;
++  GFileInfo          *info = NULL;
++  GFile              *parent;
++  GFile              *partial;
++  gchar              *partial_name;
++  gchar              *base_name;
++
++  _thunar_return_val_if_fail (g_file_has_parent (destination, NULL), FALSE);
++
++  if (use_partial)
++    {
++      query_flags = (flags & G_FILE_COPY_NOFOLLOW_SYMLINKS) ? G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS : G_FILE_QUERY_INFO_NONE;
++      info = g_file_query_info (source,
++                                G_FILE_ATTRIBUTE_STANDARD_TYPE,
++                                query_flags,
++                                cancellable,
++                                NULL);
++    }
++
++  /* directory does not need .partial */
++  if (info == NULL)
++    {
++      use_partial = FALSE;
++    }
++  else
++    {
++      use_partial = g_file_info_get_file_type (info) == G_FILE_TYPE_REGULAR;
++      g_clear_object (&info);
++    }
++
++  if (!use_partial)
++    {
++      return g_file_copy (source, destination, flags, cancellable, progress_callback, progress_callback_data, error);
++    }
++
++  /* check destination */
++  if (g_file_query_exists (destination, NULL))
++    {
++      /* Try to mimic g_file_copy() error */
++      if (error != NULL)
++        *error = g_error_new (G_IO_ERROR, G_IO_ERROR_EXISTS,
++                              "Error opening file \"%s\": File exists", g_file_peek_path (destination));
++      return FALSE;
++    }
++
++  /* generate partial file name */
++  base_name    = g_file_get_basename (destination);
++  if (base_name == NULL)
++    {
++      base_name = g_strdup ("UNNAMED");
++    }
++
++  /* limit filename length */
++  partial_name = g_strdup_printf ("%.100s.partial~", base_name);
++  parent       = g_file_get_parent (destination);
++
++  /* parent can't be NULL since destination must be a file */
++  partial      = g_file_get_child (parent, partial_name);
++  g_clear_object (&parent);
++  g_free (partial_name);
++
++  /* check if partial file exists */
++  if (g_file_query_exists (partial, NULL))
++    g_file_delete (partial, NULL, error);
++
++  /* copy file to .partial */
++  success = g_file_copy (source, partial, flags, cancellable, progress_callback, progress_callback_data, error);
++
++  /* rename .partial if done without problem */
++  if (success)
++    {
++      success = (g_file_set_display_name (partial, base_name, NULL, error) != NULL);
++    }
++
++  g_clear_object (&partial);
++  g_free (base_name);
++  return success;
++}
++
++
++
+ /**
+  * thunar_g_file_list_new_from_string:
+  * @string : a string representation of an URI list.
+diff --git a/thunar/thunar-gio-extensions.h b/thunar/thunar-gio-extensions.h
+index 5a84fe4c..aba839c7 100644
+--- a/thunar/thunar-gio-extensions.h
++++ b/thunar/thunar-gio-extensions.h
+@@ -67,6 +67,15 @@ gboolean     thunar_g_file_get_free_space           (GFile                *file,
+ gchar       *thunar_g_file_get_free_space_string    (GFile                *file,
+                                                      gboolean              file_size_binary);
+ 
++gboolean     thunar_g_file_copy                     (GFile                *source,
++                                                     GFile                *destination,
++                                                     GFileCopyFlags        flags,
++                                                     gboolean              use_partial,
++                                                     GCancellable         *cancellable,
++                                                     GFileProgressCallback progress_callback,
++                                                     gpointer              progress_callback_data,
++                                                     GError              **error);
++
+ /**
+  * THUNAR_TYPE_G_FILE_LIST:
+  *
+@@ -97,7 +106,6 @@ gboolean     thunar_g_app_info_should_show             (GAppInfo          *info)
+ 
+ gboolean     thunar_g_vfs_metadata_is_supported        (void);
+ 
+-
+ G_END_DECLS
+ 
+ #endif /* !__THUNAR_GIO_EXTENSIONS_H__ */
+diff --git a/thunar/thunar-preferences-dialog.c b/thunar/thunar-preferences-dialog.c
+index 8d3a35e1..89873e93 100644
+--- a/thunar/thunar-preferences-dialog.c
++++ b/thunar/thunar-preferences-dialog.c
+@@ -158,15 +158,16 @@ transform_view_index_to_string (GBinding     *binding,
+ 
+ 
+ static gboolean
+-transform_thumbnail_mode_to_index (GBinding     *binding,
+-                                   const GValue *src_value,
+-                                   GValue       *dst_value,
+-                                   gpointer      user_data)
++transform_enum_value_to_index (GBinding     *binding,
++                         const GValue *src_value,
++                         GValue       *dst_value,
++                         gpointer      user_data)
+ {
+   GEnumClass *klass;
++  GType     (*type_func)() = user_data;
+   guint       n;
+ 
+-  klass = g_type_class_ref (THUNAR_TYPE_THUMBNAIL_MODE);
++  klass = g_type_class_ref (type_func ());
+   for (n = 0; n < klass->n_values; ++n)
+     if (klass->values[n].value == g_value_get_enum (src_value))
+       g_value_set_int (dst_value, n);
+@@ -178,51 +179,15 @@ transform_thumbnail_mode_to_index (GBinding     *binding,
+ 
+ 
+ static gboolean
+-transform_thumbnail_index_to_mode (GBinding     *binding,
+-                                   const GValue *src_value,
+-                                   GValue       *dst_value,
+-                                   gpointer      user_data)
++transform_index_to_enum_value (GBinding     *binding,
++                         const GValue *src_value,
++                         GValue       *dst_value,
++                         gpointer      user_data)
+ {
+   GEnumClass *klass;
++  GType     (*type_func)() = user_data;
+ 
+-  klass = g_type_class_ref (THUNAR_TYPE_THUMBNAIL_MODE);
+-  g_value_set_enum (dst_value, klass->values[g_value_get_int (src_value)].value);
+-  g_type_class_unref (klass);
+-
+-  return TRUE;
+-}
+-
+-
+-
+-static gboolean
+-transform_parallel_copy_mode_to_index (GBinding     *binding,
+-                                       const GValue *src_value,
+-                                       GValue       *dst_value,
+-                                       gpointer      user_data)
+-{
+-  GEnumClass *klass;
+-  guint       n;
+-
+-  klass = g_type_class_ref (THUNAR_TYPE_PARALLEL_COPY_MODE);
+-  for (n = 0; n < klass->n_values; ++n)
+-    if (klass->values[n].value == g_value_get_enum (src_value))
+-      g_value_set_int (dst_value, n);
+-  g_type_class_unref (klass);
+-
+-  return TRUE;
+-}
+-
+-
+-
+-static gboolean
+-transform_parallel_copy_index_to_mode (GBinding     *binding,
+-                                       const GValue *src_value,
+-                                       GValue       *dst_value,
+-                                       gpointer      user_data)
+-{
+-  GEnumClass *klass;
+-
+-  klass = g_type_class_ref (THUNAR_TYPE_PARALLEL_COPY_MODE);
++  klass = g_type_class_ref (type_func ());
+   g_value_set_enum (dst_value, klass->values[g_value_get_int (src_value)].value);
+   g_type_class_unref (klass);
+ 
+@@ -281,6 +246,7 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   GtkWidget      *ibox;
+   GtkWidget      *vbox;
+   GtkWidget      *infobar;
++  GEnumClass     *type;
+   gchar          *path;
+   gchar          *date;
+ 
+@@ -377,9 +343,9 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+                                G_OBJECT (combo),
+                                "active",
+                                G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
+-                               transform_thumbnail_mode_to_index,
+-                               transform_thumbnail_index_to_mode,
+-                               NULL, NULL);
++                               transform_enum_value_to_index,
++                               transform_index_to_enum_value,
++                               (gpointer) thunar_thumbnail_mode_get_type, NULL);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 1, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -849,6 +815,50 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
+   gtk_widget_show (frame);
+ 
++  if (thunar_g_vfs_is_uri_scheme_supported ("trash"))
++    {
++      frame = g_object_new (GTK_TYPE_FRAME, "border-width", 0, "shadow-type", GTK_SHADOW_NONE, NULL);
++      gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
++      gtk_widget_show (frame);
++
++      label = gtk_label_new (_("Context Menu"));
++      gtk_label_set_attributes (GTK_LABEL (label), thunar_pango_attr_list_bold ());
++      gtk_frame_set_label_widget (GTK_FRAME (frame), label);
++      gtk_widget_show (label);
++
++      grid = gtk_grid_new ();
++      gtk_grid_set_column_spacing (GTK_GRID (grid), 12);
++      gtk_grid_set_row_spacing (GTK_GRID (grid), 2);
++      gtk_container_set_border_width (GTK_CONTAINER (grid), 12);
++      gtk_container_add (GTK_CONTAINER (frame), grid);
++      gtk_widget_show (grid);
++
++      button = gtk_check_button_new_with_mnemonic (_("Show action to permanently delete files and folders"));
++      g_object_bind_property (G_OBJECT (dialog->preferences),
++                              "misc-show-delete-action",
++                              G_OBJECT (button),
++                              "active",
++                              G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
++      gtk_widget_set_tooltip_text (button, _("Select this option to show the 'Delete' action in the context menu"));
++      gtk_widget_set_hexpand (button, TRUE);
++      gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
++      gtk_widget_show (button);
++    }
++
++  /*
++     Advanced
++   */
++
++  label = gtk_label_new (_("Advanced"));
++  vbox = g_object_new (GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "border-width", 12, "spacing", 18, NULL);
++  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox, label);
++  gtk_widget_show (label);
++  gtk_widget_show (vbox);
++
++  frame = g_object_new (GTK_TYPE_FRAME, "border-width", 0, "shadow-type", GTK_SHADOW_NONE, NULL);
++  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
++  gtk_widget_show (frame);
++
+   label = gtk_label_new (_("File transfer"));
+   gtk_label_set_attributes (GTK_LABEL (label), thunar_pango_attr_list_bold ());
+   gtk_frame_set_label_widget (GTK_FRAME (frame), label);
+@@ -856,8 +866,9 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+ 
+   grid = gtk_grid_new ();
+   gtk_grid_set_column_spacing (GTK_GRID (grid), 12);
+-  gtk_grid_set_row_spacing (GTK_GRID (grid), 2);
+-  gtk_container_set_border_width (GTK_CONTAINER (grid), 12);
++  gtk_grid_set_row_spacing (GTK_GRID (grid), 6);
++  gtk_widget_set_margin_top (GTK_WIDGET (grid), 6);
++  gtk_widget_set_margin_start (GTK_WIDGET (grid), 12);
+   gtk_container_add (GTK_CONTAINER (frame), grid);
+   gtk_widget_show (grid);
+ 
+@@ -883,53 +894,45 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+                                G_OBJECT (combo),
+                                "active",
+                                G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
+-                               transform_parallel_copy_mode_to_index,
+-                               transform_parallel_copy_index_to_mode,
+-                               NULL, NULL);
++                               transform_enum_value_to_index,
++                               transform_index_to_enum_value,
++                               (gpointer) thunar_parallel_copy_mode_get_type, NULL);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
+   gtk_widget_show (combo);
+ 
+-  if (thunar_g_vfs_is_uri_scheme_supported ("trash"))
+-    {
+-      frame = g_object_new (GTK_TYPE_FRAME, "border-width", 0, "shadow-type", GTK_SHADOW_NONE, NULL);
+-      gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
+-      gtk_widget_show (frame);
+-
+-      label = gtk_label_new (_("Context Menu"));
+-      gtk_label_set_attributes (GTK_LABEL (label), thunar_pango_attr_list_bold ());
+-      gtk_frame_set_label_widget (GTK_FRAME (frame), label);
+-      gtk_widget_show (label);
+-
+-      grid = gtk_grid_new ();
+-      gtk_grid_set_column_spacing (GTK_GRID (grid), 12);
+-      gtk_grid_set_row_spacing (GTK_GRID (grid), 2);
+-      gtk_container_set_border_width (GTK_CONTAINER (grid), 12);
+-      gtk_container_add (GTK_CONTAINER (frame), grid);
+-      gtk_widget_show (grid);
+-
+-      button = gtk_check_button_new_with_mnemonic (_("Show action to permanently delete files and folders"));
+-      g_object_bind_property (G_OBJECT (dialog->preferences),
+-                              "misc-show-delete-action",
+-                              G_OBJECT (button),
+-                              "active",
+-                              G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+-      gtk_widget_set_tooltip_text (button, _("Select this option to show the 'Delete' action in the context menu"));
+-      gtk_widget_set_hexpand (button, TRUE);
+-      gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
+-      gtk_widget_show (button);
+-    }
+-
+-  /*
+-     Advanced
+-   */
+-  label = gtk_label_new (_("Advanced"));
+-  vbox = g_object_new (GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "border-width", 12, "spacing", 18, NULL);
+-  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox, label);
++  label = gtk_label_new_with_mnemonic (_("Use intermediate file on copy"));
++  gtk_label_set_xalign (GTK_LABEL (label), 0.0f);
++  gtk_grid_attach (GTK_GRID (grid), label, 0, 1, 1, 1);
+   gtk_widget_show (label);
+-  gtk_widget_show (vbox);
++  gtk_widget_set_tooltip_text (label, _("Use intermediate file '*.partial~' to copy files. "
++                                        "This will prevent fragmented files."
++                                        "The new file will only be shown after the copy was successfully finished."));
++
++  combo = gtk_combo_box_text_new ();
++  type = g_type_class_ref (THUNAR_TYPE_USE_PARTIAL_MODE);
++  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo),
++                                  g_enum_get_value (type, THUNAR_USE_PARTIAL_MODE_DISABLED)->value_nick);
++  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo),
++                                  g_enum_get_value (type, THUNAR_USE_PARTIAL_MODE_REMOTE_ONLY)->value_nick);
++  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo),
++                                  g_enum_get_value (type, THUNAR_USE_PARTIAL_MODE_ALWAYS)->value_nick);
++  g_type_class_unref (type);
++  g_object_bind_property_full (G_OBJECT (dialog->preferences),
++                               "misc-transfer-use-partial",
++                               G_OBJECT (combo),
++                               "active",
++                               G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
++                               transform_enum_value_to_index,
++                               transform_index_to_enum_value,
++                               (gpointer) thunar_use_partial_get_type, NULL);
++  gtk_widget_set_hexpand (combo, TRUE);
++  gtk_grid_attach (GTK_GRID (grid), combo, 1, 1, 1, 1);
++  thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
++  gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
++  gtk_widget_show (combo);
+ 
+   frame = g_object_new (GTK_TYPE_FRAME, "border-width", 0, "shadow-type", GTK_SHADOW_NONE, NULL);
+   gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
+diff --git a/thunar/thunar-preferences.c b/thunar/thunar-preferences.c
+index 6e3b2437..071d402a 100644
+--- a/thunar/thunar-preferences.c
++++ b/thunar/thunar-preferences.c
+@@ -106,6 +106,7 @@ enum
+   PROP_MISC_CONFIRM_CLOSE_MULTIPLE_TABS,
+   PROP_MISC_PARALLEL_COPY_MODE,
+   PROP_MISC_WINDOW_ICON,
++  PROP_MISC_TRANSFER_USE_PARTIAL,
+   PROP_SHORTCUTS_ICON_EMBLEMS,
+   PROP_SHORTCUTS_ICON_SIZE,
+   PROP_TREE_ICON_EMBLEMS,
+@@ -885,6 +886,19 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
+                             TRUE,
+                             EXO_PARAM_READWRITE);
+ 
++  /**
++   * ThunarPreferences:misc-transfer-use-partial:
++   *
++   * Whether to use intermediate file(*.partial~) to copy.
++   **/
++  preferences_props[PROP_MISC_TRANSFER_USE_PARTIAL] =
++    g_param_spec_enum ("misc-transfer-use-partial",
++                       "MiscTransferUsePartial",
++                       NULL,
++                       THUNAR_TYPE_USE_PARTIAL_MODE,
++                       THUNAR_USE_PARTIAL_MODE_DISABLED,
++                       EXO_PARAM_READWRITE);
++
+   /**
+    * ThunarPreferences:misc-confirm-close-multiple-tabs:
+    *
+diff --git a/thunar/thunar-transfer-job.c b/thunar/thunar-transfer-job.c
+index 5baa48bf..9bdbc99f 100644
+--- a/thunar/thunar-transfer-job.c
++++ b/thunar/thunar-transfer-job.c
+@@ -48,6 +48,7 @@ enum
+   PROP_0,
+   PROP_FILE_SIZE_BINARY,
+   PROP_PARALLEL_COPY_MODE,
++  PROP_TRANSFER_USE_PARTIAL,
+ };
+ 
+ 
+@@ -102,6 +103,7 @@ struct _ThunarTransferJob
+   ThunarPreferences      *preferences;
+   gboolean                file_size_binary;
+   ThunarParallelCopyMode  parallel_copy_mode;
++  ThunarUsePartialMode    transfer_use_partial;
+ };
+ 
+ struct _ThunarTransferNode
+@@ -160,6 +162,20 @@ thunar_transfer_job_class_init (ThunarTransferJobClass *klass)
+                                                       THUNAR_TYPE_PARALLEL_COPY_MODE,
+                                                       THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL,
+                                                       EXO_PARAM_READWRITE));
++
++  /**
++   * ThunarPropertiesdialog:transfer_use_partial:
++   *
++   * Whether to use intermediate file to copy
++   **/
++  g_object_class_install_property (gobject_class,
++                                   PROP_TRANSFER_USE_PARTIAL,
++                                   g_param_spec_enum ("transfer-use-partial",
++                                                      "TransferUsePartial",
++                                                      NULL,
++                                                      THUNAR_TYPE_USE_PARTIAL_MODE,
++                                                      THUNAR_USE_PARTIAL_MODE_DISABLED,
++                                                      EXO_PARAM_READWRITE));
+ }
+ 
+ 
+@@ -174,6 +190,9 @@ thunar_transfer_job_init (ThunarTransferJob *job)
+   g_object_bind_property (job->preferences, "misc-parallel-copy-mode",
+                           job,              "parallel-copy-mode",
+                           G_BINDING_SYNC_CREATE);
++  g_object_bind_property (job->preferences, "misc-transfer-use-partial",
++                          job,              "transfer-use-partial",
++                          G_BINDING_SYNC_CREATE);
+ 
+   job->type = 0;
+   job->source_node_list = NULL;
+@@ -230,6 +249,9 @@ thunar_transfer_job_get_property (GObject     *object,
+     case PROP_PARALLEL_COPY_MODE:
+       g_value_set_enum (value, job->parallel_copy_mode);
+       break;
++    case PROP_TRANSFER_USE_PARTIAL:
++      g_value_set_enum (value, job->transfer_use_partial);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+@@ -254,6 +276,9 @@ thunar_transfer_job_set_property (GObject      *object,
+     case PROP_PARALLEL_COPY_MODE:
+       job->parallel_copy_mode = g_value_get_enum (value);
+       break;
++    case PROP_TRANSFER_USE_PARTIAL:
++      job->transfer_use_partial = g_value_get_enum (value);
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+       break;
+@@ -415,6 +440,7 @@ ttj_copy_file (ThunarTransferJob *job,
+   GFileType  source_type;
+   GFileType  target_type;
+   gboolean   target_exists;
++  gboolean   use_partial;
+   GError    *err = NULL;
+ 
+   _thunar_return_val_if_fail (THUNAR_IS_TRANSFER_JOB (job), FALSE);
+@@ -454,10 +480,21 @@ ttj_copy_file (ThunarTransferJob *job,
+         }
+     }
+ 
++  switch (job->transfer_use_partial)
++    {
++    case THUNAR_USE_PARTIAL_MODE_REMOTE_ONLY:
++      use_partial = !g_file_is_native (source_file) || !g_file_is_native (target_file);
++      break;
++    case THUNAR_USE_PARTIAL_MODE_ALWAYS:
++      use_partial = TRUE;
++      break;
++    default:
++      use_partial = FALSE;
++    }
+   /* try to copy the file */
+-  g_file_copy (source_file, target_file, copy_flags,
+-               exo_job_get_cancellable (EXO_JOB (job)),
+-               thunar_transfer_job_progress, job, &err);
++  thunar_g_file_copy (source_file, target_file, copy_flags, use_partial,
++                      exo_job_get_cancellable (EXO_JOB (job)),
++                      thunar_transfer_job_progress, job, &err);
+ 
+   /**
+    * MR !127 notes:
+@@ -482,6 +519,7 @@ ttj_copy_file (ThunarTransferJob *job,
+   /* check if there were errors */
+   if (G_UNLIKELY (err != NULL && err->domain == G_IO_ERROR))
+     {
++      g_info ("%s", err->message);
+       if (err->code == G_IO_ERROR_WOULD_MERGE
+           || (err->code == G_IO_ERROR_EXISTS
+               && source_type == G_FILE_TYPE_DIRECTORY
+@@ -1119,6 +1157,8 @@ thunar_transfer_job_move_file (ExoJob                *job,
+   exo_job_info_message (job, _("Trying to move \"%s\""),
+                         g_file_info_get_display_name (info));
+ 
++  g_info ("%s", g_file_info_get_display_name (info));
++
+   move_successful = g_file_move (node->source_file,
+                                  tp->data,
+                                  move_flags,

@@ -1,0 +1,84 @@
+diff --git a/docs/reference/thunarx/thunarx.actions b/docs/reference/thunarx/thunarx.actions
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/thunar/thunar-application.c b/thunar/thunar-application.c
+index 52a88c6d..102e0a48 100644
+--- a/thunar/thunar-application.c
++++ b/thunar/thunar-application.c
+@@ -2158,6 +2158,18 @@ thunar_application_move_into (ThunarApplication *application,
+   _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
+   _thunar_return_if_fail (target_file != NULL);
+ 
++  /* Source folder cannot be moved into its subdirectory */
++  for (GList* lp = source_file_list; lp != NULL; lp = lp->next)
++    {
++      if (thunar_g_file_is_descendant (target_file, G_FILE (lp->data)))
++        {
++          gchar *file_name = g_file_get_basename (G_FILE (lp->data));
++          thunar_dialogs_show_error (NULL, NULL, "The folder (%s) cannot be moved into its own subdirectory", file_name);
++          g_free (file_name);
++          return;
++        }
++    }
++
+   /* launch the appropriate operation depending on the target file */
+   if (thunar_g_file_is_trash (target_file))
+     {
+diff --git a/thunar/thunar-gio-extensions.c b/thunar/thunar-gio-extensions.c
+index 8d4193b1..f13e5204 100644
+--- a/thunar/thunar-gio-extensions.c
++++ b/thunar/thunar-gio-extensions.c
+@@ -891,6 +891,39 @@ thunar_g_file_list_get_parents (GList *file_list)
+ 
+ 
+ 
++/**
++ * thunar_g_file_is_descendant:
++ * @descendant : a #GFile that is a potential descendant of @ancestor
++ * @ancestor   : a #GFile
++ *
++ * Check if @descendant is a subdirectory of @ancestor.
++ * @descendant == @ancestor also counts.
++ *
++ * Returns: %TRUE if @descendant is a subdirectory of @ancestor.
++ **/
++gboolean
++thunar_g_file_is_descendant (GFile *descendant,
++                             GFile *ancestor)
++{
++  _thunar_return_val_if_fail (descendant != NULL && G_IS_FILE (descendant), FALSE);
++  _thunar_return_val_if_fail (ancestor   != NULL && G_IS_FILE (ancestor),   FALSE);
++
++  for (GFile *parent = g_object_ref (descendant), *temp;
++       parent != NULL;
++       temp = g_file_get_parent (parent), g_object_unref (parent), parent = temp)
++    {
++      if (g_file_equal (parent, ancestor))
++        {
++          g_object_unref (parent);
++          return TRUE;
++        }
++    }
++
++  return FALSE;
++}
++
++
++
+ gboolean
+ thunar_g_app_info_launch (GAppInfo          *info,
+                           GFile             *working_directory,
+diff --git a/thunar/thunar-gio-extensions.h b/thunar/thunar-gio-extensions.h
+index aba839c7..84e63520 100644
+--- a/thunar/thunar-gio-extensions.h
++++ b/thunar/thunar-gio-extensions.h
+@@ -89,6 +89,9 @@ GType        thunar_g_file_list_get_type               (void);
+ GList       *thunar_g_file_list_new_from_string        (const gchar       *string);
+ gchar      **thunar_g_file_list_to_stringv             (GList             *list);
+ GList       *thunar_g_file_list_get_parents            (GList             *list);
++gboolean     thunar_g_file_is_descendant               (GFile             *descendant,
++                                                        GFile             *ancestor);
++
+ 
+ /* deep copy jobs for GLists */
+ #define      thunar_g_list_append_deep(list,object)    g_list_append (list, g_object_ref (G_OBJECT (object)))

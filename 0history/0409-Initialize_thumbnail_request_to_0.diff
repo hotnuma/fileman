@@ -1,0 +1,25 @@
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 1c892d6e..f4cba36c 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -837,6 +837,8 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
+   g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-file-size-binary", G_OBJECT (standard_view->model), "file-size-binary", G_BINDING_SYNC_CREATE);
+   g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-folder-item-count", G_OBJECT (standard_view->model), "folder-item-count", G_BINDING_SYNC_CREATE);
+ 
++  standard_view->priv->thumbnail_request = 0;
++
+   /* setup the icon renderer */
+   standard_view->icon_renderer = thunar_icon_renderer_new ();
+   g_object_ref_sink (G_OBJECT (standard_view->icon_renderer));
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 8c619f1f..8bab8e19 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -944,6 +944,7 @@ thunar_window_init (ThunarWindow *window)
+   gtk_paned_pack2 (GTK_PANED (window->paned_right), window->right_pane_box, TRUE, FALSE);
+ 
+   window->right_pane_preview_image = gtk_image_new_from_file ("");
++  window->thumbnail_request = 0;
+   gtk_widget_set_size_request (window->right_pane_preview_image, 276, -1); /* large thumbnail size + 20 */
+   gtk_box_pack_start (GTK_BOX (window->right_pane_box), window->right_pane_preview_image, FALSE, TRUE, 0);
+ 

@@ -1,0 +1,1679 @@
+diff --git a/plugins/thunar-apr/thunar-apr-desktop-page.c b/plugins/thunar-apr/thunar-apr-desktop-page.c
+index 0b7c2e4a..8afa7470 100644
+--- a/plugins/thunar-apr/thunar-apr-desktop-page.c
++++ b/plugins/thunar-apr/thunar-apr-desktop-page.c
+@@ -165,7 +165,7 @@ thunar_apr_desktop_page_init (ThunarAprDesktopPage *desktop_page)
+   gtk_grid_attach (GTK_GRID (grid), desktop_page->description_entry, 1, 0, 1, 1);
+   gtk_widget_show (desktop_page->description_entry);
+ 
+-  exo_binding_new (G_OBJECT (desktop_page->description_entry), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (desktop_page->description_entry), "visible", G_OBJECT (label), "visible", G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (desktop_page->description_entry);
+@@ -188,7 +188,7 @@ thunar_apr_desktop_page_init (ThunarAprDesktopPage *desktop_page)
+   gtk_grid_attach (GTK_GRID (grid), desktop_page->command_entry, 1, 1, 1, 1);
+   gtk_widget_show (desktop_page->command_entry);
+ 
+-  exo_binding_new (G_OBJECT (desktop_page->command_entry), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (desktop_page->command_entry), "visible", G_OBJECT (label), "visible", G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (desktop_page->command_entry);
+@@ -211,7 +211,7 @@ thunar_apr_desktop_page_init (ThunarAprDesktopPage *desktop_page)
+   gtk_grid_attach (GTK_GRID (grid), desktop_page->path_entry, 1, 2, 1, 1);
+   gtk_widget_show (desktop_page->path_entry);
+ 
+-  exo_binding_new (G_OBJECT (desktop_page->path_entry), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (desktop_page->path_entry), "visible", G_OBJECT (label), "visible", G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (desktop_page->path_entry);
+@@ -234,7 +234,7 @@ thunar_apr_desktop_page_init (ThunarAprDesktopPage *desktop_page)
+   gtk_grid_attach (GTK_GRID (grid), desktop_page->url_entry, 1, 3, 1, 1);
+   gtk_widget_show (desktop_page->url_entry);
+ 
+-  exo_binding_new (G_OBJECT (desktop_page->url_entry), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (desktop_page->url_entry), "visible", G_OBJECT (label), "visible", G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (desktop_page->url_entry);
+@@ -259,7 +259,7 @@ thunar_apr_desktop_page_init (ThunarAprDesktopPage *desktop_page)
+   gtk_grid_attach (GTK_GRID (grid), desktop_page->comment_entry, 1, 4, 1, 1);
+   gtk_widget_show (desktop_page->comment_entry);
+ 
+-  exo_binding_new (G_OBJECT (desktop_page->comment_entry), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (desktop_page->comment_entry), "visible", G_OBJECT (label), "visible", G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (desktop_page->comment_entry);
+@@ -306,7 +306,7 @@ thunar_apr_desktop_page_init (ThunarAprDesktopPage *desktop_page)
+   atk_relation_set_add (relations, relation);
+   g_object_unref (G_OBJECT (relation));
+ 
+-  exo_binding_new (G_OBJECT (desktop_page->snotify_button), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (desktop_page->snotify_button), "visible", G_OBJECT (label), "visible", G_BINDING_SYNC_CREATE);
+ 
+   /* release shared bold Pango attributes */
+   pango_attr_list_unref (attr_list);
+diff --git a/plugins/thunar-apr/thunar-apr-image-page.c b/plugins/thunar-apr/thunar-apr-image-page.c
+index 20e14ce5..02d61ee7 100644
+--- a/plugins/thunar-apr/thunar-apr-image-page.c
++++ b/plugins/thunar-apr/thunar-apr-image-page.c
+@@ -194,7 +194,7 @@ thunar_apr_image_page_init (ThunarAprImagePage *image_page)
+       gtk_grid_attach (GTK_GRID (grid), image_page->exif_labels[n], 1, n + 3, 1, 1);
+       gtk_widget_show (image_page->exif_labels[n]);
+ 
+-      exo_binding_new (G_OBJECT (image_page->exif_labels[n]), "visible", G_OBJECT (label), "visible");
++      g_object_bind_property (G_OBJECT (image_page->exif_labels[n]), "visible", G_OBJECT (label), "visible", G_BINDING_SYNC_CREATE);
+ 
+       /* set Atk label relation for the label */
+       object = gtk_widget_get_accessible (image_page->exif_labels[n]);
+diff --git a/plugins/thunar-sbr/thunar-sbr-case-renamer.c b/plugins/thunar-sbr/thunar-sbr-case-renamer.c
+index 86f9c2a0..f115da39 100644
+--- a/plugins/thunar-sbr/thunar-sbr-case-renamer.c
++++ b/plugins/thunar-sbr/thunar-sbr-case-renamer.c
+@@ -122,7 +122,7 @@ thunar_sbr_case_renamer_init (ThunarSbrCaseRenamer *case_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_CASE_RENAMER_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (case_renamer), "mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (case_renamer), "mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (hbox), combo, FALSE, FALSE, 0);
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
+   g_type_class_unref (klass);
+diff --git a/plugins/thunar-sbr/thunar-sbr-date-renamer.c b/plugins/thunar-sbr/thunar-sbr-date-renamer.c
+index 14eee2b2..4c9bf95d 100644
+--- a/plugins/thunar-sbr/thunar-sbr-date-renamer.c
++++ b/plugins/thunar-sbr/thunar-sbr-date-renamer.c
+@@ -198,7 +198,7 @@ thunar_sbr_date_renamer_init (ThunarSbrDateRenamer *date_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_DATE_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (date_renamer), "mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (date_renamer), "mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
+   g_type_class_unref (klass);
+@@ -216,7 +216,7 @@ thunar_sbr_date_renamer_init (ThunarSbrDateRenamer *date_renamer)
+   gtk_widget_show (label);
+ 
+   entry = gtk_entry_new ();
+-  exo_mutual_binding_new (G_OBJECT (entry), "text", G_OBJECT (date_renamer), "format");
++  g_object_bind_property (G_OBJECT (entry), "text", G_OBJECT (date_renamer), "format", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (GTK_WIDGET (entry), TRUE);
+   gtk_grid_attach (GTK_GRID (grid), entry, 3, 0, 1, 1);
+   gtk_widget_set_tooltip_text (entry,
+@@ -255,13 +255,13 @@ thunar_sbr_date_renamer_init (ThunarSbrDateRenamer *date_renamer)
+   gtk_widget_show (spinner);
+ 
+   adjustment = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (spinner));
+-  exo_mutual_binding_new (G_OBJECT (date_renamer), "offset", G_OBJECT (adjustment), "value");
++  g_object_bind_property (G_OBJECT (date_renamer), "offset", G_OBJECT (adjustment), "value", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+ 
+   combo = gtk_combo_box_text_new ();
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_OFFSET_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (date_renamer), "offset-mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (date_renamer), "offset-mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (hbox), combo, FALSE, FALSE, 0);
+   g_type_class_unref (klass);
+   gtk_widget_show (combo);
+diff --git a/plugins/thunar-sbr/thunar-sbr-insert-renamer.c b/plugins/thunar-sbr/thunar-sbr-insert-renamer.c
+index ccf3bfca..cf038f8e 100644
+--- a/plugins/thunar-sbr/thunar-sbr-insert-renamer.c
++++ b/plugins/thunar-sbr/thunar-sbr-insert-renamer.c
+@@ -171,7 +171,7 @@ thunar_sbr_insert_renamer_init (ThunarSbrInsertRenamer *insert_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_INSERT_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (insert_renamer), "mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (insert_renamer), "mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 0, 0, 1, 1);
+   g_type_class_unref (klass);
+   gtk_widget_show (combo);
+@@ -182,7 +182,7 @@ thunar_sbr_insert_renamer_init (ThunarSbrInsertRenamer *insert_renamer)
+ 
+   entry = gtk_entry_new ();
+   gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+-  exo_mutual_binding_new (G_OBJECT (entry), "text", G_OBJECT (insert_renamer), "text");
++  g_object_bind_property (G_OBJECT (entry), "text", G_OBJECT (insert_renamer), "text", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (entry, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), entry, 2, 0, 1, 1);
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
+@@ -216,7 +216,7 @@ thunar_sbr_insert_renamer_init (ThunarSbrInsertRenamer *insert_renamer)
+   gtk_widget_show (spinner);
+ 
+   adjustment = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (spinner));
+-  exo_mutual_binding_new (G_OBJECT (insert_renamer), "offset", G_OBJECT (adjustment), "value");
++  g_object_bind_property (G_OBJECT (insert_renamer), "offset", G_OBJECT (adjustment), "value", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (spinner);
+@@ -229,7 +229,7 @@ thunar_sbr_insert_renamer_init (ThunarSbrInsertRenamer *insert_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_OFFSET_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (insert_renamer), "offset-mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (insert_renamer), "offset-mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (hbox), combo, FALSE, FALSE, 0);
+   g_type_class_unref (klass);
+   gtk_widget_show (combo);
+diff --git a/plugins/thunar-sbr/thunar-sbr-number-renamer.c b/plugins/thunar-sbr/thunar-sbr-number-renamer.c
+index c028c5c3..d5c0a41f 100644
+--- a/plugins/thunar-sbr/thunar-sbr-number-renamer.c
++++ b/plugins/thunar-sbr/thunar-sbr-number-renamer.c
+@@ -191,7 +191,7 @@ thunar_sbr_number_renamer_init (ThunarSbrNumberRenamer *number_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_NUMBER_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (number_renamer), "mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (number_renamer), "mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
+   g_type_class_unref (klass);
+@@ -210,7 +210,7 @@ thunar_sbr_number_renamer_init (ThunarSbrNumberRenamer *number_renamer)
+   gtk_entry_set_alignment (GTK_ENTRY (number_renamer->start_entry), 1.0f);
+   gtk_entry_set_activates_default (GTK_ENTRY (number_renamer->start_entry), TRUE);
+   gtk_widget_set_hexpand (GTK_WIDGET (number_renamer->start_entry), TRUE);
+-  exo_mutual_binding_new (G_OBJECT (number_renamer->start_entry), "text", G_OBJECT (number_renamer), "start");
++  g_object_bind_property (G_OBJECT (number_renamer->start_entry), "text", G_OBJECT (number_renamer), "start", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), number_renamer->start_entry, 3, 0, 1, 1);
+   gtk_widget_show (number_renamer->start_entry);
+ 
+@@ -234,7 +234,7 @@ thunar_sbr_number_renamer_init (ThunarSbrNumberRenamer *number_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_TEXT_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (number_renamer), "text-mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (number_renamer), "text-mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 1, 1, 1);
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), combo);
+   g_type_class_unref (klass);
+@@ -250,7 +250,7 @@ thunar_sbr_number_renamer_init (ThunarSbrNumberRenamer *number_renamer)
+   entry = gtk_entry_new ();
+   gtk_entry_set_width_chars (GTK_ENTRY (entry), 12);
+   gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+-  exo_mutual_binding_new (G_OBJECT (entry), "text", G_OBJECT (number_renamer), "text");
++  g_object_bind_property (G_OBJECT (entry), "text", G_OBJECT (number_renamer), "text", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), entry, 3, 1, 1, 1);
+   gtk_widget_show (entry);
+ 
+diff --git a/plugins/thunar-sbr/thunar-sbr-remove-renamer.c b/plugins/thunar-sbr/thunar-sbr-remove-renamer.c
+index 2f961e57..bca4c4a4 100644
+--- a/plugins/thunar-sbr/thunar-sbr-remove-renamer.c
++++ b/plugins/thunar-sbr/thunar-sbr-remove-renamer.c
+@@ -189,7 +189,7 @@ thunar_sbr_remove_renamer_init (ThunarSbrRemoveRenamer *remove_renamer)
+   gtk_widget_show (remove_renamer->start_spinner);
+ 
+   adjustment = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (remove_renamer->start_spinner));
+-  exo_mutual_binding_new (G_OBJECT (remove_renamer), "start-offset", G_OBJECT (adjustment), "value");
++  g_object_bind_property (G_OBJECT (remove_renamer), "start-offset", G_OBJECT (adjustment), "value", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (remove_renamer->start_spinner);
+@@ -202,7 +202,7 @@ thunar_sbr_remove_renamer_init (ThunarSbrRemoveRenamer *remove_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_OFFSET_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (remove_renamer), "start-offset-mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (remove_renamer), "start-offset-mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 2, 0, 1, 1);
+   g_type_class_unref (klass);
+   gtk_widget_show (combo);
+@@ -224,7 +224,7 @@ thunar_sbr_remove_renamer_init (ThunarSbrRemoveRenamer *remove_renamer)
+   gtk_widget_show (remove_renamer->end_spinner);
+ 
+   adjustment = gtk_spin_button_get_adjustment (GTK_SPIN_BUTTON (remove_renamer->end_spinner));
+-  exo_mutual_binding_new (G_OBJECT (remove_renamer), "end-offset", G_OBJECT (adjustment), "value");
++  g_object_bind_property (G_OBJECT (remove_renamer), "end-offset", G_OBJECT (adjustment), "value", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+ 
+   /* set Atk label relation for the entry */
+   object = gtk_widget_get_accessible (remove_renamer->end_spinner);
+@@ -237,7 +237,7 @@ thunar_sbr_remove_renamer_init (ThunarSbrRemoveRenamer *remove_renamer)
+   klass = g_type_class_ref (THUNAR_SBR_TYPE_OFFSET_MODE);
+   for (n = 0; n < klass->n_values; ++n)
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _(klass->values[n].value_nick));
+-  exo_mutual_binding_new (G_OBJECT (remove_renamer), "end-offset-mode", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (remove_renamer), "end-offset-mode", G_OBJECT (combo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 2, 1, 1, 1);
+   g_type_class_unref (klass);
+   gtk_widget_show (combo);
+diff --git a/plugins/thunar-sbr/thunar-sbr-replace-renamer.c b/plugins/thunar-sbr/thunar-sbr-replace-renamer.c
+index 062357c1..91ea25cd 100644
+--- a/plugins/thunar-sbr/thunar-sbr-replace-renamer.c
++++ b/plugins/thunar-sbr/thunar-sbr-replace-renamer.c
+@@ -206,7 +206,7 @@ thunar_sbr_replace_renamer_init (ThunarSbrReplaceRenamer *replace_renamer)
+ 
+   replace_renamer->pattern_entry = gtk_entry_new ();
+   gtk_entry_set_activates_default (GTK_ENTRY (replace_renamer->pattern_entry), TRUE);
+-  exo_mutual_binding_new (G_OBJECT (replace_renamer->pattern_entry), "text", G_OBJECT (replace_renamer), "pattern");
++  g_object_bind_property (G_OBJECT (replace_renamer->pattern_entry), "text", G_OBJECT (replace_renamer), "pattern", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (replace_renamer->pattern_entry, _("Enter the text to search for in the file names."));
+   gtk_widget_set_hexpand (replace_renamer->pattern_entry, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), replace_renamer->pattern_entry, 1, 0, 1, 1);
+@@ -221,7 +221,7 @@ thunar_sbr_replace_renamer_init (ThunarSbrReplaceRenamer *replace_renamer)
+   g_object_unref (G_OBJECT (relation));
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Regular _Expression"));
+-  exo_mutual_binding_new (G_OBJECT (button), "active", G_OBJECT (replace_renamer), "regexp");
++  g_object_bind_property (G_OBJECT (button), "active", G_OBJECT (replace_renamer), "regexp", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("If you enable this option, the pattern will be treated as a regular expression and "
+                                          "matched using the Perl-compatible regular expressions (PCRE). Check the documentation "
+                                          "for details about the regular expression syntax."));
+@@ -236,7 +236,7 @@ thunar_sbr_replace_renamer_init (ThunarSbrReplaceRenamer *replace_renamer)
+ 
+   entry = gtk_entry_new ();
+   gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
+-  exo_mutual_binding_new (G_OBJECT (entry), "text", G_OBJECT (replace_renamer), "replacement");
++  g_object_bind_property (G_OBJECT (entry), "text", G_OBJECT (replace_renamer), "replacement", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (entry, _("Enter the text that should be used as replacement for the pattern above."));
+   gtk_widget_set_hexpand (entry, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), entry, 1, 1, 1, 1);
+@@ -251,7 +251,7 @@ thunar_sbr_replace_renamer_init (ThunarSbrReplaceRenamer *replace_renamer)
+   g_object_unref (G_OBJECT (relation));
+ 
+   button = gtk_check_button_new_with_mnemonic (_("C_ase Sensitive Search"));
+-  exo_mutual_binding_new (G_OBJECT (button), "active", G_OBJECT (replace_renamer), "case-sensitive");
++  g_object_bind_property (G_OBJECT (button), "active", G_OBJECT (replace_renamer), "case-sensitive", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("If you enable this option, the pattern will be searched in a case-sensitive manner. "
+                                          "The default is to use a case-insensitive search."));
+   gtk_grid_attach (GTK_GRID (grid), button, 2, 1, 1, 1);
+diff --git a/thunar/thunar-chooser-button.c b/thunar/thunar-chooser-button.c
+index f833925b..442788ea 100644
+--- a/thunar/thunar-chooser-button.c
++++ b/thunar/thunar-chooser-button.c
+@@ -393,7 +393,9 @@ thunar_chooser_button_chooser_dialog (ThunarChooserButton *chooser_button)
+ 
+   /* popup the application chooser dialog */
+   dialog = g_object_new (THUNAR_TYPE_CHOOSER_DIALOG, "open", FALSE, NULL);
+-  exo_binding_new (G_OBJECT (chooser_button), "file", G_OBJECT (dialog), "file");
++  g_object_bind_property (G_OBJECT (chooser_button), "file",
++                          G_OBJECT (dialog),         "file",
++                          G_BINDING_SYNC_CREATE);
+   gtk_window_set_transient_for (GTK_WINDOW (dialog), GTK_WINDOW (toplevel));
+   gtk_window_set_modal (GTK_WINDOW (dialog), TRUE);
+   if (gtk_dialog_run (GTK_DIALOG (dialog)) != GTK_RESPONSE_ACCEPT)
+diff --git a/thunar/thunar-chooser-dialog.c b/thunar/thunar-chooser-dialog.c
+index 32489707..f5751878 100644
+--- a/thunar/thunar-chooser-dialog.c
++++ b/thunar/thunar-chooser-dialog.c
+@@ -256,7 +256,9 @@ thunar_chooser_dialog_init (ThunarChooserDialog *dialog)
+   dialog->custom_expander = gtk_expander_new_with_mnemonic (_("Use a _custom command:"));
+   gtk_widget_set_tooltip_text (dialog->custom_expander, _("Use a custom command for an application that is not "
+                                                           "available from the above application list."));
+-  exo_binding_new_with_negation (G_OBJECT (dialog->custom_expander), "expanded", G_OBJECT (dialog->tree_view), "sensitive");
++  g_object_bind_property (G_OBJECT (dialog->custom_expander), "expanded",
++                          G_OBJECT (dialog->tree_view),       "sensitive",
++                          G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
+   g_signal_connect (G_OBJECT (dialog->custom_expander), "notify::expanded", G_CALLBACK (thunar_chooser_dialog_notify_expanded), dialog);
+   gtk_box_pack_start (GTK_BOX (box), dialog->custom_expander, FALSE, FALSE, 0);
+   gtk_widget_show (dialog->custom_expander);
+@@ -281,7 +283,9 @@ thunar_chooser_dialog_init (ThunarChooserDialog *dialog)
+   /* create the "Use as default for this kind of file" button */
+   dialog->default_button = gtk_check_button_new_with_mnemonic (_("Use as _default for this kind of file"));
+   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (dialog->default_button), FALSE);
+-  exo_binding_new (G_OBJECT (dialog), "open", G_OBJECT (dialog->default_button), "visible");
++  g_object_bind_property (G_OBJECT (dialog),                 "open",
++                          G_OBJECT (dialog->default_button), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (box), dialog->default_button, FALSE, FALSE, 0);
+   gtk_widget_show (dialog->default_button);
+ 
+diff --git a/thunar/thunar-column-editor.c b/thunar/thunar-column-editor.c
+index 6476f7c8..fbc36a17 100644
+--- a/thunar/thunar-column-editor.c
++++ b/thunar/thunar-column-editor.c
+@@ -266,7 +266,11 @@ thunar_column_editor_init (ThunarColumnEditor *column_editor)
+ 
+   /* create the "Automatically expand columns as needed" button */
+   button = gtk_check_button_new_with_mnemonic (_("Automatically _expand columns as needed"));
+-  exo_mutual_binding_new_with_negation (G_OBJECT (column_editor->preferences), "last-details-view-fixed-columns", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (column_editor->preferences),
++                          "last-details-view-fixed-columns",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_INVERT_BOOLEAN | G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 1, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), button);
+   gtk_widget_show (button);
+diff --git a/thunar/thunar-details-view.c b/thunar/thunar-details-view.c
+index 824d4a2b..ff6e0c28 100644
+--- a/thunar/thunar-details-view.c
++++ b/thunar/thunar-details-view.c
+@@ -313,10 +313,11 @@ thunar_details_view_init (ThunarDetailsView *details_view)
+   thunar_details_view_columns_changed (details_view->column_model, details_view);
+ 
+   /* synchronize the "fixed-columns" property */
+-  exo_binding_new (G_OBJECT (THUNAR_STANDARD_VIEW (details_view)->preferences),
+-                   "last-details-view-fixed-columns",
+-                   G_OBJECT (details_view),
+-                   "fixed-columns");
++  g_object_bind_property (G_OBJECT (THUNAR_STANDARD_VIEW (details_view)->preferences),
++                          "last-details-view-fixed-columns",
++                          G_OBJECT (details_view),
++                          "fixed-columns",
++                          G_BINDING_SYNC_CREATE);
+ 
+   /* apply fixed column widths if we start in fixed column mode */
+   if (G_UNLIKELY (details_view->fixed_columns))
+diff --git a/thunar/thunar-device-monitor.c b/thunar/thunar-device-monitor.c
+index c79ce8c4..c518142b 100644
+--- a/thunar/thunar-device-monitor.c
++++ b/thunar/thunar-device-monitor.c
+@@ -196,8 +196,9 @@ thunar_device_monitor_init (ThunarDeviceMonitor *monitor)
+   GList *lp;
+ 
+   monitor->preferences = thunar_preferences_get ();
+-  exo_binding_new (G_OBJECT (monitor->preferences), "hidden-devices",
+-                   G_OBJECT (monitor), "hidden-devices");
++  g_object_bind_property (G_OBJECT (monitor->preferences), "hidden-devices",
++                          G_OBJECT (monitor),              "hidden-devices",
++                          G_BINDING_SYNC_CREATE);
+ 
+   /* table for GVolume/GMount (key) -> ThunarDevice (value) */
+   monitor->devices = g_hash_table_new_full (g_direct_hash, g_direct_equal, g_object_unref, g_object_unref);
+diff --git a/thunar/thunar-icon-factory.c b/thunar/thunar-icon-factory.c
+index 522c6a84..1c8cd8e9 100644
+--- a/thunar/thunar-icon-factory.c
++++ b/thunar/thunar-icon-factory.c
+@@ -757,8 +757,9 @@ thunar_icon_factory_get_for_icon_theme (GtkIconTheme *icon_theme)
+ 
+       /* connect the "show-thumbnails" property to the global preference */
+       factory->preferences = thunar_preferences_get ();
+-      exo_binding_new (G_OBJECT (factory->preferences), "misc-thumbnail-mode",
+-                       G_OBJECT (factory), "thumbnail-mode");
++      g_object_bind_property (G_OBJECT (factory->preferences), "misc-thumbnail-mode",
++                              G_OBJECT (factory),              "thumbnail-mode",
++                              G_BINDING_SYNC_CREATE);
+     }
+   else
+     {
+diff --git a/thunar/thunar-icon-view.c b/thunar/thunar-icon-view.c
+index 5a97f646..18625b04 100644
+--- a/thunar/thunar-icon-view.c
++++ b/thunar/thunar-icon-view.c
+@@ -107,7 +107,11 @@ thunar_icon_view_init (ThunarIconView *icon_view)
+                 NULL);
+ 
+   /* synchronize the "text-beside-icons" property with the global preference */
+-  exo_binding_new (G_OBJECT (THUNAR_STANDARD_VIEW (icon_view)->preferences), "misc-text-beside-icons", G_OBJECT (icon_view), "text-beside-icons");
++  g_object_bind_property (G_OBJECT (THUNAR_STANDARD_VIEW (icon_view)->preferences),
++                          "misc-text-beside-icons",
++                          G_OBJECT (icon_view),
++                          "text-beside-icons",
++                          G_BINDING_SYNC_CREATE);
+ }
+ 
+ 
+diff --git a/thunar/thunar-location-entry.c b/thunar/thunar-location-entry.c
+index d9a695af..ec946253 100644
+--- a/thunar/thunar-location-entry.c
++++ b/thunar/thunar-location-entry.c
+@@ -172,7 +172,9 @@ thunar_location_entry_init (ThunarLocationEntry *location_entry)
+   gtk_orientable_set_orientation (GTK_ORIENTABLE (location_entry), GTK_ORIENTATION_HORIZONTAL);
+ 
+   location_entry->path_entry = thunar_path_entry_new ();
+-  exo_binding_new (G_OBJECT (location_entry), "current-directory", G_OBJECT (location_entry->path_entry), "current-file");
++  g_object_bind_property (G_OBJECT (location_entry), "current-directory",
++                          G_OBJECT (location_entry->path_entry), "current-file",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_after (G_OBJECT (location_entry->path_entry), "activate", G_CALLBACK (thunar_location_entry_activate), location_entry);
+   gtk_box_pack_start (GTK_BOX (location_entry), location_entry->path_entry, TRUE, TRUE, 0);
+   gtk_widget_show (location_entry->path_entry);
+diff --git a/thunar/thunar-permissions-chooser.c b/thunar/thunar-permissions-chooser.c
+index 59330439..74031fa2 100644
+--- a/thunar/thunar-permissions-chooser.c
++++ b/thunar/thunar-permissions-chooser.c
+@@ -247,7 +247,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), chooser->access_combos[2]);
+   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (chooser->access_combos[2]), renderer_text, TRUE);
+   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (chooser->access_combos[2]), renderer_text, "text", 0);
+-  exo_binding_new (G_OBJECT (chooser), "mutable", G_OBJECT (chooser->access_combos[2]), "sensitive");
++  g_object_bind_property (G_OBJECT (chooser),                   "mutable",
++                          G_OBJECT (chooser->access_combos[2]), "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (chooser->access_combos[2]), "changed", G_CALLBACK (thunar_permissions_chooser_access_changed), chooser);
+   gtk_widget_set_hexpand (chooser->access_combos[2], TRUE);
+   gtk_grid_attach (GTK_GRID (chooser->grid), chooser->access_combos[2], 1, row, 1, 1);
+@@ -274,7 +276,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (chooser->group_combo), renderer_text, TRUE);
+   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (chooser->group_combo), renderer_text, "text", THUNAR_PERMISSIONS_STORE_COLUMN_NAME);
+   gtk_combo_box_set_row_separator_func (GTK_COMBO_BOX (chooser->group_combo), thunar_permissions_chooser_row_separator, NULL, NULL);
+-  exo_binding_new (G_OBJECT (chooser), "mutable", G_OBJECT (chooser->group_combo), "sensitive");
++  g_object_bind_property (G_OBJECT (chooser),              "mutable",
++                          G_OBJECT (chooser->group_combo), "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (chooser->group_combo), "changed", G_CALLBACK (thunar_permissions_chooser_group_changed), chooser);
+   gtk_widget_set_hexpand (chooser->group_combo, TRUE);
+   gtk_grid_attach (GTK_GRID (chooser->grid), chooser->group_combo, 1, row, 1, 1);
+@@ -293,7 +297,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), chooser->access_combos[1]);
+   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (chooser->access_combos[1]), renderer_text, TRUE);
+   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (chooser->access_combos[1]), renderer_text, "text", 0);
+-  exo_binding_new (G_OBJECT (chooser), "mutable", G_OBJECT (chooser->access_combos[1]), "sensitive");
++  g_object_bind_property (G_OBJECT (chooser),                   "mutable",
++                          G_OBJECT (chooser->access_combos[1]), "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (chooser->access_combos[1]), "changed", G_CALLBACK (thunar_permissions_chooser_access_changed), chooser);
+   gtk_widget_set_hexpand (chooser->access_combos[1], TRUE);
+   gtk_grid_attach (GTK_GRID (chooser->grid), chooser->access_combos[1], 1, row, 1, 1);
+@@ -327,7 +333,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), chooser->access_combos[0]);
+   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (chooser->access_combos[0]), renderer_text, TRUE);
+   gtk_cell_layout_add_attribute (GTK_CELL_LAYOUT (chooser->access_combos[0]), renderer_text, "text", 0);
+-  exo_binding_new (G_OBJECT (chooser), "mutable", G_OBJECT (chooser->access_combos[0]), "sensitive");
++  g_object_bind_property (G_OBJECT (chooser),                   "mutable",
++                          G_OBJECT (chooser->access_combos[0]), "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (chooser->access_combos[0]), "changed", G_CALLBACK (thunar_permissions_chooser_access_changed), chooser);
+   gtk_widget_set_hexpand (chooser->access_combos[0], TRUE);
+   gtk_grid_attach (GTK_GRID (chooser->grid), chooser->access_combos[0], 1, row, 1, 1);
+@@ -350,8 +358,12 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   gtk_widget_show (label);
+ 
+   chooser->program_button = gtk_check_button_new_with_mnemonic (_("Allow this file to _run as a program"));
+-  exo_binding_new (G_OBJECT (chooser->program_button), "visible", G_OBJECT (label), "visible");
+-  exo_binding_new (G_OBJECT (chooser), "mutable", G_OBJECT (chooser->program_button), "sensitive");
++  g_object_bind_property (G_OBJECT (chooser->program_button), "visible",
++                          G_OBJECT (label),                   "visible",
++                          G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (chooser),                 "mutable",
++                          G_OBJECT (chooser->program_button), "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (chooser->program_button), "toggled", G_CALLBACK (thunar_permissions_chooser_program_toggled), chooser);
+   gtk_grid_attach (GTK_GRID (chooser->grid), chooser->program_button, 1, row, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), chooser->program_button);
+@@ -360,8 +372,12 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   row += 1;
+ 
+   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+-  exo_binding_new (G_OBJECT (chooser), "mutable", G_OBJECT (hbox), "sensitive");
+-  exo_binding_new (G_OBJECT (chooser->program_button), "visible", G_OBJECT (hbox), "visible");
++  g_object_bind_property (G_OBJECT (chooser), "mutable",
++                          G_OBJECT (hbox),    "sensitive",
++                          G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (chooser->program_button), "visible",
++                          G_OBJECT (hbox),                    "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (chooser->grid), hbox, 1, row, 1, 1);
+   gtk_widget_show (hbox);
+ 
+@@ -377,7 +393,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   gtk_widget_show (label);
+ 
+   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+-  exo_binding_new (G_OBJECT (chooser), "mutable", G_OBJECT (hbox), "sensitive");
++  g_object_bind_property (G_OBJECT (chooser), "mutable",
++                          G_OBJECT (hbox),    "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   gtk_grid_attach (GTK_GRID (chooser->grid), hbox, 1, row, 1, 1);
+   gtk_widget_show (hbox);
+ 
+@@ -389,7 +407,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   gtk_label_set_xalign (GTK_LABEL (chooser->fixperm_label), 0.0f);
+   gtk_label_set_attributes (GTK_LABEL (chooser->fixperm_label), thunar_pango_attr_list_small_italic ());
+   gtk_label_set_line_wrap (GTK_LABEL (chooser->fixperm_label), TRUE);
+-  exo_binding_new (G_OBJECT (chooser->fixperm_label), "visible", G_OBJECT (hbox), "visible");
++  g_object_bind_property (G_OBJECT (chooser->fixperm_label), "visible",
++                          G_OBJECT (hbox),                   "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (hbox), chooser->fixperm_label, TRUE, TRUE, 0);
+   gtk_widget_show (chooser->fixperm_label);
+ 
+@@ -402,7 +422,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+   chooser->fixperm_button = gtk_button_new_with_mnemonic (_("Correct _folder permissions..."));
+   gtk_widget_set_tooltip_text (chooser->fixperm_button, _("Click here to automatically fix the folder permissions."));
+   g_signal_connect_swapped (G_OBJECT (chooser->fixperm_button), "clicked", G_CALLBACK (thunar_permissions_chooser_fixperm_clicked), chooser);
+-  exo_binding_new (G_OBJECT (chooser->fixperm_button), "visible", G_OBJECT (hbox), "visible");
++  g_object_bind_property (G_OBJECT (chooser->fixperm_button), "visible",
++                          G_OBJECT (hbox), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_box_pack_end (GTK_BOX (hbox), chooser->fixperm_button, FALSE, FALSE, 0);
+   gtk_widget_show (chooser->fixperm_button);
+ 
+@@ -412,7 +434,9 @@ thunar_permissions_chooser_init (ThunarPermissionsChooser *chooser)
+ 
+   chooser->job_progress = gtk_progress_bar_new ();
+   gtk_progress_bar_set_text (GTK_PROGRESS_BAR (chooser->job_progress), _("Please wait..."));
+-  exo_binding_new (G_OBJECT (chooser->job_progress), "visible", G_OBJECT (hbox), "visible");
++  g_object_bind_property (G_OBJECT (chooser->job_progress), "visible",
++                          G_OBJECT (hbox), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (hbox), chooser->job_progress, TRUE, TRUE, 0);
+ 
+   button = gtk_button_new ();
+diff --git a/thunar/thunar-preferences-dialog.c b/thunar/thunar-preferences-dialog.c
+index 336d23cf..5253f595 100644
+--- a/thunar/thunar-preferences-dialog.c
++++ b/thunar/thunar-preferences-dialog.c
+@@ -63,7 +63,8 @@ G_DEFINE_TYPE (ThunarPreferencesDialog, thunar_preferences_dialog, XFCE_TYPE_TIT
+ 
+ 
+ static gboolean
+-transform_icon_size_to_index (const GValue *src_value,
++transform_icon_size_to_index (GBinding     *binding,
++                              const GValue *src_value,
+                               GValue       *dst_value,
+                               gpointer      user_data)
+ {
+@@ -87,7 +88,8 @@ transform_icon_size_to_index (const GValue *src_value,
+ 
+ 
+ static gboolean
+-transform_index_to_icon_size (const GValue *src_value,
++transform_index_to_icon_size (GBinding     *binding,
++                              const GValue *src_value,
+                               GValue       *dst_value,
+                               gpointer      user_data)
+ {
+@@ -103,7 +105,8 @@ transform_index_to_icon_size (const GValue *src_value,
+ 
+ 
+ static gboolean
+-transform_view_string_to_index (const GValue *src_value,
++transform_view_string_to_index (GBinding     *binding,
++                                const GValue *src_value,
+                                 GValue       *dst_value,
+                                 gpointer      user_data)
+ {
+@@ -125,7 +128,8 @@ transform_view_string_to_index (const GValue *src_value,
+ 
+ 
+ static gboolean
+-transform_view_index_to_string (const GValue *src_value,
++transform_view_index_to_string (GBinding     *binding,
++                                const GValue *src_value,
+                                 GValue       *dst_value,
+                                 gpointer      user_data)
+ {
+@@ -154,7 +158,8 @@ transform_view_index_to_string (const GValue *src_value,
+ 
+ 
+ static gboolean
+-transform_thumbnail_mode_to_index (const GValue *src_value,
++transform_thumbnail_mode_to_index (GBinding     *binding,
++                                   const GValue *src_value,
+                                    GValue       *dst_value,
+                                    gpointer      user_data)
+ {
+@@ -173,7 +178,8 @@ transform_thumbnail_mode_to_index (const GValue *src_value,
+ 
+ 
+ static gboolean
+-transform_thumbnail_index_to_mode (const GValue *src_value,
++transform_thumbnail_index_to_mode (GBinding     *binding,
++                                   const GValue *src_value,
+                                    GValue       *dst_value,
+                                    gpointer      user_data)
+ {
+@@ -189,7 +195,8 @@ transform_thumbnail_index_to_mode (const GValue *src_value,
+ 
+ 
+ static gboolean
+-transform_parallel_copy_mode_to_index (const GValue *src_value,
++transform_parallel_copy_mode_to_index (GBinding     *binding,
++                                       const GValue *src_value,
+                                        GValue       *dst_value,
+                                        gpointer      user_data)
+ {
+@@ -208,7 +215,8 @@ transform_parallel_copy_mode_to_index (const GValue *src_value,
+ 
+ 
+ static gboolean
+-transform_parallel_copy_index_to_mode (const GValue *src_value,
++transform_parallel_copy_index_to_mode (GBinding     *binding,
++                                       const GValue *src_value,
+                                        GValue       *dst_value,
+                                        gpointer      user_data)
+ {
+@@ -352,8 +360,12 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("List View"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Compact View"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Last Active View"));
+-  exo_mutual_binding_new_full (G_OBJECT (dialog->preferences), "default-view", G_OBJECT (combo), "active",
+-                               transform_view_string_to_index, transform_view_index_to_string, NULL, NULL);
++  g_object_bind_property_full (G_OBJECT (dialog->preferences), "default-view",
++                               G_OBJECT (combo), "active",
++                               G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
++                               transform_view_string_to_index,
++                               transform_view_index_to_string,
++                               NULL, NULL);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -369,8 +381,14 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Never"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Local Files Only"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Always"));
+-  exo_mutual_binding_new_full (G_OBJECT (dialog->preferences), "misc-thumbnail-mode", G_OBJECT (combo), "active",
+-                               transform_thumbnail_mode_to_index, transform_thumbnail_index_to_mode, NULL, NULL);
++  g_object_bind_property_full (G_OBJECT (dialog->preferences),
++                               "misc-thumbnail-mode",
++                               G_OBJECT (combo),
++                               "active",
++                               G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
++                               transform_thumbnail_mode_to_index,
++                               transform_thumbnail_index_to_mode,
++                               NULL, NULL);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 1, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -378,7 +396,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (combo);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("_Remember view settings for each folder"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-directory-specific-settings", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-directory-specific-settings",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button,
+                                _("Select this option to remember view type, sort column, and sort order individually for each folder"));
+   gtk_widget_set_hexpand (button, TRUE);
+@@ -392,21 +414,33 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+     }
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Draw frames around thumbnails"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-thumbnail-draw-frames", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-thumbnail-draw-frames",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to draw black frames around thumbnails."));
+   gtk_widget_set_hexpand (button, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 3, 2, 1);
+   gtk_widget_show (button);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Sort _folders before files"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-folders-first", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-folders-first",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to list folders before files when you sort a folder."));
+   gtk_widget_set_hexpand (button, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 4, 2, 1);
+   gtk_widget_show (button);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Show file size in binary format"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-file-size-binary", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-file-size-binary",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to show file size in binary format instead of decimal."));
+   gtk_widget_set_hexpand (button, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 5, 2, 1);
+@@ -430,7 +464,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (grid);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("_Text beside icons"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-text-beside-icons", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-text-beside-icons",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to place the icon captions for items "
+                                          "beside the icon rather than below the icon."));
+   gtk_widget_set_hexpand (button, TRUE);
+@@ -455,7 +493,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (grid);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Use current folder icon"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-change-window-icon", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-change-window-icon",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to use the current folder icon as window icon"));
+ 
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
+@@ -493,7 +535,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   /* TRANSLATORS: custom date format */
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Custom"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Today / Custom"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-date-style", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-date-style",
++                          G_OBJECT (combo),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -511,7 +557,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+                                         "%M minute\n"
+                                         "%S second\n\n"
+                                         "For a complete list, check the man pages of 'strftime'"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-date-custom-style", G_OBJECT (entry), "text");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-date-custom-style",
++                          G_OBJECT (entry),
++                          "text",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   g_signal_connect (G_OBJECT (combo), "changed", G_CALLBACK (on_date_format_changed), entry);
+   gtk_grid_attach (GTK_GRID (grid), entry, 1, 1, 1, 1);
+   if (gtk_combo_box_get_active (GTK_COMBO_BOX (combo)) == THUNAR_DATE_STYLE_CUSTOM || gtk_combo_box_get_active (GTK_COMBO_BOX (combo)) == THUNAR_DATE_STYLE_CUSTOM_SIMPLE)
+@@ -558,8 +608,14 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("160px"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("192px"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("256px"));
+-  exo_mutual_binding_new_full (G_OBJECT (dialog->preferences), "shortcuts-icon-size", G_OBJECT (combo), "active",
+-                               transform_icon_size_to_index, transform_index_to_icon_size, NULL, NULL);
++  g_object_bind_property_full (G_OBJECT (dialog->preferences),
++                               "shortcuts-icon-size",
++                               G_OBJECT (combo),
++                               "active",
++                               G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
++                               transform_icon_size_to_index,
++                               transform_index_to_icon_size,
++                               NULL, NULL);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -567,7 +623,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (combo);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Show Icon _Emblems"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "shortcuts-icon-emblems", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "shortcuts-icon-emblems",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to display icon emblems in the shortcuts pane for all folders "
+                                          "for which emblems have been defined in the folders properties dialog."));
+   gtk_widget_set_hexpand (button, TRUE);
+@@ -606,8 +666,14 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("160px"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("192px"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("256px"));
+-  exo_mutual_binding_new_full (G_OBJECT (dialog->preferences), "tree-icon-size", G_OBJECT (combo), "active",
+-                               transform_icon_size_to_index, transform_index_to_icon_size, NULL, NULL);
++  g_object_bind_property_full (G_OBJECT (dialog->preferences),
++                               "tree-icon-size",
++                               G_OBJECT (combo),
++                               "active",
++                               G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
++                               transform_icon_size_to_index,
++                               transform_index_to_icon_size,
++                               NULL, NULL);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -615,7 +681,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (combo);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Show Icon E_mblems"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "tree-icon-emblems", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "tree-icon-emblems",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to display icon emblems in the tree pane for all folders "
+                                          "for which emblems have been defined in the folders properties dialog."));
+   gtk_widget_set_hexpand (button, TRUE);
+@@ -650,7 +720,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (grid);
+ 
+   button = gtk_radio_button_new_with_mnemonic (NULL, _("_Single click to activate items"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-single-click", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-single-click",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   g_signal_connect (G_OBJECT (button), "toggled", G_CALLBACK (g_object_notify), "active");
+   gtk_widget_set_hexpand (button, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
+@@ -660,7 +734,9 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_set_hexpand (ibox, TRUE);
+   gtk_widget_set_margin_start (ibox, 12);
+   gtk_widget_set_margin_bottom (ibox, 6);
+-  exo_binding_new (G_OBJECT (button), "active", G_OBJECT (ibox), "sensitive");
++  g_object_bind_property (G_OBJECT (button), "active",
++                          G_OBJECT (ibox),   "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (ibox, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), ibox, 0, 1, 1, 1);
+   gtk_widget_show (ibox);
+@@ -690,7 +766,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+ 
+   /* connect the range's adjustment to the preferences */
+   adjustment = gtk_range_get_adjustment (GTK_RANGE (range));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-single-click-timeout", G_OBJECT (adjustment), "value");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-single-click-timeout",
++                          G_OBJECT (adjustment),
++                          "value",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+ 
+   hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+   gtk_box_pack_start (GTK_BOX (ibox), hbox, FALSE, FALSE, 0);
+@@ -715,7 +795,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (label);
+ 
+   button = gtk_radio_button_new_with_mnemonic_from_widget (GTK_RADIO_BUTTON (button), _("_Double click to activate items"));
+-  exo_mutual_binding_new_with_negation (G_OBJECT (dialog->preferences), "misc-single-click", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-single-click",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_INVERT_BOOLEAN  | G_BINDING_SYNC_CREATE);
+   g_signal_connect (G_OBJECT (button), "toggled", G_CALLBACK (g_object_notify), "active");
+   gtk_widget_set_hexpand (button, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 2, 1, 1);
+@@ -739,13 +823,21 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (grid);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Open folders in new tabs on middle click"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-middle-click-in-tab", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-middle-click-in-tab",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to open a new tab on middle click instead of a new window"));
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
+   gtk_widget_show (button);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Open new thunar instances as tabs"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-open-new-window-as-tab", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-open-new-window-as-tab",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_tooltip_text (button, _("Select this option to open new thunar instances as tabs in an existing thunar window"));
+   gtk_widget_set_hexpand (button, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 1, 1, 1);
+@@ -784,8 +876,14 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Local Files Only"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Local Files On Same Devices Only"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Never"));
+-  exo_mutual_binding_new_full (G_OBJECT (dialog->preferences), "misc-parallel-copy-mode", G_OBJECT (combo), "active",
+-                               transform_parallel_copy_mode_to_index, transform_parallel_copy_index_to_mode, NULL, NULL);
++  g_object_bind_property_full (G_OBJECT (dialog->preferences),
++                               "misc-parallel-copy-mode",
++                               G_OBJECT (combo),
++                               "active",
++                               G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE,
++                               transform_parallel_copy_mode_to_index,
++                               transform_parallel_copy_index_to_mode,
++                               NULL, NULL);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 1, 0, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -811,7 +909,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+       gtk_widget_show (grid);
+ 
+       button = gtk_check_button_new_with_mnemonic (_("Show action to permanently delete files and folders"));
+-      exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-show-delete-action", G_OBJECT (button), "active");
++      g_object_bind_property (G_OBJECT (dialog->preferences),
++                              "misc-show-delete-action",
++                              G_OBJECT (button),
++                              "active",
++                              G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+       gtk_widget_set_tooltip_text (button, _("Select this option to show the 'Delete' action in the context menu"));
+       gtk_widget_set_hexpand (button, TRUE);
+       gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
+@@ -856,7 +958,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Ask every time"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Apply to Folder and Contents"));
+   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo), _("Apply to Folder Only"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-recursive-permissions", G_OBJECT (combo), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-recursive-permissions",
++                          G_OBJECT (combo),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (combo, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), combo, 0, 1, 1, 1);
+   thunar_gtk_label_set_a11y_relation (GTK_LABEL (label), combo);
+@@ -884,7 +990,11 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+   gtk_widget_show (hbox);
+ 
+   button = gtk_check_button_new_with_mnemonic (_("Execute shell scripts"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-exec-shell-scripts-by-default", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-exec-shell-scripts-by-default",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (hbox), button, FALSE, FALSE, 0);
+   gtk_widget_show (button);
+ 
+@@ -915,14 +1025,20 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+ 
+   /* add check button to enable/disable auto mounting */
+   button = gtk_check_button_new_with_mnemonic (_("Enable _Volume Management"));
+-  exo_mutual_binding_new (G_OBJECT (dialog->preferences), "misc-volume-management", G_OBJECT (button), "active");
++  g_object_bind_property (G_OBJECT (dialog->preferences),
++                          "misc-volume-management",
++                          G_OBJECT (button),
++                          "active",
++                          G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (button, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
+   gtk_widget_show (button);
+ 
+   label = gtk_label_new (NULL);
+   gtk_label_set_xalign (GTK_LABEL (label), 0.0f);
+-  exo_binding_new (G_OBJECT (button), "active", G_OBJECT (label), "sensitive");
++  g_object_bind_property (G_OBJECT (button), "active",
++                          G_OBJECT (label),  "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (label), "activate-link", G_CALLBACK (thunar_preferences_dialog_configure), dialog);
+   gtk_label_set_markup (GTK_LABEL (label), _("<a href=\"volman-config:\">Configure</a> the management of removable drives,\n"
+                                              "devices and media."));
+diff --git a/thunar/thunar-progress-view.c b/thunar/thunar-progress-view.c
+index bc8b64c9..4be25118 100644
+--- a/thunar/thunar-progress-view.c
++++ b/thunar/thunar-progress-view.c
+@@ -199,7 +199,9 @@ thunar_progress_view_init (ThunarProgressView *view)
+   image = g_object_new (GTK_TYPE_IMAGE, "icon-size", GTK_ICON_SIZE_DND, NULL);
+   gtk_image_set_pixel_size (GTK_IMAGE(image), 32);
+   gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, TRUE, 0);
+-  exo_binding_new (G_OBJECT (view), "icon-name", G_OBJECT (image), "icon-name");
++  g_object_bind_property (G_OBJECT (view),  "icon-name",
++                          G_OBJECT (image), "icon-name",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_show (image);
+ 
+   vbox2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 6);
+@@ -257,7 +259,9 @@ thunar_progress_view_init (ThunarProgressView *view)
+   gtk_widget_show (view->progress_label);
+ 
+   /* connect the view title to the action label */
+-  exo_binding_new (G_OBJECT (view), "title", G_OBJECT (label), "label");
++  g_object_bind_property (G_OBJECT (view), "title",
++                          G_OBJECT (label), "label",
++                          G_BINDING_SYNC_CREATE);
+ }
+ 
+ 
+diff --git a/thunar/thunar-properties-dialog.c b/thunar/thunar-properties-dialog.c
+index b0c48e55..10b33f2a 100644
+--- a/thunar/thunar-properties-dialog.c
++++ b/thunar/thunar-properties-dialog.c
+@@ -240,8 +240,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+   dialog->preferences = thunar_preferences_get ();
+   g_signal_connect_swapped (G_OBJECT (dialog->preferences), "notify::misc-date-style",
+                             G_CALLBACK (thunar_properties_dialog_reload), dialog);
+-  exo_binding_new (G_OBJECT (dialog->preferences), "misc-file-size-binary",
+-                   G_OBJECT (dialog), "file-size-binary");
++  g_object_bind_property (G_OBJECT (dialog->preferences), "misc-file-size-binary",
++                          G_OBJECT (dialog), "file-size-binary",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (dialog->preferences), "notify::misc-file-size-binary",
+                             G_CALLBACK (thunar_properties_dialog_reload), dialog);
+ 
+@@ -306,7 +307,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+                     "focus-out-event", G_CALLBACK (thunar_properties_dialog_name_focus_out_event), dialog);
+ 
+   gtk_grid_attach (GTK_GRID (grid), GTK_WIDGET (dialog->name_entry), 1, row, 1, 1);
+-  exo_binding_new (G_OBJECT (dialog->single_box), "visible", G_OBJECT (dialog->name_entry), "visible");
++  g_object_bind_property (G_OBJECT (dialog->single_box), "visible",
++                          G_OBJECT (dialog->name_entry), "visible",
++                          G_BINDING_SYNC_CREATE);
+ 
+   ++row;
+ 
+@@ -316,7 +319,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+    */
+   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+   gtk_grid_attach (GTK_GRID (grid), box, 0, row, 1, 1);
+-  exo_binding_new_with_negation (G_OBJECT (dialog->single_box), "visible", G_OBJECT (box), "visible");
++  g_object_bind_property (G_OBJECT (dialog->single_box), "visible",
++                          G_OBJECT (box),                "visible",
++                          G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
+ 
+   image = gtk_image_new_from_icon_name ("text-x-generic", GTK_ICON_SIZE_DIALOG);
+   gtk_box_pack_start (GTK_BOX (box), image, FALSE, TRUE, 0);
+@@ -334,7 +339,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+   gtk_grid_attach (GTK_GRID (grid), dialog->names_label, 1, row, 1, 1);
+   gtk_label_set_ellipsize (GTK_LABEL (dialog->names_label), PANGO_ELLIPSIZE_END);
+   gtk_label_set_selectable (GTK_LABEL (dialog->names_label), TRUE);
+-  exo_binding_new (G_OBJECT (box), "visible", G_OBJECT (dialog->names_label), "visible");
++  g_object_bind_property (G_OBJECT (box),                 "visible",
++                          G_OBJECT (dialog->names_label), "visible",
++                          G_BINDING_SYNC_CREATE);
+ 
+ 
+   ++row;
+@@ -352,7 +359,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+   dialog->kind_ebox = gtk_event_box_new ();
+   gtk_event_box_set_above_child (GTK_EVENT_BOX (dialog->kind_ebox), TRUE);
+   gtk_event_box_set_visible_window (GTK_EVENT_BOX (dialog->kind_ebox), FALSE);
+-  exo_binding_new (G_OBJECT (dialog->kind_ebox), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->kind_ebox), "visible",
++                          G_OBJECT (label),             "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->kind_ebox, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->kind_ebox, 1, row, 1, 1);
+   gtk_widget_show (dialog->kind_ebox);
+@@ -373,7 +382,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->openwith_chooser = thunar_chooser_button_new ();
+   gtk_label_set_mnemonic_widget (GTK_LABEL (label), dialog->openwith_chooser);
+-  exo_binding_new (G_OBJECT (dialog->openwith_chooser), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->openwith_chooser), "visible",
++                          G_OBJECT (label),                    "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->openwith_chooser, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->openwith_chooser, 1, row, 1, 1);
+   gtk_widget_show (dialog->openwith_chooser);
+@@ -388,7 +399,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->link_label = g_object_new (GTK_TYPE_LABEL, "ellipsize", PANGO_ELLIPSIZE_START, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->link_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->link_label), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->link_label), "visible",
++                          G_OBJECT (label),              "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->link_label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->link_label, 1, row, 1, 1);
+   gtk_widget_show (dialog->link_label);
+@@ -407,7 +420,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->origin_label = g_object_new (GTK_TYPE_LABEL, "ellipsize", PANGO_ELLIPSIZE_START, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->origin_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->origin_label), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->origin_label), "visible",
++                          G_OBJECT (label), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->origin_label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->origin_label, 1, row, 1, 1);
+   gtk_widget_show (dialog->origin_label);
+@@ -422,7 +437,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->location_label = g_object_new (GTK_TYPE_LABEL, "ellipsize", PANGO_ELLIPSIZE_START, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->location_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->location_label), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->location_label), "visible",
++                          G_OBJECT (label), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->location_label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->location_label, 1, row, 1, 1);
+   gtk_widget_show (dialog->location_label);
+@@ -448,7 +465,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->deleted_label = g_object_new (GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->deleted_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->deleted_label), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->deleted_label), "visible",
++                          G_OBJECT (label), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->deleted_label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->deleted_label, 1, row, 1, 1);
+   gtk_widget_show (dialog->deleted_label);
+@@ -463,7 +482,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->created_label = g_object_new (GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->created_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->created_label), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->created_label), "visible",
++                          G_OBJECT (label), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->created_label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->created_label, 1, row, 1, 1);
+   gtk_widget_show (dialog->created_label);
+@@ -478,7 +499,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->modified_label = g_object_new (GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->modified_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->modified_label), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->modified_label), "visible",
++                          G_OBJECT (label),                  "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->modified_label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->modified_label, 1, row, 1, 1);
+   gtk_widget_show (dialog->modified_label);
+@@ -493,7 +516,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   dialog->accessed_label = g_object_new (GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->accessed_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->accessed_label), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->accessed_label), "visible",
++                          G_OBJECT (label),                  "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (dialog->accessed_label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->accessed_label, 1, row, 1, 1);
+   gtk_widget_show (dialog->accessed_label);
+@@ -503,7 +528,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   spacer = g_object_new (GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "height-request", 12, NULL);
+   gtk_grid_attach (GTK_GRID (grid), spacer, 0, row, 2, 1);
+-  exo_binding_new (G_OBJECT (dialog->accessed_label), "visible", G_OBJECT (spacer), "visible");
++  g_object_bind_property (G_OBJECT (dialog->accessed_label), "visible",
++                          G_OBJECT (spacer),                 "visible",
++                          G_BINDING_SYNC_CREATE);
+ 
+   ++row;
+ 
+@@ -518,7 +545,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+   gtk_widget_show (label);
+ 
+   label = thunar_size_label_new ();
+-  exo_binding_new (G_OBJECT (dialog), "files", G_OBJECT (label), "files");
++  g_object_bind_property (G_OBJECT (dialog), "files",
++                          G_OBJECT (label),  "files",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (label, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), label, 1, row, 1, 1);
+   gtk_widget_show (label);
+@@ -532,19 +561,25 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+   gtk_widget_show (label);
+ 
+   box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
+-  exo_binding_new (G_OBJECT (box), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (box),   "visible",
++                          G_OBJECT (label), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_set_hexpand (box, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), box, 1, row, 1, 1);
+   gtk_widget_show (box);
+ 
+   dialog->volume_image = gtk_image_new ();
+-  exo_binding_new (G_OBJECT (dialog->volume_image), "visible", G_OBJECT (box), "visible");
++  g_object_bind_property (G_OBJECT (dialog->volume_image), "visible",
++                          G_OBJECT (box),                  "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (box), dialog->volume_image, FALSE, TRUE, 0);
+   gtk_widget_show (dialog->volume_image);
+ 
+   dialog->volume_label = g_object_new (GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
+   gtk_label_set_selectable (GTK_LABEL (dialog->volume_label), TRUE);
+-  exo_binding_new (G_OBJECT (dialog->volume_label), "visible", G_OBJECT (dialog->volume_image), "visible");
++  g_object_bind_property (G_OBJECT (dialog->volume_label), "visible",
++                          G_OBJECT (dialog->volume_image), "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (box), dialog->volume_label, TRUE, TRUE, 0);
+   gtk_widget_show (dialog->volume_label);
+ 
+@@ -560,7 +595,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+   dialog->freespace_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
+   gtk_widget_set_hexpand (dialog->freespace_vbox, TRUE);
+   gtk_grid_attach (GTK_GRID (grid), dialog->freespace_vbox, 1, row, 1, 1);
+-  exo_binding_new (G_OBJECT (dialog->freespace_vbox), "visible", G_OBJECT (label), "visible");
++  g_object_bind_property (G_OBJECT (dialog->freespace_vbox), "visible",
++                          G_OBJECT (label),                  "visible",
++                          G_BINDING_SYNC_CREATE);
+   gtk_widget_show (dialog->freespace_vbox);
+ 
+   dialog->freespace_label = g_object_new (GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
+@@ -587,7 +624,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+    */
+   label = gtk_label_new (_("Emblems"));
+   chooser = thunar_emblem_chooser_new ();
+-  exo_binding_new (G_OBJECT (dialog), "files", G_OBJECT (chooser), "files");
++  g_object_bind_property (G_OBJECT (dialog),  "files",
++                          G_OBJECT (chooser), "files",
++                          G_BINDING_SYNC_CREATE);
+   gtk_notebook_append_page (GTK_NOTEBOOK (dialog->notebook), chooser, label);
+   gtk_widget_show (chooser);
+   gtk_widget_show (label);
+@@ -597,7 +636,9 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+    */
+   label = gtk_label_new (_("Permissions"));
+   dialog->permissions_chooser = thunar_permissions_chooser_new ();
+-  exo_binding_new (G_OBJECT (dialog), "files", G_OBJECT (dialog->permissions_chooser), "files");
++  g_object_bind_property (G_OBJECT (dialog),                      "files",
++                          G_OBJECT (dialog->permissions_chooser), "files",
++                          G_BINDING_SYNC_CREATE);
+   gtk_notebook_append_page (GTK_NOTEBOOK (dialog->notebook), dialog->permissions_chooser, label);
+   gtk_widget_show (dialog->permissions_chooser);
+   gtk_widget_show (label);
+diff --git a/thunar/thunar-renamer-dialog.c b/thunar/thunar-renamer-dialog.c
+index ec29dd12..97d7ef91 100644
+--- a/thunar/thunar-renamer-dialog.c
++++ b/thunar/thunar-renamer-dialog.c
+@@ -362,20 +362,24 @@ thunar_renamer_dialog_init (ThunarRenamerDialog *renamer_dialog)
+ 
+   /* add the "Done" button */
+   button = gtk_dialog_add_button (GTK_DIALOG (renamer_dialog), _("_Done"), GTK_RESPONSE_ACCEPT);
+-  exo_binding_new (G_OBJECT (renamer_dialog->model), "can-rename", G_OBJECT (button), "sensitive");
++  g_object_bind_property (G_OBJECT (renamer_dialog->model), "can-rename",
++                          G_OBJECT (button),                "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   gtk_dialog_set_default_response (GTK_DIALOG (renamer_dialog), GTK_RESPONSE_ACCEPT);
+   gtk_widget_set_tooltip_text (button, _("Click here to actually rename the files listed above to their new names and close the window."));
+ 
+   /* add the "Apply" button */
+   button = gtk_dialog_add_button (GTK_DIALOG (renamer_dialog), _("_Apply"), GTK_RESPONSE_APPLY);
+-  exo_binding_new (G_OBJECT (renamer_dialog->model), "can-rename", G_OBJECT (button), "sensitive");
++  g_object_bind_property (G_OBJECT (renamer_dialog->model), "can-rename",
++                          G_OBJECT (button),                "sensitive",
++                          G_BINDING_SYNC_CREATE);
+   gtk_dialog_set_default_response (GTK_DIALOG (renamer_dialog), GTK_RESPONSE_APPLY);
+   gtk_widget_set_tooltip_text (button, _("Click here to actually rename the files listed above to their new names and keep the window open."));
+ 
+   /* setup the launcher support for this dialog */
+   renamer_dialog->launcher = g_object_new (THUNAR_TYPE_LAUNCHER, "widget", GTK_WIDGET (renamer_dialog), NULL);
+-  exo_binding_new (G_OBJECT (renamer_dialog), "selected-files", G_OBJECT (renamer_dialog->launcher), "selected-files");
+-  exo_binding_new (G_OBJECT (renamer_dialog), "current-directory", G_OBJECT (renamer_dialog->launcher), "current-directory");
++  g_object_bind_property (G_OBJECT (renamer_dialog), "selected-files", G_OBJECT (renamer_dialog->launcher), "selected-files", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (renamer_dialog), "current-directory", G_OBJECT (renamer_dialog->launcher), "current-directory", G_BINDING_SYNC_CREATE);
+ 
+   /* add the toolbar to the dialog */
+   toolbar = gtk_toolbar_new ();
+@@ -389,7 +393,7 @@ thunar_renamer_dialog_init (ThunarRenamerDialog *renamer_dialog)
+   gtk_container_add (GTK_CONTAINER (toolbar), GTK_WIDGET (seperator));
+   gtk_widget_show (GTK_WIDGET (seperator));
+   xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_RENAMER_ACTION_ABOUT), G_OBJECT (renamer_dialog), GTK_TOOLBAR (toolbar));
+-  exo_binding_new (G_OBJECT (renamer_dialog), "standalone", G_OBJECT (toolbar), "visible");
++  g_object_bind_property (G_OBJECT (renamer_dialog), "standalone", G_OBJECT (toolbar), "visible", G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (gtk_dialog_get_content_area (GTK_DIALOG (renamer_dialog))), toolbar, FALSE, FALSE, 0);
+   gtk_widget_show_all (GTK_WIDGET (toolbar));
+ 
+@@ -467,10 +471,10 @@ thunar_renamer_dialog_init (ThunarRenamerDialog *renamer_dialog)
+   /* create the rename progress bar */
+   renamer_dialog->progress = thunar_renamer_progress_new ();
+   gtk_box_pack_start (GTK_BOX (vbox), renamer_dialog->progress, FALSE, FALSE, 0);
+-  exo_binding_new_with_negation (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (rbox), "visible");
+-  exo_binding_new_with_negation (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (swin), "sensitive");
+-  exo_binding_new_with_negation (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (toolbar), "sensitive");
+-  exo_binding_new (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (renamer_dialog->model), "frozen");
++  g_object_bind_property (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (rbox), "visible", G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (swin), "sensitive", G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (toolbar), "sensitive", G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (renamer_dialog->model), "frozen", G_BINDING_SYNC_CREATE);
+ 
+   /* synchronize the height of the progress bar and the rbox with the combos */
+   size_group = gtk_size_group_new (GTK_SIZE_GROUP_VERTICAL);
+@@ -480,7 +484,7 @@ thunar_renamer_dialog_init (ThunarRenamerDialog *renamer_dialog)
+ 
+   /* create the frame for the renamer widgets */
+   frame = g_object_new (GTK_TYPE_FRAME, "shadow-type", GTK_SHADOW_ETCHED_IN, NULL);
+-  exo_binding_new_with_negation (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (frame), "sensitive");
++  g_object_bind_property (G_OBJECT (renamer_dialog->progress), "visible", G_OBJECT (frame), "sensitive", G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
+   gtk_box_pack_start (GTK_BOX (vbox), frame, TRUE, TRUE, 0);
+   gtk_widget_show (frame);
+ 
+@@ -524,7 +528,7 @@ thunar_renamer_dialog_init (ThunarRenamerDialog *renamer_dialog)
+             active = n;
+           gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (mcombo), _(klass->values[n].value_nick));
+         }
+-      exo_mutual_binding_new (G_OBJECT (renamer_dialog->model), "mode", G_OBJECT (mcombo), "active");
++      g_object_bind_property (G_OBJECT (renamer_dialog->model), "mode", G_OBJECT (mcombo), "active", G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+       gtk_box_pack_end (GTK_BOX (rbox), mcombo, FALSE, FALSE, 0);
+       gtk_combo_box_set_active (GTK_COMBO_BOX (mcombo), active);
+       g_type_class_unref (klass);
+@@ -578,7 +582,7 @@ thunar_renamer_dialog_init (ThunarRenamerDialog *renamer_dialog)
+       gtk_combo_box_set_active (GTK_COMBO_BOX (rcombo), active);
+ 
+       /* connect the combo box to the notebook */
+-      exo_binding_new (G_OBJECT (rcombo), "active", G_OBJECT (notebook), "page");
++      g_object_bind_property (G_OBJECT (rcombo), "active", G_OBJECT (notebook), "page", G_BINDING_SYNC_CREATE);
+ 
+       /* close the config handle */
+       xfce_rc_close (rc);
+diff --git a/thunar/thunar-shortcuts-model.c b/thunar/thunar-shortcuts-model.c
+index 52ebd2fd..ba877f6e 100644
+--- a/thunar/thunar-shortcuts-model.c
++++ b/thunar/thunar-shortcuts-model.c
+@@ -279,12 +279,14 @@ thunar_shortcuts_model_init (ThunarShortcutsModel *model)
+ 
+   /* hidden bookmarks */
+   model->preferences = thunar_preferences_get ();
+-  exo_binding_new (G_OBJECT (model->preferences), "hidden-bookmarks",
+-                   G_OBJECT (model), "hidden-bookmarks");
++  g_object_bind_property (model->preferences, "hidden-bookmarks",
++                          model,              "hidden-bookmarks",
++                          G_BINDING_SYNC_CREATE);
+ 
+   /* binary file size */
+-  exo_binding_new (G_OBJECT (model->preferences), "misc-file-size-binary",
+-                   G_OBJECT (model), "file-size-binary");
++  g_object_bind_property (model->preferences, "misc-file-size-binary",
++                          model,              "file-size-binary",
++                          G_BINDING_SYNC_CREATE);
+ 
+   /* load volumes */
+   thunar_shortcuts_model_shortcut_devices (model);
+diff --git a/thunar/thunar-shortcuts-pane.c b/thunar/thunar-shortcuts-pane.c
+index 34de1902..f185f8e2 100644
+--- a/thunar/thunar-shortcuts-pane.c
++++ b/thunar/thunar-shortcuts-pane.c
+@@ -169,7 +169,7 @@ thunar_shortcuts_pane_init (ThunarShortcutsPane *shortcuts_pane)
+   /* add widget to css class */
+   gtk_style_context_add_class (gtk_widget_get_style_context (GTK_WIDGET (shortcuts_pane)), "shortcuts-pane");
+ 
+-  exo_binding_new (G_OBJECT (shortcuts_pane), "current-directory", G_OBJECT (shortcuts_pane->view), "current-directory");
++  g_object_bind_property (G_OBJECT (shortcuts_pane), "current-directory", G_OBJECT (shortcuts_pane->view), "current-directory", G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (shortcuts_pane->view), "change-directory", G_CALLBACK (thunar_navigator_change_directory), shortcuts_pane);
+   g_signal_connect_swapped (G_OBJECT (shortcuts_pane->view), "open_new_tab", G_CALLBACK (thunar_navigator_open_new_tab), shortcuts_pane);
+ }
+diff --git a/thunar/thunar-shortcuts-view.c b/thunar/thunar-shortcuts-view.c
+index ff9934bb..ba18e646 100644
+--- a/thunar/thunar-shortcuts-view.c
++++ b/thunar/thunar-shortcuts-view.c
+@@ -346,8 +346,8 @@ thunar_shortcuts_view_init (ThunarShortcutsView *view)
+   /* sync the "emblems" property of the icon renderer with the "shortcuts-icon-emblems" preference
+    * and the "size" property of the renderer with the "shortcuts-icon-size" preference.
+    */
+-  exo_binding_new (G_OBJECT (view->preferences), "shortcuts-icon-size", G_OBJECT (view->icon_renderer), "size");
+-  exo_binding_new (G_OBJECT (view->preferences), "shortcuts-icon-emblems", G_OBJECT (view->icon_renderer), "emblems");
++  g_object_bind_property (G_OBJECT (view->preferences), "shortcuts-icon-size", G_OBJECT (view->icon_renderer), "size", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (view->preferences), "shortcuts-icon-emblems", G_OBJECT (view->icon_renderer), "emblems", G_BINDING_SYNC_CREATE);
+ 
+   /* allocate the text renderer (ellipsizing as required, but "File System" must fit) */
+   renderer = g_object_new (GTK_TYPE_CELL_RENDERER_TEXT,
+@@ -406,7 +406,7 @@ thunar_shortcuts_view_init (ThunarShortcutsView *view)
+   g_signal_connect_swapped (G_OBJECT (view->launcher), "device-operation-started", G_CALLBACK (thunar_shortcuts_view_start_spinner), view);
+   g_signal_connect_swapped (G_OBJECT (view->launcher), "device-operation-finished", G_CALLBACK (thunar_shortcuts_view_stop_spinner), view);
+   g_signal_connect_swapped (G_OBJECT (view->launcher), "new-files-created", G_CALLBACK (thunar_shortcuts_view_new_files_created), view);
+-  exo_binding_new (G_OBJECT (view), "current-directory", G_OBJECT (view->launcher), "current-directory");
++  g_object_bind_property (G_OBJECT (view), "current-directory", G_OBJECT (view->launcher), "current-directory", G_BINDING_SYNC_CREATE);
+ }
+ 
+ 
+diff --git a/thunar/thunar-size-label.c b/thunar/thunar-size-label.c
+index 7649bf07..be9ddfab 100644
+--- a/thunar/thunar-size-label.c
++++ b/thunar/thunar-size-label.c
+@@ -150,8 +150,11 @@ thunar_size_label_init (ThunarSizeLabel *size_label)
+ 
+   /* binary file size */
+   size_label->preferences = thunar_preferences_get ();
+-  exo_binding_new (G_OBJECT (size_label->preferences), "misc-file-size-binary",
+-                   G_OBJECT (size_label), "file-size-binary");
++  g_object_bind_property (G_OBJECT (size_label->preferences),
++                          "misc-file-size-binary",
++                          G_OBJECT (size_label),
++                          "file-size-binary",
++                          G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (size_label->preferences), "notify::misc-file-size-binary",
+                             G_CALLBACK (thunar_size_label_files_changed), size_label);
+ 
+@@ -167,7 +170,7 @@ thunar_size_label_init (ThunarSizeLabel *size_label)
+ 
+   /* add the spinner widget */
+   size_label->spinner = gtk_spinner_new ();
+-  exo_binding_new (G_OBJECT (size_label->spinner), "visible", G_OBJECT (ebox), "visible");
++  g_object_bind_property (G_OBJECT (size_label->spinner), "visible", G_OBJECT (ebox), "visible", G_BINDING_SYNC_CREATE);
+   gtk_container_add (GTK_CONTAINER (ebox), size_label->spinner);
+   gtk_widget_show (size_label->spinner);
+ 
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 4c55262c..493dba48 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -682,17 +682,17 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
+   standard_view->priv->row_changed_id = g_signal_connect (G_OBJECT (standard_view->model), "row-changed", G_CALLBACK (thunar_standard_view_row_changed), standard_view);
+   g_signal_connect (G_OBJECT (standard_view->model), "rows-reordered", G_CALLBACK (thunar_standard_view_rows_reordered), standard_view);
+   g_signal_connect (G_OBJECT (standard_view->model), "error", G_CALLBACK (thunar_standard_view_error), standard_view);
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-case-sensitive", G_OBJECT (standard_view->model), "case-sensitive");
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-date-style", G_OBJECT (standard_view->model), "date-style");
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-date-custom-style", G_OBJECT (standard_view->model), "date-custom-style");
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-folders-first", G_OBJECT (standard_view->model), "folders-first");
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-file-size-binary", G_OBJECT (standard_view->model), "file-size-binary");
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-case-sensitive", G_OBJECT (standard_view->model), "case-sensitive", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-date-style", G_OBJECT (standard_view->model), "date-style", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-date-custom-style", G_OBJECT (standard_view->model), "date-custom-style", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-folders-first", G_OBJECT (standard_view->model), "folders-first", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-file-size-binary", G_OBJECT (standard_view->model), "file-size-binary", G_BINDING_SYNC_CREATE);
+ 
+   /* setup the icon renderer */
+   standard_view->icon_renderer = thunar_icon_renderer_new ();
+   g_object_ref_sink (G_OBJECT (standard_view->icon_renderer));
+-  exo_binding_new (G_OBJECT (standard_view), "zoom-level", G_OBJECT (standard_view->icon_renderer), "size");
+-  exo_binding_new (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->priv->thumbnailer), "thumbnail-size");
++  g_object_bind_property (G_OBJECT (standard_view), "zoom-level", G_OBJECT (standard_view->icon_renderer), "size", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->priv->thumbnailer), "thumbnail-size", G_BINDING_SYNC_CREATE);
+ 
+   /* setup the name renderer */
+   standard_view->name_renderer = g_object_new (GTK_TYPE_CELL_RENDERER_TEXT,
+@@ -705,7 +705,7 @@ thunar_standard_view_init (ThunarStandardView *standard_view)
+   g_object_ref_sink (G_OBJECT (standard_view->name_renderer));
+ 
+   /* TODO: prelit underline
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-single-click", G_OBJECT (standard_view->name_renderer), "follow-prelit");*/
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-single-click", G_OBJECT (standard_view->name_renderer), "follow-prelit", G_BINDING_SYNC_CREATE);*/
+ 
+   /* be sure to update the selection whenever the folder changes */
+   g_signal_connect_swapped (G_OBJECT (standard_view->model), "notify::folder", G_CALLBACK (thunar_standard_view_selection_changed), standard_view);
+@@ -778,8 +778,8 @@ thunar_standard_view_constructor (GType                  type,
+   g_object_set (G_OBJECT (view), "model", standard_view->model, NULL);
+ 
+   /* apply the single-click settings to the view */
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-single-click", G_OBJECT (view), "single-click");
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-single-click-timeout", G_OBJECT (view), "single-click-timeout");
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-single-click", G_OBJECT (view), "single-click", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-single-click-timeout", G_OBJECT (view), "single-click-timeout", G_BINDING_SYNC_CREATE);
+ 
+   /* apply the default sort column and sort order */
+   g_object_get (G_OBJECT (standard_view->preferences), "last-sort-column", &sort_column, "last-sort-order", &sort_order, NULL);
+@@ -817,8 +817,9 @@ thunar_standard_view_constructor (GType                  type,
+                     G_CALLBACK (thunar_standard_view_scrolled), object);
+ 
+   /* synchronise the "directory-specific-settings" property with the global "misc-directory-specific-settings" property */
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-directory-specific-settings",
+-                   G_OBJECT (standard_view), "directory-specific-settings");
++  g_object_bind_property (standard_view->preferences, "misc-directory-specific-settings",
++                          standard_view, "directory-specific-settings",
++                          G_BINDING_SYNC_CREATE);
+ 
+   /* done, we have a working object */
+   return object;
+@@ -836,7 +837,10 @@ thunar_standard_view_dispose (GObject *object)
+ 
+   /* unregister the "loading" binding */
+   if (G_UNLIKELY (standard_view->loading_binding != NULL))
+-    exo_binding_unbind (standard_view->loading_binding);
++    {
++      g_object_unref (standard_view->loading_binding);
++      standard_view->loading_binding = NULL;
++    }
+ 
+   /* be sure to cancel any pending drag autoscroll timer */
+   if (G_UNLIKELY (standard_view->priv->drag_scroll_timer_id != 0))
+@@ -1065,7 +1069,7 @@ thunar_standard_view_realize (GtkWidget *widget)
+   /* determine the icon factory for the screen on which we are realized */
+   icon_theme = gtk_icon_theme_get_for_screen (gtk_widget_get_screen (widget));
+   standard_view->icon_factory = thunar_icon_factory_get_for_icon_theme (icon_theme);
+-  exo_binding_new (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->icon_factory), "thumbnail-size");
++  g_object_bind_property (G_OBJECT (standard_view->icon_renderer), "size", G_OBJECT (standard_view->icon_factory), "thumbnail-size", G_BINDING_SYNC_CREATE);
+ 
+   /* we need to redraw whenever the "thumbnail_mode" property is toggled */
+   g_signal_connect_swapped (standard_view->icon_factory,
+@@ -1074,7 +1078,7 @@ thunar_standard_view_realize (GtkWidget *widget)
+                             standard_view);
+ 
+   /* apply the thumbnail frame preferences after icon_factory got initialized */
+-  exo_binding_new (G_OBJECT (standard_view->preferences), "misc-thumbnail-draw-frames", G_OBJECT (standard_view), "thumbnail-draw-frames");
++  g_object_bind_property (G_OBJECT (standard_view->preferences), "misc-thumbnail-draw-frames", G_OBJECT (standard_view), "thumbnail-draw-frames", G_BINDING_SYNC_CREATE);
+ 
+   /* store sort information to keep indicators in menu in sync */
+   thunar_standard_view_store_sort_column (standard_view);
+@@ -1334,7 +1338,10 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
+ 
+   /* disconnect any previous "loading" binding */
+   if (G_LIKELY (standard_view->loading_binding != NULL))
+-    exo_binding_unbind (standard_view->loading_binding);
++    {
++      g_object_unref (standard_view->loading_binding);
++      standard_view->loading_binding = NULL;
++    }
+ 
+   /* store the current scroll position */
+   if (current_directory != NULL)
+@@ -1395,10 +1402,13 @@ thunar_standard_view_set_current_directory (ThunarNavigator *navigator,
+   folder = thunar_folder_get_for_file (current_directory);
+ 
+   /* connect the "loading" binding */
+-  standard_view->loading_binding = exo_binding_new_full (G_OBJECT (folder), "loading",
+-                                                         G_OBJECT (standard_view), "loading",
+-                                                         NULL, thunar_standard_view_loading_unbound,
+-                                                         standard_view);
++  standard_view->loading_binding =
++    g_object_bind_property_full (folder,        "loading",
++                                 standard_view, "loading",
++                                 G_BINDING_SYNC_CREATE,
++                                 NULL, NULL,
++                                 standard_view,
++                                 thunar_standard_view_loading_unbound);
+ 
+   /* apply the new folder */
+   thunar_list_model_set_folder (standard_view->model, folder);
+diff --git a/thunar/thunar-standard-view.h b/thunar/thunar-standard-view.h
+index 45ad5efc..e5766c20 100644
+--- a/thunar/thunar-standard-view.h
++++ b/thunar/thunar-standard-view.h
+@@ -151,7 +151,7 @@ struct _ThunarStandardView
+   GtkCellRenderer           *icon_renderer;
+   GtkCellRenderer           *name_renderer;
+ 
+-  ExoBinding                *loading_binding;
++  GBinding                  *loading_binding;
+   gboolean                   loading;
+   GtkAccelGroup             *accel_group;
+ 
+diff --git a/thunar/thunar-transfer-job.c b/thunar/thunar-transfer-job.c
+index 783f2dc5..ff2a7933 100644
+--- a/thunar/thunar-transfer-job.c
++++ b/thunar/thunar-transfer-job.c
+@@ -168,10 +168,12 @@ static void
+ thunar_transfer_job_init (ThunarTransferJob *job)
+ {
+   job->preferences = thunar_preferences_get ();
+-  exo_binding_new (G_OBJECT (job->preferences), "misc-file-size-binary",
+-                   G_OBJECT (job), "file-size-binary");
+-  exo_binding_new (G_OBJECT (job->preferences), "misc-parallel-copy-mode",
+-                   G_OBJECT (job), "parallel-copy-mode");
++  g_object_bind_property (job->preferences, "misc-file-size-binary",
++                          job,              "file-size-binary",
++                          G_BINDING_SYNC_CREATE);
++  g_object_bind_property (job->preferences, "misc-parallel-copy-mode",
++                          job,              "parallel-copy-mode",
++                          G_BINDING_SYNC_CREATE);
+ 
+   job->type = 0;
+   job->source_node_list = NULL;
+diff --git a/thunar/thunar-tree-pane.c b/thunar/thunar-tree-pane.c
+index 109336b6..7bb021a2 100644
+--- a/thunar/thunar-tree-pane.c
++++ b/thunar/thunar-tree-pane.c
+@@ -141,8 +141,8 @@ thunar_tree_pane_init (ThunarTreePane *tree_pane)
+ 
+   /* allocate the tree view */
+   tree_pane->view = thunar_tree_view_new ();
+-  exo_binding_new (G_OBJECT (tree_pane), "show-hidden", G_OBJECT (tree_pane->view), "show-hidden");
+-  exo_binding_new (G_OBJECT (tree_pane), "current-directory", G_OBJECT (tree_pane->view), "current-directory");
++  g_object_bind_property (G_OBJECT (tree_pane), "show-hidden", G_OBJECT (tree_pane->view), "show-hidden", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (tree_pane), "current-directory", G_OBJECT (tree_pane->view), "current-directory", G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (tree_pane->view), "change-directory", G_CALLBACK (thunar_navigator_change_directory), tree_pane);
+   g_signal_connect_swapped (G_OBJECT (tree_pane->view), "open-new-tab", G_CALLBACK (thunar_navigator_open_new_tab), tree_pane);
+   gtk_container_add (GTK_CONTAINER (tree_pane), tree_pane->view);
+diff --git a/thunar/thunar-tree-view.c b/thunar/thunar-tree-view.c
+index 501abd20..b9a8efa0 100644
+--- a/thunar/thunar-tree-view.c
++++ b/thunar/thunar-tree-view.c
+@@ -346,7 +346,7 @@ thunar_tree_view_init (ThunarTreeView *view)
+ 
+   /* synchronize the the global "misc-case-sensitive" preference */
+   g_object_set_data_full (G_OBJECT (view->model), I_("thunar-preferences"), view->preferences, g_object_unref);
+-  exo_binding_new (G_OBJECT (view->preferences), "misc-case-sensitive", G_OBJECT (view->model), "case-sensitive");
++  g_object_bind_property (G_OBJECT (view->preferences), "misc-case-sensitive", G_OBJECT (view->model), "case-sensitive", G_BINDING_SYNC_CREATE);
+ 
+   thunar_tree_model_set_visible_func (view->model, thunar_tree_view_visible_func, view);
+   gtk_tree_view_set_model (GTK_TREE_VIEW (view), GTK_TREE_MODEL (view->model));
+@@ -379,8 +379,8 @@ thunar_tree_view_init (ThunarTreeView *view)
+   /* sync the "emblems" property of the icon renderer with the "tree-icon-emblems" preference
+    * and the "size" property of the renderer with the "tree-icon-size" preference.
+    */
+-  exo_binding_new (G_OBJECT (view->preferences), "tree-icon-size", G_OBJECT (view->icon_renderer), "size");
+-  exo_binding_new (G_OBJECT (view->preferences), "tree-icon-emblems", G_OBJECT (view->icon_renderer), "emblems");
++  g_object_bind_property (G_OBJECT (view->preferences), "tree-icon-size", G_OBJECT (view->icon_renderer), "size", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (view->preferences), "tree-icon-emblems", G_OBJECT (view->icon_renderer), "emblems", G_BINDING_SYNC_CREATE);
+ 
+   /* allocate the text renderer */
+   renderer = gtk_cell_renderer_text_new ();
+@@ -407,7 +407,7 @@ thunar_tree_view_init (ThunarTreeView *view)
+   g_signal_connect_swapped (G_OBJECT (view->launcher), "change-directory", G_CALLBACK (thunar_tree_view_action_open), view);
+   g_signal_connect_swapped (G_OBJECT (view->launcher), "open-new-tab", G_CALLBACK (thunar_navigator_open_new_tab), view);
+   g_signal_connect_swapped (G_OBJECT (view->launcher), "new-files-created", G_CALLBACK (thunar_tree_view_select_files), view);
+-  exo_binding_new (G_OBJECT (view), "current-directory", G_OBJECT (view->launcher), "current-directory");
++  g_object_bind_property (G_OBJECT (view), "current-directory", G_OBJECT (view->launcher), "current-directory", G_BINDING_SYNC_CREATE);
+ }
+ 
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index b63edc51..3f978770 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -729,7 +729,7 @@ thunar_window_init (ThunarWindow *window)
+ 
+   window->launcher = g_object_new (THUNAR_TYPE_LAUNCHER, "widget", GTK_WIDGET (window), NULL);
+ 
+-  exo_binding_new (G_OBJECT (window), "current-directory", G_OBJECT (window->launcher), "current-directory");
++  g_object_bind_property (G_OBJECT (window), "current-directory", G_OBJECT (window->launcher), "current-directory", G_BINDING_SYNC_CREATE);
+   g_signal_connect_swapped (G_OBJECT (window->launcher), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
+   g_signal_connect_swapped (G_OBJECT (window->launcher), "open-new-tab", G_CALLBACK (thunar_window_notebook_open_new_tab), window);
+   g_signal_connect_swapped (G_OBJECT (window->launcher), "new-files-created", G_CALLBACK (thunar_window_select_files), window);
+@@ -778,8 +778,9 @@ thunar_window_init (ThunarWindow *window)
+   /* place the spinner into the menu item */
+   window->spinner = gtk_spinner_new ();
+   gtk_container_add (GTK_CONTAINER (item), window->spinner);
+-  exo_binding_new (G_OBJECT (window->spinner), "active",
+-                   G_OBJECT (window->spinner), "visible");
++  g_object_bind_property (G_OBJECT (window->spinner), "active",
++                          G_OBJECT (window->spinner), "visible",
++                          G_BINDING_SYNC_CREATE);
+ 
+   /* check if we need to add the root warning */
+   if (G_UNLIKELY (geteuid () == 0))
+@@ -904,7 +905,7 @@ thunar_window_init (ThunarWindow *window)
+   g_free (last_side_pane);
+ 
+   /* synchronise the "directory-specific-settings" property with the global "misc-directory-specific-settings" property */
+-  exo_binding_new (G_OBJECT (window->preferences), "misc-directory-specific-settings", G_OBJECT (window), "directory-specific-settings");
++  g_object_bind_property (G_OBJECT (window->preferences), "misc-directory-specific-settings", G_OBJECT (window), "directory-specific-settings", G_BINDING_SYNC_CREATE);
+ 
+   /* setup a new statusbar */
+   window->statusbar = thunar_statusbar_new ();
+@@ -2110,8 +2111,8 @@ thunar_window_notebook_insert_page (ThunarWindow  *window,
+   label_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+ 
+   label = gtk_label_new (NULL);
+-  exo_binding_new (G_OBJECT (view), "display-name", G_OBJECT (label), "label");
+-  exo_binding_new (G_OBJECT (view), "tooltip-text", G_OBJECT (label), "tooltip-text");
++  g_object_bind_property (G_OBJECT (view), "display-name", G_OBJECT (label), "label", G_BINDING_SYNC_CREATE);
++  g_object_bind_property (G_OBJECT (view), "tooltip-text", G_OBJECT (label), "tooltip-text", G_BINDING_SYNC_CREATE);
+   gtk_widget_set_has_tooltip (label, TRUE);
+   gtk_label_set_xalign (GTK_LABEL (label), 0.0f);
+   gtk_widget_set_margin_start (GTK_WIDGET(label), 3);
+@@ -2436,7 +2437,7 @@ thunar_window_install_sidepane (ThunarWindow *window,
+       /* allocate the new side pane widget */
+       window->sidepane = g_object_new (type, NULL);
+       gtk_widget_set_size_request (window->sidepane, 0, -1);
+-      exo_binding_new (G_OBJECT (window), "current-directory", G_OBJECT (window->sidepane), "current-directory");
++      g_object_bind_property (G_OBJECT (window), "current-directory", G_OBJECT (window->sidepane), "current-directory", G_BINDING_SYNC_CREATE);
+       g_signal_connect_swapped (G_OBJECT (window->sidepane), "change-directory", G_CALLBACK (thunar_window_set_current_directory), window);
+       g_signal_connect_swapped (G_OBJECT (window->sidepane), "open-new-tab", G_CALLBACK (thunar_window_notebook_open_new_tab), window);
+       context = gtk_widget_get_style_context (window->sidepane);
+@@ -3478,7 +3479,7 @@ thunar_window_action_open_templates (ThunarWindow *window)
+       gtk_widget_show (label);
+ 
+       button = gtk_check_button_new_with_mnemonic (_("Do _not display this message again"));
+-      exo_mutual_binding_new_with_negation (G_OBJECT (window->preferences), "misc-show-about-templates", G_OBJECT (button), "active");
++      g_object_bind_property (G_OBJECT (window->preferences), "misc-show-about-templates", G_OBJECT (button), "active", G_BINDING_INVERT_BOOLEAN | G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+       gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+       gtk_widget_show (button);
+ 
+@@ -4600,4 +4601,4 @@ thunar_window_trash_selection_updated (ThunarWindow *window)
+     gtk_widget_set_sensitive (window->trash_infobar_restore_button, TRUE);
+   else
+     gtk_widget_set_sensitive (window->trash_infobar_restore_button, FALSE);
+-}
+\ No newline at end of file
++}

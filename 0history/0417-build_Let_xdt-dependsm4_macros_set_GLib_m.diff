@@ -1,0 +1,24 @@
+diff --git a/autogen.sh b/autogen.sh
+index 3401543f..7a197f26 100755
+--- a/autogen.sh
++++ b/autogen.sh
+@@ -29,4 +29,4 @@ EOF
+   exit 1
+ }
+ 
+-XDT_AUTOGEN_REQUIRED_VERSION="4.14.0" exec xdt-autogen $@
++XDT_AUTOGEN_REQUIRED_VERSION="4.17.1" exec xdt-autogen $@
+diff --git a/configure.ac.in b/configure.ac.in
+index a2c6021e..bfe94f40 100644
+--- a/configure.ac.in
++++ b/configure.ac.in
+@@ -177,9 +177,6 @@ XDT_CHECK_PACKAGE([LIBXFCE4KBD_PRIVATE], [libxfce4kbd-private-3], [4.17.2])
+ XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.12.0])
+ XDT_CHECK_PACKAGE([PANGO], [pango], [1.38.0])
+ 
+-AC_DEFINE(GLIB_VERSION_MIN_REQUIRED, GLIB_VERSION_2_66, [Ignore post 2.66 deprecations])
+-AC_DEFINE(GLIB_VERSION_MAX_ALLOWED, GLIB_VERSION_2_66, [Prevent post 2.66 APIs])
+-
+ dnl ******************************
+ dnl *** GObject Instrospection ***
+ dnl ******************************

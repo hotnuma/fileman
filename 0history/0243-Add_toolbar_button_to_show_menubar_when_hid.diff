@@ -1,0 +1,329 @@
+diff --git a/thunar/thunar-preferences.c b/thunar/thunar-preferences.c
+index 7bc94951..28d0d5f0 100644
+--- a/thunar/thunar-preferences.c
++++ b/thunar/thunar-preferences.c
+@@ -447,7 +447,7 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
+         g_param_spec_string ("last-toolbar-visible-buttons",
+                              "LastToolbarVisibleButtons",
+                              NULL,
+-                             "1,1,1,1,0,0,0,1,0,1",
++                             "0,1,1,1,1,0,0,0,1,0,1",
+                              EXO_PARAM_READWRITE);
+ 
+   /**
+@@ -459,7 +459,7 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
+         g_param_spec_string ("last-toolbar-item-order",
+                              "LastToolbarButtonOrder",
+                              NULL,
+-                             "0,1,2,3,4,5,6,7,8,9",
++                             "0,1,2,3,4,5,6,7,8,9,10",
+                              EXO_PARAM_READWRITE);
+ 
+   /**
+diff --git a/thunar/thunar-toolbar-editor.c b/thunar/thunar-toolbar-editor.c
+index 30ef10ca..1fc76d74 100644
+--- a/thunar/thunar-toolbar-editor.c
++++ b/thunar/thunar-toolbar-editor.c
+@@ -36,24 +36,27 @@
+ 
+ 
+ 
+-static void thunar_toolbar_editor_finalize                           (GObject                  *object);
+-static void thunar_toolbar_editor_help_clicked                       (ThunarToolbarEditor      *toolbar_editor,
+-                                                                      GtkWidget                *button);
+-static void thunar_toolbar_editor_swap_toolbar_items_for_all_windows (ThunarToolbarEditor      *editor,
+-                                                                      GtkTreeIter              *item1,
+-                                                                      GtkTreeIter              *item2);
+-static void thunar_toolbar_editor_move_down                          (ThunarToolbarEditor      *toolbar_editor,
+-                                                                      GtkWidget                *button);
+-static void thunar_toolbar_editor_move_up                            (ThunarToolbarEditor      *toolbar_editor,
+-                                                                      GtkWidget                *button);
+-static void thunar_toolbar_editor_toggle_visibility                  (ThunarToolbarEditor      *toolbar_editor,
+-                                                                      const gchar              *path_string,
+-                                                                      GtkCellRendererToggle    *cell_renderer);
+-static void thunar_toolbar_editor_update_buttons                     (ThunarToolbarEditor      *toolbar_editor);
+-static void thunar_toolbar_editor_use_defaults                       (ThunarToolbarEditor      *toolbar_editor,
+-                                                                      GtkWidget                *button);
+-static void thunar_toolbar_editor_save_model                         (ThunarToolbarEditor      *toolbar_editor);
+-static void thunar_toolbar_editor_populate_model                     (ThunarToolbarEditor      *toolbar_editor);
++static void     thunar_toolbar_editor_finalize                           (GObject                  *object);
++static gboolean thunar_toolbar_editor_visible_func                       (GtkTreeModel             *model,
++                                                                          GtkTreeIter              *iter,
++                                                                          gpointer                  data);
++static void     thunar_toolbar_editor_help_clicked                       (ThunarToolbarEditor      *toolbar_editor,
++                                                                          GtkWidget                *button);
++static void     thunar_toolbar_editor_swap_toolbar_items_for_all_windows (GtkListStore             *model,
++                                                                          GtkTreeIter              *item1,
++                                                                          GtkTreeIter              *item2);
++static void     thunar_toolbar_editor_move_down                          (ThunarToolbarEditor      *toolbar_editor,
++                                                                          GtkWidget                *button);
++static void     thunar_toolbar_editor_move_up                            (ThunarToolbarEditor      *toolbar_editor,
++                                                                          GtkWidget                *button);
++static void     thunar_toolbar_editor_toggle_visibility                  (ThunarToolbarEditor      *toolbar_editor,
++                                                                          const gchar              *path_string,
++                                                                          GtkCellRendererToggle    *cell_renderer);
++static void     thunar_toolbar_editor_update_buttons                     (ThunarToolbarEditor      *toolbar_editor);
++static void     thunar_toolbar_editor_use_defaults                       (ThunarToolbarEditor      *toolbar_editor,
++                                                                          GtkWidget                *button);
++static void     thunar_toolbar_editor_save_model                         (ThunarToolbarEditor      *toolbar_editor);
++static void     thunar_toolbar_editor_populate_model                     (ThunarToolbarEditor      *toolbar_editor);
+ 
+ 
+ 
+@@ -69,6 +72,7 @@ struct _ThunarToolbarEditor
+   ThunarPreferences *preferences;
+ 
+   GtkListStore      *model;
++  GtkTreeModel      *filter;
+ 
+   /* Used to get information about the toolbar items, it is used as a reference. All the toolbars are changed, not just this one. */
+   GtkWidget         *toolbar;
+@@ -164,10 +168,15 @@ thunar_toolbar_editor_init (ThunarToolbarEditor *toolbar_editor)
+   gtk_grid_attach (GTK_GRID (grid), swin, 0, row, 1, 6);
+   gtk_widget_show (swin);
+ 
++  /* create a filter from the shared column model */
++  toolbar_editor->filter = gtk_tree_model_filter_new (GTK_TREE_MODEL (toolbar_editor->model), NULL);
++  gtk_tree_model_filter_set_visible_func (GTK_TREE_MODEL_FILTER (toolbar_editor->filter),
++                                          (GtkTreeModelFilterVisibleFunc) thunar_toolbar_editor_visible_func,
++                                          NULL, NULL);
++
+   /* create the tree view */
+-  toolbar_editor->tree_view = gtk_tree_view_new ();
++  toolbar_editor->tree_view = gtk_tree_view_new_with_model (toolbar_editor->filter);
+   gtk_tree_view_set_headers_visible (GTK_TREE_VIEW (toolbar_editor->tree_view), FALSE);
+-  gtk_tree_view_set_model (GTK_TREE_VIEW (toolbar_editor->tree_view), GTK_TREE_MODEL (toolbar_editor->model));
+   gtk_tree_view_set_search_column (GTK_TREE_VIEW (toolbar_editor->tree_view), 2);
+   gtk_container_add (GTK_CONTAINER (swin), toolbar_editor->tree_view);
+   gtk_widget_show (toolbar_editor->tree_view);
+@@ -263,6 +272,25 @@ thunar_toolbar_editor_finalize (GObject *object)
+ 
+ 
+ 
++static gboolean
++thunar_toolbar_editor_visible_func (GtkTreeModel *model,
++                                    GtkTreeIter  *iter,
++                                    gpointer     data)
++{
++  gboolean visible = TRUE;
++  gint     order;
++
++  gtk_tree_model_get (model, iter, 3, &order, -1);
++
++   /* The item with order 0 is always THUNAR_WINDOW_ACTION_VIEW_MENUBAR which we want to hide */
++  if (order == 0)
++    visible = FALSE;
++
++  return visible;
++}
++
++
++
+ static void
+ thunar_toolbar_editor_help_clicked (ThunarToolbarEditor *toolbar_editor,
+                                     GtkWidget          *button)
+@@ -280,16 +308,16 @@ thunar_toolbar_editor_help_clicked (ThunarToolbarEditor *toolbar_editor,
+ 
+ 
+ static void
+-thunar_toolbar_editor_swap_toolbar_items_for_all_windows (ThunarToolbarEditor *editor,
+-                                                          GtkTreeIter         *item1,
+-                                                          GtkTreeIter         *item2)
++thunar_toolbar_editor_swap_toolbar_items_for_all_windows (GtkListStore *model,
++                                                          GtkTreeIter  *item1,
++                                                          GtkTreeIter  *item2)
+ {
+   GList            *windows;
+   GtkTreePath      *path1;
+   GtkTreePath      *path2;
+ 
+-  path1 = gtk_tree_model_get_path (GTK_TREE_MODEL (editor->model), item1);
+-  path2 = gtk_tree_model_get_path (GTK_TREE_MODEL (editor->model), item2);
++  path1 = gtk_tree_model_get_path (GTK_TREE_MODEL (model), item1);
++  path2 = gtk_tree_model_get_path (GTK_TREE_MODEL (model), item2);
+ 
+   windows = thunar_application_get_windows (thunar_application_get ());
+   for (GList *lp = windows; lp != NULL; lp = lp->next)
+@@ -311,8 +339,11 @@ thunar_toolbar_editor_move_down (ThunarToolbarEditor *toolbar_editor,
+ {
+   GtkTreeSelection *selection;
+   GtkTreeModel     *model;
++  GtkTreeModel     *childModel;
+   GtkTreeIter       iter1;
+   GtkTreeIter       iter2;
++  GtkTreeIter       childIter1;
++  GtkTreeIter       childIter2;
+ 
+   _thunar_return_if_fail (THUNAR_IS_TOOLBAR_EDITOR (toolbar_editor));
+   _thunar_return_if_fail (GTK_IS_BUTTON (button));
+@@ -324,8 +355,13 @@ thunar_toolbar_editor_move_down (ThunarToolbarEditor *toolbar_editor,
+   if (gtk_tree_model_iter_next (model, &iter2) == FALSE)
+     return;
+ 
+-  gtk_list_store_swap (GTK_LIST_STORE (model), &iter1, &iter2);
+-  thunar_toolbar_editor_swap_toolbar_items_for_all_windows (toolbar_editor, &iter1, &iter2);
++  /* tree view's model is made from GTK_TREE_MODEL_FILTER, hence fetching child model and child iter's */
++  gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (model), &childIter1, &iter1);
++  gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (model), &childIter2, &iter2);
++  childModel = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER (model));
++
++  gtk_list_store_swap (GTK_LIST_STORE (childModel), &childIter1, &childIter2);
++  thunar_toolbar_editor_swap_toolbar_items_for_all_windows (GTK_LIST_STORE (childModel), &childIter1, &childIter2);
+ }
+ 
+ 
+@@ -336,8 +372,11 @@ thunar_toolbar_editor_move_up (ThunarToolbarEditor *toolbar_editor,
+ {
+   GtkTreeSelection *selection;
+   GtkTreeModel     *model;
++  GtkTreeModel     *childModel;
+   GtkTreeIter       iter1;
+   GtkTreeIter       iter2;
++  GtkTreeIter       childIter1;
++  GtkTreeIter       childIter2;
+ 
+   _thunar_return_if_fail (THUNAR_IS_TOOLBAR_EDITOR (toolbar_editor));
+   _thunar_return_if_fail (GTK_IS_BUTTON (button));
+@@ -349,8 +388,13 @@ thunar_toolbar_editor_move_up (ThunarToolbarEditor *toolbar_editor,
+   if (gtk_tree_model_iter_previous (model, &iter2) == FALSE)
+     return;
+ 
+-  gtk_list_store_swap (GTK_LIST_STORE (model), &iter1, &iter2);
+-  thunar_toolbar_editor_swap_toolbar_items_for_all_windows (toolbar_editor, &iter1, &iter2);
++  /* tree view's model is made from GTK_TREE_MODEL_FILTER, hence fetching child model and child iter's */
++  gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (model), &childIter1, &iter1);
++  gtk_tree_model_filter_convert_iter_to_child_iter (GTK_TREE_MODEL_FILTER (model), &childIter2, &iter2);
++  childModel = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER (model));
++
++  gtk_list_store_swap (GTK_LIST_STORE (childModel), &childIter1, &childIter2);
++  thunar_toolbar_editor_swap_toolbar_items_for_all_windows (GTK_LIST_STORE (childModel), &childIter1, &childIter2);
+ }
+ 
+ 
+@@ -361,6 +405,7 @@ thunar_toolbar_editor_toggle_visibility (ThunarToolbarEditor    *toolbar_editor,
+                                          GtkCellRendererToggle  *cell_renderer)
+ {
+   GtkTreePath *path;
++  GtkTreePath *child_path;
+   GtkTreeIter  iter;
+   gboolean     visible;
+   GList       *windows;
+@@ -371,7 +416,16 @@ thunar_toolbar_editor_toggle_visibility (ThunarToolbarEditor    *toolbar_editor,
+ 
+   /* determine the tree path for the string */
+   path = gtk_tree_path_new_from_string (path_string);
+-  if (gtk_tree_model_get_iter (GTK_TREE_MODEL (toolbar_editor->model), &iter, path))
++
++  child_path = gtk_tree_model_filter_convert_path_to_child_path (GTK_TREE_MODEL_FILTER (toolbar_editor->filter), path);
++
++  if (child_path == NULL)
++    {
++      gtk_tree_path_free (path);
++      return;
++    }
++
++  if (gtk_tree_model_get_iter (GTK_TREE_MODEL (toolbar_editor->model), &iter, child_path))
+     {
+       gtk_tree_model_get (GTK_TREE_MODEL (toolbar_editor->model), &iter, 0, &visible, -1);
+       gtk_list_store_set (toolbar_editor->model, &iter, 0, !visible, -1);
+@@ -381,11 +435,12 @@ thunar_toolbar_editor_toggle_visibility (ThunarToolbarEditor    *toolbar_editor,
+   for (GList *lp = windows; lp != NULL; lp = lp->next)
+     {
+       ThunarWindow *window = lp->data;
+-      thunar_window_toolbar_toggle_item_visibility (window, gtk_tree_path_get_indices (path)[0]);
++      thunar_window_toolbar_toggle_item_visibility (window, gtk_tree_path_get_indices (child_path)[0]);
+     }
+ 
+   g_list_free (windows);
+   gtk_tree_path_free (path);
++  gtk_tree_path_free (child_path);
+ }
+ 
+ 
+@@ -469,7 +524,7 @@ thunar_toolbar_editor_use_defaults (ThunarToolbarEditor *toolbar_editor,
+               gtk_tree_model_get_iter_from_string (GTK_TREE_MODEL (toolbar_editor->model), &iter_i, path_i);
+               gtk_tree_model_get_iter_from_string (GTK_TREE_MODEL (toolbar_editor->model), &iter_j, path_j);
+               gtk_list_store_swap (GTK_LIST_STORE (toolbar_editor->model), &iter_i, &iter_j);
+-              thunar_toolbar_editor_swap_toolbar_items_for_all_windows (toolbar_editor, &iter_i, &iter_j);
++              thunar_toolbar_editor_swap_toolbar_items_for_all_windows (toolbar_editor->model, &iter_i, &iter_j);
+ 
+               y = current_order[i];
+               current_order[i] = target_order[i];
+@@ -591,7 +646,7 @@ thunar_toolbar_editor_populate_model (ThunarToolbarEditor *toolbar_editor)
+   g_signal_connect_swapped (G_OBJECT (selection), "changed", G_CALLBACK (thunar_toolbar_editor_update_buttons), toolbar_editor);
+ 
+   /* select the first item */
+-  if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (toolbar_editor->model), &iter))
++  if (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (toolbar_editor->filter), &iter))
+     gtk_tree_selection_select_iter (selection, &iter);
+ 
+   g_list_free (toolbar_items);
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index a1c17d93..0292518c 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -414,6 +414,7 @@ struct _ThunarWindow
+   GtkWidget              *location_toolbar_item_zoom_in;
+   GtkWidget              *location_toolbar_item_zoom_out;
+   GtkWidget              *location_toolbar_item_search;
++  GtkWidget              *location_toolbar_item_view_menubar;
+ 
+   ThunarLauncher         *launcher;
+ 
+@@ -465,7 +466,7 @@ static XfceGtkActionEntry thunar_window_action_entries[] =
+     { THUNAR_WINDOW_ACTION_VIEW_SIDE_PANE_TREE,            "<Actions>/ThunarWindow/view-side-pane-tree",             "<Primary>e",           XFCE_GTK_CHECK_MENU_ITEM, N_ ("_Tree"),                  N_ ("Toggles the visibility of the tree pane"),                                      NULL,                      G_CALLBACK (thunar_window_action_tree_changed),       },
+     { THUNAR_WINDOW_ACTION_TOGGLE_SIDE_PANE,               "<Actions>/ThunarWindow/toggle-side-pane",                "F9",                   XFCE_GTK_MENU_ITEM,       NULL,                          NULL,                                                                                NULL,                      G_CALLBACK (thunar_window_toggle_sidepane),           },
+     { THUNAR_WINDOW_ACTION_VIEW_STATUSBAR,                 "<Actions>/ThunarWindow/view-statusbar",                  "",                     XFCE_GTK_CHECK_MENU_ITEM, N_ ("St_atusbar"),             N_ ("Change the visibility of this window's statusbar"),                             NULL,                      G_CALLBACK (thunar_window_action_statusbar_changed),  },
+-    { THUNAR_WINDOW_ACTION_VIEW_MENUBAR,                   "<Actions>/ThunarWindow/view-menubar",                    "<Primary>m",           XFCE_GTK_CHECK_MENU_ITEM, N_ ("_Menubar"),               N_ ("Change the visibility of this window's menubar"),                               NULL,                      G_CALLBACK (thunar_window_action_menubar_changed),    },
++    { THUNAR_WINDOW_ACTION_VIEW_MENUBAR,                   "<Actions>/ThunarWindow/view-menubar",                    "<Primary>m",           XFCE_GTK_CHECK_MENU_ITEM, N_ ("_Menubar"),               N_ ("Change the visibility of this window's menubar"),                               "open-menu-symbolic",      G_CALLBACK (thunar_window_action_menubar_changed),    },
+     { THUNAR_WINDOW_ACTION_CONFIGURE_TOOLBAR,              "<Actions>/ThunarWindow/view-configure-toolbar",          "",                     XFCE_GTK_MENU_ITEM ,      N_ ("Configure _Toolbar..."),  N_ ("Configure the toolbar"),                                                        NULL,                      G_CALLBACK (thunar_window_action_show_toolbar_editor),},
+     { THUNAR_WINDOW_ACTION_SHOW_HIDDEN,                    "<Actions>/ThunarWindow/show-hidden",                     "<Primary>h",           XFCE_GTK_CHECK_MENU_ITEM, N_ ("Show _Hidden Files"),     N_ ("Toggles the display of hidden files in the current window"),                    NULL,                      G_CALLBACK (thunar_window_action_show_hidden),        },
+     { THUNAR_WINDOW_ACTION_ZOOM_IN,                        "<Actions>/ThunarWindow/zoom-in",                         "<Primary>KP_Add",      XFCE_GTK_IMAGE_MENU_ITEM, N_ ("Zoom I_n"),               N_ ("Show the contents in more detail"),                                             "zoom-in-symbolic",        G_CALLBACK (thunar_window_zoom_in),                   },
+@@ -3553,6 +3554,7 @@ thunar_window_action_menubar_changed (ThunarWindow *window)
+   g_object_get (window->preferences, "last-menubar-visible", &last_menubar_visible, NULL);
+ 
+   gtk_widget_set_visible (window->menubar, !last_menubar_visible);
++  gtk_widget_set_visible (window->location_toolbar_item_view_menubar, last_menubar_visible);
+ 
+   g_object_set (G_OBJECT (window->preferences), "last-menubar-visible", !last_menubar_visible, NULL);
+ 
+@@ -5548,8 +5550,10 @@ thunar_window_location_toolbar_create (ThunarWindow *window)
+   guint           *item_order_ptr;
+   guint            item_order;
+   gboolean         small_icons;
++  gboolean         last_menubar_visible;
+ 
+-  g_object_get (G_OBJECT (window->preferences), "misc-small-toolbar-icons", &small_icons, NULL);
++  g_object_get (G_OBJECT (window->preferences), "misc-small-toolbar-icons", &small_icons,
++                                                "last-menubar-visible", &last_menubar_visible, NULL);
+ 
+   /* allocate the new location bar widget */
+   window->location_bar = thunar_location_bar_new ();
+@@ -5567,7 +5571,17 @@ thunar_window_location_toolbar_create (ThunarWindow *window)
+   gtk_widget_set_hexpand (window->location_toolbar, TRUE);
+   gtk_grid_attach (GTK_GRID (window->grid), window->location_toolbar, 0, 1, 1, 1);
+ 
++  /* The item with order 0 is always THUNAR_WINDOW_ACTION_VIEW_MENUBAR which we hide by default */
+   item_order = 0;
++  window->location_toolbar_item_view_menubar = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_MENUBAR), G_OBJECT (window), GTK_TOOLBAR (window->location_toolbar));
++  g_object_set_data_full (G_OBJECT (window->location_toolbar_item_view_menubar), "label", g_strdup (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_MENUBAR)->menu_item_label_text), g_free);
++  g_object_set_data_full (G_OBJECT (window->location_toolbar_item_view_menubar), "icon", g_strdup (get_action_entry (THUNAR_WINDOW_ACTION_VIEW_MENUBAR)->menu_item_icon_name), g_free);
++  item_order_ptr = g_malloc (sizeof (gint));
++  *item_order_ptr = item_order;
++  g_object_set_data_full (G_OBJECT (window->location_toolbar_item_view_menubar), "default-order", item_order_ptr, g_free);
++  g_signal_connect (G_OBJECT (window->location_toolbar_item_view_menubar), "button-press-event", G_CALLBACK (thunar_window_toolbar_button_clicked), G_OBJECT (window));
++
++  item_order++;
+   window->location_toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry (get_action_entry (THUNAR_WINDOW_ACTION_BACK), G_OBJECT (window), GTK_TOOLBAR (window->location_toolbar));
+   g_object_set_data_full (G_OBJECT (window->location_toolbar_item_back), "label", g_strdup (get_action_entry (THUNAR_WINDOW_ACTION_BACK)->menu_item_label_text), g_free);
+   g_object_set_data_full (G_OBJECT (window->location_toolbar_item_back), "icon", g_strdup (get_action_entry (THUNAR_WINDOW_ACTION_BACK)->menu_item_icon_name), g_free);
+@@ -5673,6 +5687,9 @@ thunar_window_location_toolbar_create (ThunarWindow *window)
+   /* display the toolbar */
+   gtk_widget_show_all (window->location_toolbar);
+ 
++  /* view_menubar is only visible when the menu is hidden */
++  gtk_widget_set_visible (window->location_toolbar_item_view_menubar, last_menubar_visible);
++
+   /* add the location bar itself after gtk_widget_show_all to not mess with the visibility of the location buttons */
+   gtk_container_add (GTK_CONTAINER (tool_item), window->location_bar);
+ 

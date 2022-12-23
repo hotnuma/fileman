@@ -1,0 +1,113 @@
+diff --git a/thunar/thunar-gio-extensions.c b/thunar/thunar-gio-extensions.c
+index 1708c268..03fcf0e6 100644
+--- a/thunar/thunar-gio-extensions.c
++++ b/thunar/thunar-gio-extensions.c
+@@ -657,28 +657,28 @@ thunar_g_file_get_free_space (GFile   *file,
+ gchar *
+ thunar_g_file_get_free_space_string (GFile *file, gboolean file_size_binary)
+ {
+-  gchar             *fs_free_str;
+-  gchar             *fs_size_str;
+-  guint64            fs_free;
+-  guint64            fs_size;
+-  gchar             *fs_string = NULL;
++  gchar             *fs_size_free_str;
++  gchar             *fs_size_used_str;
++  guint64            fs_size_free;
++  guint64            fs_size_total;
++  gchar             *free_space_string = NULL;
+ 
+   _thunar_return_val_if_fail (G_IS_FILE (file), NULL);
+ 
+-  if (thunar_g_file_get_free_space (file, &fs_free, &fs_size)
+-      && fs_size > 0)
++  if (thunar_g_file_get_free_space (file, &fs_size_free, &fs_size_total) && fs_size_total > 0)
+     {
+-      fs_free_str = g_format_size_full (fs_free, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
+-      fs_size_str = g_format_size_full (fs_size, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
+-      /* free disk space string */
+-      fs_string = g_strdup_printf (_("%s of %s free (%d%% used)"),
+-                                   fs_free_str, fs_size_str,
+-                                   (gint) ((fs_size - fs_free) * 100 / fs_size));
+-      g_free (fs_free_str);
+-      g_free (fs_size_str);
++      fs_size_free_str  = g_format_size_full (fs_size_free,  file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
++      fs_size_used_str =  g_format_size_full (fs_size_total - fs_size_free, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
++
++      free_space_string = g_strdup_printf (_("%s used (%d%%)  |  %s free (%d%%)"),
++                                   fs_size_used_str, (gint) ((fs_size_total - fs_size_free) * 100 / fs_size_total),
++                                   fs_size_free_str, (gint) (fs_size_free * 100 / fs_size_total));
++
++      g_free (fs_size_free_str);
++      g_free (fs_size_used_str);
+     }
+ 
+-  return fs_string;
++  return free_space_string;
+ }
+ 
+ 
+diff --git a/thunar/thunar-properties-dialog.c b/thunar/thunar-properties-dialog.c
+index 354adab6..924bc6a2 100644
+--- a/thunar/thunar-properties-dialog.c
++++ b/thunar/thunar-properties-dialog.c
+@@ -163,6 +163,8 @@ struct _ThunarPropertiesDialog
+   GtkWidget              *deleted_label;
+   GtkWidget              *modified_label;
+   GtkWidget              *accessed_label;
++  GtkWidget              *capacity_vbox;
++  GtkWidget              *capacity_label;
+   GtkWidget              *freespace_vbox;
+   GtkWidget              *freespace_bar;
+   GtkWidget              *freespace_label;
+@@ -637,6 +639,28 @@ thunar_properties_dialog_init (ThunarPropertiesDialog *dialog)
+ 
+   ++row;
+ 
++  label = gtk_label_new (_("Capacity:"));
++  gtk_label_set_attributes (GTK_LABEL (label), thunar_pango_attr_list_bold ());
++  gtk_label_set_xalign (GTK_LABEL (label), 1.0f);
++  gtk_label_set_yalign (GTK_LABEL (label), 0.0f);
++  gtk_grid_attach (GTK_GRID (grid), label, 0, row, 1, 1);
++  gtk_widget_show (label);
++
++  dialog->capacity_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 4);
++  gtk_widget_set_hexpand (dialog->capacity_vbox, TRUE);
++  gtk_grid_attach (GTK_GRID (grid), dialog->capacity_vbox, 1, row, 1, 1);
++  g_object_bind_property (G_OBJECT (dialog->capacity_vbox), "visible",
++                          G_OBJECT (label),                 "visible",
++                          G_BINDING_SYNC_CREATE);
++  gtk_widget_show (dialog->capacity_vbox);
++
++  dialog->capacity_label = g_object_new (GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
++  gtk_label_set_selectable (GTK_LABEL (dialog->capacity_label), TRUE);
++  gtk_box_pack_start (GTK_BOX (dialog->capacity_vbox), dialog->capacity_label, TRUE, TRUE, 0);
++  gtk_widget_show (dialog->capacity_label);
++
++  ++row;
++
+   label = gtk_label_new (_("Usage:"));
+   gtk_label_set_attributes (GTK_LABEL (label), thunar_pango_attr_list_bold ());
+   gtk_label_set_xalign (GTK_LABEL (label), 1.0f);
+@@ -1176,6 +1200,8 @@ thunar_properties_dialog_update_single (ThunarPropertiesDialog *dialog)
+   gchar             *volume_name;
+   gchar             *volume_id;
+   gchar             *volume_label;
++  guint64            capacity = 0;
++  gchar             *capacity_str = NULL;
+   ThunarFile        *file;
+   ThunarFile        *parent_file;
+   gboolean           show_chooser;
+@@ -1399,6 +1425,12 @@ thunar_properties_dialog_update_single (ThunarPropertiesDialog *dialog)
+       gtk_widget_hide (dialog->freespace_vbox);
+     }
+ 
++  /* update the capacity (space of containing volume) */
++  if (thunar_g_file_get_free_space (thunar_file_get_file (file), NULL, &capacity))
++    capacity_str = g_format_size_full (capacity, dialog->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
++  gtk_label_set_text (GTK_LABEL (dialog->capacity_label), capacity_str);
++  g_free (capacity_str);
++
+   /* update the volume */
+   volume = thunar_file_get_volume (file);
+   if (G_LIKELY (volume != NULL))

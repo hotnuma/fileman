@@ -1,0 +1,373 @@
+diff --git a/configure.ac.in b/configure.ac.in
+index c31fb871..8c36fe5c 100644
+--- a/configure.ac.in
++++ b/configure.ac.in
+@@ -152,8 +152,8 @@ XDT_CHECK_PACKAGE([GMODULE], [gmodule-2.0], [2.56.0])
+ XDT_CHECK_PACKAGE([GTK], [gtk+-3.0], [3.22.0])
+ XDT_CHECK_PACKAGE([GDK_PIXBUF], [gdk-pixbuf-2.0], [2.14.0])
+ XDT_CHECK_PACKAGE([LIBXFCE4UTIL], [libxfce4util-1.0], [4.17.1])
+-XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-2], [4.17.0])
+-XDT_CHECK_PACKAGE([LIBXFCE4KBD_PRIVATE], [libxfce4kbd-private-3], [4.12.0])
++XDT_CHECK_PACKAGE([LIBXFCE4UI], [libxfce4ui-2], [4.17.2])
++XDT_CHECK_PACKAGE([LIBXFCE4KBD_PRIVATE], [libxfce4kbd-private-3], [4.17.2])
+ XDT_CHECK_PACKAGE([XFCONF], [libxfconf-0], [4.12.0])
+ XDT_CHECK_PACKAGE([PANGO], [pango], [1.38.0])
+ 
+diff --git a/thunar/Makefile.am b/thunar/Makefile.am
+index c69d7cc0..e2c554f0 100644
+--- a/thunar/Makefile.am
++++ b/thunar/Makefile.am
+@@ -211,6 +211,7 @@ thunar_CFLAGS =								\
+ 	$(LIBNOTIFY_CFLAGS)						\
+ 	$(LIBSM_CFLAGS)							\
+ 	$(LIBXFCE4UI_CFLAGS)						\
++	$(LIBXFCE4KBD_PRIVATE_CFLAGS) \
+ 	$(XFCONF_CFLAGS)						\
+ 	$(PANGO_CFLAGS)							\
+ 	$(PLATFORM_CFLAGS)
+@@ -229,6 +230,7 @@ thunar_LDADD =								\
+ 	$(LIBNOTIFY_LIBS)						\
+ 	$(LIBSM_LIBS)							\
+ 	$(LIBXFCE4UI_LIBS)						\
++	$(LIBXFCE4KBD_PRIVATE_LIBS) \
+ 	$(XFCONF_LIBS)							\
+ 	$(PANGO_LIBS)
+ 
+diff --git a/thunar/thunar-application.c b/thunar/thunar-application.c
+index 324bfbf2..f4877d3b 100644
+--- a/thunar/thunar-application.c
++++ b/thunar/thunar-application.c
+@@ -756,6 +756,8 @@ thunar_application_accel_map_save (gpointer user_data)
+ static void
+ thunar_application_accel_map_changed (ThunarApplication *application)
+ {
++  GList *windows;
++
+   _thunar_return_if_fail (THUNAR_IS_APPLICATION (application));
+ 
+   /* stop pending save */
+@@ -768,6 +770,15 @@ thunar_application_accel_map_changed (ThunarApplication *application)
+   /* schedule new save */
+   application->accel_map_save_id =
+       g_timeout_add_seconds (10, thunar_application_accel_map_save, application);
++
++  /* update the accelerators for each window */
++  windows = thunar_application_get_windows (application);
++  for (GList *lp = windows; lp != NULL; lp = lp->next)
++    {
++      ThunarWindow *window = lp->data;
++      thunar_window_reconnect_accelerators (window);
++    }
++  g_list_free (windows);
+ }
+ 
+ 
+diff --git a/thunar/thunar-launcher.c b/thunar/thunar-launcher.c
+index 67ff1124..3924fd92 100644
+--- a/thunar/thunar-launcher.c
++++ b/thunar/thunar-launcher.c
+@@ -3244,3 +3244,11 @@ thunar_launcher_new_files_created (ThunarLauncher *launcher,
+ 
+   g_signal_emit (launcher, launcher_signals[NEW_FILES_CREATED], 0, new_thunar_files);
+ }
++
++
++
++XfceGtkActionEntry*
++thunar_launcher_get_action_entries (void)
++{
++  return thunar_launcher_action_entries;
++}
+diff --git a/thunar/thunar-launcher.h b/thunar/thunar-launcher.h
+index e98f4c64..584bb25b 100644
+--- a/thunar/thunar-launcher.h
++++ b/thunar/thunar-launcher.h
+@@ -26,6 +26,9 @@
+ 
+ G_BEGIN_DECLS;
+ 
++/* avoid including libxfce4ui.h */
++typedef struct _XfceGtkActionEntry  XfceGtkActionEntry;
++
+ typedef struct _ThunarLauncherClass ThunarLauncherClass;
+ typedef struct _ThunarLauncher      ThunarLauncher;
+ 
+@@ -69,6 +72,8 @@ typedef enum
+   THUNAR_LAUNCHER_ACTION_MOUNT,
+   THUNAR_LAUNCHER_ACTION_UNMOUNT,
+   THUNAR_LAUNCHER_ACTION_EJECT,
++
++  THUNAR_LAUNCHER_N_ACTIONS
+ } ThunarLauncherAction;
+ 
+ typedef enum
+@@ -115,7 +120,7 @@ void            thunar_launcher_action_restore                       (ThunarLaun
+ void            thunar_launcher_action_restore_and_show              (ThunarLauncher                 *launcher);
+ void            thunar_launcher_set_searching                        (ThunarLauncher                 *launcher,
+                                                                       gboolean                        b);
+-
++XfceGtkActionEntry *thunar_launcher_get_action_entries               (void);
+ 
+ G_END_DECLS;
+ 
+diff --git a/thunar/thunar-preferences-dialog.c b/thunar/thunar-preferences-dialog.c
+index aae56a69..315e0f50 100644
+--- a/thunar/thunar-preferences-dialog.c
++++ b/thunar/thunar-preferences-dialog.c
+@@ -22,6 +22,8 @@
+ #endif
+ 
+ #include <libxfce4ui/libxfce4ui.h>
++#include <libxfce4kbd-private-3/libxfce4kbd-private/xfce-shortcuts-editor.h>
++#include <libxfce4kbd-private-3/libxfce4kbd-private/xfce-shortcuts-editor-dialog.h>
+ 
+ #include <thunar/thunar-compact-view.h>
+ #include <thunar/thunar-details-view.h>
+@@ -35,6 +37,10 @@
+ #include <thunar/thunar-preferences.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-util.h>
++#include <thunar/thunar-window.h>
++#include <thunar/thunar-shortcuts-view.h>
++#include <thunar/thunar-renamer-dialog.h>
++#include <thunar/thunar-statusbar.h>
+ 
+ 
+ 
+@@ -1247,6 +1253,28 @@ thunar_preferences_dialog_init (ThunarPreferencesDialog *dialog)
+       gtk_container_add (GTK_CONTAINER (frame), infobar);
+     }
+ 
++  /*
++   Shortcuts
++  */
++  label = gtk_label_new (_("Shortcuts"));
++  vbox = g_object_new (GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "border-width", 12, "spacing", 18, NULL);
++  gtk_notebook_append_page (GTK_NOTEBOOK (notebook), vbox, label);
++  gtk_widget_show (label);
++  gtk_widget_show (vbox);
++
++  frame = g_object_new (GTK_TYPE_FRAME, "border-width", 0, "shadow-type", GTK_SHADOW_IN, NULL);
++  gtk_box_pack_start (GTK_BOX (vbox), frame, FALSE, TRUE, 0);
++  gtk_widget_show (frame);
++
++  grid = xfce_shortcuts_editor_new (13,
++                                    _("Window"), thunar_window_get_action_entries (), THUNAR_WINDOW_N_ACTIONS,
++                                    _("View"), thunar_standard_view_get_action_entries (), THUNAR_STANDARD_VIEW_N_ACTIONS,
++                                    _("Launcher"), thunar_launcher_get_action_entries (), THUNAR_LAUNCHER_N_ACTIONS,
++                                    _("Status Bar"), thunar_statusbar_get_action_entries (), THUNAR_STATUS_BAR_N_ACTIONS
++                                    );
++  gtk_container_add (GTK_CONTAINER (frame), grid);
++  gtk_widget_show (grid);
++
+   /* cleanup */
+   g_free (path);
+ }
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index f9070f20..ce4abc54 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -4185,3 +4185,11 @@ thunar_standard_view_get_search_query (ThunarStandardView *standard_view)
+ {
+   return standard_view->priv->search_query;
+ }
++
++
++
++XfceGtkActionEntry*
++thunar_standard_view_get_action_entries (void)
++{
++  return thunar_standard_view_action_entries;
++}
+diff --git a/thunar/thunar-standard-view.h b/thunar/thunar-standard-view.h
+index 00d12e1e..1b1286f1 100644
+--- a/thunar/thunar-standard-view.h
++++ b/thunar/thunar-standard-view.h
+@@ -29,6 +29,9 @@
+ 
+ G_BEGIN_DECLS;
+ 
++/* avoid including libxfce4ui.h */
++typedef struct _XfceGtkActionEntry  XfceGtkActionEntry;
++
+ typedef struct _ThunarStandardViewPrivate ThunarStandardViewPrivate;
+ typedef struct _ThunarStandardViewClass   ThunarStandardViewClass;
+ typedef struct _ThunarStandardView        ThunarStandardView;
+@@ -56,7 +59,8 @@ typedef enum
+   THUNAR_STANDARD_VIEW_ACTION_SORT_ASCENDING,
+   THUNAR_STANDARD_VIEW_ACTION_SORT_DESCENDING,
+   THUNAR_STANDARD_VIEW_ACTION_SORT_ORDER_TOGGLE,
+-  
++
++  THUNAR_STANDARD_VIEW_N_ACTIONS
+ } ThunarStandardViewAction;
+ 
+ struct _ThunarStandardViewClass
+@@ -184,6 +188,9 @@ gchar         *thunar_standard_view_get_search_query      (ThunarStandardView
+ 
+ void           thunar_standard_view_update_statusbar_text (ThunarStandardView       *standard_view);
+ 
++XfceGtkActionEntry *thunar_standard_view_get_action_entries (void);
++
++
+ G_END_DECLS;
+ 
+ #endif /* !__THUNAR_STANDARD_VIEW_H__ */
+diff --git a/thunar/thunar-statusbar.c b/thunar/thunar-statusbar.c
+index fdfdfc80..22221b90 100644
+--- a/thunar/thunar-statusbar.c
++++ b/thunar/thunar-statusbar.c
+@@ -333,3 +333,32 @@ thunar_statusbar_new (void)
+ {
+   return g_object_new (THUNAR_TYPE_STATUSBAR, NULL);
+ }
++
++
++
++XfceGtkActionEntry*
++thunar_statusbar_get_action_entries (void)
++{
++  return thunar_status_bar_action_entries;
++}
++
++
++
++/**
++ * thunar_statusbar_append_accelerators:
++ * @statusbar    : a #ThunarStatusbar.
++ * @accel_group : a #GtkAccelGroup to be used used for new menu items
++ *
++ * Connects all accelerators and corresponding default keys of this widget to the global accelerator list
++ **/
++void thunar_statusbar_append_accelerators (ThunarStatusbar *statusbar,
++                                           GtkAccelGroup   *accel_group)
++{
++  _thunar_return_if_fail (THUNAR_IS_STATUSBAR (statusbar));
++
++  xfce_gtk_accel_map_add_entries (thunar_status_bar_action_entries, G_N_ELEMENTS (thunar_status_bar_action_entries));
++  xfce_gtk_accel_group_connect_action_entries (accel_group,
++                                               thunar_status_bar_action_entries,
++                                               G_N_ELEMENTS (thunar_status_bar_action_entries),
++                                               statusbar);
++}
+diff --git a/thunar/thunar-statusbar.h b/thunar/thunar-statusbar.h
+index 1ca0285b..5bb6605b 100644
+--- a/thunar/thunar-statusbar.h
++++ b/thunar/thunar-statusbar.h
+@@ -24,6 +24,9 @@
+ 
+ G_BEGIN_DECLS;
+ 
++/* avoid including libxfce4ui.h */
++typedef struct _XfceGtkActionEntry   XfceGtkActionEntry;
++
+ typedef struct _ThunarStatusbarClass ThunarStatusbarClass;
+ typedef struct _ThunarStatusbar      ThunarStatusbar;
+ 
+@@ -41,6 +44,8 @@ typedef enum
+     THUNAR_STATUS_BAR_ACTION_TOGGLE_SIZE_IN_BYTES,
+     THUNAR_STATUS_BAR_ACTION_TOGGLE_FILETYPE,
+     THUNAR_STATUS_BAR_ACTION_TOGGLE_DISPLAY_NAME,
++
++    THUNAR_STATUS_BAR_N_ACTIONS
+ } ThunarStatusBarAction;
+ 
+ GType      thunar_statusbar_get_type    (void) G_GNUC_CONST;
+@@ -50,6 +55,11 @@ GtkWidget *thunar_statusbar_new         (void);
+ void       thunar_statusbar_setup_event (ThunarStatusbar *statusbar,
+                                          GtkWidget       *event_box);
+ 
++void       thunar_statusbar_append_accelerators (ThunarStatusbar *statusbar,
++                                                 GtkAccelGroup   *accel_group);
++
++XfceGtkActionEntry *thunar_statusbar_get_action_entries (void);
++
+ G_END_DECLS;
+ 
+ #endif /* !__THUNAR_STATUSBAR_H__ */
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 93d44f3e..4f14380a 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -929,6 +929,7 @@ thunar_window_init (ThunarWindow *window)
+   /* setup a new statusbar */
+   event_box = gtk_event_box_new ();
+   window->statusbar = thunar_statusbar_new ();
++  thunar_statusbar_append_accelerators (THUNAR_STATUSBAR (window->statusbar), window->accel_group);
+   gtk_widget_set_hexpand (window->statusbar, TRUE);
+   gtk_container_add (GTK_CONTAINER (event_box), window->statusbar);
+   gtk_grid_attach (GTK_GRID (window->view_box), event_box, 0, 4, 1, 1);
+@@ -5046,3 +5047,50 @@ thunar_window_update_statusbar (ThunarWindow *window)
+ {
+   thunar_standard_view_update_statusbar_text (THUNAR_STANDARD_VIEW (window->view));
+ }
++
++
++
++XfceGtkActionEntry*
++thunar_window_get_action_entries (void)
++{
++  return thunar_window_action_entries;
++}
++
++
++
++/**
++ * thunar_window_reconnect_accelerators:
++ * @window      : a #ThunarWindow instance.
++ *
++ * Used to recreate the accelerator group when the accelerator map changes. This way the open windows can use the
++ * updated shortcuts.
++ **/
++void
++thunar_window_reconnect_accelerators (ThunarWindow *window)
++{
++  /* the window has not been properly initialized yet */
++  if (window->accel_group == NULL)
++    return;
++
++  /* delete previous accel_group */
++  gtk_accel_group_disconnect (window->accel_group, NULL);
++  gtk_window_remove_accel_group (GTK_WINDOW (window), window->accel_group);
++  g_object_unref (window->accel_group);
++
++  /* create new accel_group */
++  window->accel_group = gtk_accel_group_new ();
++  xfce_gtk_accel_map_add_entries (thunar_window_action_entries, G_N_ELEMENTS (thunar_window_action_entries));
++  xfce_gtk_accel_group_connect_action_entries (window->accel_group,
++                                               thunar_window_action_entries,
++                                               G_N_ELEMENTS (thunar_window_action_entries),
++                                               window);
++  thunar_launcher_append_accelerators (window->launcher, window->accel_group);
++  thunar_statusbar_append_accelerators (THUNAR_STATUSBAR (window->statusbar), window->accel_group);
++
++  gtk_window_add_accel_group (GTK_WINDOW (window), window->accel_group);
++
++  /* update page accelarators */
++  if (window->view != NULL)
++    g_object_set (G_OBJECT (window->view), "accel-group", window->accel_group, NULL);
++}
++
+diff --git a/thunar/thunar-window.h b/thunar/thunar-window.h
+index 921db388..defa0530 100644
+--- a/thunar/thunar-window.h
++++ b/thunar/thunar-window.h
+@@ -99,6 +99,7 @@ typedef enum
+   THUNAR_WINDOW_ACTION_SEARCH,
+   THUNAR_WINDOW_ACTION_CANCEL_SEARCH,
+ 
++  THUNAR_WINDOW_N_ACTIONS
+ } ThunarWindowAction;
+ 
+ GType                     thunar_window_get_type                            (void) G_GNUC_CONST;
+@@ -148,6 +149,10 @@ void                      thunar_window_action_cancel_search                (Thu
+ void                      thunar_window_action_search                       (ThunarWindow        *window);
+ void                      thunar_window_update_statusbar                    (ThunarWindow        *window);
+ 
++XfceGtkActionEntry*       thunar_window_get_action_entries                  (void);
++
++void                      thunar_window_reconnect_accelerators              (ThunarWindow        *window);
++
+ 
+ G_END_DECLS;
+ 

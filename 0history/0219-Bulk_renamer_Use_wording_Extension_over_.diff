@@ -1,0 +1,104 @@
+diff --git a/thunar/thunar-enum-types.c b/thunar/thunar-enum-types.c
+index be21cb33..eb2db2b4 100644
+--- a/thunar/thunar-enum-types.c
++++ b/thunar/thunar-enum-types.c
+@@ -46,10 +46,10 @@ thunar_renamer_mode_get_type (void)
+     {
+       static const GEnumValue values[] =
+       {
+-        { THUNAR_RENAMER_MODE_NAME,   "THUNAR_RENAMER_MODE_NAME",   N_ ("Name only"),       },
+-        { THUNAR_RENAMER_MODE_SUFFIX, "THUNAR_RENAMER_MODE_SUFFIX", N_ ("Suffix only"),     },
+-        { THUNAR_RENAMER_MODE_BOTH,   "THUNAR_RENAMER_MODE_BOTH",   N_ ("Name and Suffix"), },
+-        { 0,                          NULL,                         NULL,                   },
++        { THUNAR_RENAMER_MODE_NAME,      "THUNAR_RENAMER_MODE_NAME",      N_ ("Name only"),       },
++        { THUNAR_RENAMER_MODE_EXTENSION, "THUNAR_RENAMER_MODE_EXTENSION", N_ ("Extension only"),     },
++        { THUNAR_RENAMER_MODE_BOTH,      "THUNAR_RENAMER_MODE_BOTH",      N_ ("Name and Extension"), },
++        { 0,                             NULL,                            NULL,                   },
+       };
+ 
+       type = g_enum_register_static (I_("ThunarRenamerMode"), values);
+diff --git a/thunar/thunar-enum-types.h b/thunar/thunar-enum-types.h
+index ab4470d8..1ae8fe1d 100644
+--- a/thunar/thunar-enum-types.h
++++ b/thunar/thunar-enum-types.h
+@@ -29,16 +29,16 @@ G_BEGIN_DECLS;
+ 
+ /**
+  * ThunarRenamerMode:
+- * @THUNAR_RENAMER_MODE_NAME   : only the name should be renamed.
+- * @THUNAR_RENAMER_MODE_SUFFIX : only the suffix should be renamed.
+- * @THUNAR_RENAMER_MODE_BOTH   : the name and the suffix should be renamed.
++ * @THUNAR_RENAMER_MODE_NAME      : only the name should be renamed.
++ * @THUNAR_RENAMER_MODE_EXTENSION : only the extension should be renamed.
++ * @THUNAR_RENAMER_MODE_BOTH      : the name and the extension should be renamed.
+  *
+  * The rename mode for a #ThunarRenamerModel instance.
+  **/
+ typedef enum
+ {
+   THUNAR_RENAMER_MODE_NAME,
+-  THUNAR_RENAMER_MODE_SUFFIX,
++  THUNAR_RENAMER_MODE_EXTENSION,
+   THUNAR_RENAMER_MODE_BOTH,
+ } ThunarRenamerMode;
+ 
+diff --git a/thunar/thunar-renamer-dialog.c b/thunar/thunar-renamer-dialog.c
+index e9a95149..c52745f9 100644
+--- a/thunar/thunar-renamer-dialog.c
++++ b/thunar/thunar-renamer-dialog.c
+@@ -518,7 +518,7 @@ thunar_renamer_dialog_init (ThunarRenamerDialog *renamer_dialog)
+       gtk_container_add (GTK_CONTAINER (button), image);
+       gtk_widget_show (image);
+ 
+-      /* create the name/suffix/both combo box */
++      /* create the name/extension/both combo box */
+       mcombo = gtk_combo_box_text_new ();
+       klass = g_type_class_ref (THUNAR_TYPE_RENAMER_MODE);
+       active_str = xfce_rc_read_entry_untranslated (rc, "LastActiveMode", "");
+diff --git a/thunar/thunar-renamer-model.c b/thunar/thunar-renamer-model.c
+index 82f12a4f..4fbd1cdb 100644
+--- a/thunar/thunar-renamer-model.c
++++ b/thunar/thunar-renamer-model.c
+@@ -810,7 +810,7 @@ thunar_renamer_model_process_item (ThunarRenamerModel     *renamer_model,
+   const gchar      *dot;
+   gchar            *name = NULL;
+   gchar            *prefix;
+-  gchar            *suffix;
++  gchar            *extension;
+   gchar            *text;
+ 
+   /* no new name if no renamer is set */
+@@ -823,8 +823,8 @@ thunar_renamer_model_process_item (ThunarRenamerModel     *renamer_model,
+   /* determine the extension in the filename */
+   dot = thunar_util_str_get_extension (display_name);
+ 
+-  /* if we don't have a dot, then no "Suffix only" rename can take place */
+-  if (G_LIKELY (dot != NULL || renamer_model->mode != THUNAR_RENAMER_MODE_SUFFIX))
++  /* if we don't have a dot, then no "Extension only" rename can take place */
++  if (G_LIKELY (dot != NULL || renamer_model->mode != THUNAR_RENAMER_MODE_EXTENSION))
+     {
+       /* now, for "Name only", we need a dot, otherwise treat everything as name */
+       if (renamer_model->mode == THUNAR_RENAMER_MODE_NAME && dot == NULL)
+@@ -850,16 +850,16 @@ thunar_renamer_model_process_item (ThunarRenamerModel     *renamer_model,
+           g_free (text);
+           break;
+ 
+-        case THUNAR_RENAMER_MODE_SUFFIX:
+-          /* determine the new suffix */
+-          suffix = thunarx_renamer_process (renamer_model->renamer, THUNARX_FILE_INFO (item->file), dot + 1, idx);
++        case THUNAR_RENAMER_MODE_EXTENSION:
++          /* determine the new extension */
++          extension = thunarx_renamer_process (renamer_model->renamer, THUNARX_FILE_INFO (item->file), dot + 1, idx);
+ 
+           prefix = g_strndup (display_name, (dot - display_name) + 1);
+-          name = g_strconcat (prefix, suffix, NULL);
++          name = g_strconcat (prefix, extension, NULL);
+           g_free (prefix);
+ 
+-          /* release the suffix */
+-          g_free (suffix);
++          /* release the extension */
++          g_free (extension);
+           break;
+ 
+         case THUNAR_RENAMER_MODE_BOTH:

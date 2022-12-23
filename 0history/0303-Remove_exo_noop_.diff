@@ -1,0 +1,153 @@
+diff --git a/thunar/thunar-action-manager.c b/thunar/thunar-action-manager.c
+index c71a1783..4a69b6d4 100644
+--- a/thunar/thunar-action-manager.c
++++ b/thunar/thunar-action-manager.c
+@@ -435,7 +435,7 @@ thunar_action_manager_class_init (ThunarActionManagerClass *klass)
+ static void
+ thunar_action_manager_component_init (ThunarComponentIface *iface)
+ {
+-  iface->get_selected_files = (gpointer) exo_noop_null;
++  iface->get_selected_files = NULL;
+   iface->set_selected_files = thunar_action_manager_set_selected_files;
+ }
+ 
+diff --git a/thunar/thunar-component.c b/thunar/thunar-component.c
+index 2463d3d3..1dc7e345 100644
+--- a/thunar/thunar-component.c
++++ b/thunar/thunar-component.c
+@@ -102,7 +102,10 @@ GList*
+ thunar_component_get_selected_files (ThunarComponent *component)
+ {
+   _thunar_return_val_if_fail (THUNAR_IS_COMPONENT (component), NULL);
+-  return (*THUNAR_COMPONENT_GET_IFACE (component)->get_selected_files) (component);
++  if (THUNAR_COMPONENT_GET_IFACE (component)->get_selected_files != NULL)
++    return (*THUNAR_COMPONENT_GET_IFACE (component)->get_selected_files) (component);
++  else
++    return NULL;
+ }
+ 
+ 
+@@ -121,7 +124,8 @@ thunar_component_set_selected_files (ThunarComponent *component,
+                                      GList           *selected_files)
+ {
+   _thunar_return_if_fail (THUNAR_IS_COMPONENT (component));
+-  (*THUNAR_COMPONENT_GET_IFACE (component)->set_selected_files) (component, selected_files);
++  if (THUNAR_COMPONENT_GET_IFACE (component)->set_selected_files != NULL)
++    (*THUNAR_COMPONENT_GET_IFACE (component)->set_selected_files) (component, selected_files);
+ }
+ 
+ 
+diff --git a/thunar/thunar-location-bar.c b/thunar/thunar-location-bar.c
+index 1b1e8ef2..fdd849b2 100644
+--- a/thunar/thunar-location-bar.c
++++ b/thunar/thunar-location-bar.c
+@@ -38,7 +38,7 @@ struct _ThunarLocationBarClass
+ 
+   /* signals */
+   void (*entry_done) (void);
+-  void (*reload_requested) (void);
++  void (*reload_requested) (void); /* UNUSED */
+ };
+ 
+ struct _ThunarLocationBar
+@@ -107,7 +107,7 @@ thunar_location_bar_class_init (ThunarLocationBarClass *klass)
+   gobject_class->set_property = thunar_location_bar_set_property;
+   gobject_class->finalize = thunar_location_bar_finalize;
+ 
+-  klass->reload_requested = exo_noop;
++  klass->reload_requested = NULL;
+ 
+   /* Override ThunarNavigator's properties */
+   g_object_class_override_property (gobject_class, PROP_CURRENT_DIRECTORY, "current-directory");
+diff --git a/thunar/thunar-shortcuts-pane.c b/thunar/thunar-shortcuts-pane.c
+index f185f8e2..711e9517 100644
+--- a/thunar/thunar-shortcuts-pane.c
++++ b/thunar/thunar-shortcuts-pane.c
+@@ -136,8 +136,8 @@ thunar_shortcuts_pane_navigator_init (ThunarNavigatorIface *iface)
+ static void
+ thunar_shortcuts_pane_side_pane_init (ThunarSidePaneIface *iface)
+ {
+-  iface->get_show_hidden = (gpointer) exo_noop_false;
+-  iface->set_show_hidden = (gpointer) exo_noop;
++  iface->get_show_hidden = NULL;
++  iface->set_show_hidden = NULL;
+ }
+ 
+ 
+diff --git a/thunar/thunar-side-pane.c b/thunar/thunar-side-pane.c
+index 7cb8ee95..4e776150 100644
+--- a/thunar/thunar-side-pane.c
++++ b/thunar/thunar-side-pane.c
+@@ -92,7 +92,10 @@ gboolean
+ thunar_side_pane_get_show_hidden (ThunarSidePane *side_pane)
+ {
+   _thunar_return_val_if_fail (THUNAR_IS_SIDE_PANE (side_pane), FALSE);
+-  return (*THUNAR_SIDE_PANE_GET_IFACE (side_pane)->get_show_hidden) (side_pane);
++  if (THUNAR_SIDE_PANE_GET_IFACE (side_pane)->get_show_hidden != NULL)
++    return (*THUNAR_SIDE_PANE_GET_IFACE (side_pane)->get_show_hidden) (side_pane);
++
++  return FALSE;
+ }
+ 
+ 
+@@ -110,6 +113,7 @@ thunar_side_pane_set_show_hidden (ThunarSidePane *side_pane,
+                                   gboolean        show_hidden)
+ {
+   _thunar_return_if_fail (THUNAR_IS_SIDE_PANE (side_pane));
+-  (*THUNAR_SIDE_PANE_GET_IFACE (side_pane)->set_show_hidden) (side_pane, show_hidden);
++  if (THUNAR_SIDE_PANE_GET_IFACE (side_pane)->set_show_hidden != NULL)
++    (*THUNAR_SIDE_PANE_GET_IFACE (side_pane)->set_show_hidden) (side_pane, show_hidden);
+ }
+ 
+diff --git a/thunar/thunar-tree-model.c b/thunar/thunar-tree-model.c
+index 2d306c29..852bbc5f 100644
+--- a/thunar/thunar-tree-model.c
++++ b/thunar/thunar-tree-model.c
+@@ -166,6 +166,9 @@ static gboolean             thunar_tree_model_node_traverse_visible   (GNode
+ static gboolean             thunar_tree_model_get_case_sensitive      (ThunarTreeModel        *model);
+ static void                 thunar_tree_model_set_case_sensitive      (ThunarTreeModel        *model,
+                                                                        gboolean                case_sensitive);
++static gboolean             thunar_tree_model_default_visiblity       (ThunarTreeModel *model,
++                                                                       ThunarFile      *file,
++                                                                       gpointer         data);
+ 
+ 
+ 
+@@ -296,7 +299,7 @@ thunar_tree_model_init (ThunarTreeModel *model)
+ 
+   /* initialize the model data */
+   model->sort_case_sensitive = TRUE;
+-  model->visible_func = (ThunarTreeModelVisibleFunc) (void (*)(void)) exo_noop_true;
++  model->visible_func = thunar_tree_model_default_visiblity;
+   model->visible_data = NULL;
+   model->cleanup_idle_id = 0;
+ 
+@@ -1972,3 +1975,13 @@ thunar_tree_model_add_child (ThunarTreeModel *model,
+   /* add a dummy to the new child */
+   thunar_tree_model_node_insert_dummy (child_node, model);
+ }
++
++
++
++static gboolean
++thunar_tree_model_default_visiblity (ThunarTreeModel *model,
++                                     ThunarFile      *file,
++                                     gpointer         data)
++{
++  return TRUE;
++}
+diff --git a/thunar/thunar-tree-pane.c b/thunar/thunar-tree-pane.c
+index 7bb021a2..11118685 100644
+--- a/thunar/thunar-tree-pane.c
++++ b/thunar/thunar-tree-pane.c
+@@ -106,8 +106,8 @@ thunar_tree_pane_class_init (ThunarTreePaneClass *klass)
+ static void
+ thunar_tree_pane_component_init (ThunarComponentIface *iface)
+ {
+-  iface->get_selected_files = (gpointer) exo_noop_null;
+-  iface->set_selected_files = (gpointer) exo_noop;
++  iface->get_selected_files = NULL;
++  iface->set_selected_files = NULL;
+ }
+ 
+ 

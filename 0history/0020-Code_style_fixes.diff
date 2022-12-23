@@ -1,0 +1,33 @@
+diff --git a/thunar/thunar-chooser-dialog.c b/thunar/thunar-chooser-dialog.c
+index 72c23dbd..32489707 100644
+--- a/thunar/thunar-chooser-dialog.c
++++ b/thunar/thunar-chooser-dialog.c
+@@ -461,9 +461,9 @@ thunar_chooser_dialog_response (GtkDialog *widget,
+   default_app = g_app_info_get_default_for_type (content_type, FALSE);
+ 
+   /* check if we should also set the application as default or
+-     if application is opened first time, set it as default application */
++   * if application is opened first time, set it as default application */
+   if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->default_button))
+-   || default_app == NULL)
++      || default_app == NULL)
+     {
+       /* remember the application as default for these kind of file */
+       succeed = g_app_info_set_as_default_for_type (app_info, content_type, &error);
+diff --git a/thunar/thunar-chooser-model.c b/thunar/thunar-chooser-model.c
+index 78ba785f..323fd14f 100644
+--- a/thunar/thunar-chooser-model.c
++++ b/thunar/thunar-chooser-model.c
+@@ -297,9 +297,9 @@ thunar_chooser_model_reload (ThunarChooserModel *model)
+   if (default_app->data)
+   {
+     thunar_chooser_model_append (model,
+-                               _("Default Application"),
+-                               "preferences-desktop-default-applications",
+-                               default_app);
++                                 _("Default Application"),
++                                 "preferences-desktop-default-applications",
++                                 default_app);
+   }
+ 
+   /* check if we have any applications for this type */

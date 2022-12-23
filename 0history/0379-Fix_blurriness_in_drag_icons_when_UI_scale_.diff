@@ -1,0 +1,72 @@
+diff --git a/thunar/thunar-path-entry.c b/thunar/thunar-path-entry.c
+index 35fa9415..756e3bd8 100644
+--- a/thunar/thunar-path-entry.c
++++ b/thunar/thunar-path-entry.c
+@@ -446,7 +446,9 @@ thunar_path_entry_motion_notify_event (GtkWidget      *widget,
+   GdkDragContext  *context;
+   GtkTargetList   *target_list;
+   GdkPixbuf       *icon;
++  cairo_surface_t *surface;
+   gint             size;
++  gint             scale_factor;
+ 
+   if (path_entry->drag_button > 0
+       && path_entry->current_file != NULL
+@@ -464,14 +466,17 @@ thunar_path_entry_motion_notify_event (GtkWidget      *widget,
+ 
+       /* setup the drag icon (atleast 24px) */
+       gtk_widget_style_get (widget, "icon-size", &size, NULL);
++      scale_factor = gtk_widget_get_scale_factor (widget);
+       icon = thunar_icon_factory_load_file_icon (path_entry->icon_factory,
+                                                  path_entry->current_file,
+                                                  THUNAR_FILE_ICON_STATE_DEFAULT,
+-                                                 MAX (size, 16));
++                                                 MAX (size, 16) * scale_factor);
+       if (G_LIKELY (icon != NULL))
+         {
+-          gtk_drag_set_icon_pixbuf (context, icon, 0, 0);
++          surface = gdk_cairo_surface_create_from_pixbuf (icon, scale_factor, gtk_widget_get_window (widget));
+           g_object_unref (G_OBJECT (icon));
++          gtk_drag_set_icon_surface (context, surface);
++          cairo_surface_destroy (surface);
+         }
+ 
+       /* reset the drag button state */
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index b0ad0517..f883fbe2 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -3383,9 +3383,11 @@ thunar_standard_view_drag_begin (GtkWidget          *view,
+                                  GdkDragContext     *context,
+                                  ThunarStandardView *standard_view)
+ {
+-  ThunarFile *file;
+-  GdkPixbuf  *icon;
+-  gint        size;
++  ThunarFile      *file;
++  GdkPixbuf       *icon;
++  cairo_surface_t *surface;
++  gint             size;
++  gint             scale_factor;
+ 
+   /* release the drag path list (just in case the drag-end wasn't fired before) */
+   thunar_g_list_free_full (standard_view->priv->drag_g_file_list);
+@@ -3400,9 +3402,15 @@ thunar_standard_view_drag_begin (GtkWidget          *view,
+         {
+           /* generate an icon based on that file */
+           g_object_get (G_OBJECT (standard_view->icon_renderer), "size", &size, NULL);
+-          icon = thunar_icon_factory_load_file_icon (standard_view->icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, size);
+-          gtk_drag_set_icon_pixbuf (context, icon, 0, 0);
+-          g_object_unref (G_OBJECT (icon));
++          scale_factor = gtk_widget_get_scale_factor (view);
++          icon = thunar_icon_factory_load_file_icon (standard_view->icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, size * scale_factor);
++          if (G_LIKELY (icon != NULL))
++            {
++              surface = gdk_cairo_surface_create_from_pixbuf (icon, scale_factor, gtk_widget_get_window (view));
++              g_object_unref (G_OBJECT (icon));
++              gtk_drag_set_icon_surface (context, surface);
++              cairo_surface_destroy (surface);
++            }
+ 
+           /* release the file */
+           g_object_unref (G_OBJECT (file));

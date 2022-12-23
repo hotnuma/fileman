@@ -1,0 +1,104 @@
+diff --git a/thunar/thunar-chooser-dialog.c b/thunar/thunar-chooser-dialog.c
+index efb1f703..72c23dbd 100644
+--- a/thunar/thunar-chooser-dialog.c
++++ b/thunar/thunar-chooser-dialog.c
+@@ -398,6 +398,7 @@ thunar_chooser_dialog_response (GtkDialog *widget,
+   GList                list;
+   GList               *all_apps, *lp;
+   GdkScreen           *screen;
++  GAppInfo            *default_app = NULL;
+ 
+   /* no special processing for non-accept responses */
+   if (G_UNLIKELY (response != GTK_RESPONSE_ACCEPT))
+@@ -457,8 +458,12 @@ thunar_chooser_dialog_response (GtkDialog *widget,
+   if (G_UNLIKELY (app_info == NULL))
+     return;
+ 
+-  /* check if we should also set the application as default */
+-  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->default_button)))
++  default_app = g_app_info_get_default_for_type (content_type, FALSE);
++
++  /* check if we should also set the application as default or
++     if application is opened first time, set it as default application */
++  if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (dialog->default_button))
++   || default_app == NULL)
+     {
+       /* remember the application as default for these kind of file */
+       succeed = g_app_info_set_as_default_for_type (app_info, content_type, &error);
+@@ -490,6 +495,9 @@ thunar_chooser_dialog_response (GtkDialog *widget,
+         }
+     }
+ 
++  if (default_app != NULL)
++    g_object_unref (default_app);
++
+   /* check if we should also execute the application */
+   if (G_LIKELY (succeed && dialog->open))
+     {
+@@ -1017,7 +1025,7 @@ thunar_chooser_dialog_expand (ThunarChooserDialog *dialog)
+ 
+   model = gtk_tree_view_get_model (GTK_TREE_VIEW (dialog->tree_view));
+ 
+-  /* expand the first tree view row (the recommended applications) */
++  /* expand the first tree view row (the default application) */
+   if (G_LIKELY (gtk_tree_model_get_iter_first (GTK_TREE_MODEL (model), &iter)))
+     {
+       path = gtk_tree_model_get_path (GTK_TREE_MODEL (model), &iter);
+@@ -1025,7 +1033,15 @@ thunar_chooser_dialog_expand (ThunarChooserDialog *dialog)
+       gtk_tree_path_free (path);
+     }
+ 
+-  /* expand the second tree view row (the other applications) */
++  /* expand the second tree view row (the recommended applications) */
++  if (G_LIKELY (gtk_tree_model_iter_next (GTK_TREE_MODEL (model), &iter)))
++    {
++      path = gtk_tree_model_get_path (GTK_TREE_MODEL (model), &iter);
++      gtk_tree_view_expand_to_path (GTK_TREE_VIEW (dialog->tree_view), path);
++      gtk_tree_path_free (path);
++    }
++
++  /* expand the third tree view row (the other applications) */
+   if (G_LIKELY (gtk_tree_model_iter_next (GTK_TREE_MODEL (model), &iter)))
+     {
+       path = gtk_tree_model_get_path (GTK_TREE_MODEL (model), &iter);
+diff --git a/thunar/thunar-chooser-model.c b/thunar/thunar-chooser-model.c
+index 388b0dce..78ba785f 100644
+--- a/thunar/thunar-chooser-model.c
++++ b/thunar/thunar-chooser-model.c
+@@ -283,12 +283,25 @@ thunar_chooser_model_reload (ThunarChooserModel *model)
+   GList *lp;
+   GList *other = NULL;
+   GList *recommended;
++  GList *default_app = NULL;
+ 
+   _thunar_return_if_fail (THUNAR_IS_CHOOSER_MODEL (model));
+   _thunar_return_if_fail (model->content_type != NULL);
+ 
+   gtk_tree_store_clear (GTK_TREE_STORE (model));
+ 
++  /* get default application for this type and append it in @default_app */
++  default_app = g_list_prepend (default_app, g_app_info_get_default_for_type (model->content_type, FALSE));
++
++  /* If default application was already selected, then display it in Treeview */
++  if (default_app->data)
++  {
++    thunar_chooser_model_append (model,
++                               _("Default Application"),
++                               "preferences-desktop-default-applications",
++                               default_app);
++  }
++
+   /* check if we have any applications for this type */
+   recommended = g_app_info_get_all_for_type (model->content_type);
+ 
+@@ -317,6 +330,10 @@ thunar_chooser_model_reload (ThunarChooserModel *model)
+                                "gnome-applications",
+                                other);
+ 
++  if (default_app->data != NULL)
++    g_object_unref (default_app->data);
++  g_list_free (default_app);
++
+   g_list_free_full (recommended, g_object_unref);
+   g_list_free_full (all, g_object_unref);
+ 

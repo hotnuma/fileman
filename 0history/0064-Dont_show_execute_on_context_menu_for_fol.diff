@@ -1,0 +1,12 @@
+diff --git a/thunar/thunar-launcher.c b/thunar/thunar-launcher.c
+index c7a444c8..b42110b6 100644
+--- a/thunar/thunar-launcher.c
++++ b/thunar/thunar-launcher.c
+@@ -651,6 +651,7 @@ thunar_launcher_set_selected_files (ThunarComponent *component,
+           || thunar_file_is_mountable (lp->data))
+         {
+           ++launcher->n_directories_to_process;
++          launcher->files_are_all_executable = FALSE;
+         }
+       else
+         {

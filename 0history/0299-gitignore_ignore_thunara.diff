@@ -1,0 +1,12 @@
+diff --git a/.gitignore b/.gitignore
+index 84b0296d..f8630f68 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -131,6 +131,7 @@ tests/data/.*.swp
+ thunar/*.loT
+ thunar/.*.swp
+ thunar/thunar
++thunar/thunar.a
+ thunar/thunar-dbus-freedesktop-interfaces.[ch]
+ thunar/thunar-dbus-service-infos.[ch]
+ thunar/thunar-fallback-icon.c

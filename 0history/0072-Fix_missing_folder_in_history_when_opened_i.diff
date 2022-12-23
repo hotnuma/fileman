@@ -1,0 +1,68 @@
+diff --git a/thunar/thunar-history.c b/thunar/thunar-history.c
+index f4c83d00..324235e5 100644
+--- a/thunar/thunar-history.c
++++ b/thunar/thunar-history.c
+@@ -723,3 +723,20 @@ thunar_history_peek_forward (ThunarHistory *history)
+ 
+   return result;
+ }
++
++
++
++/**
++ * thunar_history_add:
++ * @history : a #ThunarHistory
++ * @history : a #ThunarFile
++ *
++ * Manually adds the passed directory to the history
++ **/
++void
++thunar_history_add (ThunarHistory *history,
++                    ThunarFile    *directory)
++{
++  thunar_history_set_current_directory (THUNAR_NAVIGATOR (history), directory);
++}
++
+diff --git a/thunar/thunar-history.h b/thunar/thunar-history.h
+index ffae36e0..a6a999dd 100644
+--- a/thunar/thunar-history.h
++++ b/thunar/thunar-history.h
+@@ -63,6 +63,8 @@ void            thunar_history_action_forward   (ThunarHistory         *history)
+ void            thunar_history_show_menu        (ThunarHistory         *history,
+                                                  ThunarHistoryMenuType  type,
+                                                  GtkWidget             *parent);
++void            thunar_history_add              (ThunarHistory         *history,
++                                                 ThunarFile            *directory);
+ 
+ G_END_DECLS;
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 3f978770..942a2a59 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -2106,7 +2106,13 @@ thunar_window_notebook_insert_page (ThunarWindow  *window,
+ 
+   /* set the history of the view if a history is provided */
+   if (history != NULL)
+-    thunar_standard_view_set_history (THUNAR_STANDARD_VIEW (view), history);
++    {
++      /* history only is updated on 'change-directory' signal. */
++      /* For inserting a new tab, we need to update it manually */
++      thunar_history_add (history, directory);
++
++      thunar_standard_view_set_history (THUNAR_STANDARD_VIEW (view), history);
++    }
+ 
+   label_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+ 
+@@ -2296,7 +2302,9 @@ thunar_window_notebook_add_new_tab (ThunarWindow *window,
+ 
+   /* save the history of the current view */
+   if (THUNAR_IS_STANDARD_VIEW (window->view))
+-    history = thunar_standard_view_copy_history (THUNAR_STANDARD_VIEW (window->view));
++    {
++      history = thunar_standard_view_copy_history (THUNAR_STANDARD_VIEW (window->view));
++    }
+ 
+   /* find the correct view type */
+   view_type = thunar_window_view_type_for_directory (window, directory);

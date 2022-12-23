@@ -1,0 +1,12 @@
+diff --git a/thunar/thunar-util.c b/thunar/thunar-util.c
+index 3f0aa794..3b9f92c2 100644
+--- a/thunar/thunar-util.c
++++ b/thunar/thunar-util.c
+@@ -656,6 +656,7 @@ thunar_setup_display_cb (gpointer data)
+ }
+ 
+ 
++
+ /**
+  * thunar_util_next_new_file_name
+  * @dir : the directory to search for a free filename

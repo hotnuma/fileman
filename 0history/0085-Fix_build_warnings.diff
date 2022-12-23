@@ -1,0 +1,28 @@
+diff --git a/thunar/thunar-list-model.c b/thunar/thunar-list-model.c
+index a20eaa17..c620e433 100644
+--- a/thunar/thunar-list-model.c
++++ b/thunar/thunar-list-model.c
+@@ -1911,7 +1911,7 @@ thunar_list_model_set_date_style (ThunarListModel *store,
+ static const char*
+ thunar_list_model_get_date_custom_style (ThunarListModel *store)
+ {
+-  _thunar_return_val_if_fail (THUNAR_IS_LIST_MODEL (store), THUNAR_DATE_STYLE_SIMPLE);
++  _thunar_return_val_if_fail (THUNAR_IS_LIST_MODEL (store), NULL);
+   return store->date_custom_style;
+ }
+ 
+diff --git a/thunar/thunar-tree-view.c b/thunar/thunar-tree-view.c
+index b9a8efa0..fa328eeb 100644
+--- a/thunar/thunar-tree-view.c
++++ b/thunar/thunar-tree-view.c
+@@ -649,8 +649,8 @@ thunar_tree_view_button_press_event (GtkWidget      *widget,
+                                      GdkEventButton *event)
+ {
+   ThunarTreeView    *view = THUNAR_TREE_VIEW (widget);
+-  ThunarDevice      *device;
+-  ThunarFile        *file;
++  ThunarDevice      *device = NULL;
++  ThunarFile        *file = NULL;
+   GtkTreeViewColumn *column;
+   GtkTreePath       *path;
+   GtkTreeIter        iter;

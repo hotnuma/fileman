@@ -1,0 +1,179 @@
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index ab4345d2..d5ee7009 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -1,6 +1,7 @@
+ thunar/main.c
+ thunar/thunar-abstract-dialog.c
+ thunar/thunar-abstract-icon-view.c
++thunar/thunar-action-manager.c
+ thunar/thunar-application.c
+ thunar/thunar-browser.c
+ thunar/thunar-chooser-button.c
+@@ -37,7 +38,6 @@ thunar/thunar-io-jobs.c
+ thunar/thunar-io-jobs-util.c
+ thunar/thunar-io-scan-directory.c
+ thunar/thunar-job.c
+-thunar/thunar-action-manager.c
+ thunar/thunar-list-model.c
+ thunar/thunar-location-bar.c
+ thunar/thunar-location-button.c
+diff --git a/thunar/Makefile.am b/thunar/Makefile.am
+index 2e634b0f..ae6aee0d 100644
+--- a/thunar/Makefile.am
++++ b/thunar/Makefile.am
+@@ -45,6 +45,8 @@ thunar_SOURCES =							\
+ 	thunar-abstract-dialog.h					\
+ 	thunar-abstract-icon-view.c					\
+ 	thunar-abstract-icon-view.h					\
++	thunar-action-manager.c						\
++	thunar-action-manager.h						\
+ 	thunar-application.c						\
+ 	thunar-application.h						\
+ 	thunar-browser.c						\
+@@ -117,8 +119,6 @@ thunar_SOURCES =							\
+ 	thunar-io-scan-directory.h					\
+ 	thunar-job.c							\
+ 	thunar-job.h							\
+-	thunar-action-manager.c						\
+-	thunar-action-manager.h						\
+ 	thunar-list-model.c						\
+ 	thunar-list-model.h						\
+ 	thunar-location-bar.c						\
+diff --git a/thunar/thunar-abstract-icon-view.c b/thunar/thunar-abstract-icon-view.c
+index b5165088..545f07d2 100644
+--- a/thunar/thunar-abstract-icon-view.c
++++ b/thunar/thunar-abstract-icon-view.c
+@@ -24,9 +24,9 @@
+ #include <gdk/gdkkeysyms.h>
+ 
+ #include <thunar/thunar-abstract-icon-view.h>
++#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-gobject-extensions.h>
+ #include <thunar/thunar-gtk-extensions.h>
+-#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-preferences.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-window.h>
+diff --git a/thunar/thunar-action-manager.c b/thunar/thunar-action-manager.c
+index c47a7a15..c71a1783 100644
+--- a/thunar/thunar-action-manager.c
++++ b/thunar/thunar-action-manager.c
+@@ -30,6 +30,7 @@
+ #include <string.h>
+ #endif
+ 
++#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-application.h>
+ #include <thunar/thunar-browser.h>
+ #include <thunar/thunar-chooser-dialog.h>
+@@ -40,7 +41,6 @@
+ #include <thunar/thunar-gtk-extensions.h>
+ #include <thunar/thunar-icon-factory.h>
+ #include <thunar/thunar-io-scan-directory.h>
+-#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-preferences.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-properties-dialog.h>
+diff --git a/thunar/thunar-details-view.c b/thunar/thunar-details-view.c
+index 7f51266b..5395dd8c 100644
+--- a/thunar/thunar-details-view.c
++++ b/thunar/thunar-details-view.c
+@@ -23,9 +23,9 @@
+ 
+ #include <gdk/gdkkeysyms.h>
+ 
++#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-column-editor.h>
+ #include <thunar/thunar-details-view.h>
+-#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-gtk-extensions.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-preferences.h>
+diff --git a/thunar/thunar-menu.c b/thunar/thunar-menu.c
+index b89ed53f..9272b92b 100644
+--- a/thunar/thunar-menu.c
++++ b/thunar/thunar-menu.c
+@@ -21,8 +21,8 @@
+ 
+ #include <thunar/thunar-menu.h>
+ 
+-#include <thunar/thunar-gtk-extensions.h>
+ #include <thunar/thunar-action-manager.h>
++#include <thunar/thunar-gtk-extensions.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-window.h>
+ 
+diff --git a/thunar/thunar-renamer-dialog.c b/thunar/thunar-renamer-dialog.c
+index 70d0fad8..2dce2516 100644
+--- a/thunar/thunar-renamer-dialog.c
++++ b/thunar/thunar-renamer-dialog.c
+@@ -31,12 +31,12 @@
+ #include <libxfce4ui/libxfce4ui.h>
+ 
+ #include <thunar/thunar-abstract-dialog.h>
++#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-application.h>
+ #include <thunar/thunar-dialogs.h>
+ #include <thunar/thunar-gtk-extensions.h>
+ #include <thunar/thunar-icon-factory.h>
+ #include <thunar/thunar-icon-renderer.h>
+-#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-menu.h>
+ #include <thunar/thunar-private.h>
+ #include <thunar/thunar-properties-dialog.h>
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 724dbe20..b806229a 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -34,6 +34,7 @@
+ 
+ #include <libxfce4util/libxfce4util.h>
+ 
++#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-application.h>
+ #include <thunar/thunar-menu.h>
+ #include <thunar/thunar-dialogs.h>
+@@ -44,7 +45,6 @@
+ #include <thunar/thunar-gtk-extensions.h>
+ #include <thunar/thunar-history.h>
+ #include <thunar/thunar-icon-renderer.h>
+-#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-marshal.h>
+ #include <thunar/thunar-pango-extensions.h>
+ #include <thunar/thunar-private.h>
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 73d33eb4..f37fd2b8 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -34,6 +34,7 @@
+ 
+ #include <libxfce4util/libxfce4util.h>
+ 
++#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-application.h>
+ #include <thunar/thunar-browser.h>
+ #include <thunar/thunar-clipboard-manager.h>
+@@ -46,7 +47,6 @@
+ #include <thunar/thunar-gtk-extensions.h>
+ #include <thunar/thunar-history.h>
+ #include <thunar/thunar-icon-view.h>
+-#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-location-buttons.h>
+ #include <thunar/thunar-location-entry.h>
+ #include <thunar/thunar-marshal.h>
+diff --git a/thunar/thunar-window.h b/thunar/thunar-window.h
+index d739fece..0a728727 100644
+--- a/thunar/thunar-window.h
++++ b/thunar/thunar-window.h
+@@ -20,9 +20,9 @@
+ #ifndef __THUNAR_WINDOW_H__
+ #define __THUNAR_WINDOW_H__
+ 
++#include <thunar/thunar-action-manager.h>
+ #include <thunar/thunar-enum-types.h>
+ #include <thunar/thunar-folder.h>
+-#include <thunar/thunar-action-manager.h>
+ 
+ #include <libxfce4ui/libxfce4ui.h>
+ 

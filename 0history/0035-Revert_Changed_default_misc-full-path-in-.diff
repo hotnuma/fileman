@@ -1,0 +1,13 @@
+diff --git a/thunar/thunar-preferences.c b/thunar/thunar-preferences.c
+index 26b8ef07..8f8299aa 100644
+--- a/thunar/thunar-preferences.c
++++ b/thunar/thunar-preferences.c
+@@ -564,7 +564,7 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
+       g_param_spec_boolean ("misc-full-path-in-title",
+                             "MiscFullPathInTitle",
+                             NULL,
+-                            TRUE,
++                            FALSE,
+                             EXO_PARAM_READWRITE);
+ 
+   /**

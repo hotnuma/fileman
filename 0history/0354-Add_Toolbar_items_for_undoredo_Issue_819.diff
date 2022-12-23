@@ -1,0 +1,50 @@
+diff --git a/thunar/thunar-preferences.c b/thunar/thunar-preferences.c
+index 7ec7c34c..2a5d6d4b 100644
+--- a/thunar/thunar-preferences.c
++++ b/thunar/thunar-preferences.c
+@@ -449,12 +449,13 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
+    * ThunarPreferences:last-toolbar-visible-buttons:
+    *
+    * The comma separated list that specifies the visibility of toolbar items.
++   * The order of the default value corresponds to the order in which the buttons are added inside 'thunar_window_location_toolbar_create'
+    **/
+     preferences_props[PROP_LAST_TOOLBAR_VISIBLE_BUTTONS] =
+         g_param_spec_string ("last-toolbar-visible-buttons",
+                              "LastToolbarVisibleButtons",
+                              NULL,
+-                             "0,1,1,1,1,0,0,0,0,0,0,0,1,0,1",
++                             "0,1,1,1,1,0,0,0,0,0,0,0,0,0,1,0,1",
+                              EXO_PARAM_READWRITE);
+ 
+   /**
+@@ -466,7 +467,7 @@ thunar_preferences_class_init (ThunarPreferencesClass *klass)
+         g_param_spec_string ("last-toolbar-item-order",
+                              "LastToolbarButtonOrder",
+                              NULL,
+-                             "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14",
++                             "0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16",
+                              EXO_PARAM_READWRITE);
+ 
+   /**
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 050b7def..bdb0b0d6 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -444,6 +444,8 @@ struct _ThunarWindow
+   GtkWidget              *location_toolbar_item_forward;
+   GtkWidget              *location_toolbar_item_parent;
+   GtkWidget              *location_toolbar_item_home;
++  GtkWidget              *location_toolbar_item_undo;
++  GtkWidget              *location_toolbar_item_redo;
+   GtkWidget              *location_toolbar_item_zoom_in;
+   GtkWidget              *location_toolbar_item_zoom_out;
+   GtkWidget              *location_toolbar_item_search;
+@@ -6043,6 +6045,8 @@ thunar_window_location_toolbar_create (ThunarWindow *window)
+   window->location_toolbar_item_forward      = thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_FORWARD, item_order++);
+   window->location_toolbar_item_parent       = thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_OPEN_PARENT, item_order++);
+   window->location_toolbar_item_home         = thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_OPEN_HOME, item_order++);
++  window->location_toolbar_item_undo         = thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_UNDO, item_order++);
++  window->location_toolbar_item_redo         = thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_REDO, item_order++);
+   window->location_toolbar_item_zoom_out     = thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_ZOOM_OUT, item_order++);
+   window->location_toolbar_item_zoom_in      = thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_ZOOM_IN, item_order++);
+                                                thunar_window_create_toolbar_item_from_action (window, THUNAR_WINDOW_ACTION_ZOOM_RESET, item_order++);

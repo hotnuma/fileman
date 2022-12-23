@@ -1,0 +1,198 @@
+diff --git a/plugins/thunar-apr/thunar-apr-desktop-page.c b/plugins/thunar-apr/thunar-apr-desktop-page.c
+index 343ead2f..dad47c48 100644
+--- a/plugins/thunar-apr/thunar-apr-desktop-page.c
++++ b/plugins/thunar-apr/thunar-apr-desktop-page.c
+@@ -820,6 +820,7 @@ thunar_apr_desktop_page_save (ThunarAprDesktopPage *desktop_page,
+                                         GTK_MESSAGE_ERROR,
+                                         GTK_BUTTONS_CLOSE,
+                                         _("Failed to save \"%s\"."), filename);
++      gtk_window_set_title (GTK_WINDOW (message), _("Error"));
+       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (message), "%s.", error->message);
+       gtk_dialog_run (GTK_DIALOG (message));
+       gtk_widget_destroy (message);
+diff --git a/plugins/thunar-sendto-email/main.c b/plugins/thunar-sendto-email/main.c
+index 82438e57..e6f72c74 100644
+--- a/plugins/thunar-sendto-email/main.c
++++ b/plugins/thunar-sendto-email/main.c
+@@ -141,6 +141,7 @@ tse_error (GError      *error,
+ 
+   /* allocate the error dialog */
+   dialog = gtk_message_dialog_new (NULL, 0, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "%s.", primary_text);
++  gtk_window_set_title (GTK_WINDOW (dialog), _("Error"));
+   gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), "%s.", error->message);
+ 
+   /* display the dialog */
+@@ -218,6 +219,7 @@ tse_ask_compress (GList *infos)
+           message = gtk_message_dialog_new (NULL, 0, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE,
+                                             _("Send \"%s\" as compressed archive?"),
+                                             g_file_info_get_display_name (tse_data->info));
++          gtk_window_set_title (GTK_WINDOW (message), _("Send email"));
+           gtk_dialog_add_button (GTK_DIALOG (message), _("_Cancel"), GTK_RESPONSE_CANCEL);
+           gtk_dialog_add_button (GTK_DIALOG (message), _("Send _directly"), TSE_RESPONSE_PLAIN);
+           gtk_dialog_add_button (GTK_DIALOG (message), _("Send com_pressed"), TSE_RESPONSE_COMPRESS);
+@@ -237,6 +239,7 @@ tse_ask_compress (GList *infos)
+                                                       "Send %d files as compressed archive?",
+                                                       n_infos),
+                                             n_infos);
++          gtk_window_set_title (GTK_WINDOW (message), _("Send email"));
+           gtk_dialog_add_button (GTK_DIALOG (message), _("_Cancel"), GTK_RESPONSE_CANCEL);
+           gtk_dialog_add_button (GTK_DIALOG (message), _("Send _directly"), TSE_RESPONSE_PLAIN);
+           gtk_dialog_add_button (GTK_DIALOG (message), _("Send as _archive"), TSE_RESPONSE_COMPRESS);
+diff --git a/plugins/thunar-uca/thunar-uca-chooser.c b/plugins/thunar-uca/thunar-uca-chooser.c
+index bb68906d..cac6ffdf 100644
+--- a/plugins/thunar-uca/thunar-uca-chooser.c
++++ b/plugins/thunar-uca/thunar-uca-chooser.c
+@@ -317,6 +317,7 @@ thunar_uca_chooser_save (ThunarUcaChooser *uca_chooser,
+                                        GTK_MESSAGE_ERROR,
+                                        GTK_BUTTONS_CLOSE,
+                                        _("Failed to save actions to disk."));
++      gtk_window_set_title (GTK_WINDOW (dialog), _("Error"));
+       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), "%s.", error->message);
+       gtk_dialog_run (GTK_DIALOG (dialog));
+       gtk_widget_destroy (dialog);
+@@ -368,6 +369,7 @@ thunar_uca_chooser_delete_clicked (ThunarUcaChooser *uca_chooser)
+                                        GTK_MESSAGE_QUESTION,
+                                        GTK_BUTTONS_NONE,
+                                        _("Are you sure that you want to delete\naction \"%s\"?"), name);
++      gtk_window_set_title (GTK_WINDOW (dialog), _("Delete action"));
+       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), _("If you delete a custom action, it is permanently lost."));
+       gtk_dialog_add_buttons (GTK_DIALOG (dialog), _("_Cancel"), GTK_RESPONSE_CANCEL,
+                               _("_Delete"), GTK_RESPONSE_YES, NULL);
+diff --git a/plugins/thunar-uca/thunar-uca-provider.c b/plugins/thunar-uca/thunar-uca-provider.c
+index 288454bf..1c432d05 100644
+--- a/plugins/thunar-uca/thunar-uca-provider.c
++++ b/plugins/thunar-uca/thunar-uca-provider.c
+@@ -526,6 +526,7 @@ thunar_uca_provider_activated (ThunarUcaProvider *uca_provider,
+                                        GTK_MESSAGE_ERROR,
+                                        GTK_BUTTONS_CLOSE,
+                                        _("Failed to launch action \"%s\"."), label);
++      gtk_window_set_title (GTK_WINDOW (dialog), _("Error"));
+       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog), "%s.", error->message);
+       gtk_dialog_run (GTK_DIALOG (dialog));
+       gtk_widget_destroy (dialog);
+diff --git a/thunar/thunar-action-manager.c b/thunar/thunar-action-manager.c
+index f354e865..d59881f6 100644
+--- a/thunar/thunar-action-manager.c
++++ b/thunar/thunar-action-manager.c
+@@ -980,6 +980,7 @@ thunar_action_manager_open_windows (ThunarActionManager *action_mgr,
+                                        GTK_MESSAGE_QUESTION,
+                                        GTK_BUTTONS_NONE,
+                                        _("Are you sure you want to open all folders?"));
++      gtk_window_set_title (GTK_WINDOW (dialog), _("Open folders"));
+       gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (dialog),
+                                                 ngettext ("This will open %d separate file manager window.",
+                                                           "This will open %d separate file manager windows.",
+diff --git a/thunar/thunar-application.c b/thunar/thunar-application.c
+index 99f394d5..0a54204e 100644
+--- a/thunar/thunar-application.c
++++ b/thunar/thunar-application.c
+@@ -2394,6 +2394,7 @@ thunar_application_unlink_files (ThunarApplication *application,
+                                        "%s", message);
+       if (G_UNLIKELY (window == NULL && screen != NULL))
+         gtk_window_set_screen (GTK_WINDOW (dialog), screen);
++      gtk_window_set_title (GTK_WINDOW (dialog), _("Attention"));
+       gtk_dialog_add_buttons (GTK_DIALOG (dialog),
+                               _("_Cancel"), GTK_RESPONSE_CANCEL,
+                               _("_Delete"), GTK_RESPONSE_YES,
+@@ -2573,6 +2574,7 @@ thunar_application_empty_trash (ThunarApplication *application,
+   if (G_UNLIKELY (window == NULL && screen != NULL))
+     gtk_window_set_screen (GTK_WINDOW (dialog), screen);
+   gtk_window_set_startup_id (GTK_WINDOW (dialog), startup_id);
++  gtk_window_set_title (GTK_WINDOW (dialog), _("Empty Trash"));
+   gtk_dialog_add_buttons (GTK_DIALOG (dialog),
+                           _("_Cancel"), GTK_RESPONSE_CANCEL,
+                           _("_Empty Trash"), GTK_RESPONSE_YES,
+diff --git a/thunar/thunar-chooser-dialog.c b/thunar/thunar-chooser-dialog.c
+index 85afdbe5..8c19ad82 100644
+--- a/thunar/thunar-chooser-dialog.c
++++ b/thunar/thunar-chooser-dialog.c
+@@ -745,6 +745,7 @@ thunar_chooser_dialog_action_remove (ThunarChooserDialog *dialog)
+                                         GTK_MESSAGE_QUESTION,
+                                         GTK_BUTTONS_NONE,
+                                         _("Are you sure that you want to remove \"%s\"?"), name);
++      gtk_window_set_title (GTK_WINDOW (message), _("Remove application launcher"));
+       gtk_dialog_add_buttons (GTK_DIALOG (message),
+                               _("_Cancel"), GTK_RESPONSE_CANCEL,
+                               _("_Remove"), GTK_RESPONSE_YES,
+@@ -819,6 +820,7 @@ thunar_chooser_dialog_action_forget (ThunarChooserDialog *dialog)
+                                         GTK_MESSAGE_QUESTION,
+                                         GTK_BUTTONS_NONE,
+                                         _("Are you sure that you want to forget \"%s\"?"), name);
++      gtk_window_set_title (GTK_WINDOW (message), _("Forget application launcher"));
+       gtk_dialog_add_buttons (GTK_DIALOG (message),
+                               _("_Cancel"), GTK_RESPONSE_CANCEL,
+                               _("_Forget"), GTK_RESPONSE_YES,
+diff --git a/thunar/thunar-dialogs.c b/thunar/thunar-dialogs.c
+index ff0c6599..0bf1f5ca 100644
+--- a/thunar/thunar-dialogs.c
++++ b/thunar/thunar-dialogs.c
+@@ -482,6 +482,8 @@ thunar_dialogs_show_error (gpointer      parent,
+                                    GTK_BUTTONS_CLOSE,
+                                    "%s.", primary_text);
+ 
++  gtk_window_set_title (GTK_WINDOW (dialog), _("Error"));
++
+   /* move the dialog to the appropriate screen */
+   if (G_UNLIKELY (window == NULL && screen != NULL))
+     gtk_window_set_screen (GTK_WINDOW (dialog), screen);
+@@ -580,6 +582,7 @@ thunar_dialogs_show_job_ask (GtkWindow        *parent,
+                                     GTK_MESSAGE_QUESTION,
+                                     GTK_BUTTONS_NONE,
+                                     "%s", primary->str);
++  gtk_window_set_title (GTK_WINDOW (message), _("Attention"));
+   if (G_LIKELY (*secondary->str != '\0'))
+     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (message), "%s", secondary->str);
+ 
+@@ -1002,6 +1005,7 @@ thunar_dialogs_show_job_error (GtkWindow *parent,
+                                     GTK_MESSAGE_ERROR,
+                                     GTK_BUTTONS_NONE,
+                                     "%s", primary->str);
++  gtk_window_set_title (GTK_WINDOW (message), _("Error"));
+   if (G_LIKELY (*secondary->str != '\0'))
+     gtk_message_dialog_format_secondary_text (GTK_MESSAGE_DIALOG (message), "%s", secondary->str);
+   gtk_dialog_add_button (GTK_DIALOG (message), _("_Close"), GTK_RESPONSE_CANCEL);
+@@ -1056,6 +1060,7 @@ thunar_dialogs_show_insecure_program (gpointer     parent,
+                                    GTK_MESSAGE_WARNING,
+                                    GTK_BUTTONS_NONE,
+                                    "%s", primary);
++  gtk_window_set_title (GTK_WINDOW (dialog), _("Attention"));
+   gtk_dialog_add_button (GTK_DIALOG (dialog), _("_Launch Anyway"), GTK_RESPONSE_OK);
+   if (thunar_file_is_chmodable (file))
+     gtk_dialog_add_button (GTK_DIALOG (dialog), _("Mark _Executable"), GTK_RESPONSE_APPLY);
+diff --git a/thunar/thunar-permissions-chooser.c b/thunar/thunar-permissions-chooser.c
+index 747e7d97..cb4dd95c 100644
+--- a/thunar/thunar-permissions-chooser.c
++++ b/thunar/thunar-permissions-chooser.c
+@@ -1166,6 +1166,7 @@ thunar_permissions_chooser_fixperm_clicked (ThunarPermissionsChooser *chooser,
+                                    GTK_MESSAGE_QUESTION,
+                                    GTK_BUTTONS_NONE,
+                                    _("Correct folder permissions automatically?"));
++  gtk_window_set_title (GTK_WINDOW (dialog), _("Folder permissions"));
+   gtk_dialog_add_button (GTK_DIALOG (dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
+   gtk_dialog_add_button (GTK_DIALOG (dialog), _("Correct _folder permissions"), GTK_RESPONSE_OK);
+   gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_OK);
+diff --git a/thunar/thunar-renamer-progress.c b/thunar/thunar-renamer-progress.c
+index 30362dd0..1221a4d5 100644
+--- a/thunar/thunar-renamer-progress.c
++++ b/thunar/thunar-renamer-progress.c
+@@ -162,6 +162,8 @@ thunar_renamer_progress_run_error_dialog (ThunarRenamerProgress *renamer_progres
+                                     _("Failed to rename \"%s\" to \"%s\"."),
+                                     oldname, pair->name);
+ 
++  gtk_window_set_title (GTK_WINDOW (message), _("Error"));
++
+   /* release old name */
+   g_free (oldname);
+ 
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index ead4ba32..f03b3d84 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -3987,6 +3987,7 @@ thunar_window_open_user_folder (ThunarWindow   *window,
+                                        GTK_BUTTONS_YES_NO,
+                                        _("The directory \"%s\" does not exist. Do you want to create it?"),
+                                        parse_name);
++      gtk_window_set_title (GTK_WINDOW (dialog), _("Create directory"));
+       gtk_dialog_set_default_response (GTK_DIALOG (dialog), GTK_RESPONSE_YES);
+       response = gtk_dialog_run (GTK_DIALOG (dialog));
+       gtk_widget_destroy (dialog);

@@ -1,0 +1,18 @@
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 7f5de5c3..2fe75210 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -3150,7 +3150,12 @@ thunar_window_action_cancel_search (ThunarWindow *window)
+   window->search_query = NULL;
+ 
+   if (THUNAR_IS_DETAILS_VIEW (window->view))
+-    thunar_details_view_set_location_column_visible (THUNAR_DETAILS_VIEW (window->view), FALSE);
++    {
++      gboolean is_recent = thunar_file_is_recent (window->current_directory);
++
++      thunar_details_view_set_recency_column_visible (THUNAR_DETAILS_VIEW (window->view), is_recent);
++      thunar_details_view_set_location_column_visible (THUNAR_DETAILS_VIEW (window->view), is_recent);
++    }
+ 
+   window->is_searching = FALSE;
+ 

@@ -1,0 +1,341 @@
+diff --git a/thunar/thunar-browser.c b/thunar/thunar-browser.c
+index 557b60ae..da2cfec4 100644
+--- a/thunar/thunar-browser.c
++++ b/thunar/thunar-browser.c
+@@ -73,10 +73,10 @@ struct _PokeDeviceData
+ GType
+ thunar_browser_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarBrowser"),
+@@ -88,10 +88,10 @@ thunar_browser_get_type (void)
+ 
+       g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunar/thunar-component.c b/thunar/thunar-component.c
+index efaa54ee..2463d3d3 100644
+--- a/thunar/thunar-component.c
++++ b/thunar/thunar-component.c
+@@ -35,10 +35,10 @@ static void thunar_component_class_init (gpointer klass);
+ GType
+ thunar_component_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarComponent"),
+@@ -50,10 +50,10 @@ thunar_component_get_type (void)
+ 
+       g_type_interface_add_prerequisite (type, THUNAR_TYPE_NAVIGATOR);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunar/thunar-navigator.c b/thunar/thunar-navigator.c
+index ad5e8686..9ecf22c8 100644
+--- a/thunar/thunar-navigator.c
++++ b/thunar/thunar-navigator.c
+@@ -47,10 +47,10 @@ static guint navigator_signals[LAST_SIGNAL];
+ GType
+ thunar_navigator_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       static const GTypeInfo info =
+       {
+@@ -68,10 +68,10 @@ thunar_navigator_get_type (void)
+       type = g_type_register_static (G_TYPE_INTERFACE, I_("ThunarNavigator"), &info, 0);
+       g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunar/thunar-side-pane.c b/thunar/thunar-side-pane.c
+index e17c6305..ea896e31 100644
+--- a/thunar/thunar-side-pane.c
++++ b/thunar/thunar-side-pane.c
+@@ -33,10 +33,10 @@ static void thunar_side_pane_class_init (gpointer klass);
+ GType
+ thunar_side_pane_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarSidePane"),
+@@ -49,10 +49,10 @@ thunar_side_pane_get_type (void)
+       g_type_interface_add_prerequisite (type, GTK_TYPE_WIDGET);
+       g_type_interface_add_prerequisite (type, THUNAR_TYPE_COMPONENT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunar/thunar-view.c b/thunar/thunar-view.c
+index 6f7e604e..96593242 100644
+--- a/thunar/thunar-view.c
++++ b/thunar/thunar-view.c
+@@ -33,10 +33,10 @@ static void thunar_view_class_init (gpointer klass);
+ GType
+ thunar_view_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarView"),
+@@ -49,10 +49,10 @@ thunar_view_get_type (void)
+       g_type_interface_add_prerequisite (type, GTK_TYPE_WIDGET);
+       g_type_interface_add_prerequisite (type, THUNAR_TYPE_COMPONENT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunarx/thunarx-file-info.c b/thunarx/thunarx-file-info.c
+index 0879ad32..4305f2ea 100644
+--- a/thunarx/thunarx-file-info.c
++++ b/thunarx/thunarx-file-info.c
+@@ -54,10 +54,10 @@ static guint file_info_signals[LAST_SIGNAL];
+ GType
+ thunarx_file_info_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarxFileInfo"),
+@@ -109,10 +109,10 @@ thunarx_file_info_get_type (void)
+                       g_cclosure_marshal_VOID__VOID,
+                       G_TYPE_NONE, 0);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunarx/thunarx-menu-provider.c b/thunarx/thunarx-menu-provider.c
+index 583e0f93..6fa48a1f 100644
+--- a/thunarx/thunarx-menu-provider.c
++++ b/thunarx/thunarx-menu-provider.c
+@@ -56,10 +56,10 @@
+ GType
+ thunarx_menu_provider_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarxMenuProvider"),
+@@ -71,10 +71,10 @@ thunarx_menu_provider_get_type (void)
+ 
+       g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunarx/thunarx-preferences-provider.c b/thunarx/thunarx-preferences-provider.c
+index 27231f2b..13f5075d 100644
+--- a/thunarx/thunarx-preferences-provider.c
++++ b/thunarx/thunarx-preferences-provider.c
+@@ -52,10 +52,10 @@
+ GType
+ thunarx_preferences_provider_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarxPreferencesProvider"),
+@@ -67,10 +67,10 @@ thunarx_preferences_provider_get_type (void)
+ 
+       g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunarx/thunarx-property-page-provider.c b/thunarx/thunarx-property-page-provider.c
+index 858205e9..8b623ee7 100644
+--- a/thunarx/thunarx-property-page-provider.c
++++ b/thunarx/thunarx-property-page-provider.c
+@@ -41,10 +41,10 @@
+ GType
+ thunarx_property_page_provider_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarxPropertyPageProvider"),
+@@ -56,10 +56,10 @@ thunarx_property_page_provider_get_type (void)
+ 
+       g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunarx/thunarx-provider-plugin.c b/thunarx/thunarx-provider-plugin.c
+index ef2a197f..d39b2d67 100644
+--- a/thunarx/thunarx-provider-plugin.c
++++ b/thunarx/thunarx-provider-plugin.c
+@@ -45,10 +45,10 @@ static void thunarx_provider_plugin_class_init (gpointer klass);
+ GType
+ thunarx_provider_plugin_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarxProviderPlugin"),
+@@ -58,10 +58,10 @@ thunarx_provider_plugin_get_type (void)
+                                             NULL,
+                                             0);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 
+diff --git a/thunarx/thunarx-renamer-provider.c b/thunarx/thunarx-renamer-provider.c
+index 1e5188cb..aed1771c 100644
+--- a/thunarx/thunarx-renamer-provider.c
++++ b/thunarx/thunarx-renamer-provider.c
+@@ -39,10 +39,10 @@
+ GType
+ thunarx_renamer_provider_get_type (void)
+ {
+-  static volatile gsize type__volatile = 0;
+-  GType                 type;
++  static gsize type__static = 0;
++  GType        type;
+ 
+-  if (g_once_init_enter (&type__volatile))
++  if (g_once_init_enter (&type__static))
+     {
+       type = g_type_register_static_simple (G_TYPE_INTERFACE,
+                                             I_("ThunarxRenamerProvider"),
+@@ -54,10 +54,10 @@ thunarx_renamer_provider_get_type (void)
+ 
+       g_type_interface_add_prerequisite (type, G_TYPE_OBJECT);
+ 
+-      g_once_init_leave (&type__volatile, type);
++      g_once_init_leave (&type__static, type);
+     }
+ 
+-  return type__volatile;
++  return type__static;
+ }
+ 
+ 

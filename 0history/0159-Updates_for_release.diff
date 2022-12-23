@@ -1,0 +1,45 @@
+diff --git a/NEWS b/NEWS
+index 7a650ec9..cb08c556 100644
+--- a/NEWS
++++ b/NEWS
+@@ -1,3 +1,23 @@
++4.17.6
++======
++- Reset sort_column if it exceeds THUNAR_N_VISIBLE_COLUMNS
++- Avoid many 'Failed to open directory' windows (Issue #660)
++- Add file & folder count on the properties dialog (Issue #395)
++- Use basename instead of display_name for file duplication (Issue #649)
++- Fix signal disconnect in thunar_window_unrealize to prevent crash
++- Don't go beyond THUNAR_N_VISIBLE_COLUMNS while parsing col widths
++- Translation Updates:
++  Albanian, Arabic, Armenian, Armenian (Armenia), Asturian, Basque,
++  Bengali, Catalan, Chinese (China), Chinese (Hong Kong), Chinese
++  (Taiwan), Czech, Danish, Dutch, Eastern Armenian, English
++  (Australia), English (United Kingdom), Esperanto, Estonian, Finnish,
++  French, Galician, German, Greek, Hebrew, Hungarian, Icelandic,
++  Indonesian, Interlingue, Japanese, Kazakh, Korean, Latvian, Malay,
++  Norwegian Bokmål, Norwegian Nynorsk, Occitan (post 1500), Panjabi
++  (Punjabi), Persian (Iran), Polish, Portuguese, Portuguese (Brazil),
++  Romanian, Serbian, Slovak, Spanish, Swedish, Telugu, Thai, Turkish,
++  Urdu, Urdu (Pakistan), Uyghur, Vietnamese
++
+ 4.17.5
+ ======
+ - Listen to changes on shortcuts to update them when required
+diff --git a/configure.ac.in b/configure.ac.in
+index 96784bff..b6bb6a46 100644
+--- a/configure.ac.in
++++ b/configure.ac.in
+@@ -26,10 +26,10 @@ m4_define([thunarx_verinfo], [0:0:0])
+ m4_define([thunarx_version_api], [3])
+ m4_define([thunar_version_major], [4])
+ m4_define([thunar_version_minor], [17])
+-m4_define([thunar_version_micro], [5])
++m4_define([thunar_version_micro], [6])
+ m4_define([thunar_version_nano], [])
+ m4_define([thunar_version_build], [@REVISION@])
+-m4_define([thunar_version_tag], [git])
++m4_define([thunar_version_tag], [])
+ m4_define([thunar_version], [thunar_version_major().thunar_version_minor().thunar_version_micro()ifelse(thunar_version_nano(), [], [], [.thunar_version_nano()])ifelse(thunar_version_tag(), [git], [thunar_version_tag()-thunar_version_build()], [thunar_version_tag()])])
+ 
+ dnl *******************************************

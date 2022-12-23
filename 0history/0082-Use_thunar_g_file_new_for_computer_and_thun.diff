@@ -1,0 +1,105 @@
+diff --git a/thunar/thunar-gio-extensions.c b/thunar/thunar-gio-extensions.c
+index a6f5e595..46837dc2 100644
+--- a/thunar/thunar-gio-extensions.c
++++ b/thunar/thunar-gio-extensions.c
+@@ -110,6 +110,22 @@ thunar_g_file_new_for_trash (void)
+ 
+ 
+ 
++GFile *
++thunar_g_file_new_for_computer (void)
++{
++  return g_file_new_for_uri ("computer://");
++}
++
++
++
++GFile *
++thunar_g_file_new_for_network (void)
++{
++  return g_file_new_for_uri ("network://");
++}
++
++
++
+ GFile *
+ thunar_g_file_new_for_desktop (void)
+ {
+diff --git a/thunar/thunar-gio-extensions.h b/thunar/thunar-gio-extensions.h
+index 226022c5..5a84fe4c 100644
+--- a/thunar/thunar-gio-extensions.h
++++ b/thunar/thunar-gio-extensions.h
+@@ -31,6 +31,7 @@ GFile       *thunar_g_file_new_for_recent           (void);
+ GFile       *thunar_g_file_new_for_trash            (void);
+ GFile       *thunar_g_file_new_for_desktop          (void);
+ GFile       *thunar_g_file_new_for_computer         (void);
++GFile       *thunar_g_file_new_for_network          (void);
+ GFile       *thunar_g_file_new_for_bookmarks        (void);
+ 
+ gboolean     thunar_g_file_is_root                  (GFile                *file);
+diff --git a/thunar/thunar-shortcuts-model.c b/thunar/thunar-shortcuts-model.c
+index 2db1a528..a3d6376b 100644
+--- a/thunar/thunar-shortcuts-model.c
++++ b/thunar/thunar-shortcuts-model.c
+@@ -1036,7 +1036,7 @@ thunar_shortcuts_model_shortcut_network (ThunarShortcutsModel *model)
+       shortcut->group = THUNAR_SHORTCUT_GROUP_NETWORK_DEFAULT;
+       shortcut->name = g_strdup (_("Browse Network"));
+       shortcut->tooltip = g_strdup (_("Browse local network connections"));
+-      shortcut->location = g_file_new_for_uri ("network://");
++      shortcut->location = thunar_g_file_new_for_network();
+       shortcut->gicon = g_themed_icon_new ("network-workgroup");
+       shortcut->hidden = thunar_shortcuts_model_get_hidden (model, shortcut);
+       thunar_shortcuts_model_add_shortcut (model, shortcut);
+@@ -1135,7 +1135,7 @@ thunar_shortcuts_model_shortcut_places (ThunarShortcutsModel *model)
+       shortcut->group = THUNAR_SHORTCUT_GROUP_PLACES_COMPUTER;
+       shortcut->name = g_strdup (_("Computer"));
+       shortcut->tooltip = g_strdup (_("Browse the computer"));
+-      shortcut->location = g_file_new_for_uri ("computer://");
++      shortcut->location = thunar_g_file_new_for_computer();
+       shortcut->gicon = g_themed_icon_new ("computer");
+       shortcut->hidden = thunar_shortcuts_model_get_hidden (model, shortcut);
+       thunar_shortcuts_model_add_shortcut (model, shortcut);
+diff --git a/thunar/thunar-tree-model.c b/thunar/thunar-tree-model.c
+index 9ecd5a6b..abf85af8 100644
+--- a/thunar/thunar-tree-model.c
++++ b/thunar/thunar-tree-model.c
+@@ -320,7 +320,7 @@ thunar_tree_model_init (ThunarTreeModel *model)
+ 
+   /* append the computer icon if browsing the computer is supported */
+   if (thunar_g_vfs_is_uri_scheme_supported ("computer"))
+-    system_paths = g_list_append (system_paths, g_file_new_for_uri ("computer://"));
++    system_paths = g_list_append (system_paths, thunar_g_file_new_for_computer());
+ 
+   /* add the home folder to the system paths */
+   home = thunar_g_file_new_for_home ();
+@@ -338,7 +338,7 @@ thunar_tree_model_init (ThunarTreeModel *model)
+ 
+   /* append the network icon if browsing the network is supported */
+   if (thunar_g_vfs_is_uri_scheme_supported ("network"))
+-    system_paths = g_list_append (system_paths, g_file_new_for_uri ("network://"));
++    system_paths = g_list_append (system_paths, thunar_g_file_new_for_network());
+ 
+   /* append the system defined nodes ('Computer', 'Home', 'Trash', 'File System', 'Network') */
+   for (lp = system_paths; lp != NULL; lp = lp->next)
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index c4cd243f..8a7d5f58 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -3407,7 +3407,7 @@ thunar_window_action_open_computer (ThunarWindow *window)
+   _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
+ 
+   /* determine the computer location */
+-  computer = g_file_new_for_uri ("computer://");
++  computer = thunar_g_file_new_for_computer();
+ 
+   /* determine the file for this location */
+   computer_file = thunar_file_get (computer, &error);
+@@ -3618,7 +3618,7 @@ thunar_window_action_open_network (ThunarWindow *window)
+   _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
+ 
+   /* determine the network root location */
+-  network = g_file_new_for_uri ("network://");
++  network = thunar_g_file_new_for_network();
+ 
+   /* determine the file for this location */
+   network_file = thunar_file_get (network, &error);

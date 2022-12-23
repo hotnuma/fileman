@@ -1,0 +1,60 @@
+diff --git a/thunar/thunar-shortcuts-model.c b/thunar/thunar-shortcuts-model.c
+index 55e5aa8f..1d7d6eaa 100644
+--- a/thunar/thunar-shortcuts-model.c
++++ b/thunar/thunar-shortcuts-model.c
+@@ -1556,6 +1556,7 @@ thunar_shortcuts_model_device_added (ThunarDeviceMonitor  *device_monitor,
+                                      ThunarShortcutsModel *model)
+ {
+   ThunarShortcut *shortcut;
++  GFile          *mount_point;
+ 
+   _thunar_return_if_fail (device_monitor == NULL || THUNAR_DEVICE_MONITOR (device_monitor));
+   _thunar_return_if_fail (device_monitor == NULL || model->device_monitor == device_monitor);
+@@ -1567,6 +1568,13 @@ thunar_shortcuts_model_device_added (ThunarDeviceMonitor  *device_monitor,
+   shortcut->device = g_object_ref (device);
+   shortcut->hidden = thunar_device_get_hidden (device);
+ 
++  mount_point = thunar_device_get_root (device);
++  if (mount_point != NULL)
++    {
++      shortcut->file = thunar_file_get (mount_point, NULL);
++      g_object_unref (mount_point);
++    }
++
+   switch (thunar_device_get_kind (device))
+     {
+     case THUNAR_DEVICE_KIND_VOLUME:
+@@ -1631,6 +1639,7 @@ thunar_shortcuts_model_device_changed (ThunarDeviceMonitor  *device_monitor,
+   gint            idx;
+   GtkTreePath    *path;
+   ThunarShortcut *shortcut;
++  GFile          *mount_point;
+   gboolean        update_header = FALSE;
+ 
+   _thunar_return_if_fail (THUNAR_DEVICE_MONITOR (device_monitor));
+@@ -1638,7 +1647,7 @@ thunar_shortcuts_model_device_changed (ThunarDeviceMonitor  *device_monitor,
+   _thunar_return_if_fail (THUNAR_IS_DEVICE (device));
+   _thunar_return_if_fail (THUNAR_IS_SHORTCUTS_MODEL (model));
+ 
+-    /* find the shortcut */
++  /* find the shortcut */
+   for (lp = model->shortcuts, idx = 0; lp != NULL; lp = lp->next, idx++)
+     if (THUNAR_SHORTCUT (lp->data)->device == device)
+       break;
+@@ -1655,6 +1664,16 @@ thunar_shortcuts_model_device_changed (ThunarDeviceMonitor  *device_monitor,
+       g_free (shortcut->tooltip);
+       shortcut->tooltip = NULL;
+ 
++      if (shortcut->file == NULL)
++        {
++          mount_point = thunar_device_get_root (device);
++          if (mount_point != NULL)
++            {
++              shortcut->file = thunar_file_get (mount_point, NULL);
++              g_object_unref (mount_point);
++            }
++        }
++
+       /* hidden state */
+       if (shortcut->hidden != thunar_device_get_hidden (device))
+         {

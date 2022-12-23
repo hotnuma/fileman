@@ -1,0 +1,175 @@
+diff --git a/thunar/thunar-launcher.h b/thunar/thunar-launcher.h
+index 584bb25b..b76f13ff 100644
+--- a/thunar/thunar-launcher.h
++++ b/thunar/thunar-launcher.h
+@@ -84,43 +84,43 @@ typedef enum
+   THUNAR_LAUNCHER_NO_ACTION,
+ } ThunarLauncherFolderOpenAction;
+ 
+-GType           thunar_launcher_get_type                             (void) G_GNUC_CONST;
+-void            thunar_launcher_activate_selected_files              (ThunarLauncher                 *launcher,
+-                                                                      ThunarLauncherFolderOpenAction  action,
+-                                                                      GAppInfo                       *app_info);
+-void            thunar_launcher_open_selected_folders                (ThunarLauncher                 *launcher,
+-                                                                      gboolean                        open_in_tabs);
+-void            thunar_launcher_set_widget                           (ThunarLauncher                 *launcher,
+-                                                                      GtkWidget                      *widget);
+-GtkWidget      *thunar_launcher_get_widget                           (ThunarLauncher                 *launcher);
+-void            thunar_launcher_append_accelerators                  (ThunarLauncher                 *launcher,
+-                                                                      GtkAccelGroup                  *accel_group);
+-GtkWidget      *thunar_launcher_append_menu_item                     (ThunarLauncher                 *launcher,
+-                                                                      GtkMenuShell                   *menu,
+-                                                                      ThunarLauncherAction            action,
+-                                                                      gboolean                        force);
+-gboolean        thunar_launcher_append_open_section                  (ThunarLauncher                 *launcher,
+-                                                                      GtkMenuShell                   *menu,
+-                                                                      gboolean                        support_tabs,
+-                                                                      gboolean                        support_change_directory,
+-                                                                      gboolean                        force);
+-gboolean        thunar_launcher_append_custom_actions                (ThunarLauncher                 *launcher,
+-                                                                      GtkMenuShell                   *menu);
+-gboolean        thunar_launcher_check_uca_key_activation             (ThunarLauncher                 *launcher,
+-                                                                      GdkEventKey                    *key_event);
+-void            thunar_launcher_action_mount                         (ThunarLauncher                 *launcher);
+-void            thunar_launcher_action_unmount                       (ThunarLauncher                 *launcher);
+-void            thunar_launcher_action_eject                         (ThunarLauncher                 *launcher);
+-void            thunar_launcher_set_selection                        (ThunarLauncher                 *launcher,
+-                                                                      GList                          *selected_thunar_files,
+-                                                                      ThunarDevice                   *selected_device,
+-                                                                      GFile                          *selected_location);
+-void            thunar_launcher_action_empty_trash                   (ThunarLauncher                 *launcher);
+-void            thunar_launcher_action_restore                       (ThunarLauncher                 *launcher);
+-void            thunar_launcher_action_restore_and_show              (ThunarLauncher                 *launcher);
+-void            thunar_launcher_set_searching                        (ThunarLauncher                 *launcher,
+-                                                                      gboolean                        b);
+-XfceGtkActionEntry *thunar_launcher_get_action_entries               (void);
++GType               thunar_launcher_get_type                             (void) G_GNUC_CONST;
++void                thunar_launcher_activate_selected_files              (ThunarLauncher                 *launcher,
++                                                                          ThunarLauncherFolderOpenAction  action,
++                                                                          GAppInfo                       *app_info);
++void                thunar_launcher_open_selected_folders                (ThunarLauncher                 *launcher,
++                                                                          gboolean                        open_in_tabs);
++void                thunar_launcher_set_widget                           (ThunarLauncher                 *launcher,
++                                                                          GtkWidget                      *widget);
++GtkWidget          *thunar_launcher_get_widget                           (ThunarLauncher                 *launcher);
++void                thunar_launcher_append_accelerators                  (ThunarLauncher                 *launcher,
++                                                                          GtkAccelGroup                  *accel_group);
++GtkWidget          *thunar_launcher_append_menu_item                     (ThunarLauncher                 *launcher,
++                                                                          GtkMenuShell                   *menu,
++                                                                          ThunarLauncherAction            action,
++                                                                          gboolean                        force);
++gboolean            thunar_launcher_append_open_section                  (ThunarLauncher                 *launcher,
++                                                                          GtkMenuShell                   *menu,
++                                                                          gboolean                        support_tabs,
++                                                                          gboolean                        support_change_directory,
++                                                                          gboolean                        force);
++gboolean            thunar_launcher_append_custom_actions                (ThunarLauncher                 *launcher,
++                                                                          GtkMenuShell                   *menu);
++gboolean            thunar_launcher_check_uca_key_activation             (ThunarLauncher                 *launcher,
++                                                                          GdkEventKey                    *key_event);
++void                thunar_launcher_action_mount                         (ThunarLauncher                 *launcher);
++void                thunar_launcher_action_unmount                       (ThunarLauncher                 *launcher);
++void                thunar_launcher_action_eject                         (ThunarLauncher                 *launcher);
++void                thunar_launcher_set_selection                        (ThunarLauncher                 *launcher,
++                                                                          GList                          *selected_thunar_files,
++                                                                          ThunarDevice                   *selected_device,
++                                                                          GFile                          *selected_location);
++void                thunar_launcher_action_empty_trash                   (ThunarLauncher                 *launcher);
++void                thunar_launcher_action_restore                       (ThunarLauncher                 *launcher);
++void                thunar_launcher_action_restore_and_show              (ThunarLauncher                 *launcher);
++void                thunar_launcher_set_searching                        (ThunarLauncher                 *launcher,
++                                                                          gboolean                        b);
++XfceGtkActionEntry *thunar_launcher_get_action_entries                   (void);
+ 
+ G_END_DECLS;
+ 
+diff --git a/thunar/thunar-standard-view.h b/thunar/thunar-standard-view.h
+index 1b1286f1..c26a8749 100644
+--- a/thunar/thunar-standard-view.h
++++ b/thunar/thunar-standard-view.h
+@@ -162,31 +162,31 @@ struct _ThunarStandardView
+   ThunarStandardViewPrivate *priv;
+ };
+ 
+-GType          thunar_standard_view_get_type              (void) G_GNUC_CONST;
+-
+-void           thunar_standard_view_context_menu          (ThunarStandardView       *standard_view);
+-void           thunar_standard_view_queue_popup           (ThunarStandardView       *standard_view,
+-                                                           GdkEventButton           *event);
+-void           thunar_standard_view_selection_changed     (ThunarStandardView       *standard_view);
+-void           thunar_standard_view_set_history           (ThunarStandardView       *standard_view,
+-                                                           ThunarHistory            *history);
+-ThunarHistory *thunar_standard_view_get_history           (ThunarStandardView       *standard_view);
+-ThunarHistory *thunar_standard_view_copy_history          (ThunarStandardView       *standard_view);
+-void           thunar_standard_view_append_menu_items     (ThunarStandardView       *standard_view,
+-                                                           GtkMenu                  *menu,
+-                                                           GtkAccelGroup            *accel_group);
+-GtkWidget     *thunar_standard_view_append_menu_item      (ThunarStandardView       *standard_view,
+-                                                           GtkMenu                  *menu,
+-                                                           ThunarStandardViewAction  action);
+-void           _thunar_standard_view_open_on_middle_click (ThunarStandardView       *standard_view,
+-                                                           GtkTreePath              *tree_path,
+-                                                           guint                     event_state);
+-
+-void           thunar_standard_view_set_searching         (ThunarStandardView       *standard_view,
+-                                                           gchar                    *search_query);
+-gchar         *thunar_standard_view_get_search_query      (ThunarStandardView       *standard_view);
+-
+-void           thunar_standard_view_update_statusbar_text (ThunarStandardView       *standard_view);
++GType               thunar_standard_view_get_type              (void) G_GNUC_CONST;
++
++void                thunar_standard_view_context_menu          (ThunarStandardView       *standard_view);
++void                thunar_standard_view_queue_popup           (ThunarStandardView       *standard_view,
++                                                                GdkEventButton           *event);
++void                thunar_standard_view_selection_changed     (ThunarStandardView       *standard_view);
++void                thunar_standard_view_set_history           (ThunarStandardView       *standard_view,
++                                                                ThunarHistory            *history);
++ThunarHistory      *thunar_standard_view_get_history           (ThunarStandardView       *standard_view);
++ThunarHistory      *thunar_standard_view_copy_history          (ThunarStandardView       *standard_view);
++void                thunar_standard_view_append_menu_items     (ThunarStandardView       *standard_view,
++                                                                GtkMenu                  *menu,
++                                                               GtkAccelGroup            *accel_group);
++GtkWidget          *thunar_standard_view_append_menu_item      (ThunarStandardView       *standard_view,
++                                                                GtkMenu                  *menu,
++                                                                ThunarStandardViewAction  action);
++void                _thunar_standard_view_open_on_middle_click (ThunarStandardView       *standard_view,
++                                                                GtkTreePath              *tree_path,
++                                                                guint                     event_state);
++
++void                thunar_standard_view_set_searching         (ThunarStandardView       *standard_view,
++                                                                gchar                    *search_query);
++gchar              *thunar_standard_view_get_search_query      (ThunarStandardView       *standard_view);
++
++void                thunar_standard_view_update_statusbar_text (ThunarStandardView       *standard_view);
+ 
+ XfceGtkActionEntry *thunar_standard_view_get_action_entries (void);
+ 
+diff --git a/thunar/thunar-statusbar.h b/thunar/thunar-statusbar.h
+index 5bb6605b..415425cb 100644
+--- a/thunar/thunar-statusbar.h
++++ b/thunar/thunar-statusbar.h
+@@ -48,17 +48,17 @@ typedef enum
+     THUNAR_STATUS_BAR_N_ACTIONS
+ } ThunarStatusBarAction;
+ 
+-GType      thunar_statusbar_get_type    (void) G_GNUC_CONST;
++GType               thunar_statusbar_get_type            (void) G_GNUC_CONST;
+ 
+-GtkWidget *thunar_statusbar_new         (void);
++GtkWidget          *thunar_statusbar_new                 (void);
+ 
+-void       thunar_statusbar_setup_event (ThunarStatusbar *statusbar,
+-                                         GtkWidget       *event_box);
++void                thunar_statusbar_setup_event         (ThunarStatusbar *statusbar,
++                                                          GtkWidget       *event_box);
+ 
+-void       thunar_statusbar_append_accelerators (ThunarStatusbar *statusbar,
+-                                                 GtkAccelGroup   *accel_group);
++void                thunar_statusbar_append_accelerators (ThunarStatusbar *statusbar,
++                                                          GtkAccelGroup   *accel_group);
+ 
+-XfceGtkActionEntry *thunar_statusbar_get_action_entries (void);
++XfceGtkActionEntry *thunar_statusbar_get_action_entries  (void);
+ 
+ G_END_DECLS;
+ 

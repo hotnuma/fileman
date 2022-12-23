@@ -1,0 +1,112 @@
+diff --git a/thunar/thunar-file.c b/thunar/thunar-file.c
+index 41125486..25662ea9 100644
+--- a/thunar/thunar-file.c
++++ b/thunar/thunar-file.c
+@@ -4564,6 +4564,7 @@ thunar_file_set_metadata_setting_finish (GObject      *source_object,
+  * @file          : a #ThunarFile instance.
+  * @setting_name  : the name of the setting to set
+  * @setting_value : the value to set
++ * @async         : whether g_file_set_attributes_async or g_file_set_attributes_from_info should be used
+  *
+  * Sets the setting @setting_name of @file to @setting_value and stores it in
+  * the @file<!---->s metadata.
+@@ -4571,7 +4572,8 @@ thunar_file_set_metadata_setting_finish (GObject      *source_object,
+ void
+ thunar_file_set_metadata_setting (ThunarFile  *file,
+                                   const gchar *setting_name,
+-                                  const gchar *setting_value)
++                                  const gchar *setting_value,
++                                  gboolean     async)
+ {
+   GFileInfo *info;
+   gchar     *attr_name;
+@@ -4590,12 +4592,22 @@ thunar_file_set_metadata_setting (ThunarFile  *file,
+    * the attribute in the file system */
+   info = g_file_info_new ();
+   g_file_info_set_attribute_string (info, attr_name, setting_value);
+-  g_file_set_attributes_async (file->gfile, info,
+-                               G_FILE_QUERY_INFO_NONE,
+-                               G_PRIORITY_DEFAULT,
+-                               NULL,
+-                               thunar_file_set_metadata_setting_finish,
+-                               file);
++  if (async)
++    {
++      g_file_set_attributes_async (file->gfile, info,
++                                   G_FILE_QUERY_INFO_NONE,
++                                   G_PRIORITY_DEFAULT,
++                                   NULL,
++                                   thunar_file_set_metadata_setting_finish,
++                                   file);
++    }
++  else
++    {
++      g_file_set_attributes_from_info (file->gfile, info,
++                                       G_FILE_QUERY_INFO_NONE,
++                                       NULL,
++                                       NULL);
++    }
+   g_free (attr_name);
+   g_object_unref (G_OBJECT (info));
+ }
+diff --git a/thunar/thunar-file.h b/thunar/thunar-file.h
+index f06d394b..74bf13e4 100644
+--- a/thunar/thunar-file.h
++++ b/thunar/thunar-file.h
+@@ -277,7 +277,8 @@ const gchar*      thunar_file_get_metadata_setting       (ThunarFile
+                                                           const gchar            *setting_name);
+ void              thunar_file_set_metadata_setting       (ThunarFile             *file,
+                                                           const gchar            *setting_name,
+-                                                          const gchar            *setting_value);
++                                                          const gchar            *setting_value,
++                                                          gboolean                async);
+ void              thunar_file_clear_directory_specific_settings (ThunarFile      *file);
+ gboolean          thunar_file_has_directory_specific_settings   (ThunarFile      *file);
+ 
+diff --git a/thunar/thunar-standard-view.c b/thunar/thunar-standard-view.c
+index 1a12f0f2..ab5ab33e 100644
+--- a/thunar/thunar-standard-view.c
++++ b/thunar/thunar-standard-view.c
+@@ -1628,7 +1628,10 @@ thunar_standard_view_set_zoom_level (ThunarView     *view,
+           /* save the zoom level name */
+           zoom_level_name = thunar_zoom_level_string_from_value (zoom_level);
+           if (zoom_level_name != NULL)
+-            thunar_file_set_metadata_setting (standard_view->priv->current_directory, "zoom-level", zoom_level_name);
++            {
++              /* do not set it asynchronously to ensure the correct operation of thumbnails (check the commit message for more) */
++              thunar_file_set_metadata_setting (standard_view->priv->current_directory, "zoom-level", zoom_level_name, FALSE);
++            }
+         }
+ 
+       if (thunar_zoom_level_to_thumbnail_size (zoom_level) != thunar_zoom_level_to_thumbnail_size (standard_view->priv->zoom_level))
+@@ -3211,7 +3214,7 @@ thunar_standard_view_sort_column_changed (GtkTreeSortable    *tree_sortable,
+           /* save the sort column name */
+           sort_column_name = thunar_column_string_from_value (sort_column);
+           if (sort_column_name != NULL)
+-            thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-column", sort_column_name);
++            thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-column", sort_column_name, TRUE);
+ 
+           /* convert the sort order to a string */
+           if (sort_order == GTK_SORT_ASCENDING)
+@@ -3220,7 +3223,7 @@ thunar_standard_view_sort_column_changed (GtkTreeSortable    *tree_sortable,
+             sort_order_name = "GTK_SORT_DESCENDING";
+ 
+           /* save the sort order */
+-          thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-order", sort_order_name);
++          thunar_file_set_metadata_setting (standard_view->priv->current_directory, "sort-order", sort_order_name, TRUE);
+         }
+       else
+         {
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 942a2a59..06e4f10a 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -3196,7 +3196,7 @@ thunar_window_action_view_changed (ThunarWindow *window,
+ 
+   /* if directory specific settings are enabled, save the view type for this directory */
+   if (window->directory_specific_settings)
+-    thunar_file_set_metadata_setting (window->current_directory, "view-type", g_type_name (view_type));
++    thunar_file_set_metadata_setting (window->current_directory, "view-type", g_type_name (view_type), TRUE);
+ }
+ 
+ 

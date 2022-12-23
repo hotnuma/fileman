@@ -1,0 +1,367 @@
+diff --git a/thunar/thunar-io-jobs-util.c b/thunar/thunar-io-jobs-util.c
+index a8d40da0..3cf841bb 100644
+--- a/thunar/thunar-io-jobs-util.c
++++ b/thunar/thunar-io-jobs-util.c
+@@ -37,7 +37,6 @@
+  * @job   : a #ThunarJob.
+  * @file  : the source #GFile.
+  * @type  : the operation type (copy or link).
+- * @n     : the @n<!---->th copy/link to create the #GFile for.
+  * @error : return location for errors or %NULL.
+  *
+  * Determines the #GFile for the next copy/link of/to @file.
+@@ -57,21 +56,18 @@ GFile*
+ thunar_io_jobs_util_next_duplicate_file (ThunarJob *job,
+                                          GFile     *file,
+                                          gboolean   copy,
+-                                         guint      n,
+                                          GError   **error)
+ {
+   GFileInfo   *info;
+   GError      *err = NULL;
+   GFile       *duplicate_file = NULL;
+   GFile       *parent_file = NULL;
++  ThunarFile  *thunar_parent_file;
+   const gchar *old_display_name;
+   gchar       *display_name;
+-  gchar       *file_basename;
+-  gchar       *extension = NULL;
+ 
+   _thunar_return_val_if_fail (THUNAR_IS_JOB (job), NULL);
+   _thunar_return_val_if_fail (G_IS_FILE (file), NULL);
+-  _thunar_return_val_if_fail (0 < n, NULL);
+   _thunar_return_val_if_fail (error == NULL || *error == NULL, NULL);
+   _thunar_return_val_if_fail (!thunar_g_file_is_root (file), NULL);
+ 
+@@ -92,43 +88,23 @@ thunar_io_jobs_util_next_duplicate_file (ThunarJob *job,
+       return NULL;
+     }
+ 
++  parent_file = g_file_get_parent (file);
+   old_display_name = g_file_info_get_display_name (info);
+-  if (copy)
++  thunar_parent_file = thunar_file_get (parent_file, &err);
++  if (thunar_parent_file == NULL)
+     {
+-      /* get file extension if file is not a directory */
+-      if (g_file_info_get_file_type (info) != G_FILE_TYPE_DIRECTORY)
+-        extension = thunar_util_str_get_extension (old_display_name);
+-
+-      if (extension != NULL)
+-        {
+-          file_basename = g_strndup (old_display_name, extension - old_display_name);
+-          /* I18N: put " (copy #)" between basename and extension */
+-          display_name = g_strdup_printf (_("%s (copy %u)%s"), file_basename, n, extension);
+-          g_free(file_basename);
+-        }
+-      else
+-        {
+-          /* I18N: put " (copy #)" after filename (for files without extension) */
+-          display_name = g_strdup_printf (_("%s (copy %u)"), old_display_name, n);
+-        }
+-    }
+-  else
+-    {
+-      /* create name for link */
+-      if (n == 1)
+-        {
+-          /* I18N: name for first link to basename */
+-          display_name = g_strdup_printf (_("link to %s"), old_display_name);
+-        }
+-      else
+-        {
+-          /* I18N: name for nth link to basename */
+-          display_name = g_strdup_printf (_("link %u to %s"), n, old_display_name);
+-        }
++      g_object_unref (info);
++      g_object_unref (parent_file);
++      g_propagate_error (error, err);
++      return NULL;
+     }
+ 
++  display_name = thunar_util_next_new_file_name (thunar_parent_file,
++                                                 old_display_name,
++                                                 copy ? THUNAR_NEXT_FILE_NAME_MODE_COPY : THUNAR_NEXT_FILE_NAME_MODE_LINK);
++  g_object_unref (thunar_parent_file);
++
+   /* create the GFile for the copy/link */
+-  parent_file = g_file_get_parent (file);
+   duplicate_file = g_file_get_child (parent_file, display_name);
+   g_object_unref (parent_file);
+ 
+diff --git a/thunar/thunar-io-jobs-util.h b/thunar/thunar-io-jobs-util.h
+index b79687e9..2ef7da92 100644
+--- a/thunar/thunar-io-jobs-util.h
++++ b/thunar/thunar-io-jobs-util.h
+@@ -28,7 +28,6 @@ G_BEGIN_DECLS
+ GFile *thunar_io_jobs_util_next_duplicate_file (ThunarJob *job,
+                                                 GFile     *file,
+                                                 gboolean   copy,
+-                                                guint      n,
+                                                 GError   **error) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ 
+ GFile *thunar_io_jobs_util_next_renamed_file (ThunarJob *job,
+diff --git a/thunar/thunar-io-jobs.c b/thunar/thunar-io-jobs.c
+index 9b9d4a35..f8747724 100644
+--- a/thunar/thunar-io-jobs.c
++++ b/thunar/thunar-io-jobs.c
+@@ -619,7 +619,6 @@ _thunar_io_jobs_link_file (ThunarJob *job,
+   gchar            *base_name;
+   gchar            *display_name;
+   gchar            *source_path;
+-  gint              n;
+ 
+   _thunar_return_val_if_fail (THUNAR_IS_JOB (job), NULL);
+   _thunar_return_val_if_fail (G_IS_FILE (source_file), NULL);
+@@ -646,10 +645,16 @@ _thunar_io_jobs_link_file (ThunarJob *job,
+   /* various attempts to create the symbolic link */
+   while (err == NULL)
+     {
++      GFile *target;
+       if (!g_file_equal (source_file, target_file))
++        target = g_object_ref (target_file);
++      else
++        target = thunar_io_jobs_util_next_duplicate_file (job, source_file, FALSE, &err);
++
++      if (err == NULL)
+         {
+           /* try to create the symlink */
+-          if (g_file_make_symbolic_link (target_file, source_path,
++          if (g_file_make_symbolic_link (target, source_path,
+                                          exo_job_get_cancellable (EXO_JOB (job)),
+                                          &err))
+             {
+@@ -657,42 +662,11 @@ _thunar_io_jobs_link_file (ThunarJob *job,
+               g_free (source_path);
+ 
+               /* return the real target file */
+-              return g_object_ref (target_file);
++              return target;
+             }
+-        }
+-      else
+-        {
+-          for (n = 1; err == NULL; ++n)
+-            {
+-              GFile *duplicate_file = thunar_io_jobs_util_next_duplicate_file (job,
+-                                                                               source_file,
+-                                                                               FALSE, n,
+-                                                                               &err);
+ 
+-              if (err == NULL)
+-                {
+-                  /* try to create the symlink */
+-                  if (g_file_make_symbolic_link (duplicate_file, source_path,
+-                                                 exo_job_get_cancellable (EXO_JOB (job)),
+-                                                 &err))
+-                    {
+-                      /* release the source path */
+-                      g_free (source_path);
+-
+-                      /* return the real target file */
+-                      return duplicate_file;
+-                    }
+-
+-                  /* release the duplicate file, we no longer need it */
+-                  g_object_unref (duplicate_file);
+-                }
+-
+-              if (err != NULL && err->domain == G_IO_ERROR && err->code == G_IO_ERROR_EXISTS)
+-                {
+-                  /* this duplicate already exists => clear the error and try the next alternative */
+-                  g_clear_error (&err);
+-                }
+-            }
++          /* release our reference */
++          g_object_unref (target);
+         }
+ 
+       /* check if we can recover from this error */
+diff --git a/thunar/thunar-launcher.c b/thunar/thunar-launcher.c
+index 7e1ab9bb..4c655b96 100644
+--- a/thunar/thunar-launcher.c
++++ b/thunar/thunar-launcher.c
+@@ -2535,7 +2535,7 @@ thunar_launcher_action_create_folder (ThunarLauncher *launcher)
+     return;
+ 
+   /* ask the user to enter a name for the new folder */
+-  generated_name = thunar_util_next_new_file_name (launcher->current_directory, _("New Folder"));
++  generated_name = thunar_util_next_new_file_name (launcher->current_directory, _("New Folder"), THUNAR_NEXT_FILE_NAME_MODE_NEW);
+   name = thunar_dialogs_show_create (launcher->widget,
+                                      "inode/directory",
+                                      generated_name,
+@@ -2591,7 +2591,7 @@ thunar_launcher_action_create_document (ThunarLauncher *launcher,
+                                thunar_file_get_display_name (template_file));
+ 
+       /* ask the user to enter a name for the new document */
+-      generated_name = thunar_util_next_new_file_name (launcher->current_directory, thunar_file_get_display_name (template_file));
++      generated_name = thunar_util_next_new_file_name (launcher->current_directory, thunar_file_get_display_name (template_file), THUNAR_NEXT_FILE_NAME_MODE_NEW);
+       name = thunar_dialogs_show_create (launcher->widget,
+                                          thunar_file_get_content_type (THUNAR_FILE (template_file)),
+                                          generated_name,
+@@ -2602,7 +2602,7 @@ thunar_launcher_action_create_document (ThunarLauncher *launcher,
+   else
+     {
+       /* ask the user to enter a name for the new empty file */
+-      generated_name = thunar_util_next_new_file_name (launcher->current_directory, _("New Empty File"));
++      generated_name = thunar_util_next_new_file_name (launcher->current_directory, _("New Empty File"), THUNAR_NEXT_FILE_NAME_MODE_NEW);
+       name = thunar_dialogs_show_create (launcher->widget,
+                                          "text/plain",
+                                          generated_name,
+diff --git a/thunar/thunar-transfer-job.c b/thunar/thunar-transfer-job.c
+index 3c751301..8fea58f6 100644
+--- a/thunar/thunar-transfer-job.c
++++ b/thunar/thunar-transfer-job.c
+@@ -685,7 +685,6 @@ thunar_transfer_job_copy_file (ThunarTransferJob *job,
+   GFile            *dest_file = target_file;
+   GFileCopyFlags    copy_flags = G_FILE_COPY_NOFOLLOW_SYMLINKS;
+   GError           *err = NULL;
+-  gint              n;
+   gint              n_rename = 0;
+ 
+   _thunar_return_val_if_fail (THUNAR_IS_TRANSFER_JOB (job), NULL);
+@@ -700,43 +699,22 @@ thunar_transfer_job_copy_file (ThunarTransferJob *job,
+   /* various attempts to copy the file */
+   while (err == NULL)
+     {
++      GFile *target;
++
+       thunar_transfer_job_check_pause (job);
++
+       if (G_LIKELY (!g_file_equal (source_file, dest_file)))
+-        {
+-          /* try to copy the file from source_file to the dest_file */
+-          if (ttj_copy_file (job, source_file, dest_file, copy_flags, TRUE, &err))
+-            {
+-              /* return the real target file */
+-              return g_object_ref (dest_file);
+-            }
+-        }
++        target = g_object_ref (dest_file);
+       else
+-        {
+-          for (n = 1; err == NULL; ++n)
+-            {
+-              GFile *duplicate_file = thunar_io_jobs_util_next_duplicate_file (THUNAR_JOB (job),
+-                                                                               source_file,
+-                                                                               TRUE, n,
+-                                                                               &err);
++        target = thunar_io_jobs_util_next_duplicate_file (THUNAR_JOB (job), source_file, TRUE, &err);
+ 
+-              if (err == NULL)
+-                {
+-                  /* try to copy the file from source file to the duplicate file */
+-                  if (ttj_copy_file (job, source_file, duplicate_file, copy_flags, FALSE, &err))
+-                    {
+-                      /* return the real target file */
+-                      return duplicate_file;
+-                    }
+-
+-                  g_object_unref (duplicate_file);
+-                }
+-
+-              if (err != NULL && err->domain == G_IO_ERROR && err->code == G_IO_ERROR_EXISTS)
+-                {
+-                  /* this duplicate already exists => clear the error to try the next alternative */
+-                  g_clear_error (&err);
+-                }
+-            }
++      if (err == NULL)
++        {
++          /* try to copy the file from source file to the duplicate file */
++          if (ttj_copy_file (job, source_file, target, copy_flags, FALSE, &err))
++            return target;
++          else /* go to error case */
++            g_object_unref (target);
+         }
+ 
+       /* check if we can recover from this error */
+diff --git a/thunar/thunar-util.c b/thunar/thunar-util.c
+index aaf2b6bc..c57c5e77 100644
+--- a/thunar/thunar-util.c
++++ b/thunar/thunar-util.c
+@@ -663,6 +663,7 @@ thunar_setup_display_cb (gpointer data)
+  * thunar_util_next_new_file_name
+  * @dir : the directory to search for a free filename
+  * @file_name : the filename which will be used as the basis/default
++ * @ThunarNextFileNameMode: To decide if the naming should follow "file copy","file link" or "new file" syntax
+  *
+  * Returns a filename that is like @file_name with the possible addition of
+  * a number to differentiate it from other similarly named files. In other words
+@@ -675,15 +676,16 @@ thunar_setup_display_cb (gpointer data)
+  * - file_copy
+  *
+  * Calling this functions with the above folder and @file_name equal to 'file' the returned
+- * filename will be 'file 1'.
++ * filename will be 'file 1' for the mode "new file".
+  *
+  * The caller is responsible to free the returned string using g_free() when no longer needed.
+  *
+  * Return value: pointer to the new filename.
+ **/
+ gchar*
+-thunar_util_next_new_file_name (ThunarFile   *dir,
+-                                const gchar  *file_name)
++thunar_util_next_new_file_name (ThunarFile            *dir,
++                                const gchar           *file_name,
++                                ThunarNextFileNameMode name_mode)
+ {
+   ThunarFolder   *folder          = thunar_folder_get_for_file (dir);
+   unsigned long   file_name_size  = strlen (file_name);
+@@ -718,7 +720,24 @@ thunar_util_next_new_file_name (ThunarFile   *dir,
+       if (!found_duplicate)
+         break;
+       g_free (new_name);
+-      new_name = g_strdup_printf (_("%.*s %u%s"), (int) file_name_size, file_name, ++count, extension ? extension : "");
++      if (name_mode == THUNAR_NEXT_FILE_NAME_MODE_NEW)
++        new_name = g_strdup_printf (_("%.*s %u%s"), (int) file_name_size, file_name, ++count, extension ? extension : "");
++      else if (name_mode == THUNAR_NEXT_FILE_NAME_MODE_COPY)
++        new_name = g_strdup_printf (_("%.*s (copy %u)%s"), (int) file_name_size, file_name, ++count, extension ? extension : "");
++      else if (name_mode == THUNAR_NEXT_FILE_NAME_MODE_LINK)
++        {
++          if (count == 0)
++            {
++              new_name = g_strdup_printf (_("link to %.*s.%s"), (int) file_name_size, file_name, extension ? extension : "");
++              ++count;
++            }
++          else
++            {
++              new_name = g_strdup_printf (_("link %u to %.*s.%s"), ++count, (int) file_name_size, file_name, extension ? extension : "");
++            }
++        }
++      else
++        g_assert("should not be reached");
+     }
+   g_object_unref (G_OBJECT (folder));
+ 
+diff --git a/thunar/thunar-util.h b/thunar/thunar-util.h
+index 3449821a..87f4952c 100644
+--- a/thunar/thunar-util.h
++++ b/thunar/thunar-util.h
+@@ -37,6 +37,14 @@ G_GNUC_END_IGNORE_DEPRECATIONS
+ 
+ G_BEGIN_DECLS;
+ 
++typedef enum
++{
++  THUNAR_NEXT_FILE_NAME_MODE_NEW,
++  THUNAR_NEXT_FILE_NAME_MODE_COPY,
++  THUNAR_NEXT_FILE_NAME_MODE_LINK,
++} ThunarNextFileNameMode;
++
++
+ typedef void (*ThunarBookmarksFunc) (GFile       *file,
+                                      const gchar *name,
+                                      gint         row_num,
+@@ -66,8 +74,9 @@ time_t     thunar_util_time_from_rfc3339        (const gchar    *date_string) G_
+ gchar     *thunar_util_change_working_directory (const gchar    *new_directory) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ 
+ void       thunar_setup_display_cb              (gpointer        data);
+-gchar*     thunar_util_next_new_file_name       (ThunarFile     *dir,
+-                                                 const gchar    *file_name);
++gchar*     thunar_util_next_new_file_name       (ThunarFile            *dir,
++                                                 const gchar           *file_name,
++                                                 ThunarNextFileNameMode name_mode);
+ gboolean   thunar_util_is_a_search_query        (const gchar    *string);
+ 
+ extern const char *SEARCH_PREFIX;

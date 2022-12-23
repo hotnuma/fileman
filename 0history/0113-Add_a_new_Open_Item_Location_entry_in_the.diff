@@ -1,0 +1,233 @@
+diff --git a/thunar/thunar-launcher.c b/thunar/thunar-launcher.c
+index 3044b058..2b5b13f2 100644
+--- a/thunar/thunar-launcher.c
++++ b/thunar/thunar-launcher.c
+@@ -172,6 +172,7 @@ static void                    thunar_launcher_widget_destroyed           (Thuna
+ static void                    thunar_launcher_action_open                (ThunarLauncher                 *launcher);
+ static void                    thunar_launcher_action_open_in_new_tabs    (ThunarLauncher                 *launcher);
+ static void                    thunar_launcher_action_open_in_new_windows (ThunarLauncher                 *launcher);
++static void                    thunar_launcher_action_open_location       (ThunarLauncher                 *launcher);
+ static void                    thunar_launcher_action_open_with_other     (ThunarLauncher                 *launcher);
+ static void                    thunar_launcher_action_set_default_app     (ThunarLauncher                 *launcher);
+ static void                    thunar_launcher_action_sendto_desktop      (ThunarLauncher                 *launcher);
+@@ -240,6 +241,9 @@ struct _ThunarLauncher
+ 
+   /* Parent widget which holds the instance of the launcher */
+   GtkWidget              *widget;
++
++  /* TRUE if the active view is displaying search results or actively searching for files */
++  gboolean                is_searching;
+ };
+ 
+ static GQuark thunar_launcher_appinfo_quark;
+@@ -266,6 +270,7 @@ static XfceGtkActionEntry thunar_launcher_action_entries[] =
+     { THUNAR_LAUNCHER_ACTION_EXECUTE,          "<Actions>/ThunarLauncher/execute",                 "",                  XFCE_GTK_IMAGE_MENU_ITEM, NULL,                                   NULL,                                                                                            "system-run",           G_CALLBACK (thunar_launcher_action_open),                },
+     { THUNAR_LAUNCHER_ACTION_OPEN_IN_TAB,      "<Actions>/ThunarLauncher/open-in-new-tab",         "<Primary><shift>P", XFCE_GTK_MENU_ITEM,       NULL,                                   NULL,                                                                                            NULL,                   G_CALLBACK (thunar_launcher_action_open_in_new_tabs),    },
+     { THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,   "<Actions>/ThunarLauncher/open-in-new-window",      "<Primary><shift>O", XFCE_GTK_MENU_ITEM,       NULL,                                   NULL,                                                                                            NULL,                   G_CALLBACK (thunar_launcher_action_open_in_new_windows), },
++    { THUNAR_LAUNCHER_ACTION_OPEN_LOCATION,    "<Actions>/ThunarLauncher/open-location",           "",                  XFCE_GTK_MENU_ITEM,       N_ ("Open Item Location"),              NULL,                                                                                            NULL,                   G_CALLBACK (thunar_launcher_action_open_location),       },
+     { THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER,  "<Actions>/ThunarLauncher/open-with-other",         "",                  XFCE_GTK_MENU_ITEM,       N_ ("Open With Other _Application..."), N_ ("Choose another application with which to open the selected file"),                          NULL,                   G_CALLBACK (thunar_launcher_action_open_with_other),     },
+     { THUNAR_LAUNCHER_ACTION_SET_DEFAULT_APP,  "<Actions>/ThunarStandardView/set-default-app",     "",                  XFCE_GTK_MENU_ITEM,       N_ ("Set _Default Application..."),     N_ ("Choose an application which should be used by default to open the selected file"),          NULL,                   G_CALLBACK (thunar_launcher_action_set_default_app),     },
+ 
+@@ -460,6 +465,8 @@ thunar_launcher_init (ThunarLauncher *launcher)
+   launcher->new_files_created_closure = g_cclosure_new_swap (G_CALLBACK (thunar_launcher_new_files_created), launcher, NULL);
+   g_closure_ref (launcher->new_files_created_closure);
+   g_closure_sink (launcher->new_files_created_closure);
++
++  launcher->is_searching = FALSE;
+ }
+ 
+ 
+@@ -1384,6 +1391,36 @@ thunar_launcher_action_open_in_new_windows (ThunarLauncher *launcher)
+ 
+ 
+ 
++void
++thunar_launcher_set_searching (ThunarLauncher *launcher,
++                               gboolean        b)
++{
++  launcher->is_searching = b;
++}
++
++
++
++static void
++thunar_launcher_action_open_location (ThunarLauncher *launcher)
++{
++  GList *lp;
++  GList *gfiles = NULL;
++
++  _thunar_return_if_fail (THUNAR_IS_LAUNCHER (launcher));
++
++  if (G_UNLIKELY (launcher->files_to_process == NULL))
++    return;
++
++  for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
++    gfiles = g_list_prepend (gfiles, thunar_file_get_file (THUNAR_FILE (lp->data)));
++
++  thunar_window_open_files_in_location (THUNAR_WINDOW (launcher->widget), gfiles);
++
++  g_list_free (gfiles);
++}
++
++
++
+ static void
+ thunar_launcher_action_open_with_other (ThunarLauncher *launcher)
+ {
+@@ -3119,6 +3156,9 @@ thunar_launcher_append_open_section (ThunarLauncher *launcher,
+       thunar_launcher_append_menu_item (launcher, GTK_MENU_SHELL (menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, FALSE);
+     }
+ 
++  if (launcher->is_searching && launcher->n_files_to_process > 0)
++    thunar_launcher_append_menu_item (launcher, GTK_MENU_SHELL (menu), THUNAR_LAUNCHER_ACTION_OPEN_LOCATION, FALSE);
++
+   if (G_LIKELY (applications != NULL))
+     {
+       menu_item = xfce_gtk_menu_item_new (_("Open With"),
+diff --git a/thunar/thunar-launcher.h b/thunar/thunar-launcher.h
+index 7e27f2d7..e98f4c64 100644
+--- a/thunar/thunar-launcher.h
++++ b/thunar/thunar-launcher.h
+@@ -43,6 +43,7 @@ typedef enum
+   THUNAR_LAUNCHER_ACTION_EXECUTE,
+   THUNAR_LAUNCHER_ACTION_OPEN_IN_TAB,
+   THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,
++  THUNAR_LAUNCHER_ACTION_OPEN_LOCATION,
+   THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER,
+   THUNAR_LAUNCHER_ACTION_SET_DEFAULT_APP,
+   THUNAR_LAUNCHER_ACTION_SENDTO_MENU,
+@@ -112,6 +113,8 @@ void            thunar_launcher_set_selection                        (ThunarLaun
+ void            thunar_launcher_action_empty_trash                   (ThunarLauncher                 *launcher);
+ void            thunar_launcher_action_restore                       (ThunarLauncher                 *launcher);
+ void            thunar_launcher_action_restore_and_show              (ThunarLauncher                 *launcher);
++void            thunar_launcher_set_searching                        (ThunarLauncher                 *launcher,
++                                                                      gboolean                        b);
+ 
+ 
+ G_END_DECLS;
+diff --git a/thunar/thunar-window.c b/thunar/thunar-window.c
+index 3e02cfe7..3dec5a9e 100644
+--- a/thunar/thunar-window.c
++++ b/thunar/thunar-window.c
+@@ -1017,39 +1017,7 @@ thunar_window_show_and_select_files (ThunarWindow *window,
+   restore_and_show_in_progress = thunar_file_is_trash (window->current_directory) && thunar_g_file_is_trashed (files_to_select->data) == FALSE;
+   if (restore_and_show_in_progress)
+     {
+-      ThunarApplication *application;
+-      GHashTable        *restore_show_table; /* <string, GList<GFile*>> */
+-      const gchar       *original_uri;
+-      GFile             *original_dir_file;
+-      gchar             *original_dir_path;
+-
+-      /* prepare hashtable */
+-      restore_show_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (void(*) (void*))thunar_g_list_free_full);
+-      for (GList *lp = files_to_select; lp != NULL; lp = lp->next)
+-        {
+-          original_dir_file = g_file_get_parent (lp->data);
+-          original_uri =  g_file_get_uri (lp->data);
+-          original_dir_path = g_file_get_uri (original_dir_file);
+-
+-          if (g_hash_table_contains (restore_show_table, original_dir_path) == FALSE)
+-            {
+-              GList *list = g_list_prepend (NULL, g_file_new_for_commandline_arg (original_uri));
+-              g_hash_table_insert (restore_show_table, original_dir_path, list);
+-            }
+-          else
+-            {
+-              GList *list = g_hash_table_lookup (restore_show_table, original_dir_path);
+-              list = g_list_append (list, g_file_new_for_commandline_arg (original_uri));
+-            }
+-
+-          g_object_unref (original_dir_file);
+-        }
+-      /* open tabs and show files */
+-      application = thunar_application_get();
+-      g_hash_table_foreach (restore_show_table, hash_table_entry_show_and_select_files, application);
+-      /* free memory */
+-      g_hash_table_destroy (restore_show_table);
+-      g_object_unref (application);
++      thunar_window_open_files_in_location (window, files_to_select);
+     }
+   else
+     {
+@@ -1059,6 +1027,49 @@ thunar_window_show_and_select_files (ThunarWindow *window,
+ 
+ 
+ 
++void
++thunar_window_open_files_in_location (ThunarWindow *window,
++                                      GList        *files_to_select)
++{
++  ThunarApplication *application;
++  GHashTable        *restore_show_table; /* <string, GList<GFile*>> */
++  const gchar       *original_uri;
++  GFile             *original_dir_file;
++  gchar             *original_dir_path;
++
++  _thunar_return_if_fail (THUNAR_IS_WINDOW (window));
++
++  /* prepare hashtable */
++  restore_show_table = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, (void(*) (void*))thunar_g_list_free_full);
++  for (GList *lp = files_to_select; lp != NULL; lp = lp->next)
++    {
++      original_dir_file = g_file_get_parent (lp->data);
++      original_uri =  g_file_get_uri (lp->data);
++      original_dir_path = g_file_get_uri (original_dir_file);
++
++      if (g_hash_table_contains (restore_show_table, original_dir_path) == FALSE)
++        {
++          GList *list = g_list_prepend (NULL, g_file_new_for_commandline_arg (original_uri));
++          g_hash_table_insert (restore_show_table, original_dir_path, list);
++        }
++      else
++        {
++          GList *list = g_hash_table_lookup (restore_show_table, original_dir_path);
++          list = g_list_append (list, g_file_new_for_commandline_arg (original_uri));
++        }
++
++      g_object_unref (original_dir_file);
++    }
++  /* open tabs and show files */
++  application = thunar_application_get();
++  g_hash_table_foreach (restore_show_table, hash_table_entry_show_and_select_files, application);
++  /* free memory */
++  g_hash_table_destroy (restore_show_table);
++  g_object_unref (application);
++}
++
++
++
+ /**
+  * thunar_window_select_files:
+  * @window            : a #ThunarWindow instance.
+@@ -2868,6 +2879,7 @@ thunar_window_start_open_location (ThunarWindow *window,
+   if (initial_text != NULL && thunar_util_is_a_search_query (initial_text) == TRUE)
+     {
+       thunar_window_update_search (window);
++      thunar_launcher_set_searching (window->launcher, TRUE);
+     }
+ }
+ 
+@@ -2894,6 +2906,7 @@ thunar_window_action_cancel_search (ThunarWindow *window)
+ 
+   thunar_location_bar_cancel_search (THUNAR_LOCATION_BAR (window->location_bar));
+   thunar_standard_view_set_searching (THUNAR_STANDARD_VIEW (window->view), NULL);
++  thunar_launcher_set_searching (window->launcher, FALSE);
+   gtk_widget_hide (window->catfish_search_button);
+   window->search_query = NULL;
+ }
+diff --git a/thunar/thunar-window.h b/thunar/thunar-window.h
+index ce059525..1215325d 100644
+--- a/thunar/thunar-window.h
++++ b/thunar/thunar-window.h
+@@ -139,7 +139,9 @@ void                      thunar_window_redirect_menu_tooltips_to_statusbar (Thu
+                                                                              GtkMenu             *menu);
+ const XfceGtkActionEntry* thunar_window_get_action_entry                    (ThunarWindow        *window,
+                                                                              ThunarWindowAction   action);
+- void                     thunar_window_show_and_select_files               (ThunarWindow        *window,
++void                      thunar_window_open_files_in_location              (ThunarWindow        *window,
++                                                                             GList               *files_to_select);
++void                      thunar_window_show_and_select_files               (ThunarWindow        *window,
+                                                                              GList               *files_to_select);
+ void                      thunar_window_update_search                       (ThunarWindow        *window);
+ void                      thunar_window_action_cancel_search                (ThunarWindow        *window);

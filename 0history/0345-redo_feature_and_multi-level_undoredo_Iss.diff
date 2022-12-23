@@ -1,0 +1,703 @@
+diff --git a/thunar/thunar-action-manager.c b/thunar/thunar-action-manager.c
+index 4c335e6f..5ee1362b 100644
+--- a/thunar/thunar-action-manager.c
++++ b/thunar/thunar-action-manager.c
+@@ -206,6 +206,7 @@ static GtkWidget              *thunar_action_manager_create_document_submenu_new
+ static void                    thunar_action_manager_new_files_created          (ThunarActionManager            *action_mgr,
+                                                                                  GList                          *new_thunar_files);
+ static gboolean                thunar_action_manager_action_undo                (ThunarActionManager            *action_mgr);
++static gboolean                thunar_action_manager_action_redo                (ThunarActionManager            *action_mgr);
+ 
+ 
+ 
+@@ -309,6 +310,7 @@ static XfceGtkActionEntry thunar_action_manager_action_entries[] =
+     { THUNAR_ACTION_MANAGER_ACTION_UNMOUNT,          NULL,                                                   "",                  XFCE_GTK_MENU_ITEM,       N_ ("_Unmount"),                        N_ ("Unmount the selected device"),                                                              NULL,                   G_CALLBACK (thunar_action_manager_action_unmount),             },
+     { THUNAR_ACTION_MANAGER_ACTION_EJECT,            NULL,                                                   "",                  XFCE_GTK_MENU_ITEM,       N_ ("_Eject"),                          N_ ("Eject the selected device"),                                                                NULL,                   G_CALLBACK (thunar_action_manager_action_eject),               },
+     { THUNAR_ACTION_MANAGER_ACTION_UNDO,             "<Actions>/ThunarActionManager/undo",                   "<Primary>Z",        XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Undo"),                           N_ ("Undo the latest operation"),                                                               "edit-undo-symbolic",    G_CALLBACK (thunar_action_manager_action_undo),                },
++    { THUNAR_ACTION_MANAGER_ACTION_REDO,             "<Actions>/ThunarActionManager/redo",                   "<Primary><shift>Z", XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Redo"),                           N_ ("Redo the latest operation"),                                                               "edit-redo-symbolic",    G_CALLBACK (thunar_action_manager_action_redo),                },
+     { THUNAR_ACTION_MANAGER_ACTION_EDIT_LAUNCHER,    NULL,                                                   "",                  XFCE_GTK_IMAGE_MENU_ITEM, N_ ("_Edit Launcher"),                  N_ ("Edit the selected action_mgr"),                                                             "gtk-edit",             G_CALLBACK (thunar_action_manager_action_edit_launcher),       },
+ };
+ 
+@@ -1858,6 +1860,11 @@ thunar_action_manager_append_menu_item (ThunarActionManager       *action_mgr,
+         gtk_widget_set_sensitive (item, thunar_job_operation_can_undo ());
+         return item;
+ 
++      case THUNAR_ACTION_MANAGER_ACTION_REDO:
++        item = xfce_gtk_menu_item_new_from_action_entry (action_entry, G_OBJECT (action_mgr), GTK_MENU_SHELL (menu));
++        gtk_widget_set_sensitive (item, thunar_job_operation_can_redo ());
++        return item;
++
+       default:
+         return xfce_gtk_menu_item_new_from_action_entry (action_entry, G_OBJECT (action_mgr), GTK_MENU_SHELL (menu));
+     }
+@@ -1923,7 +1930,7 @@ thunar_action_manager_sendto_device (ThunarActionManager *action_mgr,
+     {
+       /* copy the files onto the specified device */
+       application = thunar_application_get ();
+-      thunar_application_copy_into (application, action_mgr->widget, files, mount_point, NULL);
++      thunar_application_copy_into (application, action_mgr->widget, files, mount_point, THUNAR_OPERATION_LOG_OPERATIONS, NULL);
+       g_object_unref (application);
+       g_object_unref (mount_point);
+     }
+@@ -2258,7 +2265,7 @@ thunar_action_manager_action_duplicate (ThunarActionManager *action_mgr)
+        */
+       application = thunar_application_get ();
+       thunar_application_copy_into (application, action_mgr->widget, files_to_process,
+-                                    thunar_file_get_file (action_mgr->current_directory), action_mgr->new_files_created_closure);
++                                    thunar_file_get_file (action_mgr->current_directory), THUNAR_OPERATION_LOG_OPERATIONS, action_mgr->new_files_created_closure);
+       g_object_unref (G_OBJECT (application));
+ 
+       /* clean up */
+@@ -3401,6 +3408,18 @@ thunar_action_manager_action_undo (ThunarActionManager *action_mgr)
+ 
+ 
+ 
++static gboolean
++thunar_action_manager_action_redo (ThunarActionManager *action_mgr)
++{
++  _thunar_return_val_if_fail (THUNAR_IS_ACTION_MANAGER (action_mgr), FALSE);
++
++  thunar_job_operation_redo ();
++
++  return TRUE;
++}
++
++
++
+ XfceGtkActionEntry*
+ thunar_action_manager_get_action_entries (void)
+ {
+diff --git a/thunar/thunar-action-manager.h b/thunar/thunar-action-manager.h
+index e991cd83..1c606df6 100644
+--- a/thunar/thunar-action-manager.h
++++ b/thunar/thunar-action-manager.h
+@@ -73,6 +73,7 @@ typedef enum
+   THUNAR_ACTION_MANAGER_ACTION_UNMOUNT,
+   THUNAR_ACTION_MANAGER_ACTION_EJECT,
+   THUNAR_ACTION_MANAGER_ACTION_UNDO,
++  THUNAR_ACTION_MANAGER_ACTION_REDO,
+   THUNAR_ACTION_MANAGER_ACTION_EDIT_LAUNCHER,
+ 
+   THUNAR_ACTION_MANAGER_N_ACTIONS
+diff --git a/thunar/thunar-application.c b/thunar/thunar-application.c
+index 94a7feb0..f51ef10c 100644
+--- a/thunar/thunar-application.c
++++ b/thunar/thunar-application.c
+@@ -2064,6 +2064,7 @@ thunar_application_create_file_from_template (ThunarApplication      *applicatio
+  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
+  * @source_file_list  : the lst of #GFile<!---->s that should be copied.
+  * @target_file_list  : the list of #GFile<!---->s where files should be copied to.
++ * @log_mode          : a #ThunarOperationLogMode controlling the logging of the operation.
+  * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
+  *                      which will be emitted when the job finishes with the
+  *                      list of #GFile<!---->s created by the job, or
+@@ -2075,11 +2076,12 @@ thunar_application_create_file_from_template (ThunarApplication      *applicatio
+  * @source_file_list and @target_file_list must be of the same length.
+  **/
+ void
+-thunar_application_copy_to (ThunarApplication *application,
+-                            gpointer           parent,
+-                            GList             *source_file_list,
+-                            GList             *target_file_list,
+-                            GClosure          *new_files_closure)
++thunar_application_copy_to (ThunarApplication      *application,
++                            gpointer                parent,
++                            GList                  *source_file_list,
++                            GList                  *target_file_list,
++                            ThunarOperationLogMode  log_mode,
++                            GClosure               *new_files_closure)
+ {
+   _thunar_return_if_fail (g_list_length (source_file_list) == g_list_length (target_file_list));
+   _thunar_return_if_fail (parent == NULL || GDK_IS_SCREEN (parent) || GTK_IS_WIDGET (parent));
+@@ -2088,7 +2090,7 @@ thunar_application_copy_to (ThunarApplication *application,
+   /* launch the operation */
+   thunar_application_launch (application, parent, "edit-copy",
+                              _("Copying files..."), thunar_io_jobs_copy_files,
+-                             source_file_list, target_file_list, FALSE, TRUE, THUNAR_OPERATION_LOG_OPERATIONS, new_files_closure);
++                             source_file_list, target_file_list, FALSE, TRUE, log_mode, new_files_closure);
+ }
+ 
+ 
+@@ -2099,6 +2101,7 @@ thunar_application_copy_to (ThunarApplication *application,
+  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
+  * @source_file_list  : the list of #GFile<!---->s that should be copied.
+  * @target_file       : the #GFile to the target directory.
++ * @log_mode          : a #ThunarOperationLogMode controlling the logging of the operation.
+  * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
+  *                      which will be emitted when the job finishes with the
+  *                      list of #GFile<!---->s created by the job, or
+@@ -2108,11 +2111,12 @@ thunar_application_copy_to (ThunarApplication *application,
+  * referenced by @target_file. This method takes care of all user interaction.
+  **/
+ void
+-thunar_application_copy_into (ThunarApplication *application,
+-                              gpointer           parent,
+-                              GList             *source_file_list,
+-                              GFile             *target_file,
+-                              GClosure          *new_files_closure)
++thunar_application_copy_into (ThunarApplication       *application,
++                              gpointer                 parent,
++                              GList                   *source_file_list,
++                              GFile                   *target_file,
++                              ThunarOperationLogMode   log_mode,
++                              GClosure                *new_files_closure)
+ {
+   ThunarFile *target_folder;
+   GVolume    *volume         = NULL;
+@@ -2153,7 +2157,7 @@ thunar_application_copy_into (ThunarApplication *application,
+                                          title, thunar_io_jobs_copy_files,
+                                          source_file_list, target_file,
+                                          FALSE, TRUE,
+-                                         THUNAR_OPERATION_LOG_OPERATIONS,
++                                         log_mode,
+                                          new_files_closure);
+ 
+   /* free */
+diff --git a/thunar/thunar-application.h b/thunar/thunar-application.h
+index 64b11249..00b34ffd 100644
+--- a/thunar/thunar-application.h
++++ b/thunar/thunar-application.h
+@@ -104,17 +104,19 @@ void                  thunar_application_create_file_from_template (ThunarApplic
+                                                                     const gchar             *startup_id,
+                                                                     ThunarOperationLogMode   log_mode);
+ 
+-void                  thunar_application_copy_to                   (ThunarApplication *application,
+-                                                                    gpointer           parent,
+-                                                                    GList             *source_file_list,
+-                                                                    GList             *target_file_list,
+-                                                                    GClosure          *new_files_closure);
++void                  thunar_application_copy_to                   (ThunarApplication       *application,
++                                                                    gpointer                 parent,
++                                                                    GList                   *source_file_list,
++                                                                    GList                   *target_file_list,
++                                                                    ThunarOperationLogMode   log_mode,
++                                                                    GClosure                *new_files_closure);
+ 
+-void                  thunar_application_copy_into                 (ThunarApplication *application,
+-                                                                    gpointer           parent,
+-                                                                    GList             *source_file_list,
+-                                                                    GFile             *target_file,
+-                                                                    GClosure          *new_files_closure);
++void                  thunar_application_copy_into                 (ThunarApplication       *application,
++                                                                    gpointer                 parent,
++                                                                    GList                   *source_file_list,
++                                                                    GFile                   *target_file,
++                                                                    ThunarOperationLogMode   log_mode,
++                                                                    GClosure                *new_files_closure);
+ 
+ void                  thunar_application_link_into                 (ThunarApplication      *application,
+                                                                     gpointer                parent,
+diff --git a/thunar/thunar-clipboard-manager.c b/thunar/thunar-clipboard-manager.c
+index 8307ef06..c0a1bbad 100644
+--- a/thunar/thunar-clipboard-manager.c
++++ b/thunar/thunar-clipboard-manager.c
+@@ -330,7 +330,7 @@ thunar_clipboard_manager_contents_received (GtkClipboard     *clipboard,
+     {
+       application = thunar_application_get ();
+       if (G_LIKELY (path_copy))
+-        thunar_application_copy_into (application, request->widget, file_list, request->target_file, request->new_files_closure);
++        thunar_application_copy_into (application, request->widget, file_list, request->target_file, THUNAR_OPERATION_LOG_OPERATIONS, request->new_files_closure);
+       else
+         thunar_application_move_into (application, request->widget, file_list, request->target_file, THUNAR_OPERATION_LOG_OPERATIONS, request->new_files_closure);
+       g_object_unref (G_OBJECT (application));
+diff --git a/thunar/thunar-dbus-service.c b/thunar/thunar-dbus-service.c
+index 178f14c0..557fbd8c 100644
+--- a/thunar/thunar-dbus-service.c
++++ b/thunar/thunar-dbus-service.c
+@@ -1280,11 +1280,13 @@ thunar_dbus_service_transfer_files (ThunarDBusTransferMode transfer_mode,
+             case THUNAR_DBUS_TRANSFER_MODE_COPY_TO:
+               thunar_application_copy_to (application, screen,
+                                           source_file_list, target_file_list,
++                                          THUNAR_OPERATION_LOG_NO_OPERATIONS,
+                                           NULL);
+               break;
+             case THUNAR_DBUS_TRANSFER_MODE_COPY_INTO:
+               thunar_application_copy_into (application, screen,
+                                             source_file_list, target_file_list->data,
++                                            THUNAR_OPERATION_LOG_NO_OPERATIONS,
+                                             NULL);
+               break;
+             case THUNAR_DBUS_TRANSFER_MODE_MOVE_INTO:
+diff --git a/thunar/thunar-dnd.c b/thunar/thunar-dnd.c
+index c1dbc36d..b7581d60 100644
+--- a/thunar/thunar-dnd.c
++++ b/thunar/thunar-dnd.c
+@@ -227,7 +227,7 @@ thunar_dnd_perform (GtkWidget    *widget,
+       switch (action)
+         {
+         case GDK_ACTION_COPY:
+-          thunar_application_copy_into (application, widget, file_list, thunar_file_get_file (file), new_files_closure);
++          thunar_application_copy_into (application, widget, file_list, thunar_file_get_file (file), THUNAR_OPERATION_LOG_OPERATIONS,  new_files_closure);
+           break;
+ 
+         case GDK_ACTION_MOVE:
+diff --git a/thunar/thunar-enum-types.c b/thunar/thunar-enum-types.c
+index 4909990a..d7d07f4a 100644
+--- a/thunar/thunar-enum-types.c
++++ b/thunar/thunar-enum-types.c
+@@ -652,16 +652,17 @@ thunar_job_operation_kind_get_type (void)
+     {
+       static const GEnumValue values[] =
+       {
+-        { THUNAR_JOB_OPERATION_KIND_COPY,       "THUNAR_JOB_OPERATION_KIND_COPY",     N_("Copy"),  },
+-        { THUNAR_JOB_OPERATION_KIND_MOVE,       "THUNAR_JOB_OPERATION_KIND_MOVE",     N_("Move") },
+-        { THUNAR_JOB_OPERATION_KIND_RENAME,     "THUNAR_JOB_OPERATION_KIND_RENAME",   N_("Rename") },
+-        { THUNAR_JOB_OPERATION_KIND_CREATE,     "THUNAR_JOB_OPERATION_KIND_CREATE",   N_("Create") },
+-        { THUNAR_JOB_OPERATION_KIND_DELETE,     "THUNAR_JOB_OPERATION_KIND_DELETE",   N_("Delete (opposite of create)") },
+-        { THUNAR_JOB_OPERATION_KIND_TRASH,      "THUNAR_JOB_OPERATION_KIND_TRASH",    N_("Trash") },
+-        { THUNAR_JOB_OPERATION_KIND_RESTORE,    "THUNAR_JOB_OPERATION_KIND_RESTORE",  N_("Restore (opposite of trash)") },
+-        { THUNAR_JOB_OPERATION_KIND_LINK,       "THUNAR_JOB_OPERATION_KIND_LINK",     N_("Link") },
+-        { THUNAR_JOB_OPERATION_KIND_UNLINK,     "THUNAR_JOB_OPERATION_KIND_UNLINK",   N_("Unlink") },
+-        { 0,                                    NULL,                                 NULL }
++        { THUNAR_JOB_OPERATION_KIND_COPY,         "THUNAR_JOB_OPERATION_KIND_COPY",          N_("Copy"),  },
++        { THUNAR_JOB_OPERATION_KIND_MOVE,         "THUNAR_JOB_OPERATION_KIND_MOVE",          N_("Move") },
++        { THUNAR_JOB_OPERATION_KIND_RENAME,       "THUNAR_JOB_OPERATION_KIND_RENAME",        N_("Rename") },
++        { THUNAR_JOB_OPERATION_KIND_CREATE_FILE,  "THUNAR_JOB_OPERATION_KIND_CREATE_FILE",   N_("Create File") },
++        { THUNAR_JOB_OPERATION_KIND_CREATE_FOLDER,"THUNAR_JOB_OPERATION_KIND_CREATE_FOLDER", N_("Create Folder") },
++        { THUNAR_JOB_OPERATION_KIND_DELETE,       "THUNAR_JOB_OPERATION_KIND_DELETE",        N_("Delete (opposite of create)") },
++        { THUNAR_JOB_OPERATION_KIND_TRASH,        "THUNAR_JOB_OPERATION_KIND_TRASH",         N_("Trash") },
++        { THUNAR_JOB_OPERATION_KIND_RESTORE,      "THUNAR_JOB_OPERATION_KIND_RESTORE",       N_("Restore (opposite of trash)") },
++        { THUNAR_JOB_OPERATION_KIND_LINK,         "THUNAR_JOB_OPERATION_KIND_LINK",          N_("Link") },
++        { THUNAR_JOB_OPERATION_KIND_UNLINK,       "THUNAR_JOB_OPERATION_KIND_UNLINK",        N_("Unlink") },
++        { 0,                                      NULL,                                      NULL }
+       };
+ 
+       type = g_enum_register_static ("ThunarJobOperationKind", values);
+diff --git a/thunar/thunar-enum-types.h b/thunar/thunar-enum-types.h
+index c1eda613..daf387b9 100644
+--- a/thunar/thunar-enum-types.h
++++ b/thunar/thunar-enum-types.h
+@@ -434,7 +434,8 @@ typedef enum
+   THUNAR_JOB_OPERATION_KIND_COPY,
+   THUNAR_JOB_OPERATION_KIND_MOVE,
+   THUNAR_JOB_OPERATION_KIND_RENAME,
+-  THUNAR_JOB_OPERATION_KIND_CREATE,
++  THUNAR_JOB_OPERATION_KIND_CREATE_FILE,
++  THUNAR_JOB_OPERATION_KIND_CREATE_FOLDER,
+   THUNAR_JOB_OPERATION_KIND_DELETE,
+   THUNAR_JOB_OPERATION_KIND_TRASH,
+   THUNAR_JOB_OPERATION_KIND_RESTORE,
+diff --git a/thunar/thunar-io-jobs.c b/thunar/thunar-io-jobs.c
+index dac6ed41..51cf8b1d 100644
+--- a/thunar/thunar-io-jobs.c
++++ b/thunar/thunar-io-jobs.c
+@@ -162,7 +162,7 @@ _thunar_io_jobs_create (ThunarJob  *job,
+   log_mode = thunar_job_get_log_mode (job);
+ 
+   if (log_mode == THUNAR_OPERATION_LOG_OPERATIONS)
+-    operation = thunar_job_operation_new (THUNAR_JOB_OPERATION_KIND_CREATE);
++    operation = thunar_job_operation_new (THUNAR_JOB_OPERATION_KIND_CREATE_FILE);
+ 
+   /* iterate over all files in the list */
+   for (lp = file_list;
+@@ -257,7 +257,7 @@ _thunar_io_jobs_create (ThunarJob  *job,
+ 
+           /* remember the file for possible undo */
+           if (log_mode == THUNAR_OPERATION_LOG_OPERATIONS)
+-               thunar_job_operation_add (operation, NULL, lp->data);
++               thunar_job_operation_add (operation, template_file, lp->data);
+ 
+           if (template_stream != NULL)
+             {
+@@ -347,7 +347,7 @@ _thunar_io_jobs_mkdir (ThunarJob  *job,
+   log_mode = thunar_job_get_log_mode (job);
+ 
+   if (log_mode == THUNAR_OPERATION_LOG_OPERATIONS)
+-    operation = thunar_job_operation_new (THUNAR_JOB_OPERATION_KIND_CREATE);
++    operation = thunar_job_operation_new (THUNAR_JOB_OPERATION_KIND_CREATE_FOLDER);
+ 
+   for (lp = file_list;
+        err == NULL && lp != NULL && !exo_job_is_cancelled (EXO_JOB (job));
+@@ -823,7 +823,7 @@ _thunar_io_jobs_link (ThunarJob  *job,
+ 
+               /* remember the file for possible undo */
+               if (log_mode == THUNAR_OPERATION_LOG_OPERATIONS)
+-                   thunar_job_operation_add (operation, sp->data, real_target_file);
++                thunar_job_operation_add (operation, sp->data, real_target_file);
+             }
+ 
+           /* release the real target file */
+diff --git a/thunar/thunar-job-operation.c b/thunar/thunar-job-operation.c
+index 0458b620..b994379b 100644
+--- a/thunar/thunar-job-operation.c
++++ b/thunar/thunar-job-operation.c
+@@ -43,6 +43,8 @@ static ThunarJobOperation    *thunar_job_operation_new_invert         (ThunarJob
+ static void                   thunar_job_operation_execute            (ThunarJobOperation *job_operation);
+ static gint                   thunar_job_operation_is_ancestor        (gconstpointer       descendant,
+                                                                        gconstpointer       ancestor);
++static gint                   thunar_job_operation_compare            (ThunarJobOperation *operation1,
++                                                                       ThunarJobOperation *operation2);
+ static void                   thunar_job_operation_restore_from_trash (ThunarJobOperation *operation,
+                                                                        GError            **error);
+ 
+@@ -67,9 +69,14 @@ struct _ThunarJobOperation
+ 
+ G_DEFINE_TYPE (ThunarJobOperation, thunar_job_operation, G_TYPE_OBJECT)
+ 
++/* List of job operations which were logged */
+ static GList *job_operation_list = NULL;
+ 
++/* List pointer to the operation which can be undone */
++static GList *lp_undo_job_operation = NULL;
+ 
++/* List pointer to the operation which can be redone */
++static GList *lp_redo_job_operation = NULL;
+ 
+ static void
+ thunar_job_operation_class_init (ThunarJobOperationClass *klass)
+@@ -209,14 +216,43 @@ thunar_job_operation_commit (ThunarJobOperation *job_operation)
+ {
+   _thunar_return_if_fail (THUNAR_IS_JOB_OPERATION (job_operation));
+ 
+-  /* We only keep one job operation commited in the job operation list, so we have to free the
+-   * memory for the job operation in the list, if any, stored in before we commit the new one. */
+-  thunar_g_list_free_full (job_operation_list);
+-  job_operation_list = g_list_append (NULL, g_object_ref (job_operation));
++  if (job_operation->operation_kind == THUNAR_JOB_OPERATION_KIND_TRASH)
++    {
++      /* set the timestamp for the operation, in seconds. g_get_real_time gives
++       * us the time in microseconds, so we need to divide by 1e6. */
++      job_operation->end_timestamp = g_get_real_time () / (gint64) 1e6;
++
++      /* hack for 'redo' of 'trash' operations, which requires 'THUNAR_OPERATION_LOG_OPERATIONS' to get the new timestamps */
++      /* If we have an identical operation already in the list, we assume that it was a 'redo'.*
++      /* In that case we just update the timestamps of the old operation instead of adding the new operation */
++      for (GList* lp = job_operation_list; lp != NULL; lp = lp->next)
++        {
++          ThunarJobOperation *old_operation = lp->data;
++          if (thunar_job_operation_compare (old_operation, job_operation) == 0)
++            {
++              old_operation->start_timestamp = job_operation->start_timestamp;
++              old_operation->end_timestamp = job_operation->end_timestamp;
++              return;
++            }
++        }
++    }
++
++  /* When a new operation is added, drop all previous operations which where undone from the list */
++  if (lp_redo_job_operation != NULL)
++    {
++      GList* new_list = NULL;
++      for (GList* lp = job_operation_list; lp != NULL && lp != lp_redo_job_operation; lp = lp->next)
++        new_list = g_list_append (new_list, g_object_ref (lp->data));
++      g_list_free_full (job_operation_list, g_object_unref);
++      job_operation_list = new_list;
++    }
+ 
+-  /* set the timestamp for the operation, in seconds. g_get_real_time gives
+-   * us the time in microseconds, so we need to divide by 1e6. */
+-  job_operation->end_timestamp = g_get_real_time () / (gint64) 1e6;
++  /* Add the new operation to our list */
++  job_operation_list = g_list_append (job_operation_list, g_object_ref (job_operation));
++
++  /* reset the undo pointer to latest operation and clear the redo pointer */
++  lp_undo_job_operation = g_list_last (job_operation_list);
++  lp_redo_job_operation = NULL;
+ }
+ 
+ 
+@@ -224,9 +260,7 @@ thunar_job_operation_commit (ThunarJobOperation *job_operation)
+ /**
+  * thunar_job_operation_undo:
+  *
+- * Undoes the job operation marked by the job operation list. First the marked job operation
+- * is retreived, then its inverse operation is calculated, and finally this inverse operation
+- * is executed.
++ * Undoes the latest job operation, by executing its inverse
+  **/
+ void
+ thunar_job_operation_undo (void)
+@@ -239,7 +273,7 @@ thunar_job_operation_undo (void)
+   gchar              *file_uri;
+ 
+   /* Show a warning in case there is no operation to undo */
+-  if (job_operation_list == NULL)
++  if (lp_undo_job_operation == NULL)
+     {
+       xfce_dialog_show_warning (NULL,
+                                 _("No operation which can be undone has been performed yet.\n"
+@@ -249,7 +283,11 @@ thunar_job_operation_undo (void)
+     }
+ 
+   /* the 'marked' operation */
+-  operation_marker = job_operation_list->data;
++  operation_marker = lp_undo_job_operation->data;
++
++  /* fix position undo/redo pointers */
++  lp_redo_job_operation = lp_undo_job_operation;
++  lp_undo_job_operation = g_list_previous (lp_undo_job_operation);
+ 
+   /* the enum value of the operation kind, which will be used to get its nick name */
+   enum_class = g_type_class_ref (THUNAR_TYPE_JOB_OPERATION_KIND);
+@@ -293,12 +331,80 @@ thunar_job_operation_undo (void)
+       thunar_job_operation_execute (inverted_operation);
+       g_object_unref (inverted_operation);
+     }
++}
++
++
++
++/**
++ * thunar_job_operation_redo:
++ *
++ * Redoes the last job operation which had been undone (if any)
++ **/
++void
++thunar_job_operation_redo (void)
++{
++  ThunarJobOperation *operation_marker;
++  GEnumClass         *enum_class;
++  GEnumValue         *enum_value;
++  GString            *warning_body;
++  gchar              *file_uri;
++
++  /* Show a warning in case there is no operation to undo */
++  if (lp_redo_job_operation == NULL)
++    {
++      xfce_dialog_show_warning (NULL,
++                                _("No operation which can be redone available.\n"),
++                                _("There is no operation to redo"));
++      return;
++    }
++
++  /* the 'marked' operation */
++  operation_marker = lp_redo_job_operation->data;
++
++  /* fix position undo/redo pointers */
++  lp_undo_job_operation = lp_redo_job_operation;
++  lp_redo_job_operation = g_list_next (lp_redo_job_operation);
++
++  /* the enum value of the operation kind, which will be used to get its nick name */
++  enum_class = g_type_class_ref (THUNAR_TYPE_JOB_OPERATION_KIND);
++  enum_value = g_enum_get_value (enum_class, operation_marker->operation_kind);
++
++  /* warn the user if the previous operation is empty, since then there is nothing to undo */
++  if (operation_marker->source_file_list == NULL && operation_marker->target_file_list == NULL)
++    {
++
++      xfce_dialog_show_warning (NULL,
++                                _("The operation you are trying to redo does not have any files "
++                                  "associated with it, and thus cannot be redone. "),
++                                _("%s operation cannot be redone"), enum_value->value_nick);
++    }
++  else
++    {
++      /* if there were files overwritten in the operation, warn about them */
++      if (operation_marker->overwritten_file_list != NULL)
++        {
++          gint index;
++
++          index = 1; /* one indexed for the dialog */
++          warning_body = g_string_new (_("The following files were overwritten in the operation "
++                                         "you are trying to redo and cannot be restored:\n"));
++
++          for (GList *lp = operation_marker->overwritten_file_list; lp != NULL; lp = lp->next, index++)
++            {
++              file_uri = g_file_get_uri (lp->data);
++              g_string_append_printf (warning_body, "%d. %s\n", index, file_uri);
++              g_free (file_uri);
++            }
+ 
+-  /* Completely clear the job operation list on undo, this is because we only store the single
+-   * most recent operation, and we do not want it to be available to undo *again* after it has
+-   * already been undone once. */
+-  thunar_g_list_free_full (job_operation_list);
+-  job_operation_list = NULL;
++          xfce_dialog_show_warning (NULL,
++                                    warning_body->str,
++                                    _("%s operation can only be partially redone"), enum_value->value_nick);
++
++          g_string_free (warning_body, TRUE);
++        }
++
++      thunar_job_operation_execute (operation_marker);
++    }
+ }
+ 
+ 
+@@ -314,10 +420,34 @@ thunar_job_operation_can_undo (void)
+ {
+   ThunarJobOperation *operation_marker;
+ 
+-  if (job_operation_list == NULL)
++  if (lp_undo_job_operation == NULL)
+     return FALSE;
+  
+-  operation_marker = job_operation_list->data;
++  operation_marker = lp_undo_job_operation->data;
++
++  if (operation_marker->source_file_list == NULL && operation_marker->target_file_list == NULL)
++    return FALSE;
++
++  return TRUE;
++}
++
++
++
++/* thunar_job_operation_can_redo:
++ *
++ * Returns whether or not there is an operation on the job operation list that can be redone.
++ *
++ * Return value: A gboolean representing whether or not there is an redoable operation
++ **/
++gboolean
++thunar_job_operation_can_redo (void)
++{
++  ThunarJobOperation *operation_marker;
++
++  if (lp_redo_job_operation == NULL)
++    return FALSE;
++
++  operation_marker = lp_redo_job_operation->data;
+ 
+   if (operation_marker->source_file_list == NULL && operation_marker->target_file_list == NULL)
+     return FALSE;
+@@ -372,7 +502,8 @@ thunar_job_operation_new_invert (ThunarJobOperation *job_operation)
+         inverted_operation->end_timestamp = job_operation->end_timestamp;
+         break;
+ 
+-      case THUNAR_JOB_OPERATION_KIND_CREATE:
++      case THUNAR_JOB_OPERATION_KIND_CREATE_FILE:
++      case THUNAR_JOB_OPERATION_KIND_CREATE_FOLDER:
+         inverted_operation = g_object_new (THUNAR_TYPE_JOB_OPERATION, NULL);
+         inverted_operation->operation_kind = THUNAR_JOB_OPERATION_KIND_DELETE;
+         inverted_operation->source_file_list = thunar_g_list_copy_deep (job_operation->target_file_list);
+@@ -518,6 +649,48 @@ thunar_job_operation_execute (ThunarJobOperation *job_operation)
+           }
+         break;
+ 
++      case THUNAR_JOB_OPERATION_KIND_COPY:
++        thunar_application_copy_to (application, NULL,
++                                   job_operation->source_file_list, job_operation->target_file_list,
++                                   THUNAR_OPERATION_LOG_NO_OPERATIONS, NULL);
++        break;
++
++      case THUNAR_JOB_OPERATION_KIND_CREATE_FILE:
++        GFile *template_file = NULL;
++        if (job_operation->source_file_list != NULL)
++          template_file = job_operation->source_file_list->data;
++        thunar_application_creat (application, NULL,
++                                  job_operation->target_file_list,
++                                  template_file,
++                                  NULL, THUNAR_OPERATION_LOG_NO_OPERATIONS);
++        break;
++
++      case THUNAR_JOB_OPERATION_KIND_CREATE_FOLDER:
++        thunar_application_mkdir (application, NULL,
++                                  job_operation->target_file_list,
++                                  NULL,  THUNAR_OPERATION_LOG_NO_OPERATIONS);
++        break;
++
++      case THUNAR_JOB_OPERATION_KIND_TRASH:
++        /* Special case: 'THUNAR_JOB_OPERATION_KIND_TRASH' only can be triggered by redo */
++        /* Since we as well need to update the timestamps, we have to use THUNAR_OPERATION_LOG_OPERATIONS */
++        /* 'thunar_job_operation_commit' will take care on update the existing job operation instead of adding a new one */
++        thunar_application_trash (application, NULL,
++                                  job_operation->source_file_list,
++                                  THUNAR_OPERATION_LOG_OPERATIONS);
++        break;
++
++      case THUNAR_JOB_OPERATION_KIND_LINK:
++        for (GList* target_file = job_operation->target_file_list; target_file != NULL; target_file = target_file->next)
++          {
++            GFile* target_folder = g_file_get_parent (target_file->data);
++            thunar_application_link_into (application, NULL,
++                                          job_operation->source_file_list, target_folder,
++                                          THUNAR_OPERATION_LOG_NO_OPERATIONS, NULL);
++            g_object_unref (target_folder);
++          }
++        break;
++
+       default:
+         _thunar_assert_not_reached ();
+         break;
+@@ -549,6 +722,49 @@ thunar_job_operation_is_ancestor (gconstpointer ancestor,
+ 
+ 
+ 
++/* thunar_job_operation_compare:
++ * @operation1: First operation for comparison
++ * @operation2: Second operation for comparison
++ *
++ * Helper function to compare operation kind, source and target list of two job operations.
++ * Note that timestamps are not compared on purpose.
++ *
++ * Return value: %0 if both operations match
++ *               %1 otherwise
++ **/
++static gint
++thunar_job_operation_compare (ThunarJobOperation *operation1,
++                              ThunarJobOperation *operation2)
++{
++  if (operation1->operation_kind != operation2->operation_kind)
++    return 1;
++
++  if (g_list_length (operation1->source_file_list) != g_list_length (operation2->source_file_list))
++    return 1;
++
++  if (g_list_length (operation1->target_file_list) != g_list_length (operation2->target_file_list))
++    return 1;
++
++  for (GList *lp1 = operation1->source_file_list, *lp2 = operation2->source_file_list;
++      lp1 != NULL && lp2 != NULL;
++      lp1 = lp1->next, lp2 = lp2->next)
++    {
++      if (!g_file_equal (lp1->data,lp2->data))
++        return 1;
++    }
++
++  for (GList *lp1 =operation1->target_file_list, *lp2 = operation2->target_file_list;
++      lp1 != NULL && lp2 != NULL;
++      lp1 = lp1->next, lp2 = lp2->next)
++    {
++      if (!g_file_equal (lp1->data,lp2->data))
++        return 1;
++    }
++  return 0;
++}
++
++
++
+ /* thunar_job_operation_restore_from_trash::
+  * @operation: operation containing the information for the files which must be restored
+  * @error:     a GError instance for error handling
+diff --git a/thunar/thunar-job-operation.h b/thunar/thunar-job-operation.h
+index 52e850c3..b8431455 100644
+--- a/thunar/thunar-job-operation.h
++++ b/thunar/thunar-job-operation.h
+@@ -35,7 +35,9 @@ void                   thunar_job_operation_overwrite    (ThunarJobOperation
+                                                           GFile                 *overwritten_file);
+ void                   thunar_job_operation_commit       (ThunarJobOperation    *job_operation);
+ void                   thunar_job_operation_undo         (void);
++void                   thunar_job_operation_redo         (void);
+ gboolean               thunar_job_operation_can_undo     (void);
++gboolean               thunar_job_operation_can_redo     (void);
+ 
+ G_END_DECLS
+ 
+diff --git a/thunar/thunar-menu.c b/thunar/thunar-menu.c
+index 650147b5..494a9f14 100644
+--- a/thunar/thunar-menu.c
++++ b/thunar/thunar-menu.c
+@@ -255,6 +255,7 @@ thunar_menu_add_sections (ThunarMenu         *menu,
+   if (menu_sections & THUNAR_MENU_SECTION_UNDO)
+     {
+       item_added = (thunar_action_manager_append_menu_item (menu->action_mgr, GTK_MENU_SHELL (menu), THUNAR_ACTION_MANAGER_ACTION_UNDO, force) != NULL);
++      item_added = (thunar_action_manager_append_menu_item (menu->action_mgr, GTK_MENU_SHELL (menu), THUNAR_ACTION_MANAGER_ACTION_REDO, force) != NULL);
+ 
+       if (item_added)
+         xfce_gtk_menu_append_separator (GTK_MENU_SHELL (menu));
+diff --git a/thunar/thunar-transfer-job.c b/thunar/thunar-transfer-job.c
+index f0e9db6f..3efae55e 100644
+--- a/thunar/thunar-transfer-job.c
++++ b/thunar/thunar-transfer-job.c
+@@ -650,7 +650,8 @@ ttj_copy_file (ThunarTransferJob  *job,
+           if (copy_flags & G_FILE_COPY_OVERWRITE)
+             thunar_job_operation_overwrite (operation, target_file);
+ 
+-          thunar_job_operation_add (operation, source_file, target_file);
++          if (thunar_job_get_log_mode (THUNAR_JOB (job)) == THUNAR_OPERATION_LOG_OPERATIONS)
++            thunar_job_operation_add (operation, source_file, target_file);
+         }
+       return TRUE;
+     }
