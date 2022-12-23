@@ -408,7 +408,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer     *renderer,
     if (G_UNLIKELY(icon_area.width > cell_area->width || icon_area.height > cell_area->height))
     {
         /* scale down to fit */
-        temp = exo_gdk_pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
+        temp = egdk_pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
         g_object_unref(G_OBJECT(icon));
         icon = temp;
 
@@ -494,7 +494,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer     *renderer,
                 if (G_UNLIKELY(MAX(emblem_area.width, emblem_area.height) > emblem_size))
                 {
                     /* scale down the emblem */
-                    temp = exo_gdk_pixbuf_scale_ratio(emblem, emblem_size);
+                    temp = egdk_pixbuf_scale_ratio(emblem, emblem_size);
                     g_object_unref(G_OBJECT(emblem));
                     emblem = temp;
 

@@ -4,12 +4,6 @@ exo_binding_new_with_negation
 exo_binding_unbind
 exo_mutual_binding_new_with_negation
 
-exo_gdk_pixbuf_frame
-exo_gdk_pixbuf_scale_down
-exo_gdk_pixbuf_scale_ratio
-
-exo_gtk_dialog_get_action_area
-
 EXO_ICON_CHOOSER_DIALOG
 exo_icon_chooser_dialog_get_icon
 exo_icon_chooser_dialog_new
@@ -30,6 +24,7 @@ exo_job_send_to_mainloop
 exo_job_set_error_if_cancelled
 
 exo_tree_view_new
+
 EXO_TYPE_CELL_RENDERER_ICON
 
 xfce_dialog_show_help

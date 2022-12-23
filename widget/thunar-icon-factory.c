@@ -457,7 +457,7 @@ static GdkPixbuf* thunar_icon_factory_load_from_file(ThunarIconFactory *factory,
         if (G_LIKELY(width > max_width || height > max_height))
         {
             /* scale down to the required size */
-            tmp = exo_gdk_pixbuf_scale_down(pixbuf, TRUE, MAX(1, max_height), MAX(1, max_height));
+            tmp = egdk_pixbuf_scale_down(pixbuf, TRUE, MAX(1, max_height), MAX(1, max_height));
             g_object_unref(G_OBJECT(pixbuf));
             pixbuf = tmp;
         }
@@ -467,7 +467,7 @@ static GdkPixbuf* thunar_icon_factory_load_from_file(ThunarIconFactory *factory,
         {
             /* add a frame to the thumbnail */
             frame = thunar_icon_factory_get_thumbnail_frame();
-            tmp = exo_gdk_pixbuf_frame(pixbuf, frame, 4, 3, 5, 6);
+            tmp = egdk_pixbuf_frame(pixbuf, frame, 4, 3, 5, 6);
             g_object_unref(G_OBJECT(pixbuf));
             pixbuf = tmp;
         }
