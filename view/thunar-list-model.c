@@ -271,7 +271,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                            "date-style",
                            "date-style",
                            THUNAR_TYPE_DATE_STYLE,
-                           THUNAR_DATE_STYLE_SIMPLE,
+                           THUNAR_DATE_STYLE_YYYYMMDD,
                            EXO_PARAM_READWRITE);
 
     /**

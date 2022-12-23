@@ -25,7 +25,7 @@
 #endif
 
 #include <thunar-column-model.h>
-#include <thunar-preferences.h>
+//#include <thunar-preferences.h>
 #include <thunar-debug.h>
 
 /* Signal identifiers */
@@ -64,19 +64,25 @@ static gboolean thunar_column_model_iter_parent(GtkTreeModel *tree_model,
                                                 GtkTreeIter *child);
 static void thunar_column_model_load_column_order(ThunarColumnModel *column_model);
 static void thunar_column_model_save_column_order(ThunarColumnModel *column_model);
-static void thunar_column_model_notify_column_order(ThunarPreferences *preferences,
-                                                    GParamSpec *pspec,
-                                                    ThunarColumnModel *column_model);
+
+//static void thunar_column_model_notify_column_order(void *preferences,
+//                                                    GParamSpec *pspec,
+//                                                    ThunarColumnModel *column_model);
+
 static void thunar_column_model_load_column_widths(ThunarColumnModel *column_model);
 static void thunar_column_model_save_column_widths(ThunarColumnModel *column_model);
-static void thunar_column_model_notify_column_widths(ThunarPreferences *preferences,
-                                                     GParamSpec *pspec,
-                                                     ThunarColumnModel *column_model);
+
+//static void thunar_column_model_notify_column_widths(void *preferences,
+//                                                     GParamSpec *pspec,
+//                                                     ThunarColumnModel *column_model);
+
 static void thunar_column_model_load_visible_columns(ThunarColumnModel *column_model);
 static void thunar_column_model_save_visible_columns(ThunarColumnModel *column_model);
-static void thunar_column_model_notify_visible_columns(ThunarPreferences *preferences,
-                                                       GParamSpec *pspec,
-                                                       ThunarColumnModel *column_model);
+
+//static void thunar_column_model_notify_visible_columns(void *preferences,
+//                                                       GParamSpec *pspec,
+//                                                       ThunarColumnModel *column_model);
+
 static gboolean thunar_column_model_set_column_width_timer(gpointer user_data);
 
 struct _ThunarColumnModelClass
@@ -99,7 +105,7 @@ struct _ThunarColumnModel
     gint               stamp;
 #endif
 
-    ThunarPreferences *preferences;
+    //ThunarPreferences *preferences;
     ThunarColumn       order[THUNAR_N_VISIBLE_COLUMNS];
     gboolean           visible[THUNAR_N_VISIBLE_COLUMNS];
     gint               width[THUNAR_N_VISIBLE_COLUMNS];
@@ -156,13 +162,13 @@ static void thunar_column_model_tree_model_init(GtkTreeModelIface *iface)
 static void thunar_column_model_init(ThunarColumnModel *column_model)
 {
     /* grab a reference on the preferences */
-    column_model->preferences = thunar_preferences_get();
-    g_signal_connect(G_OBJECT(column_model->preferences), "notify::last-details-view-column-order",
-                      G_CALLBACK(thunar_column_model_notify_column_order), column_model);
-    g_signal_connect(G_OBJECT(column_model->preferences), "notify::last-details-view-column-widths",
-                      G_CALLBACK(thunar_column_model_notify_column_widths), column_model);
-    g_signal_connect(G_OBJECT(column_model->preferences), "notify::last-details-view-visible-columns",
-                      G_CALLBACK(thunar_column_model_notify_visible_columns), column_model);
+//    column_model->preferences = thunar_preferences_get();
+//    g_signal_connect(G_OBJECT(column_model->preferences), "notify::last-details-view-column-order",
+//                      G_CALLBACK(thunar_column_model_notify_column_order), column_model);
+//    g_signal_connect(G_OBJECT(column_model->preferences), "notify::last-details-view-column-widths",
+//                      G_CALLBACK(thunar_column_model_notify_column_widths), column_model);
+//    g_signal_connect(G_OBJECT(column_model->preferences), "notify::last-details-view-visible-columns",
+//                      G_CALLBACK(thunar_column_model_notify_visible_columns), column_model);
 
     /* generate a random stamp if we're in debug mode */
 #ifndef NDEBUG
@@ -184,8 +190,8 @@ static void thunar_column_model_finalize(GObject *object)
     ThunarColumnModel *column_model = THUNAR_COLUMN_MODEL(object);
 
     /* disconnect from the global preferences */
-    g_signal_handlers_disconnect_matched(G_OBJECT(column_model->preferences), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, column_model);
-    g_object_unref(G_OBJECT(column_model->preferences));
+//    g_signal_handlers_disconnect_matched(G_OBJECT(column_model->preferences), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, column_model);
+//    g_object_unref(G_OBJECT(column_model->preferences));
 
     /* drop any running "save width" timer */
     if (G_UNLIKELY(column_model->save_width_timer_id != 0))
@@ -376,11 +382,11 @@ static void thunar_column_model_load_column_order(ThunarColumnModel *column_mode
     GEnumClass  *klass;
     GEnumValue  *value;
     gchar      **column_order;
-    gchar       *tmp;
     gint         i, j;
 
     /* determine the column order from the preferences */
-    g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-order", &tmp, NULL);
+    gchar       *tmp = g_strdup("THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_SIZE_IN_BYTES,THUNAR_COLUMN_TYPE,THUNAR_COLUMN_DATE_MODIFIED");
+    //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-order", &tmp, NULL);
     column_order = g_strsplit(tmp, ",", -1);
     g_free(tmp);
 
@@ -442,25 +448,27 @@ static void thunar_column_model_save_column_order(ThunarColumnModel *column_mode
     g_type_class_unref(klass);
 
     /* save the list of visible columns */
-    g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_order, column_model);
-    g_object_set(G_OBJECT(column_model->preferences), "last-details-view-column-order", column_order->str, NULL);
-    g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_order, column_model);
+//    g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_order, column_model);
+//    g_object_set(G_OBJECT(column_model->preferences), "last-details-view-column-order", column_order->str, NULL);
+//    g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_order, column_model);
 
     /* release the string */
     g_string_free(column_order, TRUE);
 }
 
-static void thunar_column_model_notify_column_order(ThunarPreferences *preferences,
+#if 0
+static void thunar_column_model_notify_column_order(/*ThunarPreferences*/ void *preferences,
                                                     GParamSpec        *pspec,
                                                     ThunarColumnModel *column_model)
 {
+    UNUSED(preferences);
     UNUSED(pspec);
     GtkTreePath *path;
     GtkTreeIter  iter;
     gint         n;
 
     thunar_return_if_fail(THUNAR_IS_COLUMN_MODEL(column_model));
-    thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+    //thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
 
     /* load the new column order */
     thunar_column_model_load_column_order(column_model);
@@ -477,16 +485,17 @@ static void thunar_column_model_notify_column_order(ThunarPreferences *preferenc
     /* emit "columns-changed" */
     g_signal_emit(G_OBJECT(column_model), column_model_signals[COLUMNS_CHANGED], 0);
 }
+#endif
 
 static void thunar_column_model_load_column_widths(ThunarColumnModel *column_model)
 {
     gchar **column_widths;
-    gchar  *tmp;
     gint    width;
     gint    n;
 
     /* determine the column widths from the preferences */
-    g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-widths", &tmp, NULL);
+    gchar *tmp = g_strdup("");
+    //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-widths", &tmp, NULL);
     column_widths = g_strsplit(tmp, ",", -1);
     g_free(tmp);
 
@@ -527,46 +536,49 @@ static void thunar_column_model_save_column_widths(ThunarColumnModel *column_mod
     }
 
     /* save the column widths */
-    g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_widths, column_model);
-    g_object_set(G_OBJECT(column_model->preferences), "last-details-view-column-widths", column_widths->str, NULL);
-    g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_widths, column_model);
+//    g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_widths, column_model);
+//    g_object_set(G_OBJECT(column_model->preferences), "last-details-view-column-widths", column_widths->str, NULL);
+//    g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_widths, column_model);
 
     /* release the string */
     g_string_free(column_widths, TRUE);
 }
 
-static void thunar_column_model_notify_column_widths(ThunarPreferences *preferences,
+#if 0
+static void thunar_column_model_notify_column_widths(void *preferences,
                                                      GParamSpec        *pspec,
                                                      ThunarColumnModel *column_model)
 {
+    UNUSED(preferences);
     UNUSED(pspec);
     thunar_return_if_fail(THUNAR_IS_COLUMN_MODEL(column_model));
-    thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+    //thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
 
     /* load the new column widths */
     thunar_column_model_load_column_widths(column_model);
 }
+#endif
 
 static void thunar_column_model_load_visible_columns(ThunarColumnModel *column_model)
 {
     GEnumClass *klass;
     GEnumValue *value;
     gchar     **visible_columns;
-    gchar      *tmp;
     gint        n;
 
     /* determine the list of visible columns from the preferences */
-    g_object_get(G_OBJECT(column_model->preferences), "last-details-view-visible-columns", &tmp, NULL);
+    gchar *tmp = g_strdup("THUNAR_COLUMN_DATE_MODIFIED,THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_TYPE");
+    //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-visible-columns", &tmp, NULL);
     visible_columns = g_strsplit(tmp, ",", -1);
     g_free(tmp);
 
     /* reset the visible columns for the model */
-    for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
+    for (n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
         column_model->visible[n] = FALSE;
 
     /* mark all columns included in the list as visible */
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
-    for(n = 0; visible_columns[n] != NULL; ++n)
+    for (n = 0; visible_columns[n] != NULL; ++n)
     {
         /* determine the enum value from the string */
         value = g_enum_get_value_by_name(klass, visible_columns[n]);
@@ -606,25 +618,27 @@ static void thunar_column_model_save_visible_columns(ThunarColumnModel *column_m
     g_type_class_unref(klass);
 
     /* save the list of visible columns */
-    g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_visible_columns, column_model);
-    g_object_set(G_OBJECT(column_model->preferences), "last-details-view-visible-columns", visible_columns->str, NULL);
-    g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_visible_columns, column_model);
+//    g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_visible_columns, column_model);
+//    g_object_set(G_OBJECT(column_model->preferences), "last-details-view-visible-columns", visible_columns->str, NULL);
+//    g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_visible_columns, column_model);
 
     /* release the string */
     g_string_free(visible_columns, TRUE);
 }
 
-static void thunar_column_model_notify_visible_columns(ThunarPreferences *preferences,
+#if 0
+static void thunar_column_model_notify_visible_columns(void *preferences,
                                                        GParamSpec        *pspec,
                                                        ThunarColumnModel *column_model)
 {
+    UNUSED(preferences);
     UNUSED(pspec);
     GtkTreePath *path;
     GtkTreeIter  iter;
     gint         n;
 
     thunar_return_if_fail(THUNAR_IS_COLUMN_MODEL(column_model));
-    thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+    //thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
 
     /* load the new list of visible columns */
     thunar_column_model_load_visible_columns(column_model);
@@ -641,6 +655,7 @@ static void thunar_column_model_notify_visible_columns(ThunarPreferences *prefer
     /* emit "columns-changed" */
     g_signal_emit(G_OBJECT(column_model), column_model_signals[COLUMNS_CHANGED], 0);
 }
+#endif
 
 static gboolean thunar_column_model_set_column_width_timer(gpointer user_data)
 {
