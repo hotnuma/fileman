@@ -107,36 +107,36 @@ struct _ThunarPropertiesDialog
     GtkDialog    __parent__;
 
     ThunarxProviderFactory *provider_factory;
-    GList                  *provider_pages;
+    GList       *provider_pages;
 
-    GList                  *files;
-    gboolean                file_size_binary;
+    GList       *files;
+    gboolean    file_size_binary;
 
-    XfceFilenameInput      *name_entry;
+    XfceFilenameInput *name_entry;
 
-    GtkWidget              *notebook;
-    GtkWidget              *icon_button;
-    GtkWidget              *icon_image;
-    GtkWidget              *names_label;
-    GtkWidget              *single_box;
-    GtkWidget              *kind_ebox;
-    GtkWidget              *kind_label;
-    GtkWidget              *openwith_chooser;
-    GtkWidget              *link_label;
-    GtkWidget              *location_label;
-    GtkWidget              *origin_label;
-    GtkWidget              *deleted_label;
-    GtkWidget              *modified_label;
-    GtkWidget              *accessed_label;
-    GtkWidget              *freespace_vbox;
-    GtkWidget              *freespace_bar;
-    GtkWidget              *freespace_label;
-    GtkWidget              *volume_image;
-    GtkWidget              *volume_label;
-    GtkWidget              *permissions_chooser;
+    GtkWidget   *notebook;
+    GtkWidget   *icon_button;
+    GtkWidget   *icon_image;
+    GtkWidget   *names_label;
+    GtkWidget   *single_box;
+    GtkWidget   *kind_ebox;
+    GtkWidget   *kind_label;
+    GtkWidget   *openwith_chooser;
+    GtkWidget   *link_label;
+    GtkWidget   *location_label;
+    GtkWidget   *origin_label;
+    GtkWidget   *deleted_label;
+    GtkWidget   *modified_label;
+    GtkWidget   *accessed_label;
+    GtkWidget   *freespace_vbox;
+    GtkWidget   *freespace_bar;
+    GtkWidget   *freespace_label;
+    GtkWidget   *volume_image;
+    GtkWidget   *volume_label;
+    GtkWidget   *permissions_chooser;
 };
 
-G_DEFINE_TYPE(ThunarPropertiesDialog, thunar_properties_dialog, GTK_TYPE_DIALOG /*THUNAR_TYPE_ABSTRACT_DIALOG*/)
+G_DEFINE_TYPE(ThunarPropertiesDialog, thunar_properties_dialog, GTK_TYPE_DIALOG)
 
 static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *klass)
 {
@@ -162,11 +162,14 @@ static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *kla
      * this #ThunarPropertiesDialog. This property may also be %NULL
      * in which case nothing is displayed.
      **/
-    g_object_class_install_property(gobject_class,
-                                     PROP_FILES,
-                                     g_param_spec_boxed("files", "files", "files",
-                                             THUNARX_TYPE_FILE_INFO_LIST,
-                                             EXO_PARAM_READWRITE));
+    g_object_class_install_property(
+        gobject_class,
+        PROP_FILES,
+        g_param_spec_boxed("files",
+                           "files",
+                           "files",
+                           THUNARX_TYPE_FILE_INFO_LIST,
+                           EXO_PARAM_READWRITE));
 
     /**
      * ThunarPropertiesDialog:file_size_binary:
@@ -174,8 +177,8 @@ static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *kla
      * Whether the file size should be shown in binary or decimal.
      **/
     g_object_class_install_property(gobject_class,
-                                     PROP_FILE_SIZE_BINARY,
-                                     g_param_spec_boolean("file-size-binary",
+                                    PROP_FILE_SIZE_BINARY,
+                                    g_param_spec_boolean("file-size-binary",
                                              "FileSizeBinary",
                                              NULL,
                                              TRUE,

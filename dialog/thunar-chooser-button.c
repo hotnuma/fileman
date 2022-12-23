@@ -107,10 +107,12 @@ static void thunar_chooser_button_class_init(ThunarChooserButtonClass *klass)
      * be chosen.
      **/
     g_object_class_install_property(gobject_class,
-                                     PROP_FILE,
-                                     g_param_spec_object("file", "file", "file",
-                                             THUNAR_TYPE_FILE,
-                                             EXO_PARAM_READWRITE));
+                                    PROP_FILE,
+                                    g_param_spec_object("file",
+                                                        "file",
+                                                        "file",
+                                    THUNAR_TYPE_FILE,
+                                    EXO_PARAM_READWRITE));
 }
 
 static void thunar_chooser_button_init(ThunarChooserButton *chooser_button)
@@ -352,8 +354,10 @@ static void thunar_chooser_button_chooser_dialog(ThunarChooserButton *chooser_bu
 
     /* popup the application chooser dialog */
     dialog = g_object_new(THUNAR_TYPE_CHOOSER_DIALOG, "open", FALSE, NULL);
+
     exo_binding_new(G_OBJECT(chooser_button), "file",
                     G_OBJECT(dialog), "file");
+
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(toplevel));
     gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
     if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
