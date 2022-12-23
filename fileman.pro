@@ -55,7 +55,6 @@ HEADERS = \
     misc/thunar-navigator.h \
     misc/thunar-notify.h \
     misc/thunar-pango-extensions.h \
-    preferences.h \
     side/thunar-side-pane.h \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
@@ -76,6 +75,7 @@ HEADERS = \
     widget/thunar-size-label.h \
     widget/thunar-statusbar.h \
     config.h \
+    preferences.h \
     thunar-application.h \
     thunar-marshal.h \
     thunar-window.h \
@@ -120,7 +120,6 @@ SOURCES = \
     menu/thunar-launcher.c \
     menu/thunar-menu.c \
     menu/thunar-sendto-model.c \
-    preferences.c \
     side/thunar-side-pane.c \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \
@@ -140,16 +139,17 @@ SOURCES = \
     widget/thunar-size-label.c \
     widget/thunar-statusbar.c \
     main.c \
+    preferences.c \
     thunar-application.c \
     thunar-marshal.c \
     thunar-window.c \
 
 DISTFILES = \
     Notes.md \
+    deps_search.txt \
     install.sh \
     meson.build \
     Readme.md \
-    prefs.txt \
     thunar-marshal.list \
 
 

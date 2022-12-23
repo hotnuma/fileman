@@ -103,7 +103,6 @@ app_sources = [
     'preferences.c',
     'thunar-application.c',
     'thunar-marshal.c',
-#    'thunar-preferences.c',
     'thunar-window.c',
 ]
 

@@ -9,6 +9,8 @@
 
 * Preferences options cleanup
 
+<property name="last-details-view-column-widths" type="string"
+value="50,123,50,50,347,50,50,73,50,91"/>
 
 #### Volman
 
