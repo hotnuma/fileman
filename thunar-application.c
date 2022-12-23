@@ -19,29 +19,18 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-#ifdef HAVE_TIME_H
 #include <time.h>
-#endif
-
 #include <stdlib.h>
 
 #ifdef HAVE_GUDEV
 #include <gudev/gudev.h>
 #endif
 
+#include <libext.h>
 #include <libxfce4ui/libxfce4ui.h>
 
 #include <thunar-application.h>
@@ -255,7 +244,7 @@ static void thunar_application_class_init(ThunarApplicationClass *klass)
                                              "daemon",
                                              "daemon",
                                              FALSE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 }
 
 static void thunar_application_init(ThunarApplication *application)

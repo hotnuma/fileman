@@ -19,9 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-chooser-button.h>
 #include <thunar-chooser-dialog.h>
@@ -112,7 +112,7 @@ static void thunar_chooser_button_class_init(ThunarChooserButtonClass *klass)
                                                         "file",
                                                         "file",
                                     THUNAR_TYPE_FILE,
-                                    EXO_PARAM_READWRITE));
+                                    E_PARAM_READWRITE));
 }
 
 static void thunar_chooser_button_init(ThunarChooserButton *chooser_button)

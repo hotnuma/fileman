@@ -18,16 +18,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-application.h>
 #include <thunar-browser.h>
@@ -491,7 +486,7 @@ static void thunar_launcher_class_init(ThunarLauncherClass *klass)
                             "widget",
                             "widget",
                             GTK_TYPE_WIDGET,
-                            EXO_PARAM_WRITABLE);
+                            E_PARAM_WRITABLE);
 
     /**
      * ThunarLauncher:select-files-closure:

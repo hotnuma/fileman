@@ -16,9 +16,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-debug.h>
 #include <thunar-side-pane.h>
@@ -62,7 +62,7 @@ static void thunar_side_pane_class_init(gpointer klass)
                                                              "show-hidden",
                                                              "show-hidden",
                                                              FALSE,
-                                                             EXO_PARAM_READWRITE));
+                                                             E_PARAM_READWRITE));
 }
 
 /**

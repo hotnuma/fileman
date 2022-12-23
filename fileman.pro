@@ -14,7 +14,7 @@ PKGCONFIG = \
     libxfce4ui-2 \
     thunarx-3 \
 
-INCLUDEPATH = core dialog job menu misc side view widget
+INCLUDEPATH = core dialog job libext menu misc side view widget
 
 HEADERS = \
     core/thunar-clipboard-manager.h \
@@ -41,6 +41,7 @@ HEADERS = \
     job/thunar-job.h \
     job/thunar-simple-job.h \
     job/thunar-transfer-job.h \
+    libext/libext.h \
     menu/thunar-launcher.h \
     menu/thunar-menu.h \
     menu/thunar-sendto-model.h \
@@ -99,6 +100,7 @@ SOURCES = \
     dialog/thunar-progress-dialog.c \
     dialog/thunar-progress-view.c \
     dialog/thunar-properties-dialog.c \
+    libext/libext.c \
     misc/thunar-browser.c \
     misc/thunar-component.c \
     misc/thunar-enum-types.c \

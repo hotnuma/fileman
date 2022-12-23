@@ -17,16 +17,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-file-monitor.h>
 #include <thunar-folder.h>
@@ -238,7 +233,7 @@ static void thunar_tree_model_class_init(ThunarTreeModelClass *klass)
                                              "case-sensitive",
                                              "case-sensitive",
                                              TRUE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 }
 
 static void thunar_tree_model_tree_model_init(GtkTreeModelIface *iface)

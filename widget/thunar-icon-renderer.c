@@ -16,9 +16,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-clipboard-manager.h>
 #include <thunar-gobject-extensions.h>
@@ -90,7 +90,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                                         "drop-file",
                                                         "drop-file",
                                                         THUNAR_TYPE_FILE,
-                                                        EXO_PARAM_READWRITE));
+                                                        E_PARAM_READWRITE));
 
     /**
      * ThunarIconRenderer:file:
@@ -103,7 +103,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                                         "file",
                                                         "file",
                                                         THUNAR_TYPE_FILE,
-                                                        EXO_PARAM_READWRITE));
+                                                        E_PARAM_READWRITE));
 
     /**
      * ThunarIconRenderer:emblems:
@@ -117,7 +117,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                         "emblems",
                                         "emblems",
                                         TRUE,
-                                        G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
+                                        G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
 
     /**
      * ThunarIconRenderer:follow-state:
@@ -133,7 +133,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                                          "follow-state",
                                                          "follow-state",
                                                          FALSE,
-                                                         EXO_PARAM_READWRITE));
+                                                         E_PARAM_READWRITE));
 
     /**
      * ThunarIconRenderer:size:
@@ -149,7 +149,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                         "size",
                                         THUNAR_TYPE_ICON_SIZE,
                                         THUNAR_ICON_SIZE_16,
-                                        G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
+                                        G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
 }
 
 static void thunar_icon_renderer_init(ThunarIconRenderer *icon_renderer)

@@ -18,16 +18,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-application.h>
 #include <thunar-file-monitor.h>
@@ -259,7 +254,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                               "case-sensitive",
                               "case-sensitive",
                               TRUE,
-                              EXO_PARAM_READWRITE);
+                              E_PARAM_READWRITE);
 
     /**
      * ThunarListModel:date-style:
@@ -272,7 +267,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                            "date-style",
                            THUNAR_TYPE_DATE_STYLE,
                            THUNAR_DATE_STYLE_YYYYMMDD,
-                           EXO_PARAM_READWRITE);
+                           E_PARAM_READWRITE);
 
     /**
      * ThunarListModel:date-custom-style:
@@ -284,7 +279,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                              "DateCustomStyle",
                              NULL,
                              "%Y-%m-%d %H:%M:%S",
-                             EXO_PARAM_READWRITE);
+                             E_PARAM_READWRITE);
 
     /**
      * ThunarListModel:folder:
@@ -296,7 +291,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                              "folder",
                              "folder",
                              THUNAR_TYPE_FOLDER,
-                             EXO_PARAM_READWRITE);
+                             E_PARAM_READWRITE);
 
     /**
      * ThunarListModel::folders-first:
@@ -308,7 +303,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                               "folders-first",
                               "folders-first",
                               TRUE,
-                              EXO_PARAM_READWRITE);
+                              E_PARAM_READWRITE);
 
     /**
      * ThunarListModel::num-files:
@@ -320,7 +315,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                            "num-files",
                            "num-files",
                            0, G_MAXUINT, 0,
-                           EXO_PARAM_READABLE);
+                           E_PARAM_READABLE);
 
     /**
      * ThunarListModel::show-hidden:
@@ -332,7 +327,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                               "show-hidden",
                               "show-hidden",
                               FALSE,
-                              EXO_PARAM_READWRITE);
+                              E_PARAM_READWRITE);
 
     /**
      * ThunarListModel::misc-file-size-binary:
@@ -344,7 +339,7 @@ static void thunar_list_model_class_init(ThunarListModelClass *klass)
                               "file-size-binary",
                               "file-size-binary",
                               TRUE,
-                              EXO_PARAM_READWRITE);
+                              E_PARAM_READWRITE);
 
     /* install properties */
     g_object_class_install_properties(gobject_class, N_PROPERTIES, list_model_props);

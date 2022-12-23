@@ -18,20 +18,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
+#include <libext.h>
 #include <exo/exo.h>
 
 #include <thunar-dialogs.h>
@@ -162,7 +154,7 @@ thunar_permissions_chooser_class_init(ThunarPermissionsChooserClass *klass)
                                      PROP_FILES,
                                      g_param_spec_boxed("files", "files", "files",
                                              THUNARX_TYPE_FILE_INFO_LIST,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     /**
      * ThunarPermissionsChooser:mutable:
@@ -176,7 +168,7 @@ thunar_permissions_chooser_class_init(ThunarPermissionsChooserClass *klass)
                                              "mutable",
                                              "mutable",
                                              FALSE,
-                                             EXO_PARAM_READABLE));
+                                             E_PARAM_READABLE));
 }
 
 static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)

@@ -18,9 +18,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <gdk/gdkkeysyms.h>
 
@@ -311,7 +311,7 @@ static void thunar_tree_view_class_init(ThunarTreeViewClass *klass)
                                                          "show-hidden",
                                                          "show-hidden",
                                                          FALSE,
-                                                         EXO_PARAM_READWRITE));
+                                                         E_PARAM_READWRITE));
 
 #ifdef ENABLE_TREEDELETE
     /**

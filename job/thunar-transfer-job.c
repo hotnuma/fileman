@@ -18,11 +18,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
 #include <gio/gio.h>
+
+#include <libext.h>
 
 #include <thunar-application.h>
 #include <thunar-gio-extensions.h>
@@ -125,7 +124,7 @@ static void thunar_transfer_job_class_init(ThunarTransferJobClass *klass)
                                              "FileSizeBinary",
                                              NULL,
                                              TRUE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     /**
      * ThunarPropertiesDialog:parallel_copy_mode:
@@ -140,7 +139,7 @@ static void thunar_transfer_job_class_init(ThunarTransferJobClass *klass)
                                              NULL,
                                              THUNAR_TYPE_PARALLEL_COPY_MODE,
                                              THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 }
 
 static void thunar_transfer_job_init(ThunarTransferJob *job)

@@ -17,10 +17,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
+#include <libext.h>
 #include <exo/exo.h>
 
 #include <thunar-dialogs.h>
@@ -118,7 +117,7 @@ static void thunar_progress_view_class_init(ThunarProgressViewClass *klass)
                                      PROP_JOB,
                                      g_param_spec_object("job", "job", "job",
                                              THUNAR_TYPE_JOB,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,
                                      PROP_ICON_NAME,
@@ -126,7 +125,7 @@ static void thunar_progress_view_class_init(ThunarProgressViewClass *klass)
                                              "icon-name",
                                              "icon-name",
                                              NULL,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,
                                      PROP_TITLE,
@@ -134,7 +133,7 @@ static void thunar_progress_view_class_init(ThunarProgressViewClass *klass)
                                              "title",
                                              "title",
                                              NULL,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     g_signal_new("need-attention",
                   THUNAR_TYPE_PROGRESS_VIEW,

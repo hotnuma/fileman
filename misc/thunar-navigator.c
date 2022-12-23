@@ -16,9 +16,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-navigator.h>
 #include <thunar-debug.h>
@@ -125,7 +125,7 @@ static void thunar_navigator_class_init(gpointer klass)
                                                  "current-directory",
                                                  "current-directory",
                                                  THUNAR_TYPE_FILE,
-                                                 EXO_PARAM_READWRITE));
+                                                 E_PARAM_READWRITE));
 }
 
 /**

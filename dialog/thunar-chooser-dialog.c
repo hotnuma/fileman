@@ -17,16 +17,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-application.h>
 #include <thunar-chooser-dialog.h>
@@ -141,7 +137,7 @@ static void thunar_chooser_dialog_class_init(ThunarChooserDialogClass *klass)
                                      PROP_FILE,
                                      g_param_spec_object("file", "file", "file",
                                              THUNAR_TYPE_FILE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     /**
      * ThunarChooserDialog::open:
@@ -152,7 +148,7 @@ static void thunar_chooser_dialog_class_init(ThunarChooserDialogClass *klass)
                                      PROP_OPEN,
                                      g_param_spec_boolean("open", "open", "open",
                                              FALSE,
-                                             G_PARAM_CONSTRUCT | EXO_PARAM_READWRITE));
+                                             G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
 }
 
 static void thunar_chooser_dialog_init(ThunarChooserDialog *dialog)

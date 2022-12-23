@@ -17,14 +17,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <gio/gio.h>
-#ifdef HAVE_GIO_UNIX
 #include <gio/gunixmounts.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-device-monitor.h>
 #include <thunar-debug.h>
@@ -131,7 +129,7 @@ static void thunar_device_monitor_class_init(ThunarDeviceMonitorClass *klass)
                                              NULL,
                                              NULL,
                                              G_TYPE_STRV,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     device_monitor_signals[DEVICE_ADDED] =
         g_signal_new(I_("device-added"),

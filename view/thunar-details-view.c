@@ -16,11 +16,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <gdk/gdkkeysyms.h>
+
+#include <libext.h>
 
 #include <thunar-column-model.h>
 #include <thunar-details-view.h>
@@ -198,7 +198,7 @@ static void thunar_details_view_class_init(ThunarDetailsViewClass *klass)
                                              "fixed-columns",
                                              "fixed-columns",
                                              TRUE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 }
 
 static void thunar_details_view_init(ThunarDetailsView *details_view)

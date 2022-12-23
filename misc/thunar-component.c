@@ -16,10 +16,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
+#include <libext.h>
 #include <exo/exo.h>
 
 #include <thunar-component.h>
@@ -75,7 +74,7 @@ static void thunar_component_class_init(gpointer klass)
                                                  "selected-files",
                                                  "selected-files",
                                                  THUNARX_TYPE_FILE_INFO_LIST,
-                                                 EXO_PARAM_READWRITE));
+                                                 E_PARAM_READWRITE));
 }
 
 /**

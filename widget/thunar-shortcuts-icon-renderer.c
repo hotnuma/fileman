@@ -17,11 +17,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <gio/gio.h>
+
+#include <libext.h>
 
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
@@ -94,7 +94,7 @@ static void thunar_shortcuts_icon_renderer_class_init(ThunarShortcutsIconRendere
                                                         "device",
                                                         "device",
                                                         THUNAR_TYPE_DEVICE,
-                                                        EXO_PARAM_READWRITE));
+                                                        E_PARAM_READWRITE));
 
     /**
      * ThunarIconRenderer:gicon:
@@ -108,7 +108,7 @@ static void thunar_shortcuts_icon_renderer_class_init(ThunarShortcutsIconRendere
                                                         "gicon",
                                                         "gicon",
                                                         G_TYPE_ICON,
-                                                        EXO_PARAM_READWRITE));
+                                                        E_PARAM_READWRITE));
 }
 
 static void thunar_shortcuts_icon_renderer_init(ThunarShortcutsIconRenderer *shortcuts_icon_renderer)

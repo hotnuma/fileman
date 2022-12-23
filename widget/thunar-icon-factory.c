@@ -18,16 +18,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
@@ -150,7 +146,7 @@ static void thunar_icon_factory_class_init(ThunarIconFactoryClass *klass)
                                                         "icon-theme",
                                                         "icon-theme",
                                                         GTK_TYPE_ICON_THEME,
-                                                        EXO_PARAM_READABLE));
+                                                        E_PARAM_READABLE));
 
     /**
      * ThunarIconFactory:thumbnail-mode:
@@ -165,7 +161,7 @@ static void thunar_icon_factory_class_init(ThunarIconFactoryClass *klass)
                                                       "thumbnail-mode",
                                                       THUNAR_TYPE_THUMBNAIL_MODE,
                                                       THUNAR_THUMBNAIL_MODE_NEVER,
-                                                      EXO_PARAM_READWRITE));
+                                                      E_PARAM_READWRITE));
 
     /**
      * ThunarIconFactory:thumbnail-size:
@@ -179,7 +175,7 @@ static void thunar_icon_factory_class_init(ThunarIconFactoryClass *klass)
                                                       "thumbnail-size",
                                                       THUNAR_TYPE_THUMBNAIL_SIZE,
                                                       THUNAR_THUMBNAIL_SIZE_NORMAL,
-                                                      EXO_PARAM_READWRITE));
+                                                      E_PARAM_READWRITE));
 }
 
 static void thunar_icon_factory_init(ThunarIconFactory *factory)

@@ -21,21 +21,14 @@
  * Christian Hammond <chipx86@chipx86.com>.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
 
 #include <gdk/gdkkeysyms.h>
+
+#include <libext.h>
 
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
@@ -176,7 +169,7 @@ static void thunar_path_entry_class_init(ThunarPathEntryClass *klass)
                                              "current-file",
                                              "current-file",
                                              THUNAR_TYPE_FILE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     /**
      * ThunarPathEntry:icon-size:
@@ -187,7 +180,7 @@ static void thunar_path_entry_class_init(ThunarPathEntryClass *klass)
             g_param_spec_int("icon-size",
                               _("Icon size"),
                               _("The icon size for the path entry"),
-                              1, G_MAXINT, 16, EXO_PARAM_READABLE));
+                              1, G_MAXINT, 16, E_PARAM_READABLE));
 }
 
 static void thunar_path_entry_editable_init(GtkEditableInterface *iface)

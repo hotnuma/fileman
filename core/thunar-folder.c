@@ -17,9 +17,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-file-monitor.h>
 #include <thunar-folder.h>
@@ -174,7 +174,7 @@ static void thunar_folder_class_init(ThunarFolderClass *klass)
                                              "loading",
                                              "loading",
                                              FALSE,
-                                             EXO_PARAM_READABLE));
+                                             E_PARAM_READABLE));
     /**
      * ThunarFolder::destroy:
      * @folder : a #ThunarFolder.

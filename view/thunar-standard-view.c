@@ -18,18 +18,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
 
 #include <gdk/gdkkeysyms.h>
+
+#include <libext.h>
 
 #include <thunar-application.h>
 #include <thunar-menu.h>
@@ -415,7 +410,7 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
                                        "loading",
                                        "loading",
                                        FALSE,
-                                       EXO_PARAM_READWRITE));
+                                       E_PARAM_READWRITE));
 
     /**
      * ThunarStandardView:display-name:
@@ -427,7 +422,7 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
                              "display-name",
                              "display-name",
                              NULL,
-                             EXO_PARAM_READABLE);
+                             E_PARAM_READABLE);
 
     /**
      * ThunarStandardView:parse-name:
@@ -439,7 +434,7 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
                              "tooltip-text",
                              "tooltip-text",
                              NULL,
-                             EXO_PARAM_READABLE);
+                             E_PARAM_READABLE);
 
     /**
      * ThunarStandardView:directory-specific-settings:
@@ -451,7 +446,7 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
                               "directory-specific-settings",
                               "directory-specific-settings",
                               FALSE,
-                              EXO_PARAM_READWRITE);
+                              E_PARAM_READWRITE);
 
     /* override ThunarComponent's properties */
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);

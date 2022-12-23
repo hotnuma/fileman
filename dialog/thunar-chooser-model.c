@@ -17,16 +17,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-chooser-model.h>
 #include <thunar-gobject-extensions.h>
@@ -88,7 +83,7 @@ static void thunar_chooser_model_class_init(ThunarChooserModelClass *klass)
                                              "content-type",
                                              NULL,
                                              G_PARAM_CONSTRUCT_ONLY |
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 }
 
 static void thunar_chooser_model_init(ThunarChooserModel *model)

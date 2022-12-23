@@ -18,18 +18,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-#ifdef HAVE_LOCALE_H
 #include <locale.h>
-#endif
 
 #include <gdk/gdkkeysyms.h>
+
+#include <libext.h>
 
 #include <thunar-application.h>
 #include <thunar-browser.h>
@@ -374,7 +369,7 @@ static void thunar_window_class_init(ThunarWindowClass *klass)
                                              "current-directory",
                                              "current-directory",
                                              THUNAR_TYPE_FILE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     /**
      * ThunarWindow:zoom-level:
@@ -389,7 +384,7 @@ static void thunar_window_class_init(ThunarWindowClass *klass)
                                              "zoom-level",
                                              THUNAR_TYPE_ZOOM_LEVEL,
                                              THUNAR_ZOOM_LEVEL_100_PERCENT,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     /**
      * ThunarWindow::reload:

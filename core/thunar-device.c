@@ -16,9 +16,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-device.h>
 #include <thunar-device-monitor.h>
@@ -99,7 +99,7 @@ static void thunar_device_class_init(ThunarDeviceClass *klass)
                                              "device",
                                              "device",
                                              G_TYPE_OBJECT,
-                                             EXO_PARAM_READWRITE
+                                             E_PARAM_READWRITE
                                              | G_PARAM_CONSTRUCT_ONLY));
 
     g_object_class_install_property(gobject_class,
@@ -108,7 +108,7 @@ static void thunar_device_class_init(ThunarDeviceClass *klass)
                                              "hidden",
                                              "hidden",
                                              FALSE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,
                                      PROP_KIND,
@@ -118,7 +118,7 @@ static void thunar_device_class_init(ThunarDeviceClass *klass)
                                              THUNAR_DEVICE_KIND_VOLUME,
                                              THUNAR_DEVICE_KIND_MOUNT_REMOTE,
                                              THUNAR_DEVICE_KIND_VOLUME,
-                                             EXO_PARAM_READWRITE
+                                             E_PARAM_READWRITE
                                              | G_PARAM_CONSTRUCT_ONLY));
 }
 

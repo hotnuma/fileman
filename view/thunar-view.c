@@ -16,9 +16,9 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-debug.h>
 #include <thunar-view.h>
@@ -68,7 +68,7 @@ static void thunar_view_class_init(gpointer klass)
                                                              "loading",
                                                              "loading",
                                                              FALSE,
-                                                             EXO_PARAM_READABLE));
+                                                             E_PARAM_READABLE));
 
     /**
      * ThunarView:statusbar-text:
@@ -84,7 +84,7 @@ static void thunar_view_class_init(gpointer klass)
                                                             "statusbar-text",
                                                             "statusbar-text",
                                                             NULL,
-                                                            EXO_PARAM_READABLE));
+                                                            E_PARAM_READABLE));
 
     /**
      * ThunarView:show-hidden:
@@ -97,7 +97,7 @@ static void thunar_view_class_init(gpointer klass)
                                                              "show-hidden",
                                                              "show-hidden",
                                                              FALSE,
-                                                             EXO_PARAM_READWRITE));
+                                                             E_PARAM_READWRITE));
 
     /**
      * ThunarView:zoom-level:
@@ -111,7 +111,7 @@ static void thunar_view_class_init(gpointer klass)
                                                           "zoom-level",
                                                           THUNAR_TYPE_ZOOM_LEVEL,
                                                           THUNAR_ZOOM_LEVEL_100_PERCENT,
-                                                          EXO_PARAM_READWRITE));
+                                                          E_PARAM_READWRITE));
 }
 
 /**

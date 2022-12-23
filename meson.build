@@ -24,6 +24,7 @@ app_includes = [
     'core',
     'dialog',
     'job',
+    'libext',
     'menu',
     'misc',
     'side',

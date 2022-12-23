@@ -19,19 +19,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
 
 #include <gdk/gdkkeysyms.h>
 
+#include <libext.h>
 #include <exo/exo.h>
 #include <libxfce4ui/libxfce4ui.h>
 
@@ -169,7 +163,7 @@ static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *kla
                            "files",
                            "files",
                            THUNARX_TYPE_FILE_INFO_LIST,
-                           EXO_PARAM_READWRITE));
+                           E_PARAM_READWRITE));
 
     /**
      * ThunarPropertiesDialog:file_size_binary:
@@ -182,7 +176,7 @@ static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *kla
                                              "FileSizeBinary",
                                              NULL,
                                              TRUE,
-                                             EXO_PARAM_READWRITE));
+                                             E_PARAM_READWRITE));
 
     /**
      * ThunarPropertiesDialog::reload:

@@ -18,10 +18,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
+#include <libext.h>
 #include <exo/exo.h>
 
 #include <thunar-gobject-extensions.h>
@@ -76,7 +75,7 @@ static void thunar_statusbar_class_init(ThunarStatusbarClass *klass)
                                                         "text",
                                                         "text",
                                                         NULL,
-                                                        EXO_PARAM_WRITABLE));
+                                                        E_PARAM_WRITABLE));
 
     if (!style_initialized)
     {

@@ -18,16 +18,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_LIMITS_H
 #include <limits.h>
-#endif
-#ifdef HAVE_LOCALE_H
 #include <locale.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-deep-count-job.h>
 #include <thunar-gtk-extensions.h>
@@ -110,7 +105,7 @@ static void thunar_size_label_class_init(ThunarSizeLabelClass *klass)
                                         "files",
                                         "files",
                                         THUNARX_TYPE_FILE_INFO_LIST,
-                                        EXO_PARAM_READWRITE));
+                                        E_PARAM_READWRITE));
 
     /**
      * ThunarPropertiesDialog:file_size_binary:
@@ -123,7 +118,7 @@ static void thunar_size_label_class_init(ThunarSizeLabelClass *klass)
                                                          "FileSizeBinary",
                                                          NULL,
                                                          TRUE,
-                                                         EXO_PARAM_READWRITE));
+                                                         E_PARAM_READWRITE));
 }
 
 static void thunar_size_label_init(ThunarSizeLabel *size_label)

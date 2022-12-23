@@ -18,16 +18,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
+
+#include <libext.h>
 
 #include <thunar-application.h>
 #include <thunar-clipboard-manager.h>
@@ -140,7 +135,7 @@ static void thunar_clipboard_manager_class_init(ThunarClipboardManagerClass *kla
                                      PROP_CAN_PASTE,
                                      g_param_spec_boolean("can-paste", "can-paste", "can-paste",
                                              FALSE,
-                                             EXO_PARAM_READABLE));
+                                             E_PARAM_READABLE));
 
     /**
      * ThunarClipboardManager::changed:
