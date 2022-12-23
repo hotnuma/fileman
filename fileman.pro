@@ -78,7 +78,6 @@ HEADERS = \
     config.h \
     thunar-application.h \
     thunar-marshal.h \
-    thunar-preferences.h \
     thunar-window.h \
 
 SOURCES = \
@@ -143,7 +142,6 @@ SOURCES = \
     main.c \
     thunar-application.c \
     thunar-marshal.c \
-    thunar-preferences.c \
     thunar-window.c \
 
 DISTFILES = \

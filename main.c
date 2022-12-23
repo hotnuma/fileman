@@ -36,19 +36,18 @@
 #include <thunar-session-client.h>
 #endif
 
-#include <xfconf/xfconf.h>
+//#include <xfconf/xfconf.h>
 
 #include <thunar-application.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-debug.h>
 #include <thunar-notify.h>
-#include <thunar-preferences.h>
 
 int
 main(int argc, char **argv)
 {
     ThunarApplication   *application;
-    GError              *error = NULL;
+    //GError              *error = NULL;
 
     /* setup translation domain */
 #ifdef ENABLE_GETTEXT
@@ -65,15 +64,17 @@ main(int argc, char **argv)
     g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
 #endif
 
-    /* initialize xfconf */
-    if (!xfconf_init(&error))
-    {
-        g_printerr(PACKAGE_NAME ": Failed to initialize Xfconf: %s\n\n", error->message);
-        g_clear_error(&error);
 
-        /* disable get/set properties */
-        thunar_preferences_xfconf_init_failed();
-    }
+    /* initialize xfconf */
+//    if (!xfconf_init(&error))
+//    {
+//        g_printerr(PACKAGE_NAME ": Failed to initialize Xfconf: %s\n\n", error->message);
+//        g_clear_error(&error);
+
+//        /* disable get/set properties */
+//        thunar_preferences_xfconf_init_failed();
+//    }
+
 
     /* register additional transformation functions */
     thunar_g_initialize_transformations();

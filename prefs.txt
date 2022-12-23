@@ -1,4 +1,3 @@
-view/thunar-column-model.c:28:#include <thunar-preferences.h>
 main.c:45:#include <thunar-preferences.h>
 
 
