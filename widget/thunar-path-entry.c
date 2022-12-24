@@ -22,6 +22,10 @@
  */
 
 #include <config.h>
+#include <thunar-path-entry.h>
+
+#include <libxfce4util/libxfce4util.h>
+
 #include <errno.h>
 #include <memory.h>
 #include <string.h>
@@ -34,7 +38,6 @@
 #include <thunar-icon-factory.h>
 #include <thunar-icon-renderer.h>
 #include <thunar-list-model.h>
-#include <thunar-path-entry.h>
 #include <thunar-debug.h>
 #include <thunar-util.h>
 

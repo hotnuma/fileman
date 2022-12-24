@@ -21,7 +21,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <libext.h>
-
+#include <exo-tree-view.h>
 #include <thunar-column-model.h>
 #include <thunar-details-view.h>
 #include <thunar-launcher.h>

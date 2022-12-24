@@ -23,7 +23,8 @@
 
 #include <gio/gio.h>
 
-#include <libext.h>
+//#include <libext.h>
+#include <exo-job.h>
 
 #include <thunar-enum-types.h>
 #include <thunar-file.h>

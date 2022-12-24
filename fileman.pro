@@ -41,6 +41,11 @@ HEADERS = \
     job/thunar-job.h \
     job/thunar-simple-job.h \
     job/thunar-transfer-job.h \
+    libext/exo-cell-renderer-icon.h \
+    libext/exo-gdk-pixbuf-extensions.h \
+    libext/exo-job.h \
+    libext/exo-thumbnail.h \
+    libext/exo-tree-view.h \
     libext/libext.h \
     menu/thunar-launcher.h \
     menu/thunar-menu.h \
@@ -100,6 +105,11 @@ SOURCES = \
     dialog/thunar-progress-dialog.c \
     dialog/thunar-progress-view.c \
     dialog/thunar-properties-dialog.c \
+    libext/exo-cell-renderer-icon.c \
+    libext/exo-gdk-pixbuf-extensions.c \
+    libext/exo-job.c \
+    libext/exo-thumbnail.c \
+    libext/exo-tree-view.c \
     libext/libext.c \
     misc/thunar-browser.c \
     misc/thunar-component.c \

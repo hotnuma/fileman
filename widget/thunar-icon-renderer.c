@@ -19,6 +19,7 @@
 #include <config.h>
 
 #include <libext.h>
+#include <exo-gdk-pixbuf-extensions.h>
 
 #include <thunar-clipboard-manager.h>
 #include <thunar-gobject-extensions.h>

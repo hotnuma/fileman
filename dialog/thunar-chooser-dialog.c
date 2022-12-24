@@ -22,7 +22,8 @@
 #include <memory.h>
 #include <string.h>
 
-#include <libext.h>
+//#include <libext.h>
+#include <exo-cell-renderer-icon.h>
 
 #include <thunar-application.h>
 #include <thunar-chooser-dialog.h>

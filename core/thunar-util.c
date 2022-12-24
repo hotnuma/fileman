@@ -28,7 +28,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <libext.h>
+//#include <libext.h>
+#include <libxfce4util/libxfce4util.h>
 
 #include <thunar-debug.h>
 #include <thunar-util.h>

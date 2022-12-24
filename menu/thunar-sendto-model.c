@@ -32,6 +32,7 @@
 #include <gio/gdesktopappinfo.h>
 #endif
 
+#include <libxfce4util/libxfce4util.h>
 #include <thunar-debug.h>
 #include <thunar-sendto-model.h>
 

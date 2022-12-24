@@ -234,174 +234,174 @@ gchar* e_strdup_strftime(const gchar *format, const struct tm *tm)
 
 // GdkPixbuf ------------------------------------------------------------------
 
-static inline void
-draw_frame_row (const GdkPixbuf *frame_image,
-                gint             target_width,
-                gint             source_width,
-                gint             source_v_position,
-                gint             dest_v_position,
-                GdkPixbuf       *result_pixbuf,
-                gint             left_offset,
-                gint             height)
-{
-  gint remaining_width;
-  gint slab_width;
-  gint h_offset;
+//static inline void
+//draw_frame_row (const GdkPixbuf *frame_image,
+//                gint             target_width,
+//                gint             source_width,
+//                gint             source_v_position,
+//                gint             dest_v_position,
+//                GdkPixbuf       *result_pixbuf,
+//                gint             left_offset,
+//                gint             height)
+//{
+//  gint remaining_width;
+//  gint slab_width;
+//  gint h_offset;
 
-  for (h_offset = 0, remaining_width = target_width; remaining_width > 0; h_offset += slab_width, remaining_width -= slab_width)
-    {
-      slab_width = (remaining_width > source_width) ? source_width : remaining_width;
-      gdk_pixbuf_copy_area (frame_image, left_offset, source_v_position, slab_width, height, result_pixbuf, left_offset + h_offset, dest_v_position);
-    }
-}
+//  for (h_offset = 0, remaining_width = target_width; remaining_width > 0; h_offset += slab_width, remaining_width -= slab_width)
+//    {
+//      slab_width = (remaining_width > source_width) ? source_width : remaining_width;
+//      gdk_pixbuf_copy_area (frame_image, left_offset, source_v_position, slab_width, height, result_pixbuf, left_offset + h_offset, dest_v_position);
+//    }
+//}
 
-static inline void
-draw_frame_column (const GdkPixbuf *frame_image,
-                   gint             target_height,
-                   gint             source_height,
-                   gint             source_h_position,
-                   gint             dest_h_position,
-                   GdkPixbuf       *result_pixbuf,
-                   gint             top_offset,
-                   gint             width)
-{
-  gint remaining_height;
-  gint slab_height;
-  gint v_offset;
+//static inline void
+//draw_frame_column (const GdkPixbuf *frame_image,
+//                   gint             target_height,
+//                   gint             source_height,
+//                   gint             source_h_position,
+//                   gint             dest_h_position,
+//                   GdkPixbuf       *result_pixbuf,
+//                   gint             top_offset,
+//                   gint             width)
+//{
+//  gint remaining_height;
+//  gint slab_height;
+//  gint v_offset;
 
-  for (v_offset = 0, remaining_height = target_height; remaining_height > 0; v_offset += slab_height, remaining_height -= slab_height)
-    {
-      slab_height = (remaining_height > source_height) ? source_height : remaining_height;
-      gdk_pixbuf_copy_area (frame_image, source_h_position, top_offset, width, slab_height, result_pixbuf, dest_h_position, top_offset + v_offset);
-    }
-}
+//  for (v_offset = 0, remaining_height = target_height; remaining_height > 0; v_offset += slab_height, remaining_height -= slab_height)
+//    {
+//      slab_height = (remaining_height > source_height) ? source_height : remaining_height;
+//      gdk_pixbuf_copy_area (frame_image, source_h_position, top_offset, width, slab_height, result_pixbuf, dest_h_position, top_offset + v_offset);
+//    }
+//}
 
-GdkPixbuf* egdk_pixbuf_frame(const GdkPixbuf *source,
-                                const GdkPixbuf *frame,
-                                gint            left_offset,
-                                gint            top_offset,
-                                gint            right_offset,
-                                gint            bottom_offset)
-{
-  GdkPixbuf *dst;
-  gint       dst_width;
-  gint       dst_height;
-  gint       frame_width;
-  gint       frame_height;
-  gint       src_width;
-  gint       src_height;
+//GdkPixbuf* egdk_pixbuf_frame(const GdkPixbuf *source,
+//                                const GdkPixbuf *frame,
+//                                gint            left_offset,
+//                                gint            top_offset,
+//                                gint            right_offset,
+//                                gint            bottom_offset)
+//{
+//  GdkPixbuf *dst;
+//  gint       dst_width;
+//  gint       dst_height;
+//  gint       frame_width;
+//  gint       frame_height;
+//  gint       src_width;
+//  gint       src_height;
 
-  g_return_val_if_fail (GDK_IS_PIXBUF (frame), NULL);
-  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
+//  g_return_val_if_fail (GDK_IS_PIXBUF (frame), NULL);
+//  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
 
-  src_width = gdk_pixbuf_get_width (source);
-  src_height = gdk_pixbuf_get_height (source);
+//  src_width = gdk_pixbuf_get_width (source);
+//  src_height = gdk_pixbuf_get_height (source);
 
-  frame_width = gdk_pixbuf_get_width (frame);
-  frame_height = gdk_pixbuf_get_height (frame);
+//  frame_width = gdk_pixbuf_get_width (frame);
+//  frame_height = gdk_pixbuf_get_height (frame);
 
-  dst_width = src_width + left_offset + right_offset;
-  dst_height = src_height + top_offset + bottom_offset;
+//  dst_width = src_width + left_offset + right_offset;
+//  dst_height = src_height + top_offset + bottom_offset;
 
-  /* allocate the resulting pixbuf */
-  dst = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, dst_width, dst_height);
+//  /* allocate the resulting pixbuf */
+//  dst = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, dst_width, dst_height);
 
-  /* fill the destination if the source has an alpha channel */
-  if (G_UNLIKELY (gdk_pixbuf_get_has_alpha (source)))
-    gdk_pixbuf_fill (dst, 0xffffffff);
+//  /* fill the destination if the source has an alpha channel */
+//  if (G_UNLIKELY (gdk_pixbuf_get_has_alpha (source)))
+//    gdk_pixbuf_fill (dst, 0xffffffff);
 
-  /* draw the left top cornder and top row */
-  gdk_pixbuf_copy_area (frame, 0, 0, left_offset, top_offset, dst, 0, 0);
-  draw_frame_row (frame, src_width, frame_width - left_offset - right_offset, 0, 0, dst, left_offset, top_offset);
+//  /* draw the left top cornder and top row */
+//  gdk_pixbuf_copy_area (frame, 0, 0, left_offset, top_offset, dst, 0, 0);
+//  draw_frame_row (frame, src_width, frame_width - left_offset - right_offset, 0, 0, dst, left_offset, top_offset);
 
-  /* draw the right top corner and left column */
-  gdk_pixbuf_copy_area (frame, frame_width - right_offset, 0, right_offset, top_offset, dst, dst_width - right_offset, 0);
-  draw_frame_column (frame, src_height, frame_height - top_offset - bottom_offset, 0, 0, dst, top_offset, left_offset);
+//  /* draw the right top corner and left column */
+//  gdk_pixbuf_copy_area (frame, frame_width - right_offset, 0, right_offset, top_offset, dst, dst_width - right_offset, 0);
+//  draw_frame_column (frame, src_height, frame_height - top_offset - bottom_offset, 0, 0, dst, top_offset, left_offset);
 
-  /* draw the bottom right corner and bottom row */
-  gdk_pixbuf_copy_area (frame, frame_width - right_offset, frame_height - bottom_offset, right_offset,
-                        bottom_offset, dst, dst_width - right_offset, dst_height - bottom_offset);
-  draw_frame_row (frame, src_width, frame_width - left_offset - right_offset, frame_height - bottom_offset,
-                  dst_height - bottom_offset, dst, left_offset, bottom_offset);
+//  /* draw the bottom right corner and bottom row */
+//  gdk_pixbuf_copy_area (frame, frame_width - right_offset, frame_height - bottom_offset, right_offset,
+//                        bottom_offset, dst, dst_width - right_offset, dst_height - bottom_offset);
+//  draw_frame_row (frame, src_width, frame_width - left_offset - right_offset, frame_height - bottom_offset,
+//                  dst_height - bottom_offset, dst, left_offset, bottom_offset);
 
-  /* draw the bottom left corner and the right column */
-  gdk_pixbuf_copy_area (frame, 0, frame_height - bottom_offset, left_offset, bottom_offset, dst, 0, dst_height - bottom_offset);
-  draw_frame_column (frame, src_height, frame_height - top_offset - bottom_offset, frame_width - right_offset,
-                     dst_width - right_offset, dst, top_offset, right_offset);
+//  /* draw the bottom left corner and the right column */
+//  gdk_pixbuf_copy_area (frame, 0, frame_height - bottom_offset, left_offset, bottom_offset, dst, 0, dst_height - bottom_offset);
+//  draw_frame_column (frame, src_height, frame_height - top_offset - bottom_offset, frame_width - right_offset,
+//                     dst_width - right_offset, dst, top_offset, right_offset);
 
-  /* copy the source pixbuf into the framed area */
-  gdk_pixbuf_copy_area (source, 0, 0, src_width, src_height, dst, left_offset, top_offset);
+//  /* copy the source pixbuf into the framed area */
+//  gdk_pixbuf_copy_area (source, 0, 0, src_width, src_height, dst, left_offset, top_offset);
 
-  return dst;
-}
+//  return dst;
+//}
 
-GdkPixbuf* egdk_pixbuf_scale_down(GdkPixbuf *source,
-                                  gboolean   preserve_aspect_ratio,
-                                  gint       dest_width,
-                                  gint       dest_height)
-{
-  gdouble wratio;
-  gdouble hratio;
-  gint    source_width;
-  gint    source_height;
+//GdkPixbuf* egdk_pixbuf_scale_down(GdkPixbuf *source,
+//                                  gboolean   preserve_aspect_ratio,
+//                                  gint       dest_width,
+//                                  gint       dest_height)
+//{
+//  gdouble wratio;
+//  gdouble hratio;
+//  gint    source_width;
+//  gint    source_height;
 
-  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
-  g_return_val_if_fail (dest_width > 0, NULL);
-  g_return_val_if_fail (dest_height > 0, NULL);
+//  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
+//  g_return_val_if_fail (dest_width > 0, NULL);
+//  g_return_val_if_fail (dest_height > 0, NULL);
 
-  source_width = gdk_pixbuf_get_width (source);
-  source_height = gdk_pixbuf_get_height (source);
+//  source_width = gdk_pixbuf_get_width (source);
+//  source_height = gdk_pixbuf_get_height (source);
 
-  /* check if we need to scale */
-  if (G_UNLIKELY (source_width <= dest_width && source_height <= dest_height))
-    return GDK_PIXBUF (g_object_ref (G_OBJECT (source)));
+//  /* check if we need to scale */
+//  if (G_UNLIKELY (source_width <= dest_width && source_height <= dest_height))
+//    return GDK_PIXBUF (g_object_ref (G_OBJECT (source)));
 
-  /* check if aspect ratio should be preserved */
-  if (G_LIKELY (preserve_aspect_ratio))
-    {
-      /* calculate the new dimensions */
-      wratio = (gdouble) source_width  / (gdouble) dest_width;
-      hratio = (gdouble) source_height / (gdouble) dest_height;
+//  /* check if aspect ratio should be preserved */
+//  if (G_LIKELY (preserve_aspect_ratio))
+//    {
+//      /* calculate the new dimensions */
+//      wratio = (gdouble) source_width  / (gdouble) dest_width;
+//      hratio = (gdouble) source_height / (gdouble) dest_height;
 
-      if (hratio > wratio)
-        dest_width  = rint (source_width / hratio);
-      else
-        dest_height = rint (source_height / wratio);
-    }
+//      if (hratio > wratio)
+//        dest_width  = rint (source_width / hratio);
+//      else
+//        dest_height = rint (source_height / wratio);
+//    }
 
-  return gdk_pixbuf_scale_simple (source, MAX (dest_width, 1), MAX (dest_height, 1), GDK_INTERP_BILINEAR);
-}
+//  return gdk_pixbuf_scale_simple (source, MAX (dest_width, 1), MAX (dest_height, 1), GDK_INTERP_BILINEAR);
+//}
 
-GdkPixbuf* egdk_pixbuf_scale_ratio(GdkPixbuf *source, gint dest_size)
-{
-  gdouble wratio;
-  gdouble hratio;
-  gint    source_width;
-  gint    source_height;
-  gint    dest_width;
-  gint    dest_height;
+//GdkPixbuf* egdk_pixbuf_scale_ratio(GdkPixbuf *source, gint dest_size)
+//{
+//  gdouble wratio;
+//  gdouble hratio;
+//  gint    source_width;
+//  gint    source_height;
+//  gint    dest_width;
+//  gint    dest_height;
 
-  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
-  g_return_val_if_fail (dest_size > 0, NULL);
+//  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
+//  g_return_val_if_fail (dest_size > 0, NULL);
 
-  source_width  = gdk_pixbuf_get_width  (source);
-  source_height = gdk_pixbuf_get_height (source);
+//  source_width  = gdk_pixbuf_get_width  (source);
+//  source_height = gdk_pixbuf_get_height (source);
 
-  wratio = (gdouble) source_width  / (gdouble) dest_size;
-  hratio = (gdouble) source_height / (gdouble) dest_size;
+//  wratio = (gdouble) source_width  / (gdouble) dest_size;
+//  hratio = (gdouble) source_height / (gdouble) dest_size;
 
-  if (hratio > wratio)
-    {
-      dest_width  = rint (source_width / hratio);
-      dest_height = dest_size;
-    }
-  else
-    {
-      dest_width  = dest_size;
-      dest_height = rint (source_height / wratio);
-    }
+//  if (hratio > wratio)
+//    {
+//      dest_width  = rint (source_width / hratio);
+//      dest_height = dest_size;
+//    }
+//  else
+//    {
+//      dest_width  = dest_size;
+//      dest_height = rint (source_height / wratio);
+//    }
 
-  return gdk_pixbuf_scale_simple (source, MAX (dest_width, 1), MAX (dest_height, 1), GDK_INTERP_BILINEAR);
-}
+//  return gdk_pixbuf_scale_simple (source, MAX (dest_width, 1), MAX (dest_height, 1), GDK_INTERP_BILINEAR);
+//}
 
 

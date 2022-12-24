@@ -18,20 +18,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#include <exo-job.h>
+#include <thunar-debug.h>
+#include <libxfce4util/libxfce4util.h>
 
 #include <glib.h>
 #include <glib-object.h>
-
 #include <gio/gio.h>
 
-#include <exo/exo-config.h>
-#include <exo/exo-job.h>
-#include <exo/exo-private.h>
-#include <exo/exo-alias.h>
-#include <libxfce4util/libxfce4util.h>
+//#include <exo/exo-config.h>
+//#include <exo/exo-private.h>
+//#include <exo/exo-alias.h>
+
 
 /**
  * SECTION: exo-job
@@ -667,7 +666,3 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 
-
-
-#define __EXO_JOB_C__
-#include <exo/exo-aliasdef.c>

@@ -22,6 +22,7 @@
 #include <gio/gio.h>
 
 #include <libext.h>
+#include <exo-gdk-pixbuf-extensions.h>
 
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>

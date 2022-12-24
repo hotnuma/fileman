@@ -18,17 +18,14 @@
  * MA 02110-1301 USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#include <exo-cell-renderer-icon.h>
 
+#include <exo-thumbnail.h>
 #include <gio/gio.h>
 
-#include <exo/exo-cell-renderer-icon.h>
-#include <exo/exo-gdk-pixbuf-extensions.h>
-#include <exo/exo-private.h>
-#include <exo/exo-thumbnail.h>
-#include <exo/exo-alias.h>
+#include <exo-gdk-pixbuf-extensions.h>
+//#include <exo/exo-private.h>
 
 /**
  * SECTION: exo-cell-renderer-icon
@@ -121,7 +118,7 @@ exo_cell_renderer_icon_class_init (ExoCellRendererIconClass *klass)
   gtkcell_renderer_class->render = exo_cell_renderer_icon_render;
 
   /* initialize the library's i18n support */
-  _exo_i18n_init ();
+  //_exo_i18n_init ();
 
   /**
    * ExoCellRendererIcon:follow-state:
@@ -138,7 +135,7 @@ exo_cell_renderer_icon_class_init (ExoCellRendererIconClass *klass)
                                                          _("Follow state"),
                                                          _("Render differently based on the selection state."),
                                                          TRUE,
-                                                         EXO_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+                                                         E_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 
   /**
    * ExoCellRendererIcon:icon:
@@ -160,7 +157,7 @@ exo_cell_renderer_icon_class_init (ExoCellRendererIconClass *klass)
                                                         _("Icon"),
                                                         _("The icon to render."),
                                                         NULL,
-                                                        EXO_PARAM_READWRITE));
+                                                        E_PARAM_READWRITE));
 
   /**
    * ExoCellRendererIcon:gicon:
@@ -179,7 +176,7 @@ exo_cell_renderer_icon_class_init (ExoCellRendererIconClass *klass)
                                                         _("GIcon"),
                                                         _("The GIcon to render."),
                                                         G_TYPE_ICON,
-                                                        EXO_PARAM_READWRITE));
+                                                        E_PARAM_READWRITE));
 
   /**
    * ExoCellRendererIcon:size:
@@ -201,7 +198,7 @@ exo_cell_renderer_icon_class_init (ExoCellRendererIconClass *klass)
                                                      _("size"),
                                                      _("The size of the icon to render in pixels."),
                                                      1, G_MAXINT, 48,
-                                                     EXO_PARAM_READWRITE | G_PARAM_CONSTRUCT));
+                                                     E_PARAM_READWRITE | G_PARAM_CONSTRUCT));
 }
 
 
@@ -209,6 +206,7 @@ exo_cell_renderer_icon_class_init (ExoCellRendererIconClass *klass)
 static void
 exo_cell_renderer_icon_init (ExoCellRendererIcon *icon_undocked)
 {
+    UNUSED(icon_undocked);
 }
 
 
@@ -365,7 +363,9 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
                                const GdkRectangle  *cell_area,
                                GtkCellRendererState flags)
 {
-  GdkRectangle        clip_area;
+  UNUSED(background_area);
+
+    GdkRectangle        clip_area;
   GdkRectangle       *expose_area = &clip_area;
   GdkRGBA            *color_rgba;
   GdkColor            color_gdk;
@@ -400,7 +400,10 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
   if (priv->icon != NULL && g_path_is_absolute (priv->icon))
     {
       /* load the icon via the thumbnail database */
-      icon = _exo_thumbnail_get_for_file (priv->icon, (requested_icon_size > 128) ? EXO_THUMBNAIL_SIZE_LARGE : EXO_THUMBNAIL_SIZE_NORMAL, &err);
+      icon = _exo_thumbnail_get_for_file (priv->icon,
+                                          (requested_icon_size > 128)
+                                          ? EXO_THUMBNAIL_SIZE_LARGE
+                                          : EXO_THUMBNAIL_SIZE_NORMAL, &err);
     }
   else if (priv->icon != NULL || priv->gicon != NULL)
     {
@@ -496,7 +499,7 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
   if (G_UNLIKELY (icon_area.width > cell_area->width || icon_area.height > cell_area->height))
     {
       /* scale down to fit */
-      temp = exo_gdk_pixbuf_scale_down (icon, TRUE, cell_area->width * scale_factor, cell_area->height * scale_factor);
+      temp = egdk_pixbuf_scale_down (icon, TRUE, cell_area->width * scale_factor, cell_area->height * scale_factor);
       g_object_unref (G_OBJECT (icon));
       icon = temp;
 
@@ -526,14 +529,14 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
               color_gdk.blue = color_rgba->blue * 65535;
               color_gdk.green = color_rgba->green * 65535;
               gdk_rgba_free (color_rgba);
-              temp = exo_gdk_pixbuf_colorize (icon, &color_gdk);
+              temp = egdk_pixbuf_colorize (icon, &color_gdk);
               g_object_unref (G_OBJECT (icon));
               icon = temp;
             }
 
           if ((flags & GTK_CELL_RENDERER_PRELIT) != 0)
             {
-              temp = exo_gdk_pixbuf_spotlight (icon);
+              temp = egdk_pixbuf_spotlight (icon);
               g_object_unref (G_OBJECT (icon));
               icon = temp;
             }
@@ -552,7 +555,7 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
           color_gdk.blue = color_rgba->blue * 65535;
           color_gdk.green = color_rgba->green * 65535;
           gdk_rgba_free (color_rgba);
-          temp = exo_gdk_pixbuf_colorize (icon, &color_gdk);
+          temp = egdk_pixbuf_colorize (icon, &color_gdk);
 
           g_object_unref (G_OBJECT (icon));
           icon = temp;
@@ -594,6 +597,3 @@ exo_cell_renderer_icon_new (void)
 }
 
 
-
-#define __EXO_CELL_RENDERER_ICON_C__
-#include <exo/exo-aliasdef.c>

@@ -3,17 +3,29 @@
 
 #include <stdbool.h>
 
-#define PACKAGE_NAME "fileman"
-#define BINDIR "/usr/bin"
+#if defined(GETTEXT_PACKAGE)
+#include <glib/gi18n-lib.h>
+#else
+#include <glib/gi18n.h>
+#endif
 
+#define PACKAGE_NAME "fileman"
+#define PACKAGE_STRING PACKAGE_NAME
 #define APP_DISPLAY_NAME "Fileman"
 #define APP_NAME "fileman"
+#define BINDIR "/usr/bin"
 
 //https://stackoverflow.com/questions/7090998/
 #define UNUSED(x) (void)(x)
 
-#define HAVE_LINUX 1
+// Deprecated: xfce 4.18: Use libxfce4util instead
+#define I_(string) (g_intern_static_string ((string)))
 
+#define E_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
+#define E_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)
+#define E_PARAM_READWRITE (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)
+
+#define HAVE_LINUX 1
 #define HAVE_CTYPE_H 1
 #define HAVE_ERRNO_H 1
 #define HAVE_FCNTL_H 1
