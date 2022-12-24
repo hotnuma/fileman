@@ -1,5 +1,7 @@
 #include "libext.h"
 
+#include <libxfce4util/libxfce4util.h>
+
 #include <math.h>
 
 // noop -----------------------------------------------------------------------
@@ -232,176 +234,100 @@ gchar* e_strdup_strftime(const gchar *format, const struct tm *tm)
   return result;
 }
 
-// GdkPixbuf ------------------------------------------------------------------
+// XFCE Utils -----------------------------------------------------------------
 
-//static inline void
-//draw_frame_row (const GdkPixbuf *frame_image,
-//                gint             target_width,
-//                gint             source_width,
-//                gint             source_v_position,
-//                gint             dest_v_position,
-//                GdkPixbuf       *result_pixbuf,
-//                gint             left_offset,
-//                gint             height)
-//{
-//  gint remaining_width;
-//  gint slab_width;
-//  gint h_offset;
+gchar* e_expand_desktop_entry_field_codes(const gchar *command,
+                                          GSList      *uri_list,
+                                          const gchar *icon,
+                                          const gchar *name,
+                                          const gchar *uri,
+                                          gboolean     requires_terminal)
+{
+  const gchar *p;
+  gchar       *filename;
+  GString     *string;
+  GSList      *li;
+  GFile       *file;
 
-//  for (h_offset = 0, remaining_width = target_width; remaining_width > 0; h_offset += slab_width, remaining_width -= slab_width)
-//    {
-//      slab_width = (remaining_width > source_width) ? source_width : remaining_width;
-//      gdk_pixbuf_copy_area (frame_image, left_offset, source_v_position, slab_width, height, result_pixbuf, left_offset + h_offset, dest_v_position);
-//    }
-//}
+  if (G_UNLIKELY (command == NULL))
+    return NULL;
 
-//static inline void
-//draw_frame_column (const GdkPixbuf *frame_image,
-//                   gint             target_height,
-//                   gint             source_height,
-//                   gint             source_h_position,
-//                   gint             dest_h_position,
-//                   GdkPixbuf       *result_pixbuf,
-//                   gint             top_offset,
-//                   gint             width)
-//{
-//  gint remaining_height;
-//  gint slab_height;
-//  gint v_offset;
+  string = g_string_sized_new (strlen (command));
 
-//  for (v_offset = 0, remaining_height = target_height; remaining_height > 0; v_offset += slab_height, remaining_height -= slab_height)
-//    {
-//      slab_height = (remaining_height > source_height) ? source_height : remaining_height;
-//      gdk_pixbuf_copy_area (frame_image, source_h_position, top_offset, width, slab_height, result_pixbuf, dest_h_position, top_offset + v_offset);
-//    }
-//}
+  if (requires_terminal)
+    g_string_append (string, "exo-open --launch TerminalEmulator ");
 
-//GdkPixbuf* egdk_pixbuf_frame(const GdkPixbuf *source,
-//                                const GdkPixbuf *frame,
-//                                gint            left_offset,
-//                                gint            top_offset,
-//                                gint            right_offset,
-//                                gint            bottom_offset)
-//{
-//  GdkPixbuf *dst;
-//  gint       dst_width;
-//  gint       dst_height;
-//  gint       frame_width;
-//  gint       frame_height;
-//  gint       src_width;
-//  gint       src_height;
+  for (p = command; *p != '\0'; ++p)
+    {
+      if (G_UNLIKELY (p[0] == '%' && p[1] != '\0'))
+        {
+          switch (*++p)
+            {
+            case 'f':
+            case 'F':
+              for (li = uri_list; li != NULL; li = li->next)
+                {
+                  /* passing through a GFile seems necessary to properly handle
+                   * all URI schemes, in particular g_filename_from_uri() is not
+                   * able to do so */
+                  file = g_file_new_for_uri (li->data);
+                  filename = g_file_get_path (file);
+                  if (G_LIKELY (filename != NULL))
+                    xfce_append_quoted (string, filename);
 
-//  g_return_val_if_fail (GDK_IS_PIXBUF (frame), NULL);
-//  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
+                  g_object_unref (file);
+                  g_free (filename);
 
-//  src_width = gdk_pixbuf_get_width (source);
-//  src_height = gdk_pixbuf_get_height (source);
+                  if (*p == 'f')
+                    break;
+                  if (li->next != NULL)
+                    g_string_append_c (string, ' ');
+                }
+              break;
 
-//  frame_width = gdk_pixbuf_get_width (frame);
-//  frame_height = gdk_pixbuf_get_height (frame);
+            case 'u':
+            case 'U':
+              for (li = uri_list; li != NULL; li = li->next)
+                {
+                  xfce_append_quoted (string, li->data);
 
-//  dst_width = src_width + left_offset + right_offset;
-//  dst_height = src_height + top_offset + bottom_offset;
+                  if (*p == 'u')
+                    break;
+                  if (li->next != NULL)
+                    g_string_append_c (string, ' ');
+                }
+              break;
 
-//  /* allocate the resulting pixbuf */
-//  dst = gdk_pixbuf_new (GDK_COLORSPACE_RGB, TRUE, 8, dst_width, dst_height);
+            case 'i':
+              if (! xfce_str_is_empty (icon))
+                {
+                  g_string_append (string, "--icon ");
+                  xfce_append_quoted (string, icon);
+                }
+              break;
 
-//  /* fill the destination if the source has an alpha channel */
-//  if (G_UNLIKELY (gdk_pixbuf_get_has_alpha (source)))
-//    gdk_pixbuf_fill (dst, 0xffffffff);
+            case 'c':
+              if (! xfce_str_is_empty (name))
+                xfce_append_quoted (string, name);
+              break;
 
-//  /* draw the left top cornder and top row */
-//  gdk_pixbuf_copy_area (frame, 0, 0, left_offset, top_offset, dst, 0, 0);
-//  draw_frame_row (frame, src_width, frame_width - left_offset - right_offset, 0, 0, dst, left_offset, top_offset);
+            case 'k':
+              if (! xfce_str_is_empty (uri))
+                xfce_append_quoted (string, uri);
+              break;
 
-//  /* draw the right top corner and left column */
-//  gdk_pixbuf_copy_area (frame, frame_width - right_offset, 0, right_offset, top_offset, dst, dst_width - right_offset, 0);
-//  draw_frame_column (frame, src_height, frame_height - top_offset - bottom_offset, 0, 0, dst, top_offset, left_offset);
+            case '%':
+              g_string_append_c (string, '%');
+              break;
+            }
+        }
+      else
+        {
+          g_string_append_c (string, *p);
+        }
+    }
 
-//  /* draw the bottom right corner and bottom row */
-//  gdk_pixbuf_copy_area (frame, frame_width - right_offset, frame_height - bottom_offset, right_offset,
-//                        bottom_offset, dst, dst_width - right_offset, dst_height - bottom_offset);
-//  draw_frame_row (frame, src_width, frame_width - left_offset - right_offset, frame_height - bottom_offset,
-//                  dst_height - bottom_offset, dst, left_offset, bottom_offset);
-
-//  /* draw the bottom left corner and the right column */
-//  gdk_pixbuf_copy_area (frame, 0, frame_height - bottom_offset, left_offset, bottom_offset, dst, 0, dst_height - bottom_offset);
-//  draw_frame_column (frame, src_height, frame_height - top_offset - bottom_offset, frame_width - right_offset,
-//                     dst_width - right_offset, dst, top_offset, right_offset);
-
-//  /* copy the source pixbuf into the framed area */
-//  gdk_pixbuf_copy_area (source, 0, 0, src_width, src_height, dst, left_offset, top_offset);
-
-//  return dst;
-//}
-
-//GdkPixbuf* egdk_pixbuf_scale_down(GdkPixbuf *source,
-//                                  gboolean   preserve_aspect_ratio,
-//                                  gint       dest_width,
-//                                  gint       dest_height)
-//{
-//  gdouble wratio;
-//  gdouble hratio;
-//  gint    source_width;
-//  gint    source_height;
-
-//  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
-//  g_return_val_if_fail (dest_width > 0, NULL);
-//  g_return_val_if_fail (dest_height > 0, NULL);
-
-//  source_width = gdk_pixbuf_get_width (source);
-//  source_height = gdk_pixbuf_get_height (source);
-
-//  /* check if we need to scale */
-//  if (G_UNLIKELY (source_width <= dest_width && source_height <= dest_height))
-//    return GDK_PIXBUF (g_object_ref (G_OBJECT (source)));
-
-//  /* check if aspect ratio should be preserved */
-//  if (G_LIKELY (preserve_aspect_ratio))
-//    {
-//      /* calculate the new dimensions */
-//      wratio = (gdouble) source_width  / (gdouble) dest_width;
-//      hratio = (gdouble) source_height / (gdouble) dest_height;
-
-//      if (hratio > wratio)
-//        dest_width  = rint (source_width / hratio);
-//      else
-//        dest_height = rint (source_height / wratio);
-//    }
-
-//  return gdk_pixbuf_scale_simple (source, MAX (dest_width, 1), MAX (dest_height, 1), GDK_INTERP_BILINEAR);
-//}
-
-//GdkPixbuf* egdk_pixbuf_scale_ratio(GdkPixbuf *source, gint dest_size)
-//{
-//  gdouble wratio;
-//  gdouble hratio;
-//  gint    source_width;
-//  gint    source_height;
-//  gint    dest_width;
-//  gint    dest_height;
-
-//  g_return_val_if_fail (GDK_IS_PIXBUF (source), NULL);
-//  g_return_val_if_fail (dest_size > 0, NULL);
-
-//  source_width  = gdk_pixbuf_get_width  (source);
-//  source_height = gdk_pixbuf_get_height (source);
-
-//  wratio = (gdouble) source_width  / (gdouble) dest_size;
-//  hratio = (gdouble) source_height / (gdouble) dest_size;
-
-//  if (hratio > wratio)
-//    {
-//      dest_width  = rint (source_width / hratio);
-//      dest_height = dest_size;
-//    }
-//  else
-//    {
-//      dest_width  = dest_size;
-//      dest_height = rint (source_height / wratio);
-//    }
-
-//  return gdk_pixbuf_scale_simple (source, MAX (dest_width, 1), MAX (dest_height, 1), GDK_INTERP_BILINEAR);
-//}
+  return g_string_free (string, FALSE);
+}
 
 

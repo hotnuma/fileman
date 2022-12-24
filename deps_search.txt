@@ -8,7 +8,7 @@ xfce_resource_lookup
 xfce_resource_match
 xfce_resource_save_location
 
-xfce_expand_desktop_entry_field_codes
+
 
 
 
