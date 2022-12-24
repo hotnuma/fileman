@@ -18,7 +18,7 @@
 //https://stackoverflow.com/questions/7090998/
 #define UNUSED(x) (void)(x)
 
-// Deprecated: xfce 4.18: Use libxfce4util instead
+// Deprecated: xfce 4.18
 #define I_(string) (g_intern_static_string ((string)))
 
 #define E_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)

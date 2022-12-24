@@ -8,9 +8,6 @@ PKGCONFIG = \
     tinyc \
     gudev-1.0 \
     libnotify \
-    exo-2 \
-    libxfconf-0 \
-    libxfce4util-1.0 \
     libxfce4ui-2 \
     thunarx-3 \
 
@@ -44,12 +41,10 @@ HEADERS = \
     libext/exo-cell-renderer-icon.h \
     libext/exo-gdk-pixbuf-extensions.h \
     libext/exo-job.h \
-    libext/exo-thumbnail.h \
     libext/exo-tree-view.h \
     libext/libext.h \
     menu/thunar-launcher.h \
     menu/thunar-menu.h \
-    menu/thunar-sendto-model.h \
     misc/thunar-browser.h \
     misc/thunar-component.h \
     misc/thunar-enum-types.h \
@@ -108,7 +103,6 @@ SOURCES = \
     libext/exo-cell-renderer-icon.c \
     libext/exo-gdk-pixbuf-extensions.c \
     libext/exo-job.c \
-    libext/exo-thumbnail.c \
     libext/exo-tree-view.c \
     libext/libext.c \
     misc/thunar-browser.c \
@@ -131,7 +125,6 @@ SOURCES = \
     job/thunar-transfer-job.c \
     menu/thunar-launcher.c \
     menu/thunar-menu.c \
-    menu/thunar-sendto-model.c \
     side/thunar-side-pane.c \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \

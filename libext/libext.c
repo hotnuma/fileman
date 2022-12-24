@@ -1,8 +1,11 @@
-#include "libext.h"
-
-#include <libxfce4util/libxfce4util.h>
+#include <config.h>
+#include <libext.h>
 
 #include <math.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <unistd.h>
 
 // noop -----------------------------------------------------------------------
 
@@ -236,6 +239,15 @@ gchar* e_strdup_strftime(const gchar *format, const struct tm *tm)
 
 // XFCE Utils -----------------------------------------------------------------
 
+void e_string_append_quoted(GString *string, const gchar *unquoted)
+{
+  gchar *quoted;
+
+  quoted = g_shell_quote (unquoted);
+  g_string_append (string, quoted);
+  g_free (quoted);
+}
+
 gchar* e_expand_desktop_entry_field_codes(const gchar *command,
                                           GSList      *uri_list,
                                           const gchar *icon,
@@ -273,7 +285,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
                   file = g_file_new_for_uri (li->data);
                   filename = g_file_get_path (file);
                   if (G_LIKELY (filename != NULL))
-                    xfce_append_quoted (string, filename);
+                    e_string_append_quoted (string, filename);
 
                   g_object_unref (file);
                   g_free (filename);
@@ -289,7 +301,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
             case 'U':
               for (li = uri_list; li != NULL; li = li->next)
                 {
-                  xfce_append_quoted (string, li->data);
+                  e_string_append_quoted (string, li->data);
 
                   if (*p == 'u')
                     break;
@@ -299,21 +311,21 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
               break;
 
             case 'i':
-              if (! xfce_str_is_empty (icon))
+              if (icon != NULL && *icon != '\0')
                 {
                   g_string_append (string, "--icon ");
-                  xfce_append_quoted (string, icon);
+                  e_string_append_quoted (string, icon);
                 }
               break;
 
             case 'c':
-              if (! xfce_str_is_empty (name))
-                xfce_append_quoted (string, name);
+              if (name != NULL && *name != '\0')
+                e_string_append_quoted (string, name);
               break;
 
             case 'k':
-              if (! xfce_str_is_empty (uri))
-                xfce_append_quoted (string, uri);
+              if (uri != NULL && *uri != '\0')
+                e_string_append_quoted (string, uri);
               break;
 
             case '%':
@@ -329,5 +341,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
 
   return g_string_free (string, FALSE);
 }
+
+// ---------------------------------
 
 

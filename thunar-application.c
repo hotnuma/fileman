@@ -336,14 +336,17 @@ static void thunar_application_startup(GApplication *gapp)
     application->session_client = thunar_session_client_new(opt_sm_client_id);
 #endif
 
+#if 0
     /* check if we have a saved accel map */
     gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
+
     if (G_LIKELY(path != NULL))
     {
         /* load the accel map */
         gtk_accel_map_load(path);
         g_free(path);
     }
+#endif
 
     /* watch for changes */
     application->accel_map = gtk_accel_map_get();
@@ -573,13 +576,14 @@ static void thunar_application_set_property(GObject      *object,
 static gboolean thunar_application_accel_map_save(gpointer user_data)
 {
     ThunarApplication *application = THUNAR_APPLICATION(user_data);
-    gchar             *path;
 
     thunar_return_val_if_fail(THUNAR_IS_APPLICATION(application), FALSE);
 
     application->accel_map_save_id = 0;
 
+#if 0
     /* save the current accel map */
+    gchar             *path;
     path = xfce_resource_save_location(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH, TRUE);
     if (G_LIKELY(path != NULL))
     {
@@ -587,6 +591,7 @@ static gboolean thunar_application_accel_map_save(gpointer user_data)
         gtk_accel_map_save(path);
         g_free(path);
     }
+#endif
 
     return FALSE;
 }

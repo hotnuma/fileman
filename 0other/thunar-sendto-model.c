@@ -112,6 +112,7 @@ static void thunar_sendto_model_load(ThunarSendtoModel *sendto_model)
 
     /* lookup all sendto .desktop files */
     specs = xfce_resource_match(XFCE_RESOURCE_DATA, "Thunar/sendto/*.desktop", TRUE);
+
     for (n = 0; specs[n] != NULL; ++n)
     {
         /* lookup the absolute path to the .desktop file */

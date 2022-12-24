@@ -21,16 +21,10 @@
 #include <config.h>
 #include <exo-job.h>
 #include <thunar-debug.h>
-#include <libxfce4util/libxfce4util.h>
 
 #include <glib.h>
 #include <glib-object.h>
 #include <gio/gio.h>
-
-//#include <exo/exo-config.h>
-//#include <exo/exo-private.h>
-//#include <exo/exo-alias.h>
-
 
 /**
  * SECTION: exo-job

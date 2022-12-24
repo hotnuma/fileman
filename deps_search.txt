@@ -1,17 +1,4 @@
 
-utils
-
-XFCE_RESOURCE_CONFIG
-XFCE_RESOURCE_DATA
-xfce_resource_dirs
-xfce_resource_lookup
-xfce_resource_match
-xfce_resource_save_location
-
-
-
-
-
 ui
 
 xfce_spawn_on_screen

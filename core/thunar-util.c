@@ -21,8 +21,6 @@
 #include <config.h>
 #include <thunar-util.h>
 
-#include <libxfce4util/libxfce4util.h>
-
 #include <thunar-debug.h>
 
 #include <sys/types.h>

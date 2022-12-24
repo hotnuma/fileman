@@ -32,14 +32,11 @@ app_includes = [
     'widget',
 ]
 
-#dependency('exo-2'),
-
 app_deps = [
     dependency('gtk+-3.0'),
+    dependency('tinyc'),
     dependency('gudev-1.0'),
     dependency('libnotify'),
-    dependency('tinyc'),
-    dependency('libxfce4util-1.0'),
     dependency('libxfce4ui-2'),
     dependency('thunarx-3'),
 ]
@@ -72,12 +69,12 @@ app_sources = [
     'libext/exo-cell-renderer-icon.c',
     'libext/exo-gdk-pixbuf-extensions.c',
     'libext/exo-job.c',
-    'libext/exo-thumbnail.c',
+#    'libext/exo-thumbnail.c',
     'libext/exo-tree-view.c',
     'libext/libext.c',
     'menu/thunar-launcher.c',
     'menu/thunar-menu.c',
-    'menu/thunar-sendto-model.c',
+#    'menu/thunar-sendto-model.c',
     'misc/thunar-browser.c',
     'misc/thunar-component.c',
     'misc/thunar-enum-types.c',

@@ -21,11 +21,9 @@
 #include <config.h>
 #include <exo-cell-renderer-icon.h>
 
-#include <exo-thumbnail.h>
 #include <gio/gio.h>
 
 #include <exo-gdk-pixbuf-extensions.h>
-//#include <exo/exo-private.h>
 
 /**
  * SECTION: exo-cell-renderer-icon
@@ -374,7 +372,7 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
   GtkIconTheme                     *icon_theme;
   GdkRectangle                      icon_area;
   GdkRectangle                      draw_area;
-  const gchar                      *filename;
+  //const gchar                      *filename;
   GtkIconInfo                      *icon_info = NULL;
   GdkPixbuf                        *icon = NULL;
   GdkPixbuf                        *temp;
@@ -397,15 +395,25 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
   requested_icon_size = priv->size * scale_factor;
 
   /* icon may be either an image file or a named icon */
+
+#if 0
   if (priv->icon != NULL && g_path_is_absolute (priv->icon))
     {
       /* load the icon via the thumbnail database */
+
+      g_print("load thumnail !!!!\n");
+
+      g_assert_not_reached();
+
       icon = _exo_thumbnail_get_for_file (priv->icon,
                                           (requested_icon_size > 128)
                                           ? EXO_THUMBNAIL_SIZE_LARGE
                                           : EXO_THUMBNAIL_SIZE_NORMAL, &err);
     }
-  else if (priv->icon != NULL || priv->gicon != NULL)
+  else
+#endif
+
+  if (priv->icon != NULL || priv->gicon != NULL)
     {
       /* determine the best icon size (GtkIconTheme is somewhat messy scaling up small icons) */
       icon_theme = gtk_icon_theme_get_for_screen (gtk_widget_get_screen (widget));
@@ -448,14 +456,19 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
       if (G_UNLIKELY (icon_info == NULL))
         return;
 
+#if 0
       /* check if we have an SVG icon here */
       filename = gtk_icon_info_get_filename (icon_info);
+
       if (filename != NULL && g_str_has_suffix (filename, ".svg"))
         {
           /* loading SVG icons is terribly slow, so we try to use thumbnail instead, and we use the
            * real available cell area directly here, because loading thumbnails involves scaling anyway
            * and this way we need to the thumbnail pixbuf scale only once.
            */
+
+          g_assert_not_reached();
+
           icon = _exo_thumbnail_get_for_file (filename, (requested_icon_size > 128) ? EXO_THUMBNAIL_SIZE_LARGE : EXO_THUMBNAIL_SIZE_NORMAL, &err);
         }
       else
@@ -463,6 +476,11 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
           /* regularly load the icon from the theme */
           icon = gtk_icon_info_load_icon (icon_info, &err);
         }
+#endif
+
+      /* regularly load the icon from the theme */
+      icon = gtk_icon_info_load_icon (icon_info, &err);
+
       gtk_icon_info_free (icon_info);
     }
 

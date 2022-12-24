@@ -18,15 +18,12 @@
  */
 
 #include <config.h>
+
+#include <libext.h>
 #include <exo-thumbnail.h>
 #include <exo-gdk-pixbuf-extensions.h>
 
 #include <thunar-debug.h>
-
-#include <libxfce4util/libxfce4util.h>
-//#include <gtk/gtk.h>
-//#include <exo/exo-private.h>
-//#include <exo/exo-alias.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -105,7 +102,7 @@ exo_thumbnail_save (GdkPixbuf   *thumbnail,
 
   /* verify that the thumbnail directory exists */
   dirname = g_path_get_dirname (thumbnail_path);
-  succeed = xfce_mkdirhier (dirname, 0700, error);
+  succeed = e_mkdirhier (dirname, 0700, error);
   g_free (dirname);
 
   /* check if we succeed so far */

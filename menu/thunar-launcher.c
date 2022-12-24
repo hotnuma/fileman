@@ -37,7 +37,6 @@
 #include <thunar-launcher.h>
 #include <thunar-debug.h>
 #include <thunar-properties-dialog.h>
-#include <thunar-sendto-model.h>
 #include <thunar-simple-job.h>
 #include <thunar-device-monitor.h>
 #include <thunar-tree-view.h>
@@ -111,8 +110,8 @@ static void thunar_launcher_action_open_in_new_windows(ThunarLauncher *launcher)
 static void thunar_launcher_action_open_with_other(ThunarLauncher *launcher);
 static void thunar_launcher_action_sendto_desktop(ThunarLauncher *launcher);
 static void thunar_launcher_action_properties(ThunarLauncher *launcher);
-static void thunar_launcher_action_sendto_device(ThunarLauncher *launcher,
-                                                 GObject *object);
+//static void thunar_launcher_action_sendto_device(ThunarLauncher *launcher,
+//                                                 GObject *object);
 static void thunar_launcher_action_make_link(ThunarLauncher *launcher);
 static void thunar_launcher_action_duplicate(ThunarLauncher *launcher);
 static void thunar_launcher_action_restore(ThunarLauncher *launcher);
@@ -130,12 +129,13 @@ static void thunar_launcher_action_copy(ThunarLauncher *launcher);
 static void thunar_launcher_action_paste(ThunarLauncher *launcher);
 static void thunar_launcher_action_paste_into_folder(ThunarLauncher *launcher);
 
-static void thunar_launcher_sendto_device(ThunarLauncher *launcher,
-                                          ThunarDevice *device);
-static void thunar_launcher_sendto_mount_finish(ThunarDevice *device,
-                                                const GError *error,
-                                                gpointer user_data);
-static GtkWidget* thunar_launcher_build_sendto_submenu(ThunarLauncher *launcher);
+//static void thunar_launcher_sendto_device(ThunarLauncher *launcher,
+//                                          ThunarDevice *device);
+//static void thunar_launcher_sendto_mount_finish(ThunarDevice *device,
+//                                                const GError *error,
+//                                                gpointer user_data);
+//static GtkWidget* thunar_launcher_build_sendto_submenu(ThunarLauncher *launcher);
+
 static void thunar_launcher_menu_item_activated(ThunarLauncher *launcher,
                                                 GtkWidget *menu_item);
 
@@ -228,14 +228,14 @@ static XfceGtkActionEntry thunar_launcher_action_entries[] =
     /* For backward compatibility the old accel paths are re-used. Currently not possible to automatically migrate to new accel paths. */
     /* Waiting for https://gitlab.gnome.org/GNOME/gtk/issues/2375 to be able to fix that */
 
-    {THUNAR_LAUNCHER_ACTION_SENDTO_MENU,
-     "<Actions>/ThunarWindow/sendto-menu",
-     "",
-     XFCE_GTK_MENU_ITEM,
-     N_("_Send To"),
-     NULL,
-     NULL,
-     NULL},
+//    {THUNAR_LAUNCHER_ACTION_SENDTO_MENU,
+//     "<Actions>/ThunarWindow/sendto-menu",
+//     "",
+//     XFCE_GTK_MENU_ITEM,
+//     N_("_Send To"),
+//     NULL,
+//     NULL,
+//     NULL},
 
     {THUNAR_LAUNCHER_ACTION_SENDTO_DESKTOP,
      "<Actions>/ThunarLauncher/sendto-desktop",
@@ -1460,13 +1460,13 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
         return xfce_gtk_menu_item_new(action_entry->menu_item_label_text, action_entry->menu_item_tooltip_text,
                                        action_entry->accel_path, action_entry->callback, G_OBJECT(launcher), menu);
 
-    case THUNAR_LAUNCHER_ACTION_SENDTO_MENU:
-        if (launcher->files_are_selected == FALSE)
-            return NULL;
-        item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
-        submenu = thunar_launcher_build_sendto_submenu(launcher);
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
-        return item;
+//    case THUNAR_LAUNCHER_ACTION_SENDTO_MENU:
+//        if (launcher->files_are_selected == FALSE)
+//            return NULL;
+//        item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
+//        submenu = thunar_launcher_build_sendto_submenu(launcher);
+//        gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
+//        return item;
 
     case THUNAR_LAUNCHER_ACTION_MAKE_LINK:
         show_item = thunar_file_is_writable(launcher->current_directory) &&
@@ -1716,6 +1716,7 @@ static void thunar_launcher_action_sendto_desktop(ThunarLauncher *launcher)
     thunar_g_file_list_free(files);
 }
 
+#if 0
 static void thunar_launcher_sendto_device(ThunarLauncher *launcher,
                                           ThunarDevice   *device)
 {
@@ -1923,6 +1924,7 @@ static GtkWidget* thunar_launcher_build_sendto_submenu(ThunarLauncher *launcher)
 
     return submenu;
 }
+#endif
 
 static void thunar_launcher_action_properties(ThunarLauncher *launcher)
 {

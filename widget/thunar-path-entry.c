@@ -24,8 +24,6 @@
 #include <config.h>
 #include <thunar-path-entry.h>
 
-#include <libxfce4util/libxfce4util.h>
-
 #include <errno.h>
 #include <memory.h>
 #include <string.h>

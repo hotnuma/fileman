@@ -50,7 +50,7 @@ typedef enum
 typedef enum
 {
     THUNAR_MENU_SECTION_OPEN             = 1 << 0,
-    THUNAR_MENU_SECTION_SENDTO           = 1 << 1,
+    //THUNAR_MENU_SECTION_SENDTO           = 1 << 1,
     THUNAR_MENU_SECTION_CREATE_NEW_FILES = 1 << 2,
     THUNAR_MENU_SECTION_CUT              = 1 << 3,
     THUNAR_MENU_SECTION_COPY_PASTE       = 1 << 4,

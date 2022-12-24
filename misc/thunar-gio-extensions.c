@@ -29,7 +29,6 @@
 #endif
 
 #include <libext.h>
-#include <libxfce4util/libxfce4util.h>
 
 #include <thunar-file.h>
 #include <thunar-gio-extensions.h>
