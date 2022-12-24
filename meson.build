@@ -32,11 +32,12 @@ app_includes = [
     'widget',
 ]
 
+
 app_deps = [
     dependency('gtk+-3.0'),
-    dependency('tinyc'),
-    dependency('libnotify'),
     dependency('gudev-1.0'),
+    dependency('libnotify'),
+    dependency('tinyc'),
     dependency('exo-2'),
     dependency('libxfce4util-1.0'),
     dependency('libxfce4ui-2'),
