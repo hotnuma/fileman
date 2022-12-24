@@ -3242,7 +3242,7 @@ const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
                 /* Fallback to old version */
                 g_free(file->thumbnail_path);
 
-                file->thumbnail_path = g_build_filename(xfce_get_homedir(),
+                file->thumbnail_path = g_build_filename(g_get_home_dir(),
                                        ".thumbnails", thunar_thumbnail_size_get_nick(thumbnail_size),
                                        filename, NULL);
 
@@ -3435,7 +3435,7 @@ const gchar* thunar_file_get_icon_name(ThunarFile           *file,
             {
                 if (strcmp(path, G_DIR_SEPARATOR_S) == 0)
                     *special_names = "drive-harddisk";
-                else if (strcmp(path, xfce_get_homedir()) == 0)
+                else if (strcmp(path, g_get_home_dir()) == 0)
                     *special_names = "user-home";
                 else
                 {

@@ -1,5 +1,5 @@
-xfce_get_homedir
-xfce_get_homefile
+
+utils
 
 XFCE_RESOURCE_CONFIG
 XFCE_RESOURCE_DATA
@@ -7,11 +7,17 @@ xfce_resource_dirs
 xfce_resource_lookup
 xfce_resource_match
 xfce_resource_save_location
-xfce_spawn_on_screen
 
-xfce_dialog_show_help
 xfce_expand_desktop_entry_field_codes
 
+
+
+ui
+
+xfce_spawn_on_screen
+xfce_dialog_show_help
+
+XFCE_TYPE_FILENAME_INPUT
 xfce_filename_input_check
 xfce_filename_input_desensitise_widget
 xfce_filename_input_get_entry
@@ -42,7 +48,6 @@ xfce_gtk_menu_item_set_accel_label
 xfce_gtk_tool_button_new_from_action_entry
 xfce_gtk_translate_action_entries
 
-XFCE_TYPE_FILENAME_INPUT
 xfce_widget_reparent
 
 

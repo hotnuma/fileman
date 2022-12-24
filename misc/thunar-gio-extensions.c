@@ -38,7 +38,7 @@
 
 GFile* thunar_g_file_new_for_home()
 {
-    return g_file_new_for_path(xfce_get_homedir());
+    return g_file_new_for_path(g_get_home_dir());
 }
 
 GFile* thunar_g_file_new_for_root()

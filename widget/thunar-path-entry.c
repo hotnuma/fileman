@@ -998,7 +998,7 @@ static gboolean thunar_path_entry_parse(ThunarPathEntry *path_entry,
         /* no slash character, it's relative to the home dir */
         *file_part = g_filename_from_utf8(filename, -1, NULL, NULL, error);
         if (G_LIKELY(*file_part != NULL))
-            *folder_part = g_strdup(xfce_get_homedir());
+            *folder_part = g_strdup(g_get_home_dir());
     }
     else
     {
@@ -1012,7 +1012,7 @@ static gboolean thunar_path_entry_parse(ThunarPathEntry *path_entry,
             /* if folder_part doesn't start with '/', it's relative to the home dir */
             if (G_UNLIKELY(**folder_part != G_DIR_SEPARATOR))
             {
-                path = xfce_get_homefile(*folder_part, NULL);
+                path = g_build_filename(g_get_home_dir(), *folder_part, NULL);
                 g_free(*folder_part);
                 *folder_part = path;
             }

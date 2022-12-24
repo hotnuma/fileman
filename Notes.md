@@ -126,8 +126,6 @@ metadata
 gboolean directory_specific_settings;
 thunar_file_get_metadata_setting()
 
-xfce_get_homedir
-
 #'-DGDK_DISABLE_DEPRECATED',
 #'-DGTK_DISABLE_DEPRECATED',
 #    '-D__USE_XOPEN_EXTENDED',

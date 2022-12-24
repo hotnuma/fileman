@@ -19,6 +19,12 @@
  */
 
 #include <config.h>
+#include <thunar-util.h>
+
+#include <libxfce4util/libxfce4util.h>
+
+#include <thunar-debug.h>
+
 #include <sys/types.h>
 #include <sys/param.h>
 #include <memory.h>
@@ -28,15 +34,8 @@
 #include <time.h>
 #include <unistd.h>
 
-//#include <libext.h>
-#include <libxfce4util/libxfce4util.h>
-
-#include <thunar-debug.h>
-#include <thunar-util.h>
-
 #include <glib.h>
 #include <glib/gstdio.h>
-
 #include <strings.h>
 
 /**
@@ -257,7 +256,7 @@ gchar* thunar_util_expand_filename(const gchar  *filename,
 
         /* if we have only the slash, then we want the home dir */
         if (G_UNLIKELY(*remainder == '\0'))
-            return g_strdup(xfce_get_homedir());
+            return g_strdup(g_get_home_dir());
 
         /* lookup the slash */
         for(slash = remainder; *slash != '\0' && *slash != G_DIR_SEPARATOR; ++slash);
@@ -266,7 +265,7 @@ gchar* thunar_util_expand_filename(const gchar  *filename,
         if (G_LIKELY(slash == remainder))
         {
             /* replace the tilde with the home dir */
-            replacement = xfce_get_homedir();
+            replacement = g_get_home_dir();
         }
         else
         {
