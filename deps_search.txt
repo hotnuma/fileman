@@ -1,7 +1,3 @@
-EXO_ICON_CHOOSER_DIALOG
-exo_icon_chooser_dialog_get_icon
-exo_icon_chooser_dialog_new
-exo_icon_chooser_dialog_set_icon
 
 EXO_JOB
 EXO_TYPE_JOB

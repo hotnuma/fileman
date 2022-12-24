@@ -80,9 +80,9 @@ static gboolean thunar_properties_dialog_name_focus_out_event(
                                                 GtkWidget *entry,
                                                 GdkEventFocus *event,
                                                 ThunarPropertiesDialog *dialog);
-static void thunar_properties_dialog_icon_button_clicked(
-                                                GtkWidget *button,
-                                                ThunarPropertiesDialog *dialog);
+//static void thunar_properties_dialog_icon_button_clicked(
+//                                                GtkWidget *button,
+//                                                ThunarPropertiesDialog *dialog);
 static void thunar_properties_dialog_update(ThunarPropertiesDialog *dialog);
 static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog);
 static GList* thunar_properties_dialog_get_files(ThunarPropertiesDialog *dialog);
@@ -238,7 +238,7 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
     gtk_grid_attach(GTK_GRID(grid), dialog->single_box, 0, row, 1, 1);
 
     dialog->icon_button = gtk_button_new();
-    g_signal_connect(G_OBJECT(dialog->icon_button), "clicked", G_CALLBACK(thunar_properties_dialog_icon_button_clicked), dialog);
+    //g_signal_connect(G_OBJECT(dialog->icon_button), "clicked", G_CALLBACK(thunar_properties_dialog_icon_button_clicked), dialog);
     gtk_box_pack_start(GTK_BOX(dialog->single_box), dialog->icon_button, FALSE, TRUE, 0);
     gtk_widget_show(dialog->icon_button);
 
@@ -721,6 +721,7 @@ static gboolean thunar_properties_dialog_name_focus_out_event(
     return FALSE;
 }
 
+#if 0
 static void thunar_properties_dialog_icon_button_clicked(
                                                 GtkWidget              *button,
                                                 ThunarPropertiesDialog *dialog)
@@ -778,6 +779,7 @@ static void thunar_properties_dialog_icon_button_clicked(
     /* destroy the chooser */
     gtk_widget_destroy(chooser);
 }
+#endif
 
 static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog)
 {
