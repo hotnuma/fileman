@@ -317,7 +317,7 @@ struct _ThunarStandardViewPrivate
     gulong                  row_changed_id;
 };
 
-static XfceGtkActionEntry thunar_standard_view_action_entries[] =
+static XfceGtkActionEntry _standard_view_actions[] =
 {
     {THUNAR_STANDARD_VIEW_ACTION_SELECT_ALL_FILES,
      "<Actions>/ThunarStandardView/select-all-files",
@@ -347,7 +347,10 @@ static XfceGtkActionEntry thunar_standard_view_action_entries[] =
      G_CALLBACK(thunar_standard_view_selection_invert),},
 };
 
-#define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_standard_view_action_entries,G_N_ELEMENTS(thunar_standard_view_action_entries),id)
+#define get_action_entry(id) \
+    xfce_gtk_get_action_entry_by_id(_standard_view_actions, \
+                                    G_N_ELEMENTS(_standard_view_actions), \
+                                    id)
 
 /* Target types for dragging from the view */
 static const GtkTargetEntry drag_targets[] =
@@ -393,7 +396,7 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
     gtkwidget_class->grab_focus = thunar_standard_view_grab_focus;
     gtkwidget_class->draw = thunar_standard_view_draw;
 
-    xfce_gtk_translate_action_entries(thunar_standard_view_action_entries, G_N_ELEMENTS(thunar_standard_view_action_entries));
+    xfce_gtk_translate_action_entries(_standard_view_actions, G_N_ELEMENTS(_standard_view_actions));
 
     /**
      * ThunarStandardView:loading:
@@ -2955,14 +2958,14 @@ void thunar_standard_view_context_menu(ThunarStandardView *standard_view)
     {
         thunar_menu_add_sections(context_menu,
                                   THUNAR_MENU_SECTION_OPEN
-                                  /*| THUNAR_MENU_SECTION_SENDTO*/
                                   | THUNAR_MENU_SECTION_CUT
                                   | THUNAR_MENU_SECTION_COPY_PASTE
                                   | THUNAR_MENU_SECTION_TRASH_DELETE
                                   | THUNAR_MENU_SECTION_EMPTY_TRASH
                                   | THUNAR_MENU_SECTION_RESTORE
                                   | THUNAR_MENU_SECTION_RENAME
-                                  | THUNAR_MENU_SECTION_CUSTOM_ACTIONS
+//                                  | THUNAR_MENU_SECTION_CUSTOM_ACTIONS
+                                  | THUNAR_MENU_SECTION_TERMINAL
                                   | THUNAR_MENU_SECTION_PROPERTIES);
     }
     else /* right click on some empty space */
@@ -2971,7 +2974,9 @@ void thunar_standard_view_context_menu(ThunarStandardView *standard_view)
                                   THUNAR_MENU_SECTION_CREATE_NEW_FILES
                                   | THUNAR_MENU_SECTION_COPY_PASTE
                                   | THUNAR_MENU_SECTION_EMPTY_TRASH
-                                  | THUNAR_MENU_SECTION_CUSTOM_ACTIONS);
+//                                  | THUNAR_MENU_SECTION_CUSTOM_ACTIONS
+                                  | THUNAR_MENU_SECTION_TERMINAL);
+
         thunar_standard_view_append_menu_items(standard_view, GTK_MENU(context_menu), NULL);
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
         thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
@@ -3173,10 +3178,10 @@ thunar_standard_view_connect_accelerators(ThunarStandardView *standard_view)
     if (standard_view->accel_group == NULL)
         return;
 
-    xfce_gtk_accel_map_add_entries(thunar_standard_view_action_entries, G_N_ELEMENTS(thunar_standard_view_action_entries));
+    xfce_gtk_accel_map_add_entries(_standard_view_actions, G_N_ELEMENTS(_standard_view_actions));
     xfce_gtk_accel_group_connect_action_entries(standard_view->accel_group,
-            thunar_standard_view_action_entries,
-            G_N_ELEMENTS(thunar_standard_view_action_entries),
+            _standard_view_actions,
+            G_N_ELEMENTS(_standard_view_actions),
             standard_view);
 
     /* as well append accelerators of derived widgets */
@@ -3200,8 +3205,8 @@ thunar_standard_view_disconnect_accelerators(ThunarStandardView *standard_view)
 
     /* Dont listen to the accel keys defined by the action entries any more */
     xfce_gtk_accel_group_disconnect_action_entries(standard_view->accel_group,
-            thunar_standard_view_action_entries,
-            G_N_ELEMENTS(thunar_standard_view_action_entries));
+            _standard_view_actions,
+            G_N_ELEMENTS(_standard_view_actions));
 
     /* as well disconnect accelerators of derived widgets */
    (*THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->disconnect_accelerators)(standard_view, standard_view->accel_group);

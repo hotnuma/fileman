@@ -22,6 +22,8 @@
 
 #include <gio/gio.h>
 
+#include <thunarx-file-info.h>
+
 G_BEGIN_DECLS
 
 GFile*      thunar_g_file_new_for_home();

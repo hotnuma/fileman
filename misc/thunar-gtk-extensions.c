@@ -30,7 +30,7 @@
 #include <thunar-debug.h>
 #include <thunar-util.h>
 
-#include <thunarx/thunarx.h>
+//#include <thunarx/thunarx.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 
@@ -69,6 +69,7 @@ void thunar_gtk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
  *
  * Return value:(transfer full): The new #GtkImageMenuItem.
  **/
+#if 0
 GtkWidget* thunar_gtk_menu_thunarx_menu_item_new(GObject      *thunarx_menu_item,
                                                  GtkMenuShell *menu_to_append_item)
 {
@@ -119,6 +120,7 @@ GtkWidget* thunar_gtk_menu_thunarx_menu_item_new(GObject      *thunarx_menu_item
 
     return gtk_menu_item;
 }
+#endif
 
 /**
  * thunar_gtk_menu_clean:

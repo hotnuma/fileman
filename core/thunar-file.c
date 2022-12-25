@@ -18,41 +18,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
 #include <errno.h>
-#endif
-#ifdef HAVE_MEMORY_H
 #include <memory.h>
-#endif
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
-#ifdef HAVE_TIME_H
 #include <time.h>
-#endif
-#ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
 
 #include <gio/gio.h>
 #include <libxfce4ui/libxfce4ui.h>
 
-#include <thunarx/thunarx.h>
+//#include <thunarx/thunarx.h>
+#include <thunarx-file-info.h>
 
 #include <thunar-application.h>
 #include <thunar-chooser-dialog.h>
@@ -1323,41 +1303,25 @@ void thunar_file_get_async(GFile            *location,
     }
 }
 
-/**
- * thunar_file_get_file:
- * @file : a #ThunarFile instance.
- *
- * Returns the #GFile that refers to the location of @file.
- *
- * The returned #GFile is owned by @file and must not be released
- * with g_object_unref().
- *
- * Return value: the #GFile corresponding to @file.
- **/
 GFile* thunar_file_get_file(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     thunar_return_val_if_fail(G_IS_FILE(file->gfile), NULL);
+
     return file->gfile;
 }
 
-/**
- * thunar_file_get_info:
- * @file : a #ThunarFile instance.
- *
- * Returns the #GFileInfo for @file.
- *
+/*
  * Note, that there's no reference taken for the caller on the
  * returned #GFileInfo, so if you need the object for a longer
  * perioud, you'll need to take a reference yourself using the
  * g_object_ref() method.
- *
- * Return value: the #GFileInfo for @file or %NULL.
- **/
+ */
 GFileInfo* thunar_file_get_info(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     thunar_return_val_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info), NULL);
+
     return file->info;
 }
 
@@ -2850,18 +2814,10 @@ gboolean thunar_file_is_desktop_file(const ThunarFile *file,
     return TRUE;
 }
 
-/**
- * thunar_file_get_display_name:
- * @file : a #ThunarFile instance.
- *
- * Returns the @file name in the UTF-8 encoding, which is
- * suitable for displaying the file name in the GUI.
- *
- * Return value: the @file name suitable for display.
- **/
 const gchar* thunar_file_get_display_name(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+
     return file->display_name;
 }
 

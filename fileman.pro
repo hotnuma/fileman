@@ -43,6 +43,7 @@ HEADERS = \
     libext/exo-job.h \
     libext/exo-tree-view.h \
     libext/libext.h \
+    libext/thunarx-file-info.h \
     menu/thunar-launcher.h \
     menu/thunar-menu.h \
     misc/thunar-browser.h \
@@ -105,6 +106,7 @@ SOURCES = \
     libext/exo-job.c \
     libext/exo-tree-view.c \
     libext/libext.c \
+    libext/thunarx-file-info.c \
     misc/thunar-browser.c \
     misc/thunar-component.c \
     misc/thunar-enum-types.c \

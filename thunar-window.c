@@ -178,9 +178,9 @@ static gboolean thunar_window_button_press_event(GtkWidget *view,
                                                  GdkEventButton *event,
                                                  ThunarWindow *window);
 static void thunar_window_history_changed(ThunarWindow *window);
-static gboolean thunar_window_check_uca_key_activation(ThunarWindow *window,
-                                                       GdkEventKey *key_event,
-                                                       gpointer user_data);
+//static gboolean thunar_window_check_uca_key_activation(ThunarWindow *window,
+//                                                       GdkEventKey *key_event,
+//                                                       gpointer user_data);
 
 struct _ThunarWindowClass
 {
@@ -199,7 +199,7 @@ struct _ThunarWindow
     GtkWindow __parent__;
 
     /* support for custom preferences actions */
-    ThunarxProviderFactory *provider_factory;
+    //ThunarxProviderFactory *provider_factory;
     GList                  *thunarx_preferences_providers;
 
     ThunarClipboardManager *clipboard;
@@ -249,7 +249,7 @@ struct _ThunarWindow
     GClosure               *select_files_closure;
 };
 
-static XfceGtkActionEntry thunar_window_action_entries[] =
+static XfceGtkActionEntry _window_actions[] =
 {
     {THUNAR_WINDOW_ACTION_BACK,
      "<Actions>/ThunarStandardView/back",
@@ -324,7 +324,10 @@ static XfceGtkActionEntry thunar_window_action_entries[] =
      G_CALLBACK(thunar_window_action_debug)},
 };
 
-#define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_window_action_entries,G_N_ELEMENTS(thunar_window_action_entries),id)
+#define get_action_entry(id) \
+    xfce_gtk_get_action_entry_by_id(_window_actions, \
+    G_N_ELEMENTS(_window_actions), \
+    id)
 
 static guint window_signals[LAST_SIGNAL];
 
@@ -355,7 +358,7 @@ static void thunar_window_class_init(ThunarWindowClass *klass)
 
     klass->tab_change = thunar_window_tab_change;
 
-    xfce_gtk_translate_action_entries(thunar_window_action_entries, G_N_ELEMENTS(thunar_window_action_entries));
+    xfce_gtk_translate_action_entries(_window_actions, G_N_ELEMENTS(_window_actions));
 
     /**
      * ThunarWindow:current-directory:
@@ -489,14 +492,14 @@ static void thunar_window_init(ThunarWindow *window)
     Preferences *prefs = get_preferences();
 
     /* grab a reference on the provider factory and load the providers*/
-    window->provider_factory = thunarx_provider_factory_get_default();
-    window->thunarx_preferences_providers = thunarx_provider_factory_list_providers(window->provider_factory, THUNARX_TYPE_PREFERENCES_PROVIDER);
+//    window->provider_factory = thunarx_provider_factory_get_default();
+//    window->thunarx_preferences_providers = thunarx_provider_factory_list_providers(window->provider_factory, THUNARX_TYPE_PREFERENCES_PROVIDER);
 
     window->accel_group = gtk_accel_group_new();
-    xfce_gtk_accel_map_add_entries(thunar_window_action_entries, G_N_ELEMENTS(thunar_window_action_entries));
+    xfce_gtk_accel_map_add_entries(_window_actions, G_N_ELEMENTS(_window_actions));
     xfce_gtk_accel_group_connect_action_entries(window->accel_group,
-            thunar_window_action_entries,
-            G_N_ELEMENTS(thunar_window_action_entries),
+            _window_actions,
+            G_N_ELEMENTS(_window_actions),
             window);
 
     gtk_window_add_accel_group(GTK_WINDOW(window), window->accel_group);
@@ -574,8 +577,10 @@ static void thunar_window_init(ThunarWindow *window)
     g_signal_connect(G_OBJECT(window), "button-press-event", G_CALLBACK(thunar_window_button_press_event), G_OBJECT(window));
     window->signal_handler_id_history_changed = 0;
 
-    /* The UCA shortcuts need to be checked 'by hand', since we dont want to permanently keep menu items for them */
-    g_signal_connect(window, "key-press-event", G_CALLBACK(thunar_window_check_uca_key_activation), NULL);
+    /* The UCA shortcuts need to be checked 'by hand',
+     *  since we dont want to permanently keep menu items for them */
+//    g_signal_connect(window, "key-press-event",
+//                     G_CALLBACK(thunar_window_check_uca_key_activation), NULL);
 
     /* add the location bar to the toolbar */
     tool_item = gtk_tool_item_new();
@@ -734,7 +739,7 @@ static void thunar_window_finalize(GObject *object)
     g_object_unref(window->launcher);
 
     /* release our reference on the provider factory */
-    g_object_unref(window->provider_factory);
+    //g_object_unref(window->provider_factory);
 
     g_closure_invalidate(window->select_files_closure);
     g_closure_unref(window->select_files_closure);
@@ -1302,6 +1307,15 @@ static void thunar_window_action_debug(ThunarWindow *window,
     UNUSED(window);
     UNUSED(menu_item);
 
+    CStringAuto *cmd = cstr_new_size(32);
+    cstr_fmt(cmd,
+             "exo-open --working-directory %s --launch TerminalEmulator",
+             "/usr");
+
+    g_spawn_command_line_async(c_str(cmd), NULL);
+
+    return;
+
     GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
     const gchar *name = gtk_widget_get_name(focused);
 
@@ -1310,6 +1324,8 @@ static void thunar_window_action_debug(ThunarWindow *window,
     openlog("Fileman", LOG_PID, LOG_USER);
     syslog(LOG_INFO,"focused widget = %s\n", name);
     closelog();
+
+
 }
 
 static void thunar_window_action_reload(ThunarWindow *window,
@@ -1461,16 +1477,17 @@ static void thunar_window_action_open_home(ThunarWindow *window)
     g_object_unref(home);
 }
 
-static gboolean thunar_window_check_uca_key_activation(ThunarWindow *window,
-                                                       GdkEventKey  *key_event,
-                                                       gpointer      user_data)
-{
-    UNUSED(user_data);
+//static gboolean thunar_window_check_uca_key_activation(ThunarWindow *window,
+//                                                       GdkEventKey  *key_event,
+//                                                       gpointer      user_data)
+//{
+//    UNUSED(user_data);
 
-    if (thunar_launcher_check_uca_key_activation(window->launcher, key_event))
-        return GDK_EVENT_STOP;
-    return GDK_EVENT_PROPAGATE;
-}
+//    if (thunar_launcher_check_uca_key_activation(window->launcher, key_event))
+//        return GDK_EVENT_STOP;
+
+//    return GDK_EVENT_PROPAGATE;
+//}
 
 static gboolean thunar_window_propagate_key_event(GtkWindow* window,
                                                   GdkEvent  *key_event,
@@ -1487,7 +1504,7 @@ static gboolean thunar_window_propagate_key_event(GtkWindow* window,
     /* Turn the accelerator priority around globally,
      * so that the focused widget always gets the accels first.
      * Implementing this cleanly while maintaining some wanted accels
-     *(like Ctrl+N and exo accels) is a lot of work. So we resort to
+     * (like Ctrl+N and exo accels) is a lot of work. So we resort to
      * only priorize GtkEditable, because that is the easiest way to
      * fix the right-ahead problem. */
     if (focused_widget != NULL && GTK_IS_EDITABLE(focused_widget))
@@ -1865,29 +1882,14 @@ gboolean thunar_window_set_directories(ThunarWindow   *window,
     return gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook)) > 0;
 }
 
-/**
- * thunar_window_get_action_entry:
- * @window  : Instance of a  #ThunarWindow
- * @action  : #ThunarWindowAction for which the #XfceGtkActionEntry is requested
- *
- * returns a reference to the requested #XfceGtkActionEntry
- *
- * Return value:(transfer none): The reference to the #XfceGtkActionEntry
- **/
-const XfceGtkActionEntry* thunar_window_get_action_entry(
-                                                    ThunarWindow       *window,
-                                                    ThunarWindowAction  action)
+const XfceGtkActionEntry* thunar_window_get_action_entry(ThunarWindow *window,
+                                                     ThunarWindowAction action)
 {
     UNUSED(window);
+
     return get_action_entry(action);
 }
 
-/**
- * thunar_window_get_launcher:
- * @window : a #ThunarWindow instance.
- *
- * Return value:(transfer none): The single #ThunarLauncher of this #ThunarWindow
- **/
 ThunarLauncher* thunar_window_get_launcher(ThunarWindow *window)
 {
     thunar_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
@@ -1898,11 +1900,9 @@ ThunarLauncher* thunar_window_get_launcher(ThunarWindow *window)
 static void thunar_window_redirect_menu_tooltips_to_statusbar_recursive(GtkWidget *menu_item,
                                                                         ThunarWindow *window)
 {
-
     if (GTK_IS_MENU_ITEM(menu_item))
     {
-        GtkWidget  *submenu;
-        submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu_item));
+        GtkWidget *submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu_item));
         if (submenu != NULL)
             gtk_container_foreach(GTK_CONTAINER(submenu),(GtkCallback)(void(*)(void)) thunar_window_redirect_menu_tooltips_to_statusbar_recursive, window);
 

@@ -24,6 +24,7 @@
 #include <gio/gio.h>
 
 #include <libext.h>
+#include <thunarx-file-info.h>
 
 #include <thunar-gio-extensions.h>
 #include <thunar-job.h>

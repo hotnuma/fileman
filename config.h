@@ -9,11 +9,13 @@
 #include <glib/gi18n.h>
 #endif
 
-#define PACKAGE_NAME "fileman"
-#define PACKAGE_STRING PACKAGE_NAME
-#define APP_DISPLAY_NAME "Fileman"
 #define APP_NAME "fileman"
+#define PACKAGE_NAME APP_NAME
+#define PACKAGE_STRING APP_NAME
+#define APP_DISPLAY_NAME "Fileman"
+
 #define BINDIR "/usr/bin"
+#define PATH_BSHELL "/bin/sh"
 
 //https://stackoverflow.com/questions/7090998/
 #define UNUSED(x) (void)(x)

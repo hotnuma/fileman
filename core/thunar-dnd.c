@@ -22,7 +22,7 @@
 #include <config.h>
 #endif
 
-#include <thunarx/thunarx.h>
+//#include <thunarx/thunarx.h>
 
 #include <thunar-application.h>
 #include <thunar-dialogs.h>
@@ -63,7 +63,6 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     static const gchar        *dnd_action_names[] = { N_("_Copy here"), N_("_Move here"), N_("_Link here") };
     static const gchar        *dnd_action_icons[] = { "stock_folder-copy", "stock_folder-move", NULL };
 
-    ThunarxProviderFactory *factory;
     GdkDragAction           dnd_action = 0;
     ThunarFile             *file;
     GtkWidget              *window;
@@ -71,8 +70,7 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     GtkWidget              *menu;
     GtkWidget              *item;
     GList                  *file_list = NULL;
-    GList                  *providers = NULL;
-    GList                  *items = NULL;
+    //GList                  *items = NULL;
     GList                  *lp;
     guint                   n;
 
@@ -80,7 +78,8 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     thunar_return_val_if_fail(GTK_IS_WIDGET(widget), 0);
 
     /* connect to the provider factory */
-    factory = thunarx_provider_factory_get_default();
+//    ThunarxProviderFactory *factory;
+//    factory = thunarx_provider_factory_get_default();
 
     /* prepare the popup menu */
     menu = gtk_menu_new();
@@ -130,31 +129,32 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
         /* check if we resolved all paths(and have atleast one file) */
         if (G_LIKELY(file_list != NULL && lp == NULL))
         {
-            /* load the menu providers from the provider factory */
-            providers = thunarx_provider_factory_list_providers(factory, THUNARX_TYPE_MENU_PROVIDER);
+//            GList                  *providers = NULL;
+//            /* load the menu providers from the provider factory */
+//            providers = thunarx_provider_factory_list_providers(factory, THUNARX_TYPE_MENU_PROVIDER);
 
-            /* load the dnd menu items offered by the menu providers */
-            for(lp = providers; lp != NULL; lp = lp->next)
-            {
-                /* merge the menu items from this provider */
-                items = g_list_concat(items, thunarx_menu_provider_get_dnd_menu_items(lp->data, window, THUNARX_FILE_INFO(folder), file_list));
-                g_object_unref(G_OBJECT(lp->data));
-            }
-            g_list_free(providers);
+//            /* load the dnd menu items offered by the menu providers */
+//            for(lp = providers; lp != NULL; lp = lp->next)
+//            {
+//                /* merge the menu items from this provider */
+//                items = g_list_concat(items, thunarx_menu_provider_get_dnd_menu_items(lp->data, window, THUNARX_FILE_INFO(folder), file_list));
+//                g_object_unref(G_OBJECT(lp->data));
+//            }
+//            g_list_free(providers);
 
             /* check if we have at least one item */
-            if (G_UNLIKELY(items != NULL))
-            {
-                /* add menu items for all items */
-                for(lp = items; lp != NULL; lp = lp->next)
-                    thunar_gtk_menu_thunarx_menu_item_new(lp->data, GTK_MENU_SHELL(menu));
-                g_list_free(items);
+//            if (G_UNLIKELY(items != NULL))
+//            {
+//                /* add menu items for all items */
+//                for(lp = items; lp != NULL; lp = lp->next)
+//                    thunar_gtk_menu_thunarx_menu_item_new(lp->data, GTK_MENU_SHELL(menu));
+//                g_list_free(items);
 
-                /* append another separator */
-                item = gtk_separator_menu_item_new();
-                gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-                gtk_widget_show(item);
-            }
+//                /* append another separator */
+//                item = gtk_separator_menu_item_new();
+//                gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+//                gtk_widget_show(item);
+//            }
         }
     }
 
@@ -167,7 +167,8 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     thunar_gtk_menu_run(GTK_MENU(menu));
 
     /* cleanup */
-    g_object_unref(G_OBJECT(factory));
+//    g_object_unref(G_OBJECT(factory));
+
     g_list_free_full(file_list, g_object_unref);
 
     return dnd_action;

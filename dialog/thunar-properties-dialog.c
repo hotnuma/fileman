@@ -46,6 +46,8 @@
 #include <thunar-size-label.h>
 #include <thunar-util.h>
 
+#include <thunarx-file-info.h>
+
 /* Property identifiers */
 enum
 {
@@ -99,8 +101,8 @@ struct _ThunarPropertiesDialog
 {
     GtkDialog    __parent__;
 
-    ThunarxProviderFactory *provider_factory;
-    GList       *provider_pages;
+    //ThunarxProviderFactory *provider_factory;
+    //GList       *provider_pages;
 
     GList       *files;
     gboolean    file_size_binary;
@@ -208,7 +210,7 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
     guint      row = 0;
     GtkWidget *image;
 
-    dialog->provider_factory = thunarx_provider_factory_get_default();
+    //dialog->provider_factory = thunarx_provider_factory_get_default();
 
     gtk_dialog_add_buttons(GTK_DIALOG(dialog),
                             _("_Help"), GTK_RESPONSE_HELP,
@@ -563,10 +565,10 @@ static void thunar_properties_dialog_finalize(GObject *object)
     thunar_return_if_fail(dialog->files == NULL);
 
     /* release the provider property pages */
-    g_list_free_full(dialog->provider_pages, g_object_unref);
+    //g_list_free_full(dialog->provider_pages, g_object_unref);
 
     /* drop the reference on the provider factory */
-    g_object_unref(dialog->provider_factory);
+    //g_object_unref(dialog->provider_factory);
 
     (*G_OBJECT_CLASS(thunar_properties_dialog_parent_class)->finalize)(object);
 }

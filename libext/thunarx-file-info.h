@@ -19,16 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#if !defined(THUNARX_INSIDE_THUNARX_H) && !defined(THUNARX_COMPILATION)
-#error "Only <thunarx/thunarx.h> can be included directly, this file may disappear or change contents"
-#endif
-
 #ifndef __THUNARX_FILE_INFO_H__
 #define __THUNARX_FILE_INFO_H__
 
 #include <gio/gio.h>
 
-#include <thunarx/thunarx-config.h>
+//#include <thunarx-config.h>
 
 G_BEGIN_DECLS
 

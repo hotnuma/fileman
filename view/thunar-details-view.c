@@ -139,7 +139,7 @@ static void thunar_show_column_editor(gpointer parent)
     return;
 }
 
-static XfceGtkActionEntry thunar_details_view_action_entries[] =
+static XfceGtkActionEntry _details_view_actions[] =
 {
     {THUNAR_DETAILS_VIEW_ACTION_CONFIGURE_COLUMNS,
      "<Actions>/ThunarStandardView/configure-columns",
@@ -151,7 +151,10 @@ static XfceGtkActionEntry thunar_details_view_action_entries[] =
      G_CALLBACK(thunar_show_column_editor)},
 };
 
-#define get_action_entry(id) xfce_gtk_get_action_entry_by_id(thunar_details_view_action_entries,G_N_ELEMENTS(thunar_details_view_action_entries),id)
+#define get_action_entry(id) \
+    xfce_gtk_get_action_entry_by_id(_details_view_actions, \
+                                    G_N_ELEMENTS(_details_view_actions), \
+                                    id)
 
 G_DEFINE_TYPE(ThunarDetailsView, thunar_details_view, THUNAR_TYPE_STANDARD_VIEW)
 
@@ -185,7 +188,7 @@ static void thunar_details_view_class_init(ThunarDetailsViewClass *klass)
     thunarstandard_view_class->disconnect_accelerators = thunar_details_view_disconnect_accelerators;
     thunarstandard_view_class->zoom_level_property_name = "last-details-view-zoom-level";
 
-    xfce_gtk_translate_action_entries(thunar_details_view_action_entries, G_N_ELEMENTS(thunar_details_view_action_entries));
+    xfce_gtk_translate_action_entries(_details_view_actions, G_N_ELEMENTS(_details_view_actions));
 
     /**
      * ThunarDetailsView:fixed-columns:
@@ -890,10 +893,10 @@ static void thunar_details_view_connect_accelerators(ThunarStandardView *standar
 
     thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
 
-    xfce_gtk_accel_map_add_entries(thunar_details_view_action_entries, G_N_ELEMENTS(thunar_details_view_action_entries));
+    xfce_gtk_accel_map_add_entries(_details_view_actions, G_N_ELEMENTS(_details_view_actions));
     xfce_gtk_accel_group_connect_action_entries(accel_group,
-            thunar_details_view_action_entries,
-            G_N_ELEMENTS(thunar_details_view_action_entries),
+            _details_view_actions,
+            G_N_ELEMENTS(_details_view_actions),
             standard_view);
 }
 
@@ -910,8 +913,8 @@ static void thunar_details_view_disconnect_accelerators(ThunarStandardView *stan
     UNUSED(standard_view);
     /* Dont listen to the accel keys defined by the action entries any more */
     xfce_gtk_accel_group_disconnect_action_entries(accel_group,
-            thunar_details_view_action_entries,
-            G_N_ELEMENTS(thunar_details_view_action_entries));
+            _details_view_actions,
+            G_N_ELEMENTS(_details_view_actions));
 }
 
 /**

@@ -42,30 +42,21 @@
 #include <thunar-tree-view.h>
 #include <thunar-util.h>
 
-/* the timeout(in ms) until the drag dest row will be expanded */
-#define THUNAR_TREE_VIEW_EXPAND_TIMEOUT (750)
+// drag dest expand timeout
+#define THUNAR_TREE_VIEW_EXPAND_TIMEOUT 750
 
-/* Property identifiers */
+// Identifiers for DnD target types
+enum
+{
+    TARGET_TEXT_URI_LIST,
+};
+
+// Property identifiers
 enum
 {
     PROP_0,
     PROP_CURRENT_DIRECTORY,
     PROP_SHOW_HIDDEN,
-};
-
-#ifdef ENABLE_TREEDELETE
-/* Signal identifiers */
-enum
-{
-    DELETE_SELECTED_FILES,
-    LAST_SIGNAL,
-};
-#endif
-
-/* Identifiers for DnD target types */
-enum
-{
-    TARGET_TEXT_URI_LIST,
 };
 
 static void thunar_tree_view_navigator_init(ThunarNavigatorIface *iface);
@@ -169,23 +160,18 @@ static gboolean thunar_tree_view_get_show_hidden(ThunarTreeView *view);
 static void thunar_tree_view_set_show_hidden(ThunarTreeView *view,
                                              gboolean show_hidden);
 
-static GtkTreePath *thunar_tree_view_get_preferred_toplevel_path(
+static GtkTreePath *_tree_view_get_preferred_toplevel_path(
                                                         ThunarTreeView *view,
                                                         ThunarFile *file);
 
 static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
                                                            gboolean permanently);
 
+// Allocation -----------------------------------------------------------------
+
 struct _ThunarTreeViewClass
 {
     GtkTreeViewClass __parent__;
-
-    /* signals */
-
-#ifdef ENABLE_TREEDELETE
-    gboolean (*delete_selected_files) (ThunarTreeView *view);
-#endif
-
 };
 
 struct _ThunarTreeView
@@ -196,15 +182,17 @@ struct _ThunarTreeView
     ThunarFile              *current_directory;
     ThunarTreeModel         *model;
 
-    ThunarxProviderFactory  *provider_factory;
+    //ThunarxProviderFactory  *provider_factory;
 
     /* whether to display hidden/backup files */
     guint                   show_hidden : 1;
 
     /* drop site support */
-    guint                   drop_data_ready : 1; /* whether the drop data was received already */
+    guint                   drop_data_ready : 1;
+    /* whether the drop data was received already */
     guint                   drop_occurred : 1;
-    GList                   *drop_file_list;      /* the list of URIs that are contained in the drop data */
+    GList                   *drop_file_list;
+    /* the list of URIs that are contained in the drop data */
 
     /* the "new-files" closure, which is used to
      * open newly created directories once done.
@@ -238,12 +226,8 @@ struct _ThunarTreeView
 /* Target types for dropping into the tree view */
 static const GtkTargetEntry drop_targets[] =
 {
-    { "text/uri-list", 0, TARGET_TEXT_URI_LIST },
+    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
 };
-
-#ifdef ENABLE_TREEDELETE
-static guint tree_view_signals[LAST_SIGNAL];
-#endif
 
 G_DEFINE_TYPE_WITH_CODE(ThunarTreeView,
                         thunar_tree_view,
@@ -251,13 +235,6 @@ G_DEFINE_TYPE_WITH_CODE(ThunarTreeView,
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
                                               thunar_tree_view_navigator_init))
 
-/**
- * thunar_tree_view_new:
- *
- * Allocates a new #ThunarTreeView instance.
- *
- * Return value: the newly allocated #ThunarTreeView instance.
- **/
 GtkWidget* thunar_tree_view_new()
 {
     return g_object_new(THUNAR_TYPE_TREE_VIEW, NULL);
@@ -290,21 +267,11 @@ static void thunar_tree_view_class_init(ThunarTreeViewClass *klass)
     gtktree_view_class->test_expand_row = thunar_tree_view_test_expand_row;
     gtktree_view_class->row_collapsed = thunar_tree_view_row_collapsed;
 
-#ifdef ENABLE_TREEDELETE
-    klass->delete_selected_files = thunar_tree_view_delete_selected_files;
-#endif
-
     /* Override ThunarNavigator's properties */
     g_object_class_override_property(gobject_class,
                                      PROP_CURRENT_DIRECTORY,
                                      "current-directory");
 
-    /**
-     * ThunarTreeView:show-hidden:
-     *
-     * Whether to display hidden and backup folders
-     * in this #ThunarTreeView.
-     **/
     g_object_class_install_property(gobject_class,
                                     PROP_SHOW_HIDDEN,
                                     g_param_spec_boolean("show-hidden",
@@ -312,32 +279,6 @@ static void thunar_tree_view_class_init(ThunarTreeViewClass *klass)
                                                          "show-hidden",
                                                          FALSE,
                                                          E_PARAM_READWRITE));
-
-#ifdef ENABLE_TREEDELETE
-    /**
-     * ThunarTreeView::delete-selected-files:
-     * @tree_view : a #ThunarTreeView.
-     *
-     * Emitted whenever the user presses the Delete key. This
-     * is an internal signal used to bind the action to keys.
-     **/
-    tree_view_signals[DELETE_SELECTED_FILES] =
-        g_signal_new(I_("delete-selected-files"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                      G_STRUCT_OFFSET(ThunarTreeViewClass, delete_selected_files),
-                      g_signal_accumulator_true_handled, NULL,
-                      _thunar_marshal_BOOLEAN__VOID,
-                      G_TYPE_BOOLEAN, 0);
-
-    /* setup the key bindings for the tree view */
-    GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
-    gtk_binding_entry_add_signal(binding_set, GDK_KEY_BackSpace, GDK_CONTROL_MASK, "delete-selected-files", 0);
-    gtk_binding_entry_add_signal(binding_set, GDK_KEY_Delete, 0, "delete-selected-files", 0);
-    gtk_binding_entry_add_signal(binding_set, GDK_KEY_Delete, GDK_SHIFT_MASK, "delete-selected-files", 0);
-    gtk_binding_entry_add_signal(binding_set, GDK_KEY_KP_Delete, 0, "delete-selected-files", 0);
-    gtk_binding_entry_add_signal(binding_set, GDK_KEY_KP_Delete, GDK_SHIFT_MASK, "delete-selected-files", 0);
-#endif
 }
 
 static void thunar_tree_view_navigator_init(ThunarNavigatorIface *iface)
@@ -353,13 +294,7 @@ static void thunar_tree_view_init(ThunarTreeView *view)
     GtkCellRenderer   *renderer;
 
     /* grab a reference on the provider factory */
-    view->provider_factory = thunarx_provider_factory_get_default();
-
-#ifdef ENABLE_TREEDELETE
-    g_signal_connect_swapped(G_OBJECT(view->preferences),
-                         "notify::tree-icon-emblems",
-                         G_CALLBACK(gtk_widget_queue_draw), view);
-#endif
+    //view->provider_factory = thunarx_provider_factory_get_default();
 
     /* Create a tree model for this tree view */
     view->model = g_object_new(THUNAR_TYPE_TREE_MODEL, NULL);
@@ -429,7 +364,7 @@ static void thunar_tree_view_finalize(GObject *object)
     thunar_g_file_list_free(view->drop_file_list);
 
     /* release the provider factory */
-    g_object_unref(G_OBJECT(view->provider_factory));
+    //g_object_unref(G_OBJECT(view->provider_factory));
 
     /* be sure to cancel the cursor idle source */
     if (G_UNLIKELY(view->cursor_idle_id != 0))
@@ -462,6 +397,33 @@ static void thunar_tree_view_finalize(GObject *object)
 
     (*G_OBJECT_CLASS(thunar_tree_view_parent_class)->finalize)(object);
 }
+
+static void thunar_tree_view_realize(GtkWidget *widget)
+{
+    ThunarTreeView *view = THUNAR_TREE_VIEW(widget);
+    GdkDisplay     *display;
+
+    /* let the parent class realize the widget */
+   (*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->realize)(widget);
+
+    /* query the clipboard manager for the display */
+    display = gtk_widget_get_display(widget);
+    view->clipboard = thunar_clipboard_manager_get_for_display(display);
+}
+
+static void thunar_tree_view_unrealize(GtkWidget *widget)
+{
+    ThunarTreeView *view = THUNAR_TREE_VIEW(widget);
+
+    /* release the clipboard manager reference */
+    g_object_unref(G_OBJECT(view->clipboard));
+    view->clipboard = NULL;
+
+    /* let the parent class unrealize the widget */
+   (*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->unrealize)(widget);
+}
+
+// Properties -----------------------------------------------------------------
 
 static void thunar_tree_view_get_property(GObject   *object,
                                           guint     prop_id,
@@ -504,6 +466,8 @@ static void thunar_tree_view_set_property(GObject       *object,
         break;
     }
 }
+
+// Current Directory ----------------------------------------------------------
 
 static ThunarFile* thunar_tree_view_get_current_directory(
                                                     ThunarNavigator *navigator)
@@ -606,30 +570,39 @@ static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
     g_object_notify(G_OBJECT(view), "current-directory");
 }
 
-static void thunar_tree_view_realize(GtkWidget *widget)
+// Show Hidden ----------------------------------------------------------------
+
+static gboolean thunar_tree_view_get_show_hidden(ThunarTreeView *view)
 {
-    ThunarTreeView *view = THUNAR_TREE_VIEW(widget);
-    GdkDisplay     *display;
+    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
 
-    /* let the parent class realize the widget */
-   (*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->realize)(widget);
-
-    /* query the clipboard manager for the display */
-    display = gtk_widget_get_display(widget);
-    view->clipboard = thunar_clipboard_manager_get_for_display(display);
+    return view->show_hidden;
 }
 
-static void thunar_tree_view_unrealize(GtkWidget *widget)
+static void thunar_tree_view_set_show_hidden(ThunarTreeView *view,
+                                             gboolean        show_hidden)
 {
-    ThunarTreeView *view = THUNAR_TREE_VIEW(widget);
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(view->model));
 
-    /* release the clipboard manager reference */
-    g_object_unref(G_OBJECT(view->clipboard));
-    view->clipboard = NULL;
+    /* normalize the value */
+    show_hidden = !!show_hidden;
 
-    /* let the parent class unrealize the widget */
-   (*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->unrealize)(widget);
+    /* check if we have a new setting */
+    if (view->show_hidden != show_hidden)
+    {
+        /* apply the new setting */
+        view->show_hidden = show_hidden;
+
+        /* update the model */
+        thunar_tree_model_refilter(view->model);
+
+        /* notify listeners */
+        g_object_notify(G_OBJECT(view), "show-hidden");
+    }
 }
+
+// Events ---------------------------------------------------------------------
 
 static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
                                                     GdkEventButton *event)
@@ -870,6 +843,775 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
     return stopPropagation;
 }
 
+// Popup Menu -----------------------------------------------------------------
+
+static gboolean thunar_tree_view_popup_menu(GtkWidget *widget)
+{
+    GtkTreeSelection *selection;
+    ThunarTreeView   *view = THUNAR_TREE_VIEW(widget);
+    GtkTreeModel     *model;
+    GtkTreeIter       iter;
+
+    /* determine the selected row */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+
+    if (gtk_tree_selection_get_selected(selection, &model, &iter))
+    {
+        /* popup the context menu */
+        thunar_tree_view_context_menu(view, model, &iter);
+
+        return TRUE;
+    }
+    else if (GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->popup_menu != NULL)
+    {
+        /* call the parent's "popup-menu" handler */
+        return GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->popup_menu(widget);
+    }
+
+    return FALSE;
+}
+
+static void thunar_tree_view_context_menu(ThunarTreeView *view,
+                                          GtkTreeModel   *model,
+                                          GtkTreeIter    *iter)
+{
+    /* verify that we're connected to the clipboard manager */
+    if (G_UNLIKELY(view->clipboard == NULL))
+        return;
+
+    /* determine the file and device for the given iter */
+    ThunarFile *file;
+    ThunarDevice *device;
+    gtk_tree_model_get(model, iter,
+                       THUNAR_TREE_MODEL_COLUMN_FILE, &file,
+                       THUNAR_TREE_MODEL_COLUMN_DEVICE, &device,
+                       -1);
+
+    // create popup menu
+    ThunarMenu *context_menu = g_object_new(
+                                    THUNAR_TYPE_MENU,
+                                    "menu-type",
+                                    THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
+                                    "launcher",
+                                    view->launcher,
+                                    "force-section-open",
+                                    TRUE,
+                                    NULL);
+
+    g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
+
+    gboolean file_is_available = (device == NULL || thunar_device_is_mounted(device));
+
+    if (file_is_available)
+    {
+        GList *files = g_list_append(NULL, file);
+
+        g_object_set(G_OBJECT(view->launcher),
+                     "selected-files", files,
+                     "current-directory", view->current_directory,
+                     NULL);
+
+        g_list_free(files);
+
+        if (thunar_g_file_is_trash(thunar_file_get_file(file))
+            || thunar_g_file_is_computer(thunar_file_get_file(file))
+            || thunar_g_file_is_network(thunar_file_get_file(file)))
+        {
+            thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
+            thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
+
+            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+
+            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_EMPTY_TRASH);
+        }
+        else
+        {
+            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_OPEN);
+
+            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_CREATE_NEW_FILES
+                                                   | THUNAR_MENU_SECTION_CUT
+                                                   | THUNAR_MENU_SECTION_COPY_PASTE
+                                                   | THUNAR_MENU_SECTION_TRASH_DELETE
+                                                   | THUNAR_MENU_SECTION_RESTORE
+                                                   | THUNAR_MENU_SECTION_RENAME
+//                                                   | THUNAR_MENU_SECTION_CUSTOM_ACTIONS
+                                                   | THUNAR_MENU_SECTION_TERMINAL);
+        }
+
+        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
+        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
+    }
+    else
+    {
+        g_object_set(G_OBJECT(view->launcher),
+                     "selected-files", NULL,
+                     "current-directory", NULL,
+                     NULL);
+
+        thunar_launcher_append_menu_item(view->launcher,
+                                         GTK_MENU_SHELL(context_menu),
+                                         THUNAR_LAUNCHER_ACTION_OPEN,
+                                         TRUE);
+
+        thunar_launcher_append_menu_item(view->launcher,
+                                         GTK_MENU_SHELL(context_menu),
+                                         THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,
+                                         TRUE);
+
+        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+
+        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
+
+        if (thunar_device_is_mounted(device))
+            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
+    }
+
+    thunar_menu_hide_accel_labels(context_menu);
+    gtk_widget_show_all(GTK_WIDGET(context_menu));
+
+    GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+    thunar_window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window),
+                                                      GTK_MENU(context_menu));
+    thunar_gtk_menu_run(GTK_MENU(context_menu));
+
+    if (G_UNLIKELY(device != NULL))
+        g_object_unref(G_OBJECT(device));
+
+    if (G_LIKELY(file != NULL))
+        g_object_unref(G_OBJECT(file));
+}
+
+// Open -----------------------------------------------------------------------
+
+static void thunar_tree_view_action_open(ThunarTreeView *view)
+{
+    ThunarFile   *file;
+    ThunarDevice *device;
+
+    device = thunar_tree_view_get_selected_device(view);
+    file = thunar_tree_view_get_selected_file(view);
+
+    if (device != NULL)
+    {
+        if (thunar_device_is_mounted(device))
+            thunar_tree_view_open_selection(view);
+        else
+        {
+            g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
+            g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
+            thunar_launcher_action_mount(view->launcher);
+        }
+    }
+    else if (file != NULL)
+    {
+        thunar_tree_view_open_selection(view);
+    }
+
+    if (device != NULL)
+        g_object_unref(device);
+
+    if (file != NULL)
+        g_object_unref(file);
+}
+
+static void thunar_tree_view_open_selection(ThunarTreeView *view)
+{
+    ThunarFile *file;
+
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+
+    /* determine the selected file */
+    file = thunar_tree_view_get_selected_file(view);
+    if (G_LIKELY(file != NULL))
+    {
+        /* open that folder in the main view */
+        thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+        g_object_unref(file);
+    }
+}
+
+
+
+// ----------------------------------------------------------------------------
+
+static void thunar_tree_view_row_activated(GtkTreeView       *tree_view,
+                                           GtkTreePath       *path,
+                                           GtkTreeViewColumn *column)
+{
+    /* call the parent's "row-activated" handler */
+    if (GTK_TREE_VIEW_CLASS(thunar_tree_view_parent_class)->row_activated != NULL)
+       (*GTK_TREE_VIEW_CLASS(thunar_tree_view_parent_class)->row_activated)(tree_view, path, column);
+
+    /* toggle the expanded state of the activated row... */
+    if (gtk_tree_view_row_expanded(tree_view, path))
+    {
+        gtk_tree_view_collapse_row(tree_view, path);
+    }
+    else
+    {
+        /* expand the row, but open it if mounted */
+        if (gtk_tree_view_expand_row(tree_view, path, FALSE))
+        {
+            /* ...open the selected folder */
+            thunar_tree_view_action_open(THUNAR_TREE_VIEW(tree_view));
+        }
+    }
+}
+
+
+
+static gboolean thunar_tree_view_test_expand_row(GtkTreeView *tree_view,
+                                                 GtkTreeIter *iter,
+                                                 GtkTreePath *path)
+{
+    UNUSED(path);
+    ThunarTreeView          *view = THUNAR_TREE_VIEW(tree_view);
+    gboolean                 expandable = TRUE;
+    ThunarDevice            *device;
+
+    /* determine the device for the iterator */
+    gtk_tree_model_get(GTK_TREE_MODEL(view->model), iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+
+    /* check if we have a device */
+    if (G_UNLIKELY(device != NULL))
+    {
+        /* check if we need to mount the device first */
+        if (!thunar_device_is_mounted(device))
+        {
+            /* we need to mount the device before we can expand the row */
+            expandable = FALSE;
+            g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
+            g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
+            /* The closure will expand the row after the mount operation finished */
+            thunar_launcher_action_mount(view->launcher);
+        }
+
+        /* release the device */
+        g_object_unref(G_OBJECT(device));
+    }
+
+    /* cancel the cursor idle source if not expandable */
+    if (!expandable && view->cursor_idle_id != 0)
+        g_source_remove(view->cursor_idle_id);
+
+    return !expandable;
+}
+
+static void thunar_tree_view_row_collapsed(GtkTreeView *tree_view,
+                                           GtkTreeIter *iter,
+                                           GtkTreePath *path)
+{
+    UNUSED(iter);
+    UNUSED(path);
+
+    /* schedule a cleanup of the tree model */
+    thunar_tree_model_cleanup(THUNAR_TREE_VIEW(tree_view)->model);
+}
+
+
+
+
+// Selected Actions -----------------------------------------------------------
+
+gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
+{
+    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
+
+    if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
+        return TRUE;
+
+    /* Check if there is a user defined accelerator for the delete action,
+     * if there is, skip events from the hard-coded keys which are set in
+     * the class of the standard view. See bug #4173. */
+
+    GtkAccelKey key;
+
+    if (gtk_accel_map_lookup_entry(
+                        "<Actions>/ThunarStandardView/move-to-trash",
+                        &key)
+        &&(key.accel_key != 0 || key.accel_mods != 0))
+    {
+        return FALSE;
+    }
+
+    /* check if we should permanently delete the files(user holds shift or no gvfs available) */
+
+    GdkModifierType state;
+
+    if (gtk_get_current_event_state(&state) && (state & GDK_SHIFT_MASK) != 0)
+    {
+        thunar_tree_view_action_unlink_selected_folder(view, TRUE);
+    }
+    else
+    {
+        thunar_tree_view_action_unlink_selected_folder(view, FALSE);
+    }
+
+    /* ...and we're done */
+    return TRUE;
+}
+
+static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
+                                                           gboolean permanently)
+{
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+
+    /* determine the selected file */
+
+    ThunarFile *file = thunar_tree_view_get_selected_file(view);
+
+    if (G_UNLIKELY(file == NULL))
+        return;
+
+    if (thunar_file_can_be_trashed(file))
+    {
+        /* fake a file list */
+
+        GList file_list;
+        file_list.data = file;
+        file_list.next = NULL;
+        file_list.prev = NULL;
+
+        /* delete the file */
+        ThunarApplication *application = thunar_application_get();
+
+        thunar_application_unlink_files(application,
+                                        GTK_WIDGET(view),
+                                        &file_list,
+                                        permanently);
+
+        g_object_unref(G_OBJECT(application));
+    }
+
+    /* release the file */
+    g_object_unref(G_OBJECT(file));
+}
+
+void thunar_tree_view_rename_selected(ThunarTreeView *view)
+{
+    ThunarFile *file = thunar_tree_view_get_selected_file(view);
+    if (!file)
+        return;
+
+    g_object_set(G_OBJECT(view->launcher), "selected-device", NULL, NULL);
+
+    GList        *files;
+    files = g_list_append(NULL, file);
+
+    g_object_set(G_OBJECT(view->launcher), "selected-files", files, "current-directory", view->current_directory, NULL);
+    g_list_free(files);
+    g_object_unref(file);
+
+    thunar_launcher_action_rename(view->launcher);
+
+    return;
+}
+
+
+
+
+
+
+// Selections -----------------------------------------------------------------
+
+static ThunarFile* thunar_tree_view_get_selected_file(ThunarTreeView *view)
+{
+    GtkTreeSelection *selection;
+    GtkTreeModel     *model;
+    GtkTreeIter       iter;
+    ThunarFile       *file = NULL;
+
+    /* determine file for the selected row */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+
+    /* avoid dealing with invalid selections(may occur when the mount_finish()
+     * handler is called and the tree view has been hidden already) */
+    if (!GTK_IS_TREE_SELECTION(selection))
+        return NULL;
+
+    if (gtk_tree_selection_get_selected(selection, &model, &iter))
+        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
+
+    return file;
+}
+
+static ThunarDevice* thunar_tree_view_get_selected_device(ThunarTreeView *view)
+{
+    GtkTreeSelection *selection;
+    ThunarDevice     *device = NULL;
+    GtkTreeModel     *model;
+    GtkTreeIter       iter;
+
+    /* determine file for the selected row */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    if (gtk_tree_selection_get_selected(selection, &model, &iter))
+        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+
+    return device;
+}
+
+static void thunar_tree_view_select_files(ThunarTreeView *view,
+                                          GList          *files_to_selected)
+{
+    ThunarFile *file = NULL;
+
+    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
+
+    /* check if we have exactly one new path */
+    if (G_UNLIKELY(files_to_selected == NULL || files_to_selected->next != NULL))
+        return;
+
+    /* determine the file for the first path */
+    file = thunar_file_get(G_FILE(files_to_selected->data), NULL);
+    if (G_LIKELY(file != NULL))
+    {
+        if (G_LIKELY(thunar_file_is_directory(file)))
+            thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+
+        g_object_unref(file);
+    }
+}
+
+static gboolean thunar_tree_view_visible_func(ThunarTreeModel *model,
+                                              ThunarFile      *file,
+                                              gpointer         user_data)
+{
+    ThunarTreeView *view;
+    gboolean        visible = TRUE;
+
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(user_data), FALSE);
+
+    /* if show_hidden is TRUE, nothing is filtered */
+    view = THUNAR_TREE_VIEW(user_data);
+    if (G_LIKELY(!view->show_hidden))
+    {
+        /* we display all non-hidden file and hidden files that are ancestors of the current directory */
+        visible = !thunar_file_is_hidden(file) ||(view->current_directory == file)
+                  ||(view->current_directory != NULL && thunar_file_is_ancestor(view->current_directory, file));
+    }
+
+    return visible;
+}
+
+static gboolean thunar_tree_view_selection_func(GtkTreeSelection *selection,
+                                                GtkTreeModel     *model,
+                                                GtkTreePath      *path,
+                                                gboolean          path_currently_selected,
+                                                gpointer          user_data)
+{
+    UNUSED(selection);
+    UNUSED(user_data);
+
+    GtkTreeIter   iter;
+    ThunarFile   *file;
+    gboolean      result = FALSE;
+    ThunarDevice *device;
+
+    /* every row may be unselected at any time */
+    if (path_currently_selected)
+        return TRUE;
+
+    /* determine the iterator for the path */
+    if (gtk_tree_model_get_iter(model, &iter, path))
+    {
+        /* determine the file for the iterator */
+        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
+        if (G_LIKELY(file != NULL))
+        {
+            /* rows with files can be selected */
+            result = TRUE;
+
+            /* release file */
+            g_object_unref(file);
+        }
+        else
+        {
+            /* but maybe the row has a device */
+            gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+            if (G_LIKELY(device != NULL))
+            {
+                /* rows with devices can also be selected */
+                result = TRUE;
+
+                /* release device */
+                g_object_unref(device);
+            }
+        }
+    }
+
+    return result;
+}
+
+static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
+{
+    ThunarTreeView *view = THUNAR_TREE_VIEW(user_data);
+    GtkTreePath    *path;
+    GtkTreeIter     iter;
+    ThunarFile     *file;
+    ThunarFolder   *folder;
+    GFileInfo      *file_info;
+    GtkTreeIter     child_iter;
+    ThunarFile     *file_in_tree;
+    gboolean        done = FALSE;
+    GList          *lp;
+    GList          *path_as_list = NULL;
+
+    THUNAR_THREADS_ENTER
+
+    /* for easier navigation, we sometimes want to force/keep selection of a certain path */
+    if (view->select_path != NULL)
+    {
+        gtk_tree_view_set_cursor(GTK_TREE_VIEW(view), view->select_path, NULL, FALSE);
+        gtk_tree_path_free(view->select_path);
+        view->select_path = NULL;
+        return TRUE;
+    }
+
+    /* verify that we still have a current directory */
+    if (G_UNLIKELY(view->current_directory == NULL))
+        return TRUE;
+
+    /* get the preferred toplevel path for the current directory */
+    path = _tree_view_get_preferred_toplevel_path(view, view->current_directory);
+
+    /* fallback to a newly created root node */
+    if (path == NULL)
+        path = gtk_tree_path_new_first();
+
+    gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path);
+    gtk_tree_path_free(path);
+
+    /* collect all ThunarFiles in the path of current_directory in a List. root is on the very left side */
+    for(file = view->current_directory; file != NULL; file = thunar_file_get_parent(file, NULL))
+        path_as_list = g_list_prepend(path_as_list, file);
+
+    /* 1. skip files on path_as_list till we found the beginning of the tree(which e.g. may start at $HOME */
+    gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file_in_tree, -1);
+    for(lp = path_as_list; lp != NULL; lp = lp->next)
+    {
+        if (THUNAR_FILE(lp->data) == file_in_tree)
+            break;
+    }
+    if (file_in_tree)
+        g_object_unref(file_in_tree);
+
+    /* 2. loop on the remaining path_as_list */
+    for (; lp != NULL; lp = lp->next)
+    {
+        file = THUNAR_FILE(lp->data);
+
+        /* 3. Check if the contents of the corresponding folder is still being loaded */
+        folder = thunar_folder_get_for_file(file);
+        if (folder != NULL && thunar_folder_get_loading(folder))
+        {
+            g_object_unref(folder);
+            break;
+        }
+        if (folder)
+            g_object_unref(folder);
+
+        /* 4. Loop on all items of current tree-level to see if any folder matches the path we search */
+        while (TRUE)
+        {
+            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file_in_tree, -1);
+            if (file == file_in_tree)
+            {
+                g_object_unref(file_in_tree);
+                break;
+            }
+            if (file_in_tree)
+                g_object_unref(file_in_tree);
+
+            if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(view->model), &iter))
+                break;
+        }
+
+        /* 5. Did we already find the full path ?*/
+        if (lp->next == NULL)
+        {
+            path = gtk_tree_model_get_path(GTK_TREE_MODEL(view->model), &iter);
+            gtk_tree_view_set_cursor(GTK_TREE_VIEW(view), path, NULL, FALSE);
+            gtk_tree_path_free(path);
+            done = TRUE;
+            break;
+        }
+
+        /* 6. Get all children of the current tree iter */
+        /* Try to create missing children on the tree if there are none */
+        if (!gtk_tree_model_iter_children(GTK_TREE_MODEL(view->model), &child_iter, &iter))
+        {
+            if (file == NULL) /* e.g root has no parent .. skip it */
+                continue;
+
+            file_info = thunar_file_get_info(file);
+            if (file_info != NULL)
+            {
+                /* E.g. folders for which we do not have read permission dont have any child in the tree */
+                /* Make sure that missing read permissions are the problem */
+                if (!g_file_info_get_attribute_boolean(file_info, G_FILE_ATTRIBUTE_ACCESS_CAN_READ))
+                {
+                    /* We KNOW that there is a File. Lets just create the required tree-node */
+                    thunar_tree_model_add_child(view->model, iter.user_data,  THUNAR_FILE(lp->next->data));
+                }
+            }
+            break; /* we dont have a valid child_iter by now, so we cannot continue.                         */
+            /* Since done is FALSE, the next iteration on thunar_tree_view_cursor_idle will go deeper */
+        }
+
+        /* expand path up to the current tree level */
+        path = gtk_tree_model_get_path(GTK_TREE_MODEL(view->model), &iter);
+        gtk_tree_view_expand_to_path(GTK_TREE_VIEW(view), path);
+        gtk_tree_path_free(path);
+
+        iter = child_iter; /* next tree level */
+    }
+
+    /* tidy up */
+    for (lp = path_as_list; lp != NULL; lp = lp->next)
+    {
+        file = THUNAR_FILE(lp->data);
+        if (file != NULL && file != view->current_directory)
+            g_object_unref(file);
+    }
+    g_list_free(path_as_list);
+
+    THUNAR_THREADS_LEAVE
+
+    return !done;
+}
+
+static void thunar_tree_view_cursor_idle_destroy(gpointer user_data)
+{
+    THUNAR_TREE_VIEW(user_data)->cursor_idle_id = 0;
+}
+
+
+
+static GtkTreePath* _tree_view_get_preferred_toplevel_path(
+                                                        ThunarTreeView *view,
+                                                        ThunarFile     *file)
+{
+    GtkTreeModel *model = GTK_TREE_MODEL(view->model);
+    GtkTreePath  *path = NULL;
+    GtkTreeIter   iter;
+    ThunarFile   *toplevel_file;
+    GFile        *home;
+    GFile        *root;
+    GFile        *best_match;
+
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+
+    /* get active toplevel path and check if we can use it */
+    gtk_tree_view_get_cursor(GTK_TREE_VIEW(view), &path, NULL);
+
+    if (path != NULL)
+    {
+        if (gtk_tree_path_get_depth(path) != 1)
+            while(gtk_tree_path_get_depth(path) > 1)
+                gtk_tree_path_up(path);
+
+        if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
+        {
+            /* lookup file for the toplevel item */
+            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &toplevel_file, -1);
+            if (toplevel_file)
+            {
+                /* check if the toplevel file is an ancestor */
+                if (thunar_file_is_ancestor(file, toplevel_file))
+                {
+                    g_object_unref(toplevel_file);
+                    return path;
+                }
+
+                g_object_unref(toplevel_file);
+            }
+        }
+
+        gtk_tree_path_free(path);
+        path = NULL;
+    }
+
+    /* check whether the root node is available */
+    if (!gtk_tree_model_get_iter_first(model, &iter))
+        return NULL;
+
+    /* get GFiles for special toplevel items */
+    home = thunar_g_file_new_for_home();
+    root = thunar_g_file_new_for_root();
+
+    /* we prefer certain toplevel items to others */
+    if (thunar_file_is_gfile_ancestor(file, home))
+        best_match = home;
+    else if (thunar_file_is_gfile_ancestor(file, root))
+        best_match = root;
+    else
+        best_match = NULL;
+
+    /* loop over all top-level nodes to find the best-matching top-level item */
+    do
+    {
+        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &toplevel_file, -1);
+        /* this toplevel item has no file, so continue with the next */
+        if (toplevel_file == NULL)
+            continue;
+
+        /* if the file matches the toplevel item exactly, we are done */
+        if (g_file_equal(thunar_file_get_file(file),
+                          thunar_file_get_file(toplevel_file)))
+        {
+            gtk_tree_path_free(path);
+            path = gtk_tree_model_get_path(model, &iter);
+            g_object_unref(toplevel_file);
+            break;
+        }
+
+        if (thunar_file_is_ancestor(file, toplevel_file))
+        {
+            /* the toplevel item could be a mounted device or network
+             * and we prefer this to everything else */
+            if (!g_file_equal(thunar_file_get_file(toplevel_file), home) &&
+                    !g_file_equal(thunar_file_get_file(toplevel_file), root))
+            {
+                gtk_tree_path_free(path);
+                g_object_unref(toplevel_file);
+                path = gtk_tree_model_get_path(model, &iter);
+                break;
+            }
+
+            /* continue if the toplevel item is already the best match */
+            if (best_match != NULL &&
+                    g_file_equal(thunar_file_get_file(toplevel_file), best_match))
+            {
+                gtk_tree_path_free(path);
+                g_object_unref(toplevel_file);
+                path = gtk_tree_model_get_path(model, &iter);
+                continue;
+            }
+
+            /* remember this ancestor if we do not already have one */
+            if (path == NULL)
+            {
+                gtk_tree_path_free(path);
+                path = gtk_tree_model_get_path(model, &iter);
+            }
+        }
+        g_object_unref(toplevel_file);
+    }
+    while (gtk_tree_model_iter_next(model, &iter));
+
+    /* cleanup */
+    g_object_unref(root);
+    g_object_unref(home);
+
+    return path;
+}
+
+
+
+// DnD ------------------------------------------------------------------------
+
 static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
                                                 GdkDragContext   *context,
                                                 gint              x,
@@ -1033,192 +1775,6 @@ static void thunar_tree_view_drag_leave(GtkWidget      *widget,
    (*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->drag_leave)(widget, context, timestamp);
 }
 
-static gboolean thunar_tree_view_popup_menu(GtkWidget *widget)
-{
-    GtkTreeSelection *selection;
-    ThunarTreeView   *view = THUNAR_TREE_VIEW(widget);
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-
-    /* determine the selected row */
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-    if (gtk_tree_selection_get_selected(selection, &model, &iter))
-    {
-        /* popup the context menu */
-        thunar_tree_view_context_menu(view, model, &iter);
-        return TRUE;
-    }
-    else if (GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->popup_menu != NULL)
-    {
-        /* call the parent's "popup-menu" handler */
-        return(*GTK_WIDGET_CLASS(thunar_tree_view_parent_class)->popup_menu)(widget);
-    }
-
-    return FALSE;
-}
-
-static void thunar_tree_view_row_activated(GtkTreeView       *tree_view,
-                                           GtkTreePath       *path,
-                                           GtkTreeViewColumn *column)
-{
-    /* call the parent's "row-activated" handler */
-    if (GTK_TREE_VIEW_CLASS(thunar_tree_view_parent_class)->row_activated != NULL)
-       (*GTK_TREE_VIEW_CLASS(thunar_tree_view_parent_class)->row_activated)(tree_view, path, column);
-
-    /* toggle the expanded state of the activated row... */
-    if (gtk_tree_view_row_expanded(tree_view, path))
-    {
-        gtk_tree_view_collapse_row(tree_view, path);
-    }
-    else
-    {
-        /* expand the row, but open it if mounted */
-        if (gtk_tree_view_expand_row(tree_view, path, FALSE))
-        {
-            /* ...open the selected folder */
-            thunar_tree_view_action_open(THUNAR_TREE_VIEW(tree_view));
-        }
-    }
-}
-
-static gboolean thunar_tree_view_test_expand_row(GtkTreeView *tree_view,
-                                                 GtkTreeIter *iter,
-                                                 GtkTreePath *path)
-{
-    UNUSED(path);
-    ThunarTreeView          *view = THUNAR_TREE_VIEW(tree_view);
-    gboolean                 expandable = TRUE;
-    ThunarDevice            *device;
-
-    /* determine the device for the iterator */
-    gtk_tree_model_get(GTK_TREE_MODEL(view->model), iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
-
-    /* check if we have a device */
-    if (G_UNLIKELY(device != NULL))
-    {
-        /* check if we need to mount the device first */
-        if (!thunar_device_is_mounted(device))
-        {
-            /* we need to mount the device before we can expand the row */
-            expandable = FALSE;
-            g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
-            g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
-            /* The closure will expand the row after the mount operation finished */
-            thunar_launcher_action_mount(view->launcher);
-        }
-
-        /* release the device */
-        g_object_unref(G_OBJECT(device));
-    }
-
-    /* cancel the cursor idle source if not expandable */
-    if (!expandable && view->cursor_idle_id != 0)
-        g_source_remove(view->cursor_idle_id);
-
-    return !expandable;
-}
-
-static void thunar_tree_view_row_collapsed(GtkTreeView *tree_view,
-                                           GtkTreeIter *iter,
-                                           GtkTreePath *path)
-{
-    UNUSED(iter);
-    UNUSED(path);
-    /* schedule a cleanup of the tree model */
-    thunar_tree_model_cleanup(THUNAR_TREE_VIEW(tree_view)->model);
-}
-
-static void thunar_tree_view_context_menu(ThunarTreeView *view,
-                                          GtkTreeModel   *model,
-                                          GtkTreeIter    *iter)
-{
-    /* verify that we're connected to the clipboard manager */
-    if (G_UNLIKELY(view->clipboard == NULL))
-        return;
-
-    /* determine the file and device for the given iter */
-    ThunarFile   *file;
-    ThunarDevice *device;
-    gtk_tree_model_get(model, iter,
-                       THUNAR_TREE_MODEL_COLUMN_FILE, &file,
-                       THUNAR_TREE_MODEL_COLUMN_DEVICE, &device,
-                       -1);
-
-
-    ThunarMenu   *context_menu;
-    context_menu = g_object_new(THUNAR_TYPE_MENU,
-                                "menu-type", THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
-                                "launcher", view->launcher,
-                                "force-section-open", TRUE, NULL);
-
-    g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
-
-    GList        *files;
-    gboolean      file_is_available;
-    file_is_available =(device == NULL || thunar_device_is_mounted(device));
-    if (file_is_available)
-    {
-        files = g_list_append(NULL, file);
-
-        g_object_set(G_OBJECT(view->launcher), "selected-files", files, "current-directory", view->current_directory, NULL);
-
-        g_list_free(files);
-
-        if (thunar_g_file_is_trash(thunar_file_get_file(file))
-            || thunar_g_file_is_computer(thunar_file_get_file(file))
-            || thunar_g_file_is_network(thunar_file_get_file(file)))
-        {
-            thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
-            thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
-
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
-
-            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_EMPTY_TRASH);
-        }
-        else
-        {
-            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_OPEN);
-
-            thunar_menu_add_sections(context_menu, /*THUNAR_MENU_SECTION_SENDTO |*/
-                                                   THUNAR_MENU_SECTION_CREATE_NEW_FILES
-                                                   | THUNAR_MENU_SECTION_CUT
-                                                   | THUNAR_MENU_SECTION_COPY_PASTE
-                                                   | THUNAR_MENU_SECTION_TRASH_DELETE
-                                                   | THUNAR_MENU_SECTION_RESTORE
-                                                   | THUNAR_MENU_SECTION_RENAME
-                                                   | THUNAR_MENU_SECTION_CUSTOM_ACTIONS);
-        }
-        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
-        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
-    }
-    else
-    {
-        g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
-        thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
-
-        thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
-        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
-
-        if (thunar_device_is_mounted(device))
-            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
-    }
-
-    thunar_menu_hide_accel_labels(context_menu);
-    gtk_widget_show_all(GTK_WIDGET(context_menu));
-    GtkWidget    *window;
-    window = gtk_widget_get_toplevel(GTK_WIDGET(view));
-    thunar_window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
-    thunar_gtk_menu_run(GTK_MENU(context_menu));
-
-    /* cleanup */
-    if (G_UNLIKELY(device != NULL))
-        g_object_unref(G_OBJECT(device));
-
-    if (G_LIKELY(file != NULL))
-        g_object_unref(G_OBJECT(file));
-}
-
 static GdkDragAction thunar_tree_view_get_dest_actions(
                                                     ThunarTreeView *view,
                                                     GdkDragContext *context,
@@ -1245,10 +1801,12 @@ static GdkDragAction thunar_tree_view_get_dest_actions(
         {
             /* determine the file for the given path */
             gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
+
             if (G_LIKELY(file != NULL))
             {
                 /* check if the file accepts the drop */
                 actions = thunar_file_accepts_drop(file, view->drop_file_list, context, &action);
+
                 if (G_UNLIKELY(actions == 0))
                 {
                     /* reset file */
@@ -1294,325 +1852,6 @@ static GdkDragAction thunar_tree_view_get_dest_actions(
         gtk_tree_path_free(path);
 
     return actions;
-}
-
-static ThunarFile* thunar_tree_view_get_selected_file(ThunarTreeView *view)
-{
-    GtkTreeSelection *selection;
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-    ThunarFile       *file = NULL;
-
-    /* determine file for the selected row */
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-
-    /* avoid dealing with invalid selections(may occur when the mount_finish()
-     * handler is called and the tree view has been hidden already) */
-    if (!GTK_IS_TREE_SELECTION(selection))
-        return NULL;
-
-    if (gtk_tree_selection_get_selected(selection, &model, &iter))
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
-
-    return file;
-}
-
-static ThunarDevice* thunar_tree_view_get_selected_device(ThunarTreeView *view)
-{
-    GtkTreeSelection *selection;
-    ThunarDevice     *device = NULL;
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-
-    /* determine file for the selected row */
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-    if (gtk_tree_selection_get_selected(selection, &model, &iter))
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
-
-    return device;
-}
-
-static void thunar_tree_view_action_open(ThunarTreeView *view)
-{
-    ThunarFile   *file;
-    ThunarDevice *device;
-
-    device = thunar_tree_view_get_selected_device(view);
-    file = thunar_tree_view_get_selected_file(view);
-
-    if (device != NULL)
-    {
-        if (thunar_device_is_mounted(device))
-            thunar_tree_view_open_selection(view);
-        else
-        {
-            g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
-            g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
-            thunar_launcher_action_mount(view->launcher);
-        }
-    }
-    else if (file != NULL)
-    {
-        thunar_tree_view_open_selection(view);
-    }
-
-    if (device != NULL)
-        g_object_unref(device);
-
-    if (file != NULL)
-        g_object_unref(file);
-}
-
-static void thunar_tree_view_open_selection(ThunarTreeView *view)
-{
-    ThunarFile *file;
-
-    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
-
-    /* determine the selected file */
-    file = thunar_tree_view_get_selected_file(view);
-    if (G_LIKELY(file != NULL))
-    {
-        /* open that folder in the main view */
-        thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), file);
-        g_object_unref(file);
-    }
-}
-
-static void thunar_tree_view_select_files(ThunarTreeView *view,
-                                          GList          *files_to_selected)
-{
-    ThunarFile *file = NULL;
-
-    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
-
-    /* check if we have exactly one new path */
-    if (G_UNLIKELY(files_to_selected == NULL || files_to_selected->next != NULL))
-        return;
-
-    /* determine the file for the first path */
-    file = thunar_file_get(G_FILE(files_to_selected->data), NULL);
-    if (G_LIKELY(file != NULL))
-    {
-        if (G_LIKELY(thunar_file_is_directory(file)))
-            thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), file);
-        g_object_unref(file);
-    }
-}
-
-static gboolean thunar_tree_view_visible_func(ThunarTreeModel *model,
-                                              ThunarFile      *file,
-                                              gpointer         user_data)
-{
-    ThunarTreeView *view;
-    gboolean        visible = TRUE;
-
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(user_data), FALSE);
-
-    /* if show_hidden is TRUE, nothing is filtered */
-    view = THUNAR_TREE_VIEW(user_data);
-    if (G_LIKELY(!view->show_hidden))
-    {
-        /* we display all non-hidden file and hidden files that are ancestors of the current directory */
-        visible = !thunar_file_is_hidden(file) ||(view->current_directory == file)
-                  ||(view->current_directory != NULL && thunar_file_is_ancestor(view->current_directory, file));
-    }
-
-    return visible;
-}
-
-static gboolean thunar_tree_view_selection_func(GtkTreeSelection *selection,
-                                                GtkTreeModel     *model,
-                                                GtkTreePath      *path,
-                                                gboolean          path_currently_selected,
-                                                gpointer          user_data)
-{
-    UNUSED(selection);
-    UNUSED(user_data);
-
-    GtkTreeIter   iter;
-    ThunarFile   *file;
-    gboolean      result = FALSE;
-    ThunarDevice *device;
-
-    /* every row may be unselected at any time */
-    if (path_currently_selected)
-        return TRUE;
-
-    /* determine the iterator for the path */
-    if (gtk_tree_model_get_iter(model, &iter, path))
-    {
-        /* determine the file for the iterator */
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
-        if (G_LIKELY(file != NULL))
-        {
-            /* rows with files can be selected */
-            result = TRUE;
-
-            /* release file */
-            g_object_unref(file);
-        }
-        else
-        {
-            /* but maybe the row has a device */
-            gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
-            if (G_LIKELY(device != NULL))
-            {
-                /* rows with devices can also be selected */
-                result = TRUE;
-
-                /* release device */
-                g_object_unref(device);
-            }
-        }
-    }
-
-    return result;
-}
-
-static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
-{
-    ThunarTreeView *view = THUNAR_TREE_VIEW(user_data);
-    GtkTreePath    *path;
-    GtkTreeIter     iter;
-    ThunarFile     *file;
-    ThunarFolder   *folder;
-    GFileInfo      *file_info;
-    GtkTreeIter     child_iter;
-    ThunarFile     *file_in_tree;
-    gboolean        done = FALSE;
-    GList          *lp;
-    GList          *path_as_list = NULL;
-
-    THUNAR_THREADS_ENTER
-
-    /* for easier navigation, we sometimes want to force/keep selection of a certain path */
-    if (view->select_path != NULL)
-    {
-        gtk_tree_view_set_cursor(GTK_TREE_VIEW(view), view->select_path, NULL, FALSE);
-        gtk_tree_path_free(view->select_path);
-        view->select_path = NULL;
-        return TRUE;
-    }
-
-    /* verify that we still have a current directory */
-    if (G_UNLIKELY(view->current_directory == NULL))
-        return TRUE;
-
-    /* get the preferred toplevel path for the current directory */
-    path = thunar_tree_view_get_preferred_toplevel_path(view, view->current_directory);
-
-    /* fallback to a newly created root node */
-    if (path == NULL)
-        path = gtk_tree_path_new_first();
-
-    gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path);
-    gtk_tree_path_free(path);
-
-    /* collect all ThunarFiles in the path of current_directory in a List. root is on the very left side */
-    for(file = view->current_directory; file != NULL; file = thunar_file_get_parent(file, NULL))
-        path_as_list = g_list_prepend(path_as_list, file);
-
-    /* 1. skip files on path_as_list till we found the beginning of the tree(which e.g. may start at $HOME */
-    gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file_in_tree, -1);
-    for(lp = path_as_list; lp != NULL; lp = lp->next)
-    {
-        if (THUNAR_FILE(lp->data) == file_in_tree)
-            break;
-    }
-    if (file_in_tree)
-        g_object_unref(file_in_tree);
-
-    /* 2. loop on the remaining path_as_list */
-    for (; lp != NULL; lp = lp->next)
-    {
-        file = THUNAR_FILE(lp->data);
-
-        /* 3. Check if the contents of the corresponding folder is still being loaded */
-        folder = thunar_folder_get_for_file(file);
-        if (folder != NULL && thunar_folder_get_loading(folder))
-        {
-            g_object_unref(folder);
-            break;
-        }
-        if (folder)
-            g_object_unref(folder);
-
-        /* 4. Loop on all items of current tree-level to see if any folder matches the path we search */
-        while (TRUE)
-        {
-            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file_in_tree, -1);
-            if (file == file_in_tree)
-            {
-                g_object_unref(file_in_tree);
-                break;
-            }
-            if (file_in_tree)
-                g_object_unref(file_in_tree);
-
-            if (!gtk_tree_model_iter_next(GTK_TREE_MODEL(view->model), &iter))
-                break;
-        }
-
-        /* 5. Did we already find the full path ?*/
-        if (lp->next == NULL)
-        {
-            path = gtk_tree_model_get_path(GTK_TREE_MODEL(view->model), &iter);
-            gtk_tree_view_set_cursor(GTK_TREE_VIEW(view), path, NULL, FALSE);
-            gtk_tree_path_free(path);
-            done = TRUE;
-            break;
-        }
-
-        /* 6. Get all children of the current tree iter */
-        /* Try to create missing children on the tree if there are none */
-        if (!gtk_tree_model_iter_children(GTK_TREE_MODEL(view->model), &child_iter, &iter))
-        {
-            if (file == NULL) /* e.g root has no parent .. skip it */
-                continue;
-
-            file_info = thunar_file_get_info(file);
-            if (file_info != NULL)
-            {
-                /* E.g. folders for which we do not have read permission dont have any child in the tree */
-                /* Make sure that missing read permissions are the problem */
-                if (!g_file_info_get_attribute_boolean(file_info, G_FILE_ATTRIBUTE_ACCESS_CAN_READ))
-                {
-                    /* We KNOW that there is a File. Lets just create the required tree-node */
-                    thunar_tree_model_add_child(view->model, iter.user_data,  THUNAR_FILE(lp->next->data));
-                }
-            }
-            break; /* we dont have a valid child_iter by now, so we cannot continue.                         */
-            /* Since done is FALSE, the next iteration on thunar_tree_view_cursor_idle will go deeper */
-        }
-
-        /* expand path up to the current tree level */
-        path = gtk_tree_model_get_path(GTK_TREE_MODEL(view->model), &iter);
-        gtk_tree_view_expand_to_path(GTK_TREE_VIEW(view), path);
-        gtk_tree_path_free(path);
-
-        iter = child_iter; /* next tree level */
-    }
-
-    /* tidy up */
-    for (lp = path_as_list; lp != NULL; lp = lp->next)
-    {
-        file = THUNAR_FILE(lp->data);
-        if (file != NULL && file != view->current_directory)
-            g_object_unref(file);
-    }
-    g_list_free(path_as_list);
-
-    THUNAR_THREADS_LEAVE
-
-    return !done;
-}
-
-static void thunar_tree_view_cursor_idle_destroy(gpointer user_data)
-{
-    THUNAR_TREE_VIEW(user_data)->cursor_idle_id = 0;
 }
 
 static gboolean thunar_tree_view_drag_scroll_timer(gpointer user_data)
@@ -1738,295 +1977,6 @@ static gboolean thunar_tree_view_expand_timer(gpointer user_data)
 static void thunar_tree_view_expand_timer_destroy(gpointer user_data)
 {
     THUNAR_TREE_VIEW(user_data)->expand_timer_id = 0;
-}
-
-/**
- * thunar_tree_view_get_show_hidden:
- * @view : a #ThunarTreeView.
- *
- * Returns %TRUE if hidden and backup folders are
- * shown in @view.
- *
- * Return value: %TRUE if hidden folders are shown.
- **/
-static gboolean thunar_tree_view_get_show_hidden(ThunarTreeView *view)
-{
-    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
-
-    return view->show_hidden;
-}
-
-/**
- * thunar_tree_view_set_show_hidden:
- * @view        : a #ThunarTreeView.
- * @show_hidden : %TRUE to show hidden and backup folders.
- *
- * If @show_hidden is %TRUE, @view will shown hidden and
- * backup folders. Else, these folders will be hidden.
- **/
-static void thunar_tree_view_set_show_hidden(ThunarTreeView *view,
-                                             gboolean        show_hidden)
-{
-    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
-    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(view->model));
-
-    /* normalize the value */
-    show_hidden = !!show_hidden;
-
-    /* check if we have a new setting */
-    if (view->show_hidden != show_hidden)
-    {
-        /* apply the new setting */
-        view->show_hidden = show_hidden;
-
-        /* update the model */
-        thunar_tree_model_refilter(view->model);
-
-        /* notify listeners */
-        g_object_notify(G_OBJECT(view), "show-hidden");
-    }
-}
-
-/**
- * thunar_tree_view_get_preferred_toplevel_path:
- * @view        : a #ThunarTreeView.
- * @file        : the #ThunarFile we want the toplevel path for
- *
- * Searches for the best-matching toplevel path in the
- * following order:
- *   1) the currently active one
- *   2) any mounted device or network resource
- *   3) the user's home directory
- *   4) the root filesystem
- *
- * Returns the #GtkTreePath for the matching toplevel item,
- * or %NULL if not found. The path should be freed with gtk_tree_path_free().
- **/
-static GtkTreePath* thunar_tree_view_get_preferred_toplevel_path(
-                                                        ThunarTreeView *view,
-                                                        ThunarFile     *file)
-{
-    GtkTreeModel *model = GTK_TREE_MODEL(view->model);
-    GtkTreePath  *path = NULL;
-    GtkTreeIter   iter;
-    ThunarFile   *toplevel_file;
-    GFile        *home;
-    GFile        *root;
-    GFile        *best_match;
-
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-
-    /* get active toplevel path and check if we can use it */
-    gtk_tree_view_get_cursor(GTK_TREE_VIEW(view), &path, NULL);
-
-    if (path != NULL)
-    {
-        if (gtk_tree_path_get_depth(path) != 1)
-            while(gtk_tree_path_get_depth(path) > 1)
-                gtk_tree_path_up(path);
-
-        if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
-        {
-            /* lookup file for the toplevel item */
-            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &toplevel_file, -1);
-            if (toplevel_file)
-            {
-                /* check if the toplevel file is an ancestor */
-                if (thunar_file_is_ancestor(file, toplevel_file))
-                {
-                    g_object_unref(toplevel_file);
-                    return path;
-                }
-
-                g_object_unref(toplevel_file);
-            }
-        }
-
-        gtk_tree_path_free(path);
-        path = NULL;
-    }
-
-    /* check whether the root node is available */
-    if (!gtk_tree_model_get_iter_first(model, &iter))
-        return NULL;
-
-    /* get GFiles for special toplevel items */
-    home = thunar_g_file_new_for_home();
-    root = thunar_g_file_new_for_root();
-
-    /* we prefer certain toplevel items to others */
-    if (thunar_file_is_gfile_ancestor(file, home))
-        best_match = home;
-    else if (thunar_file_is_gfile_ancestor(file, root))
-        best_match = root;
-    else
-        best_match = NULL;
-
-    /* loop over all top-level nodes to find the best-matching top-level item */
-    do
-    {
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &toplevel_file, -1);
-        /* this toplevel item has no file, so continue with the next */
-        if (toplevel_file == NULL)
-            continue;
-
-        /* if the file matches the toplevel item exactly, we are done */
-        if (g_file_equal(thunar_file_get_file(file),
-                          thunar_file_get_file(toplevel_file)))
-        {
-            gtk_tree_path_free(path);
-            path = gtk_tree_model_get_path(model, &iter);
-            g_object_unref(toplevel_file);
-            break;
-        }
-
-        if (thunar_file_is_ancestor(file, toplevel_file))
-        {
-            /* the toplevel item could be a mounted device or network
-             * and we prefer this to everything else */
-            if (!g_file_equal(thunar_file_get_file(toplevel_file), home) &&
-                    !g_file_equal(thunar_file_get_file(toplevel_file), root))
-            {
-                gtk_tree_path_free(path);
-                g_object_unref(toplevel_file);
-                path = gtk_tree_model_get_path(model, &iter);
-                break;
-            }
-
-            /* continue if the toplevel item is already the best match */
-            if (best_match != NULL &&
-                    g_file_equal(thunar_file_get_file(toplevel_file), best_match))
-            {
-                gtk_tree_path_free(path);
-                g_object_unref(toplevel_file);
-                path = gtk_tree_model_get_path(model, &iter);
-                continue;
-            }
-
-            /* remember this ancestor if we do not already have one */
-            if (path == NULL)
-            {
-                gtk_tree_path_free(path);
-                path = gtk_tree_model_get_path(model, &iter);
-            }
-        }
-        g_object_unref(toplevel_file);
-    }
-    while (gtk_tree_model_iter_next(model, &iter));
-
-    /* cleanup */
-    g_object_unref(root);
-    g_object_unref(home);
-
-    return path;
-}
-
-
-
-/******************************************************************************
- * thunar_tree_view_delete_selected_files
- *
- *
- ******************************************************************************/
-gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
-{
-    thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
-
-    if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
-        return TRUE;
-
-    /* Check if there is a user defined accelerator for the delete action,
-     * if there is, skip events from the hard-coded keys which are set in
-     * the class of the standard view. See bug #4173. */
-
-    GtkAccelKey key;
-
-    if (gtk_accel_map_lookup_entry(
-                        "<Actions>/ThunarStandardView/move-to-trash",
-                        &key)
-        &&(key.accel_key != 0 || key.accel_mods != 0))
-    {
-        return FALSE;
-    }
-
-    /* check if we should permanently delete the files(user holds shift or no gvfs available) */
-
-    GdkModifierType state;
-
-    if (gtk_get_current_event_state(&state) && (state & GDK_SHIFT_MASK) != 0)
-    {
-        thunar_tree_view_action_unlink_selected_folder(view, TRUE);
-    }
-    else
-    {
-        thunar_tree_view_action_unlink_selected_folder(view, FALSE);
-    }
-
-    /* ...and we're done */
-    return TRUE;
-}
-
-static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
-                                                           gboolean permanently)
-{
-    thunar_return_if_fail(THUNAR_IS_TREE_VIEW(view));
-
-    /* determine the selected file */
-
-    ThunarFile *file = thunar_tree_view_get_selected_file(view);
-
-    if (G_UNLIKELY(file == NULL))
-        return;
-
-    if (thunar_file_can_be_trashed(file))
-    {
-        /* fake a file list */
-
-        GList file_list;
-        file_list.data = file;
-        file_list.next = NULL;
-        file_list.prev = NULL;
-
-        /* delete the file */
-        ThunarApplication *application = thunar_application_get();
-
-        thunar_application_unlink_files(application,
-                                        GTK_WIDGET(view),
-                                        &file_list,
-                                        permanently);
-
-        g_object_unref(G_OBJECT(application));
-    }
-
-    /* release the file */
-    g_object_unref(G_OBJECT(file));
-}
-
-
-
-/******************************************************************************
- * thunar_tree_view_rename_selected
- *
- *
- ******************************************************************************/
-void thunar_tree_view_rename_selected(ThunarTreeView *view)
-{
-    ThunarFile *file = thunar_tree_view_get_selected_file(view);
-    if (!file)
-        return;
-
-    g_object_set(G_OBJECT(view->launcher), "selected-device", NULL, NULL);
-
-    GList        *files;
-    files = g_list_append(NULL, file);
-
-    g_object_set(G_OBJECT(view->launcher), "selected-files", files, "current-directory", view->current_directory, NULL);
-    g_list_free(files);
-    g_object_unref(file);
-
-    thunar_launcher_action_rename(view->launcher);
-
-    return;
 }
 
 

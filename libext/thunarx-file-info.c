@@ -23,8 +23,8 @@
 #include <config.h>
 #endif
 
-#include <thunarx/thunarx-file-info.h>
-#include <thunarx/thunarx-private.h>
+#include <thunarx-file-info.h>
+//#include <thunarx-private.h>
 
 
 

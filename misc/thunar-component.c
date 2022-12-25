@@ -19,7 +19,7 @@
 #include <config.h>
 
 #include <libext.h>
-
+#include <thunarx-file-info.h>
 #include <thunar-component.h>
 #include <thunar-debug.h>
 
