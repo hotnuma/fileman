@@ -233,15 +233,10 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
     }
 
-//    if (menu_sections & THUNAR_MENU_SECTION_SENDTO)
-//    {
-//        if (thunar_launcher_append_menu_item(menu->launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_SENDTO_MENU, FALSE) != NULL)
-//            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
-//    }
-
     item_added = FALSE;
     if (menu_sections & THUNAR_MENU_SECTION_CUT)
         item_added |=(thunar_launcher_append_menu_item(menu->launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_CUT, force) != NULL);
+
     if (menu_sections & THUNAR_MENU_SECTION_COPY_PASTE)
     {
         item_added |=(thunar_launcher_append_menu_item(menu->launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_COPY, force) != NULL);
@@ -250,6 +245,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         else
             item_added |=(thunar_launcher_append_menu_item(menu->launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_PASTE, force) != NULL);
     }
+
     if (item_added)
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
 

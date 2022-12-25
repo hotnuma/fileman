@@ -108,7 +108,7 @@ static void _thunar_launcher_poke(ThunarLauncher *launcher,
 static void thunar_launcher_action_open(ThunarLauncher *launcher);
 static void thunar_launcher_action_open_in_new_windows(ThunarLauncher *launcher);
 static void thunar_launcher_action_open_with_other(ThunarLauncher *launcher);
-static void thunar_launcher_action_sendto_desktop(ThunarLauncher *launcher);
+//static void thunar_launcher_action_sendto_desktop(ThunarLauncher *launcher);
 static void thunar_launcher_action_properties(ThunarLauncher *launcher);
 //static void thunar_launcher_action_sendto_device(ThunarLauncher *launcher,
 //                                                 GObject *object);
@@ -224,27 +224,6 @@ static XfceGtkActionEntry thunar_launcher_action_entries[] =
      N_("Open With Other _Application..."),
      N_("Choose another application with which to open the selected file"),
      NULL, G_CALLBACK(thunar_launcher_action_open_with_other)},
-
-    /* For backward compatibility the old accel paths are re-used. Currently not possible to automatically migrate to new accel paths. */
-    /* Waiting for https://gitlab.gnome.org/GNOME/gtk/issues/2375 to be able to fix that */
-
-//    {THUNAR_LAUNCHER_ACTION_SENDTO_MENU,
-//     "<Actions>/ThunarWindow/sendto-menu",
-//     "",
-//     XFCE_GTK_MENU_ITEM,
-//     N_("_Send To"),
-//     NULL,
-//     NULL,
-//     NULL},
-
-    {THUNAR_LAUNCHER_ACTION_SENDTO_DESKTOP,
-     "<Actions>/ThunarLauncher/sendto-desktop",
-     "",
-     XFCE_GTK_MENU_ITEM,
-     NULL,
-     NULL,
-     "user-desktop",
-     G_CALLBACK(thunar_launcher_action_sendto_desktop)},
 
     {THUNAR_LAUNCHER_ACTION_PROPERTIES,
      "<Actions>/ThunarStandardView/properties",
@@ -1689,7 +1668,7 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
     return NULL;
 }
 
-
+#if 0
 static void thunar_launcher_action_sendto_desktop(ThunarLauncher *launcher)
 {
     ThunarApplication *application;
@@ -1716,7 +1695,6 @@ static void thunar_launcher_action_sendto_desktop(ThunarLauncher *launcher)
     thunar_g_file_list_free(files);
 }
 
-#if 0
 static void thunar_launcher_sendto_device(ThunarLauncher *launcher,
                                           ThunarDevice   *device)
 {

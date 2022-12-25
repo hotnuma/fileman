@@ -1,4 +1,8 @@
 
+/usr/lib/x86_64-linux-gnu/thunarx-3/
+
+thunarx_provider_factory_list_providers
+
 ui
 
 xfce_spawn_on_screen

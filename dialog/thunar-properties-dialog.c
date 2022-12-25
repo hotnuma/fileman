@@ -84,7 +84,7 @@ static gboolean thunar_properties_dialog_name_focus_out_event(
 //                                                GtkWidget *button,
 //                                                ThunarPropertiesDialog *dialog);
 static void thunar_properties_dialog_update(ThunarPropertiesDialog *dialog);
-static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog);
+//static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog);
 static GList* thunar_properties_dialog_get_files(ThunarPropertiesDialog *dialog);
 
 struct _ThunarPropertiesDialogClass
@@ -781,13 +781,15 @@ static void thunar_properties_dialog_icon_button_clicked(
 }
 #endif
 
+#if 0
 static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog)
 {
     GtkWidget *label_widget;
-    GList     *providers;
     GList     *pages = NULL;
-    GList     *tmp;
     GList     *lp;
+
+    GList     *providers;
+    GList     *tmp;
 
     /* load the property page providers from the provider factory */
     providers = thunarx_provider_factory_list_providers(dialog->provider_factory, THUNARX_TYPE_PROPERTY_PAGE_PROVIDER);
@@ -796,6 +798,8 @@ static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *di
         /* load the pages offered by the menu providers */
         for(lp = providers; lp != NULL; lp = lp->next)
         {
+            //g_print("load pages\n");
+
             tmp = thunarx_property_page_provider_get_pages(lp->data, dialog->files);
             pages = g_list_concat(pages, tmp);
             g_object_unref(G_OBJECT(lp->data));
@@ -821,6 +825,7 @@ static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *di
         gtk_widget_show(lp->data);
     }
 }
+#endif
 
 static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialog)
 {
@@ -1362,7 +1367,7 @@ void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
         thunar_properties_dialog_update(dialog);
 
         /* update the provider property pages */
-        thunar_properties_dialog_update_providers(dialog);
+        //thunar_properties_dialog_update_providers(dialog);
     }
 
     /* tell everybody that we have a new file here */
