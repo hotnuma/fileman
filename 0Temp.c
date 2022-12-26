@@ -7,6 +7,125 @@ thunar_window_notebook_show_tabs
 thunar_window_notebook_switch_page
 thunar_window_notebook_page_removed
 
+
+
+// ============================================================================
+#if 0
+gboolean thunar_launcher_append_custom_actions(ThunarLauncher *launcher,
+                                               GtkMenuShell   *menu)
+{
+    gboolean                uca_added = FALSE;
+    GtkWidget              *window;
+    GtkWidget              *gtk_menu_item;
+    ThunarxProviderFactory *provider_factory;
+    GList                  *providers;
+    GList                  *thunarx_menu_items = NULL;
+    GList                  *lp_provider;
+    GList                  *lp_item;
+
+    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
+    thunar_return_val_if_fail(GTK_IS_MENU(menu), FALSE);
+
+    /* determine the toplevel window we belong to */
+    window = gtk_widget_get_toplevel(launcher->widget);
+
+    /* load the menu providers from the provider factory */
+    provider_factory = thunarx_provider_factory_get_default();
+    providers = thunarx_provider_factory_list_providers(provider_factory, THUNARX_TYPE_MENU_PROVIDER);
+    g_object_unref(provider_factory);
+
+    if (G_UNLIKELY(providers == NULL))
+        return FALSE;
+
+    /* This may occur when the thunar-window is build */
+    if (G_UNLIKELY(launcher->files_to_process == NULL))
+        return FALSE;
+
+    /* load the menu items offered by the menu providers */
+    for (lp_provider = providers; lp_provider != NULL; lp_provider = lp_provider->next)
+    {
+        if (launcher->files_are_selected == FALSE)
+            thunarx_menu_items = thunarx_menu_provider_get_folder_menu_items(lp_provider->data, window, THUNARX_FILE_INFO(launcher->current_directory));
+        else
+            thunarx_menu_items = thunarx_menu_provider_get_file_menu_items(lp_provider->data, window, launcher->files_to_process);
+
+        for (lp_item = thunarx_menu_items; lp_item != NULL; lp_item = lp_item->next)
+        {
+            gtk_menu_item = thunar_gtk_menu_thunarx_menu_item_new(lp_item->data, menu);
+
+            /* Each thunarx_menu_item will be destroyed together with its related gtk_menu_item*/
+            g_signal_connect_swapped(G_OBJECT(gtk_menu_item), "destroy", G_CALLBACK(g_object_unref), lp_item->data);
+            uca_added = TRUE;
+        }
+        g_list_free(thunarx_menu_items);
+    }
+
+    g_list_free_full(providers, g_object_unref);
+
+    return uca_added;
+}
+
+gboolean thunar_launcher_check_uca_key_activation(ThunarLauncher *launcher,
+                                                  GdkEventKey    *key_event)
+{
+    GtkWidget              *window;
+    ThunarxProviderFactory *provider_factory;
+    GList                  *providers;
+    GList                  *thunarx_menu_items = NULL;
+    GList                  *lp_provider;
+    GList                  *lp_item;
+    GtkAccelKey             uca_key;
+    gchar                  *name, *accel_path;
+    gboolean                uca_activated = FALSE;
+
+    /* determine the toplevel window we belong to */
+    window = gtk_widget_get_toplevel(launcher->widget);
+
+    /* load the menu providers from the provider factory */
+    provider_factory = thunarx_provider_factory_get_default();
+    providers = thunarx_provider_factory_list_providers(provider_factory, THUNARX_TYPE_MENU_PROVIDER);
+    g_object_unref(provider_factory);
+
+    if (G_UNLIKELY(providers == NULL))
+        return uca_activated;
+
+    /* load the menu items offered by the menu providers */
+    for (lp_provider = providers; lp_provider != NULL; lp_provider = lp_provider->next)
+    {
+        if (launcher->files_are_selected == FALSE)
+            thunarx_menu_items = thunarx_menu_provider_get_folder_menu_items(lp_provider->data, window, THUNARX_FILE_INFO(launcher->current_directory));
+        else
+            thunarx_menu_items = thunarx_menu_provider_get_file_menu_items(lp_provider->data, window, launcher->files_to_process);
+
+        for (lp_item = thunarx_menu_items; lp_item != NULL; lp_item = lp_item->next)
+        {
+            g_object_get(G_OBJECT(lp_item->data), "name", &name, NULL);
+
+            accel_path = g_strconcat("<Actions>/ThunarActions/", name, NULL);
+            if (gtk_accel_map_lookup_entry(accel_path, &uca_key) == TRUE)
+            {
+                if (g_ascii_tolower(key_event->keyval) == g_ascii_tolower(uca_key.accel_key))
+                {
+                    if ((key_event->state & gtk_accelerator_get_default_mod_mask()) == uca_key.accel_mods)
+                    {
+                        thunarx_menu_item_activate(lp_item->data);
+                        uca_activated = TRUE;
+                    }
+                }
+            }
+            g_free(name);
+            g_free(accel_path);
+            g_object_unref(lp_item->data);
+        }
+        g_list_free(thunarx_menu_items);
+    }
+    g_list_free_full(providers, g_object_unref);
+    return uca_activated;
+}
+#endif
+
+
+
 gboolean e_mkdirhier(const gchar *whole_path, gulong mode, GError **error)
 {
   /* Stolen from FreeBSD's mkdir(1) with modifications to make it

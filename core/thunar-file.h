@@ -22,8 +22,6 @@
 
 #include <glib.h>
 
-//#include <thunarx/thunarx.h>
-
 #include <thunar-enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-user.h>

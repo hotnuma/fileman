@@ -22,8 +22,6 @@
 #include <config.h>
 #endif
 
-//#include <thunarx/thunarx.h>
-
 #include <thunar-application.h>
 #include <thunar-dialogs.h>
 #include <thunar-dnd.h>
@@ -78,8 +76,8 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     thunar_return_val_if_fail(GTK_IS_WIDGET(widget), 0);
 
     /* connect to the provider factory */
-//    ThunarxProviderFactory *factory;
-//    factory = thunarx_provider_factory_get_default();
+    //ThunarxProviderFactory *factory;
+    //factory = thunarx_provider_factory_get_default();
 
     /* prepare the popup menu */
     menu = gtk_menu_new();
@@ -129,6 +127,7 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
         /* check if we resolved all paths(and have atleast one file) */
         if (G_LIKELY(file_list != NULL && lp == NULL))
         {
+#if 0
 //            GList                  *providers = NULL;
 //            /* load the menu providers from the provider factory */
 //            providers = thunarx_provider_factory_list_providers(factory, THUNARX_TYPE_MENU_PROVIDER);
@@ -155,6 +154,7 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
 //                gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 //                gtk_widget_show(item);
 //            }
+#endif
         }
     }
 
@@ -167,7 +167,7 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     thunar_gtk_menu_run(GTK_MENU(menu));
 
     /* cleanup */
-//    g_object_unref(G_OBJECT(factory));
+    //g_object_unref(G_OBJECT(factory));
 
     g_list_free_full(file_list, g_object_unref);
 

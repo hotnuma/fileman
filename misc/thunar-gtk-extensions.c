@@ -16,21 +16,13 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_STDARG_H
-#include <stdarg.h>
-#endif
+#include <thunar-gtk-extensions.h>
 
 #include <libext.h>
-
-#include <thunar-gtk-extensions.h>
 #include <thunar-debug.h>
 #include <thunar-util.h>
-
-//#include <thunarx/thunarx.h>
+#include <stdarg.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 

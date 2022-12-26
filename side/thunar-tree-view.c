@@ -1645,11 +1645,15 @@ static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
 
         /* determine the drop position */
         actions = thunar_tree_view_get_dest_actions(view, context, x, y, timestamp, &file);
-        if (G_LIKELY((actions &(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK)) != 0))
+
+        if (G_LIKELY((actions & (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK)) != 0))
         {
             /* ask the user what to do with the drop data */
-            action =(gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
-                     ? thunar_dnd_ask(GTK_WIDGET(view), file, view->drop_file_list, actions)
+            action = (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
+                     ? thunar_dnd_ask(GTK_WIDGET(view),
+                                      file,
+                                      view->drop_file_list,
+                                      actions)
                      : gdk_drag_context_get_selected_action(context);
 
             /* perform the requested action */

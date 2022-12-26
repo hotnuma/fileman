@@ -19,14 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
 #include <thunarx-file-info.h>
-//#include <thunarx-private.h>
-
-
 
 /* Signal identifiers */
 enum
@@ -36,20 +30,16 @@ enum
   LAST_SIGNAL,
 };
 
-
-
 static guint file_info_signals[LAST_SIGNAL];
 
 /**
  * SECTION: thunarx-file-info
  * @short_description: Abstraction of a file handled within the file manager
  * @title: ThunarxFileInfo
- * @include: thunarx/thunarx.h
  *
  * The <interface>ThunarxFileInfo</interface> interface provides extensions with
  * a way to access information about a file handled within the file manager.
  */
-
 
 GType
 thunarx_file_info_get_type (void)
@@ -57,7 +47,7 @@ thunarx_file_info_get_type (void)
   static volatile gsize type__volatile = 0;
   GType                 type;
 
-  if (g_once_init_enter (&type__volatile))
+  if (g_once_init_enter ((gsize*) &type__volatile))
     {
       type = g_type_register_static_simple (G_TYPE_INTERFACE,
                                             I_("ThunarxFileInfo"),

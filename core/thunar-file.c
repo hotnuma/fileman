@@ -31,7 +31,6 @@
 #include <gio/gio.h>
 #include <libxfce4ui/libxfce4ui.h>
 
-//#include <thunarx/thunarx.h>
 #include <thunarx-file-info.h>
 
 #include <thunar-application.h>

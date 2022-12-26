@@ -199,10 +199,21 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 {
     thunar_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
 
-    gboolean force = menu->type == THUNAR_MENU_TYPE_WINDOW
-                     || menu->type == THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW;
+    gboolean force = (menu->type == THUNAR_MENU_TYPE_WINDOW
+                      || menu->type == THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW);
 
     gboolean item_added;
+
+    if (menu_sections & THUNAR_MENU_SECTION_OPEN)
+    {
+        if (thunar_launcher_append_open_section(
+                                        menu->launcher,
+                                        GTK_MENU_SHELL(menu),
+                                        FALSE /*!menu->tab_support_disabled*/,
+                                        !menu->change_directory_support_disabled,
+                                        menu->force_section_open))
+            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+    }
 
     if (menu_sections & THUNAR_MENU_SECTION_CREATE_NEW_FILES)
     {
@@ -221,18 +232,6 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
                                         THUNAR_LAUNCHER_ACTION_CREATE_DOCUMENT,
                                         force) != NULL);
         if (item_added)
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
-    }
-
-    // open in new tab...
-    if (menu_sections & THUNAR_MENU_SECTION_OPEN)
-    {
-        if (thunar_launcher_append_open_section(
-                                        menu->launcher,
-                                        GTK_MENU_SHELL(menu),
-                                        FALSE /*!menu->tab_support_disabled*/,
-                                        !menu->change_directory_support_disabled,
-                                        menu->force_section_open))
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
     }
 
@@ -331,12 +330,6 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (item_added)
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
-
-//    if (menu_sections & THUNAR_MENU_SECTION_CUSTOM_ACTIONS)
-//    {
-//        if (thunar_launcher_append_custom_actions(menu->launcher, GTK_MENU_SHELL(menu)))
-//            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
-//    }
 
     if (menu_sections & THUNAR_MENU_SECTION_TERMINAL)
     {
