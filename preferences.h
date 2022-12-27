@@ -1,16 +1,21 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
 
-#include <cstring.h>
+#include <cstringlist.h>
 
 typedef struct
 {
     CString *filepath;
+
+    // window geometry
     int window_width;
     int window_height;
     int window_maximized;
     int separator_position;
     CString *column_widths;
+
+    // extract filter
+    CStringList *extractflt;
 
 } Preferences;
 
