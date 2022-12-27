@@ -27,17 +27,18 @@
 #include <thunar-window.h>
 
 /**
- * SECTION:thunar-menu
- * @Short_description: Wrapper of GtkMenu to simplify the creation commonly used menu-sections in thunar
- * @Title: ThunarMenu
  *
- * #ThunarMenu is a #GtkMenu which provides a unified menu-creation service for different thunar widgets.
+ * ThunarMenu is a GtkMenu which provides a unified menu-creation
+ * service for different thunar widgets.
  *
- * Based on the passed flags and selected sections, it fills itself with the requested menu-items
- * by creating them with #ThunarLauncher.
+ * Based on the passed flags and selected sections, it fills itself
+ * with the requested menu-items
+ * by creating them with ThunarLauncher.
+ *
  */
 
-/* property identifiers */
+// property identifiers
+
 enum
 {
     PROP_0,
@@ -48,14 +49,13 @@ enum
 };
 
 static void thunar_menu_finalize(GObject *object);
-static void thunar_menu_get_property(GObject    *object,
-                                     guint      prop_id,
-                                     GValue     *value,
-                                     GParamSpec *pspec);
-static void thunar_menu_set_property(GObject        *object,
-                                       guint        prop_uid,
-                                       const GValue *value,
-                                       GParamSpec   *pspec);
+
+static void thunar_menu_get_property(GObject *object, guint prop_id,
+                                     GValue *value, GParamSpec *pspec);
+static void thunar_menu_set_property(GObject *object, guint prop_uid,
+                                     const GValue *value, GParamSpec   *pspec);
+
+// Allocation -----------------------------------------------------------------
 
 struct _ThunarMenuClass
 {
@@ -68,13 +68,14 @@ struct _ThunarMenu
 
     ThunarLauncher  *launcher;
 
-    /* true, if the 'open' section should be forced */
+    // true, if the 'open' section should be forced
     gboolean         force_section_open;
 
-    /* true, if 'open' for folders, which would result in changing the directory, should not be shown */
+    // true, if 'open' for folders, which would result
+    // in changing the directory, should not be shown
     gboolean         change_directory_support_disabled;
 
-    /* detailed type of the thunar menu */
+    // detailed type of the thunar menu
     ThunarMenuType   type;
 };
 
@@ -86,7 +87,7 @@ static void thunar_menu_class_init(ThunarMenuClass *klass)
 {
     GObjectClass *gobject_class;
 
-    /* determine the "thunar-menu-handler" quark */
+    // determine the "thunar-menu-handler" quark
     thunar_menu_handler_quark = g_quark_from_static_string("thunar-menu-handler");
 
     gobject_class = G_OBJECT_CLASS(klass);
@@ -96,40 +97,47 @@ static void thunar_menu_class_init(ThunarMenuClass *klass)
     gobject_class->set_property = thunar_menu_set_property;
 
     g_object_class_install_property(gobject_class,
-                                     PROP_MENU_TYPE,
-                                     g_param_spec_int("menu-type",
-                                             "menu-type",
-                                             "menu-type",
-                                             0, N_THUNAR_MENU_TYPE - 1, 0, // min, max, default
-                                             G_PARAM_WRITABLE
-                                             | G_PARAM_CONSTRUCT_ONLY));
+                                    PROP_MENU_TYPE,
+                                    g_param_spec_int(
+                                        "menu-type",
+                                        "menu-type",
+                                        "menu-type",
+                                        // min, max, default
+                                        0,
+                                        N_THUNAR_MENU_TYPE - 1,
+                                        0,
+                                        G_PARAM_WRITABLE
+                                        | G_PARAM_CONSTRUCT_ONLY));
 
     g_object_class_install_property(gobject_class,
-                                     PROP_LAUNCHER,
-                                     g_param_spec_object("launcher",
-                                             "launcher",
-                                             "launcher",
-                                             THUNAR_TYPE_LAUNCHER,
-                                             G_PARAM_WRITABLE
-                                             | G_PARAM_CONSTRUCT_ONLY));
+                                    PROP_LAUNCHER,
+                                    g_param_spec_object(
+                                        "launcher",
+                                        "launcher",
+                                        "launcher",
+                                        THUNAR_TYPE_LAUNCHER,
+                                        G_PARAM_WRITABLE
+                                        | G_PARAM_CONSTRUCT_ONLY));
 
     g_object_class_install_property(gobject_class,
-                                     PROP_FORCE_SECTION_OPEN,
-                                     g_param_spec_boolean("force-section-open",
-                                             "force-section-open",
-                                             "force-section-open",
-                                             FALSE,
-                                             G_PARAM_WRITABLE
-                                             | G_PARAM_CONSTRUCT_ONLY));
+                                    PROP_FORCE_SECTION_OPEN,
+                                    g_param_spec_boolean(
+                                        "force-section-open",
+                                        "force-section-open",
+                                        "force-section-open",
+                                        FALSE,
+                                        G_PARAM_WRITABLE
+                                        | G_PARAM_CONSTRUCT_ONLY));
 
     g_object_class_install_property(gobject_class,
-                                     PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
-                                     g_param_spec_boolean("change_directory-support-disabled",
-                                             "change_directory-support-disabled",
-                                             "change_directory-support-disabled",
-                                             FALSE,
-                                             G_PARAM_WRITABLE
-                                             | G_PARAM_CONSTRUCT_ONLY));
+                                    PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
+                                    g_param_spec_boolean(
+                                        "change_directory-support-disabled",
+                                        "change_directory-support-disabled",
+                                        "change_directory-support-disabled",
+                                        FALSE,
+                                        G_PARAM_WRITABLE
+                                        | G_PARAM_CONSTRUCT_ONLY));
 }
 
 static void thunar_menu_init(ThunarMenu *menu)
@@ -145,33 +153,34 @@ static void thunar_menu_finalize(GObject *object)
 
     g_object_unref(menu->launcher);
 
-    (*G_OBJECT_CLASS(thunar_menu_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(thunar_menu_parent_class)->finalize(object);
 }
 
-static void thunar_menu_get_property(GObject    *object,
-                                     guint       prop_id,
-                                     GValue     *value,
-                                     GParamSpec *pspec)
+// Properties -----------------------------------------------------------------
+
+static void thunar_menu_get_property(GObject *object, guint prop_id,
+                                     GValue *value, GParamSpec *pspec)
 {
     UNUSED(value);
 
-    switch(prop_id)
+    switch (prop_id)
     {
+
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
+
     }
 }
 
-static void thunar_menu_set_property(GObject      *object,
-                                     guint         prop_id,
-                                     const GValue *value,
-                                     GParamSpec   *pspec)
+static void thunar_menu_set_property(GObject *object, guint prop_id,
+                                     const GValue *value, GParamSpec *pspec)
 {
     ThunarMenu *menu = THUNAR_MENU(object);
 
     switch (prop_id)
     {
+
     case PROP_MENU_TYPE:
         menu->type = g_value_get_int(value);
         break;
@@ -192,8 +201,32 @@ static void thunar_menu_set_property(GObject      *object,
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
+
     }
 }
+
+// ----------------------------------------------------------------------------
+
+GtkWidget* thunar_menu_get_launcher(ThunarMenu *menu)
+{
+    thunar_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
+
+    return GTK_WIDGET(menu->launcher);
+}
+
+void thunar_menu_hide_accel_labels(ThunarMenu *menu)
+{
+    thunar_return_if_fail(THUNAR_IS_MENU(menu));
+
+    GList *children = gtk_container_get_children(GTK_CONTAINER(menu));
+
+    for (GList *lp = children; lp != NULL; lp = lp->next)
+        xfce_gtk_menu_item_set_accel_label(lp->data, NULL);
+
+    g_list_free(children);
+}
+
+// Add Sections ---------------------------------------------------------------
 
 gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sections)
 {
@@ -202,29 +235,31 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     gboolean force = (menu->type == THUNAR_MENU_TYPE_WINDOW
                       || menu->type == THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW);
 
-    gboolean item_added;
 
     if (menu_sections & THUNAR_MENU_SECTION_OPEN)
     {
         if (thunar_launcher_append_open_section(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        FALSE /*!menu->tab_support_disabled*/,
+                                        FALSE,
                                         !menu->change_directory_support_disabled,
                                         menu->force_section_open))
+        {
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+        }
     }
+
+    gboolean item_added = FALSE;
 
     if (menu_sections & THUNAR_MENU_SECTION_CREATE_NEW_FILES)
     {
-        item_added = FALSE;
         item_added |= (thunar_launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_CREATE_FOLDER,
                                         force) != NULL);
 
-        /* No document creation for tree-view */
+        // No document creation for tree-view
         if (menu->type != THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW)
             item_added |= (thunar_launcher_append_menu_item(
                                         menu->launcher,
@@ -372,43 +407,15 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     }
 
     if (menu_sections & THUNAR_MENU_SECTION_PROPERTIES)
+    {
         thunar_launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_PROPERTIES,
                                         FALSE);
+    }
 
     return TRUE;
-}
-
-/**
- * thunar_menu_get_launcher:
- * @menu : a #ThunarMenu instance
- *
- * Return value:(transfer none): The launcher of this #ThunarMenu instance
- **/
-GtkWidget* thunar_menu_get_launcher(ThunarMenu *menu)
-{
-    thunar_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
-    return GTK_WIDGET(menu->launcher);
-}
-
-/**
- * thunar_menu_hide_accel_labels:
- * @menu : a #ThunarMenu instance
- *
- * Will hide the accel_labels of all menu items of this menu
- **/
-void thunar_menu_hide_accel_labels(ThunarMenu *menu)
-{
-    GList *children, *lp;
-
-    thunar_return_if_fail(THUNAR_IS_MENU(menu));
-
-    children = gtk_container_get_children(GTK_CONTAINER(menu));
-    for(lp = children; lp != NULL; lp = lp->next)
-        xfce_gtk_menu_item_set_accel_label(lp->data, NULL);
-    g_list_free(children);
 }
 
 

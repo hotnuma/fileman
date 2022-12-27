@@ -59,11 +59,10 @@ typedef enum
     THUNAR_MENU_SECTION_DUPLICATE        = 1 << 7,
     THUNAR_MENU_SECTION_MAKELINK         = 1 << 8,
     THUNAR_MENU_SECTION_RENAME           = 1 << 9,
-//    THUNAR_MENU_SECTION_CUSTOM_ACTIONS   = 1 << 10,
+    THUNAR_MENU_SECTION_TERMINAL         = 1 << 10,
     THUNAR_MENU_SECTION_ZOOM             = 1 << 11,
     THUNAR_MENU_SECTION_PROPERTIES       = 1 << 12,
     THUNAR_MENU_SECTION_MOUNTABLE        = 1 << 13,
-    THUNAR_MENU_SECTION_TERMINAL         = 1 << 14,
 
 } ThunarMenuSections;
 

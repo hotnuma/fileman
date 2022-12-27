@@ -934,7 +934,6 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
                                                    | THUNAR_MENU_SECTION_TRASH_DELETE
                                                    | THUNAR_MENU_SECTION_RESTORE
                                                    | THUNAR_MENU_SECTION_RENAME
-//                                                   | THUNAR_MENU_SECTION_CUSTOM_ACTIONS
                                                    | THUNAR_MENU_SECTION_TERMINAL);
         }
 

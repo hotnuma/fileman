@@ -116,6 +116,7 @@ static const gchar *thunar_standard_view_get_statusbar_text(ThunarView *view);
 static gboolean thunar_standard_view_get_show_hidden(ThunarView *view);
 static void thunar_standard_view_set_show_hidden(ThunarView *view,
                                                  gboolean show_hidden);
+
 static ThunarZoomLevel thunar_standard_view_get_zoom_level(ThunarView *view);
 static void thunar_standard_view_set_zoom_level(ThunarView *view,
                                                 ThunarZoomLevel zoom_level);
@@ -543,9 +544,6 @@ static void thunar_standard_view_init(ThunarStandardView *standard_view)
     /* allocate the scroll_to_files mapping(directory GFile -> first visible child GFile) */
     standard_view->priv->scroll_to_files = g_hash_table_new_full(g_file_hash,(GEqualFunc) g_file_equal, g_object_unref, g_object_unref);
 
-    /* grab a reference on the preferences */
-    //standard_view->preferences = thunar_preferences_get();
-
     /* initialize the scrolled window */
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(standard_view),
                                     GTK_POLICY_AUTOMATIC,
@@ -565,17 +563,6 @@ static void thunar_standard_view_init(ThunarStandardView *standard_view)
     g_signal_connect(G_OBJECT(standard_view->model), "rows-reordered", G_CALLBACK(thunar_standard_view_rows_reordered), standard_view);
     g_signal_connect(G_OBJECT(standard_view->model), "error", G_CALLBACK(thunar_standard_view_error), standard_view);
 
-    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-case-sensitive",
-    //                G_OBJECT(standard_view->model), "case-sensitive");
-    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-style",
-    //                G_OBJECT(standard_view->model), "date-style");
-    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-date-custom-style",
-    //                G_OBJECT(standard_view->model), "date-custom-style");
-    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-folders-first",
-    //                G_OBJECT(standard_view->model), "folders-first");
-    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-file-size-binary",
-    //                G_OBJECT(standard_view->model), "file-size-binary");
-
     /* setup the icon renderer */
     standard_view->icon_renderer = thunar_icon_renderer_new();
     g_object_ref_sink(G_OBJECT(standard_view->icon_renderer));
@@ -590,9 +577,6 @@ static void thunar_standard_view_init(ThunarStandardView *standard_view)
                                    "xalign", 0.5,
                                    NULL);
     g_object_ref_sink(G_OBJECT(standard_view->name_renderer));
-
-    /* TODO: prelit underline
-    exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(standard_view->name_renderer), "follow-prelit");*/
 
     /* be sure to update the selection whenever the folder changes */
     g_signal_connect_swapped(G_OBJECT(standard_view->model), "notify::folder", G_CALLBACK(thunar_standard_view_selection_changed), standard_view);
@@ -633,16 +617,8 @@ thunar_standard_view_constructor(GType  type,
     /* cast to standard_view for convenience */
     standard_view = THUNAR_STANDARD_VIEW(object);
 
-    /* setup the default zoom-level, determined from the "last-<view>-zoom-level" preference */
-    //g_object_get(G_OBJECT(standard_view->preferences),
-    //  THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name, &zoom_level, NULL);
-
     ThunarZoomLevel zoom_level = THUNAR_ZOOM_LEVEL_25_PERCENT;
     thunar_view_set_zoom_level(THUNAR_VIEW(standard_view), zoom_level);
-
-    /* save the "zoom-level" as "last-<view>-zoom-level" whenever the user changes the zoom level */
-//    g_object_bind_property(object, "zoom-level", G_OBJECT(standard_view->preferences),
-//                           THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name, G_BINDING_DEFAULT);
 
     /* determine the real view widget(treeview or iconview) */
     view = gtk_bin_get_child(GTK_BIN(object));
@@ -651,14 +627,6 @@ thunar_standard_view_constructor(GType  type,
      * we therefore assume that all real views have the "model" property.
      */
     g_object_set(G_OBJECT(view), "model", standard_view->model, NULL);
-
-    /* apply the single-click settings to the view */
-    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click", G_OBJECT(view), "single-click");
-    //exo_binding_new(G_OBJECT(standard_view->preferences), "misc-single-click-timeout", G_OBJECT(view), "single-click-timeout");
-
-    /* apply the default sort column and sort order */
-    //g_object_get(G_OBJECT(standard_view->preferences), "last-sort-column",
-    //             &sort_column, "last-sort-order", &sort_order, NULL);
 
     ThunarColumn sort_column = THUNAR_COLUMN_NAME;
     GtkSortType sort_order = GTK_SORT_ASCENDING;
@@ -783,9 +751,6 @@ static void thunar_standard_view_finalize(GObject *object)
 
     /* drop any remaining "new-files" paths */
     thunar_g_file_list_free(standard_view->priv->new_files_path_list);
-
-    /* release our reference on the preferences */
-    //g_object_unref(G_OBJECT(standard_view->preferences));
 
     /* disconnect from the list model */
     g_signal_handlers_disconnect_matched(G_OBJECT(standard_view->model), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, standard_view);
@@ -2964,7 +2929,6 @@ void thunar_standard_view_context_menu(ThunarStandardView *standard_view)
                                   | THUNAR_MENU_SECTION_EMPTY_TRASH
                                   | THUNAR_MENU_SECTION_RESTORE
                                   | THUNAR_MENU_SECTION_RENAME
-//                                  | THUNAR_MENU_SECTION_CUSTOM_ACTIONS
                                   | THUNAR_MENU_SECTION_TERMINAL
                                   | THUNAR_MENU_SECTION_PROPERTIES);
     }
@@ -2974,7 +2938,6 @@ void thunar_standard_view_context_menu(ThunarStandardView *standard_view)
                                   THUNAR_MENU_SECTION_CREATE_NEW_FILES
                                   | THUNAR_MENU_SECTION_COPY_PASTE
                                   | THUNAR_MENU_SECTION_EMPTY_TRASH
-//                                  | THUNAR_MENU_SECTION_CUSTOM_ACTIONS
                                   | THUNAR_MENU_SECTION_TERMINAL);
 
         thunar_standard_view_append_menu_items(standard_view, GTK_MENU(context_menu), NULL);
