@@ -21,7 +21,6 @@
 #include <libext.h>
 
 #include <thunar-location-bar.h>
-#include <thunar-debug.h>
 #include <thunar-navigator.h>
 #include <thunar-location-entry.h>
 

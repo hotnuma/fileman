@@ -15,15 +15,11 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
 #include <thunar-menu.h>
 
 #include <thunar-gtk-extensions.h>
 #include <thunar-launcher.h>
-#include <thunar-debug.h>
 #include <thunar-window.h>
 
 /**
@@ -35,7 +31,7 @@
  * with the requested menu-items
  * by creating them with ThunarLauncher.
  *
- */
+ **/
 
 // property identifiers
 

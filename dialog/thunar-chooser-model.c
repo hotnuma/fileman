@@ -26,7 +26,6 @@
 #include <thunar-chooser-model.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-debug.h>
 
 /* Property identifiers */
 enum

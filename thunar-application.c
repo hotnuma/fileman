@@ -40,7 +40,6 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-io-jobs.h>
 #include <preferences.h>
-#include <thunar-debug.h>
 #include <thunar-progress-dialog.h>
 #include <thunar-util.h>
 #include <thunar-view.h>

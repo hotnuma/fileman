@@ -25,7 +25,6 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-job.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-debug.h>
 #include <thunar-util.h>
 #include <thunar-transfer-job.h>
 #include <thunar-progress-view.h>

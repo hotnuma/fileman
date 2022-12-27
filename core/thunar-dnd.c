@@ -26,7 +26,6 @@
 #include <thunar-dialogs.h>
 #include <thunar-dnd.h>
 #include <thunar-gtk-extensions.h>
-#include <thunar-debug.h>
 
 static void dnd_action_selected(GtkWidget     *item,
                                 GdkDragAction *dnd_action_return)

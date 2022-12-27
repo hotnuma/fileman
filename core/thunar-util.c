@@ -21,8 +21,6 @@
 #include <config.h>
 #include <thunar-util.h>
 
-#include <thunar-debug.h>
-
 #include <sys/types.h>
 #include <sys/param.h>
 #include <memory.h>

@@ -32,7 +32,6 @@
 #include <thunar-io-jobs.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-permissions-chooser.h>
-#include <thunar-debug.h>
 #include <thunar-user.h>
 
 #include <thunarx-file-info.h>

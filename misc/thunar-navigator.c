@@ -21,7 +21,6 @@
 #include <libext.h>
 
 #include <thunar-navigator.h>
-#include <thunar-debug.h>
 
 enum
 {

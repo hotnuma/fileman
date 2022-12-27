@@ -36,11 +36,8 @@
 #include <thunar-session-client.h>
 #endif
 
-//#include <xfconf/xfconf.h>
-
 #include <thunar-application.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-debug.h>
 #include <thunar-notify.h>
 
 int

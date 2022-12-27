@@ -20,7 +20,6 @@
 #include <thunar-gtk-extensions.h>
 
 #include <libext.h>
-#include <thunar-debug.h>
 #include <thunar-util.h>
 #include <stdarg.h>
 

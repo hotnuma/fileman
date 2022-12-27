@@ -25,8 +25,6 @@
 #endif
 
 #include <thunar-column-model.h>
-//#include <thunar-preferences.h>
-#include <thunar-debug.h>
 
 /* Signal identifiers */
 enum

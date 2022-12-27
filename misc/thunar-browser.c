@@ -25,7 +25,6 @@
 
 #include <thunar-browser.h>
 #include <thunar-file.h>
-#include <thunar-debug.h>
 #include <thunar-util.h>
 #include <thunar-gtk-extensions.h>
 

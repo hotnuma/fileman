@@ -25,7 +25,6 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-#include <thunar-debug.h>
 #include <thunar-progress-dialog.h>
 #include <thunar-progress-view.h>
 

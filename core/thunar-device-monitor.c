@@ -25,7 +25,6 @@
 #include <libext.h>
 
 #include <thunar-device-monitor.h>
-#include <thunar-debug.h>
 #include <thunar-marshal.h>
 
 /* signal identifiers */

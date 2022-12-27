@@ -28,7 +28,6 @@
 
 #include <thunar-gobject-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-debug.h>
 #include <thunar-util.h>
 
 /* the timeout until the sweeper is run(in seconds) */

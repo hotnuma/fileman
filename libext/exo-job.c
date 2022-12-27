@@ -20,7 +20,6 @@
 
 #include <config.h>
 #include <exo-job.h>
-#include <thunar-debug.h>
 
 #include <glib.h>
 #include <glib-object.h>

@@ -26,7 +26,6 @@
 #include <thunar-gio-extensions.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
-#include <thunar-debug.h>
 #include <thunar-util.h>
 
 /**

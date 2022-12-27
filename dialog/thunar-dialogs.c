@@ -31,7 +31,6 @@
 #include <thunar-io-jobs.h>
 #include <thunar-job.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-debug.h>
 #include <thunar-util.h>
 
 static void _thunar_dialogs_select_filename(GtkWidget  *entry, ThunarFile *file);

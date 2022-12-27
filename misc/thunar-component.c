@@ -21,7 +21,6 @@
 #include <libext.h>
 #include <thunarx-file-info.h>
 #include <thunar-component.h>
-#include <thunar-debug.h>
 
 static void thunar_component_class_init(gpointer klass);
 

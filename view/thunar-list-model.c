@@ -28,7 +28,6 @@
 #include <thunar-file-monitor.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-list-model.h>
-#include <thunar-debug.h>
 #include <thunar-user.h>
 
 /* Property identifiers */

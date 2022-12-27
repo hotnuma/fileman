@@ -25,7 +25,6 @@
 #include <thunar-history.h>
 #include <thunar-icon-factory.h>
 #include <thunar-navigator.h>
-#include <thunar-debug.h>
 #include <thunar-dialogs.h>
 
 #include <libxfce4ui/libxfce4ui.h>

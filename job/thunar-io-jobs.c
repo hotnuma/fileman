@@ -35,7 +35,6 @@
 #include <thunar-io-jobs.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
-#include <thunar-debug.h>
 #include <thunar-simple-job.h>
 #include <thunar-transfer-job.h>
 

@@ -34,7 +34,6 @@
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-io-scan-directory.h>
-#include <thunar-debug.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
 #include <thunar-device-monitor.h>

@@ -34,7 +34,6 @@
 #include <thunar-job.h>
 #include <thunar-marshal.h>
 #include <thunar-menu.h>
-#include <thunar-debug.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-shortcuts-icon-renderer.h>
 #include <thunar-simple-job.h>

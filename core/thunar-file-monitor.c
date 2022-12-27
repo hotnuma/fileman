@@ -21,7 +21,6 @@
 #endif
 
 #include <thunar-file-monitor.h>
-#include <thunar-debug.h>
 
 /* Signal identifiers */
 enum

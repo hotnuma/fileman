@@ -26,7 +26,6 @@
 
 #include <thunar-deep-count-job.h>
 #include <thunar-gtk-extensions.h>
-#include <thunar-debug.h>
 #include <thunar-size-label.h>
 
 /* Property identifiers */
