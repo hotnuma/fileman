@@ -21,6 +21,8 @@
 #include <config.h>
 #include <thunar-launcher.h>
 
+#include <preferences.h>
+#include <fnmatch.h>
 #include <libext.h>
 #include <thunar-application.h>
 #include <thunar-browser.h>
@@ -42,7 +44,6 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <cstring.h>
-
 #include <memory.h>
 #include <string.h>
 
@@ -136,6 +137,8 @@ static void thunar_launcher_action_make_link(ThunarLauncher *launcher);
 static void thunar_launcher_action_key_rename(ThunarLauncher *launcher);
 
 static void _thunar_launcher_action_terminal(ThunarLauncher *launcher);
+static void _thunar_launcher_action_extract(ThunarLauncher *launcher);
+static bool _launcher_can_extract(ThunarLauncher *launcher);
 
 static void thunar_launcher_action_properties(ThunarLauncher *launcher);
 
@@ -396,6 +399,15 @@ static XfceGtkActionEntry _launcher_actions[] =
      N_("Open in terminal"),
      "utilities-terminal",
      G_CALLBACK(_thunar_launcher_action_terminal)},
+
+    {THUNAR_LAUNCHER_ACTION_EXTRACT,
+     "<Actions>/ThunarStandardView/extract",
+     "",
+     XFCE_GTK_IMAGE_MENU_ITEM,
+     N_("Extract..."),
+     N_("Extract archive"),
+     "archive-manager",
+     G_CALLBACK(_thunar_launcher_action_extract)},
 
 
     {THUNAR_LAUNCHER_ACTION_MOUNT,
@@ -1641,6 +1653,14 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
                                                         GTK_MENU_SHELL(menu));
         return item;
 
+    case THUNAR_LAUNCHER_ACTION_EXTRACT:
+        if (!_launcher_can_extract(launcher))
+            return NULL;
+        item = xfce_gtk_menu_item_new_from_action_entry(action_entry,
+                                                        G_OBJECT(launcher),
+                                                        GTK_MENU_SHELL(menu));
+        return item;
+
     case THUNAR_LAUNCHER_ACTION_MOUNT:
         if (launcher->device_to_process == NULL
             || thunar_device_is_mounted(launcher->device_to_process) == TRUE)
@@ -1672,6 +1692,35 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
     }
 
     return NULL;
+}
+
+static bool _launcher_can_extract(ThunarLauncher *launcher)
+{
+    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), false);
+
+    //DPRINT("can extract\n");
+
+    if (launcher->n_files_to_process != 1 || !launcher->files_are_selected)
+        return false;
+
+    ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
+    const gchar *filename = thunar_file_get_display_name(file);
+
+    Preferences *prefs = get_preferences();
+    CStringList *filters = prefs->extractflt;
+    if (filters)
+    {
+        int size = cstrlist_size(filters);
+        for (int i = 0; i < size; ++i)
+        {
+            CString *str = cstrlist_at(filters, i);
+
+            if (fnmatch(c_str(str), filename, 0) == 0)
+                return true;
+        }
+    }
+
+    return false;
 }
 
 // Actions ====================================================================
@@ -2138,30 +2187,53 @@ static void _thunar_launcher_action_terminal(ThunarLauncher *launcher)
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     if (launcher->files_to_process == NULL
-        || g_list_length(launcher->files_to_process) == 0
+        || g_list_length(launcher->files_to_process) != 1
         || thunar_file_is_trashed(launcher->current_directory))
         return;
 
-    if (g_list_length(launcher->files_to_process) == 1)
-    {
-        ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
-        GFile *gfile = thunar_file_get_file(file);
-        gchar *filepath = g_file_get_path(gfile);
+    ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
+    GFile *gfile = thunar_file_get_file(file);
+    gchar *filepath = g_file_get_path(gfile);
 
-        //const gchar *filename = thunar_file_get_display_name(file);
+    //const gchar *filename = thunar_file_get_display_name(file);
 
 
-        CStringAuto *cmd = cstr_new_size(32);
-        cstr_fmt(cmd,
-                 "exo-open --working-directory \"%s\" --launch TerminalEmulator",
-                 filepath);
+    CStringAuto *cmd = cstr_new_size(32);
+    cstr_fmt(cmd,
+             "exo-open --working-directory \"%s\" --launch TerminalEmulator",
+             filepath);
 
-        //g_print("execute : %s\n", c_str(cmd));
+    //g_print("execute : %s\n", c_str(cmd));
 
-        g_spawn_command_line_async(c_str(cmd), NULL);
+    g_spawn_command_line_async(c_str(cmd), NULL);
 
-        g_free(filepath);
-    }
+    g_free(filepath);
+}
+
+static void _thunar_launcher_action_extract(ThunarLauncher *launcher)
+{
+    thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
+
+    if (launcher->files_to_process == NULL
+        || g_list_length(launcher->files_to_process) != 1)
+        return;
+
+    ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
+    GFile *gfile = thunar_file_get_file(file);
+    gchar *filepath = g_file_get_path(gfile);
+
+    CStringAuto *cmd = cstr_new_size(32);
+    const char *extractpath = "extract.sh";
+    cstr_fmt(cmd,
+             "xfce4-terminal -e 'bash -c \"%s %s; bash\"'",
+             extractpath,
+             filepath);
+
+    //g_print("execute : %s\n", c_str(cmd));
+
+    g_spawn_command_line_async(c_str(cmd), NULL);
+
+    g_free(filepath);
 }
 
 

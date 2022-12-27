@@ -366,24 +366,37 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     if (item_added)
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
 
+    // custom actions ---------------------------------------------------------
+
+    item_added = FALSE;
+
     if (menu_sections & THUNAR_MENU_SECTION_TERMINAL)
     {
-        item_added = FALSE;
-
         item_added |= (thunar_launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_TERMINAL,
                                         force) != NULL);
-
-        if (item_added)
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
     }
+
+    if (menu_sections & THUNAR_MENU_SECTION_EXTRACT)
+    {
+        item_added |= (thunar_launcher_append_menu_item(
+                                        menu->launcher,
+                                        GTK_MENU_SHELL(menu),
+                                        THUNAR_LAUNCHER_ACTION_EXTRACT,
+                                        force) != NULL);
+    }
+
+    if (item_added)
+        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+
+    // mountable --------------------------------------------------------------
+
+    item_added = FALSE;
 
     if (menu_sections & THUNAR_MENU_SECTION_MOUNTABLE)
     {
-        item_added = FALSE;
-
         item_added |= (thunar_launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
@@ -405,6 +418,8 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         if (item_added)
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
     }
+
+    // properties -------------------------------------------------------------
 
     if (menu_sections & THUNAR_MENU_SECTION_PROPERTIES)
     {

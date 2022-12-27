@@ -1307,15 +1307,6 @@ static void thunar_window_action_debug(ThunarWindow *window,
     UNUSED(window);
     UNUSED(menu_item);
 
-    CStringAuto *cmd = cstr_new_size(32);
-    cstr_fmt(cmd,
-             "exo-open --working-directory %s --launch TerminalEmulator",
-             "/usr");
-
-    g_spawn_command_line_async(c_str(cmd), NULL);
-
-    return;
-
     GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
     const gchar *name = gtk_widget_get_name(focused);
 
@@ -1324,8 +1315,6 @@ static void thunar_window_action_debug(ThunarWindow *window,
     openlog("Fileman", LOG_PID, LOG_USER);
     syslog(LOG_INFO,"focused widget = %s\n", name);
     closelog();
-
-
 }
 
 static void thunar_window_action_reload(ThunarWindow *window,
@@ -1868,8 +1857,8 @@ gboolean thunar_window_set_directories(ThunarWindow   *window,
         {
             if (gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook)) == 0)
                 thunar_window_set_current_directory(window, directory);
-            else
-                DPRINT("new tab oops");
+            //else
+            //    DPRINT("new tab oops");
         }
 
         g_object_unref(G_OBJECT(directory));

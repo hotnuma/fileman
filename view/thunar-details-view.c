@@ -623,7 +623,7 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
     /* make sure that rubber banding is enabled */
     gtk_tree_view_set_rubber_banding(tree_view, TRUE);
 
-    /* if the user clicked on a row with the left button */
+    // left click
     if (path != NULL && event->type == GDK_BUTTON_PRESS && event->button == 1)
     {
         GtkTreePath       *cursor_path;
@@ -659,7 +659,7 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
         }
     }
 
-    /* open the context menu on right clicks */
+    // right click
     if (event->type == GDK_BUTTON_PRESS && event->button == 3)
     {
         // FOCUS
@@ -668,6 +668,9 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
         if (path == NULL)
         {
             /* open the context menu */
+
+            //DPRINT("button press 3-1\n");
+
             thunar_standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
         }
         else
@@ -679,7 +682,9 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
                     gtk_tree_selection_unselect_all(selection);
 
                 /* queue the menu popup */
-                thunar_standard_view_queue_popup(THUNAR_STANDARD_VIEW(details_view), event);
+                //DPRINT("button press 3-2\n");
+                thunar_standard_view_queue_popup(THUNAR_STANDARD_VIEW(details_view),
+                                                 event);
             }
             else
             {
@@ -691,14 +696,17 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
                 }
 
                 /* show the context menu */
+                //DPRINT("button press 3-3\n");
                 thunar_standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
             }
+
             gtk_tree_path_free(path);
         }
 
         return TRUE;
     }
 
+    // middle click
     else if (event->type == GDK_BUTTON_PRESS && event->button == 2)
     {
         /* determine the path to the item that was middle-clicked */
@@ -732,6 +740,7 @@ static gboolean thunar_details_view_key_press_event(GtkTreeView       *tree_view
     /* popup context menu if "Menu" or "<Shift>F10" is pressed */
     if (event->keyval == GDK_KEY_Menu ||((event->state & GDK_SHIFT_MASK) != 0 && event->keyval == GDK_KEY_F10))
     {
+        //DPRINT("key press\n");
         thunar_standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
         return TRUE;
     }

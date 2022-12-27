@@ -1,5 +1,11 @@
 #### TODO
 
+#include <fnmatch.h>
+
+       int fnmatch(const char *pattern, const char *string, int flags);
+       
+https://man7.org/linux/man-pages/man3/fnmatch.3.html
+
 * Port ThunarLocationEntry to GtkBox
     
     ```
@@ -37,26 +43,6 @@ widget/thunar-shortcuts-icon-renderer.c
 ```
 
 
-
-#### Biggest files
-
-```
-$ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
-
-    136442	./core/thunar-file.c
-    132520	./view/thunar-standard-view.c
-    116473	./menu/thunar-launcher.c
-    82591	./thunar-window.c
-    81911	./view/thunar-list-model.c
-    76264	./side/thunar-tree-view.c
-    71018	./thunar-application.c
-    66126	./side/thunar-tree-model.c
-    62392	./job/thunar-transfer-job.c
-    54315	./dialog/thunar-permissions-chooser.c
-    53828	./dialog/thunar-properties-dialog.c
-    46931	./dialog/thunar-chooser-dialog.c
-    44759	./job/thunar-io-jobs.c
-    ```
 
 
 supported Gvfs schemes :

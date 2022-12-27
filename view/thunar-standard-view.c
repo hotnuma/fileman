@@ -1998,6 +1998,7 @@ static gboolean thunar_standard_view_button_release_event(
     g_source_remove(standard_view->priv->drag_timer_id);
 
     /* fire up the context menu */
+    //DPRINT("release\n");
     thunar_standard_view_context_menu(standard_view);
 
     return TRUE;
@@ -2853,9 +2854,12 @@ static gboolean thunar_standard_view_drag_timer(gpointer user_data)
     ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(user_data);
 
     /* fire up the context menu */
-    THUNAR_THREADS_ENTER
+    THUNAR_THREADS_ENTER;
+
+    //DPRINT("drag timer\n");
     thunar_standard_view_context_menu(standard_view);
-    THUNAR_THREADS_LEAVE
+
+    THUNAR_THREADS_LEAVE;
 
     return FALSE;
 }
@@ -2908,6 +2912,9 @@ void thunar_standard_view_context_menu(ThunarStandardView *standard_view)
     ThunarMenu *context_menu;
     GList      *selected_items;
 
+    //static int count;
+    //DPRINT("%d : thunar_standard_view_context_menu\n", ++count);
+
     thunar_return_if_fail(THUNAR_IS_STANDARD_VIEW(standard_view));
 
     /* grab an additional reference on the view */
@@ -2922,23 +2929,24 @@ void thunar_standard_view_context_menu(ThunarStandardView *standard_view)
     if (selected_items != NULL)
     {
         thunar_menu_add_sections(context_menu,
-                                  THUNAR_MENU_SECTION_OPEN
-                                  | THUNAR_MENU_SECTION_CUT
-                                  | THUNAR_MENU_SECTION_COPY_PASTE
-                                  | THUNAR_MENU_SECTION_TRASH_DELETE
-                                  | THUNAR_MENU_SECTION_EMPTY_TRASH
-                                  | THUNAR_MENU_SECTION_RESTORE
-                                  | THUNAR_MENU_SECTION_RENAME
-                                  | THUNAR_MENU_SECTION_TERMINAL
-                                  | THUNAR_MENU_SECTION_PROPERTIES);
+                                 THUNAR_MENU_SECTION_OPEN
+                                 | THUNAR_MENU_SECTION_CUT
+                                 | THUNAR_MENU_SECTION_COPY_PASTE
+                                 | THUNAR_MENU_SECTION_TRASH_DELETE
+                                 | THUNAR_MENU_SECTION_EMPTY_TRASH
+                                 | THUNAR_MENU_SECTION_RESTORE
+                                 | THUNAR_MENU_SECTION_RENAME
+                                 | THUNAR_MENU_SECTION_TERMINAL
+                                 | THUNAR_MENU_SECTION_EXTRACT
+                                 | THUNAR_MENU_SECTION_PROPERTIES);
     }
     else /* right click on some empty space */
     {
         thunar_menu_add_sections(context_menu,
-                                  THUNAR_MENU_SECTION_CREATE_NEW_FILES
-                                  | THUNAR_MENU_SECTION_COPY_PASTE
-                                  | THUNAR_MENU_SECTION_EMPTY_TRASH
-                                  | THUNAR_MENU_SECTION_TERMINAL);
+                                 THUNAR_MENU_SECTION_CREATE_NEW_FILES
+                                 | THUNAR_MENU_SECTION_COPY_PASTE
+                                 | THUNAR_MENU_SECTION_EMPTY_TRASH
+                                 | THUNAR_MENU_SECTION_TERMINAL);
 
         thunar_standard_view_append_menu_items(standard_view, GTK_MENU(context_menu), NULL);
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
