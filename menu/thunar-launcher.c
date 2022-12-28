@@ -1350,10 +1350,10 @@ static gboolean thunar_launcher_show_trash(ThunarLauncher *launcher)
 
 // Build Menu =================================================================
 
-GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
-                                            GtkMenuShell    *menu,
-                                            ThunarLauncherAction action,
-                                            gboolean        force)
+GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
+                                     GtkMenuShell    *menu,
+                                     ThunarLauncherAction action,
+                                     gboolean        force)
 {
     thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
 
@@ -1373,7 +1373,8 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
 
 
     /* This may occur when the thunar-window is build */
-    if (G_UNLIKELY(launcher->files_to_process == NULL) && launcher->device_to_process == NULL)
+    if (G_UNLIKELY(launcher->files_to_process == NULL)
+        && launcher->device_to_process == NULL)
         return NULL;
 
     gboolean show_delete_item = false;
@@ -1383,23 +1384,26 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case THUNAR_LAUNCHER_ACTION_OPEN:
         return xfce_gtk_image_menu_item_new_from_icon_name(
-                                                    _("_Open"),
-                                                    ngettext("Open the selected file",
-                                                             "Open the selected files",
-                                                             launcher->n_files_to_process),
-                                                    action_entry->accel_path,
-                                                    action_entry->callback,
-                                                    G_OBJECT(launcher),
-                                                    action_entry->menu_item_icon_name,
-                                                    menu);
+                                    _("_Open"),
+                                    ngettext("Open the selected file",
+                                             "Open the selected files",
+                                             launcher->n_files_to_process),
+                                    action_entry->accel_path,
+                                    action_entry->callback,
+                                    G_OBJECT(launcher),
+                                    action_entry->menu_item_icon_name,
+                                    menu);
 
     case THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW:
         n = launcher->n_files_to_process > 0 ? launcher->n_files_to_process : 1;
-        label_text = g_strdup_printf(ngettext("Open in New _Window", "Open in %d New _Windows", n),
-                                     n);
-        tooltip_text = g_strdup_printf(ngettext("Open the selected directory in new window",
-                                       "Open the selected directories in %d new windows", n),
-                                       n);
+        label_text = g_strdup_printf(
+                    ngettext("Open in New _Window",
+                    "Open in %d New _Windows", n),
+                    n);
+        tooltip_text = g_strdup_printf(
+                    ngettext("Open the selected directory in new window",
+                    "Open the selected directories in %d new windows", n),
+                    n);
         item = xfce_gtk_menu_item_new(label_text,
                                       tooltip_text,
                                       action_entry->accel_path,
@@ -1420,15 +1424,15 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case THUNAR_LAUNCHER_ACTION_EXECUTE:
         return xfce_gtk_image_menu_item_new_from_icon_name(
-                                                    _("_Execute"),
-                                                    ngettext("Execute the selected file",
-                                                             "Execute the selected files",
-                                                             launcher->n_files_to_process),
-                                                    action_entry->accel_path,
-                                                    action_entry->callback,
-                                                    G_OBJECT(launcher),
-                                                    action_entry->menu_item_icon_name,
-                                                    menu);
+                                        _("_Execute"),
+                                        ngettext("Execute the selected file",
+                                                 "Execute the selected files",
+                                                 launcher->n_files_to_process),
+                                        action_entry->accel_path,
+                                        action_entry->callback,
+                                        G_OBJECT(launcher),
+                                        action_entry->menu_item_icon_name,
+                                        menu);
 
     case THUNAR_LAUNCHER_ACTION_CREATE_FOLDER:
         if (THUNAR_IS_TREE_VIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
@@ -1527,7 +1531,7 @@ GtkWidget* thunar_launcher_append_menu_item(ThunarLauncher  *launcher,
         else
         {
             if (launcher->single_directory_to_process && launcher->files_are_selected)
-                return thunar_launcher_append_menu_item(
+                return launcher_append_menu_item(
                                                     launcher,
                                                     menu,
                                                     THUNAR_LAUNCHER_ACTION_PASTE_INTO_FOLDER,
@@ -2579,7 +2583,7 @@ static GtkWidget* thunar_launcher_build_application_submenu(
     if (launcher->n_files_to_process == 1)
     {
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(submenu));
-        thunar_launcher_append_menu_item(launcher, GTK_MENU_SHELL(submenu), THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER, FALSE);
+        launcher_append_menu_item(launcher, GTK_MENU_SHELL(submenu), THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER, FALSE);
     }
 
     return submenu;
@@ -2610,11 +2614,11 @@ gboolean thunar_launcher_append_open_section(ThunarLauncher *launcher,
 
     /* Execute OR Open OR OpenWith */
     if (G_UNLIKELY(launcher->n_executables_to_process == launcher->n_files_to_process))
-        thunar_launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_EXECUTE, FALSE);
+        launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_EXECUTE, FALSE);
     else if (G_LIKELY(launcher->n_directories_to_process >= 1))
     {
         if (support_change_directory)
-            thunar_launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_OPEN, FALSE);
+            launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_OPEN, FALSE);
     }
     else if (G_LIKELY(applications != NULL))
     {
@@ -2649,7 +2653,7 @@ gboolean thunar_launcher_append_open_section(ThunarLauncher *launcher,
     if (launcher->n_files_to_process == launcher->n_directories_to_process
             && launcher->n_directories_to_process >= 1)
     {
-        thunar_launcher_append_menu_item(launcher,
+        launcher_append_menu_item(launcher,
                                          GTK_MENU_SHELL(menu),
                                          THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,
                                          FALSE);
@@ -2666,7 +2670,7 @@ gboolean thunar_launcher_append_open_section(ThunarLauncher *launcher,
     else
     {
         if (launcher->n_files_to_process == 1)
-            thunar_launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER, FALSE);
+            launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER, FALSE);
     }
 
     g_list_free_full(applications, g_object_unref);

@@ -916,8 +916,8 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
             || thunar_g_file_is_computer(thunar_file_get_file(file))
             || thunar_g_file_is_network(thunar_file_get_file(file)))
         {
-            thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
-            thunar_launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
+            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
+            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
 
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
 
@@ -946,12 +946,12 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
                      "current-directory", NULL,
                      NULL);
 
-        thunar_launcher_append_menu_item(view->launcher,
+        launcher_append_menu_item(view->launcher,
                                          GTK_MENU_SHELL(context_menu),
                                          THUNAR_LAUNCHER_ACTION_OPEN,
                                          TRUE);
 
-        thunar_launcher_append_menu_item(view->launcher,
+        launcher_append_menu_item(view->launcher,
                                          GTK_MENU_SHELL(context_menu),
                                          THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,
                                          TRUE);

@@ -249,7 +249,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_CREATE_NEW_FILES)
     {
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_CREATE_FOLDER,
@@ -257,7 +257,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
         // No document creation for tree-view
         if (menu->type != THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW)
-            item_added |= (thunar_launcher_append_menu_item(
+            item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_CREATE_DOCUMENT,
@@ -269,7 +269,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     item_added = FALSE;
 
     if (menu_sections & THUNAR_MENU_SECTION_CUT)
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_CUT,
@@ -277,20 +277,20 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_COPY_PASTE)
     {
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_COPY,
                                         force) != NULL);
 
         if (menu->type == THUNAR_MENU_TYPE_CONTEXT_LOCATION_BUTTONS)
-            item_added |= (thunar_launcher_append_menu_item(
+            item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_PASTE_INTO_FOLDER,
                                         force) != NULL);
         else
-            item_added |= (thunar_launcher_append_menu_item(
+            item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_PASTE,
@@ -303,12 +303,12 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     if (menu_sections & THUNAR_MENU_SECTION_TRASH_DELETE)
     {
         item_added = FALSE;
-        item_added |=(thunar_launcher_append_menu_item(
+        item_added |=(launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_MOVE_TO_TRASH,
                                         force) != NULL);
-        item_added |=(thunar_launcher_append_menu_item(
+        item_added |=(launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_DELETE,
@@ -319,7 +319,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_EMPTY_TRASH)
     {
-        if (thunar_launcher_append_menu_item(
+        if (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_EMPTY_TRASH,
@@ -329,7 +329,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_RESTORE)
     {
-        if (thunar_launcher_append_menu_item(
+        if (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_RESTORE,
@@ -340,20 +340,20 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     item_added = FALSE;
 
     if (menu_sections & THUNAR_MENU_SECTION_DUPLICATE)
-        item_added |= (thunar_launcher_append_menu_item(menu->launcher,
+        item_added |= (launcher_append_menu_item(menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_DUPLICATE,
                                         force) != NULL);
 
     if (menu_sections & THUNAR_MENU_SECTION_MAKELINK)
-        item_added |=(thunar_launcher_append_menu_item(
+        item_added |=(launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_MAKE_LINK,
                                         force) != NULL);
 
     if (menu_sections & THUNAR_MENU_SECTION_RENAME)
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_RENAME,
@@ -368,7 +368,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_TERMINAL)
     {
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_TERMINAL,
@@ -377,7 +377,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_EXTRACT)
     {
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_EXTRACT,
@@ -393,19 +393,19 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_MOUNTABLE)
     {
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_MOUNT,
                                         FALSE) != NULL);
 
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_UNMOUNT,
                                         FALSE) != NULL);
 
-        item_added |= (thunar_launcher_append_menu_item(
+        item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_EJECT,
@@ -419,7 +419,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_PROPERTIES)
     {
-        thunar_launcher_append_menu_item(
+        launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         THUNAR_LAUNCHER_ACTION_PROPERTIES,

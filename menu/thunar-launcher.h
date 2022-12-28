@@ -94,10 +94,10 @@ GtkWidget*  thunar_launcher_get_widget(ThunarLauncher *launcher);
 
 void        thunar_launcher_append_accelerators(ThunarLauncher *launcher,
                                                 GtkAccelGroup *accel_group);
-GtkWidget*  thunar_launcher_append_menu_item(ThunarLauncher *launcher,
-                                             GtkMenuShell *menu,
-                                             ThunarLauncherAction action,
-                                             gboolean force);
+GtkWidget*  launcher_append_menu_item(ThunarLauncher *launcher,
+                                      GtkMenuShell *menu,
+                                      ThunarLauncherAction action,
+                                      gboolean force);
 gboolean    thunar_launcher_append_open_section(ThunarLauncher *launcher,
                                                 GtkMenuShell *menu,
                                                 gboolean support_tabs,
