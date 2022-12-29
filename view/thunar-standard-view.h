@@ -31,12 +31,17 @@ typedef struct _ThunarStandardViewPrivate ThunarStandardViewPrivate;
 typedef struct _ThunarStandardViewClass   ThunarStandardViewClass;
 typedef struct _ThunarStandardView        ThunarStandardView;
 
-#define THUNAR_TYPE_STANDARD_VIEW            (thunar_standard_view_get_type())
-#define THUNAR_STANDARD_VIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardView))
-#define THUNAR_STANDARD_VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardViewClass))
-#define THUNAR_IS_STANDARD_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_STANDARD_VIEW))
-#define THUNAR_IS_STANDARD_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_STANDARD_VIEW))
-#define THUNAR_STANDARD_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardViewClass))
+#define THUNAR_TYPE_STANDARD_VIEW (standard_view_get_type())
+#define THUNAR_STANDARD_VIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardView))
+#define THUNAR_STANDARD_VIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardViewClass))
+#define THUNAR_IS_STANDARD_VIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_STANDARD_VIEW))
+#define THUNAR_IS_STANDARD_VIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_STANDARD_VIEW))
+#define THUNAR_STANDARD_VIEW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardViewClass))
 
 // Action Entrys provided by this widget
 
@@ -144,7 +149,7 @@ struct _ThunarStandardView
     ThunarStandardViewPrivate *priv;
 };
 
-GType thunar_standard_view_get_type() G_GNUC_CONST;
+GType standard_view_get_type() G_GNUC_CONST;
 
 void thunar_standard_view_context_menu(ThunarStandardView *standard_view);
 void thunar_standard_view_queue_popup(ThunarStandardView *standard_view,
@@ -156,12 +161,12 @@ ThunarHistory *thunar_standard_view_get_history(ThunarStandardView *standard_vie
 void thunar_standard_view_append_menu_items(ThunarStandardView *standard_view,
                                             GtkMenu *menu,
                                             GtkAccelGroup *accel_group);
-void _thunar_standard_view_open_on_middle_click(ThunarStandardView *standard_view,
+void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
                                                 GtkTreePath *tree_path,
                                                 guint event_state);
 
 G_END_DECLS
 
-#endif /* !__THUNAR_STANDARD_VIEW_H__ */
+#endif // __THUNAR_STANDARD_VIEW_H__
 
 

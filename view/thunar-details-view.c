@@ -716,7 +716,7 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
             gtk_tree_selection_select_path(selection, path);
 
             /* try to open the path as new window/tab, if possible */
-            _thunar_standard_view_open_on_middle_click(THUNAR_STANDARD_VIEW(details_view), path, event->state);
+            standard_view_open_on_middle_click(THUNAR_STANDARD_VIEW(details_view), path, event->state);
 
             /* cleanup */
             gtk_tree_path_free(path);

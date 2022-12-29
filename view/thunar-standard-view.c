@@ -398,7 +398,7 @@ static GParamSpec *standard_view_props[N_PROPERTIES] = { NULL, };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(
                                 ThunarStandardView,
-                                thunar_standard_view,
+                                standard_view,
                                 GTK_TYPE_SCROLLED_WINDOW,
                                 G_IMPLEMENT_INTERFACE(
                                     THUNAR_TYPE_NAVIGATOR,
@@ -411,7 +411,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE(
                                     thunar_standard_view_view_init)
                                 G_ADD_PRIVATE(ThunarStandardView))
 
-static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
+static void standard_view_class_init(ThunarStandardViewClass *klass)
 {
     GtkWidgetClass *gtkwidget_class;
     GObjectClass   *gobject_class;
@@ -541,6 +541,18 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
                      G_TYPE_STRING);
 }
 
+static void thunar_standard_view_component_init(ThunarComponentIface *iface)
+{
+    iface->get_selected_files = thunar_standard_view_get_selected_files_component;
+    iface->set_selected_files = thunar_standard_view_set_selected_files_component;
+}
+
+static void thunar_standard_view_navigator_init(ThunarNavigatorIface *iface)
+{
+    iface->get_current_directory = thunar_standard_view_get_current_directory;
+    iface->set_current_directory = thunar_standard_view_set_current_directory;
+}
+
 static void thunar_standard_view_view_init(ThunarViewIface *iface)
 {
     iface->get_loading = thunar_standard_view_get_loading;
@@ -556,21 +568,9 @@ static void thunar_standard_view_view_init(ThunarViewIface *iface)
     iface->set_selected_files = thunar_standard_view_set_selected_files_view;
 }
 
-static void thunar_standard_view_component_init(ThunarComponentIface *iface)
+static void standard_view_init(ThunarStandardView *standard_view)
 {
-    iface->get_selected_files = thunar_standard_view_get_selected_files_component;
-    iface->set_selected_files = thunar_standard_view_set_selected_files_component;
-}
-
-static void thunar_standard_view_navigator_init(ThunarNavigatorIface *iface)
-{
-    iface->get_current_directory = thunar_standard_view_get_current_directory;
-    iface->set_current_directory = thunar_standard_view_set_current_directory;
-}
-
-static void thunar_standard_view_init(ThunarStandardView *standard_view)
-{
-    standard_view->priv = thunar_standard_view_get_instance_private(standard_view);
+    standard_view->priv = standard_view_get_instance_private(standard_view);
 
     /* allocate the scroll_to_files mapping(directory GFile -> first visible child GFile) */
     standard_view->priv->scroll_to_files = g_hash_table_new_full(g_file_hash,
@@ -677,7 +677,7 @@ static GObject* thunar_standard_view_constructor(
     GObject            *object;
 
     /* let the GObject constructor create the instance */
-    object = G_OBJECT_CLASS(thunar_standard_view_parent_class)->constructor(
+    object = G_OBJECT_CLASS(standard_view_parent_class)->constructor(
                                                         type,
                                                         n_construct_properties,
                                                         construct_properties);
@@ -769,7 +769,7 @@ static void thunar_standard_view_dispose(GObject *object)
         standard_view->priv->current_directory = NULL;
     }
 
-    G_OBJECT_CLASS(thunar_standard_view_parent_class)->dispose(object);
+    G_OBJECT_CLASS(standard_view_parent_class)->dispose(object);
 }
 
 static void thunar_standard_view_finalize(GObject *object)
@@ -833,7 +833,7 @@ static void thunar_standard_view_finalize(GObject *object)
     /* release the scroll_to_files hash table */
     g_hash_table_destroy(standard_view->priv->scroll_to_files);
 
-    G_OBJECT_CLASS(thunar_standard_view_parent_class)->finalize(object);
+    G_OBJECT_CLASS(standard_view_parent_class)->finalize(object);
 }
 
 static void thunar_standard_view_get_property(GObject    *object,
@@ -938,7 +938,7 @@ static void thunar_standard_view_realize(GtkWidget *widget)
     GtkIconTheme       *icon_theme;
 
     /* let the GtkWidget do its work */
-    GTK_WIDGET_CLASS(thunar_standard_view_parent_class)->realize(widget);
+    GTK_WIDGET_CLASS(standard_view_parent_class)->realize(widget);
 
     /* determine the icon factory for the screen on which we are realized */
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
@@ -956,7 +956,7 @@ static void thunar_standard_view_unrealize(GtkWidget *widget)
     standard_view->icon_factory = NULL;
 
     /* let the GtkWidget do its work */
-    GTK_WIDGET_CLASS(thunar_standard_view_parent_class)->unrealize(widget);
+    GTK_WIDGET_CLASS(standard_view_parent_class)->unrealize(widget);
 }
 
 static void thunar_standard_view_grab_focus(GtkWidget *widget)
@@ -973,7 +973,7 @@ static gboolean thunar_standard_view_draw(GtkWidget *widget, cairo_t *cr)
 
     /* let the scrolled window do it's work */
     cairo_save(cr);
-    result =(*GTK_WIDGET_CLASS(thunar_standard_view_parent_class)->draw)(widget, cr);
+    result =(*GTK_WIDGET_CLASS(standard_view_parent_class)->draw)(widget, cr);
     cairo_restore(cr);
 
     /* render the folder drop shadow */
@@ -3240,7 +3240,7 @@ thunar_standard_view_disconnect_accelerators(ThunarStandardView *standard_view)
  * The method will attempt to find a thunar file for the given #GtkTreePath and open it as window/tab, if it is a directory
  * Note that this method only should be used after pressing the middle-mouse button
  **/
-void _thunar_standard_view_open_on_middle_click(
+void standard_view_open_on_middle_click(
                                             ThunarStandardView *standard_view,
                                             GtkTreePath        *tree_path,
                                             guint               event_state)
@@ -3256,6 +3256,7 @@ void _thunar_standard_view_open_on_middle_click(
 
     /* determine the file for the path */
     gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, tree_path);
+
     file = thunar_list_model_get_file(standard_view->model, &iter);
     if (G_LIKELY(file != NULL))
     {
