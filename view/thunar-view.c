@@ -209,20 +209,6 @@ void thunar_view_set_zoom_level(ThunarView *view, ThunarZoomLevel zoom_level)
 }
 
 /**
- * thunar_view_reset_zoom_level:
- * @view : a #ThunarView instance.
- *
- * Resets the zoom level of @view to the default
- * #ThunarZoomLevel for @view.
- **/
-void thunar_view_reset_zoom_level(ThunarView *view)
-{
-    thunar_return_if_fail(THUNAR_IS_VIEW(view));
-
-    (*THUNAR_VIEW_GET_IFACE(view)->reset_zoom_level)(view);
-}
-
-/**
  * thunar_view_reload:
  * @view : a #ThunarView instance.
  * @reload_info : whether to reload file info for all files too

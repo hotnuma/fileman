@@ -19,13 +19,17 @@
  */
 
 #include <config.h>
+#include <thunar-standard-view.h>
+
 #include <memory.h>
 #include <string.h>
-
 #include <gdk/gdkkeysyms.h>
 
-#include <libext.h>
+#if defined(GDK_WINDOWING_X11)
+#include <gdk/gdkx.h>
+#endif
 
+#include <libext.h>
 #include <thunar-application.h>
 #include <thunar-menu.h>
 #include <thunar-dialogs.h>
@@ -41,14 +45,9 @@
 #include <thunar-pango-extensions.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
-#include <thunar-standard-view.h>
 #include <thunar-util.h>
 
-#if defined(GDK_WINDOWING_X11)
-#include <gdk/gdkx.h>
-#endif
-
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -65,14 +64,14 @@ enum
     N_PROPERTIES
 };
 
-/* Signal identifiers */
+// Signal identifiers
 enum
 {
     START_OPEN_LOCATION,
     LAST_SIGNAL,
 };
 
-/* Identifiers for DnD target types */
+// Identifiers for DnD target types
 enum
 {
     TARGET_TEXT_URI_LIST,
@@ -80,14 +79,22 @@ enum
     TARGET_NETSCAPE_URL,
 };
 
+// Allocation -----------------------------------------------------------------
+
+static void thunar_standard_view_view_init(ThunarViewIface *iface);
 static void thunar_standard_view_component_init(ThunarComponentIface *iface);
 static void thunar_standard_view_navigator_init(ThunarNavigatorIface *iface);
-static void thunar_standard_view_view_init(ThunarViewIface *iface);
-static GObject *thunar_standard_view_constructor(GType type,
-                                                 guint n_construct_properties,
-                                                 GObjectConstructParam *construct_properties);
+static GObject *thunar_standard_view_constructor(
+                                    GType type,
+                                    guint n_construct_properties,
+                                    GObjectConstructParam *construct_properties);
 static void thunar_standard_view_dispose(GObject *object);
 static void thunar_standard_view_finalize(GObject *object);
+static void thunar_standard_view_realize(GtkWidget *widget);
+static void thunar_standard_view_unrealize(GtkWidget *widget);
+
+// Properties -----------------------------------------------------------------
+
 static void thunar_standard_view_get_property(GObject *object,
                                               guint prop_id,
                                               GValue *value,
@@ -96,22 +103,23 @@ static void thunar_standard_view_set_property(GObject *object,
                                               guint prop_id,
                                               const GValue *value,
                                               GParamSpec *pspec);
-static void thunar_standard_view_realize(GtkWidget *widget);
-static void thunar_standard_view_unrealize(GtkWidget *widget);
-static void thunar_standard_view_grab_focus(GtkWidget *widget);
-static gboolean thunar_standard_view_draw(GtkWidget *widget, cairo_t *cr);
+
 static GList *thunar_standard_view_get_selected_files_component(
                                             ThunarComponent *component);
 static void thunar_standard_view_set_selected_files_component(
                                             ThunarComponent *component,
                                             GList *selected_files);
-static ThunarFile *thunar_standard_view_get_current_directory(ThunarNavigator *navigator);
-static void thunar_standard_view_set_current_directory(ThunarNavigator *navigator,
-                                                       ThunarFile *current_directory);
+
+static ThunarFile *thunar_standard_view_get_current_directory(
+                                            ThunarNavigator *navigator);
+static void thunar_standard_view_set_current_directory(
+                                            ThunarNavigator *navigator,
+                                            ThunarFile *current_directory);
+
 static gboolean thunar_standard_view_get_loading(ThunarView *view);
 static void thunar_standard_view_set_loading(ThunarStandardView *standard_view,
                                              gboolean loading);
-static const gchar *thunar_standard_view_get_statusbar_text(ThunarView *view);
+
 static gboolean thunar_standard_view_get_show_hidden(ThunarView *view);
 static void thunar_standard_view_set_show_hidden(ThunarView *view,
                                                  gboolean show_hidden);
@@ -119,10 +127,24 @@ static void thunar_standard_view_set_show_hidden(ThunarView *view,
 static ThunarZoomLevel thunar_standard_view_get_zoom_level(ThunarView *view);
 static void thunar_standard_view_set_zoom_level(ThunarView *view,
                                                 ThunarZoomLevel zoom_level);
-static void thunar_standard_view_reset_zoom_level(ThunarView *view);
+
+static GList *thunar_standard_view_get_selected_files_view(ThunarView *view);
+static void thunar_standard_view_set_selected_files_view(ThunarView *view,
+                                                         GList *selected_files);
+
+// ----------------------------------------------------------------------------
+
+static void thunar_standard_view_grab_focus(GtkWidget *widget);
+static gboolean thunar_standard_view_draw(GtkWidget *widget, cairo_t *cr);
+
+// ----------------------------------------------------------------------------
+
+static const gchar *_standard_view_get_statusbar_text(ThunarView *view);
+static void _standard_view_update_statusbar_text(ThunarStandardView *standard_view);
 
 static void thunar_standard_view_reload(ThunarView *view,
                                         gboolean reload_info);
+
 static gboolean thunar_standard_view_get_visible_range(ThunarView *view,
                                                        ThunarFile **start_file,
                                                        ThunarFile **end_file);
@@ -132,26 +154,16 @@ static void thunar_standard_view_scroll_to_file(ThunarView *view,
                                                 gboolean use_align,
                                                 gfloat row_align,
                                                 gfloat col_align);
-static GdkDragAction thunar_standard_view_get_dest_actions(
-                                            ThunarStandardView *standard_view,
-                                            GdkDragContext *context,
-                                            gint x,
-                                            gint y,
-                                            guint timestamp,
-                                            ThunarFile **file_return);
-static ThunarFile *thunar_standard_view_get_drop_file(
-                                            ThunarStandardView *standard_view,
-                                            gint x,
-                                            gint y,
-                                            GtkTreePath **path_return);
-static void thunar_standard_view_update_statusbar_text(ThunarStandardView *standard_view);
+
 static void thunar_standard_view_current_directory_destroy(ThunarFile *current_directory,
                                              ThunarStandardView *standard_view);
 static void thunar_standard_view_current_directory_changed(ThunarFile *current_directory,
                                              ThunarStandardView *standard_view);
-static GList *thunar_standard_view_get_selected_files_view(ThunarView *view);
-static void thunar_standard_view_set_selected_files_view(ThunarView *view,
-                                                         GList *selected_files);
+
+static void thunar_standard_view_connect_accelerators(ThunarStandardView *standard_view);
+static void thunar_standard_view_disconnect_accelerators(ThunarStandardView *standard_view);
+
+
 static void thunar_standard_view_select_all_files(ThunarView *view);
 static void thunar_standard_view_select_by_pattern(ThunarView *view);
 static void thunar_standard_view_selection_invert(ThunarView *view);
@@ -166,20 +178,63 @@ static gboolean thunar_standard_view_button_release_event(
                                             GtkWidget *view,
                                             GdkEventButton *event,
                                             ThunarStandardView *standard_view);
-static gboolean thunar_standard_view_motion_notify_event(
-                                            GtkWidget *view,
-                                            GdkEventMotion *event,
-                                            ThunarStandardView *standard_view);
 static gboolean thunar_standard_view_key_press_event(
                                             GtkWidget *view,
                                             GdkEventKey *event,
+                                            ThunarStandardView *standard_view);
+
+static gboolean thunar_standard_view_motion_notify_event(
+                                            GtkWidget *view,
+                                            GdkEventMotion *event,
                                             ThunarStandardView *standard_view);
 static gboolean thunar_standard_view_scroll_event(
                                             GtkWidget *view,
                                             GdkEventScroll *event,
                                             ThunarStandardView *standard_view);
 
+static void _standard_view_select_after_row_deleted(
+                                            ThunarListModel *model,
+                                            GtkTreePath *path,
+                                            ThunarStandardView *standard_view);
+static gboolean thunar_standard_view_restore_selection_idle(
+                                            ThunarStandardView *standard_view);
+static void thunar_standard_view_row_changed(ThunarListModel *model,
+                                             GtkTreePath *path,
+                                             GtkTreeIter *iter,
+                                             ThunarStandardView *standard_view);
+static void thunar_standard_view_rows_reordered(
+                                            ThunarListModel *model,
+                                            GtkTreePath *path,
+                                            GtkTreeIter *iter,
+                                            gpointer new_order,
+                                            ThunarStandardView *standard_view);
+static void thunar_standard_view_error(ThunarListModel *model,
+                                       const GError *error,
+                                       ThunarStandardView *standard_view);
+static void thunar_standard_view_sort_column_changed(
+                                            GtkTreeSortable *tree_sortable,
+                                            ThunarStandardView *standard_view);
+static void thunar_standard_view_loading_unbound(gpointer user_data);
 
+static void thunar_standard_view_scrolled(GtkAdjustment *adjustment,
+                                          ThunarStandardView *standard_view);
+static void thunar_standard_view_size_allocate(ThunarStandardView *standard_view,
+                                               GtkAllocation *allocation);
+
+// ----------------------------------------------------------------------------
+
+static GdkDragAction thunar_standard_view_get_dest_actions(
+                                            ThunarStandardView *standard_view,
+                                            GdkDragContext *context,
+                                            gint x,
+                                            gint y,
+                                            guint timestamp,
+                                            ThunarFile **file_return);
+static ThunarFile *thunar_standard_view_get_drop_file(
+                                            ThunarStandardView *standard_view,
+                                            gint x,
+                                            gint y,
+                                            GtkTreePath **path_return);
 static gboolean thunar_standard_view_drag_drop(
                                             GtkWidget *view,
                                             GdkDragContext *context,
@@ -223,39 +278,11 @@ static void thunar_standard_view_drag_data_delete(GtkWidget *view,
 static void thunar_standard_view_drag_end(GtkWidget *view,
                                             GdkDragContext *context,
                                             ThunarStandardView *standard_view);
-static void thunar_standard_view_select_after_row_deleted(
-                                            ThunarListModel *model,
-                                            GtkTreePath *path,
-                                            ThunarStandardView *standard_view);
-static gboolean thunar_standard_view_restore_selection_idle(
-                                            ThunarStandardView *standard_view);
-static void thunar_standard_view_row_changed(ThunarListModel *model,
-                                             GtkTreePath *path,
-                                             GtkTreeIter *iter,
-                                             ThunarStandardView *standard_view);
-static void thunar_standard_view_rows_reordered(
-                                            ThunarListModel *model,
-                                            GtkTreePath *path,
-                                            GtkTreeIter *iter,
-                                            gpointer new_order,
-                                            ThunarStandardView *standard_view);
-static void thunar_standard_view_error(ThunarListModel *model,
-                                       const GError *error,
-                                       ThunarStandardView *standard_view);
-static void thunar_standard_view_sort_column_changed(
-                                            GtkTreeSortable *tree_sortable,
-                                            ThunarStandardView *standard_view);
-static void thunar_standard_view_loading_unbound(gpointer user_data);
 static gboolean thunar_standard_view_drag_scroll_timer(gpointer user_data);
 static void thunar_standard_view_drag_scroll_timer_destroy(gpointer user_data);
 static gboolean thunar_standard_view_drag_timer(gpointer user_data);
 static void thunar_standard_view_drag_timer_destroy(gpointer user_data);
-static void thunar_standard_view_scrolled(GtkAdjustment *adjustment,
-                                          ThunarStandardView *standard_view);
-static void thunar_standard_view_size_allocate(ThunarStandardView *standard_view,
-                                               GtkAllocation *allocation);
-static void thunar_standard_view_connect_accelerators(ThunarStandardView *standard_view);
-static void thunar_standard_view_disconnect_accelerators(ThunarStandardView *standard_view);
+
 
 struct _ThunarStandardViewPrivate
 {
@@ -355,33 +382,40 @@ static XfceGtkActionEntry _standard_view_actions[] =
 /* Target types for dragging from the view */
 static const GtkTargetEntry drag_targets[] =
 {
-    { "text/uri-list", 0, TARGET_TEXT_URI_LIST, },
+    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
 };
 
 /* Target types for dropping to the view */
 static const GtkTargetEntry drop_targets[] =
 {
-    { "text/uri-list", 0, TARGET_TEXT_URI_LIST, },
-    { "XdndDirectSave0", 0, TARGET_XDND_DIRECT_SAVE0, },
-    { "_NETSCAPE_URL", 0, TARGET_NETSCAPE_URL, },
+    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
+    {"XdndDirectSave0", 0, TARGET_XDND_DIRECT_SAVE0},
+    {"_NETSCAPE_URL", 0, TARGET_NETSCAPE_URL},
 };
 
 static guint       standard_view_signals[LAST_SIGNAL];
 static GParamSpec *standard_view_props[N_PROPERTIES] = { NULL, };
 
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE(ThunarStandardView,
-                                 thunar_standard_view,
-                                 GTK_TYPE_SCROLLED_WINDOW,
-                                 G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR, thunar_standard_view_navigator_init)
-                                 G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT, thunar_standard_view_component_init)
-                                 G_IMPLEMENT_INTERFACE(THUNAR_TYPE_VIEW, thunar_standard_view_view_init)
-                                 G_ADD_PRIVATE(ThunarStandardView))
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE(
+                                ThunarStandardView,
+                                thunar_standard_view,
+                                GTK_TYPE_SCROLLED_WINDOW,
+                                G_IMPLEMENT_INTERFACE(
+                                    THUNAR_TYPE_NAVIGATOR,
+                                    thunar_standard_view_navigator_init)
+                                G_IMPLEMENT_INTERFACE(
+                                    THUNAR_TYPE_COMPONENT,
+                                    thunar_standard_view_component_init)
+                                G_IMPLEMENT_INTERFACE(
+                                    THUNAR_TYPE_VIEW,
+                                    thunar_standard_view_view_init)
+                                G_ADD_PRIVATE(ThunarStandardView))
 
 static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
 {
     GtkWidgetClass *gtkwidget_class;
     GObjectClass   *gobject_class;
-    gpointer        g_iface;
+    gpointer       g_iface;
 
     gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->constructor = thunar_standard_view_constructor;
@@ -396,7 +430,8 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
     gtkwidget_class->grab_focus = thunar_standard_view_grab_focus;
     gtkwidget_class->draw = thunar_standard_view_draw;
 
-    xfce_gtk_translate_action_entries(_standard_view_actions, G_N_ELEMENTS(_standard_view_actions));
+    xfce_gtk_translate_action_entries(_standard_view_actions,
+                                      G_N_ELEMENTS(_standard_view_actions));
 
     /**
      * ThunarStandardView:loading:
@@ -409,83 +444,78 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
      **/
     standard_view_props[PROP_LOADING] =
         g_param_spec_override("loading",
-                               g_param_spec_boolean("loading",
-                                       "loading",
-                                       "loading",
-                                       FALSE,
-                                       E_PARAM_READWRITE));
+                              g_param_spec_boolean("loading",
+                                                   "loading",
+                                                   "loading",
+                                                   FALSE,
+                                                   E_PARAM_READWRITE));
 
-    /**
-     * ThunarStandardView:display-name:
-     *
-     * Display name of the current directory, for label text
-     **/
+    // Display name of the current directory, for label text
     standard_view_props[PROP_DISPLAY_NAME] =
         g_param_spec_string("display-name",
-                             "display-name",
-                             "display-name",
-                             NULL,
-                             E_PARAM_READABLE);
+                            "display-name",
+                            "display-name",
+                            NULL,
+                            E_PARAM_READABLE);
 
-    /**
-     * ThunarStandardView:parse-name:
-     *
-     * Full parsed name of the current directory, for label tooltip
-     **/
+    // Full parsed name of the current directory, for label tooltip
     standard_view_props[PROP_TOOLTIP_TEXT] =
         g_param_spec_string("tooltip-text",
-                             "tooltip-text",
-                             "tooltip-text",
-                             NULL,
-                             E_PARAM_READABLE);
+                            "tooltip-text",
+                            "tooltip-text",
+                            NULL,
+                            E_PARAM_READABLE);
 
-    /**
-     * ThunarStandardView:directory-specific-settings:
-     *
-     * Whether to use directory specific settings.
-     **/
+    // Whether to use directory specific settings.
     standard_view_props[PROP_DIRECTORY_SPECIFIC_SETTINGS] =
         g_param_spec_boolean("directory-specific-settings",
-                              "directory-specific-settings",
-                              "directory-specific-settings",
-                              FALSE,
-                              E_PARAM_READWRITE);
+                             "directory-specific-settings",
+                             "directory-specific-settings",
+                             FALSE,
+                             E_PARAM_READWRITE);
 
     /* override ThunarComponent's properties */
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);
     standard_view_props[PROP_SELECTED_FILES] =
         g_param_spec_override("selected-files",
-                               g_object_interface_find_property(g_iface, "selected-files"));
+                              g_object_interface_find_property(g_iface,
+                                                               "selected-files"));
 
     /* override ThunarNavigator's properties */
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_NAVIGATOR);
     standard_view_props[PROP_CURRENT_DIRECTORY] =
         g_param_spec_override("current-directory",
-                               g_object_interface_find_property(g_iface, "current-directory"));
+                              g_object_interface_find_property(g_iface,
+                                                               "current-directory"));
 
     /* override ThunarView's properties */
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_VIEW);
     standard_view_props[PROP_STATUSBAR_TEXT] =
         g_param_spec_override("statusbar-text",
-                               g_object_interface_find_property(g_iface, "statusbar-text"));
+                              g_object_interface_find_property(g_iface,
+                                                               "statusbar-text"));
 
     standard_view_props[PROP_SHOW_HIDDEN] =
         g_param_spec_override("show-hidden",
-                               g_object_interface_find_property(g_iface, "show-hidden"));
+                              g_object_interface_find_property(g_iface,
+                                                               "show-hidden"));
 
     standard_view_props[PROP_ZOOM_LEVEL] =
         g_param_spec_override("zoom-level",
-                               g_object_interface_find_property(g_iface, "zoom-level"));
+                              g_object_interface_find_property(g_iface,
+                                                               "zoom-level"));
 
     standard_view_props[PROP_ACCEL_GROUP] =
         g_param_spec_object("accel-group",
-                             "accel-group",
-                             "accel-group",
-                             GTK_TYPE_ACCEL_GROUP,
-                             G_PARAM_WRITABLE);
+                            "accel-group",
+                            "accel-group",
+                            GTK_TYPE_ACCEL_GROUP,
+                            G_PARAM_WRITABLE);
 
     /* install all properties */
-    g_object_class_install_properties(gobject_class, N_PROPERTIES, standard_view_props);
+    g_object_class_install_properties(gobject_class,
+                                      N_PROPERTIES,
+                                      standard_view_props);
 
     /**
      * ThunarStandardView::start-opn-location:
@@ -500,12 +530,30 @@ static void thunar_standard_view_class_init(ThunarStandardViewClass *klass)
      **/
     standard_view_signals[START_OPEN_LOCATION] =
         g_signal_new(I_("start-open-location"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST,
-                      G_STRUCT_OFFSET(ThunarStandardViewClass, start_open_location),
-                      NULL, NULL,
-                      g_cclosure_marshal_VOID__STRING,
-                      G_TYPE_NONE, 1, G_TYPE_STRING);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST,
+                     G_STRUCT_OFFSET(ThunarStandardViewClass, start_open_location),
+                     NULL,
+                     NULL,
+                     g_cclosure_marshal_VOID__STRING,
+                     G_TYPE_NONE,
+                     1,
+                     G_TYPE_STRING);
+}
+
+static void thunar_standard_view_view_init(ThunarViewIface *iface)
+{
+    iface->get_loading = thunar_standard_view_get_loading;
+    iface->get_statusbar_text = _standard_view_get_statusbar_text;
+    iface->get_show_hidden = thunar_standard_view_get_show_hidden;
+    iface->set_show_hidden = thunar_standard_view_set_show_hidden;
+    iface->get_zoom_level = thunar_standard_view_get_zoom_level;
+    iface->set_zoom_level = thunar_standard_view_set_zoom_level;
+    iface->reload = thunar_standard_view_reload;
+    iface->get_visible_range = thunar_standard_view_get_visible_range;
+    iface->scroll_to_file = thunar_standard_view_scroll_to_file;
+    iface->get_selected_files = thunar_standard_view_get_selected_files_view;
+    iface->set_selected_files = thunar_standard_view_set_selected_files_view;
 }
 
 static void thunar_standard_view_component_init(ThunarComponentIface *iface)
@@ -520,88 +568,108 @@ static void thunar_standard_view_navigator_init(ThunarNavigatorIface *iface)
     iface->set_current_directory = thunar_standard_view_set_current_directory;
 }
 
-static void thunar_standard_view_view_init(ThunarViewIface *iface)
-{
-    iface->get_loading = thunar_standard_view_get_loading;
-    iface->get_statusbar_text = thunar_standard_view_get_statusbar_text;
-    iface->get_show_hidden = thunar_standard_view_get_show_hidden;
-    iface->set_show_hidden = thunar_standard_view_set_show_hidden;
-    iface->get_zoom_level = thunar_standard_view_get_zoom_level;
-    iface->set_zoom_level = thunar_standard_view_set_zoom_level;
-    iface->reset_zoom_level = thunar_standard_view_reset_zoom_level;
-    iface->reload = thunar_standard_view_reload;
-    iface->get_visible_range = thunar_standard_view_get_visible_range;
-    iface->scroll_to_file = thunar_standard_view_scroll_to_file;
-    iface->get_selected_files = thunar_standard_view_get_selected_files_view;
-    iface->set_selected_files = thunar_standard_view_set_selected_files_view;
-}
-
 static void thunar_standard_view_init(ThunarStandardView *standard_view)
 {
     standard_view->priv = thunar_standard_view_get_instance_private(standard_view);
 
     /* allocate the scroll_to_files mapping(directory GFile -> first visible child GFile) */
-    standard_view->priv->scroll_to_files = g_hash_table_new_full(g_file_hash,(GEqualFunc) g_file_equal, g_object_unref, g_object_unref);
+    standard_view->priv->scroll_to_files = g_hash_table_new_full(g_file_hash,
+                                                                 (GEqualFunc) g_file_equal, g_object_unref, g_object_unref);
 
     /* initialize the scrolled window */
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(standard_view),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
+                                   GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_AUTOMATIC);
+
     gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(standard_view), NULL);
     gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(standard_view), NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(standard_view), GTK_SHADOW_IN);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(standard_view),
+                                        GTK_SHADOW_IN);
 
     /* setup the history support */
     standard_view->priv->history = g_object_new(THUNAR_TYPE_HISTORY, NULL);
-    g_signal_connect_swapped(G_OBJECT(standard_view->priv->history), "change-directory", G_CALLBACK(thunar_navigator_change_directory), standard_view);
+    g_signal_connect_swapped(G_OBJECT(standard_view->priv->history),
+                             "change-directory",
+                             G_CALLBACK(thunar_navigator_change_directory),
+                             standard_view);
 
     /* setup the list model */
     standard_view->model = thunar_list_model_new();
-    g_signal_connect_after(G_OBJECT(standard_view->model), "row-deleted", G_CALLBACK(thunar_standard_view_select_after_row_deleted), standard_view);
+    g_signal_connect_after(G_OBJECT(standard_view->model),
+                           "row-deleted",
+                           G_CALLBACK(_standard_view_select_after_row_deleted),
+                           standard_view);
     standard_view->priv->row_changed_id = g_signal_connect(G_OBJECT(standard_view->model), "row-changed", G_CALLBACK(thunar_standard_view_row_changed), standard_view);
-    g_signal_connect(G_OBJECT(standard_view->model), "rows-reordered", G_CALLBACK(thunar_standard_view_rows_reordered), standard_view);
-    g_signal_connect(G_OBJECT(standard_view->model), "error", G_CALLBACK(thunar_standard_view_error), standard_view);
+    g_signal_connect(G_OBJECT(standard_view->model),
+                     "rows-reordered",
+                     G_CALLBACK(thunar_standard_view_rows_reordered),
+                     standard_view);
+    g_signal_connect(G_OBJECT(standard_view->model),
+                     "error",
+                     G_CALLBACK(thunar_standard_view_error),
+                     standard_view);
 
     /* setup the icon renderer */
     standard_view->icon_renderer = thunar_icon_renderer_new();
     g_object_ref_sink(G_OBJECT(standard_view->icon_renderer));
-    g_object_bind_property(G_OBJECT(standard_view), "zoom-level", G_OBJECT(standard_view->icon_renderer), "size", G_BINDING_SYNC_CREATE);
+
+    g_object_bind_property(G_OBJECT(standard_view),
+                           "zoom-level",
+                           G_OBJECT(standard_view->icon_renderer),
+                           "size",
+                           G_BINDING_SYNC_CREATE);
 
     /* setup the name renderer */
     standard_view->name_renderer = g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
 #if PANGO_VERSION_CHECK(1, 44, 0)
-                                   "attributes", thunar_pango_attr_disable_hyphens(),
+                                   "attributes",
+                                   thunar_pango_attr_disable_hyphens(),
 #endif
-                                   "alignment", PANGO_ALIGN_CENTER,
-                                   "xalign", 0.5,
+                                   "alignment",
+                                   PANGO_ALIGN_CENTER,
+                                   "xalign",
+                                   0.5,
                                    NULL);
     g_object_ref_sink(G_OBJECT(standard_view->name_renderer));
 
     /* be sure to update the selection whenever the folder changes */
-    g_signal_connect_swapped(G_OBJECT(standard_view->model), "notify::folder", G_CALLBACK(thunar_standard_view_selection_changed), standard_view);
+    g_signal_connect_swapped(G_OBJECT(standard_view->model),
+                             "notify::folder",
+                             G_CALLBACK(thunar_standard_view_selection_changed),
+                             standard_view);
 
     /* be sure to update the statusbar text whenever the number of
      * files in our model changes.
      */
-    g_signal_connect_swapped(G_OBJECT(standard_view->model), "notify::num-files", G_CALLBACK(thunar_standard_view_update_statusbar_text), standard_view);
+    g_signal_connect_swapped(G_OBJECT(standard_view->model),
+                             "notify::num-files",
+                             G_CALLBACK(_standard_view_update_statusbar_text),
+                             standard_view);
 
     /* be sure to update the statusbar text whenever the file-size-binary property changes */
-    g_signal_connect_swapped(G_OBJECT(standard_view->model), "notify::file-size-binary", G_CALLBACK(thunar_standard_view_update_statusbar_text), standard_view);
+    g_signal_connect_swapped(G_OBJECT(standard_view->model),
+                             "notify::file-size-binary",
+                             G_CALLBACK(_standard_view_update_statusbar_text),
+                             standard_view);
 
     /* connect to size allocation signals for generating thumbnail requests */
-    g_signal_connect_after(G_OBJECT(standard_view), "size-allocate",
-                            G_CALLBACK(thunar_standard_view_size_allocate), NULL);
+    g_signal_connect_after(G_OBJECT(standard_view),
+                           "size-allocate",
+                           G_CALLBACK(thunar_standard_view_size_allocate),
+                           NULL);
 
     /* add widget to css class */
-    gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(standard_view)), "standard-view");
+    gtk_style_context_add_class(
+                gtk_widget_get_style_context(GTK_WIDGET(standard_view)),
+                "standard-view");
 
     standard_view->accel_group = NULL;
 }
 
-static GObject*
-thunar_standard_view_constructor(GType  type,
-                                 guint  n_construct_properties,
-                                 GObjectConstructParam *construct_properties)
+static GObject* thunar_standard_view_constructor(
+                                    GType type,
+                                    guint n_construct_properties,
+                                    GObjectConstructParam *construct_properties)
 {
     ThunarStandardView *standard_view;
     GtkAdjustment      *adjustment;
@@ -609,9 +677,10 @@ thunar_standard_view_constructor(GType  type,
     GObject            *object;
 
     /* let the GObject constructor create the instance */
-    object = G_OBJECT_CLASS(thunar_standard_view_parent_class)->constructor(type,
-             n_construct_properties,
-             construct_properties);
+    object = G_OBJECT_CLASS(thunar_standard_view_parent_class)->constructor(
+                                                        type,
+                                                        n_construct_properties,
+                                                        construct_properties);
 
     /* cast to standard_view for convenience */
     standard_view = THUNAR_STANDARD_VIEW(object);
@@ -670,10 +739,6 @@ static void thunar_standard_view_dispose(GObject *object)
 {
     ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(object);
 
-    /* unregister the "loading" binding */
-    //if (G_UNLIKELY(standard_view->loading_binding != NULL))
-    //    exo_binding_unbind(standard_view->loading_binding);
-
     if (G_UNLIKELY(standard_view->loading_binding != NULL))
     {
         g_object_unref(standard_view->loading_binding);
@@ -704,7 +769,7 @@ static void thunar_standard_view_dispose(GObject *object)
         standard_view->priv->current_directory = NULL;
     }
 
-   (*G_OBJECT_CLASS(thunar_standard_view_parent_class)->dispose)(object);
+    G_OBJECT_CLASS(thunar_standard_view_parent_class)->dispose(object);
 }
 
 static void thunar_standard_view_finalize(GObject *object)
@@ -762,12 +827,13 @@ static void thunar_standard_view_finalize(GObject *object)
     /* free the statusbar text(if any) */
     if (standard_view->priv->statusbar_text_idle_id != 0)
         g_source_remove(standard_view->priv->statusbar_text_idle_id);
+
     g_free(standard_view->priv->statusbar_text);
 
     /* release the scroll_to_files hash table */
     g_hash_table_destroy(standard_view->priv->scroll_to_files);
 
-   (*G_OBJECT_CLASS(thunar_standard_view_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(thunar_standard_view_parent_class)->finalize(object);
 }
 
 static void thunar_standard_view_get_property(GObject    *object,
@@ -778,8 +844,9 @@ static void thunar_standard_view_get_property(GObject    *object,
     UNUSED(pspec);
     ThunarFile *current_directory;
 
-    switch(prop_id)
+    switch (prop_id)
     {
+
     case PROP_CURRENT_DIRECTORY:
         g_value_set_object(value, thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
@@ -830,8 +897,9 @@ static void thunar_standard_view_set_property(GObject      *object,
     UNUSED(pspec);
     ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
+
     case PROP_CURRENT_DIRECTORY:
         thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
         break;
@@ -897,8 +965,7 @@ static void thunar_standard_view_grab_focus(GtkWidget *widget)
     gtk_widget_grab_focus(gtk_bin_get_child(GTK_BIN(widget)));
 }
 
-static gboolean thunar_standard_view_draw(GtkWidget      *widget,
-                                          cairo_t        *cr)
+static gboolean thunar_standard_view_draw(GtkWidget *widget, cairo_t *cr)
 {
     gboolean result = FALSE;
     GtkAllocation a;
@@ -925,20 +992,17 @@ static gboolean thunar_standard_view_draw(GtkWidget      *widget,
     return result;
 }
 
-static GList*
-thunar_standard_view_get_selected_files_component(ThunarComponent *component)
+static GList* thunar_standard_view_get_selected_files_component(ThunarComponent *component)
 {
     return THUNAR_STANDARD_VIEW(component)->priv->selected_files;
 }
 
-static GList*
-thunar_standard_view_get_selected_files_view(ThunarView *view)
+static GList* thunar_standard_view_get_selected_files_view(ThunarView *view)
 {
     return THUNAR_STANDARD_VIEW(view)->priv->selected_files;
 }
 
-static void
-thunar_standard_view_set_selected_files_component(ThunarComponent *component,
+static void thunar_standard_view_set_selected_files_component(ThunarComponent *component,
         GList           *selected_files)
 {
     ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(component);
@@ -966,14 +1030,14 @@ thunar_standard_view_set_selected_files_component(ThunarComponent *component,
             return;
 
         /* unselect all previously selected files */
-       (*THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->unselect_all)(standard_view);
+        THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->unselect_all(standard_view);
 
         /* determine the tree paths for the given files */
         paths = thunar_list_model_get_paths_for_files(standard_view->model, selected_files);
         if (G_LIKELY(paths != NULL))
         {
             /* determine the first path */
-            for(first_path = paths->data, lp = paths; lp != NULL; lp = lp->next)
+            for (first_path = paths->data, lp = paths; lp != NULL; lp = lp->next)
             {
                 /* check if this path is located before the current first_path */
                 if (gtk_tree_path_compare(lp->data, first_path) < 0)
@@ -981,17 +1045,17 @@ thunar_standard_view_set_selected_files_component(ThunarComponent *component,
             }
 
             /* place the cursor on the first selected path(must be first for GtkTreeView) */
-           (*THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->set_cursor)(standard_view, first_path, FALSE);
+            THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->set_cursor(standard_view, first_path, FALSE);
 
             /* select the given tree paths paths */
-            for(first_path = paths->data, lp = paths; lp != NULL; lp = lp->next)
+            for (first_path = paths->data, lp = paths; lp != NULL; lp = lp->next)
             {
                 /* select the path */
-               (*THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->select_path)(standard_view, lp->data);
+                THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->select_path(standard_view, lp->data);
             }
 
             /* scroll to the first path(previously determined) */
-           (*THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->scroll_to_path)(standard_view, first_path, FALSE, 0.0f, 0.0f);
+            THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->scroll_to_path(standard_view, first_path, FALSE, 0.0f, 0.0f);
 
             /* release the tree paths */
             g_list_free_full(paths,(GDestroyNotify) gtk_tree_path_free);
@@ -1315,12 +1379,12 @@ static void thunar_standard_view_set_loading(ThunarStandardView *standard_view,
     /* notify listeners */
     g_object_freeze_notify(G_OBJECT(standard_view));
     g_object_notify_by_pspec(G_OBJECT(standard_view), standard_view_props[PROP_LOADING]);
-    thunar_standard_view_update_statusbar_text(standard_view);
+    _standard_view_update_statusbar_text(standard_view);
     g_object_thaw_notify(G_OBJECT(standard_view));
 }
 
 
-static const gchar* thunar_standard_view_get_statusbar_text(ThunarView *view)
+static const gchar* _standard_view_get_statusbar_text(ThunarView *view)
 {
     ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(view);
     GList              *items;
@@ -1381,26 +1445,6 @@ static void thunar_standard_view_set_zoom_level(ThunarView     *view,
         if (newThumbnailSize)
             thunar_standard_view_reload(view, TRUE);
     }
-}
-
-static void thunar_standard_view_reset_zoom_level(ThunarView *view)
-{
-    UNUSED(view);
-
-//    ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(view);
-//    const gchar        *property_name;
-//    GParamSpec         *pspec;
-//    GValue              value = { 0, };
-
-//    /* determine the default zoom level from the preferences */
-//    property_name = THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->zoom_level_property_name;
-
-//    pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(standard_view->preferences), property_name);
-
-//    g_value_init(&value, THUNAR_TYPE_ZOOM_LEVEL);
-//    g_param_value_set_default(pspec, &value);
-//    g_object_set_property(G_OBJECT(view), "zoom-level", &value);
-//    g_value_unset(&value);
 }
 
 static void thunar_standard_view_reload(ThunarView *view,
@@ -1647,7 +1691,7 @@ static gboolean thunar_standard_view_update_statusbar_text_idle(gpointer data)
 }
 
 static void
-thunar_standard_view_update_statusbar_text(ThunarStandardView *standard_view)
+_standard_view_update_statusbar_text(ThunarStandardView *standard_view)
 {
     /* stop pending timeout */
     if (standard_view->priv->statusbar_text_idle_id != 0)
@@ -2697,7 +2741,7 @@ static void thunar_standard_view_row_changed(ThunarListModel    *model,
     return;
 }
 
-static void thunar_standard_view_select_after_row_deleted(
+static void _standard_view_select_after_row_deleted(
                                             ThunarListModel    *model,
                                             GtkTreePath        *path,
                                             ThunarStandardView *standard_view)
@@ -2771,7 +2815,7 @@ static void thunar_standard_view_loading_unbound(gpointer user_data)
         standard_view->loading = FALSE;
         g_object_freeze_notify(G_OBJECT(standard_view));
         g_object_notify_by_pspec(G_OBJECT(standard_view), standard_view_props[PROP_LOADING]);
-        thunar_standard_view_update_statusbar_text(standard_view);
+        _standard_view_update_statusbar_text(standard_view);
         g_object_thaw_notify(G_OBJECT(standard_view));
     }
 }
@@ -3075,7 +3119,7 @@ void thunar_standard_view_selection_changed(ThunarStandardView *standard_view)
     standard_view->priv->selected_files = selected_files;
 
     /* update the statusbar text */
-    thunar_standard_view_update_statusbar_text(standard_view);
+    _standard_view_update_statusbar_text(standard_view);
 
     /* emit notification for "selected-files" */
     g_object_notify_by_pspec(G_OBJECT(standard_view), standard_view_props[PROP_SELECTED_FILES]);

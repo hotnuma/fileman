@@ -46,7 +46,6 @@ struct _ThunarViewIface
 
     ThunarZoomLevel (*get_zoom_level)     (ThunarView *view);
     void            (*set_zoom_level)     (ThunarView *view, ThunarZoomLevel zoom_level);
-    void            (*reset_zoom_level)   (ThunarView *view);
 
     void            (*reload)             (ThunarView *view, gboolean reload_info);
 
@@ -75,7 +74,6 @@ void thunar_view_set_show_hidden(ThunarView *view, gboolean show_hidden);
 
 ThunarZoomLevel thunar_view_get_zoom_level(ThunarView *view);
 void thunar_view_set_zoom_level(ThunarView *view, ThunarZoomLevel zoom_level);
-void thunar_view_reset_zoom_level(ThunarView *view);
 
 void thunar_view_reload(ThunarView *view, gboolean reload_info);
 
