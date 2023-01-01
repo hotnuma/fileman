@@ -283,6 +283,61 @@ static void thunar_standard_view_drag_scroll_timer_destroy(gpointer user_data);
 static gboolean thunar_standard_view_drag_timer(gpointer user_data);
 static void thunar_standard_view_drag_timer_destroy(gpointer user_data);
 
+// Actions --------------------------------------------------------------------
+
+static XfceGtkActionEntry _standard_view_actions[] =
+{
+    {THUNAR_STANDARD_VIEW_ACTION_SELECT_ALL_FILES,
+     "<Actions>/ThunarStandardView/select-all-files",
+     "<Primary>a",
+     XFCE_GTK_MENU_ITEM,
+     N_("Select _all Files"),
+     N_("Select all files in this window"),
+     NULL,
+     G_CALLBACK(thunar_standard_view_select_all_files),},
+
+    {THUNAR_STANDARD_VIEW_ACTION_SELECT_BY_PATTERN,
+     "<Actions>/ThunarStandardView/select-by-pattern",
+     "<Primary>s",
+     XFCE_GTK_MENU_ITEM,
+     N_("Select _by Pattern..."),
+     N_("Select all files that match a certain pattern"),
+     NULL,
+     G_CALLBACK(thunar_standard_view_select_by_pattern),},
+
+    {THUNAR_STANDARD_VIEW_ACTION_INVERT_SELECTION,
+     "<Actions>/ThunarStandardView/invert-selection",
+     "",
+     XFCE_GTK_MENU_ITEM,
+     N_("_Invert Selection"),
+     N_("Select all files but not those currently selected"),
+     NULL,
+     G_CALLBACK(thunar_standard_view_selection_invert),},
+};
+
+#define get_action_entry(id) \
+    xfce_gtk_get_action_entry_by_id(_standard_view_actions, \
+                                    G_N_ELEMENTS(_standard_view_actions), \
+                                    id)
+
+/* Target types for dragging from the view */
+static const GtkTargetEntry drag_targets[] =
+{
+    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
+};
+
+/* Target types for dropping to the view */
+static const GtkTargetEntry drop_targets[] =
+{
+    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
+    {"XdndDirectSave0", 0, TARGET_XDND_DIRECT_SAVE0},
+    {"_NETSCAPE_URL", 0, TARGET_NETSCAPE_URL},
+};
+
+// Allocation -----------------------------------------------------------------
+
+static guint standard_view_signals[LAST_SIGNAL];
+static GParamSpec *standard_view_props[N_PROPERTIES] = { NULL, };
 
 struct _ThunarStandardViewPrivate
 {
@@ -343,58 +398,6 @@ struct _ThunarStandardViewPrivate
     /* file insert signal */
     gulong                  row_changed_id;
 };
-
-static XfceGtkActionEntry _standard_view_actions[] =
-{
-    {THUNAR_STANDARD_VIEW_ACTION_SELECT_ALL_FILES,
-     "<Actions>/ThunarStandardView/select-all-files",
-     "<Primary>a",
-     XFCE_GTK_MENU_ITEM,
-     N_("Select _all Files"),
-     N_("Select all files in this window"),
-     NULL,
-     G_CALLBACK(thunar_standard_view_select_all_files),},
-
-    {THUNAR_STANDARD_VIEW_ACTION_SELECT_BY_PATTERN,
-     "<Actions>/ThunarStandardView/select-by-pattern",
-     "<Primary>s",
-     XFCE_GTK_MENU_ITEM,
-     N_("Select _by Pattern..."),
-     N_("Select all files that match a certain pattern"),
-     NULL,
-     G_CALLBACK(thunar_standard_view_select_by_pattern),},
-
-    {THUNAR_STANDARD_VIEW_ACTION_INVERT_SELECTION,
-     "<Actions>/ThunarStandardView/invert-selection",
-     "",
-     XFCE_GTK_MENU_ITEM,
-     N_("_Invert Selection"),
-     N_("Select all files but not those currently selected"),
-     NULL,
-     G_CALLBACK(thunar_standard_view_selection_invert),},
-};
-
-#define get_action_entry(id) \
-    xfce_gtk_get_action_entry_by_id(_standard_view_actions, \
-                                    G_N_ELEMENTS(_standard_view_actions), \
-                                    id)
-
-/* Target types for dragging from the view */
-static const GtkTargetEntry drag_targets[] =
-{
-    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
-};
-
-/* Target types for dropping to the view */
-static const GtkTargetEntry drop_targets[] =
-{
-    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
-    {"XdndDirectSave0", 0, TARGET_XDND_DIRECT_SAVE0},
-    {"_NETSCAPE_URL", 0, TARGET_NETSCAPE_URL},
-};
-
-static guint       standard_view_signals[LAST_SIGNAL];
-static GParamSpec *standard_view_props[N_PROPERTIES] = { NULL, };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(
                                 ThunarStandardView,
@@ -620,16 +623,19 @@ static void standard_view_init(ThunarStandardView *standard_view)
                            G_BINDING_SYNC_CREATE);
 
     /* setup the name renderer */
-    standard_view->name_renderer = g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
+    standard_view->name_renderer =
+        g_object_new(
+                GTK_TYPE_CELL_RENDERER_TEXT,
 #if PANGO_VERSION_CHECK(1, 44, 0)
-                                   "attributes",
-                                   thunar_pango_attr_disable_hyphens(),
+                "attributes",
+                thunar_pango_attr_disable_hyphens(),
 #endif
-                                   "alignment",
-                                   PANGO_ALIGN_CENTER,
-                                   "xalign",
-                                   0.5,
-                                   NULL);
+                "alignment",
+                PANGO_ALIGN_CENTER,
+                "xalign",
+                0.5,
+                NULL);
+
     g_object_ref_sink(G_OBJECT(standard_view->name_renderer));
 
     /* be sure to update the selection whenever the folder changes */
@@ -836,6 +842,33 @@ static void thunar_standard_view_finalize(GObject *object)
     G_OBJECT_CLASS(standard_view_parent_class)->finalize(object);
 }
 
+static void thunar_standard_view_realize(GtkWidget *widget)
+{
+    ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(widget);
+    GtkIconTheme       *icon_theme;
+
+    /* let the GtkWidget do its work */
+    GTK_WIDGET_CLASS(standard_view_parent_class)->realize(widget);
+
+    /* determine the icon factory for the screen on which we are realized */
+    icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
+    standard_view->icon_factory = thunar_icon_factory_get_for_icon_theme(icon_theme);
+    g_object_bind_property(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size", G_BINDING_SYNC_CREATE);
+}
+
+static void thunar_standard_view_unrealize(GtkWidget *widget)
+{
+    ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(widget);
+
+    /* drop the reference on the icon factory */
+    g_signal_handlers_disconnect_by_func(G_OBJECT(standard_view->icon_factory), gtk_widget_queue_draw, standard_view);
+    g_object_unref(G_OBJECT(standard_view->icon_factory));
+    standard_view->icon_factory = NULL;
+
+    /* let the GtkWidget do its work */
+    GTK_WIDGET_CLASS(standard_view_parent_class)->unrealize(widget);
+}
+
 static void thunar_standard_view_get_property(GObject    *object,
                                               guint       prop_id,
                                               GValue     *value,
@@ -930,33 +963,6 @@ static void thunar_standard_view_set_property(GObject      *object,
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
     }
-}
-
-static void thunar_standard_view_realize(GtkWidget *widget)
-{
-    ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(widget);
-    GtkIconTheme       *icon_theme;
-
-    /* let the GtkWidget do its work */
-    GTK_WIDGET_CLASS(standard_view_parent_class)->realize(widget);
-
-    /* determine the icon factory for the screen on which we are realized */
-    icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
-    standard_view->icon_factory = thunar_icon_factory_get_for_icon_theme(icon_theme);
-    g_object_bind_property(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size", G_BINDING_SYNC_CREATE);
-}
-
-static void thunar_standard_view_unrealize(GtkWidget *widget)
-{
-    ThunarStandardView *standard_view = THUNAR_STANDARD_VIEW(widget);
-
-    /* drop the reference on the icon factory */
-    g_signal_handlers_disconnect_by_func(G_OBJECT(standard_view->icon_factory), gtk_widget_queue_draw, standard_view);
-    g_object_unref(G_OBJECT(standard_view->icon_factory));
-    standard_view->icon_factory = NULL;
-
-    /* let the GtkWidget do its work */
-    GTK_WIDGET_CLASS(standard_view_parent_class)->unrealize(widget);
 }
 
 static void thunar_standard_view_grab_focus(GtkWidget *widget)
