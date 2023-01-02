@@ -306,7 +306,7 @@ static void thunar_details_view_init(ThunarDetailsView *details_view)
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
 
     g_signal_connect_swapped(G_OBJECT(selection), "changed",
-                              G_CALLBACK(thunar_standard_view_selection_changed), details_view);
+                              G_CALLBACK(standard_view_selection_changed), details_view);
 
     /* apply the initial column order and visibility from the column model */
     thunar_details_view_columns_changed(details_view->column_model, details_view);
@@ -453,7 +453,7 @@ static void thunar_details_view_selection_invert(ThunarStandardView *standard_vi
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
 
     /* block updates */
-    g_signal_handlers_block_by_func(selection, thunar_standard_view_selection_changed, standard_view);
+    g_signal_handlers_block_by_func(selection, standard_view_selection_changed, standard_view);
 
     /* get paths of selected files */
     gtk_tree_selection_selected_foreach(selection, thunar_details_view_selection_invert_foreach, &selected_paths);
@@ -470,9 +470,9 @@ static void thunar_details_view_selection_invert(ThunarStandardView *standard_vi
     g_list_free(selected_paths);
 
     /* unblock updates */
-    g_signal_handlers_unblock_by_func(selection, thunar_standard_view_selection_changed, standard_view);
+    g_signal_handlers_unblock_by_func(selection, standard_view_selection_changed, standard_view);
 
-    thunar_standard_view_selection_changed(THUNAR_STANDARD_VIEW(standard_view));
+    standard_view_selection_changed(THUNAR_STANDARD_VIEW(standard_view));
 }
 
 static void thunar_details_view_select_path(ThunarStandardView *standard_view,
@@ -670,7 +670,7 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
 
             //DPRINT("button press 3-1\n");
 
-            thunar_standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
+            standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
         }
         else
         {
@@ -682,7 +682,7 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
 
                 /* queue the menu popup */
                 //DPRINT("button press 3-2\n");
-                thunar_standard_view_queue_popup(THUNAR_STANDARD_VIEW(details_view),
+                standard_view_queue_popup(THUNAR_STANDARD_VIEW(details_view),
                                                  event);
             }
             else
@@ -696,7 +696,7 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
 
                 /* show the context menu */
                 //DPRINT("button press 3-3\n");
-                thunar_standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
+                standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
             }
 
             gtk_tree_path_free(path);
@@ -705,25 +705,34 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
         return TRUE;
     }
 
+#if 0
     // middle click
     else if (event->type == GDK_BUTTON_PRESS && event->button == 2)
     {
-        /* determine the path to the item that was middle-clicked */
-        if (gtk_tree_view_get_path_at_pos(tree_view, event->x, event->y, &path, NULL, NULL, NULL))
+        // determine the path to the item that was middle-clicked
+        if (gtk_tree_view_get_path_at_pos(tree_view,
+                                          event->x,
+                                          event->y,
+                                          &path,
+                                          NULL,
+                                          NULL,
+                                          NULL))
         {
-            /* select only the path to the item on which the user clicked */
+            // select only the path to the item on which the user clicked
             gtk_tree_selection_unselect_all(selection);
             gtk_tree_selection_select_path(selection, path);
 
-            /* try to open the path as new window/tab, if possible */
-            standard_view_open_on_middle_click(THUNAR_STANDARD_VIEW(details_view), path, event->state);
+            // try to open the path as new window/tab, if possible
+            standard_view_open_on_middle_click(THUNAR_STANDARD_VIEW(details_view),
+                                               path, event->state);
 
-            /* cleanup */
+            // cleanup
             gtk_tree_path_free(path);
         }
 
         return TRUE;
     }
+#endif
 
     return FALSE;
 }
@@ -740,7 +749,7 @@ static gboolean thunar_details_view_key_press_event(GtkTreeView       *tree_view
     if (event->keyval == GDK_KEY_Menu ||((event->state & GDK_SHIFT_MASK) != 0 && event->keyval == GDK_KEY_F10))
     {
         //DPRINT("key press\n");
-        thunar_standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
+        standard_view_context_menu(THUNAR_STANDARD_VIEW(details_view));
         return TRUE;
     }
 

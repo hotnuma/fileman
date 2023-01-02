@@ -7,6 +7,39 @@ thunar_window_notebook_show_tabs
 thunar_window_notebook_switch_page
 thunar_window_notebook_page_removed
 
+void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
+                                        GtkTreePath *tree_path,
+                                        guint event_state);
+
+void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
+                                        GtkTreePath        *tree_path,
+                                        guint               event_state)
+{
+    UNUSED(event_state);
+
+    GtkTreeIter     iter;
+    ThunarFile     *file;
+    GtkWidget      *window;
+    ThunarLauncher *launcher;
+
+    thunar_return_if_fail(THUNAR_IS_STANDARD_VIEW(standard_view));
+
+    /* determine the file for the path */
+    gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, tree_path);
+
+    file = thunar_list_model_get_file(standard_view->model, &iter);
+    if (G_LIKELY(file != NULL))
+    {
+        if (thunar_file_is_directory(file))
+        {
+            window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
+            launcher = thunar_window_get_launcher(THUNAR_WINDOW(window));
+            thunar_launcher_open_selected_folders(launcher);
+        }
+        /* release the file reference */
+        g_object_unref(G_OBJECT(file));
+    }
+}
 
 
 // ============================================================================

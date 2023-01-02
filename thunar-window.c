@@ -976,7 +976,7 @@ static void thunar_window_notebook_switch_page(GtkWidget   *notebook,
         /* disconnect from previous history */
         if (window->signal_handler_id_history_changed != 0)
         {
-            history = thunar_standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
+            history = standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
             g_signal_handler_disconnect(history, window->signal_handler_id_history_changed);
             window->signal_handler_id_history_changed = 0;
         }
@@ -1029,7 +1029,7 @@ static void thunar_window_notebook_switch_page(GtkWidget   *notebook,
     window->view = page;
 
     /* connect to the new history */
-    history = thunar_standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
+    history = standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
     if (history != NULL)
     {
         window->signal_handler_id_history_changed = g_signal_connect_swapped(G_OBJECT(history), "history-changed", G_CALLBACK(thunar_window_history_changed), window);
@@ -1037,7 +1037,7 @@ static void thunar_window_notebook_switch_page(GtkWidget   *notebook,
     }
 
     /* update the selection */
-    thunar_standard_view_selection_changed(THUNAR_STANDARD_VIEW(page));
+    standard_view_selection_changed(THUNAR_STANDARD_VIEW(page));
 
     gtk_widget_grab_focus(page);
 }
@@ -1051,7 +1051,7 @@ static void thunar_window_history_changed(ThunarWindow *window)
     if (window->view == NULL)
         return;
 
-    history = thunar_standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
+    history = standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
     if (history == NULL)
         return;
 
@@ -1137,7 +1137,7 @@ static GtkWidget* thunar_window_notebook_insert(ThunarWindow  *window,
 
     /* set the history of the view if a history is provided */
     if (history != NULL)
-        thunar_standard_view_set_history(THUNAR_STANDARD_VIEW(view), history);
+        standard_view_set_history(THUNAR_STANDARD_VIEW(view), history);
 
     label_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
@@ -1386,7 +1386,7 @@ static void thunar_window_create_view(ThunarWindow *window,
         g_object_unref(G_OBJECT(current_directory));
 
     /* connect to the new history if this is the active view */
-    history = thunar_standard_view_get_history(THUNAR_STANDARD_VIEW(new_view));
+    history = standard_view_get_history(THUNAR_STANDARD_VIEW(new_view));
     window->signal_handler_id_history_changed = g_signal_connect_swapped(G_OBJECT(history),
             "history-changed",
             G_CALLBACK(thunar_window_history_changed),
@@ -1421,7 +1421,7 @@ static void thunar_window_action_back(ThunarWindow *window)
 
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
-    history = thunar_standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
+    history = standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
     thunar_history_action_back(history);
 }
 
@@ -1431,7 +1431,7 @@ static void thunar_window_action_forward(ThunarWindow *window)
 
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
-    history = thunar_standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
+    history = standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
     thunar_history_action_forward(history);
 }
 
@@ -1962,7 +1962,7 @@ static gboolean thunar_window_history_clicked(GtkWidget      *button,
 
     if (event->button == 3)
     {
-        history = thunar_standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
+        history = standard_view_get_history(THUNAR_STANDARD_VIEW(window->view));
 
         if (button == window->toolbar_item_back)
             thunar_history_show_menu(history, THUNAR_HISTORY_MENU_BACK, button);

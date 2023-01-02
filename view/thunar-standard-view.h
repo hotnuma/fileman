@@ -151,19 +151,15 @@ struct _ThunarStandardView
 
 GType standard_view_get_type() G_GNUC_CONST;
 
-void thunar_standard_view_context_menu(ThunarStandardView *standard_view);
-void thunar_standard_view_queue_popup(ThunarStandardView *standard_view,
+void standard_view_context_menu(ThunarStandardView *standard_view);
+void standard_view_queue_popup(ThunarStandardView *standard_view,
                                       GdkEventButton *event);
 
-void thunar_standard_view_selection_changed(ThunarStandardView *standard_view);
+void standard_view_selection_changed(ThunarStandardView *standard_view);
 
-void thunar_standard_view_set_history(ThunarStandardView *standard_view,
-                                      ThunarHistory *history);
-ThunarHistory *thunar_standard_view_get_history(ThunarStandardView *standard_view);
-
-void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
-                                        GtkTreePath *tree_path,
-                                        guint event_state);
+ThunarHistory* standard_view_get_history(ThunarStandardView *standard_view);
+void standard_view_set_history(ThunarStandardView *standard_view,
+                               ThunarHistory *history);
 
 G_END_DECLS
 
