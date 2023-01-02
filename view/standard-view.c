@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <thunar-standard-view.h>
+#include <standard-view.h>
 
 #include <memory.h>
 #include <string.h>

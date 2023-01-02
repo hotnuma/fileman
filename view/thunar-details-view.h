@@ -19,7 +19,7 @@
 #ifndef __THUNAR_DETAILS_VIEW_H__
 #define __THUNAR_DETAILS_VIEW_H__
 
-#include <thunar-standard-view.h>
+#include <standard-view.h>
 
 G_BEGIN_DECLS
 

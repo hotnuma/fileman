@@ -93,7 +93,7 @@ app_sources = [
     'view/thunar-column-model.c',
     'view/thunar-details-view.c',
     'view/thunar-list-model.c',
-    'view/thunar-standard-view.c',
+    'view/standard-view.c',
     'view/thunar-view.c',
     'widget/thunar-icon-factory.c',
     'widget/thunar-icon-renderer.c',

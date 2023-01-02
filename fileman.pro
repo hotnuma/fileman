@@ -62,10 +62,10 @@ HEADERS = \
     side/thunar-tree-pane.h \
     side/thunar-tree-view.h \
     thunar-debug.h \
+    view/standard-view.h \
     view/thunar-column-model.h \
     view/thunar-details-view.h \
     view/thunar-list-model.h \
-    view/thunar-standard-view.h \
     view/thunar-view.h \
     widget/thunar-icon-factory.h \
     widget/thunar-icon-renderer.h \
@@ -131,10 +131,10 @@ SOURCES = \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \
     side/thunar-tree-view.c \
+    view/standard-view.c \
     view/thunar-column-model.c \
     view/thunar-details-view.c \
     view/thunar-list-model.c \
-    view/thunar-standard-view.c \
     view/thunar-view.c \
     widget/thunar-icon-factory.c \
     widget/thunar-icon-renderer.c \
