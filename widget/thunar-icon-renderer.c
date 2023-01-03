@@ -116,7 +116,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                         "emblems",
                                         "emblems",
                                         "emblems",
-                                        TRUE,
+                                        false,
                                         G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
 
     /**
@@ -341,11 +341,11 @@ static void thunar_icon_renderer_color_lighten(cairo_t *cr, GtkWidget *widget)
     cairo_restore(cr);
 }
 
-static void thunar_icon_renderer_render(GtkCellRenderer     *renderer,
-                                        cairo_t             *cr,
-                                        GtkWidget           *widget,
-                                        const GdkRectangle  *background_area,
-                                        const GdkRectangle  *cell_area,
+static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
+                                        cairo_t              *cr,
+                                        GtkWidget            *widget,
+                                        const GdkRectangle   *background_area,
+                                        const GdkRectangle   *cell_area,
                                         GtkCellRendererState flags)
 {
     UNUSED(background_area);
@@ -355,21 +355,22 @@ static void thunar_icon_renderer_render(GtkCellRenderer     *renderer,
     ThunarIconRenderer     *icon_renderer = THUNAR_ICON_RENDERER(renderer);
     ThunarIconFactory      *icon_factory;
     GtkIconTheme           *icon_theme;
-    GdkRectangle            emblem_area;
     GdkRectangle            icon_area;
     GdkRectangle            clip_area;
-    GdkPixbuf              *emblem;
     GdkPixbuf              *icon;
     GdkPixbuf              *temp;
-    GList                  *emblems;
-    GList                  *lp;
-    gint                    max_emblems;
-    gint                    position;
     gdouble                 alpha;
-    gint                    emblem_size;
     gboolean                color_selected;
     gboolean                color_lighten;
     gboolean                is_expanded;
+
+    //GdkRectangle            emblem_area;
+    //GdkPixbuf              *emblem;
+    //GList                  *emblems;
+    //GList                  *lp;
+    //gint                    max_emblems;
+    //gint                    position;
+    //gint                    emblem_size;
 
     if (G_UNLIKELY(icon_renderer->file == NULL))
         return;
@@ -465,6 +466,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer     *renderer,
     /* release the file's icon */
     g_object_unref(G_OBJECT(icon));
 
+#if 0
     /* check if we should render emblems as well */
     if (G_LIKELY(icon_renderer->emblems))
     {
@@ -565,6 +567,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer     *renderer,
             g_list_free(emblems);
         }
     }
+#endif
 
     /* release our reference on the icon factory */
     g_object_unref(G_OBJECT(icon_factory));

@@ -669,13 +669,7 @@ ThunarIconFactory* thunar_icon_factory_get_for_icon_theme(GtkIconTheme *icon_the
     return factory;
 }
 
-/**
- * thunar_icon_factory_get_show_thumbnail:
- * @factory       : a #ThunarIconFactory instance.
- * @file          : a #ThunarFile.
- *
- * Return value: if a Thumbnail show be shown for @file.
- **/
+#if 0
 gboolean thunar_icon_factory_get_show_thumbnail(const ThunarIconFactory *factory,
                                                 const ThunarFile        *file)
 {
@@ -705,6 +699,7 @@ gboolean thunar_icon_factory_get_show_thumbnail(const ThunarIconFactory *factory
     /* THUNAR_THUMBNAIL_MODE_ALWAYS */
     return TRUE;
 }
+#endif
 
 /**
  * thunar_icon_factory_load_icon:
@@ -765,18 +760,19 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
                                               ThunarFileIconState icon_state,
                                               gint                icon_size)
 {
-    GInputStream    *stream;
-    GtkIconInfo     *icon_info;
-    const gchar     *thumbnail_path;
+    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    thunar_return_val_if_fail(icon_size > 0, NULL);
+
     GdkPixbuf       *icon = NULL;
-    GIcon           *gicon;
     const gchar     *icon_name;
     const gchar     *custom_icon;
     ThunarIconStore *store;
 
-    thunar_return_val_if_fail(THUNAR_IS_ICON_FACTORY(factory), NULL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(icon_size > 0, NULL);
+    //GInputStream    *stream;
+    //GtkIconInfo     *icon_info;
+    //const gchar     *thumbnail_path;
+    //GIcon           *gicon;
 
     /* check if we have a stored icon on the file and it is still valid */
     store = g_object_get_qdata(G_OBJECT(file), thunar_icon_factory_store_quark);
@@ -799,9 +795,10 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
             return icon;
     }
 
+#if 0
     /* check if thumbnails are enabled and we can display a thumbnail for the item */
     if (thunar_icon_factory_get_show_thumbnail(factory, file)
-            &&(thunar_file_is_regular(file) || thunar_file_is_directory(file)) )
+            && (thunar_file_is_regular(file) || thunar_file_is_directory(file)) )
     {
         /* determine the preview icon first */
         gicon = thunar_file_get_preview_icon(file);
@@ -863,6 +860,7 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
             }
         }
     }
+#endif
 
     /* lookup the icon name for the icon in the given state and load the icon */
     if (G_LIKELY(icon == NULL))

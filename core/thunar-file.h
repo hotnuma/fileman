@@ -214,19 +214,20 @@ gboolean    thunar_file_is_chmodable(const ThunarFile *file);
 gboolean    thunar_file_is_renameable(const ThunarFile *file);
 gboolean    thunar_file_can_be_trashed(const ThunarFile *file);
 
-GList*      thunar_file_get_emblem_names(ThunarFile *file);
-void        thunar_file_set_emblem_names(ThunarFile *file, GList *emblem_names);
+//GList*      thunar_file_get_emblem_names(ThunarFile *file);
+//void        thunar_file_set_emblem_names(ThunarFile *file, GList *emblem_names);
 
 const gchar* thunar_file_get_custom_icon(const ThunarFile *file);
 gboolean    thunar_file_set_custom_icon(ThunarFile *file,
                                         const gchar *custom_icon,
                                         GError **error);
 
-const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
-                                            ThunarThumbnailSize thumbnail_size);
+//const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
+//                                            ThunarThumbnailSize thumbnail_size);
 ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file);
 void        thunar_file_set_thumb_state(ThunarFile *file,
                                         ThunarFileThumbState state);
+
 GIcon*      thunar_file_get_preview_icon(const ThunarFile *file);
 GFilesystemPreviewType thunar_file_get_preview_type(const ThunarFile *file);
 const gchar* thunar_file_get_icon_name(ThunarFile *file,
@@ -258,13 +259,13 @@ GList*      thunar_file_list_to_thunar_g_file_list(GList *file_list);
 
 gboolean    thunar_file_is_desktop(const ThunarFile *file);
 
-const gchar* thunar_file_get_metadata_setting(ThunarFile *file,
-                                              const gchar *setting_name);
-void        thunar_file_set_metadata_setting(ThunarFile *file,
-                                             const gchar *setting_name,
-                                             const gchar *setting_value);
-void        thunar_file_clear_directory_specific_settings(ThunarFile *file);
-gboolean    thunar_file_has_directory_specific_settings(ThunarFile *file);
+//const gchar* thunar_file_get_metadata_setting(ThunarFile *file,
+//                                              const gchar *setting_name);
+//void        thunar_file_set_metadata_setting(ThunarFile *file,
+//                                             const gchar *setting_name,
+//                                             const gchar *setting_value);
+//void        thunar_file_clear_directory_specific_settings(ThunarFile *file);
+//gboolean    thunar_file_has_directory_specific_settings(ThunarFile *file);
 
 /**
  * thunar_file_is_root:

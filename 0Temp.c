@@ -1,15 +1,17 @@
 
 #if 0
 
+
+//-----------------------------------------------------------------------------
+
 thunar_window_notebook_insert
 thunar_window_notebook_page_added
 thunar_window_notebook_show_tabs
 thunar_window_notebook_switch_page
 thunar_window_notebook_page_removed
 
-void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
-                                        GtkTreePath *tree_path,
-                                        guint event_state);
+
+//-----------------------------------------------------------------------------
 
 void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
                                         GtkTreePath        *tree_path,
@@ -42,8 +44,28 @@ void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
 }
 
 
-// ============================================================================
-#if 0
+//-----------------------------------------------------------------------------
+
+static void thunar_file_move_thumbnail_cache_file(GFile *old_file,
+                                                  GFile *new_file)
+{
+    ThunarApplication    *application;
+    ThunarThumbnailCache *thumbnail_cache;
+
+    thunar_return_if_fail(G_IS_FILE(old_file));
+    thunar_return_if_fail(G_IS_FILE(new_file));
+
+    application = thunar_application_get();
+    thumbnail_cache = thunar_application_get_thumbnail_cache(application);
+    thunar_thumbnail_cache_move_file(thumbnail_cache, old_file, new_file);
+
+    g_object_unref(thumbnail_cache);
+    g_object_unref(application);
+}
+
+
+//-----------------------------------------------------------------------------
+
 gboolean thunar_launcher_append_custom_actions(ThunarLauncher *launcher,
                                                GtkMenuShell   *menu)
 {
@@ -155,8 +177,6 @@ gboolean thunar_launcher_check_uca_key_activation(ThunarLauncher *launcher,
     g_list_free_full(providers, g_object_unref);
     return uca_activated;
 }
-#endif
-
 
 
 gboolean e_mkdirhier(const gchar *whole_path, gulong mode, GError **error)
@@ -253,7 +273,6 @@ gboolean e_mkdirhier(const gchar *whole_path, gulong mode, GError **error)
 
   return retval;
 }
-
 
 #endif
 
