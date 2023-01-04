@@ -390,7 +390,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
         return;
 
     /* determine the content type for the file */
-    content_type = thunar_file_get_content_type(dialog->file);
+    content_type = th_file_get_content_type(dialog->file);
 
     /* determine the application that was chosen by the user */
     if (!gtk_expander_get_expanded(GTK_EXPANDER(dialog->custom_expander)))
@@ -625,7 +625,7 @@ static void thunar_chooser_dialog_update_header(ThunarChooserDialog *dialog)
     }
     else
     {
-        content_type = thunar_file_get_content_type(dialog->file);
+        content_type = th_file_get_content_type(dialog->file);
         description = g_content_type_get_description(content_type);
 
         icon = g_content_type_get_icon(content_type);
@@ -1072,7 +1072,7 @@ static void thunar_chooser_dialog_set_file(ThunarChooserDialog *dialog,
         g_signal_connect_swapped(G_OBJECT(file), "destroy", G_CALLBACK(gtk_widget_destroy), dialog);
 
         /* allocate the new chooser model */
-        model = thunar_chooser_model_new(thunar_file_get_content_type(file));
+        model = thunar_chooser_model_new(th_file_get_content_type(file));
         gtk_tree_view_set_model(GTK_TREE_VIEW(dialog->tree_view), GTK_TREE_MODEL(model));
         thunar_chooser_dialog_expand(dialog);
         g_object_unref(G_OBJECT(model));

@@ -435,7 +435,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
             /* 50% translucent for cutted files */
             alpha = 0.50;
         }
-        else if (thunar_file_is_hidden(icon_renderer->file))
+        else if (th_file_is_hidden(icon_renderer->file))
         {
             /* 75% translucent for hidden files */
             alpha = 0.75;

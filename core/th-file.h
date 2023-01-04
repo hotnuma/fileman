@@ -24,8 +24,6 @@
 #include <thunar-gio-extensions.h>
 #include <thunar-user.h>
 
-//#include <glib.h>
-
 G_BEGIN_DECLS
 
 typedef struct _ThunarFileClass ThunarFileClass;
@@ -53,15 +51,6 @@ typedef enum
     THUNAR_FILE_ICON_STATE_OPEN,
 
 } ThunarFileIconState;
-
-//typedef enum
-//{
-//    THUNAR_FILE_THUMB_STATE_UNKNOWN = 0,
-//    THUNAR_FILE_THUMB_STATE_NONE    = 1,
-//    THUNAR_FILE_THUMB_STATE_READY   = 2,
-//    THUNAR_FILE_THUMB_STATE_LOADING = 3,
-
-//} ThunarFileThumbState;
 
 // Callback type for loading ThunarFile's asynchronously. If you want to keep
 // the #ThunarFile, you need to ref it, else it will be destroyed.
@@ -113,56 +102,56 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file,
                                        GdkDragContext *context,
                                        GdkDragAction *suggested_action_return);
 
-guint64     thunar_file_get_date(const ThunarFile *file,
+guint64     th_file_get_date(const ThunarFile *file,
                                  ThunarFileDateType date_type) G_GNUC_PURE;
 
-gchar*      thunar_file_get_date_string(const ThunarFile *file,
+gchar*      th_file_get_date_string(const ThunarFile *file,
                                         ThunarFileDateType date_type,
                                         ThunarDateStyle date_style,
                                         const gchar *date_custom_style)
                                         G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-gchar*      thunar_file_get_mode_string(const ThunarFile *file)
+gchar*      th_file_get_mode_string(const ThunarFile *file)
                                         G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-gchar*      thunar_file_get_size_string(const ThunarFile *file)
+gchar*      th_file_get_size_string(const ThunarFile *file)
                                         G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-gchar*      thunar_file_get_size_in_bytes_string(const ThunarFile *file)
+gchar*      th_file_get_size_in_bytes_string(const ThunarFile *file)
                                                  G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-gchar*      thunar_file_get_size_string_formatted(const ThunarFile *file,
+gchar*      th_file_get_size_string_formatted(const ThunarFile *file,
                                                   const gboolean file_size_binary);
-gchar*      thunar_file_get_size_string_long(const ThunarFile *file,
+gchar*      th_file_get_size_string_long(const ThunarFile *file,
                                              const gboolean file_size_binary);
 
-GVolume*    thunar_file_get_volume(const ThunarFile *file);
+GVolume*    th_file_get_volume(const ThunarFile *file);
 
-ThunarGroup* thunar_file_get_group(const ThunarFile *file);
-ThunarUser* thunar_file_get_user(const ThunarFile *file);
+ThunarGroup* th_file_get_group(const ThunarFile *file);
+ThunarUser* th_file_get_user(const ThunarFile *file);
 
-const gchar* thunar_file_get_content_type(ThunarFile *file);
-gboolean    thunar_file_load_content_type(ThunarFile *file);
-const gchar* thunar_file_get_symlink_target(const ThunarFile *file);
-const gchar* thunar_file_get_basename(const ThunarFile *file) G_GNUC_CONST;
-gboolean    thunar_file_is_symlink(const ThunarFile *file);
-guint64     thunar_file_get_size(const ThunarFile *file);
-GAppInfo*   thunar_file_get_default_handler(const ThunarFile *file);
-GFileType   thunar_file_get_kind(const ThunarFile *file) G_GNUC_PURE;
-GFile*      thunar_file_get_target_location(const ThunarFile *file);
-ThunarFileMode thunar_file_get_mode(const ThunarFile *file);
-gboolean    thunar_file_is_mounted(const ThunarFile *file);
-gboolean    thunar_file_exists(const ThunarFile *file);
-gboolean    thunar_file_is_directory(const ThunarFile *file) G_GNUC_PURE;
-gboolean    thunar_file_is_shortcut(const ThunarFile *file) G_GNUC_PURE;
-gboolean    thunar_file_is_mountable(const ThunarFile *file) G_GNUC_PURE;
-gboolean    thunar_file_is_local(const ThunarFile *file);
-gboolean    thunar_file_is_parent(const ThunarFile *file, const ThunarFile *child);
-gboolean    thunar_file_is_gfile_ancestor(const ThunarFile *file, GFile *ancestor);
-gboolean    thunar_file_is_ancestor(const ThunarFile *file, const ThunarFile *ancestor);
-gboolean    thunar_file_is_executable(const ThunarFile *file);
-gboolean    thunar_file_is_writable(const ThunarFile *file);
-gboolean    thunar_file_is_hidden(const ThunarFile *file);
-gboolean    thunar_file_is_home(const ThunarFile *file);
-gboolean    thunar_file_is_regular(const ThunarFile *file) G_GNUC_PURE;
-gboolean    thunar_file_is_trashed(const ThunarFile *file);
-gboolean    thunar_file_is_desktop_file(const ThunarFile *file, gboolean *is_secure);
+const gchar* th_file_get_content_type(ThunarFile *file);
+gboolean    th_file_load_content_type(ThunarFile *file);
+const gchar* th_file_get_symlink_target(const ThunarFile *file);
+const gchar* th_file_get_basename(const ThunarFile *file) G_GNUC_CONST;
+gboolean    th_file_is_symlink(const ThunarFile *file);
+guint64     th_file_get_size(const ThunarFile *file);
+GAppInfo*   th_file_get_default_handler(const ThunarFile *file);
+GFileType   th_file_get_kind(const ThunarFile *file) G_GNUC_PURE;
+GFile*      th_file_get_target_location(const ThunarFile *file);
+ThunarFileMode th_file_get_mode(const ThunarFile *file);
+gboolean    th_file_is_mounted(const ThunarFile *file);
+gboolean    th_file_exists(const ThunarFile *file);
+gboolean    th_file_is_directory(const ThunarFile *file) G_GNUC_PURE;
+gboolean    th_file_is_shortcut(const ThunarFile *file) G_GNUC_PURE;
+gboolean    th_file_is_mountable(const ThunarFile *file) G_GNUC_PURE;
+gboolean    th_file_is_local(const ThunarFile *file);
+gboolean    th_file_is_parent(const ThunarFile *file, const ThunarFile *child);
+gboolean    th_file_is_gfile_ancestor(const ThunarFile *file, GFile *ancestor);
+gboolean    th_file_is_ancestor(const ThunarFile *file, const ThunarFile *ancestor);
+gboolean    th_file_is_executable(const ThunarFile *file);
+gboolean    th_file_is_writable(const ThunarFile *file);
+gboolean    th_file_is_hidden(const ThunarFile *file);
+gboolean    th_file_is_home(const ThunarFile *file);
+gboolean    th_file_is_regular(const ThunarFile *file) G_GNUC_PURE;
+gboolean    th_file_is_trashed(const ThunarFile *file);
+gboolean    th_file_is_desktop_file(const ThunarFile *file, gboolean *is_secure);
 const gchar* thunar_file_get_display_name(const ThunarFile *file) G_GNUC_CONST;
 
 gchar*      thunar_file_get_deletion_date(const ThunarFile *file,
@@ -181,8 +170,6 @@ const gchar* thunar_file_get_custom_icon(const ThunarFile *file);
 gboolean    thunar_file_set_custom_icon(ThunarFile *file,
                                         const gchar *custom_icon,
                                         GError **error);
-
-//ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file);
 
 GIcon*      thunar_file_get_preview_icon(const ThunarFile *file);
 GFilesystemPreviewType thunar_file_get_preview_type(const ThunarFile *file);
@@ -216,19 +203,8 @@ gboolean    thunar_file_is_desktop(const ThunarFile *file);
 
 #define thunar_file_is_root(file) (thunar_g_file_is_root(th_file_get_file(file)))
 #define thunar_file_has_parent(file) (!thunar_file_is_root(THUNAR_FILE((file))))
-
-/*
- * thunar_file_dup_uri:
- * @file : a #ThunarFile instance.
- *
- * Returns the URI for the @file. The caller is responsible
- * to free the returned string when no longer needed.
- *
- * Return value: the URI for @file.
- */
-#define thunar_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))
-
 #define thunar_file_has_uri_scheme(file, uri_scheme) (g_file_has_uri_scheme(th_file_get_file(file),(uri_scheme)))
+#define thunar_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))
 
 // Emits the ::changed signal on @file. This function is meant to be called
 // by derived classes whenever they notice changes to the @file.

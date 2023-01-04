@@ -224,7 +224,7 @@ static void thunar_browser_poke_mountable_finish(GObject      *object,
     {
         thunar_file_reload(poke_data->file);
 
-        location = thunar_file_get_target_location(poke_data->file);
+        location = th_file_get_target_location(poke_data->file);
 
         /* resolve the ThunarFile for the target location asynchronously
          * and defer cleaning up the poke data until that has finished */
@@ -388,9 +388,9 @@ static void thunar_browser_poke_file_internal(
     thunar_return_if_fail(THUNAR_IS_FILE(source));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 
-    if (thunar_file_get_kind(file) == G_FILE_TYPE_SHORTCUT)
+    if (th_file_get_kind(file) == G_FILE_TYPE_SHORTCUT)
     {
-        target = thunar_file_get_target_location(file);
+        target = th_file_get_target_location(file);
 
         poke_data = thunar_browser_poke_file_data_new(browser, location, source,
                     file, func, location_func, user_data);
@@ -401,11 +401,11 @@ static void thunar_browser_poke_file_internal(
 
         g_object_unref(target);
     }
-    else if (thunar_file_get_kind(file) == G_FILE_TYPE_MOUNTABLE)
+    else if (th_file_get_kind(file) == G_FILE_TYPE_MOUNTABLE)
     {
-        if (thunar_file_is_mounted(file))
+        if (th_file_is_mounted(file))
         {
-            target = thunar_file_get_target_location(file);
+            target = th_file_get_target_location(file);
 
             poke_data = thunar_browser_poke_file_data_new(browser, location, source,
                         file, func, location_func, user_data);
@@ -431,7 +431,7 @@ static void thunar_browser_poke_file_internal(
             g_object_unref(mount_operation);
         }
     }
-    else if (!thunar_file_is_mounted(file))
+    else if (!th_file_is_mounted(file))
     {
         poke_data = thunar_browser_poke_file_data_new(browser, location, source,
                     file, func, location_func, user_data);

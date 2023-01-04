@@ -71,7 +71,7 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
     GList                  *lp;
     guint                   n;
 
-    thunar_return_val_if_fail(thunar_file_is_directory(folder), 0);
+    thunar_return_val_if_fail(th_file_is_directory(folder), 0);
     thunar_return_val_if_fail(GTK_IS_WIDGET(widget), 0);
 
     /* connect to the provider factory */
@@ -209,7 +209,7 @@ gboolean thunar_dnd_perform(GtkWidget    *widget,
     application = thunar_application_get();
 
     /* check if the file is a directory */
-    if (thunar_file_is_directory(file))
+    if (th_file_is_directory(file))
     {
         /* perform the given directory operation */
         switch(action)
@@ -230,7 +230,7 @@ gboolean thunar_dnd_perform(GtkWidget    *widget,
             succeed = FALSE;
         }
     }
-    else if (thunar_file_is_executable(file))
+    else if (th_file_is_executable(file))
     {
         /* TODO any chance to determine the working dir here? */
         succeed = th_file_execute(file, NULL, widget, file_list, NULL, &error);

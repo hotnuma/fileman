@@ -320,7 +320,7 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
         if (G_LIKELY(file != NULL))
         {
             /* watch the trash for changes */
-            if (thunar_file_is_trashed(file) && thunar_file_is_root(file))
+            if (th_file_is_trashed(file) && thunar_file_is_root(file))
                 thunar_file_watch(file);
 
             /* create and append the new node */
@@ -875,7 +875,7 @@ thunar_tree_model_file_changed(ThunarFileMonitor *file_monitor,
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* traverse the model and emit "row-changed" for the file's nodes */
-    if (thunar_file_is_directory(file))
+    if (th_file_is_directory(file))
         g_node_traverse(model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1, thunar_tree_model_node_traverse_changed, file);
 }
 
@@ -1131,7 +1131,7 @@ static void thunar_tree_model_item_reset(ThunarTreeModelItem *item)
     if (G_LIKELY(item->file != NULL))
     {
         /* unwatch the trash */
-        if (thunar_file_is_trashed(item->file) && thunar_file_is_root(item->file))
+        if (th_file_is_trashed(item->file) && thunar_file_is_root(item->file))
             thunar_file_unwatch(item->file);
 
         /* release and reset the file */
@@ -1170,7 +1170,7 @@ static void thunar_tree_model_item_files_added(ThunarTreeModelItem *item,
     {
         /* we don't care for anything except folders */
         file = THUNAR_FILE(lp->data);
-        if (!thunar_file_is_directory(file))
+        if (!th_file_is_directory(file))
             continue;
 
         /* if this file should be visible */

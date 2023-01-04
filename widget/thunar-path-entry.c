@@ -553,7 +553,7 @@ static void thunar_path_entry_changed(GtkEditable *editable)
             g_object_ref(G_OBJECT(current_folder));
 
         /* try to open the current-folder file as folder */
-        if (current_folder != NULL && thunar_file_is_directory(current_folder))
+        if (current_folder != NULL && th_file_is_directory(current_folder))
             folder = thunar_folder_get_for_file(current_folder);
         else
             folder = NULL;
@@ -703,7 +703,7 @@ static void thunar_path_entry_common_prefix_append(ThunarPathEntry *path_entry,
     if (G_LIKELY(file != NULL))
     {
         /* we only append slashes for directories */
-        if (thunar_file_is_directory(file) && file != path_entry->current_file)
+        if (th_file_is_directory(file) && file != path_entry->current_file)
         {
             tmp = g_strconcat(prefix, G_DIR_SEPARATOR_S, NULL);
             g_free(prefix);
@@ -880,7 +880,7 @@ static gboolean thunar_path_entry_match_func(GtkEntryCompletion *completion,
     {
         /* check if the file is hidden */
         gtk_tree_model_get(model, iter, THUNAR_COLUMN_FILE, &file, -1);
-        matched = !thunar_file_is_hidden(file);
+        matched = !th_file_is_hidden(file);
         g_object_unref(G_OBJECT(file));
     }
     else
@@ -936,7 +936,7 @@ static gboolean thunar_path_entry_match_selected(GtkEntryCompletion *completion,
     gtk_tree_model_get(model, iter, THUNAR_COLUMN_FILE_NAME, &real_name, -1);
 
     /* append a slash if we have a folder here */
-    if (G_LIKELY(thunar_file_is_directory(file)))
+    if (G_LIKELY(th_file_is_directory(file)))
     {
         tmp = g_strconcat(real_name, G_DIR_SEPARATOR_S, NULL);
         g_free(real_name);
@@ -1146,7 +1146,7 @@ void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
 
         /* if the file is a directory, end with a / to avoid loading the parent
          * directory which is probably not something the user wants */
-        if (thunar_file_is_directory(current_file)
+        if (th_file_is_directory(current_file)
                 && !g_str_has_suffix(text, "/"))
         {
             tmp = g_strconcat(text, "/", NULL);

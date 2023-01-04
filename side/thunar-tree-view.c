@@ -496,7 +496,7 @@ static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
             for(file = THUNAR_FILE(g_object_ref(G_OBJECT(view->current_directory))); file != NULL; file = file_parent)
             {
                 /* check if this file is hidden */
-                if (thunar_file_is_hidden(file))
+                if (th_file_is_hidden(file))
                 {
                     /* schedule an update of the filter after the current directory has been changed */
                     needs_refiltering = TRUE;
@@ -537,7 +537,7 @@ static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
             for(file = THUNAR_FILE(g_object_ref(G_OBJECT(current_directory))); file != NULL; file = file_parent)
             {
                 /* check if this file is hidden */
-                if (thunar_file_is_hidden(file))
+                if (th_file_is_hidden(file))
                 {
                     /* update the filter */
                     thunar_tree_model_refilter(view->model);
@@ -676,7 +676,7 @@ static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
                                     THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
 
             if ((device != NULL && thunar_device_is_mounted(device)) ||
-                   (file != NULL && thunar_file_is_mounted(file)))
+                   (file != NULL && th_file_is_mounted(file)))
             {
                 view->pressed_button = event->button;
             }
@@ -1263,7 +1263,7 @@ static void thunar_tree_view_select_files(ThunarTreeView *view,
     file = th_file_get(G_FILE(files_to_selected->data), NULL);
     if (G_LIKELY(file != NULL))
     {
-        if (G_LIKELY(thunar_file_is_directory(file)))
+        if (G_LIKELY(th_file_is_directory(file)))
             thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), file);
 
         g_object_unref(file);
@@ -1286,8 +1286,8 @@ static gboolean thunar_tree_view_visible_func(ThunarTreeModel *model,
     if (G_LIKELY(!view->show_hidden))
     {
         /* we display all non-hidden file and hidden files that are ancestors of the current directory */
-        visible = !thunar_file_is_hidden(file) ||(view->current_directory == file)
-                  ||(view->current_directory != NULL && thunar_file_is_ancestor(view->current_directory, file));
+        visible = !th_file_is_hidden(file) ||(view->current_directory == file)
+                  ||(view->current_directory != NULL && th_file_is_ancestor(view->current_directory, file));
     }
 
     return visible;
@@ -1517,7 +1517,7 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
             if (toplevel_file)
             {
                 /* check if the toplevel file is an ancestor */
-                if (thunar_file_is_ancestor(file, toplevel_file))
+                if (th_file_is_ancestor(file, toplevel_file))
                 {
                     g_object_unref(toplevel_file);
                     return path;
@@ -1540,9 +1540,9 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
     root = thunar_g_file_new_for_root();
 
     /* we prefer certain toplevel items to others */
-    if (thunar_file_is_gfile_ancestor(file, home))
+    if (th_file_is_gfile_ancestor(file, home))
         best_match = home;
-    else if (thunar_file_is_gfile_ancestor(file, root))
+    else if (th_file_is_gfile_ancestor(file, root))
         best_match = root;
     else
         best_match = NULL;
@@ -1565,7 +1565,7 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
             break;
         }
 
-        if (thunar_file_is_ancestor(file, toplevel_file))
+        if (th_file_is_ancestor(file, toplevel_file))
         {
             /* the toplevel item could be a mounted device or network
              * and we prefer this to everything else */

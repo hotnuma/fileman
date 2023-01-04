@@ -299,10 +299,10 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 
     /* check if the file is mounted */
-    if (thunar_file_is_mounted(file))
+    if (th_file_is_mounted(file))
     {
         /* check if we have a new directory or a file to launch */
-        if (thunar_file_is_directory(file))
+        if (th_file_is_directory(file))
         {
             /* open the new directory */
             thunar_navigator_change_directory(THUNAR_NAVIGATOR(location_entry), file);

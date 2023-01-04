@@ -271,7 +271,7 @@ static void thunar_chooser_button_changed(GtkComboBox *combo_box)
     if (G_LIKELY(app_info != NULL))
     {
         /* determine the mime info for the file */
-        content_type = thunar_file_get_content_type(chooser_button->file);
+        content_type = th_file_get_content_type(chooser_button->file);
 
         /* try to set application as default for these kind of file */
         if (!g_app_info_set_as_default_for_type(app_info, content_type, &error))
@@ -397,7 +397,7 @@ static void thunar_chooser_button_file_changed(ThunarChooserButton *chooser_butt
                                      NULL);
 
     /* determine the content type of the file */
-    content_type = thunar_file_get_content_type(file);
+    content_type = th_file_get_content_type(file);
     if (content_type != NULL)
     {
         /* setup a useful tooltip for the button */

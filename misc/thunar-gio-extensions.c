@@ -601,10 +601,10 @@ gboolean thunar_g_app_info_launch(GAppInfo      *info,
             if (file == NULL)
                 continue;
 
-            content_type = thunar_file_get_content_type(file);
+            content_type = th_file_get_content_type(file);
 
             /* determine default application */
-            default_app_info = thunar_file_get_default_handler(file);
+            default_app_info = th_file_get_default_handler(file);
             if (default_app_info != NULL)
             {
                 /* check if the application is the default one */

@@ -860,7 +860,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     file = THUNAR_FILE(dialog->files->data);
 
     /* hide the permissions chooser for trashed files */
-    gtk_widget_set_visible(dialog->permissions_chooser, !thunar_file_is_trashed(file));
+    gtk_widget_set_visible(dialog->permissions_chooser, !th_file_is_trashed(file));
 
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(dialog)));
     icon_factory = thunar_icon_factory_get_for_icon_theme(icon_theme);
@@ -877,8 +877,8 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     /* check if the icon may be changed(only for writable .desktop files) */
     g_object_ref(G_OBJECT(dialog->icon_image));
     gtk_container_remove(GTK_CONTAINER(gtk_widget_get_parent(dialog->icon_image)), dialog->icon_image);
-    if (thunar_file_is_writable(file)
-            && thunar_file_is_desktop_file(file, NULL))
+    if (th_file_is_writable(file)
+            && th_file_is_desktop_file(file, NULL))
     {
         gtk_container_add(GTK_CONTAINER(dialog->icon_button), dialog->icon_image);
         gtk_widget_show(dialog->icon_button);
@@ -915,13 +915,13 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the content type */
-    content_type = thunar_file_get_content_type(file);
+    content_type = th_file_get_content_type(file);
     if (content_type != NULL)
     {
         if (G_UNLIKELY(g_content_type_equals(content_type, "inode/symlink")))
             str = g_strdup(_("broken link"));
-        else if (G_UNLIKELY(thunar_file_is_symlink(file)))
-            str = g_strdup_printf(_("link to %s"), thunar_file_get_symlink_target(file));
+        else if (G_UNLIKELY(th_file_is_symlink(file)))
+            str = g_strdup_printf(_("link to %s"), th_file_get_symlink_target(file));
         else
             str = g_content_type_get_description(content_type);
         gtk_widget_set_tooltip_text(dialog->kind_ebox, content_type);
@@ -934,13 +934,13 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the application chooser(shown only for non-executable regular files!) */
-    show_chooser = thunar_file_is_regular(file) && !thunar_file_is_executable(file);
+    show_chooser = th_file_is_regular(file) && !th_file_is_executable(file);
     gtk_widget_set_visible(dialog->openwith_chooser, show_chooser);
     if (show_chooser)
         thunar_chooser_button_set_file(THUNAR_CHOOSER_BUTTON(dialog->openwith_chooser), file);
 
     /* update the link target */
-    path = thunar_file_is_symlink(file) ? thunar_file_get_symlink_target(file) : NULL;
+    path = th_file_is_symlink(file) ? th_file_get_symlink_target(file) : NULL;
     if (G_UNLIKELY(path != NULL))
     {
         display_name = g_filename_display_name(path);
@@ -1000,7 +1000,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the modified time */
-    date = thunar_file_get_date_string(file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
+    date = th_file_get_date_string(file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
     if (G_LIKELY(date != NULL))
     {
         gtk_label_set_text(GTK_LABEL(dialog->modified_label), date);
@@ -1013,7 +1013,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the accessed time */
-    date = thunar_file_get_date_string(file, THUNAR_FILE_DATE_ACCESSED, date_style, date_custom_style);
+    date = th_file_get_date_string(file, THUNAR_FILE_DATE_ACCESSED, date_style, date_custom_style);
     if (G_LIKELY(date != NULL))
     {
         gtk_label_set_text(GTK_LABEL(dialog->accessed_label), date);
@@ -1026,7 +1026,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the free space(only for folders) */
-    if (thunar_file_is_directory(file))
+    if (th_file_is_directory(file))
     {
         fs_string = thunar_g_file_get_free_space_string(th_file_get_file(file),
                     dialog->file_size_binary);
@@ -1054,7 +1054,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the volume */
-    volume = thunar_file_get_volume(file);
+    volume = th_file_get_volume(file);
     if (G_LIKELY(volume != NULL))
     {
         gicon = g_volume_get_icon(volume);
@@ -1134,18 +1134,18 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
         /* update the content type */
         if (first_file)
         {
-            content_type = thunar_file_get_content_type(file);
+            content_type = th_file_get_content_type(file);
         }
         else if (content_type != NULL)
         {
             /* check the types match */
-            tmp = thunar_file_get_content_type(file);
+            tmp = th_file_get_content_type(file);
             if (tmp == NULL || !g_content_type_equals(content_type, tmp))
                 content_type = NULL;
         }
 
         /* check if all selected files are on the same volume */
-        tmp_volume = thunar_file_get_volume(file);
+        tmp_volume = th_file_get_volume(file);
         if (first_file)
         {
             volume = tmp_volume;
@@ -1182,7 +1182,7 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
             g_object_unref(G_OBJECT(tmp_parent));
         }
 
-        if (thunar_file_is_trashed(file))
+        if (th_file_is_trashed(file))
             has_trashed_files = TRUE;
 
         first_file = FALSE;

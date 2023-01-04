@@ -404,7 +404,7 @@ static gboolean thunar_folder_content_type_loader_idle(gpointer data)
 
     /* load another files content type */
     for(lp = folder->content_type_ptr; lp != NULL; lp = lp->next)
-        if (thunar_file_load_content_type(lp->data))
+        if (th_file_load_content_type(lp->data))
         {
             /* if this was the last file, abort */
             if (G_UNLIKELY(lp->next == NULL))
@@ -782,7 +782,7 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
         /* update/destroy the corresponding file */
         if (event_type == G_FILE_MONITOR_EVENT_DELETED)
         {
-            if (!thunar_file_exists(folder->corresponding_file))
+            if (!th_file_exists(folder->corresponding_file))
                 thunar_file_destroy(folder->corresponding_file);
         }
         else
@@ -816,10 +816,10 @@ ThunarFolder* thunar_folder_get_for_file(ThunarFile *file)
     if (!th_file_check_loaded(file))
         return NULL;
 
-    thunar_return_val_if_fail(thunar_file_is_directory(file), NULL);
+    thunar_return_val_if_fail(th_file_is_directory(file), NULL);
 
     /* load if the file is not a folder */
-    if (!thunar_file_is_directory(file))
+    if (!th_file_is_directory(file))
         return NULL;
 
     /* determine the "thunar-folder" quark on-demand */

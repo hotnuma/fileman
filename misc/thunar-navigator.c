@@ -183,7 +183,7 @@ void thunar_navigator_change_directory(ThunarNavigator *navigator,
 {
     thunar_return_if_fail(THUNAR_IS_NAVIGATOR(navigator));
     thunar_return_if_fail(THUNAR_IS_FILE(directory));
-    thunar_return_if_fail(thunar_file_is_directory(directory));
+    thunar_return_if_fail(th_file_is_directory(directory));
 
     g_signal_emit(G_OBJECT(navigator), navigator_signals[CHANGE_DIRECTORY], 0, directory);
 }

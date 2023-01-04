@@ -268,7 +268,7 @@ static void thunar_size_label_files_changed(ThunarSizeLabel *size_label)
 
     /* check if there are multiple files or the single file is a directory */
     if (size_label->files->next != NULL
-            || thunar_file_is_directory(THUNAR_FILE(size_label->files->data)))
+            || th_file_is_directory(THUNAR_FILE(size_label->files->data)))
     {
         /* schedule a new job to determine the total size of the directory(not following symlinks) */
         size_label->job = thunar_deep_count_job_new(size_label->files, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS);
@@ -291,7 +291,7 @@ static void thunar_size_label_files_changed(ThunarSizeLabel *size_label)
         gtk_widget_hide(size_label->spinner);
 
         /* determine the size of the file */
-        size = thunar_file_get_size(THUNAR_FILE(size_label->files->data));
+        size = th_file_get_size(THUNAR_FILE(size_label->files->data));
 
         /* setup the new label */
         size_string = g_format_size_full(size, size_label->file_size_binary ? G_FORMAT_SIZE_LONG_FORMAT | G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_LONG_FORMAT);

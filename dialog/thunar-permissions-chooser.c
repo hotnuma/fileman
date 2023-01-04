@@ -580,7 +580,7 @@ static gboolean thunar_permissions_chooser_has_directory(ThunarPermissionsChoose
     GList *lp;
 
     for(lp = chooser->files; lp != NULL; lp = lp->next)
-        if (thunar_file_is_directory(THUNAR_FILE(lp->data)))
+        if (th_file_is_directory(THUNAR_FILE(lp->data)))
             return TRUE;
 
     return FALSE;
@@ -592,11 +592,11 @@ static gboolean thunar_permissions_chooser_is_fixable_directory(ThunarFile *file
 
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
-    if (!thunar_file_is_directory(file)
+    if (!th_file_is_directory(file)
             || !thunar_file_is_chmodable(file))
         return FALSE;
 
-    mode = thunar_file_get_mode(file);
+    mode = th_file_get_mode(file);
 
     return((mode & 0111) !=((mode >> 2) & 0111));
 }
@@ -813,15 +813,15 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
         file = THUNAR_FILE(lp->data);
 
         /* transform the file modes in r/w/r+w for each group */
-        mode = thunar_file_get_mode(file);
+        mode = th_file_get_mode(file);
         for(n = 0; n < 3; n++)
             file_modes[n] =((mode >>(n * 3)) & 0007) >> 1;
 
         if (n_files == 0)
         {
             /* get information of the first file */
-            user = thunar_file_get_user(file);
-            group = thunar_file_get_group(file);
+            user = th_file_get_user(file);
+            group = th_file_get_group(file);
 
             for(n = 0; n < 3; n++)
                 modes[n] = file_modes[n];
@@ -829,10 +829,10 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
         else
         {
             /* unset the file info if it is different from the other files */
-            if (user != NULL && user != thunar_file_get_user(file))
+            if (user != NULL && user != th_file_get_user(file))
                 user = NULL;
 
-            if (group != NULL && group != thunar_file_get_group(file))
+            if (group != NULL && group != th_file_get_group(file))
                 group = NULL;
 
             for(n = 0; n < 3; n++)
@@ -962,7 +962,7 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
 
     /* update the program setting based on the mode(only visible for regular files) */
     g_signal_handlers_block_by_func(G_OBJECT(chooser->program_button), thunar_permissions_chooser_program_toggled, chooser);
-    g_object_set(G_OBJECT(chooser->program_button), "visible", thunar_file_is_regular(file), NULL);
+    g_object_set(G_OBJECT(chooser->program_button), "visible", th_file_is_regular(file), NULL);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chooser->program_button),(mode & 0111) != 0);
     g_signal_handlers_unblock_by_func(G_OBJECT(chooser->program_button), thunar_permissions_chooser_program_toggled, chooser);
 
@@ -1085,7 +1085,7 @@ static void thunar_permissions_chooser_fixperm_clicked(ThunarPermissionsChooser 
                 continue;
 
             /* determine the current mode */
-            mode = thunar_file_get_mode(THUNAR_FILE(lp->data));
+            mode = th_file_get_mode(THUNAR_FILE(lp->data));
 
             /* determine the new mode(making sure the owner can read/enter the folder) */
             mode =(THUNAR_FILE_MODE_USR_READ | THUNAR_FILE_MODE_USR_EXEC)

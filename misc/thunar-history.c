@@ -284,7 +284,7 @@ static void _thunar_history_go_back(ThunarHistory *history, GFile *goto_file)
 
     /* check if the directory still exists */
     directory = th_file_get(goto_file, NULL);
-    if (directory == NULL || ! thunar_file_is_mounted(directory))
+    if (directory == NULL || ! th_file_is_mounted(directory))
     {
         _thunar_history_error_not_found(goto_file, NULL);
 
@@ -354,7 +354,7 @@ static void _thunar_history_go_forward(ThunarHistory *history, GFile *goto_file)
 
     /* check if the directory still exists */
     directory = th_file_get(goto_file, NULL);
-    if (directory == NULL || ! thunar_file_is_mounted(directory))
+    if (directory == NULL || ! th_file_is_mounted(directory))
     {
         _thunar_history_error_not_found(goto_file, NULL);
 

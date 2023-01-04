@@ -1620,7 +1620,7 @@ static void thunar_window_device_pre_unmount(ThunarDeviceMonitor *device_monitor
 
     /* check if the file is the current directory or an ancestor of the current directory */
     if (g_file_equal(th_file_get_file(window->current_directory), root_file)
-            || thunar_file_is_gfile_ancestor(window->current_directory, root_file))
+            || th_file_is_gfile_ancestor(window->current_directory, root_file))
     {
         /* change to the home folder */
         thunar_window_action_open_home(window);
@@ -1852,7 +1852,7 @@ gboolean thunar_window_set_directories(ThunarWindow   *window,
             continue;
 
         /* open the directory in a new notebook */
-        if (thunar_file_is_directory(directory))
+        if (th_file_is_directory(directory))
         {
             if (gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook)) == 0)
                 thunar_window_set_current_directory(window, directory);

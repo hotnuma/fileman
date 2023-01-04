@@ -1276,7 +1276,7 @@ static void _standard_view_restore_selection_from_history(ThunarStandardView *st
     {
         /* mark the file from history for selection if it is inside the new
          * directory */
-        if (thunar_file_is_parent(standard_view->priv->current_directory, selected_file))
+        if (th_file_is_parent(standard_view->priv->current_directory, selected_file))
             selected_files.data = selected_file;
         else
             g_object_unref(selected_file);
@@ -1290,7 +1290,7 @@ static void _standard_view_restore_selection_from_history(ThunarStandardView *st
         {
             /* mark the file from history for selection if it is inside the
              * new directory */
-            if (thunar_file_is_parent(standard_view->priv->current_directory, selected_file))
+            if (th_file_is_parent(standard_view->priv->current_directory, selected_file))
                 selected_files.data = selected_file;
             else
                 g_object_unref(selected_file);
@@ -1633,7 +1633,7 @@ static void standard_view_reload(ThunarView *view, gboolean reload_info)
     {
         file = thunar_folder_get_corresponding_file(folder);
 
-        if (thunar_file_exists(file))
+        if (th_file_exists(file))
             thunar_folder_reload(folder, reload_info);
         else
             _standard_view_current_directory_destroy(file, standard_view);
@@ -2675,9 +2675,9 @@ static gboolean _standard_view_drag_motion(GtkWidget          *view,
 
             /* check if we can save here */
             if (G_LIKELY(file != NULL
-                          && thunar_file_is_local(file)
-                          && thunar_file_is_directory(file)
-                          && thunar_file_is_writable(file)))
+                          && th_file_is_local(file)
+                          && th_file_is_directory(file)
+                          && th_file_is_writable(file)))
             {
                 action = gdk_drag_context_get_suggested_action(context);
             }
@@ -2892,7 +2892,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                 if (G_LIKELY(file != NULL))
                 {
                     /* verify that we have a directory here */
-                    if (thunar_file_is_directory(file))
+                    if (th_file_is_directory(file))
                     {
                         /* reload the folder corresponding to the file */
                         folder = thunar_folder_get_for_file(file);
@@ -3055,7 +3055,7 @@ static ThunarFile* _standard_view_get_drop_file(
         file = thunar_list_model_get_file(standard_view->model, &iter);
 
         /* we can only drop to directories and executable files */
-        if (!thunar_file_is_directory(file) && !thunar_file_is_executable(file))
+        if (!th_file_is_directory(file) && !th_file_is_executable(file))
         {
             /* drop to the folder instead */
             g_object_unref(G_OBJECT(file));

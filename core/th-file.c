@@ -114,7 +114,6 @@ static GQuark               _file_watch_quark;
 static guint                _file_signals[LAST_SIGNAL];
 
 #define FLAG_SET_THUMB_STATE(file,new_state) G_STMT_START{(file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); }G_STMT_END
-//#define FLAG_GET_THUMB_STATE(file) ((file)->flags & THUNAR_FILE_FLAG_THUMB_MASK)
 
 #define FLAG_SET(file,flag)    G_STMT_START{((file)->flags |=(flag)); }G_STMT_END
 #define FLAG_UNSET(file,flag)  G_STMT_START{((file)->flags &= ~(flag)); }G_STMT_END
@@ -437,7 +436,7 @@ static void th_file_finalize(GObject *object)
 
 static gchar* th_file_info_get_name(ThunarxFileInfo *file_info)
 {
-    return g_strdup(thunar_file_get_basename(THUNAR_FILE(file_info)));
+    return g_strdup(th_file_get_basename(THUNAR_FILE(file_info)));
 }
 
 static gchar* th_file_info_get_uri(ThunarxFileInfo *file_info)
@@ -466,7 +465,7 @@ static gchar* th_file_info_get_uri_scheme(ThunarxFileInfo *file_info)
 
 static gchar* th_file_info_get_mime_type(ThunarxFileInfo *file_info)
 {
-    return g_strdup(thunar_file_get_content_type(THUNAR_FILE(file_info)));
+    return g_strdup(th_file_get_content_type(THUNAR_FILE(file_info)));
 }
 
 static gboolean th_file_info_has_mime_type(ThunarxFileInfo *file_info,
@@ -475,12 +474,12 @@ static gboolean th_file_info_has_mime_type(ThunarxFileInfo *file_info,
     if (THUNAR_FILE(file_info)->info == NULL)
         return FALSE;
 
-    return g_content_type_is_a(thunar_file_get_content_type(THUNAR_FILE(file_info)), mime_type);
+    return g_content_type_is_a(th_file_get_content_type(THUNAR_FILE(file_info)), mime_type);
 }
 
 static gboolean th_file_info_is_directory(ThunarxFileInfo *file_info)
 {
-    return thunar_file_is_directory(THUNAR_FILE(file_info));
+    return th_file_is_directory(THUNAR_FILE(file_info));
 }
 
 static GFileInfo* th_file_info_get_file_info(ThunarxFileInfo *file_info)
@@ -749,7 +748,7 @@ static void thunar_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     }
 
     /* check if this file is a desktop entry */
-    if (thunar_file_is_desktop_file(file, &is_secure) && is_secure)
+    if (th_file_is_desktop_file(file, &is_secure) && is_secure)
     {
         /* determine the custom icon and display name for .desktop files */
 
@@ -1154,7 +1153,7 @@ gboolean th_file_execute(ThunarFile  *file,
         uri_list = g_slist_prepend(uri_list, g_file_get_uri(li->data));
     uri_list = g_slist_reverse(uri_list);
 
-    if (thunar_file_is_desktop_file(file, &is_secure))
+    if (th_file_is_desktop_file(file, &is_secure))
     {
         /* parse file first, even if it is insecure */
         key_file = thunar_g_file_query_key_file(file->gfile, NULL, &err);
@@ -1356,7 +1355,7 @@ gboolean th_file_launch(ThunarFile  *file,
     screen = thunar_util_parse_parent(parent, NULL);
 
     /* check if we have a folder here */
-    if (thunar_file_is_directory(file))
+    if (th_file_is_directory(file))
     {
         application = thunar_application_get();
 
@@ -1368,12 +1367,12 @@ gboolean th_file_launch(ThunarFile  *file,
     }
 
     /* check if we should execute the file */
-    if (thunar_file_is_executable(file))
+    if (th_file_is_executable(file))
         return th_file_execute(file, NULL, parent, NULL, NULL, error);
 
     /* determine the default application to open the file */
     /* TODO We should probably add a cancellable argument to thunar_file_launch() */
-    app_info = thunar_file_get_default_handler(THUNAR_FILE(file));
+    app_info = th_file_get_default_handler(THUNAR_FILE(file));
 
     /* display the application chooser if no application is defined for this file
      * type yet */
@@ -1519,13 +1518,13 @@ GdkDragAction th_file_accepts_drop(ThunarFile     *file,
         suggested_action = GDK_ACTION_ASK;
 
     /* check if we have a writable directory here or an executable file */
-    if (thunar_file_is_directory(file) && thunar_file_is_writable(file))
+    if (th_file_is_directory(file) && th_file_is_writable(file))
     {
         /* determine the possible actions */
         actions &=(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK | GDK_ACTION_ASK);
 
         /* cannot create symbolic links in the trash or copy to the trash */
-        if (thunar_file_is_trashed(file))
+        if (th_file_is_trashed(file))
             actions &= ~(GDK_ACTION_COPY | GDK_ACTION_LINK);
 
         for(lp = file_list; lp != NULL; lp = lp->next)
@@ -1548,7 +1547,7 @@ GdkDragAction th_file_accepts_drop(ThunarFile     *file,
             }
 
             /* copy/move/link within the trash not possible */
-            if (G_UNLIKELY(thunar_g_file_is_trashed(lp->data) && thunar_file_is_trashed(file)))
+            if (G_UNLIKELY(thunar_g_file_is_trashed(lp->data) && th_file_is_trashed(file)))
                 return 0;
         }
 
@@ -1593,7 +1592,7 @@ GdkDragAction th_file_accepts_drop(ThunarFile     *file,
             }
         }
     }
-    else if (thunar_file_is_executable(file))
+    else if (th_file_is_executable(file))
     {
         /* determine the possible actions */
         actions &=(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK | GDK_ACTION_PRIVATE);
@@ -1656,7 +1655,7 @@ static gboolean _th_file_same_filesystem(const ThunarFile *file_a,
  *
  * Return value: the time for @file of the given @date_type.
  **/
-guint64 thunar_file_get_date(const ThunarFile  *file,
+guint64 th_file_get_date(const ThunarFile  *file,
                              ThunarFileDateType date_type)
 {
     const gchar *attribute;
@@ -1698,12 +1697,12 @@ guint64 thunar_file_get_date(const ThunarFile  *file,
  *
  * Return value: the @date_type of @file formatted as string.
  **/
-gchar* thunar_file_get_date_string(const ThunarFile  *file,
+gchar* th_file_get_date_string(const ThunarFile  *file,
                                    ThunarFileDateType date_type,
                                    ThunarDateStyle    date_style,
                                    const gchar       *date_custom_style)
 {
-    return thunar_util_humanize_file_time(thunar_file_get_date(file, date_type), date_style, date_custom_style);
+    return thunar_util_humanize_file_time(th_file_get_date(file, date_type), date_style, date_custom_style);
 }
 
 /**
@@ -1715,7 +1714,7 @@ gchar* thunar_file_get_date_string(const ThunarFile  *file,
  *
  * Return value: the mode of @file as string.
  **/
-gchar* thunar_file_get_mode_string(const ThunarFile *file)
+gchar* th_file_get_mode_string(const ThunarFile *file)
 {
     ThunarFileMode mode;
     GFileType      kind;
@@ -1723,8 +1722,8 @@ gchar* thunar_file_get_mode_string(const ThunarFile *file)
 
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
-    kind = thunar_file_get_kind(file);
-    mode = thunar_file_get_mode(file);
+    kind = th_file_get_kind(file);
+    mode = th_file_get_mode(file);
     text = g_new(gchar, 11);
 
     /* file type */
@@ -1791,10 +1790,10 @@ gchar* thunar_file_get_mode_string(const ThunarFile *file)
  * Return value: the size of @file in a human readable
  *               format.
  **/
-gchar* thunar_file_get_size_string(const ThunarFile *file)
+gchar* th_file_get_size_string(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    return g_format_size(thunar_file_get_size(file));
+    return g_format_size(th_file_get_size(file));
 }
 
 /**
@@ -1807,10 +1806,10 @@ gchar* thunar_file_get_size_string(const ThunarFile *file)
  *
  * Return value: the size of @file in bytes.
  **/
-gchar* thunar_file_get_size_in_bytes_string(const ThunarFile *file)
+gchar* th_file_get_size_in_bytes_string(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    return g_strdup_printf("%'"G_GUINT64_FORMAT, thunar_file_get_size(file));
+    return g_strdup_printf("%'"G_GUINT64_FORMAT, th_file_get_size(file));
 }
 
 /**
@@ -1826,11 +1825,11 @@ gchar* thunar_file_get_size_in_bytes_string(const ThunarFile *file)
  * Return value: the size of @file in a human readable
  *               format.
  **/
-gchar* thunar_file_get_size_string_formatted(const ThunarFile *file,
+gchar* th_file_get_size_string_formatted(const ThunarFile *file,
                                              const gboolean file_size_binary)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    return g_format_size_full(thunar_file_get_size(file),
+    return g_format_size_full(th_file_get_size(file),
                                file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
 }
 
@@ -1848,11 +1847,11 @@ gchar* thunar_file_get_size_string_formatted(const ThunarFile *file,
  * Return value: the size of @file in a human readable
  *               format, including size in bytes.
  **/
-gchar* thunar_file_get_size_string_long(const ThunarFile *file,
+gchar* th_file_get_size_string_long(const ThunarFile *file,
                                         const gboolean file_size_binary)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    return g_format_size_full(thunar_file_get_size(file),
+    return g_format_size_full(th_file_get_size(file),
                                G_FORMAT_SIZE_LONG_FORMAT |(file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
 }
 
@@ -1866,7 +1865,7 @@ gchar* thunar_file_get_size_string_long(const ThunarFile *file,
  *
  * Return value: the #GVolume for @file or %NULL.
  **/
-GVolume* thunar_file_get_volume(const ThunarFile *file)
+GVolume* th_file_get_volume(const ThunarFile *file)
 {
     GVolume *volume = NULL;
     GMount  *mount;
@@ -1897,7 +1896,7 @@ GVolume* thunar_file_get_volume(const ThunarFile *file)
  *
  * Return value: the #ThunarGroup for @file or %NULL.
  **/
-ThunarGroup* thunar_file_get_group(const ThunarFile *file)
+ThunarGroup* th_file_get_group(const ThunarFile *file)
 {
     guint32 gid;
 
@@ -1923,7 +1922,7 @@ ThunarGroup* thunar_file_get_group(const ThunarFile *file)
  *
  * Return value: the #ThunarUser for @file or %NULL.
  **/
-ThunarUser* thunar_file_get_user(const ThunarFile *file)
+ThunarUser* th_file_get_user(const ThunarFile *file)
 {
     guint32 uid;
 
@@ -1944,7 +1943,7 @@ ThunarUser* thunar_file_get_user(const ThunarFile *file)
  *
  * Return value: content type of @file.
  **/
-const gchar* thunar_file_get_content_type(ThunarFile *file)
+const gchar* th_file_get_content_type(ThunarFile *file)
 {
     GFileInfo   *info;
     GError      *err = NULL;
@@ -2010,14 +2009,14 @@ bailout:
     return file->content_type;
 }
 
-gboolean thunar_file_load_content_type(ThunarFile *file)
+gboolean th_file_load_content_type(ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), TRUE);
 
     if (file->content_type != NULL)
         return FALSE;
 
-    thunar_file_get_content_type(file);
+    th_file_get_content_type(file);
 
     return TRUE;
 }
@@ -2031,7 +2030,7 @@ gboolean thunar_file_load_content_type(ThunarFile *file)
  *
  * Return value: path of the symlink target or %NULL.
  **/
-const gchar* thunar_file_get_symlink_target(const ThunarFile *file)
+const gchar* th_file_get_symlink_target(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
@@ -2049,7 +2048,7 @@ const gchar* thunar_file_get_symlink_target(const ThunarFile *file)
  *
  * Return value: UTF-8 encoded basename of the @file.
  **/
-const gchar* thunar_file_get_basename(const ThunarFile *file)
+const gchar* th_file_get_basename(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     return file->basename;
@@ -2063,7 +2062,7 @@ const gchar* thunar_file_get_basename(const ThunarFile *file)
  *
  * Return value: %TRUE if @file is a symbolic link.
  **/
-gboolean thunar_file_is_symlink(const ThunarFile *file)
+gboolean th_file_is_symlink(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
@@ -2082,7 +2081,7 @@ gboolean thunar_file_is_symlink(const ThunarFile *file)
  *
  * Return value: the size of @file in bytes.
  **/
-guint64 thunar_file_get_size(const ThunarFile *file)
+guint64 th_file_get_size(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), 0);
 
@@ -2103,7 +2102,7 @@ guint64 thunar_file_get_size(const ThunarFile *file)
  *
  * Return value: Default #GAppInfo for @file or %NULL if there is none.
  **/
-GAppInfo* thunar_file_get_default_handler(const ThunarFile *file)
+GAppInfo* th_file_get_default_handler(const ThunarFile *file)
 {
     const gchar *content_type;
     GAppInfo    *app_info = NULL;
@@ -2112,7 +2111,7 @@ GAppInfo* thunar_file_get_default_handler(const ThunarFile *file)
 
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
-    content_type = thunar_file_get_content_type(THUNAR_FILE(file));
+    content_type = th_file_get_content_type(THUNAR_FILE(file));
     if (content_type != NULL)
     {
         path = g_file_get_path(file->gfile);
@@ -2136,13 +2135,13 @@ GAppInfo* thunar_file_get_default_handler(const ThunarFile *file)
  *
  * Return value: the kind of @file.
  **/
-GFileType thunar_file_get_kind(const ThunarFile *file)
+GFileType th_file_get_kind(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), G_FILE_TYPE_UNKNOWN);
     return file->kind;
 }
 
-GFile* thunar_file_get_target_location(const ThunarFile *file)
+GFile* th_file_get_target_location(const ThunarFile *file)
 {
     const gchar *uri;
 
@@ -2165,7 +2164,7 @@ GFile* thunar_file_get_target_location(const ThunarFile *file)
  *
  * Return value: the permission bits of @file.
  **/
-ThunarFileMode thunar_file_get_mode(const ThunarFile *file)
+ThunarFileMode th_file_get_mode(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), 0);
 
@@ -2175,73 +2174,40 @@ ThunarFileMode thunar_file_get_mode(const ThunarFile *file)
     if (g_file_info_has_attribute(file->info, G_FILE_ATTRIBUTE_UNIX_MODE))
         return g_file_info_get_attribute_uint32(file->info, G_FILE_ATTRIBUTE_UNIX_MODE);
     else
-        return thunar_file_is_directory(file) ? 0777 : 0666;
+        return th_file_is_directory(file) ? 0777 : 0666;
 }
 
-gboolean thunar_file_is_mounted(const ThunarFile *file)
+gboolean th_file_is_mounted(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return FLAG_IS_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
 }
 
-gboolean thunar_file_exists(const ThunarFile *file)
+gboolean th_file_exists(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return g_file_query_exists(file->gfile, NULL);
 }
 
-/**
- * thunar_file_is_directory:
- * @file : a #ThunarFile instance.
- *
- * Checks whether @file refers to a directory.
- *
- * Return value: %TRUE if @file is a directory.
- **/
-gboolean thunar_file_is_directory(const ThunarFile *file)
+gboolean th_file_is_directory(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return file->kind == G_FILE_TYPE_DIRECTORY;
 }
 
-/**
- * thunar_file_is_shortcut:
- * @file : a #ThunarFile instance.
- *
- * Checks whether @file refers to a shortcut to something else.
- *
- * Return value: %TRUE if @file is a shortcut.
- **/
-gboolean thunar_file_is_shortcut(const ThunarFile *file)
+gboolean th_file_is_shortcut(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return file->kind == G_FILE_TYPE_SHORTCUT;
 }
 
-/**
- * thunar_file_is_mountable:
- * @file : a #ThunarFile instance.
- *
- * Checks whether @file refers to a mountable file/directory.
- *
- * Return value: %TRUE if @file is a mountable file/directory.
- **/
-gboolean thunar_file_is_mountable(const ThunarFile *file)
+gboolean th_file_is_mountable(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return file->kind == G_FILE_TYPE_MOUNTABLE;
 }
 
-/**
- * thunar_file_is_local:
- * @file : a #ThunarFile instance.
- *
- * Returns %TRUE if @file is a local file with the
- * file:// URI scheme.
- *
- * Return value: %TRUE if @file is local.
- **/
-gboolean thunar_file_is_local(const ThunarFile *file)
+gboolean th_file_is_local(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return g_file_has_uri_scheme(file->gfile, "file");
@@ -2256,7 +2222,7 @@ gboolean thunar_file_is_local(const ThunarFile *file)
  *
  * Return value: %TRUE if @file is the parent of @child.
  **/
-gboolean thunar_file_is_parent(const ThunarFile *file,
+gboolean th_file_is_parent(const ThunarFile *file,
                                const ThunarFile *child)
 {
     gboolean is_parent = FALSE;
@@ -2286,7 +2252,7 @@ gboolean thunar_file_is_parent(const ThunarFile *file,
  * Return value: %TRUE if @ancestor contains @file as a
  *               child, grandchild, great grandchild, etc.
  **/
-gboolean thunar_file_is_gfile_ancestor(const ThunarFile *file,
+gboolean th_file_is_gfile_ancestor(const ThunarFile *file,
                                        GFile            *ancestor)
 {
     GFile   *current = NULL;
@@ -2327,13 +2293,13 @@ gboolean thunar_file_is_gfile_ancestor(const ThunarFile *file,
  * Return value: %TRUE if @ancestor contains @file as a
  *               child, grandchild, great grandchild, etc.
  **/
-gboolean thunar_file_is_ancestor(const ThunarFile *file,
+gboolean th_file_is_ancestor(const ThunarFile *file,
                                  const ThunarFile *ancestor)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     thunar_return_val_if_fail(THUNAR_IS_FILE(ancestor), FALSE);
 
-    return thunar_file_is_gfile_ancestor(file, ancestor->gfile);
+    return th_file_is_gfile_ancestor(file, ancestor->gfile);
 }
 
 /**
@@ -2347,7 +2313,7 @@ gboolean thunar_file_is_ancestor(const ThunarFile *file,
  *
  * Return value: %TRUE if @file can be executed.
  **/
-gboolean thunar_file_is_executable(const ThunarFile *file)
+gboolean th_file_is_executable(const ThunarFile *file)
 {
     gboolean           can_execute = FALSE;
     gboolean           exec_shell_scripts = FALSE;
@@ -2361,7 +2327,7 @@ gboolean thunar_file_is_executable(const ThunarFile *file)
     if (g_file_info_get_attribute_boolean(file->info, G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE))
     {
         /* get the content type of the file */
-        content_type = thunar_file_get_content_type(THUNAR_FILE(file));
+        content_type = th_file_get_content_type(THUNAR_FILE(file));
         if (G_LIKELY(content_type != NULL))
         {
             can_execute = g_content_type_can_be_executable(content_type);
@@ -2377,7 +2343,7 @@ gboolean thunar_file_is_executable(const ThunarFile *file)
         }
     }
 
-    return can_execute || thunar_file_is_desktop_file(file, NULL);
+    return can_execute || th_file_is_desktop_file(file, NULL);
 }
 
 /**
@@ -2389,7 +2355,7 @@ gboolean thunar_file_is_executable(const ThunarFile *file)
  *
  * Return value: %TRUE if @file can be read.
  **/
-gboolean thunar_file_is_writable(const ThunarFile *file)
+gboolean th_file_is_writable(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
@@ -2411,7 +2377,7 @@ gboolean thunar_file_is_writable(const ThunarFile *file)
  *
  * Return value: %TRUE if @file is a hidden file, else %FALSE.
  **/
-gboolean thunar_file_is_hidden(const ThunarFile *file)
+gboolean th_file_is_hidden(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
@@ -2430,7 +2396,7 @@ gboolean thunar_file_is_hidden(const ThunarFile *file)
  *
  * Return value: %TRUE if @file is the users home directory.
  **/
-gboolean thunar_file_is_home(const ThunarFile *file)
+gboolean th_file_is_home(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return thunar_g_file_is_home(file->gfile);
@@ -2444,7 +2410,7 @@ gboolean thunar_file_is_home(const ThunarFile *file)
  *
  * Return value: %TRUE if @file is a regular file.
  **/
-gboolean thunar_file_is_regular(const ThunarFile *file)
+gboolean th_file_is_regular(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return file->kind == G_FILE_TYPE_REGULAR;
@@ -2460,7 +2426,7 @@ gboolean thunar_file_is_regular(const ThunarFile *file)
  * Return value: %TRUE if @file is in the trash, or
  *               the trash folder itself.
  **/
-gboolean thunar_file_is_trashed(const ThunarFile *file)
+gboolean th_file_is_trashed(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return thunar_g_file_is_trashed(file->gfile);
@@ -2478,7 +2444,7 @@ gboolean thunar_file_is_trashed(const ThunarFile *file)
  *
  * Return value: %TRUE if @file is a .desktop file.
  **/
-gboolean thunar_file_is_desktop_file(const ThunarFile *file,
+gboolean th_file_is_desktop_file(const ThunarFile *file,
                                      gboolean         *is_secure)
 {
     const gchar * const *data_dirs;
@@ -2641,14 +2607,14 @@ gboolean thunar_file_is_chmodable(const ThunarFile *file)
      */
     if (file->info == NULL)
     {
-        return(_effective_user_id == 0 && !thunar_file_is_trashed(file));
+        return(_effective_user_id == 0 && !th_file_is_trashed(file));
     }
     else
     {
         return((_effective_user_id == 0
                  || _effective_user_id == g_file_info_get_attribute_uint32(file->info,
                          G_FILE_ATTRIBUTE_UNIX_UID))
-                && !thunar_file_is_trashed(file));
+                && !th_file_is_trashed(file));
     }
 }
 
@@ -2749,13 +2715,6 @@ gboolean thunar_file_is_desktop(const ThunarFile *file)
 
     return is_desktop;
 }
-
-//ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file)
-//{
-//    thunar_return_val_if_fail(THUNAR_IS_FILE(file), THUNAR_FILE_THUMB_STATE_UNKNOWN);
-
-//    return FLAG_GET_THUMB_STATE(file);
-//}
 
 /**
  * thunar_file_get_custom_icon:
@@ -2873,9 +2832,9 @@ const gchar* thunar_file_get_icon_name(ThunarFile           *file,
         return thunar_file_get_icon_name_for_state(file->icon_name, icon_state);
 
     /* the system root folder has a special icon */
-    if (thunar_file_is_directory(file))
+    if (th_file_is_directory(file))
     {
-        if (G_LIKELY(thunar_file_is_local(file)))
+        if (G_LIKELY(th_file_is_local(file)))
         {
             path = g_file_get_path(file->gfile);
             if (G_LIKELY(path != NULL))
@@ -2928,7 +2887,7 @@ const gchar* thunar_file_get_icon_name(ThunarFile           *file,
             goto check_names;
         }
     }
-    else if (thunar_file_is_mountable(file)
+    else if (th_file_is_mountable(file)
              || g_file_has_uri_scheme(file->gfile, "network"))
     {
         /* query the icon(computer:// and network:// backend) */
@@ -2955,7 +2914,7 @@ const gchar* thunar_file_get_icon_name(ThunarFile           *file,
         return NULL;
 
     /* lookup for content type, just like gio does for local files */
-    icon = g_content_type_get_icon(thunar_file_get_content_type(file));
+    icon = g_content_type_get_icon(th_file_get_content_type(file));
     if (G_LIKELY(icon != NULL))
     {
 check_icon:
@@ -3590,7 +3549,7 @@ GList* thunar_file_list_get_applications(GList *file_list)
     /* determine the set of applications that can open all files */
     for(lp = file_list; lp != NULL; lp = lp->next)
     {
-        current_type = thunar_file_get_content_type(lp->data);
+        current_type = th_file_get_content_type(lp->data);
 
         /* no need to check anything if this file has the same mimetype as the previous file */
         if (current_type != NULL && previous_type != NULL)

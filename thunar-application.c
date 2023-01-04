@@ -690,7 +690,7 @@ static void thunar_application_launch_finished(ThunarJob  *job,
         file = th_file_get(lp->data, NULL);
         if (file != NULL)
         {
-            if (thunar_file_is_directory(file))
+            if (th_file_is_directory(file))
             {
                 folder = thunar_folder_get_for_file(file);
                 if (folder != NULL)
@@ -1524,7 +1524,7 @@ void thunar_application_unlink_files(ThunarApplication *application,
 
         /* permanently delete if at least one of the file is not a local
          * file(e.g. resides in the trash) or cannot be trashed */
-        if (!thunar_file_is_local(lp->data)
+        if (!th_file_is_local(lp->data)
             || !thunar_file_can_be_trashed(lp->data))
             permanently = TRUE;
     }

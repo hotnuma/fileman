@@ -721,12 +721,12 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     gtk_grid_attach(GTK_GRID(grid), image, 0, 0, 1, 1);
     gtk_widget_show(image);
 
-    if (thunar_file_is_symlink(dst_file))
+    if (th_file_is_symlink(dst_file))
     {
         text = g_strdup_printf(_("This folder already contains a symbolic link \"%s\"."),
                                 thunar_file_get_display_name(dst_file));
     }
-    else if (thunar_file_is_directory(dst_file))
+    else if (th_file_is_directory(dst_file))
     {
         text = g_strdup_printf(_("This folder already contains a folder \"%s\"."),
                                 thunar_file_get_display_name(dst_file));
@@ -746,10 +746,10 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     gtk_widget_show(label);
     g_free(text);
 
-    if (thunar_file_is_symlink(dst_file))
+    if (th_file_is_symlink(dst_file))
         /* TRANSLATORS: First part of replace dialog sentence */
         text = g_strdup_printf(_("Do you want to replace the link"));
-    else if (thunar_file_is_directory(dst_file))
+    else if (th_file_is_directory(dst_file))
         /* TRANSLATORS: First part of replace dialog sentence */
         text = g_strdup_printf(_("Do you want to replace the existing folder"));
     else
@@ -779,8 +779,8 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     gchar *date_custom_style = NULL;
     gboolean file_size_binary = TRUE;
 
-    size_string = thunar_file_get_size_string_long(dst_file, file_size_binary);
-    date_string = thunar_file_get_date_string(dst_file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
+    size_string = th_file_get_size_string_long(dst_file, file_size_binary);
+    date_string = th_file_get_date_string(dst_file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
     text = g_strdup_printf("%s %s\n%s %s", _("Size:"), size_string, _("Modified:"), date_string);
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
@@ -791,10 +791,10 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     g_free(date_string);
     g_free(text);
 
-    if (thunar_file_is_symlink(src_file))
+    if (th_file_is_symlink(src_file))
         /* TRANSLATORS: Second part of replace dialog sentence */
         text = g_strdup_printf(_("with the following link?"));
-    else if (thunar_file_is_directory(src_file))
+    else if (th_file_is_directory(src_file))
         /* TRANSLATORS: Second part of replace dialog sentence */
         text = g_strdup_printf(_("with the following folder?"));
     else
@@ -818,8 +818,8 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     g_object_unref(G_OBJECT(icon));
     gtk_widget_show(image);
 
-    size_string = thunar_file_get_size_string_long(src_file, file_size_binary);
-    date_string = thunar_file_get_date_string(src_file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
+    size_string = th_file_get_size_string_long(src_file, file_size_binary);
+    date_string = th_file_get_date_string(src_file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
     text = g_strdup_printf("%s %s\n%s %s", _("Size:"), size_string, _("Modified:"), date_string);
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
@@ -1013,7 +1013,7 @@ static void _thunar_dialogs_select_filename(GtkWidget  *entry,
     glong        offset;
 
     /* check if we have a directory here */
-    if (thunar_file_is_directory(file))
+    if (th_file_is_directory(file))
     {
         gtk_editable_select_region(GTK_EDITABLE(entry), 0, -1);
         return;
