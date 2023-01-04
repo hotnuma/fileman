@@ -28,7 +28,7 @@
 #include <thunar-dialogs.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-io-jobs.h>
+#include <io-jobs.h>
 #include <thunar-job.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-util.h>

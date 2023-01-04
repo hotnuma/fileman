@@ -36,7 +36,7 @@
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-image.h>
-#include <thunar-io-jobs.h>
+#include <io-jobs.h>
 #include <thunar-job.h>
 #include <thunar-marshal.h>
 #include <thunar-pango-extensions.h>

@@ -29,7 +29,7 @@
 #include <thunar-enum-types.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
-#include <thunar-io-jobs.h>
+#include <io-jobs.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-permissions-chooser.h>
 #include <thunar-user.h>

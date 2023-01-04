@@ -474,7 +474,8 @@ static gboolean th_file_info_has_mime_type(ThunarxFileInfo *file_info,
     if (THUNAR_FILE(file_info)->info == NULL)
         return FALSE;
 
-    return g_content_type_is_a(th_file_get_content_type(THUNAR_FILE(file_info)), mime_type);
+    return g_content_type_is_a(th_file_get_content_type(THUNAR_FILE(file_info)),
+                               mime_type);
 }
 
 static gboolean th_file_info_is_directory(ThunarxFileInfo *file_info)
@@ -542,7 +543,7 @@ ThunarFile* th_file_get(GFile *gfile, GError **error)
 
     // allocate a new object
     file = g_object_new(THUNAR_TYPE_FILE, NULL);
-    file->gfile = g_object_ref(gfile); // leak ?
+    file->gfile = g_object_ref(gfile);
 
     if (!_th_file_load(file, NULL, error))
     {
@@ -606,6 +607,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
     if (err != NULL)
     {
         g_propagate_error(error, err);
+
         return FALSE;
     }
 
@@ -614,10 +616,11 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
     {
         G_LOCK(_file_cache_mutex);
         g_hash_table_insert(_file_cache,
-                             g_object_ref(file->gfile),
-                             weak_ref_new(G_OBJECT(file)));
+                            g_object_ref(file->gfile),
+                            weak_ref_new(G_OBJECT(file)));
         G_UNLOCK(_file_cache_mutex);
     }
+
     return TRUE;
 }
 
@@ -796,9 +799,7 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     g_free(casefold);
 }
 
-ThunarFile* th_file_get_with_info(GFile     *gfile,
-                                      GFileInfo *info,
-                                      gboolean  not_mounted)
+ThunarFile* th_file_get_with_info(GFile *gfile, GFileInfo *info, gboolean not_mounted)
 {
     // g_object_unref
 
@@ -842,22 +843,10 @@ ThunarFile* th_file_get_with_info(GFile     *gfile,
     return file;
 }
 
-/**
- * thunar_file_get_for_uri:
- * @uri   : an URI or an absolute filename.
- * @error : return location for errors or %NULL.
- *
- * Convenience wrapper function for thunar_file_get_for_path(), as its
- * often required to determine a #ThunarFile for a given @uri.
- *
- * The caller is responsible to free the returned object using
- * g_object_unref() when no longer needed.
- *
- * Return value: the #ThunarFile for the given @uri or %NULL if
- *               unable to determine.
- **/
 ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
 {
+    // g_object_unref
+
     thunar_return_val_if_fail(uri != NULL, NULL);
     thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
@@ -868,66 +857,57 @@ ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
     return file;
 }
 
-/**
- * thunar_file_get_async:
- **/
-void th_file_get_async(GFile            *location,
-                           GCancellable     *cancellable,
-                           ThunarFileGetFunc func,
-                           gpointer          user_data)
+void th_file_get_async(GFile *location, GCancellable *cancellable,
+                       ThunarFileGetFunc func, gpointer user_data)
 {
-    ThunarFile        *file;
-    ThunarFileGetData *data;
-
     thunar_return_if_fail(G_IS_FILE(location));
     thunar_return_if_fail(func != NULL);
 
     /* check if we already have a cached version of that file */
-    file = th_file_cache_lookup(location);
+    ThunarFile *file = th_file_cache_lookup(location);
 
     if (G_UNLIKELY(file != NULL))
     {
         /* call the return function with the file from the cache */
-       (func)(location, file, NULL, user_data);
+        (func) (location, file, NULL, user_data);
         g_object_unref(file);
-    }
-    else
-    {
-        /* allocate get data */
-        data = g_slice_new0(ThunarFileGetData);
-        data->user_data = user_data;
-        data->func = func;
-        if (cancellable != NULL)
-            data->cancellable = g_object_ref(cancellable);
 
-        /* load the file information asynchronously */
-        g_file_query_info_async(location,
-                                 THUNARX_FILE_INFO_NAMESPACE,
-                                 G_FILE_QUERY_INFO_NONE,
-                                 G_PRIORITY_DEFAULT,
-                                 cancellable,
-                                 _th_file_get_async_finish,
-                                 data);
+        return;
     }
+
+    /* allocate get data */
+    ThunarFileGetData *data = g_slice_new0(ThunarFileGetData);
+    data->user_data = user_data;
+    data->func = func;
+
+    if (cancellable != NULL)
+        data->cancellable = g_object_ref(cancellable);
+
+    /* load the file information asynchronously */
+    g_file_query_info_async(location,
+                            THUNARX_FILE_INFO_NAMESPACE,
+                            G_FILE_QUERY_INFO_NONE,
+                            G_PRIORITY_DEFAULT,
+                            cancellable,
+                            _th_file_get_async_finish,
+                            data);
 }
 
 static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
                                       gpointer user_data)
 {
-    ThunarFileGetData *data = user_data;
-    ThunarFile        *file;
-    GFileInfo         *file_info;
-    GError            *error = NULL;
-    GFile             *location = G_FILE(object);
+    GFile *location = G_FILE(object);
 
     thunar_return_if_fail(G_IS_FILE(location));
     thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
 
+
     /* finish querying the file information */
-    file_info = g_file_query_info_finish(location, result, &error);
+    GError *error = NULL;
+    GFileInfo *file_info = g_file_query_info_finish(location, result, &error);
 
     /* allocate a new file object */
-    file = g_object_new(THUNAR_TYPE_FILE, NULL);
+    ThunarFile *file = g_object_new(THUNAR_TYPE_FILE, NULL);
     file->gfile = g_object_ref(location);
 
     /* reset the file */
@@ -936,13 +916,15 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
     /* set the file information */
     file->info = file_info;
 
+    ThunarFileGetData *data = user_data;
+
     /* update the file from the information */
     _th_file_info_reload(file, data->cancellable);
 
     /* update the mounted info */
     if (error != NULL
-            && error->domain == G_IO_ERROR
-            && error->code == G_IO_ERROR_NOT_MOUNTED)
+        && error->domain == G_IO_ERROR
+        && error->code == G_IO_ERROR_NOT_MOUNTED)
     {
         FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
         g_clear_error(&error);
@@ -951,12 +933,12 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
     /* insert the file into the cache */
     G_LOCK(_file_cache_mutex);
     g_hash_table_insert(_file_cache,
-                         g_object_ref(file->gfile),
-                         weak_ref_new(G_OBJECT(file)));
+                        g_object_ref(file->gfile),
+                        weak_ref_new(G_OBJECT(file)));
     G_UNLOCK(_file_cache_mutex);
 
     /* pass the loaded file and possible errors to the return function */
-   (data->func)(location, file, error, data->user_data);
+    (data->func) (location, file, error, data->user_data);
 
     /* release the file, see description in ThunarFileGetFunc */
     g_object_unref(file);
@@ -968,6 +950,7 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
     /* release the get data */
     if (data->cancellable != NULL)
         g_object_unref(data->cancellable);
+
     g_slice_free(ThunarFileGetData, data);
 }
 
@@ -979,12 +962,6 @@ GFile* th_file_get_file(const ThunarFile *file)
     return file->gfile;
 }
 
-/*
- * Note, that there's no reference taken for the caller on the
- * returned #GFileInfo, so if you need the object for a longer
- * perioud, you'll need to take a reference yourself using the
- * g_object_ref() method.
- */
 GFileInfo* th_file_get_info(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
@@ -993,54 +970,33 @@ GFileInfo* th_file_get_info(const ThunarFile *file)
     return file->info;
 }
 
-/**
- * thunar_file_get_parent:
- * @file  : a #ThunarFile instance.
- * @error : return location for errors.
- *
- * Determines the parent #ThunarFile for @file. If @file has no parent or
- * the user is not allowed to open the parent folder of @file, %NULL will
- * be returned and @error will be set to point to a #GError that
- * describes the cause. Else, the #ThunarFile will be returned, and
- * the caller must call g_object_unref() on it.
- *
- * You may want to call th_file_has_parent() first to
- * determine whether @file has a parent.
- *
- * Return value: the parent #ThunarFile or %NULL.
- **/
-ThunarFile* th_file_get_parent(const ThunarFile *file,
-                                   GError          **error)
+
+ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error)
 {
-    ThunarFile *parent = NULL;
-    GFile      *parent_file;
+    // You may want to call th_file_has_parent() first
+    // g_object_unref
 
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
-    parent_file = g_file_get_parent(file->gfile);
+    GFile *parent_file = g_file_get_parent(file->gfile);
 
     if (parent_file == NULL)
     {
-        g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_NOENT, _("The root folder has no parent"));
+        g_set_error(error,
+                    G_FILE_ERROR,
+                    G_FILE_ERROR_NOENT,
+                    _("The root folder has no parent"));
+
         return NULL;
     }
 
-    parent = th_file_get(parent_file, error);
+    ThunarFile *parent = th_file_get(parent_file, error);
     g_object_unref(parent_file);
 
     return parent;
 }
 
-/**
- * thunar_file_check_loaded:
- * @file              : a #ThunarFile instance.
- *
- * Check if @file has its information loaded, if not, try this once else
- * return %FALSE.
- *
- * Return value: %TRUE on success, else %FALSE.
- **/
 gboolean th_file_check_loaded(ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
@@ -1048,31 +1004,15 @@ gboolean th_file_check_loaded(ThunarFile *file)
     if (G_UNLIKELY(file->info == NULL))
         _th_file_load(file, NULL, NULL);
 
-    return(file->info != NULL);
+    return (file->info != NULL);
 }
 
-/**
- * thunar_file_execute:
- * @file              : a #ThunarFile instance.
- * @working_directory : the working directory used to resolve relative filenames
- *                      in @file_list.
- * @parent            : %NULL, a #GdkScreen or #GtkWidget.
- * @file_list         : the list of #GFile<!---->s to supply to @file on execution.
- * @startup_id        : startup id for the new window(send over for dbus) or %NULL.
- * @error             : return location for errors or %NULL.
- *
- * Tries to execute @file on the specified @screen. If @file is executable
- * and could have been spawned successfully, %TRUE is returned, else %FALSE
- * will be returned and @error will be set to point to the error location.
- *
- * Return value: %TRUE on success, else %FALSE.
- **/
 gboolean th_file_execute(ThunarFile  *file,
-                             GFile       *working_directory,
-                             gpointer     parent,
-                             GList       *file_list,
-                             const gchar *startup_id,
-                             GError     **error)
+                         GFile       *working_directory,
+                         gpointer    parent,
+                         GList       *file_list,
+                         const gchar *startup_id,
+                         GError      **error)
 {
     gboolean    snotify = FALSE;
     gboolean    terminal;
@@ -1080,29 +1020,30 @@ gboolean th_file_execute(ThunarFile  *file,
     GKeyFile   *key_file;
     GError     *err = NULL;
     GFile      *file_parent;
-    GList      *li;
-    GSList     *uri_list = NULL;
     gchar      *icon_name = NULL;
     gchar      *name;
     gchar      *type;
     gchar      *url;
-    gchar      *location;
     gchar      *escaped_location;
     gchar     **argv = NULL;
     gchar      *exec;
     gchar      *command;
     gchar      *directory = NULL;
-    gboolean    is_secure = FALSE;
     guint32     stimestamp = 0;
 
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
+    gchar      *location;
     location = thunar_g_file_get_location(file->gfile);
-    for(li = file_list; li != NULL; li = li->next)
+    GSList     *uri_list = NULL;
+    GList      *li;
+    for (li = file_list; li != NULL; li = li->next)
         uri_list = g_slist_prepend(uri_list, g_file_get_uri(li->data));
+
     uri_list = g_slist_reverse(uri_list);
 
+    gboolean    is_secure = FALSE;
     if (th_file_is_desktop_file(file, &is_secure))
     {
         /* parse file first, even if it is insecure */
@@ -1265,48 +1206,20 @@ gboolean th_file_execute(ThunarFile  *file,
     return result;
 }
 
-/**
- * thunar_file_launch:
- * @file       : a #ThunarFile instance.
- * @parent     : a #GtkWidget or a #GdkScreen on which to launch the @file.
- *               May also be %NULL in which case the default #GdkScreen will
- *               be used.
- * @startup_id : startup id for the new window(send over for dbus) or %NULL.
- * @error      : return location for errors or %NULL.
- *
- * If @file is an executable file, tries to execute it. Else if @file is
- * a directory, opens a new #ThunarWindow to display the directory. Else,
- * the default handler for @file is determined and run.
- *
- * The @parent can be either a #GtkWidget or a #GdkScreen, on which to
- * launch the @file. If @parent is a #GtkWidget, the chooser dialog(if
- * no default application is available for @file) will be transient for
- * @parent. Else if @parent is a #GdkScreen it specifies the screen on
- * which to launch @file.
- *
- * Return value: %TRUE on success, else %FALSE.
- **/
-gboolean th_file_launch(ThunarFile  *file,
-                            gpointer     parent,
-                            const gchar *startup_id,
-                            GError     **error)
+gboolean th_file_launch(ThunarFile *file, gpointer parent, const gchar *startup_id,
+                        GError **error)
 {
-    GdkAppLaunchContext *context;
-    ThunarApplication   *application;
-    GAppInfo            *app_info;
-    gboolean             succeed;
-    GList                path_list;
-    GdkScreen           *screen;
-
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
     thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), FALSE);
 
+    GdkScreen           *screen;
     screen = thunar_util_parse_parent(parent, NULL);
 
     /* check if we have a folder here */
     if (th_file_is_directory(file))
     {
+        ThunarApplication   *application;
         application = thunar_application_get();
 
         // Create app window
@@ -1322,6 +1235,7 @@ gboolean th_file_launch(ThunarFile  *file,
 
     /* determine the default application to open the file */
     /* TODO We should probably add a cancellable argument to thunar_file_launch() */
+    GAppInfo            *app_info;
     app_info = th_file_get_default_handler(THUNAR_FILE(file));
 
     /* display the application chooser if no application is defined for this file
@@ -1344,16 +1258,21 @@ gboolean th_file_launch(ThunarFile  *file,
     }
 
     /* fake a path list */
+    GList path_list;
     path_list.data = file->gfile;
     path_list.next = path_list.prev = NULL;
 
     /* create a launch context */
+    GdkAppLaunchContext *context;
     context = gdk_display_get_app_launch_context(gdk_screen_get_display(screen));
     gdk_app_launch_context_set_screen(context, screen);
     gdk_app_launch_context_set_timestamp(context, gtk_get_current_event_time());
 
     /* otherwise try to execute the application */
-    succeed = g_app_info_launch(app_info, &path_list, G_APP_LAUNCH_CONTEXT(context), error);
+    gboolean succeed = g_app_info_launch(app_info,
+                                         &path_list,
+                                         G_APP_LAUNCH_CONTEXT(context),
+                                         error);
 
     /* destroy the launch context */
     g_object_unref(context);
@@ -1364,61 +1283,41 @@ gboolean th_file_launch(ThunarFile  *file,
     return succeed;
 }
 
-/**
- * thunar_file_rename:
- * @file  : a #ThunarFile instance.
- * @name  : the new file name in UTF-8 encoding.
- * @error : return location for errors or %NULL.
- *
- * Tries to rename @file to the new @name. If @file cannot be renamed,
- * %FALSE will be returned and @error will be set accordingly. Else, if
- * the operation succeeds, %TRUE will be returned, and @file will have
- * a new URI and a new display name.
- *
- * When offering a rename action in the user interface, the implementation
- * should first check whether the file is available, using the
- * thunar_file_is_renameable() method.
- *
- * Return value: %TRUE on success, else %FALSE.
- **/
-gboolean th_file_rename(ThunarFile   *file,
-                            const gchar  *name,
-                            GCancellable *cancellable,
-                            gboolean      called_from_job,
-                            GError      **error)
+gboolean th_file_rename(ThunarFile *file, const gchar *name, GCancellable *cancellable,
+                        gboolean called_from_job, GError **error)
 {
-    GFile                *renamed_file;
-
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     thunar_return_val_if_fail(g_utf8_validate(name, -1, NULL), FALSE);
     thunar_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
     thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     G_LOCK(_file_rename_mutex);
+
     /* try to rename the file */
-    renamed_file = g_file_set_display_name(file->gfile, name, cancellable, error);
+    GFile *renamed_file = g_file_set_display_name(file->gfile, name, cancellable, error);
 
     /* check if we succeeded */
-    if (renamed_file != NULL)
-    {
-        /* notify the file is renamed */
-        _th_file_monitor_moved(file, renamed_file);
-
-        g_object_unref(G_OBJECT(renamed_file));
-
-        if (!called_from_job)
-        {
-            /* emit the file changed signal */
-            th_file_changed(file);
-        }
-        G_UNLOCK(_file_rename_mutex);
-        return TRUE;
-    }
-    else
+    if (renamed_file == NULL)
     {
         G_UNLOCK(_file_rename_mutex);
+
         return FALSE;
     }
+
+    /* notify the file is renamed */
+    _th_file_monitor_moved(file, renamed_file);
+
+    g_object_unref(G_OBJECT(renamed_file));
+
+    if (!called_from_job)
+    {
+        /* emit the file changed signal */
+        th_file_changed(file);
+    }
+
+    G_UNLOCK(_file_rename_mutex);
+
+    return TRUE;
 }
 
 /**

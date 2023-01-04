@@ -32,11 +32,19 @@
 #include <thunar-enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-io-scan-directory.h>
-#include <thunar-io-jobs.h>
+#include <io-jobs.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
 #include <thunar-simple-job.h>
 #include <thunar-transfer-job.h>
+
+
+// Rename ---------------------------------------------------------------------
+
+static gboolean _thunar_io_jobs_rename(ThunarJob *job, GArray *param_values,
+                                       GError **error);
+static gboolean _thunar_io_jobs_rename_notify(ThunarFile *file);
+
 
 static GList* _thunar_io_jobs_collect_nofollow(ThunarJob *job,
                                                GList     *base_file_list,
@@ -1195,6 +1203,67 @@ ThunarJob* thunar_io_jobs_list_directory(GFile *directory)
     return thunar_simple_job_launch(_thunar_io_jobs_ls, 1, G_TYPE_FILE, directory);
 }
 
+
+// Rename ---------------------------------------------------------------------
+
+ThunarJob* thunar_io_jobs_rename_file(ThunarFile *file, const gchar *display_name)
+{
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    thunar_return_val_if_fail(g_utf8_validate(display_name, -1, NULL), NULL);
+
+    return thunar_simple_job_launch(_thunar_io_jobs_rename,
+                                    2,
+                                    THUNAR_TYPE_FILE, file,
+                                    G_TYPE_STRING,
+                                    display_name);
+}
+
+static gboolean _thunar_io_jobs_rename(ThunarJob *job, GArray *param_values,
+                                       GError **error)
+{
+    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    thunar_return_val_if_fail(param_values != NULL, FALSE);
+    thunar_return_val_if_fail(param_values->len == 2, FALSE);
+    thunar_return_val_if_fail(G_VALUE_HOLDS(&g_array_index(param_values, GValue, 0), THUNAR_TYPE_FILE), FALSE);
+    thunar_return_val_if_fail(G_VALUE_HOLDS_STRING(&g_array_index(param_values, GValue, 1)), FALSE);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+
+    GError *err = NULL;
+
+    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+        return FALSE;
+
+    /* determine the file and display name */
+    ThunarFile *file = g_value_get_object(&g_array_index(param_values, GValue, 0));
+
+    const gchar *display_name = g_value_get_string(&g_array_index(param_values,
+                                                                  GValue,
+                                                                  1));
+
+    /* try to rename the file */
+    if (th_file_rename(file,
+                       display_name,
+                       exo_job_get_cancellable(EXO_JOB(job)),
+                       TRUE,
+                       &err))
+    {
+        exo_job_send_to_mainloop(EXO_JOB(job),
+                                 (GSourceFunc) _thunar_io_jobs_rename_notify,
+                                 g_object_ref(file),
+                                 g_object_unref);
+    }
+
+    /* abort on errors or cancellation */
+    if (err != NULL)
+    {
+        g_propagate_error(error, err);
+
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static gboolean _thunar_io_jobs_rename_notify(ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
@@ -1206,60 +1275,6 @@ static gboolean _thunar_io_jobs_rename_notify(ThunarFile *file)
     th_file_changed(file);
 
     return FALSE;
-}
-
-static gboolean _thunar_io_jobs_rename(ThunarJob  *job,
-                                       GArray     *param_values,
-                                       GError    **error)
-{
-    const gchar *display_name;
-    ThunarFile  *file;
-    GError      *err = NULL;
-
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 2, FALSE);
-    thunar_return_val_if_fail(G_VALUE_HOLDS(&g_array_index(param_values, GValue, 0), THUNAR_TYPE_FILE), FALSE);
-    thunar_return_val_if_fail(G_VALUE_HOLDS_STRING(&g_array_index(param_values, GValue, 1)), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
-        return FALSE;
-
-    /* determine the file and display name */
-    file = g_value_get_object(&g_array_index(param_values, GValue, 0));
-    display_name = g_value_get_string(&g_array_index(param_values, GValue, 1));
-
-    /* try to rename the file */
-    if (th_file_rename(file, display_name, exo_job_get_cancellable(EXO_JOB(job)), TRUE, &err))
-    {
-        exo_job_send_to_mainloop(EXO_JOB(job),
-                                 (GSourceFunc) _thunar_io_jobs_rename_notify,
-                                  g_object_ref(file), g_object_unref);
-    }
-
-    /* abort on errors or cancellation */
-    if (err != NULL)
-    {
-        g_propagate_error(error, err);
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-ThunarJob* thunar_io_jobs_rename_file(ThunarFile  *file,
-                                      const gchar *display_name)
-{
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(g_utf8_validate(display_name, -1, NULL),
-                               NULL);
-
-    return thunar_simple_job_launch(_thunar_io_jobs_rename,
-                                    2,
-                                    THUNAR_TYPE_FILE, file,
-                                    G_TYPE_STRING,
-                                    display_name);
 }
 
 

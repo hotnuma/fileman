@@ -38,7 +38,7 @@
 #include <thunar-dialogs.h>
 #include <thunar-gdk-extensions.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-io-jobs.h>
+#include <io-jobs.h>
 #include <preferences.h>
 #include <thunar-progress-dialog.h>
 #include <thunar-util.h>
