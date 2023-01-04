@@ -1,6 +1,120 @@
 
 #if 0
 
+gchar*      th_file_get_size_string(const ThunarFile *file)
+                                        G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+
+gboolean    th_file_is_home(const ThunarFile *file);
+gboolean    th_file_set_custom_icon(ThunarFile *file,
+                                        const gchar *custom_icon,
+                                        GError **error);
+GIcon*      th_file_get_preview_icon(const ThunarFile *file);
+GFilesystemPreviewType th_file_get_preview_type(const ThunarFile *file);
+
+void        th_file_reload_idle(ThunarFile *file);
+gboolean    th_file_is_desktop(const ThunarFile *file);
+
+gchar* th_file_get_size_string(const ThunarFile *file)
+{
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    return g_format_size(th_file_get_size(file));
+}
+
+gboolean th_file_is_home(const ThunarFile *file)
+{
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    return thunar_g_file_is_home(file->gfile);
+}
+
+gboolean th_file_set_custom_icon(ThunarFile  *file,
+                                     const gchar *custom_icon,
+                                     GError     **error)
+{
+    GKeyFile *key_file;
+
+    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(custom_icon != NULL, FALSE);
+
+    key_file = thunar_g_file_query_key_file(file->gfile, NULL, error);
+
+    if (key_file == NULL)
+        return FALSE;
+
+    g_key_file_set_string(key_file, G_KEY_FILE_DESKTOP_GROUP,
+                           G_KEY_FILE_DESKTOP_KEY_ICON, custom_icon);
+
+    if (thunar_g_file_write_key_file(file->gfile, key_file, NULL, error))
+    {
+        /* tell everybody that we have changed */
+        th_file_changed(file);
+
+        g_key_file_free(key_file);
+        return TRUE;
+    }
+    else
+    {
+        g_key_file_free(key_file);
+        return FALSE;
+    }
+}
+
+gboolean th_file_is_desktop(const ThunarFile *file)
+{
+    GFile   *desktop;
+    gboolean is_desktop = FALSE;
+
+    desktop = g_file_new_for_path(g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP));
+    is_desktop = g_file_equal(file->gfile, desktop);
+    g_object_unref(desktop);
+
+    return is_desktop;
+}
+
+GIcon* th_file_get_preview_icon(const ThunarFile *file)
+{
+    GObject *icon;
+
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    thunar_return_val_if_fail(G_IS_FILE_INFO(file->info), NULL);
+
+    icon = g_file_info_get_attribute_object(file->info, G_FILE_ATTRIBUTE_PREVIEW_ICON);
+    if (G_LIKELY(icon != NULL))
+        return G_ICON(icon);
+
+    return NULL;
+}
+
+GFilesystemPreviewType th_file_get_preview_type(const ThunarFile *file)
+{
+    GFilesystemPreviewType  preview;
+    GFileInfo               *info;
+
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
+    thunar_return_val_if_fail(G_IS_FILE(file->gfile), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
+
+    info = g_file_query_filesystem_info(file->gfile, G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW, NULL, NULL);
+    if (G_LIKELY(info != NULL))
+    {
+        preview = g_file_info_get_attribute_uint32(info, G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW);
+        g_object_unref(G_OBJECT(info));
+    }
+    else
+    {
+        /* assume we don't know */
+        preview = G_FILESYSTEM_PREVIEW_TYPE_NEVER;
+    }
+
+    return preview;
+}
+
+void th_file_reload_idle(ThunarFile *file)
+{
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+
+    g_idle_add((GSourceFunc) th_file_reload, file);
+}
+
 
 //-----------------------------------------------------------------------------
 

@@ -76,16 +76,13 @@ static void th_file_info_changed(ThunarxFileInfo *file_info);
 
 // Public ---------------------------------------------------------------------
 
-static gboolean _th_file_load(ThunarFile *file,
-                              GCancellable *cancellable,
+static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
                               GError **error);
-static void thunar_file_info_clear(ThunarFile *file);
-static void thunar_file_info_reload(ThunarFile *file,
-                                    GCancellable *cancellable);
+static void _th_file_info_clear(ThunarFile *file);
+static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable);
 
-static void thunar_file_get_async_finish(GObject    *object,
-                                         GAsyncResult *result,
-                                         gpointer   user_data);
+static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
+                                      gpointer user_data);
 
 static gboolean _th_file_same_filesystem(const ThunarFile *file_a,
                                          const ThunarFile *file_b);
@@ -101,17 +98,17 @@ static void _th_file_monitor_moved(ThunarFile *file, GFile *renamed_file);
 static void _th_file_watch_reconnect(ThunarFile *file);
 static void _th_file_monitor_update(GFile *path, GFileMonitorEvent event_type);
 static void _th_file_reload_parent(ThunarFile *file);
-static void thunar_file_watch_destroyed(gpointer data);
-
-G_LOCK_DEFINE_STATIC(_file_cache_mutex);
-G_LOCK_DEFINE_STATIC(_file_content_type_mutex);
-G_LOCK_DEFINE_STATIC(_file_rename_mutex);
+static void _th_file_watch_destroyed(gpointer data);
 
 static ThunarUserManager    *_user_manager;
 static GHashTable           *_file_cache;
 static guint32              _effective_user_id;
 static GQuark               _file_watch_quark;
 static guint                _file_signals[LAST_SIGNAL];
+
+G_LOCK_DEFINE_STATIC(_file_cache_mutex);
+G_LOCK_DEFINE_STATIC(_file_content_type_mutex);
+G_LOCK_DEFINE_STATIC(_file_rename_mutex);
 
 #define FLAG_SET_THUMB_STATE(file,new_state) G_STMT_START{(file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); }G_STMT_END
 
@@ -131,8 +128,8 @@ typedef enum
 
     // whether this file is mounted
     THUNAR_FILE_FLAG_IS_MOUNTED     = 1 << 3,
-}
-ThunarFileFlags;
+
+} ThunarFileFlags;
 
 struct _ThunarFileClass
 {
@@ -613,7 +610,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
     G_UNLOCK(_file_cache_mutex);
 
     /* reset the file */
-    thunar_file_info_clear(file);
+    _th_file_info_clear(file);
 
     GError *err = NULL;
 
@@ -624,7 +621,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
                                     cancellable, &err);
 
     /* update the file from the information */
-    thunar_file_info_reload(file, cancellable);
+    _th_file_info_reload(file, cancellable);
 
     /* update the mounted info */
     if (err != NULL
@@ -653,7 +650,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
     return TRUE;
 }
 
-static void thunar_file_info_clear(ThunarFile *file)
+static void _th_file_info_clear(ThunarFile *file)
 {
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 
@@ -704,7 +701,7 @@ static void thunar_file_info_clear(ThunarFile *file)
     FLAG_SET_THUMB_STATE(file, 0 /*THUNAR_FILE_THUMB_STATE_UNKNOWN*/);
 }
 
-static void thunar_file_info_reload(ThunarFile *file, GCancellable *cancellable)
+static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
 {
     thunar_return_if_fail(THUNAR_IS_FILE(file));
     thunar_return_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info));
@@ -864,13 +861,13 @@ ThunarFile* th_file_get_with_info(GFile     *gfile,
         file->gfile = g_object_ref(gfile);
 
         /* reset the file */
-        thunar_file_info_clear(file);
+        _th_file_info_clear(file);
 
         /* set the passed info */
         file->info = g_object_ref(info);
 
         /* update the file from the information */
-        thunar_file_info_reload(file, NULL);
+        _th_file_info_reload(file, NULL);
 
         /* update the mounted info */
         if (not_mounted)
@@ -955,14 +952,13 @@ void th_file_get_async(GFile            *location,
                                  G_FILE_QUERY_INFO_NONE,
                                  G_PRIORITY_DEFAULT,
                                  cancellable,
-                                 thunar_file_get_async_finish,
+                                 _th_file_get_async_finish,
                                  data);
     }
 }
 
-static void thunar_file_get_async_finish(GObject    *object,
-                                         GAsyncResult *result,
-                                         gpointer   user_data)
+static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
+                                      gpointer user_data)
 {
     ThunarFileGetData *data = user_data;
     ThunarFile        *file;
@@ -981,13 +977,13 @@ static void thunar_file_get_async_finish(GObject    *object,
     file->gfile = g_object_ref(location);
 
     /* reset the file */
-    thunar_file_info_clear(file);
+    _th_file_info_clear(file);
 
     /* set the file information */
     file->info = file_info;
 
     /* update the file from the information */
-    thunar_file_info_reload(file, data->cancellable);
+    _th_file_info_reload(file, data->cancellable);
 
     /* update the mounted info */
     if (error != NULL
@@ -1780,23 +1776,6 @@ gchar* th_file_get_mode_string(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_size_string:
- * @file : a #ThunarFile instance.
- *
- * Returns the size of the file as text in a human readable
- * format. You'll need to free the result using g_free()
- * if you're done with it.
- *
- * Return value: the size of @file in a human readable
- *               format.
- **/
-gchar* th_file_get_size_string(const ThunarFile *file)
-{
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    return g_format_size(th_file_get_size(file));
-}
-
-/**
  * thunar_file_get_size_in_bytes_string:
  * @file : a #ThunarFile instance.
  *
@@ -2389,20 +2368,6 @@ gboolean th_file_is_hidden(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_home:
- * @file : a #ThunarFile.
- *
- * Checks whether @file refers to the users home directory.
- *
- * Return value: %TRUE if @file is the users home directory.
- **/
-gboolean th_file_is_home(const ThunarFile *file)
-{
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    return thunar_g_file_is_home(file->gfile);
-}
-
-/**
  * thunar_file_is_regular:
  * @file : a #ThunarFile.
  *
@@ -2652,71 +2617,6 @@ gboolean th_file_can_be_trashed(const ThunarFile *file)
 }
 
 /**
- * thunar_file_set_custom_icon:
- * @file        : a #ThunarFile instance.
- * @custom_icon : the new custom icon for the @file.
- * @error       : return location for errors or %NULL.
- *
- * Tries to change the custom icon of the .desktop file referred
- * to by @file. If that fails, %FALSE is returned and the
- * @error is set accordingly.
- *
- * Return value: %TRUE if the icon of @file was changed, %FALSE otherwise.
- **/
-gboolean th_file_set_custom_icon(ThunarFile  *file,
-                                     const gchar *custom_icon,
-                                     GError     **error)
-{
-    GKeyFile *key_file;
-
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(custom_icon != NULL, FALSE);
-
-    key_file = thunar_g_file_query_key_file(file->gfile, NULL, error);
-
-    if (key_file == NULL)
-        return FALSE;
-
-    g_key_file_set_string(key_file, G_KEY_FILE_DESKTOP_GROUP,
-                           G_KEY_FILE_DESKTOP_KEY_ICON, custom_icon);
-
-    if (thunar_g_file_write_key_file(file->gfile, key_file, NULL, error))
-    {
-        /* tell everybody that we have changed */
-        th_file_changed(file);
-
-        g_key_file_free(key_file);
-        return TRUE;
-    }
-    else
-    {
-        g_key_file_free(key_file);
-        return FALSE;
-    }
-}
-
-/**
- * thunar_file_is_desktop:
- * @file : a #ThunarFile.
- *
- * Checks whether @file refers to the users desktop directory.
- *
- * Return value: %TRUE if @file is the users desktop directory.
- **/
-gboolean th_file_is_desktop(const ThunarFile *file)
-{
-    GFile   *desktop;
-    gboolean is_desktop = FALSE;
-
-    desktop = g_file_new_for_path(g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP));
-    is_desktop = g_file_equal(file->gfile, desktop);
-    g_object_unref(desktop);
-
-    return is_desktop;
-}
-
-/**
  * thunar_file_get_custom_icon:
  * @file : a #ThunarFile instance.
  *
@@ -2732,55 +2632,9 @@ const gchar* th_file_get_custom_icon(const ThunarFile *file)
     return file->custom_icon_name;
 }
 
-/**
- * thunar_file_get_preview_icon:
- * @file : a #ThunarFile instance.
- *
- * Returns the preview icon for @file if any, else %NULL is returned.
- *
- * Return value: the custom icon for @file or %NULL, the GIcon is owner
- * by the file, so do not unref it.
- **/
-GIcon* th_file_get_preview_icon(const ThunarFile *file)
-{
-    GObject *icon;
-
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(G_IS_FILE_INFO(file->info), NULL);
-
-    icon = g_file_info_get_attribute_object(file->info, G_FILE_ATTRIBUTE_PREVIEW_ICON);
-    if (G_LIKELY(icon != NULL))
-        return G_ICON(icon);
-
-    return NULL;
-}
-
-GFilesystemPreviewType th_file_get_preview_type(const ThunarFile *file)
-{
-    GFilesystemPreviewType  preview;
-    GFileInfo               *info;
-
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
-    thunar_return_val_if_fail(G_IS_FILE(file->gfile), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
-
-    info = g_file_query_filesystem_info(file->gfile, G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW, NULL, NULL);
-    if (G_LIKELY(info != NULL))
-    {
-        preview = g_file_info_get_attribute_uint32(info, G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW);
-        g_object_unref(G_OBJECT(info));
-    }
-    else
-    {
-        /* assume we don't know */
-        preview = G_FILESYSTEM_PREVIEW_TYPE_NEVER;
-    }
-
-    return preview;
-}
-
 static const gchar* thunar_file_get_icon_name_for_state(
                                                 const gchar         *icon_name,
-                                                ThunarFileIconState  icon_state)
+                                                ThunarFileIconState icon_state)
 {
     if (!icon_name || !*icon_name)
         return NULL;
@@ -3007,7 +2861,7 @@ void th_file_watch(ThunarFile *file)
         }
 
         /* attach to file */
-        g_object_set_qdata_full(G_OBJECT(file), _file_watch_quark, file_watch, thunar_file_watch_destroyed);
+        g_object_set_qdata_full(G_OBJECT(file), _file_watch_quark, file_watch, _th_file_watch_destroyed);
     }
     else if (G_LIKELY(!file->no_file_watch))
     {
@@ -3017,7 +2871,7 @@ void th_file_watch(ThunarFile *file)
     }
 }
 
-static void thunar_file_watch_destroyed(gpointer data)
+static void _th_file_watch_destroyed(gpointer data)
 {
     ThunarFileWatch *file_watch = data;
 
@@ -3269,21 +3123,6 @@ gboolean th_file_reload(ThunarFile *file)
     th_file_changed(file);
 
     return FALSE;
-}
-
-/**
- * thunar_file_reload_idle:
- * @file : a #ThunarFile instance.
- *
- * Schedules a reload of the @file by calling thunar_file_reload
- * when idle.
- *
- **/
-void th_file_reload_idle(ThunarFile *file)
-{
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
-
-    g_idle_add((GSourceFunc) th_file_reload, file);
 }
 
 /**
