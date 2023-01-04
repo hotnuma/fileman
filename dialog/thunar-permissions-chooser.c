@@ -34,7 +34,7 @@
 #include <thunar-permissions-chooser.h>
 #include <thunar-user.h>
 
-#include <thunarx-file-info.h>
+#include <thx-file-info.h>
 
 /* Use native strlcpy() if available */
 #if defined(HAVE_STRLCPY)

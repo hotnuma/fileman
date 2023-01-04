@@ -22,7 +22,7 @@
 #include <th-file.h>
 
 #include <libxfce4ui/libxfce4ui.h>
-#include <thunarx-file-info.h>
+#include <thx-file-info.h>
 #include <thunar-application.h>
 #include <thunar-chooser-dialog.h>
 #include <thunar-file-monitor.h>
@@ -297,6 +297,7 @@ static gboolean thunar_file_cache_dump(gpointer user_data)
 
 static void th_file_class_init(ThunarFileClass *klass)
 {
+
 #ifdef G_ENABLE_DEBUG
 #ifdef HAVE_ATEXIT
     if (G_UNLIKELY(!thunar_file_atexit_registered))
@@ -324,21 +325,16 @@ static void th_file_class_init(ThunarFileClass *klass)
     gobject_class->dispose = th_file_dispose;
     gobject_class->finalize = th_file_finalize;
 
-    /**
-     * ThunarFile::destroy:
-     * @file : the #ThunarFile instance.
-     *
-     * Emitted when the system notices that the @file
-     * was destroyed.
-     **/
+    // Emitted when the system notices that the file was destroyed.
     _file_signals[DESTROY] =
         g_signal_new(I_("destroy"),
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_CLEANUP
-                     | G_SIGNAL_NO_RECURSE
-                     | G_SIGNAL_NO_HOOKS,
+                         | G_SIGNAL_NO_RECURSE
+                         | G_SIGNAL_NO_HOOKS,
                      G_STRUCT_OFFSET(ThunarFileClass, destroy),
-                     NULL, NULL,
+                     NULL,
+                     NULL,
                      g_cclosure_marshal_VOID__VOID,
                      G_TYPE_NONE, 0);
 }

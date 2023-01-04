@@ -23,6 +23,7 @@ HEADERS = \
     core/thunar-folder.h \
     core/thunar-user.h \
     core/thunar-util.h \
+    core/thx-file-info.h \
     dialog/thunar-chooser-button.h \
     dialog/thunar-chooser-dialog.h \
     dialog/thunar-chooser-model.h \
@@ -43,7 +44,6 @@ HEADERS = \
     libext/exo-job.h \
     libext/exo-tree-view.h \
     libext/libext.h \
-    libext/thunarx-file-info.h \
     menu/thunar-launcher.h \
     menu/thunar-menu.h \
     misc/thunar-browser.h \
@@ -93,6 +93,7 @@ SOURCES = \
     core/thunar-folder.c \
     core/thunar-user.c \
     core/thunar-util.c \
+    core/thx-file-info.c \
     dialog/thunar-chooser-button.c \
     dialog/thunar-chooser-dialog.c \
     dialog/thunar-chooser-model.c \
@@ -106,7 +107,6 @@ SOURCES = \
     libext/exo-job.c \
     libext/exo-tree-view.c \
     libext/libext.c \
-    libext/thunarx-file-info.c \
     misc/thunar-browser.c \
     misc/thunar-component.c \
     misc/thunar-enum-types.c \

@@ -19,7 +19,7 @@
 #include <config.h>
 
 #include <libext.h>
-#include <thunarx-file-info.h>
+#include <thx-file-info.h>
 #include <thunar-component.h>
 
 static void thunar_component_class_init(gpointer klass);

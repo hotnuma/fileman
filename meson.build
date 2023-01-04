@@ -43,15 +43,16 @@ app_deps = [
 ]
 
 app_sources = [
+    'core/th-file.c',
     'core/thunar-clipboard-manager.c',
     'core/thunar-device.c',
     'core/thunar-device-monitor.c',
     'core/thunar-dnd.c',
-    'core/th-file.c',
     'core/thunar-file-monitor.c',
     'core/thunar-folder.c',
     'core/thunar-user.c',
     'core/thunar-util.c',
+    'core/thx-file-info.c',
     'dialog/thunar-chooser-button.c',
     'dialog/thunar-chooser-dialog.c',
     'dialog/thunar-chooser-model.c',
@@ -72,7 +73,6 @@ app_sources = [
     'libext/exo-job.c',
     'libext/exo-tree-view.c',
     'libext/libext.c',
-    'libext/thunarx-file-info.c',
     'menu/thunar-launcher.c',
     'menu/thunar-menu.c',
     'misc/thunar-browser.c',

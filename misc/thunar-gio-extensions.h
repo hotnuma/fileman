@@ -22,7 +22,7 @@
 
 #include <gio/gio.h>
 
-#include <thunarx-file-info.h>
+#include <thx-file-info.h>
 
 G_BEGIN_DECLS
 

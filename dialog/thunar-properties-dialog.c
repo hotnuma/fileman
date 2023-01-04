@@ -45,7 +45,7 @@
 #include <thunar-size-label.h>
 #include <thunar-util.h>
 
-#include <thunarx-file-info.h>
+#include <thx-file-info.h>
 
 /* Property identifiers */
 enum
