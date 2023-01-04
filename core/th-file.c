@@ -429,24 +429,29 @@ static void th_file_finalize(GObject *object)
 
 static gchar* th_file_info_get_name(ThunarxFileInfo *file_info)
 {
+    // g_free when unneeded
+
     return g_strdup(th_file_get_basename(THUNAR_FILE(file_info)));
 }
 
 static gchar* th_file_info_get_uri(ThunarxFileInfo *file_info)
 {
+    // g_free when unneeded
+
     return th_file_dup_uri(THUNAR_FILE(file_info));
 }
 
 static gchar* th_file_info_get_parent_uri(ThunarxFileInfo *file_info)
 {
-    gchar *uri = NULL;
+    // g_free when unneeded
 
     GFile *parent = g_file_get_parent(THUNAR_FILE(file_info)->gfile);
-    if (G_LIKELY(parent != NULL))
-    {
-        uri = g_file_get_uri(parent);
-        g_object_unref(parent);
-    }
+
+    if (G_UNLIKELY(parent == NULL))
+        return NULL;
+
+    gchar *uri = g_file_get_uri(parent);
+    g_object_unref(parent);
 
     return uri;
 }
@@ -458,6 +463,8 @@ static gchar* th_file_info_get_uri_scheme(ThunarxFileInfo *file_info)
 
 static gchar* th_file_info_get_mime_type(ThunarxFileInfo *file_info)
 {
+    // g_free
+
     return g_strdup(th_file_get_content_type(THUNAR_FILE(file_info)));
 }
 
@@ -477,6 +484,8 @@ static gboolean th_file_info_is_directory(ThunarxFileInfo *file_info)
 
 static GFileInfo* th_file_info_get_file_info(ThunarxFileInfo *file_info)
 {
+    // g_object_unref
+
     thunar_return_val_if_fail(THUNAR_IS_FILE(file_info), NULL);
 
     if (THUNAR_FILE(file_info)->info != NULL)
@@ -497,6 +506,8 @@ static GFileInfo* th_file_info_get_filesystem_info(ThunarxFileInfo *file_info)
 
 static GFile* th_file_info_get_location(ThunarxFileInfo *file_info)
 {
+    // g_object_unref
+
     thunar_return_val_if_fail(THUNAR_IS_FILE(file_info), NULL);
 
     return g_object_ref(THUNAR_FILE(file_info)->gfile);
@@ -504,93 +515,54 @@ static GFile* th_file_info_get_location(ThunarxFileInfo *file_info)
 
 static void th_file_info_changed(ThunarxFileInfo *file_info)
 {
-    ThunarFile *file = THUNAR_FILE(file_info);
-
     thunar_return_if_fail(THUNAR_IS_FILE(file_info));
 
-    /* set the new thumbnail state manually, so we only emit file
-     * changed once */
-    FLAG_SET_THUMB_STATE(file, 0 /*THUNAR_FILE_THUMB_STATE_UNKNOWN*/);
+    ThunarFile *file = THUNAR_FILE(file_info);
 
-    /* tell the file monitor that this file changed */
+    FLAG_SET_THUMB_STATE(file, 0);
+
+    // tell the file monitor that this file has changed
     thunar_file_monitor_file_changed(file);
 }
 
 
 // Public ---------------------------------------------------------------------
 
-/**
- * thunar_file_get:
- * @file  : a #GFile.
- * @error : return location for errors.
- *
- * Looks up the #ThunarFile referred to by @file. This function may return a
- * ThunarFile even though the file doesn't actually exist. This is the case
- * with remote URIs(like SFTP) for instance, if they are not mounted.
- *
- * The caller is responsible to call g_object_unref()
- * when done with the returned object.
- *
- * Return value: the #ThunarFile for @file or %NULL on errors.
- **/
 ThunarFile* th_file_get(GFile *gfile, GError **error)
 {
+    // g_object_unref
+
     thunar_return_val_if_fail(G_IS_FILE(gfile), NULL);
 
-    /* check if we already have a cached version of that file */
+    // try from the file cache
     ThunarFile *file = th_file_cache_lookup(gfile);
 
     if (G_UNLIKELY(file != NULL))
+        return file;
+
+    // allocate a new object
+    file = g_object_new(THUNAR_TYPE_FILE, NULL);
+    file->gfile = g_object_ref(gfile); // leak ?
+
+    if (!_th_file_load(file, NULL, error))
     {
-        /* return the file, it already has an additional ref set
-         * in thunar_file_cache_lookup */
+        g_object_unref(file);
+        return NULL;
     }
-    else
-    {
-        /* allocate a new object */
-        file = g_object_new(THUNAR_TYPE_FILE, NULL);
-        file->gfile = g_object_ref(gfile);
 
-        if (_th_file_load(file, NULL, error))
-        {
-            /* setup lock until the file is inserted */
-            G_LOCK(_file_cache_mutex);
+    // insert into the cache
 
-            /* insert the file into the cache */
-            g_hash_table_insert(_file_cache,
-                                g_object_ref(file->gfile),
-                                weak_ref_new(G_OBJECT(file)));
+    G_LOCK(_file_cache_mutex);
 
-            /* done inserting in the cache */
-            G_UNLOCK(_file_cache_mutex);
-        }
-        else
-        {
-            /* failed loading, destroy the file */
-            g_object_unref(file);
+    g_hash_table_insert(_file_cache,
+                        g_object_ref(file->gfile),
+                        weak_ref_new(G_OBJECT(file)));
 
-            /* make sure we return NULL */
-            file = NULL;
-        }
-    }
+    G_UNLOCK(_file_cache_mutex);
 
     return file;
 }
 
-/**
- * thunar_file_load:
- * @file        : a #ThunarFile.
- * @cancellable : a #GCancellable.
- * @error       : return location for errors or %NULL.
- *
- * Loads all information about the file. As this is a possibly
- * blocking call, it can be cancelled using @cancellable.
- *
- * If loading the file fails or the operation is cancelled,
- * @error will be set.
- *
- * Return value: %TRUE on success, %FALSE on error or interruption.
- **/
 static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
                               GError **error)
 {
@@ -601,8 +573,10 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
 
     /* remove the file from cache */
     G_LOCK(_file_cache_mutex);
+
     if (g_hash_table_lookup(_file_cache, file->gfile) != NULL)
         g_hash_table_remove(_file_cache, file->gfile);
+
     G_UNLOCK(_file_cache_mutex);
 
     /* reset the file */
@@ -612,17 +586,18 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
 
     /* query a new file info */
     file->info = g_file_query_info(file->gfile,
-                                    THUNARX_FILE_INFO_NAMESPACE,
-                                    G_FILE_QUERY_INFO_NONE,
-                                    cancellable, &err);
+                                   THUNARX_FILE_INFO_NAMESPACE,
+                                   G_FILE_QUERY_INFO_NONE,
+                                   cancellable,
+                                   &err);
 
     /* update the file from the information */
     _th_file_info_reload(file, cancellable);
 
     /* update the mounted info */
     if (err != NULL
-            && err->domain == G_IO_ERROR
-            && err->code == G_IO_ERROR_NOT_MOUNTED)
+        && err->domain == G_IO_ERROR
+        && err->code == G_IO_ERROR_NOT_MOUNTED)
     {
         FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
         g_clear_error(&err);
@@ -674,6 +649,7 @@ static void _th_file_info_clear(ThunarFile *file)
     /* content type */
     g_free(file->content_type);
     file->content_type = NULL;
+
     g_free(file->icon_name);
     file->icon_name = NULL;
 
@@ -694,7 +670,7 @@ static void _th_file_info_clear(ThunarFile *file)
     FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
 
     /* set thumb state to unknown */
-    FLAG_SET_THUMB_STATE(file, 0 /*THUNAR_FILE_THUMB_STATE_UNKNOWN*/);
+    FLAG_SET_THUMB_STATE(file, 0);
 }
 
 static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
@@ -717,9 +693,13 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
 
         if (file->kind == G_FILE_TYPE_MOUNTABLE)
         {
-            target_uri = g_file_info_get_attribute_string(file->info, G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
-            if (target_uri != NULL
-                    && !g_file_info_get_attribute_boolean(file->info, G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT))
+            target_uri = g_file_info_get_attribute_string(
+                                        file->info,
+                                        G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
+
+            if (target_uri != NULL && !g_file_info_get_attribute_boolean(
+                                        file->info,
+                                        G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT))
                 FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
             else
                 FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
@@ -731,12 +711,13 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     thunar_assert(file->basename != NULL);
 
     /* problematic files with content type reading */
-    if (strcmp(file->basename, "kmsg") == 0
-            && g_file_is_native(file->gfile))
+    if (strcmp(file->basename, "kmsg") == 0 && g_file_is_native(file->gfile))
     {
         path = g_file_get_path(file->gfile);
+
         if (g_strcmp0(path, "/proc/kmsg") == 0)
             file->content_type = g_strdup(DEFAULT_CONTENT_TYPE);
+
         g_free(path);
     }
 
@@ -815,71 +796,48 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     g_free(casefold);
 }
 
-
-/**
- * thunar_file_get_with_info:
- * @uri         : an URI or an absolute filename.
- * @info        : #GFileInfo to use when loading the info.
- * @not_mounted : if the file is mounted.
- *
- * Looks up the #ThunarFile referred to by @file. This function may return a
- * ThunarFile even though the file doesn't actually exist. This is the case
- * with remote URIs(like SFTP) for instance, if they are not mounted.
- *
- * This function does not use g_file_query_info() to get the info,
- * but takes a reference on the @info,
- *
- * The caller is responsible to call g_object_unref()
- * when done with the returned object.
- *
- * Return value: the #ThunarFile for @file or %NULL on errors.
- **/
 ThunarFile* th_file_get_with_info(GFile     *gfile,
                                       GFileInfo *info,
                                       gboolean  not_mounted)
 {
+    // g_object_unref
+
     thunar_return_val_if_fail(G_IS_FILE(gfile), NULL);
     thunar_return_val_if_fail(G_IS_FILE_INFO(info), NULL);
 
     /* check if we already have a cached version of that file */
-    ThunarFile *file;
-    file = th_file_cache_lookup(gfile);
+    ThunarFile *file = th_file_cache_lookup(gfile);
 
     if (G_UNLIKELY(file != NULL))
-    {
-        /* return the file, it already has an additional ref set
-         * in thunar_file_cache_lookup */
-    }
-    else
-    {
-        /* allocate a new object */
-        file = g_object_new(THUNAR_TYPE_FILE, NULL);
-        file->gfile = g_object_ref(gfile);
+        return file;
 
-        /* reset the file */
-        _th_file_info_clear(file);
+    /* allocate a new object */
+    file = g_object_new(THUNAR_TYPE_FILE, NULL);
+    file->gfile = g_object_ref(gfile);
 
-        /* set the passed info */
-        file->info = g_object_ref(info);
+    /* reset the file */
+    _th_file_info_clear(file);
 
-        /* update the file from the information */
-        _th_file_info_reload(file, NULL);
+    /* set the passed info */
+    file->info = g_object_ref(info);
 
-        /* update the mounted info */
-        if (not_mounted)
-            FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+    /* update the file from the information */
+    _th_file_info_reload(file, NULL);
 
-        /* setup lock until the file is inserted */
-        G_LOCK(_file_cache_mutex);
+    /* update the mounted info */
+    if (not_mounted)
+        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
 
-        /* insert the file into the cache */
-        g_hash_table_insert(_file_cache,
-                             g_object_ref(file->gfile),
-                             weak_ref_new(G_OBJECT(file)));
+    /* setup lock until the file is inserted */
+    G_LOCK(_file_cache_mutex);
 
-        /* done inserting in the cache */
-        G_UNLOCK(_file_cache_mutex);
-    }
+    /* insert the file into the cache */
+    g_hash_table_insert(_file_cache,
+                        g_object_ref(file->gfile),
+                        weak_ref_new(G_OBJECT(file)));
+
+    /* done inserting in the cache */
+    G_UNLOCK(_file_cache_mutex);
 
     return file;
 }
@@ -2015,28 +1973,13 @@ const gchar* th_file_get_symlink_target(const ThunarFile *file)
     return g_file_info_get_symlink_target(file->info);
 }
 
-/**
- * thunar_file_get_basename:
- * @file : a #ThunarFile.
- *
- * Returns the basename of the @file in UTF-8 encoding.
- *
- * Return value: UTF-8 encoded basename of the @file.
- **/
 const gchar* th_file_get_basename(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+
     return file->basename;
 }
 
-/**
- * thunar_file_is_symlink:
- * @file : a #ThunarFile.
- *
- * Returns %TRUE if @file is a symbolic link.
- *
- * Return value: %TRUE if @file is a symbolic link.
- **/
 gboolean th_file_is_symlink(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
@@ -2047,15 +1990,6 @@ gboolean th_file_is_symlink(const ThunarFile *file)
     return g_file_info_get_is_symlink(file->info);
 }
 
-/**
- * thunar_file_get_size:
- * @file : a #ThunarFile instance.
- *
- * Tries to determine the size of @file in bytes and
- * returns the size.
- *
- * Return value: the size of @file in bytes.
- **/
 guint64 th_file_get_size(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), 0);
