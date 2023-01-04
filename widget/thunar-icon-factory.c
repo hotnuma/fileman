@@ -592,6 +592,7 @@ static void thunar_icon_store_free(gpointer data)
 
     if (store->icon != NULL)
         g_object_unref(store->icon);
+
     g_slice_free(ThunarIconStore, store);
 }
 
@@ -755,8 +756,8 @@ GdkPixbuf* thunar_icon_factory_load_icon(ThunarIconFactory        *factory,
  *
  * Return value: the #GdkPixbuf icon.
  **/
-GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
-                                              ThunarFile         *file,
+GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory   *factory,
+                                              ThunarFile          *file,
                                               ThunarFileIconState icon_state,
                                               gint                icon_size)
 {
@@ -764,29 +765,27 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     thunar_return_val_if_fail(icon_size > 0, NULL);
 
-    GdkPixbuf       *icon = NULL;
-    const gchar     *icon_name;
-    const gchar     *custom_icon;
-    ThunarIconStore *store;
-
-    //GInputStream    *stream;
-    //GtkIconInfo     *icon_info;
-    //const gchar     *thumbnail_path;
-    //GIcon           *gicon;
 
     /* check if we have a stored icon on the file and it is still valid */
-    store = g_object_get_qdata(G_OBJECT(file), thunar_icon_factory_store_quark);
+    ThunarIconStore *store = g_object_get_qdata(G_OBJECT(file),
+                                                thunar_icon_factory_store_quark);
     if (store != NULL
-            && store->icon_state == icon_state
-            && store->icon_size == icon_size
-            && store->stamp == factory->theme_stamp
-            && store->thumb_state == thunar_file_get_thumb_state(file))
+        && store->icon_state == icon_state
+        && store->icon_size == icon_size
+        && store->stamp == factory->theme_stamp
+        && store->thumb_state == thunar_file_get_thumb_state(file))
     {
+        //if (store->thumb_state != 0)
+        //    DPRINT("thumb state = %d\n", store->thumb_state);
+
         return g_object_ref(store->icon);
     }
 
+    GdkPixbuf *icon = NULL;
+
     /* check if we have a custom icon for this file */
-    custom_icon = thunar_file_get_custom_icon(file);
+    const gchar *custom_icon = thunar_file_get_custom_icon(file);
+
     if (custom_icon != NULL)
     {
         /* try to load the icon */
@@ -796,6 +795,11 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
     }
 
 #if 0
+    GInputStream    *stream;
+    GtkIconInfo     *icon_info;
+    const gchar     *thumbnail_path;
+    GIcon           *gicon;
+
     /* check if thumbnails are enabled and we can display a thumbnail for the item */
     if (thunar_icon_factory_get_show_thumbnail(factory, file)
             && (thunar_file_is_regular(file) || thunar_file_is_directory(file)) )
@@ -865,7 +869,7 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
     /* lookup the icon name for the icon in the given state and load the icon */
     if (G_LIKELY(icon == NULL))
     {
-        icon_name = thunar_file_get_icon_name(file, icon_state, factory->icon_theme);
+        const gchar *icon_name = thunar_file_get_icon_name(file, icon_state, factory->icon_theme);
         icon = thunar_icon_factory_load_icon(factory, icon_name, icon_size, TRUE);
     }
 
@@ -878,8 +882,9 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory  *factory,
         store->thumb_state = thunar_file_get_thumb_state(file);
         store->icon = g_object_ref(icon);
 
-        g_object_set_qdata_full(G_OBJECT(file), thunar_icon_factory_store_quark,
-                                 store, thunar_icon_store_free);
+        g_object_set_qdata_full(G_OBJECT(file),
+                                thunar_icon_factory_store_quark,
+                                store, thunar_icon_store_free);
     }
 
     return icon;

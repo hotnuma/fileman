@@ -20,11 +20,11 @@
 #ifndef __THUNAR_FILE_H__
 #define __THUNAR_FILE_H__
 
-#include <glib.h>
-
 #include <thunar-enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-user.h>
+
+//#include <glib.h>
 
 G_BEGIN_DECLS
 
@@ -38,16 +38,6 @@ typedef struct _ThunarFile      ThunarFile;
 #define THUNAR_IS_FILE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_FILE))
 #define THUNAR_FILE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_FILE, ThunarFileClass))
 
-/**
- * ThunarFileDateType:
- * @THUNAR_FILE_DATE_ACCESSED : date of last access to the file.
- * @THUNAR_FILE_DATE_CHANGED  : date of last change to the file meta data or the content.
- * @THUNAR_FILE_DATE_MODIFIED : date of last modification of the file's content.
- *
- * The various dates that can be queried about a #ThunarFile. Note, that not all
- * #ThunarFile implementations support all types listed above. See the documentation
- * of the thunar_file_get_date() method for details.
- **/
 typedef enum
 {
     THUNAR_FILE_DATE_ACCESSED,
@@ -56,15 +46,6 @@ typedef enum
 
 } ThunarFileDateType;
 
-/**
- * ThunarFileIconState:
- * @THUNAR_FILE_ICON_STATE_DEFAULT : the default icon for the file.
- * @THUNAR_FILE_ICON_STATE_DROP    : the drop accept icon for the file.
- * @THUNAR_FILE_ICON_STATE_OPEN    : the folder is expanded.
- *
- * The various file icon states that are used within the file manager
- * views.
- **/
 typedef enum
 {
     THUNAR_FILE_ICON_STATE_DEFAULT,
@@ -73,15 +54,6 @@ typedef enum
 
 } ThunarFileIconState;
 
-/**
- * ThunarFileThumbState:
- * @THUNAR_FILE_THUMB_STATE_UNKNOWN : unknown whether there's a thumbnail.
- * @THUNAR_FILE_THUMB_STATE_NONE    : no thumbnail is available.
- * @THUNAR_FILE_THUMB_STATE_READY   : a thumbnail is available.
- * @THUNAR_FILE_THUMB_STATE_LOADING : a thumbnail is being generated.
- *
- * The state of the thumbnailing for a given #ThunarFile.
- **/
 typedef enum
 {
     THUNAR_FILE_THUMB_STATE_UNKNOWN = 0,
@@ -91,13 +63,8 @@ typedef enum
 
 } ThunarFileThumbState;
 
-/**
- * ThunarFileGetFunc:
- *
- * Callback type for loading #ThunarFile<!---->s asynchronously. If you
- * want to keep the #ThunarFile, you need to ref it, else it will be
- * destroyed.
- **/
+// Callback type for loading ThunarFile's asynchronously. If you want to keep
+// the #ThunarFile, you need to ref it, else it will be destroyed.
 typedef void (*ThunarFileGetFunc) (GFile      *location,
                                    ThunarFile *file,
                                    GError     *error,

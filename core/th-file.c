@@ -2762,6 +2762,7 @@ gboolean thunar_file_is_desktop(const ThunarFile *file)
 ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), THUNAR_FILE_THUMB_STATE_UNKNOWN);
+
     return FLAG_GET_THUMB_STATE(file);
 }
 
