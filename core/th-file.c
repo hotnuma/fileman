@@ -114,7 +114,7 @@ static GQuark               _file_watch_quark;
 static guint                _file_signals[LAST_SIGNAL];
 
 #define FLAG_SET_THUMB_STATE(file,new_state) G_STMT_START{(file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); }G_STMT_END
-#define FLAG_GET_THUMB_STATE(file) ((file)->flags & THUNAR_FILE_FLAG_THUMB_MASK)
+//#define FLAG_GET_THUMB_STATE(file) ((file)->flags & THUNAR_FILE_FLAG_THUMB_MASK)
 
 #define FLAG_SET(file,flag)    G_STMT_START{((file)->flags |=(flag)); }G_STMT_END
 #define FLAG_UNSET(file,flag)  G_STMT_START{((file)->flags &= ~(flag)); }G_STMT_END
@@ -518,7 +518,7 @@ static void th_file_info_changed(ThunarxFileInfo *file_info)
 
     /* set the new thumbnail state manually, so we only emit file
      * changed once */
-    FLAG_SET_THUMB_STATE(file, THUNAR_FILE_THUMB_STATE_UNKNOWN);
+    FLAG_SET_THUMB_STATE(file, 0 /*THUNAR_FILE_THUMB_STATE_UNKNOWN*/);
 
     /* tell the file monitor that this file changed */
     thunar_file_monitor_file_changed(file);
@@ -702,7 +702,7 @@ static void thunar_file_info_clear(ThunarFile *file)
     FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
 
     /* set thumb state to unknown */
-    FLAG_SET_THUMB_STATE(file, THUNAR_FILE_THUMB_STATE_UNKNOWN);
+    FLAG_SET_THUMB_STATE(file, 0 /*THUNAR_FILE_THUMB_STATE_UNKNOWN*/);
 }
 
 static void thunar_file_info_reload(ThunarFile *file, GCancellable *cancellable)
@@ -2750,21 +2750,12 @@ gboolean thunar_file_is_desktop(const ThunarFile *file)
     return is_desktop;
 }
 
-/**
- * thunar_file_get_thumb_state:
- * @file : a #ThunarFile.
- *
- * Returns the current #ThunarFileThumbState for @file. This
- * method is intended to be used by #ThunarIconFactory only.
- *
- * Return value: the #ThunarFileThumbState for @file.
- **/
-ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file)
-{
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), THUNAR_FILE_THUMB_STATE_UNKNOWN);
+//ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file)
+//{
+//    thunar_return_val_if_fail(THUNAR_IS_FILE(file), THUNAR_FILE_THUMB_STATE_UNKNOWN);
 
-    return FLAG_GET_THUMB_STATE(file);
-}
+//    return FLAG_GET_THUMB_STATE(file);
+//}
 
 /**
  * thunar_file_get_custom_icon:

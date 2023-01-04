@@ -110,7 +110,7 @@ struct _ThunarIconKey
 typedef struct
 {
     ThunarFileIconState   icon_state;
-    ThunarFileThumbState  thumb_state;
+    //ThunarFileThumbState  thumb_state;
     gint                  icon_size;
     guint                 stamp;
     GdkPixbuf            *icon;
@@ -773,10 +773,10 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory   *factory,
         && store->icon_state == icon_state
         && store->icon_size == icon_size
         && store->stamp == factory->theme_stamp
-        && store->thumb_state == thunar_file_get_thumb_state(file))
+        /*&& store->thumb_state == thunar_file_get_thumb_state(file)*/)
     {
-        //if (store->thumb_state != 0)
-        //    DPRINT("thumb state = %d\n", store->thumb_state);
+        //static int count = 0;
+        //DPRINT("%d load from store\n", ++count);
 
         return g_object_ref(store->icon);
     }
@@ -879,7 +879,7 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory   *factory,
         store->icon_size = icon_size;
         store->icon_state = icon_state;
         store->stamp = factory->theme_stamp;
-        store->thumb_state = thunar_file_get_thumb_state(file);
+        //store->thumb_state = thunar_file_get_thumb_state(file);
         store->icon = g_object_ref(icon);
 
         g_object_set_qdata_full(G_OBJECT(file),

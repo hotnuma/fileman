@@ -54,14 +54,14 @@ typedef enum
 
 } ThunarFileIconState;
 
-typedef enum
-{
-    THUNAR_FILE_THUMB_STATE_UNKNOWN = 0,
-    THUNAR_FILE_THUMB_STATE_NONE    = 1,
-    THUNAR_FILE_THUMB_STATE_READY   = 2,
-    THUNAR_FILE_THUMB_STATE_LOADING = 3,
+//typedef enum
+//{
+//    THUNAR_FILE_THUMB_STATE_UNKNOWN = 0,
+//    THUNAR_FILE_THUMB_STATE_NONE    = 1,
+//    THUNAR_FILE_THUMB_STATE_READY   = 2,
+//    THUNAR_FILE_THUMB_STATE_LOADING = 3,
 
-} ThunarFileThumbState;
+//} ThunarFileThumbState;
 
 // Callback type for loading ThunarFile's asynchronously. If you want to keep
 // the #ThunarFile, you need to ref it, else it will be destroyed.
@@ -182,7 +182,7 @@ gboolean    thunar_file_set_custom_icon(ThunarFile *file,
                                         const gchar *custom_icon,
                                         GError **error);
 
-ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file);
+//ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file);
 
 GIcon*      thunar_file_get_preview_icon(const ThunarFile *file);
 GFilesystemPreviewType thunar_file_get_preview_type(const ThunarFile *file);
