@@ -19,7 +19,7 @@
 #ifndef __THUNAR_DIALOGS_H__
 #define __THUNAR_DIALOGS_H__
 
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <th-file.h>
 #include <thunar-job.h>
 

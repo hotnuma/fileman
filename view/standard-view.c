@@ -34,7 +34,7 @@
 #include <thunar-menu.h>
 #include <thunar-dialogs.h>
 #include <thunar-dnd.h>
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>

@@ -23,7 +23,7 @@
 
 #include <libext.h>
 
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 
 static void thunar_icon_size_from_zoom_level(const GValue *src_value, GValue *dst_value);
 static void thunar_thumbnail_size_from_icon_size(const GValue *src_value,

@@ -17,33 +17,27 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_ERRNO_H
-#include <errno.h>
-#endif
-
-#include <gio/gio.h>
-#include <glib/gstdio.h>
+#include <io-jobs.h>
 
 #include <thunar-application.h>
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-io-scan-directory.h>
-#include <io-jobs.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
 #include <thunar-simple-job.h>
 #include <thunar-transfer-job.h>
 
+#include <errno.h>
+#include <gio/gio.h>
+#include <glib/gstdio.h>
+
 
 // Rename ---------------------------------------------------------------------
 
-static gboolean _thunar_io_jobs_rename(ThunarJob *job, GArray *param_values,
-                                       GError **error);
-static gboolean _thunar_io_jobs_rename_notify(ThunarFile *file);
+static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error);
+static gboolean _io_rename_notify(ThunarFile *file);
 
 
 static GList* _thunar_io_jobs_collect_nofollow(ThunarJob *job,
@@ -277,7 +271,7 @@ again:
     return TRUE;
 }
 
-ThunarJob* thunar_io_jobs_create_files(GList *file_list,
+ThunarJob* io_create_files(GList *file_list,
                                        GFile *template_file)
 {
     return thunar_simple_job_launch(_thunar_io_jobs_create, 2,
@@ -410,7 +404,7 @@ again:
     return TRUE;
 }
 
-ThunarJob* thunar_io_jobs_make_directories(GList *file_list)
+ThunarJob* io_make_directories(GList *file_list)
 {
     return thunar_simple_job_launch(_thunar_io_jobs_mkdir,
                                     1,
@@ -535,13 +529,13 @@ again:
         return TRUE;
 }
 
-ThunarJob* thunar_io_jobs_unlink_files(GList *file_list)
+ThunarJob* io_unlink_files(GList *file_list)
 {
     return thunar_simple_job_launch(_thunar_io_jobs_unlink, 1,
                                      THUNAR_TYPE_G_FILE_LIST, file_list);
 }
 
-ThunarJob* thunar_io_jobs_move_files(GList *source_file_list,
+ThunarJob* io_move_files(GList *source_file_list,
                                      GList *target_file_list)
 {
     ThunarJob *job;
@@ -557,7 +551,7 @@ ThunarJob* thunar_io_jobs_move_files(GList *source_file_list,
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
 }
 
-ThunarJob* thunar_io_jobs_copy_files(GList *source_file_list,
+ThunarJob* io_copy_files(GList *source_file_list,
                                      GList *target_file_list)
 {
     ThunarJob *job;
@@ -762,7 +756,7 @@ static gboolean _thunar_io_jobs_link(ThunarJob  *job,
     }
 }
 
-ThunarJob* thunar_io_jobs_link_files(GList *source_file_list,
+ThunarJob* io_link_files(GList *source_file_list,
                                      GList *target_file_list)
 {
     thunar_return_val_if_fail(source_file_list != NULL, NULL);
@@ -825,7 +819,7 @@ static gboolean _thunar_io_jobs_trash(ThunarJob  *job,
     }
 }
 
-ThunarJob* thunar_io_jobs_trash_files(GList *file_list)
+ThunarJob* io_trash_files(GList *file_list)
 {
     thunar_return_val_if_fail(file_list != NULL, NULL);
 
@@ -833,7 +827,7 @@ ThunarJob* thunar_io_jobs_trash_files(GList *file_list)
                                     THUNAR_TYPE_G_FILE_LIST, file_list);
 }
 
-ThunarJob* thunar_io_jobs_restore_files(GList *source_file_list,
+ThunarJob* io_restore_files(GList *source_file_list,
                                         GList *target_file_list)
 {
     ThunarJob *job;
@@ -964,7 +958,7 @@ retry_chown:
     }
 }
 
-ThunarJob* thunar_io_jobs_change_group(GList    *files,
+ThunarJob* io_change_group(GList    *files,
                                        guint32   gid,
                                        gboolean  recursive)
 {
@@ -1111,7 +1105,7 @@ retry_chown:
     return TRUE;
 }
 
-ThunarJob* thunar_io_jobs_change_mode(GList         *files,
+ThunarJob* io_change_mode(GList         *files,
                                       ThunarFileMode dir_mask,
                                       ThunarFileMode dir_mode,
                                       ThunarFileMode file_mask,
@@ -1196,7 +1190,7 @@ static gboolean _thunar_io_jobs_ls(ThunarJob  *job,
     return TRUE;
 }
 
-ThunarJob* thunar_io_jobs_list_directory(GFile *directory)
+ThunarJob* io_list_directory(GFile *directory)
 {
     thunar_return_val_if_fail(G_IS_FILE(directory), NULL);
 
@@ -1206,20 +1200,19 @@ ThunarJob* thunar_io_jobs_list_directory(GFile *directory)
 
 // Rename ---------------------------------------------------------------------
 
-ThunarJob* thunar_io_jobs_rename_file(ThunarFile *file, const gchar *display_name)
+ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     thunar_return_val_if_fail(g_utf8_validate(display_name, -1, NULL), NULL);
 
-    return thunar_simple_job_launch(_thunar_io_jobs_rename,
+    return thunar_simple_job_launch(_io_rename,
                                     2,
                                     THUNAR_TYPE_FILE, file,
                                     G_TYPE_STRING,
                                     display_name);
 }
 
-static gboolean _thunar_io_jobs_rename(ThunarJob *job, GArray *param_values,
-                                       GError **error)
+static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error)
 {
     thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     thunar_return_val_if_fail(param_values != NULL, FALSE);
@@ -1248,7 +1241,7 @@ static gboolean _thunar_io_jobs_rename(ThunarJob *job, GArray *param_values,
                        &err))
     {
         exo_job_send_to_mainloop(EXO_JOB(job),
-                                 (GSourceFunc) _thunar_io_jobs_rename_notify,
+                                 (GSourceFunc) _io_rename_notify,
                                  g_object_ref(file),
                                  g_object_unref);
     }
@@ -1264,7 +1257,7 @@ static gboolean _thunar_io_jobs_rename(ThunarJob *job, GArray *param_values,
     return TRUE;
 }
 
-static gboolean _thunar_io_jobs_rename_notify(ThunarFile *file)
+static gboolean _io_rename_notify(ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 

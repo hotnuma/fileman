@@ -26,7 +26,7 @@
 #include <libext.h>
 
 #include <thunar-dialogs.h>
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <io-jobs.h>
@@ -661,7 +661,7 @@ static void thunar_permissions_chooser_change_group(ThunarPermissionsChooser *ch
 
     /* try to allocate the new job */
     file_list = thunar_permissions_chooser_get_file_list(chooser);
-    job = thunar_io_jobs_change_group(file_list, gid, recursive);
+    job = io_change_group(file_list, gid, recursive);
     thunar_permissions_chooser_job_start(chooser, job, recursive);
     g_list_free_full(file_list, g_object_unref);
     g_object_unref(job);
@@ -703,7 +703,7 @@ static gboolean thunar_permissions_chooser_change_mode(ThunarPermissionsChooser 
 
     /* try to allocate the new job */
     file_list = thunar_permissions_chooser_get_file_list(chooser);
-    job = thunar_io_jobs_change_mode(file_list, dir_mask, dir_mode, file_mask, file_mode, recursive);
+    job = io_change_mode(file_list, dir_mask, dir_mode, file_mask, file_mode, recursive);
     thunar_permissions_chooser_job_start(chooser, job, recursive);
     g_list_free_full(file_list, g_object_unref);
     g_object_unref(job);
@@ -1097,7 +1097,7 @@ static void thunar_permissions_chooser_fixperm_clicked(ThunarPermissionsChooser 
             file_list.next = NULL;
 
             /* try to allocate the new job */
-            job = thunar_io_jobs_change_mode(&file_list,
+            job = io_change_mode(&file_list,
                                               0511, mode, 0000, 0000, FALSE);
 
             /* handle the job */

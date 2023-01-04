@@ -943,7 +943,7 @@ void thunar_folder_reload(ThunarFolder *folder,
     folder->new_files = NULL;
 
     /* start a new job */
-    folder->job = thunar_io_jobs_list_directory(th_file_get_file(folder->corresponding_file));
+    folder->job = io_list_directory(th_file_get_file(folder->corresponding_file));
     g_signal_connect(folder->job, "error", G_CALLBACK(thunar_folder_error), folder);
     g_signal_connect(folder->job, "finished", G_CALLBACK(thunar_folder_finished), folder);
     g_signal_connect(folder->job, "files-ready", G_CALLBACK(thunar_folder_files_ready), folder);

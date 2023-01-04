@@ -20,7 +20,7 @@
 #ifndef __THUNAR_FILE_H__
 #define __THUNAR_FILE_H__
 
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-user.h>
 

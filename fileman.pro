@@ -46,9 +46,9 @@ HEADERS = \
     libext/libext.h \
     menu/thunar-launcher.h \
     menu/thunar-menu.h \
+    misc/enum-types.h \
     misc/thunar-browser.h \
     misc/thunar-component.h \
-    misc/thunar-enum-types.h \
     misc/thunar-gdk-extensions.h \
     misc/thunar-gio-extensions.h \
     misc/thunar-gobject-extensions.h \
@@ -108,9 +108,9 @@ SOURCES = \
     libext/exo-job.c \
     libext/exo-tree-view.c \
     libext/libext.c \
+    misc/enum-types.c \
     misc/thunar-browser.c \
     misc/thunar-component.c \
-    misc/thunar-enum-types.c \
     misc/thunar-gdk-extensions.c \
     misc/thunar-gio-extensions.c \
     misc/thunar-gobject-extensions.c \

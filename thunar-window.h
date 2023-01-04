@@ -19,7 +19,7 @@
 #ifndef __THUNAR_WINDOW_H__
 #define __THUNAR_WINDOW_H__
 
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <thunar-folder.h>
 #include <thunar-launcher.h>
 

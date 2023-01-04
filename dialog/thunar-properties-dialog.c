@@ -703,7 +703,7 @@ static void thunar_properties_dialog_name_activate(
     old_name = th_file_get_display_name(file);
     if (g_utf8_collate(new_name, old_name) != 0)
     {
-        job = thunar_io_jobs_rename_file(file, new_name);
+        job = io_rename_file(file, new_name);
         if (job != NULL)
         {
             g_signal_connect(job, "error", G_CALLBACK(thunar_properties_dialog_rename_error), dialog);

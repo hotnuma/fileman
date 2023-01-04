@@ -19,7 +19,7 @@
 #ifndef __THUNAR_COLUMN_MODEL_H__
 #define __THUNAR_COLUMN_MODEL_H__
 
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 
 G_BEGIN_DECLS
 

@@ -295,7 +295,7 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
         if (G_LIKELY(g_strcmp0(filename, text) != 0))
         {
             /* try to rename the file */
-            job = thunar_io_jobs_rename_file(file, text);
+            job = io_rename_file(file, text);
         }
     }
 

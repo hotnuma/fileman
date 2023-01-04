@@ -30,7 +30,7 @@
 
 #include <libext.h>
 
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <thunar-job.h>
 #include <thunar-marshal.h>
 

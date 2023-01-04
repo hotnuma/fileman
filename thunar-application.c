@@ -1379,7 +1379,7 @@ void thunar_application_copy_into(ThunarApplication *application,
 
     /* collect the target files and launch the job */
     thunar_application_collect_and_launch(application, parent, "edit-copy",
-                                           title, thunar_io_jobs_copy_files,
+                                           title, io_copy_files,
                                            source_file_list, target_file,
                                            FALSE, TRUE,
                                            new_files_closure);
@@ -1423,7 +1423,7 @@ void thunar_application_link_into(ThunarApplication *application,
 
     /* collect the target files and launch the job */
     thunar_application_collect_and_launch(application, parent, "insert-link",
-                                           title, thunar_io_jobs_link_files,
+                                           title, io_link_files,
                                            source_file_list, target_file,
                                            FALSE, TRUE,
                                            new_files_closure);
@@ -1475,7 +1475,7 @@ void thunar_application_move_into(ThunarApplication *application,
         /* collect the target files and launch the job */
         thunar_application_collect_and_launch(application, parent,
                                                "stock_folder-move", title,
-                                               thunar_io_jobs_move_files,
+                                               io_move_files,
                                                source_file_list, target_file,
                                                TRUE, TRUE,
                                                new_files_closure);
@@ -1488,7 +1488,7 @@ void thunar_application_move_into(ThunarApplication *application,
 static ThunarJob* unlink_stub(GList *source_path_list, GList *target_path_list)
 {
     UNUSED(target_path_list);
-    return thunar_io_jobs_unlink_files(source_path_list);
+    return io_unlink_files(source_path_list);
 }
 
 /**
@@ -1603,7 +1603,7 @@ void thunar_application_unlink_files(ThunarApplication *application,
 static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
 {
     UNUSED(target_file_list);
-    return thunar_io_jobs_trash_files(source_file_list);
+    return io_trash_files(source_file_list);
 }
 
 void thunar_application_trash(ThunarApplication *application,
@@ -1623,7 +1623,7 @@ static ThunarJob* creat_stub(GList *template_file, GList *target_path_list)
 {
     thunar_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
 
-    return thunar_io_jobs_create_files(target_path_list, template_file->data);
+    return io_create_files(target_path_list, template_file->data);
 }
 
 /**
@@ -1662,7 +1662,7 @@ void thunar_application_creat(ThunarApplication *application,
 static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list)
 {
     UNUSED(target_path_list);
-    return thunar_io_jobs_make_directories(source_path_list);
+    return io_make_directories(source_path_list);
 }
 
 /**
@@ -1819,7 +1819,7 @@ void thunar_application_restore_files(ThunarApplication *application,
     {
         /* launch the operation */
         thunar_application_launch(application, parent, "stock_folder-move",
-                                   _("Restoring files..."), thunar_io_jobs_restore_files,
+                                   _("Restoring files..."), io_restore_files,
                                    source_path_list, target_path_list, TRUE, TRUE, new_files_closure);
     }
 

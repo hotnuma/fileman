@@ -20,7 +20,7 @@
 #define __THUNAR_VIEW_H__
 
 #include <thunar-component.h>
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 #include <thunar-navigator.h>
 
 G_BEGIN_DECLS

@@ -21,7 +21,7 @@
 #ifndef __THUNAR_UTIL_H__
 #define __THUNAR_UTIL_H__
 
-#include <thunar-enum-types.h>
+#include <enum-types.h>
 
 #define THUNAR_THREADS_ENTER \
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
