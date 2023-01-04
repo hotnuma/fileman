@@ -461,7 +461,7 @@ static void thunar_path_entry_drag_data_get(GtkWidget        *widget,
     {
         /* transform the path for the current file into an uri string list */
         file_list.next = file_list.prev = NULL;
-        file_list.data = thunar_file_get_file(path_entry->current_file);
+        file_list.data = th_file_get_file(path_entry->current_file);
 
         /* setup the uri list for the drag selection */
         uris = thunar_g_file_list_to_stringv(&file_list);
@@ -536,8 +536,8 @@ static void thunar_path_entry_changed(GtkEditable *editable)
     }
 
     /* determine new current file/folder from the paths */
-    current_folder =(folder_path != NULL) ? thunar_file_get(folder_path, NULL) : NULL;
-    current_file =(file_path != NULL) ? thunar_file_get(file_path, NULL) : NULL;
+    current_folder =(folder_path != NULL) ? th_file_get(folder_path, NULL) : NULL;
+    current_file =(file_path != NULL) ? th_file_get(file_path, NULL) : NULL;
 
     /* determine the entry completion */
     completion = gtk_entry_get_completion(GTK_ENTRY(path_entry));
@@ -1116,7 +1116,7 @@ void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
     thunar_return_if_fail(THUNAR_IS_PATH_ENTRY(path_entry));
     thunar_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
 
-    file =(current_file != NULL) ? thunar_file_get_file(current_file) : NULL;
+    file =(current_file != NULL) ? th_file_get_file(current_file) : NULL;
     if (G_UNLIKELY(file == NULL))
     {
         /* invalid file */
@@ -1198,7 +1198,7 @@ void thunar_path_entry_set_working_directory(ThunarPathEntry *path_entry,
     path_entry->working_directory = NULL;
 
     if (THUNAR_IS_FILE(working_directory))
-        path_entry->working_directory = g_object_ref(thunar_file_get_file(working_directory));
+        path_entry->working_directory = g_object_ref(th_file_get_file(working_directory));
 }
 
 

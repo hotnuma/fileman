@@ -780,7 +780,7 @@ void thunar_device_reload_file(ThunarDevice *device)
     if (mount_point != NULL)
     {
         /* try to determine the file for the mount point */
-        file = thunar_file_get(mount_point, NULL);
+        file = th_file_get(mount_point, NULL);
         if (file != NULL)
         {
             thunar_file_reload(file);

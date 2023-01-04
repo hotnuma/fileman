@@ -4,6 +4,441 @@
 
 //-----------------------------------------------------------------------------
 
+void        thunar_file_set_thumb_state(ThunarFile *file,
+                                        ThunarFileThumbState state);
+void thunar_file_set_thumb_state(ThunarFile *file,
+                                 ThunarFileThumbState state)
+{
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+
+    /* check if the state changes */
+    if (thunar_file_get_thumb_state(file) == state)
+        return;
+
+    /* set the new thumbnail state */
+    FLAG_SET_THUMB_STATE(file, state);
+
+    /* remove path if the type is not supported */
+    if (state == THUNAR_FILE_THUMB_STATE_NONE
+            && file->thumbnail_path != NULL)
+    {
+        g_free(file->thumbnail_path);
+        file->thumbnail_path = NULL;
+    }
+
+    /* if the file has a thumbnail, reload it */
+    if (state == THUNAR_FILE_THUMB_STATE_READY)
+        thunar_file_monitor_file_changed(file);
+}
+
+
+//-----------------------------------------------------------------------------
+
+// Public
+GList*      thunar_file_get_emblem_names(ThunarFile *file);
+void        thunar_file_set_emblem_names(ThunarFile *file, GList *emblem_names);
+const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
+                                            ThunarThumbnailSize thumbnail_size);
+const gchar* thunar_file_get_metadata_setting(ThunarFile *file,
+                                              const gchar *setting_name);
+void        thunar_file_set_metadata_setting(ThunarFile *file,
+                                             const gchar *setting_name,
+                                             const gchar *setting_value);
+void        thunar_file_clear_directory_specific_settings(ThunarFile *file);
+gboolean    thunar_file_has_directory_specific_settings(ThunarFile *file);
+
+// Implementation
+static gboolean thunar_file_denies_access_permission(
+                                                const ThunarFile *file,
+                                                ThunarFileMode usr_permissions,
+                                                ThunarFileMode grp_permissions,
+                                                ThunarFileMode oth_permissions);
+static gboolean thunar_file_is_readable(const ThunarFile *file);
+
+static gboolean thunar_file_denies_access_permission(const ThunarFile *file,
+                                                     ThunarFileMode usr_permissions,
+                                                     ThunarFileMode grp_permissions,
+                                                     ThunarFileMode oth_permissions)
+{
+    ThunarFileMode mode;
+    ThunarGroup   *group;
+    ThunarUser    *user;
+    gboolean       result;
+    GList         *groups;
+    GList         *lp;
+
+    /* query the file mode */
+    mode = thunar_file_get_mode(file);
+
+    /* query the owner of the file, if we cannot determine
+     * the owner, we can't tell if we're denied to access
+     * the file, so we simply return FALSE then.
+     */
+    user = thunar_file_get_user(file);
+    if (G_UNLIKELY(user == NULL))
+        return FALSE;
+
+    /* root is allowed to do everything */
+    if (G_UNLIKELY(effective_user_id == 0))
+        return FALSE;
+
+    if (thunar_user_is_me(user))
+    {
+        /* we're the owner, so the usr permissions must be granted */
+        result =((mode & usr_permissions) == 0);
+
+        /* release the user */
+        g_object_unref(G_OBJECT(user));
+    }
+    else
+    {
+        group = thunar_file_get_group(file);
+        if (G_LIKELY(group != NULL))
+        {
+            /* release the file owner */
+            g_object_unref(G_OBJECT(user));
+
+            /* determine the effective user */
+            user = thunar_user_manager_get_user_by_id(user_manager, effective_user_id);
+            if (G_LIKELY(user != NULL))
+            {
+                /* check the group permissions */
+                groups = thunar_user_get_groups(user);
+                for(lp = groups; lp != NULL; lp = lp->next)
+                    if (THUNAR_GROUP(lp->data) == group)
+                    {
+                        g_object_unref(G_OBJECT(user));
+                        g_object_unref(G_OBJECT(group));
+                        return((mode & grp_permissions) == 0);
+                    }
+
+                /* release the effective user */
+                g_object_unref(G_OBJECT(user));
+            }
+
+            /* release the file group */
+            g_object_unref(G_OBJECT(group));
+        }
+
+        /* check other permissions */
+        result =((mode & oth_permissions) == 0);
+    }
+
+    return result;
+}
+
+static void thunar_file_set_emblem_names_ready(GObject      *source_object,
+                                               GAsyncResult *result,
+                                               gpointer     user_data)
+{
+    ThunarFile *file = THUNAR_FILE(user_data);
+    GError     *error = NULL;
+
+    if (!g_file_set_attributes_finish(G_FILE(source_object),
+                                      result, NULL, &error))
+    {
+        g_warning("Failed to set metadata: %s", error->message);
+        g_error_free(error);
+
+        g_file_info_remove_attribute(file->info, "metadata::emblems");
+    }
+
+    thunar_file_changed(file);
+}
+
+static gboolean thunar_file_is_readable(const ThunarFile *file)
+{
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+
+    if (file->info == NULL)
+        return FALSE;
+
+    if (!g_file_info_has_attribute(file->info, G_FILE_ATTRIBUTE_ACCESS_CAN_READ))
+        return TRUE;
+
+    return g_file_info_get_attribute_boolean(file->info,
+                                        G_FILE_ATTRIBUTE_ACCESS_CAN_READ);
+}
+
+GList* thunar_file_get_emblem_names(ThunarFile *file)
+{
+    guint32   uid;
+    gchar   **emblem_names;
+    GList    *emblems = NULL;
+
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+
+    /* leave if there is no info */
+    if (file->info == NULL)
+        return NULL;
+
+    /* determine the custom emblems */
+    emblem_names = g_file_info_get_attribute_stringv(file->info, "metadata::emblems");
+    if (G_UNLIKELY(emblem_names != NULL))
+    {
+        for(; *emblem_names != NULL; ++emblem_names)
+            emblems = g_list_append(emblems, *emblem_names);
+    }
+
+    if (thunar_file_is_symlink(file))
+        emblems = g_list_prepend(emblems, THUNAR_FILE_EMBLEM_NAME_SYMBOLIC_LINK);
+
+    /* determine the user ID of the file owner */
+    /* TODO what are we going to do here on non-UNIX systems? */
+    uid = file->info != NULL
+          ? g_file_info_get_attribute_uint32(file->info, G_FILE_ATTRIBUTE_UNIX_UID)
+          : 0;
+
+    /* we add "cant-read" if either(a) the file is not readable or(b) a directory, that lacks the
+     * x-bit, see https://bugzilla.xfce.org/show_bug.cgi?id=1408 for the details about this change.
+     */
+    if (!thunar_file_is_readable(file)
+            ||(thunar_file_is_directory(file)
+                && thunar_file_denies_access_permission(file, THUNAR_FILE_MODE_USR_EXEC,
+                        THUNAR_FILE_MODE_GRP_EXEC,
+                        THUNAR_FILE_MODE_OTH_EXEC)))
+    {
+        emblems = g_list_prepend(emblems, THUNAR_FILE_EMBLEM_NAME_CANT_READ);
+    }
+    else if (G_UNLIKELY(uid == effective_user_id && !thunar_file_is_writable(file) && !thunar_file_is_trashed(file)))
+    {
+        /* we own the file, but we cannot write to it, that's why we mark it as "cant-write", so
+         * users won't be surprised when opening the file in a text editor, but are unable to save.
+         */
+        emblems = g_list_prepend(emblems, THUNAR_FILE_EMBLEM_NAME_CANT_WRITE);
+    }
+
+    return emblems;
+}
+
+void thunar_file_set_emblem_names(ThunarFile *file,
+                                  GList      *emblem_names)
+{
+    GList      *lp;
+    gchar     **emblems = NULL;
+    gint        n;
+    GFileInfo  *info;
+
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(G_IS_FILE_INFO(file->info));
+
+    /* allocate a zero-terminated array for the emblem names */
+    emblems = g_new0(gchar *, g_list_length(emblem_names) + 1);
+
+    /* turn the emblem_names list into a zero terminated array */
+    for(lp = emblem_names, n = 0; lp != NULL; lp = lp->next)
+    {
+        /* skip special emblems */
+        if (strcmp(lp->data, THUNAR_FILE_EMBLEM_NAME_SYMBOLIC_LINK) == 0
+                || strcmp(lp->data, THUNAR_FILE_EMBLEM_NAME_CANT_READ) == 0
+                || strcmp(lp->data, THUNAR_FILE_EMBLEM_NAME_CANT_WRITE) == 0
+                || strcmp(lp->data, THUNAR_FILE_EMBLEM_NAME_DESKTOP) == 0)
+            continue;
+
+        /* add the emblem to our list */
+        emblems[n++] = g_strdup(lp->data);
+    }
+
+    /* set the value in the current info. this call is needed to update the in-memory
+     * GFileInfo structure to ensure that the new attribute value is available immediately */
+    if (n == 0)
+        g_file_info_remove_attribute(file->info, "metadata::emblems");
+    else
+        g_file_info_set_attribute_stringv(file->info, "metadata::emblems", emblems);
+
+    /* send meta data to the daemon. this call is needed to store the new value of
+     * the attribute in the file system */
+    info = g_file_info_new();
+    g_file_info_set_attribute_stringv(info, "metadata::emblems", emblems);
+    g_file_set_attributes_async(file->gfile, info,
+                                 G_FILE_QUERY_INFO_NONE,
+                                 G_PRIORITY_DEFAULT,
+                                 NULL,
+                                 thunar_file_set_emblem_names_ready,
+                                 file);
+    g_object_unref(G_OBJECT(info));
+
+    g_strfreev(emblems);
+}
+
+const gchar* thunar_file_get_metadata_setting(ThunarFile  *file,
+                                              const gchar *setting_name)
+{
+    gchar       *attr_name;
+    const gchar *attr_value;
+
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+
+    if (file->info == NULL)
+        return NULL;
+
+    /* convert the setting name to an attribute name */
+    attr_name = g_strdup_printf("metadata::thunar-%s", setting_name);
+
+    if (!g_file_info_has_attribute(file->info, attr_name))
+    {
+        g_free(attr_name);
+        return NULL;
+    }
+
+    attr_value = g_file_info_get_attribute_string(file->info, attr_name);
+    g_free(attr_name);
+
+    return attr_value;
+}
+
+static void thunar_file_set_metadata_setting_finish(GObject      *source_object,
+                                                    GAsyncResult *result,
+                                                    gpointer      user_data)
+{
+    ThunarFile *file = THUNAR_FILE(user_data);
+    GError     *error = NULL;
+
+    if (!g_file_set_attributes_finish(G_FILE(source_object), result, NULL, &error))
+    {
+        g_warning("Failed to set metadata: %s", error->message);
+        g_error_free(error);
+    }
+
+    thunar_file_changed(file);
+}
+
+void thunar_file_set_metadata_setting(ThunarFile  *file,
+                                      const gchar *setting_name,
+                                      const gchar *setting_value)
+{
+    GFileInfo *info;
+    gchar     *attr_name;
+
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    thunar_return_if_fail(G_IS_FILE_INFO(file->info));
+
+    /* convert the setting name to an attribute name */
+    attr_name = g_strdup_printf("metadata::thunar-%s", setting_name);
+
+    /* set the value in the current info. this call is needed to update the in-memory
+     * GFileInfo structure to ensure that the new attribute value is available immediately */
+    g_file_info_set_attribute_string(file->info, attr_name, setting_value);
+
+    /* send meta data to the daemon. this call is needed to store the new value of
+     * the attribute in the file system */
+    info = g_file_info_new();
+    g_file_info_set_attribute_string(info, attr_name, setting_value);
+    g_file_set_attributes_async(file->gfile, info,
+                                 G_FILE_QUERY_INFO_NONE,
+                                 G_PRIORITY_DEFAULT,
+                                 NULL,
+                                 thunar_file_set_metadata_setting_finish,
+                                 file);
+    g_free(attr_name);
+    g_object_unref(G_OBJECT(info));
+}
+
+void thunar_file_clear_directory_specific_settings(ThunarFile *file)
+{
+    thunar_return_if_fail(THUNAR_IS_FILE(file));
+
+    if (file->info == NULL)
+        return;
+
+    g_file_info_remove_attribute(file->info, "metadata::thunar-view-type");
+    g_file_info_remove_attribute(file->info, "metadata::thunar-sort-column");
+    g_file_info_remove_attribute(file->info, "metadata::thunar-sort-order");
+
+    g_file_set_attribute(file->gfile, "metadata::thunar-view-type", G_FILE_ATTRIBUTE_TYPE_INVALID,
+                          NULL, G_FILE_QUERY_INFO_NONE, NULL, NULL);
+    g_file_set_attribute(file->gfile, "metadata::thunar-sort-column", G_FILE_ATTRIBUTE_TYPE_INVALID,
+                          NULL, G_FILE_QUERY_INFO_NONE, NULL, NULL);
+    g_file_set_attribute(file->gfile, "metadata::thunar-sort-order", G_FILE_ATTRIBUTE_TYPE_INVALID,
+                          NULL, G_FILE_QUERY_INFO_NONE, NULL, NULL);
+
+    thunar_file_changed(file);
+}
+
+const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
+                                            ThunarThumbnailSize thumbnail_size)
+{
+    GChecksum *checksum;
+    gchar     *filename;
+    gchar     *uri;
+
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+
+    /* if the thumbstate is known to be not there, return null */
+    if (thunar_file_get_thumb_state(file) == THUNAR_FILE_THUMB_STATE_NONE)
+        return NULL;
+
+    if (G_UNLIKELY(file->thumbnail_path == NULL))
+    {
+        checksum = g_checksum_new(G_CHECKSUM_MD5);
+        if (G_LIKELY(checksum != NULL))
+        {
+            uri = thunar_file_dup_uri(file);
+            g_checksum_update(checksum,(const guchar *) uri, strlen(uri));
+            g_free(uri);
+
+            filename = g_strconcat(g_checksum_get_string(checksum), ".png", NULL);
+            g_checksum_free(checksum);
+
+            /* The thumbnail is in the format/location
+             * $XDG_CACHE_HOME/thumbnails/(nromal|large)/MD5_Hash_Of_URI.png
+             * for version 0.8.0 if XDG_CACHE_HOME is defined, otherwise
+             * /homedir/.thumbnails/(normal|large)/MD5_Hash_Of_URI.png
+             * will be used, which is also always used for versions prior
+             * to 0.7.0.
+             */
+
+            /* build and check if the thumbnail is in the new location */
+            file->thumbnail_path = g_build_path("/", g_get_user_cache_dir(),
+                                                 "thumbnails", thunar_thumbnail_size_get_nick(thumbnail_size),
+                                                 filename, NULL);
+
+            if (!g_file_test(file->thumbnail_path, G_FILE_TEST_EXISTS))
+            {
+                /* Fallback to old version */
+                g_free(file->thumbnail_path);
+
+                file->thumbnail_path = g_build_filename(g_get_home_dir(),
+                                       ".thumbnails", thunar_thumbnail_size_get_nick(thumbnail_size),
+                                       filename, NULL);
+
+                if (!g_file_test(file->thumbnail_path, G_FILE_TEST_EXISTS))
+                {
+                    /* Thumbnail doesn't exist in either spot */
+                    g_free(file->thumbnail_path);
+                    file->thumbnail_path = NULL;
+                }
+            }
+
+            g_free(filename);
+        }
+    }
+
+    return file->thumbnail_path;
+}
+
+gboolean thunar_file_has_directory_specific_settings(ThunarFile *file)
+{
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+
+    if (file->info == NULL)
+        return FALSE;
+
+    if (g_file_info_has_attribute(file->info, "metadata::thunar-view-type"))
+        return TRUE;
+
+    if (g_file_info_has_attribute(file->info, "metadata::thunar-sort-column"))
+        return TRUE;
+
+    if (g_file_info_has_attribute(file->info, "metadata::thunar-sort-order"))
+        return TRUE;
+
+    return FALSE;
+}
+
+
+//-----------------------------------------------------------------------------
+
 thunar_window_notebook_insert
 thunar_window_notebook_page_added
 thunar_window_notebook_show_tabs

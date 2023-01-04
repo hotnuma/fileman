@@ -228,7 +228,7 @@ static void thunar_browser_poke_mountable_finish(GObject      *object,
 
         /* resolve the ThunarFile for the target location asynchronously
          * and defer cleaning up the poke data until that has finished */
-        thunar_file_get_async(location, NULL,
+        th_file_get_async(location, NULL,
                                thunar_browser_poke_mountable_file_finish,
                                poke_data);
 
@@ -395,7 +395,7 @@ static void thunar_browser_poke_file_internal(
         poke_data = thunar_browser_poke_file_data_new(browser, location, source,
                     file, func, location_func, user_data);
 
-        thunar_file_get_async(target, NULL,
+        th_file_get_async(target, NULL,
                                thunar_browser_poke_shortcut_file_finish,
                                poke_data);
 
@@ -410,7 +410,7 @@ static void thunar_browser_poke_file_internal(
             poke_data = thunar_browser_poke_file_data_new(browser, location, source,
                         file, func, location_func, user_data);
 
-            thunar_file_get_async(target, NULL,
+            th_file_get_async(target, NULL,
                                    thunar_browser_poke_mountable_file_finish,
                                    poke_data);
 
@@ -423,7 +423,7 @@ static void thunar_browser_poke_file_internal(
 
             mount_operation = thunar_gtk_mount_operation_new(widget);
 
-            g_file_mount_mountable(thunar_file_get_file(file),
+            g_file_mount_mountable(th_file_get_file(file),
                                     G_MOUNT_MOUNT_NONE, mount_operation, NULL,
                                     thunar_browser_poke_mountable_finish,
                                     poke_data);
@@ -438,7 +438,7 @@ static void thunar_browser_poke_file_internal(
 
         mount_operation = thunar_gtk_mount_operation_new(widget);
 
-        g_file_mount_enclosing_volume(thunar_file_get_file(file),
+        g_file_mount_enclosing_volume(th_file_get_file(file),
                                        G_MOUNT_MOUNT_NONE, mount_operation, NULL,
                                        thunar_browser_poke_file_finish,
                                        poke_data);
@@ -487,7 +487,7 @@ void thunar_browser_poke_file(ThunarBrowser            *browser,
     thunar_return_if_fail(THUNAR_IS_BROWSER(browser));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 
-    thunar_browser_poke_file_internal(browser, thunar_file_get_file(file), file, file, widget,
+    thunar_browser_poke_file_internal(browser, th_file_get_file(file), file, file, widget,
                                        func, NULL, user_data);
 }
 
@@ -538,7 +538,7 @@ static void thunar_browser_poke_device_finish(ThunarDevice *device,
     {
         /* resolve the ThunarFile for the mount point asynchronously
          * and defer cleaning up the poke data until that has finished */
-        thunar_file_get_async(mount_point, NULL,
+        th_file_get_async(mount_point, NULL,
                                thunar_browser_poke_device_file_finish,
                                poke_data);
 
@@ -592,7 +592,7 @@ void thunar_browser_poke_device(ThunarBrowser   *browser,
 
         poke_data = thunar_browser_poke_device_data_new(browser, device, func, user_data);
 
-        thunar_file_get_async(mount_point, NULL,
+        th_file_get_async(mount_point, NULL,
                                thunar_browser_poke_device_file_finish,
                                poke_data);
 
@@ -677,7 +677,7 @@ void thunar_browser_poke_location(ThunarBrowser                *browser,
     PokeFileData *poke_data = thunar_browser_poke_file_data_new(browser, location, NULL, NULL,
                 NULL, func, user_data);
 
-    thunar_file_get_async(location, NULL,
+    th_file_get_async(location, NULL,
                            thunar_browser_poke_location_file_finish,
                            poke_data);
 }

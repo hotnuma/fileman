@@ -493,12 +493,12 @@ ThunarJobResponse thunar_job_ask_replace(ThunarJob *job,
     if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_SKIP_ALL))
         return THUNAR_JOB_RESPONSE_SKIP;
 
-    source_file = thunar_file_get(source_path, error);
+    source_file = th_file_get(source_path, error);
 
     if (G_UNLIKELY(source_file == NULL))
         return THUNAR_JOB_RESPONSE_SKIP;
 
-    target_file = thunar_file_get(target_path, error);
+    target_file = th_file_get(target_path, error);
 
     if (G_UNLIKELY(target_file == NULL))
     {

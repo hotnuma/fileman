@@ -215,15 +215,15 @@ gboolean thunar_dnd_perform(GtkWidget    *widget,
         switch(action)
         {
         case GDK_ACTION_COPY:
-            thunar_application_copy_into(application, widget, file_list, thunar_file_get_file(file), new_files_closure);
+            thunar_application_copy_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
             break;
 
         case GDK_ACTION_MOVE:
-            thunar_application_move_into(application, widget, file_list, thunar_file_get_file(file), new_files_closure);
+            thunar_application_move_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
             break;
 
         case GDK_ACTION_LINK:
-            thunar_application_link_into(application, widget, file_list, thunar_file_get_file(file), new_files_closure);
+            thunar_application_link_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
             break;
 
         default:
@@ -233,7 +233,7 @@ gboolean thunar_dnd_perform(GtkWidget    *widget,
     else if (thunar_file_is_executable(file))
     {
         /* TODO any chance to determine the working dir here? */
-        succeed = thunar_file_execute(file, NULL, widget, file_list, NULL, &error);
+        succeed = th_file_execute(file, NULL, widget, file_list, NULL, &error);
         if (G_UNLIKELY(!succeed))
         {
             /* display an error to the user */

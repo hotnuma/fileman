@@ -961,7 +961,7 @@ gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
     if (response == GTK_RESPONSE_APPLY)
     {
         /* try to query information about the file */
-        info = g_file_query_info(thunar_file_get_file(file),
+        info = g_file_query_info(th_file_get_file(file),
                                   G_FILE_ATTRIBUTE_UNIX_MODE,
                                   G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                   NULL, &err);
@@ -978,7 +978,7 @@ gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
 
                 if (old_mode != new_mode)
                 {
-                    g_file_set_attribute_uint32(thunar_file_get_file(file),
+                    g_file_set_attribute_uint32(th_file_get_file(file),
                                                  G_FILE_ATTRIBUTE_UNIX_MODE, new_mode,
                                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                                  NULL, &err);

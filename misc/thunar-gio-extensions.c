@@ -597,7 +597,7 @@ gboolean thunar_g_app_info_launch(GAppInfo      *info,
         {
             gboolean update_app_info = !skip_app_info_update;
 
-            file = thunar_file_get(lp->data, NULL);
+            file = th_file_get(lp->data, NULL);
             if (file == NULL)
                 continue;
 

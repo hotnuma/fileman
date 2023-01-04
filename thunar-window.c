@@ -695,7 +695,7 @@ static void thunar_window_select_files(ThunarWindow *window,
     }
 
     for(GList *lp = files_to_selected; lp != NULL; lp = lp->next)
-        thunar_files = g_list_append(thunar_files, thunar_file_get(G_FILE(lp->data), NULL));
+        thunar_files = g_list_append(thunar_files, th_file_get(G_FILE(lp->data), NULL));
     thunar_view_set_selected_files(THUNAR_VIEW(window->view), thunar_files);
     g_list_free_full(thunar_files, g_object_unref);
 }
@@ -1398,7 +1398,7 @@ static void thunar_window_action_go_up(ThunarWindow *window)
     ThunarFile *parent;
     GError     *error = NULL;
 
-    parent = thunar_file_get_parent(window->current_directory, &error);
+    parent = th_file_get_parent(window->current_directory, &error);
     if (G_LIKELY(parent != NULL))
     {
         thunar_window_set_current_directory(window, parent);
@@ -1447,7 +1447,7 @@ static void thunar_window_action_open_home(ThunarWindow *window)
     home = thunar_g_file_new_for_home();
 
     /* determine the file for the home directory */
-    home_file = thunar_file_get(home, &error);
+    home_file = th_file_get(home, &error);
     if (G_UNLIKELY(home_file == NULL))
     {
         /* display an error to the user */
@@ -1524,7 +1524,7 @@ static void thunar_window_current_directory_changed(ThunarFile *current_director
     thunar_return_if_fail(window->current_directory == current_directory);
 
     if (G_UNLIKELY(show_full_path))
-        name = parse_name = g_file_get_parse_name(thunar_file_get_file(current_directory));
+        name = parse_name = g_file_get_parse_name(th_file_get_file(current_directory));
     else
         name = thunar_file_get_display_name(current_directory);
 
@@ -1619,7 +1619,7 @@ static void thunar_window_device_pre_unmount(ThunarDeviceMonitor *device_monitor
         return;
 
     /* check if the file is the current directory or an ancestor of the current directory */
-    if (g_file_equal(thunar_file_get_file(window->current_directory), root_file)
+    if (g_file_equal(th_file_get_file(window->current_directory), root_file)
             || thunar_file_is_gfile_ancestor(window->current_directory, root_file))
     {
         /* change to the home folder */
@@ -1755,7 +1755,7 @@ void thunar_window_set_current_directory(ThunarWindow *window,
         }
 
         thunar_window_history_changed(window);
-        gtk_widget_set_sensitive(window->toolbar_item_parent, !thunar_g_file_is_root(thunar_file_get_file(current_directory)));
+        gtk_widget_set_sensitive(window->toolbar_item_parent, !thunar_g_file_is_root(th_file_get_file(current_directory)));
     }
 
     /* tell everybody that we have a new "current-directory",
@@ -1847,7 +1847,7 @@ gboolean thunar_window_set_directories(ThunarWindow   *window,
             continue;
 
         /* get the file for the uri */
-        directory = thunar_file_get_for_uri(uris[n], NULL);
+        directory = th_file_get_for_uri(uris[n], NULL);
         if (G_UNLIKELY(directory == NULL))
             continue;
 

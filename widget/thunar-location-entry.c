@@ -310,7 +310,7 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
         else
         {
             /* try to launch the selected file */
-            thunar_file_launch(file, location_entry->path_entry, NULL, &error);
+            th_file_launch(file, location_entry->path_entry, NULL, &error);
 
             /* be sure to reset the current file of the path entry */
             if (G_LIKELY(location_entry->current_directory != NULL))

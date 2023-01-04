@@ -316,7 +316,7 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
     for(lp = system_paths; lp != NULL; lp = lp->next)
     {
         /* determine the file for the path */
-        file = thunar_file_get(lp->data, NULL);
+        file = th_file_get(lp->data, NULL);
         if (G_LIKELY(file != NULL))
         {
             /* watch the trash for changes */
@@ -913,7 +913,7 @@ static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor
         if (mount_point != NULL)
         {
             /* try to determine the file for the mount point */
-            item->file = thunar_file_get(mount_point, NULL);
+            item->file = th_file_get(mount_point, NULL);
 
             /* because the volume node is already reffed, we need to load the folder manually here */
             thunar_tree_model_item_load_folder(item);
@@ -1085,7 +1085,7 @@ static ThunarTreeModelItem* thunar_tree_model_item_new_with_device(
         if (G_LIKELY(mount_point != NULL))
         {
             /* try to determine the file for the mount point */
-            item->file = thunar_file_get(mount_point, NULL);
+            item->file = th_file_get(mount_point, NULL);
             g_object_unref(mount_point);
         }
     }
@@ -1316,7 +1316,7 @@ static gboolean thunar_tree_model_item_load_idle(gpointer user_data)
         if (G_LIKELY(mount_point != NULL))
         {
             /* try to determine the file for the mount point */
-            item->file = thunar_file_get(mount_point, NULL);
+            item->file = th_file_get(mount_point, NULL);
             g_object_unref(mount_point);
         }
     }

@@ -1231,7 +1231,7 @@ static gboolean _thunar_io_jobs_rename(ThunarJob  *job,
     display_name = g_value_get_string(&g_array_index(param_values, GValue, 1));
 
     /* try to rename the file */
-    if (thunar_file_rename(file, display_name, exo_job_get_cancellable(EXO_JOB(job)), TRUE, &err))
+    if (th_file_rename(file, display_name, exo_job_get_cancellable(EXO_JOB(job)), TRUE, &err))
     {
         exo_job_send_to_mainloop(EXO_JOB(job),
                                  (GSourceFunc) _thunar_io_jobs_rename_notify,

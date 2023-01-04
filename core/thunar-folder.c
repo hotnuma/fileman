@@ -119,7 +119,7 @@ static void thunar_folder_constructed(GObject *object)
     ThunarFolder *folder = THUNAR_FOLDER(object);
     GError       *error  = NULL;
 
-    folder->monitor = g_file_monitor_directory(thunar_file_get_file(folder->corresponding_file),
+    folder->monitor = g_file_monitor_directory(th_file_get_file(folder->corresponding_file),
                       G_FILE_MONITOR_WATCH_MOVES, NULL, &error);
 
     if (G_LIKELY(folder->monitor != NULL))
@@ -685,11 +685,11 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
     thunar_return_if_fail(G_IS_FILE(event_file));
 
     /* check on which file the event occurred */
-    if (!g_file_equal(event_file, thunar_file_get_file(folder->corresponding_file)))
+    if (!g_file_equal(event_file, th_file_get_file(folder->corresponding_file)))
     {
         /* check if we already ship the file */
         for(lp = folder->files; lp != NULL; lp = lp->next)
-            if (g_file_equal(event_file, thunar_file_get_file(lp->data)))
+            if (g_file_equal(event_file, th_file_get_file(lp->data)))
                 break;
 
         /* stop the content type collector */
@@ -700,7 +700,7 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
         if (G_UNLIKELY(lp == NULL && event_type != G_FILE_MONITOR_EVENT_DELETED))
         {
             /* allocate a file for the path */
-            file = thunar_file_get(event_file, NULL);
+            file = th_file_get(event_file, NULL);
             if (G_UNLIKELY(file != NULL))
             {
                 /* prepend it to our internal list */
@@ -740,7 +740,7 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
                 thunar_file_destroy(lp->data);
                 if (other_file != NULL)
                 {
-                    file = thunar_file_get(other_file, NULL);
+                    file = th_file_get(other_file, NULL);
                     if (file != NULL && THUNAR_IS_FILE(file))
                     {
                         thunar_file_reload(file);
@@ -749,10 +749,10 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
                            the target folder to reload for the changes */
                         if (thunar_file_has_parent(file))
                         {
-                            other_parent = thunar_file_get_parent(file, NULL);
+                            other_parent = th_file_get_parent(file, NULL);
                             if (other_parent &&
-                                    !g_file_equal(thunar_file_get_file(folder->corresponding_file),
-                                                   thunar_file_get_file(other_parent)))
+                                    !g_file_equal(th_file_get_file(folder->corresponding_file),
+                                                   th_file_get_file(other_parent)))
                             {
                                 thunar_file_reload(other_parent);
                                 g_object_unref(other_parent);
@@ -813,7 +813,7 @@ ThunarFolder* thunar_folder_get_for_file(ThunarFile *file)
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* make sure the file is loaded */
-    if (!thunar_file_check_loaded(file))
+    if (!th_file_check_loaded(file))
         return NULL;
 
     thunar_return_val_if_fail(thunar_file_is_directory(file), NULL);
@@ -943,7 +943,7 @@ void thunar_folder_reload(ThunarFolder *folder,
     folder->new_files = NULL;
 
     /* start a new job */
-    folder->job = thunar_io_jobs_list_directory(thunar_file_get_file(folder->corresponding_file));
+    folder->job = thunar_io_jobs_list_directory(th_file_get_file(folder->corresponding_file));
     g_signal_connect(folder->job, "error", G_CALLBACK(thunar_folder_error), folder);
     g_signal_connect(folder->job, "finished", G_CALLBACK(thunar_folder_finished), folder);
     g_signal_connect(folder->job, "files-ready", G_CALLBACK(thunar_folder_files_ready), folder);

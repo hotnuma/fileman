@@ -1348,7 +1348,7 @@ static gint sort_by_group(const ThunarFile *a,
     const gchar *name_a;
     const gchar *name_b;
 
-    if (thunar_file_get_info(a) == NULL || thunar_file_get_info(b) == NULL)
+    if (th_file_get_info(a) == NULL || th_file_get_info(b) == NULL)
         return thunar_file_compare_by_name(a, b, case_sensitive);
 
     group_a = thunar_file_get_group(a);
@@ -1366,9 +1366,9 @@ static gint sort_by_group(const ThunarFile *a,
     }
     else
     {
-        gid_a = g_file_info_get_attribute_uint32(thunar_file_get_info(a),
+        gid_a = g_file_info_get_attribute_uint32(th_file_get_info(a),
                 G_FILE_ATTRIBUTE_UNIX_GID);
-        gid_b = g_file_info_get_attribute_uint32(thunar_file_get_info(b),
+        gid_b = g_file_info_get_attribute_uint32(th_file_get_info(b),
                 G_FILE_ATTRIBUTE_UNIX_GID);
 
         result = CLAMP((gint) gid_a -(gint) gid_b, -1, 1);
@@ -1422,7 +1422,7 @@ static gint sort_by_owner(const ThunarFile *a,
     guint32      uid_b;
     gint         result;
 
-    if (thunar_file_get_info(a) == NULL || thunar_file_get_info(b) == NULL)
+    if (th_file_get_info(a) == NULL || th_file_get_info(b) == NULL)
         return thunar_file_compare_by_name(a, b, case_sensitive);
 
     user_a = thunar_file_get_user(a);
@@ -1441,9 +1441,9 @@ static gint sort_by_owner(const ThunarFile *a,
     }
     else
     {
-        uid_a = g_file_info_get_attribute_uint32(thunar_file_get_info(a),
+        uid_a = g_file_info_get_attribute_uint32(th_file_get_info(a),
                 G_FILE_ATTRIBUTE_UNIX_UID);
-        uid_b = g_file_info_get_attribute_uint32(thunar_file_get_info(b),
+        uid_b = g_file_info_get_attribute_uint32(th_file_get_info(b),
                 G_FILE_ATTRIBUTE_UNIX_UID);
 
         result = CLAMP((gint) uid_a -(gint) uid_b, -1, 1);
@@ -2277,7 +2277,7 @@ gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
 
         /* check if we can determine the amount of free space for the volume */
         if (G_LIKELY(file != NULL
-                      && thunar_g_file_get_free_space(thunar_file_get_file(file), &size, NULL)))
+                      && thunar_g_file_get_free_space(th_file_get_file(file), &size, NULL)))
         {
             size_string = thunar_list_model_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
 
@@ -2367,7 +2367,7 @@ gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
             if (show_image_size)
             {
                 /* check if we can determine the dimension of this file(only for image files) */
-                absolute_path = g_file_get_path(thunar_file_get_file(file));
+                absolute_path = g_file_get_path(th_file_get_file(file));
                 if (absolute_path != NULL
                         && gdk_pixbuf_get_file_info(absolute_path, &width, &height) != NULL)
                 {

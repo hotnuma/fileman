@@ -508,7 +508,7 @@ static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
                 }
 
                 /* get the file parent */
-                file_parent = thunar_file_get_parent(file, NULL);
+                file_parent = th_file_get_parent(file, NULL);
 
                 /* release the file */
                 g_object_unref(G_OBJECT(file));
@@ -549,7 +549,7 @@ static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
                 }
 
                 /* get the file parent */
-                file_parent = thunar_file_get_parent(file, NULL);
+                file_parent = th_file_get_parent(file, NULL);
 
                 /* release the file */
                 g_object_unref(G_OBJECT(file));
@@ -912,9 +912,9 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
         g_list_free(files);
 
-        if (thunar_g_file_is_trash(thunar_file_get_file(file))
-            || thunar_g_file_is_computer(thunar_file_get_file(file))
-            || thunar_g_file_is_network(thunar_file_get_file(file)))
+        if (thunar_g_file_is_trash(th_file_get_file(file))
+            || thunar_g_file_is_computer(th_file_get_file(file))
+            || thunar_g_file_is_network(th_file_get_file(file)))
         {
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
@@ -1260,7 +1260,7 @@ static void thunar_tree_view_select_files(ThunarTreeView *view,
         return;
 
     /* determine the file for the first path */
-    file = thunar_file_get(G_FILE(files_to_selected->data), NULL);
+    file = th_file_get(G_FILE(files_to_selected->data), NULL);
     if (G_LIKELY(file != NULL))
     {
         if (G_LIKELY(thunar_file_is_directory(file)))
@@ -1382,7 +1382,7 @@ static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
     gtk_tree_path_free(path);
 
     /* collect all ThunarFiles in the path of current_directory in a List. root is on the very left side */
-    for(file = view->current_directory; file != NULL; file = thunar_file_get_parent(file, NULL))
+    for(file = view->current_directory; file != NULL; file = th_file_get_parent(file, NULL))
         path_as_list = g_list_prepend(path_as_list, file);
 
     /* 1. skip files on path_as_list till we found the beginning of the tree(which e.g. may start at $HOME */
@@ -1443,7 +1443,7 @@ static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
             if (file == NULL) /* e.g root has no parent .. skip it */
                 continue;
 
-            file_info = thunar_file_get_info(file);
+            file_info = th_file_get_info(file);
             if (file_info != NULL)
             {
                 /* E.g. folders for which we do not have read permission dont have any child in the tree */
@@ -1556,8 +1556,8 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
             continue;
 
         /* if the file matches the toplevel item exactly, we are done */
-        if (g_file_equal(thunar_file_get_file(file),
-                          thunar_file_get_file(toplevel_file)))
+        if (g_file_equal(th_file_get_file(file),
+                          th_file_get_file(toplevel_file)))
         {
             gtk_tree_path_free(path);
             path = gtk_tree_model_get_path(model, &iter);
@@ -1569,8 +1569,8 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
         {
             /* the toplevel item could be a mounted device or network
              * and we prefer this to everything else */
-            if (!g_file_equal(thunar_file_get_file(toplevel_file), home) &&
-                    !g_file_equal(thunar_file_get_file(toplevel_file), root))
+            if (!g_file_equal(th_file_get_file(toplevel_file), home) &&
+                    !g_file_equal(th_file_get_file(toplevel_file), root))
             {
                 gtk_tree_path_free(path);
                 g_object_unref(toplevel_file);
@@ -1580,7 +1580,7 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
 
             /* continue if the toplevel item is already the best match */
             if (best_match != NULL &&
-                    g_file_equal(thunar_file_get_file(toplevel_file), best_match))
+                    g_file_equal(th_file_get_file(toplevel_file), best_match))
             {
                 gtk_tree_path_free(path);
                 g_object_unref(toplevel_file);
@@ -1807,7 +1807,7 @@ static GdkDragAction thunar_tree_view_get_dest_actions(
             if (G_LIKELY(file != NULL))
             {
                 /* check if the file accepts the drop */
-                actions = thunar_file_accepts_drop(file, view->drop_file_list, context, &action);
+                actions = th_file_accepts_drop(file, view->drop_file_list, context, &action);
 
                 if (G_UNLIKELY(actions == 0))
                 {

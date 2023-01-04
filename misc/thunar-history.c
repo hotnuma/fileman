@@ -188,7 +188,7 @@ static GFile* _thunar_history_get_gfile(ThunarFile *file)
 
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
-    gfile = thunar_file_get_file(file);
+    gfile = th_file_get_file(file);
 
     display_name = thunar_file_get_display_name(file);
     g_object_set_qdata_full(G_OBJECT(gfile), thunar_history_display_name_quark,
@@ -212,7 +212,7 @@ static void thunar_history_set_current_directory(ThunarNavigator *navigator,
      * history */
     if (current_directory != NULL
             && history->forward_list != NULL
-            && g_file_equal(thunar_file_get_file(current_directory), history->forward_list->data))
+            && g_file_equal(th_file_get_file(current_directory), history->forward_list->data))
     {
         _thunar_history_go_forward(history, history->forward_list->data);
     }
@@ -283,7 +283,7 @@ static void _thunar_history_go_back(ThunarHistory *history, GFile *goto_file)
     thunar_return_if_fail(G_IS_FILE(goto_file));
 
     /* check if the directory still exists */
-    directory = thunar_file_get(goto_file, NULL);
+    directory = th_file_get(goto_file, NULL);
     if (directory == NULL || ! thunar_file_is_mounted(directory))
     {
         _thunar_history_error_not_found(goto_file, NULL);
@@ -353,7 +353,7 @@ static void _thunar_history_go_forward(ThunarHistory *history, GFile *goto_file)
     thunar_return_if_fail(G_IS_FILE(goto_file));
 
     /* check if the directory still exists */
-    directory = thunar_file_get(goto_file, NULL);
+    directory = th_file_get(goto_file, NULL);
     if (directory == NULL || ! thunar_file_is_mounted(directory))
     {
         _thunar_history_error_not_found(goto_file, NULL);
@@ -616,7 +616,7 @@ ThunarFile* thunar_history_peek_back(ThunarHistory *history)
 
     /* pick the first(conceptually the last) file in the back list, if there are any */
     if (history->back_list != NULL)
-        result = thunar_file_get(history->back_list->data, NULL);
+        result = th_file_get(history->back_list->data, NULL);
 
     return result;
 }
@@ -640,7 +640,7 @@ ThunarFile* thunar_history_peek_forward(ThunarHistory *history)
 
     /* pick the first file in the forward list, if there are any */
     if (history->forward_list != NULL)
-        result = thunar_file_get(history->forward_list->data, NULL);
+        result = th_file_get(history->forward_list->data, NULL);
 
     return result;
 }

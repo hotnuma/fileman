@@ -758,7 +758,7 @@ static void thunar_launcher_set_selected_files(ThunarComponent *component,
     if (launcher->files_to_process != NULL)
     {
         /* just grab the folder of the first selected item */
-        launcher->parent_folder = thunar_file_get_parent(THUNAR_FILE(launcher->files_to_process->data), NULL);
+        launcher->parent_folder = th_file_get_parent(THUNAR_FILE(launcher->files_to_process->data), NULL);
     }
 }
 
@@ -854,9 +854,9 @@ static void _thunar_launcher_execute_files(ThunarLauncher *launcher,
     /* execute all selected files */
     for (lp = files; lp != NULL; lp = lp->next)
     {
-        working_directory = thunar_file_get_file(launcher->current_directory);
+        working_directory = th_file_get_file(launcher->current_directory);
 
-        if (!thunar_file_execute(lp->data, working_directory, launcher->widget, NULL, NULL, &error))
+        if (!th_file_execute(lp->data, working_directory, launcher->widget, NULL, NULL, &error))
         {
             /* display an error message to the user */
             thunar_dialogs_show_error(launcher->widget,
@@ -935,7 +935,7 @@ static void _thunar_launcher_open_files(ThunarLauncher *launcher,
             }
 
             /* append our new URI to the list */
-            file_list = thunar_g_file_list_append(file_list, thunar_file_get_file(lp->data));
+            file_list = thunar_g_file_list_append(file_list, th_file_get_file(lp->data));
 
             /*(re)insert the URI list for the application */
             g_hash_table_insert(applications, app_info, file_list);
@@ -978,7 +978,7 @@ static void _thunar_launcher_open_paths(GAppInfo       *app_info,
 
     /* determine the working directory */
     if (launcher->current_directory != NULL)
-        working_directory = thunar_file_get_file(launcher->current_directory);
+        working_directory = th_file_get_file(launcher->current_directory);
 
     /* try to execute the application with the given URIs */
     if (!thunar_g_app_info_launch(app_info, working_directory, path_list, G_APP_LAUNCH_CONTEXT(context), &error))
@@ -1778,9 +1778,9 @@ static void thunar_launcher_action_create_folder(ThunarLauncher *launcher)
     {
         /* fake the path list */
         if (THUNAR_IS_TREE_VIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
-            path_list.data = g_file_resolve_relative_path(thunar_file_get_file(launcher->single_folder), name);
+            path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->single_folder), name);
         else
-            path_list.data = g_file_resolve_relative_path(thunar_file_get_file(launcher->current_directory), name);
+            path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->current_directory), name);
         path_list.next = path_list.prev = NULL;
 
         /* launch the operation */
@@ -1846,14 +1846,14 @@ static void thunar_launcher_action_create_document(ThunarLauncher   *launcher,
             {
                 target_path_list.data =
                             g_file_get_child(
-                                thunar_file_get_file(launcher->single_folder),
+                                th_file_get_file(launcher->single_folder),
                                 name);
             }
             else
             {
                 target_path_list.data =
                             g_file_get_child(
-                                thunar_file_get_file(launcher->current_directory),
+                                th_file_get_file(launcher->current_directory),
                                 name);
             }
 
@@ -1866,7 +1866,7 @@ static void thunar_launcher_action_create_document(ThunarLauncher   *launcher,
                                      launcher->widget,
                                      &target_path_list,
                                      template_file != NULL
-                                        ? thunar_file_get_file(template_file)
+                                        ? th_file_get_file(template_file)
                                         : NULL,
                                      launcher->select_files_closure);
             g_object_unref(G_OBJECT(application));
@@ -1919,7 +1919,7 @@ static void thunar_launcher_action_paste_into_folder(ThunarLauncher *launcher)
         return;
 
     clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
-    thunar_clipboard_manager_paste_files(clipboard, thunar_file_get_file(launcher->single_folder), launcher->widget, launcher->select_files_closure);
+    thunar_clipboard_manager_paste_files(clipboard, th_file_get_file(launcher->single_folder), launcher->widget, launcher->select_files_closure);
     g_object_unref(G_OBJECT(clipboard));
 }
 
@@ -1930,7 +1930,7 @@ static void thunar_launcher_action_paste(ThunarLauncher *launcher)
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
-    thunar_clipboard_manager_paste_files(clipboard, thunar_file_get_file(launcher->current_directory), launcher->widget, launcher->select_files_closure);
+    thunar_clipboard_manager_paste_files(clipboard, th_file_get_file(launcher->current_directory), launcher->widget, launcher->select_files_closure);
     g_object_unref(G_OBJECT(clipboard));
 }
 
@@ -2069,7 +2069,7 @@ static void thunar_launcher_action_duplicate(ThunarLauncher *launcher)
          */
         application = thunar_application_get();
         thunar_application_copy_into(application, launcher->widget, files_to_process,
-                                      thunar_file_get_file(launcher->current_directory), launcher->select_files_closure);
+                                      th_file_get_file(launcher->current_directory), launcher->select_files_closure);
         g_object_unref(G_OBJECT(application));
 
         /* clean up */
@@ -2092,14 +2092,14 @@ static void thunar_launcher_action_make_link(ThunarLauncher *launcher)
 
     for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
     {
-        g_files = g_list_append(g_files, thunar_file_get_file(lp->data));
+        g_files = g_list_append(g_files, th_file_get_file(lp->data));
     }
     /* link the selected files into the current directory, which effectively
      * creates new unique links for the files.
      */
     application = thunar_application_get();
     thunar_application_link_into(application, launcher->widget, g_files,
-                                  thunar_file_get_file(launcher->current_directory), launcher->select_files_closure);
+                                  th_file_get_file(launcher->current_directory), launcher->select_files_closure);
     g_object_unref(G_OBJECT(application));
     g_list_free(g_files);
 }
@@ -2195,7 +2195,7 @@ static void _thunar_launcher_action_terminal(ThunarLauncher *launcher)
         return;
 
     ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
-    GFile *gfile = thunar_file_get_file(file);
+    GFile *gfile = th_file_get_file(file);
     gchar *filepath = g_file_get_path(gfile);
 
     //const gchar *filename = thunar_file_get_display_name(file);
@@ -2222,7 +2222,7 @@ static void _thunar_launcher_action_extract(ThunarLauncher *launcher)
         return;
 
     ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
-    GFile *gfile = thunar_file_get_file(file);
+    GFile *gfile = th_file_get_file(file);
     gchar *filepath = g_file_get_path(gfile);
 
     CStringAuto *cmd = cstr_new_size(32);
@@ -2385,7 +2385,7 @@ thunar_launcher_create_document_submenu_templates_find_parent_menu(
     GList     *ip;
 
     /* determine the parent of the file */
-    parent = g_file_get_parent(thunar_file_get_file(file));
+    parent = g_file_get_parent(th_file_get_file(file));
 
     /* check if the file has a parent at all */
     if (parent == NULL)
@@ -2397,7 +2397,7 @@ thunar_launcher_create_document_submenu_templates_find_parent_menu(
             lp = lp->next, ip = ip->next)
     {
         /* check if the current dir/item is the parent of our file */
-        if (g_file_equal(parent, thunar_file_get_file(lp->data)))
+        if (g_file_equal(parent, th_file_get_file(lp->data)))
         {
             /* we want to insert an item for the file in this menu */
             parent_menu = gtk_menu_item_get_submenu(ip->data);

@@ -818,7 +818,7 @@ static void standard_view_get_property(GObject    *object,
     case PROP_TOOLTIP_TEXT:
         current_directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object));
         if (current_directory != NULL)
-            g_value_take_string(value, g_file_get_parse_name(thunar_file_get_file(current_directory)));
+            g_value_take_string(value, g_file_get_parse_name(th_file_get_file(current_directory)));
         break;
 
     case PROP_SELECTED_FILES:
@@ -1238,7 +1238,7 @@ static void _standard_view_scroll_position_save(ThunarStandardView *standard_vie
         /* only stop the first file is the scroll bar is actually moved */
         vadjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(standard_view));
         hadjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(standard_view));
-        gfile = thunar_file_get_file(standard_view->priv->current_directory);
+        gfile = th_file_get_file(standard_view->priv->current_directory);
 
         if (gtk_adjustment_get_value(vadjustment) == 0.0
                 && gtk_adjustment_get_value(hadjustment) == 0.0)
@@ -1251,7 +1251,7 @@ static void _standard_view_scroll_position_save(ThunarStandardView *standard_vie
             /* add the file to our internal mapping of directories to scroll files */
             g_hash_table_replace(standard_view->priv->scroll_to_files,
                                   g_object_ref(gfile),
-                                  g_object_ref(thunar_file_get_file(first_file)));
+                                  g_object_ref(th_file_get_file(first_file)));
             g_object_unref(first_file);
         }
     }
@@ -1479,7 +1479,7 @@ static void standard_view_set_loading(ThunarStandardView *standard_view,
             current_directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
             if (G_LIKELY(current_directory != NULL))
             {
-                first_file = g_hash_table_lookup(standard_view->priv->scroll_to_files, thunar_file_get_file(current_directory));
+                first_file = g_hash_table_lookup(standard_view->priv->scroll_to_files, th_file_get_file(current_directory));
                 if (G_LIKELY(first_file != NULL))
                 {
                     file = thunar_file_cache_lookup(first_file);
@@ -1556,7 +1556,7 @@ static void _standard_view_new_files(ThunarStandardView *standard_view,
     else if (G_LIKELY(path_list != NULL))
     {
         /* to check if we should reload */
-        parent_file = thunar_file_get_file(standard_view->priv->current_directory);
+        parent_file = th_file_get_file(standard_view->priv->current_directory);
         belongs_here = FALSE;
 
         /* determine the files for the paths */
@@ -2302,7 +2302,7 @@ static ThunarFile* _standard_view_get_fallback_directory(
     thunar_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
 
     /* determine the path of the directory */
-    path = g_object_ref(thunar_file_get_file(directory));
+    path = g_object_ref(th_file_get_file(directory));
 
     /* try to find a parent directory that still exists */
     while(new_directory == NULL)
@@ -2311,7 +2311,7 @@ static ThunarFile* _standard_view_get_fallback_directory(
         if (g_file_query_exists(path, NULL))
         {
             /* it does, try to load the file */
-            new_directory = thunar_file_get(path, NULL);
+            new_directory = th_file_get(path, NULL);
 
             /* fall back to $HOME if loading the file failed */
             if (new_directory == NULL)
@@ -2343,7 +2343,7 @@ static ThunarFile* _standard_view_get_fallback_directory(
     {
         /* fall-back to the home directory */
         path = thunar_g_file_new_for_home();
-        new_directory = thunar_file_get(path, &error);
+        new_directory = th_file_get(path, &error);
         g_object_unref(path);
     }
 
@@ -2549,7 +2549,7 @@ static void _standard_view_drag_begin(GtkWidget *view, GdkDragContext *context,
     if (G_LIKELY(standard_view->priv->drag_g_file_list != NULL))
     {
         /* determine the first selected file */
-        file = thunar_file_get(standard_view->priv->drag_g_file_list->data, NULL);
+        file = th_file_get(standard_view->priv->drag_g_file_list->data, NULL);
         if (G_LIKELY(file != NULL))
         {
             /* generate an icon based on that file */
@@ -2780,7 +2780,7 @@ static gboolean _standard_view_drag_drop(GtkWidget          *view,
                 if (G_LIKELY(*prop_text != '\0' && strchr((const gchar *) prop_text, G_DIR_SEPARATOR) == NULL))
                 {
                     /* allocate the relative path for the target */
-                    path = g_file_resolve_relative_path(thunar_file_get_file(file),
+                    path = g_file_resolve_relative_path(th_file_get_file(file),
                                                         (const gchar *)prop_text);
 
                     /* determine the new URI */
@@ -2922,7 +2922,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                     if (G_LIKELY(file != NULL))
                     {
                         /* determine the absolute path to the target directory */
-                        working_directory = g_file_get_path(thunar_file_get_file(file));
+                        working_directory = g_file_get_path(th_file_get_file(file));
                         if (G_LIKELY(working_directory != NULL))
                         {
                             /* prepare the basic part of the command */
@@ -3101,7 +3101,7 @@ static GdkDragAction _standard_view_get_dest_actions(ThunarStandardView *standar
     if (G_LIKELY(file != NULL))
     {
         /* determine the possible drop actions for the file(and the suggested action if any) */
-        actions = thunar_file_accepts_drop(file, standard_view->priv->drop_file_list, context, &action);
+        actions = th_file_accepts_drop(file, standard_view->priv->drop_file_list, context, &action);
         if (G_LIKELY(actions != 0))
         {
             /* tell the caller about the file(if it's interested) */

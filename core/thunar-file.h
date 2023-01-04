@@ -26,12 +26,12 @@
 #include <thunar-gio-extensions.h>
 #include <thunar-user.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarFileClass ThunarFileClass;
 typedef struct _ThunarFile      ThunarFile;
 
-#define THUNAR_TYPE_FILE            (thunar_file_get_type())
+#define THUNAR_TYPE_FILE            (th_file_get_type())
 #define THUNAR_FILE(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_FILE, ThunarFile))
 #define THUNAR_FILE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_FILE, ThunarFileClass))
 #define THUNAR_IS_FILE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_FILE))
@@ -65,7 +65,7 @@ typedef enum
  * The various file icon states that are used within the file manager
  * views.
  **/
-typedef enum /*< enum >*/
+typedef enum
 {
     THUNAR_FILE_ICON_STATE_DEFAULT,
     THUNAR_FILE_ICON_STATE_DROP,
@@ -82,7 +82,7 @@ typedef enum /*< enum >*/
  *
  * The state of the thumbnailing for a given #ThunarFile.
  **/
-typedef enum /*< flags >*/
+typedef enum
 {
     THUNAR_FILE_THUMB_STATE_UNKNOWN = 0,
     THUNAR_FILE_THUMB_STATE_NONE    = 1,
@@ -90,11 +90,6 @@ typedef enum /*< flags >*/
     THUNAR_FILE_THUMB_STATE_LOADING = 3,
 
 } ThunarFileThumbState;
-
-#define THUNAR_FILE_EMBLEM_NAME_SYMBOLIC_LINK "emblem-symbolic-link"
-#define THUNAR_FILE_EMBLEM_NAME_CANT_READ     "emblem-noread"
-#define THUNAR_FILE_EMBLEM_NAME_CANT_WRITE    "emblem-nowrite"
-#define THUNAR_FILE_EMBLEM_NAME_DESKTOP       "emblem-desktop"
 
 /**
  * ThunarFileGetFunc:
@@ -108,45 +103,45 @@ typedef void (*ThunarFileGetFunc) (GFile      *location,
                                    GError     *error,
                                    gpointer    user_data);
 
-GType       thunar_file_get_type() G_GNUC_CONST;
+GType       th_file_get_type() G_GNUC_CONST;
 
-ThunarFile* thunar_file_get(GFile *file, GError **error);
-ThunarFile* thunar_file_get_with_info(GFile *file,
+ThunarFile* th_file_get(GFile *file, GError **error);
+ThunarFile* th_file_get_with_info(GFile *file,
                                       GFileInfo *info,
                                       gboolean not_mounted);
-ThunarFile* thunar_file_get_for_uri(const gchar *uri, GError **error);
-void        thunar_file_get_async(GFile *location,
+ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error);
+void        th_file_get_async(GFile *location,
                                   GCancellable *cancellable,
                                   ThunarFileGetFunc func,
                                   gpointer user_data);
 
-GFile*      thunar_file_get_file(const ThunarFile *file) G_GNUC_PURE;
+GFile*      th_file_get_file(const ThunarFile *file) G_GNUC_PURE;
 
-GFileInfo*  thunar_file_get_info(const ThunarFile *file) G_GNUC_PURE;
+GFileInfo*  th_file_get_info(const ThunarFile *file) G_GNUC_PURE;
 
-ThunarFile* thunar_file_get_parent(const ThunarFile *file, GError **error);
+ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error);
 
-gboolean    thunar_file_check_loaded(ThunarFile *file);
+gboolean    th_file_check_loaded(ThunarFile *file);
 
-gboolean    thunar_file_execute(ThunarFile *file,
+gboolean    th_file_execute(ThunarFile *file,
                                 GFile *working_directory,
                                 gpointer parent,
                                 GList *path_list,
                                 const gchar *startup_id,
                                 GError **error);
 
-gboolean    thunar_file_launch(ThunarFile *file,
+gboolean    th_file_launch(ThunarFile *file,
                                gpointer parent,
                                const gchar *startup_id,
                                GError **error);
 
-gboolean    thunar_file_rename(ThunarFile *file,
+gboolean    th_file_rename(ThunarFile *file,
                                const gchar *name,
                                GCancellable *cancellable,
                                gboolean called_from_job,
                                GError **error);
 
-GdkDragAction thunar_file_accepts_drop(ThunarFile *file,
+GdkDragAction th_file_accepts_drop(ThunarFile *file,
                                        GList *path_list,
                                        GdkDragContext *context,
                                        GdkDragAction *suggested_action_return);
@@ -214,19 +209,13 @@ gboolean    thunar_file_is_chmodable(const ThunarFile *file);
 gboolean    thunar_file_is_renameable(const ThunarFile *file);
 gboolean    thunar_file_can_be_trashed(const ThunarFile *file);
 
-//GList*      thunar_file_get_emblem_names(ThunarFile *file);
-//void        thunar_file_set_emblem_names(ThunarFile *file, GList *emblem_names);
 
 const gchar* thunar_file_get_custom_icon(const ThunarFile *file);
 gboolean    thunar_file_set_custom_icon(ThunarFile *file,
                                         const gchar *custom_icon,
                                         GError **error);
 
-//const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
-//                                            ThunarThumbnailSize thumbnail_size);
 ThunarFileThumbState thunar_file_get_thumb_state(const ThunarFile *file);
-void        thunar_file_set_thumb_state(ThunarFile *file,
-                                        ThunarFileThumbState state);
 
 GIcon*      thunar_file_get_preview_icon(const ThunarFile *file);
 GFilesystemPreviewType thunar_file_get_preview_type(const ThunarFile *file);
@@ -240,7 +229,6 @@ void        thunar_file_unwatch(ThunarFile *file);
 gboolean    thunar_file_reload(ThunarFile *file);
 void        thunar_file_reload_idle(ThunarFile *file);
 void        thunar_file_reload_idle_unref(ThunarFile *file);
-void        thunar_file_reload_parent(ThunarFile *file);
 
 void        thunar_file_destroy(ThunarFile *file);
 
@@ -259,36 +247,10 @@ GList*      thunar_file_list_to_thunar_g_file_list(GList *file_list);
 
 gboolean    thunar_file_is_desktop(const ThunarFile *file);
 
-//const gchar* thunar_file_get_metadata_setting(ThunarFile *file,
-//                                              const gchar *setting_name);
-//void        thunar_file_set_metadata_setting(ThunarFile *file,
-//                                             const gchar *setting_name,
-//                                             const gchar *setting_value);
-//void        thunar_file_clear_directory_specific_settings(ThunarFile *file);
-//gboolean    thunar_file_has_directory_specific_settings(ThunarFile *file);
+#define thunar_file_is_root(file) (thunar_g_file_is_root(th_file_get_file(file)))
+#define thunar_file_has_parent(file) (!thunar_file_is_root(THUNAR_FILE((file))))
 
-/**
- * thunar_file_is_root:
- * @file : a #ThunarFile.
- *
- * Checks whether @file refers to the root directory.
- *
- * Return value: %TRUE if @file is the root directory.
- **/
-#define thunar_file_is_root(file)(thunar_g_file_is_root(thunar_file_get_file(file)))
-
-/**
- * thunar_file_has_parent:
- * @file : a #ThunarFile instance.
- *
- * Checks whether it is possible to determine the parent #ThunarFile
- * for @file.
- *
- * Return value: whether @file has a parent.
- **/
-#define thunar_file_has_parent(file)(!thunar_file_is_root(THUNAR_FILE((file))))
-
-/**
+/*
  * thunar_file_dup_uri:
  * @file : a #ThunarFile instance.
  *
@@ -296,35 +258,20 @@ gboolean    thunar_file_is_desktop(const ThunarFile *file);
  * to free the returned string when no longer needed.
  *
  * Return value: the URI for @file.
- **/
-#define thunar_file_dup_uri(file)(g_file_get_uri(thunar_file_get_file(file)))
+ */
+#define thunar_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))
 
-/**
- * thunar_file_has_uri_scheme:
- * @file       : a #ThunarFile instance.
- * @uri_scheme : a URI scheme string.
- *
- * Checks whether the URI scheme of the file matches @uri_scheme.
- *
- * Return value: TRUE, if the schemes match, FALSE otherwise.
- **/
-#define thunar_file_has_uri_scheme(file, uri_scheme)(g_file_has_uri_scheme(thunar_file_get_file(file),(uri_scheme)))
+#define thunar_file_has_uri_scheme(file, uri_scheme) (g_file_has_uri_scheme(th_file_get_file(file),(uri_scheme)))
 
-/**
- * thunar_file_changed:
- * @file : a #ThunarFile instance.
- *
- * Emits the ::changed signal on @file. This function is meant to be called
- * by derived classes whenever they notice changes to the @file.
- **/
+// Emits the ::changed signal on @file. This function is meant to be called
+// by derived classes whenever they notice changes to the @file.
 #define thunar_file_changed(file)                         \
 G_STMT_START{                                             \
     thunarx_file_info_changed(THUNARX_FILE_INFO((file))); \
 }G_STMT_END
 
+G_END_DECLS
 
-G_END_DECLS;
-
-#endif /* !__THUNAR_FILE_H__ */
+#endif // __THUNAR_FILE_H__
 
 

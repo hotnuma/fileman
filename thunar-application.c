@@ -687,7 +687,7 @@ static void thunar_application_launch_finished(ThunarJob  *job,
     {
         if (lp->data == NULL)
             continue;
-        file = thunar_file_get(lp->data, NULL);
+        file = th_file_get(lp->data, NULL);
         if (file != NULL)
         {
             if (thunar_file_is_directory(file))
@@ -1185,7 +1185,7 @@ static void thunar_application_process_files_finish(ThunarBrowser  *browser,
     else
     {
         /* try to open the file or directory */
-        thunar_file_launch(target_file, screen, startup_id, &error);
+        th_file_launch(target_file, screen, startup_id, &error);
 
         /* remove the file from the list */
         application->files_to_launch =
@@ -1288,13 +1288,13 @@ gboolean thunar_application_process_filenames(ThunarApplication *application,
         if (g_path_is_absolute(filenames[n]) || e_str_looks_like_an_uri(filenames[n]))
         {
             /* determine the file for the filename directly */
-            file = thunar_file_get_for_uri(filenames[n], &derror);
+            file = th_file_get_for_uri(filenames[n], &derror);
         }
         else
         {
             /* translate the filename into an absolute path first */
             filename = g_build_filename(working_directory, filenames[n], NULL);
-            file = thunar_file_get_for_uri(filename, &derror);
+            file = th_file_get_for_uri(filename, &derror);
             g_free(filename);
         }
 
@@ -1520,7 +1520,7 @@ void thunar_application_unlink_files(ThunarApplication *application,
     for (lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
     {
         /* prepend the path to the path list */
-        path_list = thunar_g_file_list_prepend(path_list, thunar_file_get_file(lp->data));
+        path_list = thunar_g_file_list_prepend(path_list, th_file_get_file(lp->data));
 
         /* permanently delete if at least one of the file is not a local
          * file(e.g. resides in the trash) or cannot be trashed */
@@ -1802,7 +1802,7 @@ void thunar_application_restore_files(ThunarApplication *application,
         /* TODO we might have to distinguish between URIs and paths here */
         target_path = g_file_new_for_commandline_arg(original_uri);
 
-        source_path_list = thunar_g_file_list_append(source_path_list, thunar_file_get_file(lp->data));
+        source_path_list = thunar_g_file_list_append(source_path_list, th_file_get_file(lp->data));
         target_path_list = thunar_g_file_list_append(target_path_list, target_path);
 
         g_object_unref(target_path);

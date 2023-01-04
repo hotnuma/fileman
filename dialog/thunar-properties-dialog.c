@@ -968,10 +968,10 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the file or folder location(parent) */
-    parent_file = thunar_file_get_parent(file, NULL);
+    parent_file = th_file_get_parent(file, NULL);
     if (G_UNLIKELY(parent_file != NULL))
     {
-        display_name = g_file_get_parse_name(thunar_file_get_file(parent_file));
+        display_name = g_file_get_parse_name(th_file_get_file(parent_file));
         gtk_label_set_text(GTK_LABEL(dialog->location_label), display_name);
         gtk_widget_show(dialog->location_label);
         g_object_unref(G_OBJECT(parent_file));
@@ -1028,9 +1028,9 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     /* update the free space(only for folders) */
     if (thunar_file_is_directory(file))
     {
-        fs_string = thunar_g_file_get_free_space_string(thunar_file_get_file(file),
+        fs_string = thunar_g_file_get_free_space_string(th_file_get_file(file),
                     dialog->file_size_binary);
-        if (thunar_g_file_get_free_space(thunar_file_get_file(file), &fs_free, &fs_size)
+        if (thunar_g_file_get_free_space(th_file_get_file(file), &fs_free, &fs_size)
                 && fs_size > 0)
         {
             /* free disk space fraction */
@@ -1164,7 +1164,7 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
         }
 
         /* check if all files have the same parent */
-        tmp_parent = thunar_file_get_parent(file, NULL);
+        tmp_parent = th_file_get_parent(file, NULL);
         if (first_file)
         {
             parent_file = tmp_parent;
@@ -1172,7 +1172,7 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
         else if (tmp_parent != NULL)
         {
             /* we only display the location if they are all equal */
-            if (!g_file_equal(thunar_file_get_file(parent_file), thunar_file_get_file(tmp_parent)))
+            if (!g_file_equal(th_file_get_file(parent_file), th_file_get_file(tmp_parent)))
             {
                 if (parent_file != NULL)
                     g_object_unref(G_OBJECT(parent_file));
@@ -1213,7 +1213,7 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
     /* update the file or folder location(parent) */
     if (G_UNLIKELY(parent_file != NULL))
     {
-        display_name = g_file_get_parse_name(thunar_file_get_file(parent_file));
+        display_name = g_file_get_parse_name(th_file_get_file(parent_file));
         gtk_label_set_text(GTK_LABEL(dialog->location_label), display_name);
         gtk_widget_show(dialog->location_label);
         g_object_unref(G_OBJECT(parent_file));

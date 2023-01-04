@@ -1,10 +1,25 @@
+#### Biggest files
+
+find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
+130266	./view/standard-view.c
+117057	./core/thunar-file.c
+100175	./menu/thunar-launcher.c
+81832	./view/thunar-list-model.c
+74631	./thunar-window.c
+73111	./side/thunar-tree-view.c
+70944	./thunar-application.c
+66004	./side/thunar-tree-model.c
+62714	./job/thunar-transfer-job.c
+54063	./dialog/thunar-permissions-chooser.c
+52433	./dialog/thunar-properties-dialog.c
+47341	./dialog/thunar-chooser-dialog.c
+44949	./job/thunar-io-jobs.c
+44286	./widget/thunar-path-entry.c
+43338	./view/thunar-details-view.c
+
+
+
 #### TODO
-
-#include <fnmatch.h>
-
-       int fnmatch(const char *pattern, const char *string, int flags);
-       
-https://man7.org/linux/man-pages/man3/fnmatch.3.html
 
 * Port ThunarLocationEntry to GtkBox
     

@@ -621,7 +621,7 @@ static GList* thunar_permissions_chooser_get_file_list(ThunarPermissionsChooser 
 
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
-        gfile = thunar_file_get_file(THUNAR_FILE(lp->data));
+        gfile = th_file_get_file(THUNAR_FILE(lp->data));
         thunar_assert(G_IS_FILE(gfile));
         file_list = g_list_prepend(file_list, g_object_ref(G_OBJECT(gfile)));
     }
@@ -1093,7 +1093,7 @@ static void thunar_permissions_chooser_fixperm_clicked(ThunarPermissionsChooser 
                    |(((mode & THUNAR_FILE_MODE_OTH_READ) != 0) ? THUNAR_FILE_MODE_OTH_EXEC : 0);
 
             file_list.prev = NULL;
-            file_list.data = thunar_file_get_file(THUNAR_FILE(lp->data));
+            file_list.data = th_file_get_file(THUNAR_FILE(lp->data));
             file_list.next = NULL;
 
             /* try to allocate the new job */

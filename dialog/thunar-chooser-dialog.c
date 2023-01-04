@@ -486,7 +486,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
         gdk_app_launch_context_set_timestamp(context, gtk_get_current_event_time());
 
         /* create fake file list */
-        list.data = thunar_file_get_file(dialog->file);
+        list.data = th_file_get_file(dialog->file);
         list.next = list.prev = NULL;
 
         if (!g_app_info_launch(app_info, &list, G_APP_LAUNCH_CONTEXT(context), &error))

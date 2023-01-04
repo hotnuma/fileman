@@ -332,7 +332,7 @@ static gboolean thunar_deep_count_job_execute(ExoJob *job, GError **error)
     /* count files, directories and compute size of the job files */
     for(lp = count_job->files; lp != NULL; lp = lp->next)
     {
-        gfile = thunar_file_get_file(THUNAR_FILE(lp->data));
+        gfile = th_file_get_file(THUNAR_FILE(lp->data));
         success = thunar_deep_count_job_process(job, gfile, NULL, NULL, &err);
         if (G_UNLIKELY(!success))
             break;

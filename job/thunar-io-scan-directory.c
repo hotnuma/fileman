@@ -131,7 +131,7 @@ GList* thunar_io_scan_directory(ThunarJob          *job,
         if (return_thunar_files)
         {
             /* Prepend the ThunarFile */
-            thunar_file = thunar_file_get_with_info(child_file, info, !is_mounted);
+            thunar_file = th_file_get_with_info(child_file, info, !is_mounted);
             files = thunar_g_file_list_prepend(files, thunar_file);
             g_object_unref(G_OBJECT(thunar_file));
         }
