@@ -643,7 +643,7 @@ static void thunar_properties_dialog_response(GtkDialog *dialog,
 static gboolean thunar_properties_dialog_reload(ThunarPropertiesDialog *dialog)
 {
     /* reload the active files */
-    g_list_foreach(dialog->files,(GFunc)(void(*)(void)) thunar_file_reload, NULL);
+    g_list_foreach(dialog->files,(GFunc)(void(*)(void)) th_file_reload, NULL);
 
     return dialog->files != NULL;
 }
@@ -661,11 +661,11 @@ static void thunar_properties_dialog_rename_error(ExoJob                 *job,
        out event does not trigger the rename again by calling
        thunar_properties_dialog_name_activate */
     gtk_entry_set_text(GTK_ENTRY(xfce_filename_input_get_entry(dialog->name_entry)),
-                        thunar_file_get_display_name(THUNAR_FILE(dialog->files->data)));
+                        th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
 
     /* display an error message */
     thunar_dialogs_show_error(GTK_WIDGET(dialog), error, _("Failed to rename \"%s\""),
-                               thunar_file_get_display_name(THUNAR_FILE(dialog->files->data)));
+                               th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
 }
 
 static void thunar_properties_dialog_rename_finished(
@@ -700,7 +700,7 @@ static void thunar_properties_dialog_name_activate(
     /* determine new and old name */
     file = THUNAR_FILE(dialog->files->data);
     new_name = xfce_filename_input_get_text(dialog->name_entry);
-    old_name = thunar_file_get_display_name(file);
+    old_name = th_file_get_display_name(file);
     if (g_utf8_collate(new_name, old_name) != 0)
     {
         job = thunar_io_jobs_rename_file(file, new_name);
@@ -867,7 +867,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
 
 
     /* update the properties dialog title */
-    str = g_strdup_printf(_("%s - Properties"), thunar_file_get_display_name(file));
+    str = g_strdup_printf(_("%s - Properties"), th_file_get_display_name(file));
     gtk_window_set_title(GTK_WINDOW(dialog), str);
     g_free(str);
 
@@ -892,8 +892,8 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
 
     /* update the name(if it differs) */
     gtk_editable_set_editable(GTK_EDITABLE(xfce_filename_input_get_entry(dialog->name_entry)),
-                               thunar_file_is_renameable(file));
-    name = thunar_file_get_display_name(file);
+                               th_file_is_renameable(file));
+    name = th_file_get_display_name(file);
     if (G_LIKELY(strcmp(name, xfce_filename_input_get_text(dialog->name_entry)) != 0))
     {
         gtk_entry_set_text(xfce_filename_input_get_entry(dialog->name_entry), name);
@@ -954,7 +954,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     }
 
     /* update the original path */
-    path = thunar_file_get_original_path(file);
+    path = th_file_get_original_path(file);
     if (G_UNLIKELY(path != NULL))
     {
         display_name = g_filename_display_name(path);
@@ -987,7 +987,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     gchar *date_custom_style = NULL;
 
     /* update the deleted time */
-    date = thunar_file_get_deletion_date(file, date_style, date_custom_style);
+    date = th_file_get_deletion_date(file, date_style, date_custom_style);
     if (G_LIKELY(date != NULL))
     {
         gtk_label_set_text(GTK_LABEL(dialog->deleted_label), date);
@@ -1129,7 +1129,7 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
         /* append the name */
         if (!first_file)
             g_string_append(names_string, ", ");
-        g_string_append(names_string, thunar_file_get_display_name(file));
+        g_string_append(names_string, th_file_get_display_name(file));
 
         /* update the content type */
         if (first_file)
@@ -1334,7 +1334,7 @@ void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
         file = THUNAR_FILE(lp->data);
 
         /* unregister our file watch */
-        thunar_file_unwatch(file);
+        th_file_unwatch(file);
 
         /* unregister handlers */
         g_signal_handlers_disconnect_by_func(G_OBJECT(file), thunar_properties_dialog_update, dialog);
@@ -1354,7 +1354,7 @@ void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
         file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
 
         /* watch the file for changes */
-        thunar_file_watch(file);
+        th_file_watch(file);
 
         /* install signal handlers */
         g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(thunar_properties_dialog_update), dialog);

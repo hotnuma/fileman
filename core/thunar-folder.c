@@ -269,7 +269,7 @@ static void thunar_folder_finalize(GObject *object)
     ThunarFolder *folder = THUNAR_FOLDER(object);
 
     if (folder->corresponding_file)
-        thunar_file_unwatch(folder->corresponding_file);
+        th_file_unwatch(folder->corresponding_file);
 
     /* disconnect from the ThunarFileMonitor instance */
     g_signal_handlers_disconnect_matched(folder->file_monitor, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, folder);
@@ -350,7 +350,7 @@ static void thunar_folder_set_property(GObject      *object,
     case PROP_CORRESPONDING_FILE:
         folder->corresponding_file = g_value_dup_object(value);
         if (folder->corresponding_file)
-            thunar_file_watch(folder->corresponding_file);
+            th_file_watch(folder->corresponding_file);
         break;
 
     case PROP_LOADING:
@@ -527,10 +527,10 @@ static void thunar_folder_finished(ExoJob *job, ThunarFolder *folder)
     if (folder->reload_info)
     {
         for(lp = folder->files; lp != NULL; lp = lp->next)
-            thunar_file_reload(lp->data);
+            th_file_reload(lp->data);
 
         /* reload folder information too */
-        thunar_file_reload(folder->corresponding_file);
+        th_file_reload(folder->corresponding_file);
 
         folder->reload_info = FALSE;
     }
@@ -712,7 +712,7 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
                 g_signal_emit(G_OBJECT(folder), folder_signals[FILES_ADDED], 0, &list);
 
                 /* load the new file */
-                thunar_file_reload(file);
+                th_file_reload(file);
             }
         }
         else if (lp != NULL)
@@ -722,13 +722,13 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
                 ThunarFile *destroyed;
 
                 /* destroy the file */
-                thunar_file_destroy(lp->data);
+                th_file_destroy(lp->data);
 
                 /* if the file has not been destroyed by now, reload it to invalidate it */
-                destroyed = thunar_file_cache_lookup(event_file);
+                destroyed = th_file_cache_lookup(event_file);
                 if (destroyed != NULL)
                 {
-                    thunar_file_reload(destroyed);
+                    th_file_reload(destroyed);
                     g_object_unref(destroyed);
                 }
             }
@@ -737,24 +737,24 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
                      event_type == G_FILE_MONITOR_EVENT_MOVED_OUT)
             {
                 /* destroy the old file and update the new one */
-                thunar_file_destroy(lp->data);
+                th_file_destroy(lp->data);
                 if (other_file != NULL)
                 {
                     file = th_file_get(other_file, NULL);
                     if (file != NULL && THUNAR_IS_FILE(file))
                     {
-                        thunar_file_reload(file);
+                        th_file_reload(file);
 
                         /* if source and target folders are different, also tell
                            the target folder to reload for the changes */
-                        if (thunar_file_has_parent(file))
+                        if (th_file_has_parent(file))
                         {
                             other_parent = th_file_get_parent(file, NULL);
                             if (other_parent &&
                                     !g_file_equal(th_file_get_file(folder->corresponding_file),
                                                    th_file_get_file(other_parent)))
                             {
-                                thunar_file_reload(other_parent);
+                                th_file_reload(other_parent);
                                 g_object_unref(other_parent);
                             }
                         }
@@ -769,7 +769,7 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
 #if DEBUG_FILE_CHANGES
                 thunar_file_infos_equal(lp->data, event_file);
 #endif
-                thunar_file_reload(lp->data);
+                th_file_reload(lp->data);
             }
         }
 
@@ -783,11 +783,11 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
         if (event_type == G_FILE_MONITOR_EVENT_DELETED)
         {
             if (!th_file_exists(folder->corresponding_file))
-                thunar_file_destroy(folder->corresponding_file);
+                th_file_destroy(folder->corresponding_file);
         }
         else
         {
-            thunar_file_reload(folder->corresponding_file);
+            th_file_reload(folder->corresponding_file);
         }
     }
 }

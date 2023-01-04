@@ -1203,7 +1203,7 @@ static gboolean _thunar_io_jobs_rename_notify(ThunarFile *file)
     thunarx_file_info_renamed(THUNARX_FILE_INFO(file));
 
     /* emit the file changed signal */
-    thunar_file_changed(file);
+    th_file_changed(file);
 
     return FALSE;
 }

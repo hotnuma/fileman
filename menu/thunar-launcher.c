@@ -743,7 +743,7 @@ static void thunar_launcher_set_selected_files(ThunarComponent *component,
             ++launcher->n_regulars_to_process;
         }
 
-        if (!thunar_file_can_be_trashed(lp->data))
+        if (!th_file_can_be_trashed(lp->data))
             launcher->files_to_process_trashable = FALSE;
     }
 
@@ -862,7 +862,7 @@ static void _thunar_launcher_execute_files(ThunarLauncher *launcher,
             thunar_dialogs_show_error(launcher->widget,
                                       error,
                                       _("Failed to execute file \"%s\""),
-                                      thunar_file_get_display_name(lp->data));
+                                      th_file_get_display_name(lp->data));
             g_error_free(error);
             break;
         }
@@ -1579,11 +1579,11 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     case THUNAR_LAUNCHER_ACTION_EMPTY_TRASH:
         if (launcher->single_directory_to_process == TRUE)
         {
-            if (thunar_file_is_root(launcher->single_folder) && th_file_is_trashed(launcher->single_folder))
+            if (th_file_is_root(launcher->single_folder) && th_file_is_trashed(launcher->single_folder))
             {
                 item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, action_entry->menu_item_tooltip_text, action_entry->accel_path,
                         action_entry->callback, G_OBJECT(launcher), action_entry->menu_item_icon_name, menu);
-                gtk_widget_set_sensitive(item, thunar_file_get_item_count(launcher->single_folder) > 0);
+                gtk_widget_set_sensitive(item, th_file_get_item_count(launcher->single_folder) > 0);
                 return item;
             }
         }
@@ -1707,7 +1707,7 @@ static bool _launcher_can_extract(ThunarLauncher *launcher)
         return false;
 
     ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
-    const gchar *filename = thunar_file_get_display_name(file);
+    const gchar *filename = th_file_get_display_name(file);
 
     Preferences *prefs = get_preferences();
     CStringList *filters = prefs->extractflt;
@@ -1816,12 +1816,12 @@ static void thunar_launcher_action_create_document(ThunarLauncher   *launcher,
     {
         /* generate a title for the create dialog */
         title = g_strdup_printf(_("Create Document from template \"%s\""),
-                                 thunar_file_get_display_name(template_file));
+                                 th_file_get_display_name(template_file));
 
         /* ask the user to enter a name for the new document */
         name = thunar_dialogs_show_create(launcher->widget,
                                            th_file_get_content_type(THUNAR_FILE(template_file)),
-                                           thunar_file_get_display_name(template_file),
+                                           th_file_get_display_name(template_file),
                                            title);
         /* cleanup */
         g_free(title);
@@ -2022,7 +2022,7 @@ static void thunar_launcher_action_empty_trash(ThunarLauncher *launcher)
 
     if (launcher->single_directory_to_process == FALSE)
         return;
-    if (!thunar_file_is_root(launcher->single_folder)
+    if (!th_file_is_root(launcher->single_folder)
             || !th_file_is_trashed(launcher->single_folder))
         return;
 
@@ -2061,7 +2061,7 @@ static void thunar_launcher_action_duplicate(ThunarLauncher *launcher)
         return;
 
     /* determine the selected files for the view */
-    files_to_process = thunar_file_list_to_thunar_g_file_list(launcher->files_to_process);
+    files_to_process = th_file_list_to_thunar_g_file_list(launcher->files_to_process);
     if (G_LIKELY(files_to_process != NULL))
     {
         /* copy the selected files into the current directory, which effectively
@@ -2129,7 +2129,7 @@ static void _thunar_launcher_rename_error(ExoJob    *job,
 
     thunar_dialogs_show_error(GTK_WIDGET(widget), error,
                                _("Failed to rename \"%s\""),
-                               thunar_file_get_display_name(file));
+                               th_file_get_display_name(file));
     g_object_unref(file);
 }
 
@@ -2438,7 +2438,7 @@ static gboolean thunar_launcher_create_document_submenu_templates(
 
     /* sort items so that directories come before files and ancestors come
      * before descendants */
-    files = g_list_sort(files,(GCompareFunc)(void(*)(void)) thunar_file_compare_by_type);
+    files = g_list_sort(files,(GCompareFunc)(void(*)(void)) th_file_compare_by_type);
 
     for (lp = g_list_first(files); lp != NULL; lp = lp->next)
     {
@@ -2455,7 +2455,7 @@ static gboolean thunar_launcher_create_document_submenu_templates(
         /* allocate an image based on the icon */
         image = gtk_image_new_from_pixbuf(icon);
 
-        item = xfce_gtk_image_menu_item_new(thunar_file_get_display_name(file), NULL, NULL, NULL, NULL, image, GTK_MENU_SHELL(parent_menu));
+        item = xfce_gtk_image_menu_item_new(th_file_get_display_name(file), NULL, NULL, NULL, NULL, image, GTK_MENU_SHELL(parent_menu));
         if (th_file_is_directory(file))
         {
             /* allocate a new submenu for the directory */
@@ -2610,7 +2610,7 @@ gboolean thunar_launcher_append_open_section(ThunarLauncher *launcher,
         return FALSE;
 
     /* determine the set of applications that work for all selected files */
-    applications = thunar_file_list_get_applications(launcher->files_to_process);
+    applications = th_file_list_get_applications(launcher->files_to_process);
 
     /* Execute OR Open OR OpenWith */
     if (G_UNLIKELY(launcher->n_executables_to_process == launcher->n_files_to_process))

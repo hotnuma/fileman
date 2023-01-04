@@ -274,7 +274,7 @@ static ThunarJobResponse thunar_job_real_ask_replace(ThunarJob  *job,
 
     message = g_strdup_printf(_("The file \"%s\" already exists. Would you like to replace it?\n\n"
                                  "If you replace an existing file, its contents will be overwritten."),
-                               thunar_file_get_display_name(source_file));
+                               th_file_get_display_name(source_file));
 
     g_signal_emit(job, job_signals[ASK], 0, message,
                    THUNAR_JOB_RESPONSE_REPLACE
@@ -622,10 +622,10 @@ void thunar_job_new_files(ThunarJob   *job, const GList *file_list)
         /* schedule a reload of cached files when idle */
         for(lp = file_list; lp != NULL; lp = lp->next)
         {
-            file = thunar_file_cache_lookup(lp->data);
+            file = th_file_cache_lookup(lp->data);
             if (file != NULL)
             {
-                thunar_file_reload_idle_unref(file);
+                th_file_reload_idle_unref(file);
             }
         }
 

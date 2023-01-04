@@ -143,7 +143,7 @@ static void thunar_file_set_emblem_names_ready(GObject      *source_object,
         g_file_info_remove_attribute(file->info, "metadata::emblems");
     }
 
-    thunar_file_changed(file);
+    th_file_changed(file);
 }
 
 static gboolean thunar_file_is_readable(const ThunarFile *file)
@@ -300,7 +300,7 @@ static void thunar_file_set_metadata_setting_finish(GObject      *source_object,
         g_error_free(error);
     }
 
-    thunar_file_changed(file);
+    th_file_changed(file);
 }
 
 void thunar_file_set_metadata_setting(ThunarFile  *file,
@@ -352,7 +352,7 @@ void thunar_file_clear_directory_specific_settings(ThunarFile *file)
     g_file_set_attribute(file->gfile, "metadata::thunar-sort-order", G_FILE_ATTRIBUTE_TYPE_INVALID,
                           NULL, G_FILE_QUERY_INFO_NONE, NULL, NULL);
 
-    thunar_file_changed(file);
+    th_file_changed(file);
 }
 
 const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
@@ -373,7 +373,7 @@ const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
         checksum = g_checksum_new(G_CHECKSUM_MD5);
         if (G_LIKELY(checksum != NULL))
         {
-            uri = thunar_file_dup_uri(file);
+            uri = th_file_dup_uri(file);
             g_checksum_update(checksum,(const guchar *) uri, strlen(uri));
             g_free(uri);
 

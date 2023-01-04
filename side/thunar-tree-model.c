@@ -320,19 +320,19 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
         if (G_LIKELY(file != NULL))
         {
             /* watch the trash for changes */
-            if (th_file_is_trashed(file) && thunar_file_is_root(file))
-                thunar_file_watch(file);
+            if (th_file_is_trashed(file) && th_file_is_root(file))
+                th_file_watch(file);
 
             /* create and append the new node */
             item = thunar_tree_model_item_new_with_file(model, file);
             node = g_node_append_data(model->root, item);
 
             /* store reference to the "File System" node */
-            if (thunar_file_has_uri_scheme(file, "file") && thunar_file_is_root(file))
+            if (th_file_has_uri_scheme(file, "file") && th_file_is_root(file))
                 model->file_system = node;
 
             /* store reference to the "Network" node */
-            if (thunar_file_has_uri_scheme(file, "network"))
+            if (th_file_has_uri_scheme(file, "network"))
                 model->network = node;
 
             g_object_unref(G_OBJECT(file));
@@ -577,7 +577,7 @@ static void thunar_tree_model_get_value(GtkTreeModel *tree_model,
         if (G_LIKELY(item != NULL && item->device != NULL))
             g_value_take_string(value, thunar_device_get_name(item->device));
         else if (G_LIKELY(item != NULL && item->file != NULL))
-            g_value_set_static_string(value, thunar_file_get_display_name(item->file));
+            g_value_set_static_string(value, th_file_get_display_name(item->file));
         else
             g_value_set_static_string(value, _("Loading..."));
         break;
@@ -772,7 +772,7 @@ static gint thunar_tree_model_cmp_array(gconstpointer a,
     thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(user_data), 0);
 
     /* just sort by name(case-sensitive) */
-    return thunar_file_compare_by_name(THUNAR_TREE_MODEL_ITEM(((const SortTuple *) a)->node->data)->file,
+    return th_file_compare_by_name(THUNAR_TREE_MODEL_ITEM(((const SortTuple *) a)->node->data)->file,
                                         THUNAR_TREE_MODEL_ITEM(((const SortTuple *) b)->node->data)->file,
                                         THUNAR_TREE_MODEL(user_data)->sort_case_sensitive);
 }
@@ -1131,8 +1131,8 @@ static void thunar_tree_model_item_reset(ThunarTreeModelItem *item)
     if (G_LIKELY(item->file != NULL))
     {
         /* unwatch the trash */
-        if (th_file_is_trashed(item->file) && thunar_file_is_root(item->file))
-            thunar_file_unwatch(item->file);
+        if (th_file_is_trashed(item->file) && th_file_is_root(item->file))
+            th_file_unwatch(item->file);
 
         /* release and reset the file */
         g_object_unref(G_OBJECT(item->file));

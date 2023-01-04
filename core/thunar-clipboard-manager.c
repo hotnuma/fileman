@@ -413,7 +413,7 @@ static void thunar_clipboard_manager_get_callback(GtkClipboard     *clipboard,
     thunar_return_if_fail(manager->clipboard == clipboard);
 
     /* determine the path list from the file list */
-    file_list = thunar_file_list_to_thunar_g_file_list(manager->files);
+    file_list = th_file_list_to_thunar_g_file_list(manager->files);
 
     switch(target_info)
     {

@@ -456,7 +456,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
             thunar_dialogs_show_error(GTK_WIDGET(dialog),
                                        error,
                                        _("Failed to set default application for \"%s\""),
-                                       thunar_file_get_display_name(dialog->file));
+                                       th_file_get_display_name(dialog->file));
 
             /* release the error */
             g_error_free(error);
@@ -464,7 +464,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
 
         /* emit "changed" on the file if we successfully changed the default application */
         if (G_LIKELY(succeed))
-            thunar_file_changed(dialog->file);
+            th_file_changed(dialog->file);
     }
     else
     {
@@ -472,7 +472,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
         if (g_app_info_set_as_last_used_for_type(app_info, content_type, NULL))
         {
             /* emit "changed" on the file if we successfully changed the default application */
-            thunar_file_changed(dialog->file);
+            th_file_changed(dialog->file);
         }
     }
 
@@ -634,7 +634,7 @@ static void thunar_chooser_dialog_update_header(ThunarChooserDialog *dialog)
 
         /* update the header label */
         text = g_strdup_printf(_("Open <i>%s</i> and other files of type \"%s\" with:"),
-                                thunar_file_get_display_name(dialog->file),
+                                th_file_get_display_name(dialog->file),
                                 description);
         gtk_label_set_markup(GTK_LABEL(dialog->header_label), text);
         g_free(text);
@@ -717,7 +717,7 @@ static void thunar_chooser_dialog_action_remove(ThunarChooserDialog *dialog)
             else if (G_LIKELY(dialog->file != NULL))
             {
                 /* emit "changed" for the file, so the context menu is updated */
-                thunar_file_changed(dialog->file);
+                th_file_changed(dialog->file);
             }
         }
     }
@@ -1052,7 +1052,7 @@ static void thunar_chooser_dialog_set_file(ThunarChooserDialog *dialog,
 
         /* disconnect us from the file */
         g_signal_handlers_disconnect_by_func(G_OBJECT(dialog->file), gtk_widget_destroy, dialog);
-        thunar_file_unwatch(THUNAR_FILE(dialog->file));
+        th_file_unwatch(THUNAR_FILE(dialog->file));
         g_object_unref(G_OBJECT(dialog->file));
     }
 
@@ -1066,7 +1066,7 @@ static void thunar_chooser_dialog_set_file(ThunarChooserDialog *dialog,
         g_object_ref(G_OBJECT(file));
 
         /* watch the file for changes */
-        thunar_file_watch(dialog->file);
+        th_file_watch(dialog->file);
 
         /* destroy the chooser dialog if the file is deleted */
         g_signal_connect_swapped(G_OBJECT(file), "destroy", G_CALLBACK(gtk_widget_destroy), dialog);

@@ -405,7 +405,7 @@ static void thunar_list_model_init(ThunarListModel *store)
     store->sort_case_sensitive = TRUE;
     store->sort_folders_first = TRUE;
     store->sort_sign = 1;
-    store->sort_func = thunar_file_compare_by_name;
+    store->sort_func = th_file_compare_by_name;
     store->rows = g_sequence_new(g_object_unref);
 
     /* connect to the shared ThunarFileMonitor, so we don't need to
@@ -683,7 +683,7 @@ static void thunar_list_model_get_value(GtkTreeModel *model,
 
     case THUNAR_COLUMN_NAME:
         g_value_init(value, G_TYPE_STRING);
-        g_value_set_static_string(value, thunar_file_get_display_name(file));
+        g_value_set_static_string(value, th_file_get_display_name(file));
         break;
 
     case THUNAR_COLUMN_OWNER:
@@ -746,7 +746,7 @@ static void thunar_list_model_get_value(GtkTreeModel *model,
 
     case THUNAR_COLUMN_FILE_NAME:
         g_value_init(value, G_TYPE_STRING);
-        g_value_set_static_string(value, thunar_file_get_display_name(file));
+        g_value_set_static_string(value, th_file_get_display_name(file));
         break;
 
     default:
@@ -864,7 +864,7 @@ static gboolean thunar_list_model_get_sort_column_id(GtkTreeSortable *sortable,
 
     if (store->sort_func == sort_by_mime_type)
         *sort_column_id = THUNAR_COLUMN_MIME_TYPE;
-    else if (store->sort_func == thunar_file_compare_by_name)
+    else if (store->sort_func == th_file_compare_by_name)
         *sort_column_id = THUNAR_COLUMN_NAME;
     else if (store->sort_func == sort_by_permissions)
         *sort_column_id = THUNAR_COLUMN_PERMISSIONS;
@@ -924,7 +924,7 @@ static void thunar_list_model_set_sort_column_id(GtkTreeSortable *sortable,
 
     case THUNAR_COLUMN_FILE_NAME:
     case THUNAR_COLUMN_NAME:
-        store->sort_func = thunar_file_compare_by_name;
+        store->sort_func = th_file_compare_by_name;
         break;
 
     case THUNAR_COLUMN_OWNER:
@@ -1315,7 +1315,7 @@ static gint sort_by_date_accessed(const ThunarFile *a,
     else if (date_a > date_b)
         return 1;
 
-    return thunar_file_compare_by_name(a, b, case_sensitive);
+    return th_file_compare_by_name(a, b, case_sensitive);
 }
 
 static gint sort_by_date_modified(const ThunarFile *a,
@@ -1333,7 +1333,7 @@ static gint sort_by_date_modified(const ThunarFile *a,
     else if (date_a > date_b)
         return 1;
 
-    return thunar_file_compare_by_name(a, b, case_sensitive);
+    return th_file_compare_by_name(a, b, case_sensitive);
 }
 
 static gint sort_by_group(const ThunarFile *a,
@@ -1349,7 +1349,7 @@ static gint sort_by_group(const ThunarFile *a,
     const gchar *name_b;
 
     if (th_file_get_info(a) == NULL || th_file_get_info(b) == NULL)
-        return thunar_file_compare_by_name(a, b, case_sensitive);
+        return th_file_compare_by_name(a, b, case_sensitive);
 
     group_a = th_file_get_group(a);
     group_b = th_file_get_group(b);
@@ -1381,7 +1381,7 @@ static gint sort_by_group(const ThunarFile *a,
         g_object_unref(group_b);
 
     if (result == 0)
-        return thunar_file_compare_by_name(a, b, case_sensitive);
+        return th_file_compare_by_name(a, b, case_sensitive);
     else
         return result;
 }
@@ -1405,7 +1405,7 @@ static gint sort_by_mime_type(const ThunarFile *a,
     result = strcasecmp(content_type_a, content_type_b);
 
     if (result == 0)
-        result = thunar_file_compare_by_name(a, b, case_sensitive);
+        result = th_file_compare_by_name(a, b, case_sensitive);
 
     return result;
 }
@@ -1423,7 +1423,7 @@ static gint sort_by_owner(const ThunarFile *a,
     gint         result;
 
     if (th_file_get_info(a) == NULL || th_file_get_info(b) == NULL)
-        return thunar_file_compare_by_name(a, b, case_sensitive);
+        return th_file_compare_by_name(a, b, case_sensitive);
 
     user_a = th_file_get_user(a);
     user_b = th_file_get_user(b);
@@ -1450,7 +1450,7 @@ static gint sort_by_owner(const ThunarFile *a,
     }
 
     if (result == 0)
-        return thunar_file_compare_by_name(a, b, case_sensitive);
+        return th_file_compare_by_name(a, b, case_sensitive);
     else
         return result;
 }
@@ -1470,7 +1470,7 @@ static gint sort_by_permissions(const ThunarFile *a,
     else if (mode_a > mode_b)
         return 1;
 
-    return thunar_file_compare_by_name(a, b, case_sensitive);
+    return th_file_compare_by_name(a, b, case_sensitive);
 }
 
 static gint sort_by_size(const ThunarFile *a,
@@ -1488,7 +1488,7 @@ static gint sort_by_size(const ThunarFile *a,
     else if (size_a > size_b)
         return 1;
 
-    return thunar_file_compare_by_name(a, b, case_sensitive);
+    return th_file_compare_by_name(a, b, case_sensitive);
 }
 
 static gint sort_by_size_in_bytes(const ThunarFile *a,
@@ -1551,7 +1551,7 @@ static gint sort_by_type(const ThunarFile *a,
     g_free(description_b);
 
     if (result == 0)
-        return thunar_file_compare_by_name(a, b, case_sensitive);
+        return th_file_compare_by_name(a, b, case_sensitive);
     else
         return result;
 }
@@ -2125,7 +2125,7 @@ GList* thunar_list_model_get_paths_for_pattern(ThunarListModel *store,
     while(row != end)
     {
         file = g_sequence_get(row);
-        if (g_pattern_match_string(pspec, thunar_file_get_display_name(file)))
+        if (g_pattern_match_string(pspec, th_file_get_display_name(file)))
         {
             thunar_assert(i == g_sequence_iter_get_position(row));
             paths = g_list_prepend(paths, gtk_tree_path_new_from_indices(i, -1));
@@ -2309,29 +2309,29 @@ gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
 
         if (G_UNLIKELY(content_type != NULL && g_str_equal(content_type, "inode/symlink")))
         {
-            text = g_strdup_printf(_("\"%s\": broken link"), thunar_file_get_display_name(file));
+            text = g_strdup_printf(_("\"%s\": broken link"), th_file_get_display_name(file));
         }
         else if (G_UNLIKELY(th_file_is_symlink(file)))
         {
             size_string = th_file_get_size_string_long(file, show_file_size_binary_format);
-            text = g_strdup_printf(_("\"%s\": %s link to %s"), thunar_file_get_display_name(file),
+            text = g_strdup_printf(_("\"%s\": %s link to %s"), th_file_get_display_name(file),
                                     size_string, th_file_get_symlink_target(file));
             g_free(size_string);
         }
         else if (G_UNLIKELY(th_file_get_kind(file) == G_FILE_TYPE_SHORTCUT))
         {
-            text = g_strdup_printf(_("\"%s\": shortcut"), thunar_file_get_display_name(file));
+            text = g_strdup_printf(_("\"%s\": shortcut"), th_file_get_display_name(file));
         }
         else if (G_UNLIKELY(th_file_get_kind(file) == G_FILE_TYPE_MOUNTABLE))
         {
-            text = g_strdup_printf(_("\"%s\": mountable"), thunar_file_get_display_name(file));
+            text = g_strdup_printf(_("\"%s\": mountable"), th_file_get_display_name(file));
         }
         else if (th_file_is_regular(file))
         {
             description = g_content_type_get_description(content_type);
             size_string = th_file_get_size_string_long(file, show_file_size_binary_format);
             /* I18N, first %s is the display name of the file, 2nd the file size, 3rd the content type */
-            text = g_strdup_printf(_("\"%s\": %s %s"), thunar_file_get_display_name(file),
+            text = g_strdup_printf(_("\"%s\": %s %s"), th_file_get_display_name(file),
                                     size_string, description);
             g_free(description);
             g_free(size_string);
@@ -2340,12 +2340,12 @@ gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
         {
             description = g_content_type_get_description(content_type);
             /* I18N, first %s is the display name of the file, second the content type */
-            text = g_strdup_printf(_("\"%s\": %s"), thunar_file_get_display_name(file), description);
+            text = g_strdup_printf(_("\"%s\": %s"), th_file_get_display_name(file), description);
             g_free(description);
         }
 
         /* append the original path(if any) */
-        original_path = thunar_file_get_original_path(file);
+        original_path = th_file_get_original_path(file);
         if (G_UNLIKELY(original_path != NULL))
         {
             /* append the original path to the statusbar text */

@@ -190,7 +190,7 @@ static GFile* _thunar_history_get_gfile(ThunarFile *file)
 
     gfile = th_file_get_file(file);
 
-    display_name = thunar_file_get_display_name(file);
+    display_name = th_file_get_display_name(file);
     g_object_set_qdata_full(G_OBJECT(gfile), thunar_history_display_name_quark,
                              g_strdup(display_name), g_free);
 
@@ -496,7 +496,7 @@ void thunar_history_show_menu(ThunarHistory         *history,
     for(; lp != NULL; lp = lp->next)
     {
         parse_name = g_file_get_parse_name(lp->data);
-        file = thunar_file_cache_lookup(lp->data);
+        file = th_file_cache_lookup(lp->data);
         image = NULL;
         if (file != NULL)
         {

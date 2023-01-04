@@ -784,7 +784,7 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory   *factory,
     GdkPixbuf *icon = NULL;
 
     /* check if we have a custom icon for this file */
-    const gchar *custom_icon = thunar_file_get_custom_icon(file);
+    const gchar *custom_icon = th_file_get_custom_icon(file);
 
     if (custom_icon != NULL)
     {
@@ -869,7 +869,7 @@ GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory   *factory,
     /* lookup the icon name for the icon in the given state and load the icon */
     if (G_LIKELY(icon == NULL))
     {
-        const gchar *icon_name = thunar_file_get_icon_name(file, icon_state, factory->icon_theme);
+        const gchar *icon_name = th_file_get_icon_name(file, icon_state, factory->icon_theme);
         icon = thunar_icon_factory_load_icon(factory, icon_name, icon_size, TRUE);
     }
 

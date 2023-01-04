@@ -783,7 +783,7 @@ void thunar_device_reload_file(ThunarDevice *device)
         file = th_file_get(mount_point, NULL);
         if (file != NULL)
         {
-            thunar_file_reload(file);
+            th_file_reload(file);
             g_object_unref(file);
         }
         g_object_unref(mount_point);

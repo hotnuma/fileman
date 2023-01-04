@@ -116,7 +116,7 @@ GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
         for(lp = path_list; lp != NULL; lp = lp->next)
         {
             /* try to resolve this path */
-            file = thunar_file_cache_lookup(lp->data);
+            file = th_file_cache_lookup(lp->data);
             if (G_LIKELY(file != NULL))
                 file_list = g_list_prepend(file_list, file);
             else
@@ -237,7 +237,7 @@ gboolean thunar_dnd_perform(GtkWidget    *widget,
         if (G_UNLIKELY(!succeed))
         {
             /* display an error to the user */
-            thunar_dialogs_show_error(widget, error, _("Failed to execute file \"%s\""), thunar_file_get_display_name(file));
+            thunar_dialogs_show_error(widget, error, _("Failed to execute file \"%s\""), th_file_get_display_name(file));
 
             /* release the error */
             g_error_free(error);

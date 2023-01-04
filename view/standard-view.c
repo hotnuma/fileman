@@ -812,7 +812,7 @@ static void standard_view_get_property(GObject    *object,
     case PROP_DISPLAY_NAME:
         current_directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object));
         if (current_directory != NULL)
-            g_value_set_static_string(value, thunar_file_get_display_name(current_directory));
+            g_value_set_static_string(value, th_file_get_display_name(current_directory));
         break;
 
     case PROP_TOOLTIP_TEXT:
@@ -1482,7 +1482,7 @@ static void standard_view_set_loading(ThunarStandardView *standard_view,
                 first_file = g_hash_table_lookup(standard_view->priv->scroll_to_files, th_file_get_file(current_directory));
                 if (G_LIKELY(first_file != NULL))
                 {
-                    file = thunar_file_cache_lookup(first_file);
+                    file = th_file_cache_lookup(first_file);
                     if (G_LIKELY(file != NULL))
                     {
                         thunar_view_scroll_to_file(THUNAR_VIEW(standard_view), file, FALSE, TRUE, 0.0f, 0.0f);
@@ -1562,7 +1562,7 @@ static void _standard_view_new_files(ThunarStandardView *standard_view,
         /* determine the files for the paths */
         for(lp = path_list; lp != NULL; lp = lp->next)
         {
-            file = thunar_file_cache_lookup(lp->data);
+            file = th_file_cache_lookup(lp->data);
             if (G_LIKELY(file != NULL))
                 file_list = g_list_prepend(file_list, file);
             else if (!belongs_here && g_file_has_parent(lp->data, parent_file))
@@ -2185,7 +2185,7 @@ static void _standard_view_error(ThunarListModel    *model,
     /* inform the user about the problem */
     thunar_dialogs_show_error(GTK_WIDGET(standard_view), error,
                                _("Failed to open directory \"%s\""),
-                               thunar_file_get_display_name(file));
+                               th_file_get_display_name(file));
 }
 
 static gboolean _standard_view_update_statusbar_text_idle(gpointer data)
@@ -2545,7 +2545,7 @@ static void _standard_view_drag_begin(GtkWidget *view, GdkDragContext *context,
     thunar_g_file_list_free(standard_view->priv->drag_g_file_list);
 
     /* query the list of selected URIs */
-    standard_view->priv->drag_g_file_list = thunar_file_list_to_thunar_g_file_list(standard_view->priv->selected_files);
+    standard_view->priv->drag_g_file_list = th_file_list_to_thunar_g_file_list(standard_view->priv->selected_files);
     if (G_LIKELY(standard_view->priv->drag_g_file_list != NULL))
     {
         /* determine the first selected file */

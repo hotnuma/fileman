@@ -444,7 +444,7 @@ static void thunar_permissions_chooser_get_property(GObject    *object,
 
     case PROP_MUTABLE:
         for(lp = chooser->files; lp != NULL; lp = lp->next)
-            if (!thunar_file_is_chmodable(THUNAR_FILE(lp->data)))
+            if (!th_file_is_chmodable(THUNAR_FILE(lp->data)))
                 break;
 
         g_value_set_boolean(value,(chooser->files != NULL) &&(lp == NULL));
@@ -593,7 +593,7 @@ static gboolean thunar_permissions_chooser_is_fixable_directory(ThunarFile *file
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     if (!th_file_is_directory(file)
-            || !thunar_file_is_chmodable(file))
+            || !th_file_is_chmodable(file))
         return FALSE;
 
     mode = th_file_get_mode(file);

@@ -192,7 +192,7 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
     screen = thunar_util_parse_parent(parent, &window);
 
     /* get the filename of the file */
-    filename = thunar_file_get_display_name(file);
+    filename = th_file_get_display_name(file);
 
     /* create a new dialog window */
     title = g_strdup_printf(_("Rename \"%s\""), filename);
@@ -724,17 +724,17 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     if (th_file_is_symlink(dst_file))
     {
         text = g_strdup_printf(_("This folder already contains a symbolic link \"%s\"."),
-                                thunar_file_get_display_name(dst_file));
+                                th_file_get_display_name(dst_file));
     }
     else if (th_file_is_directory(dst_file))
     {
         text = g_strdup_printf(_("This folder already contains a folder \"%s\"."),
-                                thunar_file_get_display_name(dst_file));
+                                th_file_get_display_name(dst_file));
     }
     else
     {
         text = g_strdup_printf(_("This folder already contains a file \"%s\"."),
-                                thunar_file_get_display_name(dst_file));
+                                th_file_get_display_name(dst_file));
     }
 
     label = gtk_label_new(text);
@@ -931,7 +931,7 @@ gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
     g_string_append_printf(secondary, _("The desktop file \"%s\" is in an insecure location "
                                          "and not marked as executable. If you do not trust "
                                          "this program, click Cancel."),
-                            thunar_file_get_display_name(file));
+                            th_file_get_display_name(file));
     g_string_append(secondary, "\n\n");
     if (e_str_looks_like_an_uri(command))
         g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
@@ -946,7 +946,7 @@ gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
                                      GTK_BUTTONS_NONE,
                                      "%s", primary);
     gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Launch Anyway"), GTK_RESPONSE_OK);
-    if (thunar_file_is_chmodable(file))
+    if (th_file_is_chmodable(file))
         gtk_dialog_add_button(GTK_DIALOG(dialog), _("Mark _Executable"), GTK_RESPONSE_APPLY);
     gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
@@ -1019,7 +1019,7 @@ static void _thunar_dialogs_select_filename(GtkWidget  *entry,
         return;
     }
 
-    filename = thunar_file_get_display_name(file);
+    filename = th_file_get_display_name(file);
 
     /* check if the filename contains an extension */
     ext = thunar_util_str_get_extension(filename);

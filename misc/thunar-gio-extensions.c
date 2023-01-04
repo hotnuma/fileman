@@ -630,7 +630,7 @@ gboolean thunar_g_app_info_launch(GAppInfo      *info,
 
             /* emit "changed" on the file if we successfully changed the last used application */
             if (update_app_info && g_app_info_set_as_last_used_for_type(info, content_type, NULL))
-                thunar_file_changed(file);
+                th_file_changed(file);
 
             g_object_unref(file);
         }

@@ -1175,7 +1175,7 @@ static void thunar_application_process_files_finish(ThunarBrowser  *browser,
         {
             /* tell the user that we were unable to launch the file specified */
             thunar_dialogs_show_error(screen, error, _("Failed to open \"%s\""),
-                                       thunar_file_get_display_name(file));
+                                       th_file_get_display_name(file));
         }
 
         /* stop processing files */
@@ -1373,7 +1373,7 @@ void thunar_application_copy_into(ThunarApplication *application,
     thunar_return_if_fail(G_IS_FILE(target_file));
 
     /* generate a title for the progress dialog */
-    display_name = thunar_file_cached_display_name(target_file);
+    display_name = th_file_cached_display_name(target_file);
     title = g_strdup_printf(_("Copying files to \"%s\"..."), display_name);
     g_free(display_name);
 
@@ -1417,7 +1417,7 @@ void thunar_application_link_into(ThunarApplication *application,
     thunar_return_if_fail(G_IS_FILE(target_file));
 
     /* generate a title for the progress dialog */
-    display_name = thunar_file_cached_display_name(target_file);
+    display_name = th_file_cached_display_name(target_file);
     title = g_strdup_printf(_("Creating symbolic links in \"%s\"..."), display_name);
     g_free(display_name);
 
@@ -1468,7 +1468,7 @@ void thunar_application_move_into(ThunarApplication *application,
     else
     {
         /* generate a title for the progress dialog */
-        display_name = thunar_file_cached_display_name(target_file);
+        display_name = th_file_cached_display_name(target_file);
         title = g_strdup_printf(_("Moving files into \"%s\"..."), display_name);
         g_free(display_name);
 
@@ -1525,7 +1525,7 @@ void thunar_application_unlink_files(ThunarApplication *application,
         /* permanently delete if at least one of the file is not a local
          * file(e.g. resides in the trash) or cannot be trashed */
         if (!th_file_is_local(lp->data)
-            || !thunar_file_can_be_trashed(lp->data))
+            || !th_file_can_be_trashed(lp->data))
             permanently = TRUE;
     }
 
@@ -1547,7 +1547,7 @@ void thunar_application_unlink_files(ThunarApplication *application,
         {
             message = g_strdup_printf(
             _("Are you sure that you want to\npermanently delete \"%s\"?"),
-            thunar_file_get_display_name(THUNAR_FILE(file_list->data)));
+            th_file_get_display_name(THUNAR_FILE(file_list->data)));
         }
         else
         {
@@ -1789,13 +1789,13 @@ void thunar_application_restore_files(ThunarApplication *application,
 
     for(lp = trash_file_list; lp != NULL; lp = lp->next)
     {
-        original_uri = thunar_file_get_original_path(lp->data);
+        original_uri = th_file_get_original_path(lp->data);
         if (G_UNLIKELY(original_uri == NULL))
         {
             /* no OriginalPath, impossible to continue */
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL,
                          _("Failed to determine the original path for \"%s\""),
-                         thunar_file_get_display_name(lp->data));
+                         th_file_get_display_name(lp->data));
             break;
         }
 
@@ -1812,7 +1812,7 @@ void thunar_application_restore_files(ThunarApplication *application,
     {
         /* display an error dialog */
         thunar_dialogs_show_error(parent, err, _("Could not restore \"%s\""),
-                                   thunar_file_get_display_name(lp->data));
+                                   th_file_get_display_name(lp->data));
         g_error_free(err);
     }
     else

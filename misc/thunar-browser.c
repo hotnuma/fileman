@@ -222,7 +222,7 @@ static void thunar_browser_poke_mountable_finish(GObject      *object,
 
     if (error == NULL)
     {
-        thunar_file_reload(poke_data->file);
+        th_file_reload(poke_data->file);
 
         location = th_file_get_target_location(poke_data->file);
 
@@ -281,7 +281,7 @@ static void thunar_browser_poke_file_finish(GObject      *object,
     }
 
     if (error == NULL)
-        thunar_file_reload(poke_data->file);
+        th_file_reload(poke_data->file);
 
     if (poke_data->location_func != NULL)
     {

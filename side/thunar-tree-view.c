@@ -1161,7 +1161,7 @@ static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
     if (G_UNLIKELY(file == NULL))
         return;
 
-    if (thunar_file_can_be_trashed(file))
+    if (th_file_can_be_trashed(file))
     {
         /* fake a file list */
 

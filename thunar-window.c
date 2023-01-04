@@ -1236,7 +1236,7 @@ static void thunar_window_update_window_icon(ThunarWindow *window)
     if (change_window_icon)
     {
         GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(gtk_window_get_screen(GTK_WINDOW(window)));
-        icon_name = thunar_file_get_icon_name(window->current_directory,
+        icon_name = th_file_get_icon_name(window->current_directory,
                                                THUNAR_FILE_ICON_STATE_DEFAULT,
                                                icon_theme);
     }
@@ -1526,7 +1526,7 @@ static void thunar_window_current_directory_changed(ThunarFile *current_director
     if (G_UNLIKELY(show_full_path))
         name = parse_name = g_file_get_parse_name(th_file_get_file(current_directory));
     else
-        name = thunar_file_get_display_name(current_directory);
+        name = th_file_get_display_name(current_directory);
 
     /* set window title */
     gtk_window_set_title(GTK_WINDOW(window), name);
@@ -1820,7 +1820,7 @@ gchar** thunar_window_get_directories(ThunarWindow *window,
         thunar_return_val_if_fail(THUNAR_IS_FILE(directory), FALSE);
 
         /* add to array */
-        uris[n] = thunar_file_dup_uri(directory);
+        uris[n] = th_file_dup_uri(directory);
     }
 
     /* selected tab */

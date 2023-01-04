@@ -57,7 +57,7 @@ typedef enum
 typedef void (*ThunarFileGetFunc) (GFile      *location,
                                    ThunarFile *file,
                                    GError     *error,
-                                   gpointer    user_data);
+                                   gpointer   user_data);
 
 GType       th_file_get_type() G_GNUC_CONST;
 
@@ -152,63 +152,63 @@ gboolean    th_file_is_home(const ThunarFile *file);
 gboolean    th_file_is_regular(const ThunarFile *file) G_GNUC_PURE;
 gboolean    th_file_is_trashed(const ThunarFile *file);
 gboolean    th_file_is_desktop_file(const ThunarFile *file, gboolean *is_secure);
-const gchar* thunar_file_get_display_name(const ThunarFile *file) G_GNUC_CONST;
+const gchar* th_file_get_display_name(const ThunarFile *file) G_GNUC_CONST;
 
-gchar*      thunar_file_get_deletion_date(const ThunarFile *file,
+gchar*      th_file_get_deletion_date(const ThunarFile *file,
                                           ThunarDateStyle date_style,
                                           const gchar *date_custom_style)
                                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-const gchar* thunar_file_get_original_path(const ThunarFile *file);
-guint32     thunar_file_get_item_count(const ThunarFile *file);
+const gchar* th_file_get_original_path(const ThunarFile *file);
+guint32     th_file_get_item_count(const ThunarFile *file);
 
-gboolean    thunar_file_is_chmodable(const ThunarFile *file);
-gboolean    thunar_file_is_renameable(const ThunarFile *file);
-gboolean    thunar_file_can_be_trashed(const ThunarFile *file);
+gboolean    th_file_is_chmodable(const ThunarFile *file);
+gboolean    th_file_is_renameable(const ThunarFile *file);
+gboolean    th_file_can_be_trashed(const ThunarFile *file);
 
 
-const gchar* thunar_file_get_custom_icon(const ThunarFile *file);
-gboolean    thunar_file_set_custom_icon(ThunarFile *file,
+const gchar* th_file_get_custom_icon(const ThunarFile *file);
+gboolean    th_file_set_custom_icon(ThunarFile *file,
                                         const gchar *custom_icon,
                                         GError **error);
 
-GIcon*      thunar_file_get_preview_icon(const ThunarFile *file);
-GFilesystemPreviewType thunar_file_get_preview_type(const ThunarFile *file);
-const gchar* thunar_file_get_icon_name(ThunarFile *file,
+GIcon*      th_file_get_preview_icon(const ThunarFile *file);
+GFilesystemPreviewType th_file_get_preview_type(const ThunarFile *file);
+const gchar* th_file_get_icon_name(ThunarFile *file,
                                        ThunarFileIconState icon_state,
                                        GtkIconTheme *icon_theme);
 
-void        thunar_file_watch(ThunarFile *file);
-void        thunar_file_unwatch(ThunarFile *file);
+void        th_file_watch(ThunarFile *file);
+void        th_file_unwatch(ThunarFile *file);
 
-gboolean    thunar_file_reload(ThunarFile *file);
-void        thunar_file_reload_idle(ThunarFile *file);
-void        thunar_file_reload_idle_unref(ThunarFile *file);
+gboolean    th_file_reload(ThunarFile *file);
+void        th_file_reload_idle(ThunarFile *file);
+void        th_file_reload_idle_unref(ThunarFile *file);
 
-void        thunar_file_destroy(ThunarFile *file);
+void        th_file_destroy(ThunarFile *file);
 
-gint        thunar_file_compare_by_type(ThunarFile *file_a, ThunarFile *file_b);
-gint        thunar_file_compare_by_name(const ThunarFile *file_a,
+gint        th_file_compare_by_type(ThunarFile *file_a, ThunarFile *file_b);
+gint        th_file_compare_by_name(const ThunarFile *file_a,
                                         const ThunarFile *file_b,
                                         gboolean case_sensitive)
                                         G_GNUC_PURE;
 
-ThunarFile* thunar_file_cache_lookup(const GFile *file);
-gchar*      thunar_file_cached_display_name(const GFile *file);
+ThunarFile* th_file_cache_lookup(const GFile *file);
+gchar*      th_file_cached_display_name(const GFile *file);
 
 
-GList*      thunar_file_list_get_applications(GList *file_list);
-GList*      thunar_file_list_to_thunar_g_file_list(GList *file_list);
+GList*      th_file_list_get_applications(GList *file_list);
+GList*      th_file_list_to_thunar_g_file_list(GList *file_list);
 
-gboolean    thunar_file_is_desktop(const ThunarFile *file);
+gboolean    th_file_is_desktop(const ThunarFile *file);
 
-#define thunar_file_is_root(file) (thunar_g_file_is_root(th_file_get_file(file)))
-#define thunar_file_has_parent(file) (!thunar_file_is_root(THUNAR_FILE((file))))
-#define thunar_file_has_uri_scheme(file, uri_scheme) (g_file_has_uri_scheme(th_file_get_file(file),(uri_scheme)))
-#define thunar_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))
+#define th_file_is_root(file) (thunar_g_file_is_root(th_file_get_file(file)))
+#define th_file_has_parent(file) (!th_file_is_root(THUNAR_FILE((file))))
+#define th_file_has_uri_scheme(file, uri_scheme) (g_file_has_uri_scheme(th_file_get_file(file),(uri_scheme)))
+#define th_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))
 
 // Emits the ::changed signal on @file. This function is meant to be called
 // by derived classes whenever they notice changes to the @file.
-#define thunar_file_changed(file)                         \
+#define th_file_changed(file)                         \
 G_STMT_START{                                             \
     thunarx_file_info_changed(THUNARX_FILE_INFO((file))); \
 }G_STMT_END
