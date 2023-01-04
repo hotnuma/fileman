@@ -47,7 +47,7 @@ app_sources = [
     'core/thunar-device.c',
     'core/thunar-device-monitor.c',
     'core/thunar-dnd.c',
-    'core/thunar-file.c',
+    'core/th-file.c',
     'core/thunar-file-monitor.c',
     'core/thunar-folder.c',
     'core/thunar-user.c',

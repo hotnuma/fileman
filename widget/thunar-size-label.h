@@ -19,7 +19,7 @@
 #ifndef __THUNAR_SIZE_LABEL_H__
 #define __THUNAR_SIZE_LABEL_H__
 
-#include <thunar-file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 

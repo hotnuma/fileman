@@ -21,7 +21,7 @@
 #ifndef __THUNAR_PATH_ENTRY_H__
 #define __THUNAR_PATH_ENTRY_H__
 
-#include <thunar-file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 

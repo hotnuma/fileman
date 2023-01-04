@@ -22,7 +22,7 @@
 
 #include <thunar-device.h>
 #include <thunar-device-monitor.h>
-#include <thunar-file.h>
+#include <th-file.h>
 #include <thunar-notify.h>
 
 typedef gboolean (*AsyncCallbackFinish) (GObject       *object,

@@ -19,7 +19,7 @@
 #ifndef __THUNAR_ICON_FACTORY_H__
 #define __THUNAR_ICON_FACTORY_H__
 
-#include <thunar-file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 

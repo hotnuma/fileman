@@ -30,7 +30,7 @@
 
 #include <libext.h>
 
-#include <thunar-file.h>
+#include <th-file.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-util.h>
 

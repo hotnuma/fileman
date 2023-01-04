@@ -27,7 +27,7 @@
 #include <exo-job.h>
 
 #include <thunar-enum-types.h>
-#include <thunar-file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 

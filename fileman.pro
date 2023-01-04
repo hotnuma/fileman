@@ -14,11 +14,11 @@ PKGCONFIG = \
 INCLUDEPATH = core dialog job libext menu misc side view widget
 
 HEADERS = \
+    core/th-file.h \
     core/thunar-clipboard-manager.h \
     core/thunar-device.h \
     core/thunar-device-monitor.h \
     core/thunar-dnd.h \
-    core/thunar-file.h \
     core/thunar-file-monitor.h \
     core/thunar-folder.h \
     core/thunar-user.h \
@@ -84,11 +84,11 @@ HEADERS = \
 
 SOURCES = \
     0Temp.c \
+    core/th-file.c \
     core/thunar-clipboard-manager.c \
     core/thunar-device.c \
     core/thunar-device-monitor.c \
     core/thunar-dnd.c \
-    core/thunar-file.c \
     core/thunar-file-monitor.c \
     core/thunar-folder.c \
     core/thunar-user.c \

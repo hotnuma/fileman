@@ -19,7 +19,7 @@
 #ifndef __THUNAR_DND_H__
 #define __THUNAR_DND_H__
 
-#include <thunar-file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS;
 

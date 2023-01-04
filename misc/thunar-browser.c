@@ -24,7 +24,7 @@
 #include <glib-object.h>
 
 #include <thunar-browser.h>
-#include <thunar-file.h>
+#include <th-file.h>
 #include <thunar-util.h>
 #include <thunar-gtk-extensions.h>
 

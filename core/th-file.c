@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <thunar-file.h>
+#include <th-file.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <thunarx-file-info.h>

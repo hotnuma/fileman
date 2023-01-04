@@ -19,7 +19,7 @@
 #ifndef __THUNAR_NAVIGATOR_H__
 #define __THUNAR_NAVIGATOR_H__
 
-#include <thunar-file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS;
 

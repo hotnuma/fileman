@@ -20,7 +20,7 @@
 #define __THUNAR_ICON_RENDERER_H__
 
 #include <thunar-enum-types.h>
-#include <thunar-file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 
