@@ -35,36 +35,28 @@ typedef struct _ThunarListModel      ThunarListModel;
 
 GType list_model_get_type() G_GNUC_CONST;
 
-ThunarListModel* thunar_list_model_new();
+ThunarListModel* list_model_new();
 
-ThunarFolder* thunar_list_model_get_folder(ThunarListModel *store);
-void thunar_list_model_set_folder(ThunarListModel *store,
-                                  ThunarFolder *folder);
+ThunarFolder* list_model_get_folder(ThunarListModel *store);
+void list_model_set_folder(ThunarListModel *store, ThunarFolder *folder);
 
-void thunar_list_model_set_folders_first(ThunarListModel *store,
-                                         gboolean folders_first);
+void list_model_set_folders_first(ThunarListModel *store, gboolean folders_first);
 
-gboolean thunar_list_model_get_show_hidden(ThunarListModel *store);
-void thunar_list_model_set_show_hidden(ThunarListModel *store,
-                                       gboolean show_hidden);
+gboolean list_model_get_show_hidden(ThunarListModel *store);
+void list_model_set_show_hidden(ThunarListModel *store, gboolean show_hidden);
 
-gboolean thunar_list_model_get_file_size_binary(ThunarListModel *store);
-void thunar_list_model_set_file_size_binary(ThunarListModel *store,
-                                            gboolean file_size_binary);
+gboolean list_model_get_file_size_binary(ThunarListModel *store);
+void list_model_set_file_size_binary(ThunarListModel *store, gboolean file_size_binary);
 
-ThunarFile* thunar_list_model_get_file(ThunarListModel *store,
-                                       GtkTreeIter *iter);
+ThunarFile* list_model_get_file(ThunarListModel *store, GtkTreeIter *iter);
 
-GList* thunar_list_model_get_paths_for_files(ThunarListModel *store,
-                                             GList *files);
-GList* thunar_list_model_get_paths_for_pattern(ThunarListModel *store,
-                                               const gchar *pattern);
+GList* list_model_get_paths_for_files(ThunarListModel *store, GList *files);
+GList* list_model_get_paths_for_pattern(ThunarListModel *store, const gchar *pattern);
 
-gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
-                                            GList *selected_items);
+gchar* list_model_get_statusbar_text(ThunarListModel *store, GList *selected_items);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_LIST_MODEL_H__ */
+#endif // __THUNAR_LIST_MODEL_H__
 
 

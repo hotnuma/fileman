@@ -1016,7 +1016,7 @@ static void standard_view_init(ThunarStandardView *standard_view)
                              standard_view);
 
     /* setup the list model */
-    standard_view->model = thunar_list_model_new();
+    standard_view->model = list_model_new();
     g_signal_connect_after(G_OBJECT(standard_view->model),
                            "row-deleted",
                            G_CALLBACK(_standard_view_select_after_row_deleted),
@@ -1147,7 +1147,7 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
         g_object_set(G_OBJECT(gtk_bin_get_child(GTK_BIN(standard_view))), "model", NULL, NULL);
 
         /* reset the folder for the model */
-        thunar_list_model_set_folder(standard_view->model, NULL);
+        list_model_set_folder(standard_view->model, NULL);
 
         /* reconnect the model to the view */
         g_object_set(G_OBJECT(gtk_bin_get_child(GTK_BIN(standard_view))), "model", standard_view->model, NULL);
@@ -1188,7 +1188,7 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
                                     _standard_view_loading_unbound);
 
     /* apply the new folder */
-    thunar_list_model_set_folder(standard_view->model, folder);
+    list_model_set_folder(standard_view->model, folder);
     g_object_unref(G_OBJECT(folder));
 
     /* reconnect our model to the view */
@@ -1345,7 +1345,7 @@ static void standard_view_set_selected_files_component(ThunarComponent *componen
         THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->unselect_all(standard_view);
 
         /* determine the tree paths for the given files */
-        paths = thunar_list_model_get_paths_for_files(standard_view->model, selected_files);
+        paths = list_model_get_paths_for_files(standard_view->model, selected_files);
         if (G_LIKELY(paths != NULL))
         {
             /* determine the first path */
@@ -1391,12 +1391,12 @@ static void standard_view_set_selected_files_view(ThunarView *view,
 
 static gboolean standard_view_get_show_hidden(ThunarView *view)
 {
-    return thunar_list_model_get_show_hidden(THUNAR_STANDARD_VIEW(view)->model);
+    return list_model_get_show_hidden(THUNAR_STANDARD_VIEW(view)->model);
 }
 
 static void standard_view_set_show_hidden(ThunarView *view, gboolean show_hidden)
 {
-    thunar_list_model_set_show_hidden(THUNAR_STANDARD_VIEW(view)->model, show_hidden);
+    list_model_set_show_hidden(THUNAR_STANDARD_VIEW(view)->model, show_hidden);
 }
 
 static ThunarZoomLevel standard_view_get_zoom_level(ThunarView *view)
@@ -1627,7 +1627,7 @@ static void standard_view_reload(ThunarView *view, gboolean reload_info)
     ThunarFile         *file;
 
     /* determine the folder for the view model */
-    folder = thunar_list_model_get_folder(standard_view->model);
+    folder = list_model_get_folder(standard_view->model);
 
     if (G_LIKELY(folder != NULL))
     {
@@ -1656,14 +1656,14 @@ static gboolean standard_view_get_visible_range(ThunarView  *view,
         if (G_LIKELY(start_file != NULL))
         {
             gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, start_path);
-            *start_file = thunar_list_model_get_file(standard_view->model, &iter);
+            *start_file = list_model_get_file(standard_view->model, &iter);
         }
 
         /* determine the file for the end path */
         if (G_LIKELY(end_file != NULL))
         {
             gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, end_path);
-            *end_file = thunar_list_model_get_file(standard_view->model, &iter);
+            *end_file = list_model_get_file(standard_view->model, &iter);
         }
 
         /* release the tree paths */
@@ -1712,7 +1712,7 @@ static void standard_view_scroll_to_file(ThunarView *view,
         files.prev = NULL;
 
         /* determine the path for the file */
-        paths = thunar_list_model_get_paths_for_files(standard_view->model, &files);
+        paths = list_model_get_paths_for_files(standard_view->model, &files);
         if (G_LIKELY(paths != NULL))
         {
             /* scroll to the path */
@@ -1751,7 +1751,7 @@ static const gchar* standard_view_get_statusbar_text(ThunarView *view)
         if (items == NULL && standard_view->loading)
             return _("Loading folder contents...");
 
-        standard_view->priv->statusbar_text = thunar_list_model_get_statusbar_text(standard_view->model, items);
+        standard_view->priv->statusbar_text = list_model_get_statusbar_text(standard_view->model, items);
         g_list_free_full(items,(GDestroyNotify) gtk_tree_path_free);
     }
 
@@ -1947,7 +1947,7 @@ void standard_view_selection_changed(ThunarStandardView *standard_view)
         gtk_tree_path_free(lp->data);
 
         /* ...and replace it with the file */
-        lp->data = thunar_list_model_get_file(standard_view->model, &iter);
+        lp->data = list_model_get_file(standard_view->model, &iter);
     }
 
     /* and setup the new selected files list */
@@ -2498,7 +2498,7 @@ static void _standard_view_select_by_pattern(ThunarView *view)
         }
 
         /* select all files that match pattern */
-        paths = thunar_list_model_get_paths_for_pattern(standard_view->model, pattern);
+        paths = list_model_get_paths_for_pattern(standard_view->model, pattern);
         THUNAR_STANDARD_VIEW_GET_CLASS(standard_view)->unselect_all(standard_view);
 
         /* set the cursor and scroll to the first selected item */
@@ -3052,7 +3052,7 @@ static ThunarFile* _standard_view_get_drop_file(
     {
         /* determine the file for the path */
         gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, path);
-        file = thunar_list_model_get_file(standard_view->model, &iter);
+        file = list_model_get_file(standard_view->model, &iter);
 
         /* we can only drop to directories and executable files */
         if (!th_file_is_directory(file) && !th_file_is_executable(file))
