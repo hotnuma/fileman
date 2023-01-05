@@ -18,14 +18,10 @@
  */
 
 #include <config.h>
-
-#include <libext.h>
-
-#include <thunar-file-monitor.h>
 #include <thunar-folder.h>
-#include <thunar-gobject-extensions.h>
+
 #include <io-jobs.h>
-#include <thunar-job.h>
+#include <thunar-file-monitor.h>
 
 #define DEBUG_FILE_CHANGES FALSE
 
@@ -766,9 +762,11 @@ static void thunar_folder_monitor(GFileMonitor     *monitor,
             }
             else
             {
+
 #if DEBUG_FILE_CHANGES
                 thunar_file_infos_equal(lp->data, event_file);
 #endif
+
                 th_file_reload(lp->data);
             }
         }
@@ -944,6 +942,7 @@ void thunar_folder_reload(ThunarFolder *folder,
 
     /* start a new job */
     folder->job = io_list_directory(th_file_get_file(folder->corresponding_file));
+
     g_signal_connect(folder->job, "error", G_CALLBACK(thunar_folder_error), folder);
     g_signal_connect(folder->job, "finished", G_CALLBACK(thunar_folder_finished), folder);
     g_signal_connect(folder->job, "files-ready", G_CALLBACK(thunar_folder_files_ready), folder);

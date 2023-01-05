@@ -20,18 +20,17 @@
 #ifndef __THUNAR_IO_SCAN_DIRECTORY_H__
 #define __THUNAR_IO_SCAN_DIRECTORY_H__
 
-//#include <libext.h>
 #include <thunar-job.h>
 
 G_BEGIN_DECLS
 
-GList* thunar_io_scan_directory(ThunarJob          *job,
-                                GFile              *file,
-                                GFileQueryInfoFlags flags,
-                                gboolean            recursively,
-                                gboolean            unlinking,
-                                gboolean            return_thunar_files,
-                                GError            **error);
+GList* io_scan_directory(ThunarJob           *job,
+                         GFile               *file,
+                         GFileQueryInfoFlags flags,
+                         gboolean            recursively,
+                         gboolean            unlinking,
+                         gboolean            return_thunar_files,
+                         GError              **error);
 
 G_END_DECLS
 

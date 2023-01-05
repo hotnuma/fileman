@@ -33,9 +33,9 @@ HEADERS = \
     dialog/thunar-progress-view.h \
     dialog/thunar-properties-dialog.h \
     job/io-jobs.h \
+    job/io-scan-directory.h \
     job/thunar-deep-count-job.h \
     job/thunar-io-jobs-util.h \
-    job/thunar-io-scan-directory.h \
     job/thunar-job.h \
     job/thunar-simple-job.h \
     job/thunar-transfer-job.h \
@@ -103,6 +103,7 @@ SOURCES = \
     dialog/thunar-progress-view.c \
     dialog/thunar-properties-dialog.c \
     job/io-jobs.c \
+    job/io-scan-directory.c \
     libext/exo-cell-renderer-icon.c \
     libext/exo-gdk-pixbuf-extensions.c \
     libext/exo-job.c \
@@ -121,7 +122,6 @@ SOURCES = \
     misc/thunar-pango-extensions.c \
     job/thunar-deep-count-job.c \
     job/thunar-io-jobs-util.c \
-    job/thunar-io-scan-directory.c \
     job/thunar-job.c \
     job/thunar-simple-job.c \
     job/thunar-transfer-job.c \

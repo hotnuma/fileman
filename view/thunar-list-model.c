@@ -19,16 +19,16 @@
  */
 
 #include <config.h>
-#include <memory.h>
-#include <string.h>
-
-#include <libext.h>
+#include <thunar-list-model.h>
 
 #include <thunar-application.h>
 #include <thunar-file-monitor.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-list-model.h>
 #include <thunar-user.h>
+#include <libext.h>
+
+#include <memory.h>
+#include <string.h>
 
 /* Property identifiers */
 enum
@@ -178,13 +178,13 @@ static void thunar_list_model_set_date_custom_style(ThunarListModel *store,
 static gint thunar_list_model_get_num_files(ThunarListModel *store);
 static gboolean thunar_list_model_get_folders_first(ThunarListModel *store);
 
+
 struct _ThunarListModelClass
 {
     GObjectClass __parent__;
 
     /* signals */
-    void(*error)(ThunarListModel *store,
-                   const GError    *error);
+    void (*error) (ThunarListModel *store, const GError *error);
 };
 
 struct _ThunarListModel
@@ -225,140 +225,103 @@ struct _ThunarListModel
     ThunarSortFunc sort_func;
 };
 
-static guint       list_model_signals[LAST_SIGNAL];
-static GParamSpec *list_model_props[N_PROPERTIES] = { NULL, };
+static guint        _list_model_signals[LAST_SIGNAL];
+static GParamSpec*  _list_model_props[N_PROPERTIES] = { NULL, };
 
-G_DEFINE_TYPE_WITH_CODE(ThunarListModel, thunar_list_model, G_TYPE_OBJECT,
-                         G_IMPLEMENT_INTERFACE(GTK_TYPE_TREE_MODEL, thunar_list_model_tree_model_init)
-                         G_IMPLEMENT_INTERFACE(GTK_TYPE_TREE_DRAG_DEST, thunar_list_model_drag_dest_init)
-                         G_IMPLEMENT_INTERFACE(GTK_TYPE_TREE_SORTABLE, thunar_list_model_sortable_init))
+G_DEFINE_TYPE_WITH_CODE(ThunarListModel,
+                        list_model,
+                        G_TYPE_OBJECT,
+                        G_IMPLEMENT_INTERFACE(GTK_TYPE_TREE_MODEL,
+                                              thunar_list_model_tree_model_init)
+                        G_IMPLEMENT_INTERFACE(GTK_TYPE_TREE_DRAG_DEST,
+                                              thunar_list_model_drag_dest_init)
+                        G_IMPLEMENT_INTERFACE(GTK_TYPE_TREE_SORTABLE,
+                                              thunar_list_model_sortable_init))
 
-static void thunar_list_model_class_init(ThunarListModelClass *klass)
+static void list_model_class_init(ThunarListModelClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class               = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose      = thunar_list_model_dispose;
     gobject_class->finalize     = thunar_list_model_finalize;
     gobject_class->get_property = thunar_list_model_get_property;
     gobject_class->set_property = thunar_list_model_set_property;
 
-    /**
-     * ThunarListModel:case-sensitive:
-     *
-     * Tells whether the sorting should be case sensitive.
-     **/
-    list_model_props[PROP_CASE_SENSITIVE] =
+    _list_model_props[PROP_CASE_SENSITIVE] =
         g_param_spec_boolean("case-sensitive",
-                              "case-sensitive",
-                              "case-sensitive",
-                              TRUE,
-                              E_PARAM_READWRITE);
+                             "case-sensitive",
+                             "case-sensitive",
+                             TRUE,
+                             E_PARAM_READWRITE);
 
-    /**
-     * ThunarListModel:date-style:
-     *
-     * The style used to format dates.
-     **/
-    list_model_props[PROP_DATE_STYLE] =
+    _list_model_props[PROP_DATE_STYLE] =
         g_param_spec_enum("date-style",
-                           "date-style",
-                           "date-style",
-                           THUNAR_TYPE_DATE_STYLE,
-                           THUNAR_DATE_STYLE_YYYYMMDD,
-                           E_PARAM_READWRITE);
+                          "date-style",
+                          "date-style",
+                          THUNAR_TYPE_DATE_STYLE,
+                          THUNAR_DATE_STYLE_YYYYMMDD,
+                          E_PARAM_READWRITE);
 
-    /**
-     * ThunarListModel:date-custom-style:
-     *
-     * The style used for custom format of dates.
-     **/
-    list_model_props[PROP_DATE_CUSTOM_STYLE] =
+    _list_model_props[PROP_DATE_CUSTOM_STYLE] =
         g_param_spec_string("date-custom-style",
-                             "DateCustomStyle",
-                             NULL,
-                             "%Y-%m-%d %H:%M:%S",
-                             E_PARAM_READWRITE);
+                            "DateCustomStyle",
+                            NULL,
+                            "%Y-%m-%d %H:%M:%S",
+                            E_PARAM_READWRITE);
 
-    /**
-     * ThunarListModel:folder:
-     *
-     * The folder presented by this #ThunarListModel.
-     **/
-    list_model_props[PROP_FOLDER] =
+    // The folder presented by this #ThunarListModel.
+    _list_model_props[PROP_FOLDER] =
         g_param_spec_object("folder",
-                             "folder",
-                             "folder",
-                             THUNAR_TYPE_FOLDER,
+                            "folder",
+                            "folder",
+                            THUNAR_TYPE_FOLDER,
+                            E_PARAM_READWRITE);
+
+    _list_model_props[PROP_FOLDERS_FIRST] =
+        g_param_spec_boolean("folders-first",
+                             "folders-first",
+                             "folders-first",
+                             TRUE,
                              E_PARAM_READWRITE);
 
-    /**
-     * ThunarListModel::folders-first:
-     *
-     * Tells whether to always sort folders before other files.
-     **/
-    list_model_props[PROP_FOLDERS_FIRST] =
-        g_param_spec_boolean("folders-first",
-                              "folders-first",
-                              "folders-first",
-                              TRUE,
-                              E_PARAM_READWRITE);
-
-    /**
-     * ThunarListModel::num-files:
-     *
-     * The number of files in the folder presented by this #ThunarListModel.
-     **/
-    list_model_props[PROP_NUM_FILES] =
+    // The number of files in the folder presented by this #ThunarListModel.
+    _list_model_props[PROP_NUM_FILES] =
         g_param_spec_uint("num-files",
-                           "num-files",
-                           "num-files",
-                           0, G_MAXUINT, 0,
-                           E_PARAM_READABLE);
+                          "num-files",
+                          "num-files",
+                          0,
+                          G_MAXUINT,
+                          0,
+                          E_PARAM_READABLE);
 
-    /**
-     * ThunarListModel::show-hidden:
-     *
-     * Tells whether to include hidden(and backup) files.
-     **/
-    list_model_props[PROP_SHOW_HIDDEN] =
+    _list_model_props[PROP_SHOW_HIDDEN] =
         g_param_spec_boolean("show-hidden",
-                              "show-hidden",
-                              "show-hidden",
-                              FALSE,
-                              E_PARAM_READWRITE);
+                             "show-hidden",
+                             "show-hidden",
+                             FALSE,
+                             E_PARAM_READWRITE);
 
-    /**
-     * ThunarListModel::misc-file-size-binary:
-     *
-     * Tells whether to format file size in binary.
-     **/
-    list_model_props[PROP_FILE_SIZE_BINARY] =
+    _list_model_props[PROP_FILE_SIZE_BINARY] =
         g_param_spec_boolean("file-size-binary",
-                              "file-size-binary",
-                              "file-size-binary",
-                              TRUE,
-                              E_PARAM_READWRITE);
+                             "file-size-binary",
+                             "file-size-binary",
+                             TRUE,
+                             E_PARAM_READWRITE);
 
     /* install properties */
-    g_object_class_install_properties(gobject_class, N_PROPERTIES, list_model_props);
+    g_object_class_install_properties(gobject_class, N_PROPERTIES, _list_model_props);
 
-    /**
-     * ThunarListModel::error:
-     * @store : a #ThunarListModel.
-     * @error : a #GError that describes the problem.
-     *
-     * Emitted when an error occurs while loading the
-     * @store content.
-     **/
-    list_model_signals[ERROR] =
+    // Emitted when an error occurs while loading the store content.
+    _list_model_signals[ERROR] =
         g_signal_new(I_("error"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST,
-                      G_STRUCT_OFFSET(ThunarListModelClass, error),
-                      NULL, NULL,
-                      g_cclosure_marshal_VOID__POINTER,
-                      G_TYPE_NONE, 1, G_TYPE_POINTER);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST,
+                     G_STRUCT_OFFSET(ThunarListModelClass, error),
+                     NULL,
+                     NULL,
+                     g_cclosure_marshal_VOID__POINTER,
+                     G_TYPE_NONE,
+                     1,
+                     G_TYPE_POINTER);
 }
 
 static void thunar_list_model_tree_model_init(GtkTreeModelIface *iface)
@@ -392,9 +355,9 @@ static void thunar_list_model_sortable_init(GtkTreeSortableIface *iface)
     iface->has_default_sort_func  = thunar_list_model_has_default_sort_func;
 }
 
-static void thunar_list_model_init(ThunarListModel *store)
+static void list_model_init(ThunarListModel *store)
 {
-    /* generate a unique stamp if we're in debug mode */
+
 #ifndef NDEBUG
     store->stamp = g_random_int();
 #endif
@@ -413,7 +376,7 @@ static void thunar_list_model_init(ThunarListModel *store)
      */
     store->file_monitor = thunar_file_monitor_get_default();
     g_signal_connect(G_OBJECT(store->file_monitor), "file-changed",
-                      G_CALLBACK(thunar_list_model_file_changed), store);
+                     G_CALLBACK(thunar_list_model_file_changed), store);
 }
 
 static void thunar_list_model_dispose(GObject *object)
@@ -421,7 +384,7 @@ static void thunar_list_model_dispose(GObject *object)
     /* unlink from the folder(if any) */
     thunar_list_model_set_folder(THUNAR_LIST_MODEL(object), NULL);
 
-   (*G_OBJECT_CLASS(thunar_list_model_parent_class)->dispose)(object);
+    G_OBJECT_CLASS(list_model_parent_class)->dispose(object);
 }
 
 static void thunar_list_model_finalize(GObject *object)
@@ -434,7 +397,7 @@ static void thunar_list_model_finalize(GObject *object)
     g_signal_handlers_disconnect_by_func(G_OBJECT(store->file_monitor), thunar_list_model_file_changed, store);
     g_object_unref(G_OBJECT(store->file_monitor));
 
-   (*G_OBJECT_CLASS(thunar_list_model_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(list_model_parent_class)->finalize(object);
 }
 
 static void thunar_list_model_get_property(GObject    *object,
@@ -443,9 +406,10 @@ static void thunar_list_model_get_property(GObject    *object,
                                            GParamSpec *pspec)
 {
     UNUSED(pspec);
+
     ThunarListModel *store = THUNAR_LIST_MODEL(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_CASE_SENSITIVE:
         g_value_set_boolean(value, thunar_list_model_get_case_sensitive(store));
@@ -491,9 +455,10 @@ static void thunar_list_model_set_property(GObject      *object,
                                            GParamSpec   *pspec)
 {
     UNUSED(pspec);
+
     ThunarListModel *store = THUNAR_LIST_MODEL(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_CASE_SENSITIVE:
         thunar_list_model_set_case_sensitive(store, g_value_get_boolean(value));
@@ -1173,7 +1138,7 @@ static void thunar_list_model_folder_error(ThunarFolder    *folder,
     thunar_return_if_fail(error != NULL);
 
     /* forward the error signal */
-    g_signal_emit(G_OBJECT(store), list_model_signals[ERROR], 0, error);
+    g_signal_emit(G_OBJECT(store), _list_model_signals[ERROR], 0, error);
 
     /* reset the current folder */
     thunar_list_model_set_folder(store, NULL);
@@ -1237,7 +1202,7 @@ static void thunar_list_model_files_added(ThunarFolder    *folder,
     gtk_tree_path_free(path);
 
     /* number of visible files may have changed */
-    g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_NUM_FILES]);
+    g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_NUM_FILES]);
 }
 
 static void thunar_list_model_files_removed(ThunarFolder    *folder,
@@ -1297,7 +1262,7 @@ static void thunar_list_model_files_removed(ThunarFolder    *folder,
     }
 
     /* this probably changed */
-    g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_NUM_FILES]);
+    g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_NUM_FILES]);
 }
 
 static gint sort_by_date_accessed(const ThunarFile *a,
@@ -1556,42 +1521,17 @@ static gint sort_by_type(const ThunarFile *a,
         return result;
 }
 
-/**
- * thunar_list_model_new:
- *
- * Allocates a new #ThunarListModel not associated with
- * any #ThunarFolder.
- *
- * Return value: the newly allocated #ThunarListModel.
- **/
 ThunarListModel* thunar_list_model_new()
 {
     return g_object_new(THUNAR_TYPE_LIST_MODEL, NULL);
 }
 
-/**
- * thunar_list_model_get_case_sensitive:
- * @store : a valid #ThunarListModel object.
- *
- * Returns %TRUE if the sorting is done in a case-sensitive
- * manner for @store.
- *
- * Return value: %TRUE if sorting is case-sensitive.
- **/
 static gboolean thunar_list_model_get_case_sensitive(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), FALSE);
     return store->sort_case_sensitive;
 }
 
-/**
- * thunar_list_model_set_case_sensitive:
- * @store          : a valid #ThunarListModel object.
- * @case_sensitive : %TRUE to use case-sensitive sort for @store.
- *
- * If @case_sensitive is %TRUE the sorting in @store will be done
- * in a case-sensitive manner.
- **/
 static void thunar_list_model_set_case_sensitive(ThunarListModel *store,
                                                  gboolean         case_sensitive)
 {
@@ -1610,7 +1550,7 @@ static void thunar_list_model_set_case_sensitive(ThunarListModel *store,
         thunar_list_model_sort(store);
 
         /* notify listeners */
-        g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_CASE_SENSITIVE]);
+        g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_CASE_SENSITIVE]);
 
         /* emit a "changed" signal for each row, so the display is
            reloaded with the new case-sensitive setting */
@@ -1620,28 +1560,12 @@ static void thunar_list_model_set_case_sensitive(ThunarListModel *store,
     }
 }
 
-/**
- * thunar_list_model_get_date_style:
- * @store : a valid #ThunarListModel object.
- *
- * Return value: the #ThunarDateStyle used to format dates in
- *               the given @store.
- **/
 static ThunarDateStyle thunar_list_model_get_date_style(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), THUNAR_DATE_STYLE_SIMPLE);
     return store->date_style;
 }
 
-/**
- * thunar_list_model_set_date_style:
- * @store      : a valid #ThunarListModel object.
- * @date_style : the #ThunarDateStyle that should be used to format
- *               dates in the @store.
- *
- * Chances the style used to format dates in @store to the specified
- * @date_style.
- **/
 static void thunar_list_model_set_date_style(ThunarListModel *store,
                                              ThunarDateStyle  date_style)
 {
@@ -1654,21 +1578,16 @@ static void thunar_list_model_set_date_style(ThunarListModel *store,
         store->date_style = date_style;
 
         /* notify listeners */
-        g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_DATE_STYLE]);
+        g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_DATE_STYLE]);
 
         /* emit a "changed" signal for each row, so the display is reloaded with the new date style */
-        gtk_tree_model_foreach(GTK_TREE_MODEL(store),
-                               (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
-                                NULL);
+        gtk_tree_model_foreach(
+            GTK_TREE_MODEL(store),
+            (GtkTreeModelForeachFunc) (void(*)(void)) gtk_tree_model_row_changed,
+            NULL);
     }
 }
 
-/**
- * thunar_list_model_get_date_custom_style:
- * @store : a valid #ThunarListModel object.
- *
- * Return value: the style used to format customdates in the given @store.
- **/
 static const char* thunar_list_model_get_date_custom_style(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), NULL);
@@ -1676,14 +1595,6 @@ static const char* thunar_list_model_get_date_custom_style(ThunarListModel *stor
     return store->date_custom_style;
 }
 
-/**
- * thunar_list_model_set_date_custom_style:
- * @store             : a valid #ThunarListModel object.
- * @date_custom_style : the style that should be used to format
- *                      custom dates in the @store.
- *
- * Changes the style used to format custom dates in @store to the specified @date_custom_style.
- **/
 static void thunar_list_model_set_date_custom_style(
                                             ThunarListModel *store,
                                             const char      *date_custom_style)
@@ -1697,7 +1608,7 @@ static void thunar_list_model_set_date_custom_style(
         store->date_custom_style = g_strdup(date_custom_style);
 
         /* notify listeners */
-        g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_DATE_CUSTOM_STYLE]);
+        g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_DATE_CUSTOM_STYLE]);
 
         /* emit a "changed" signal for each row, so the display is reloaded with the new date style */
         gtk_tree_model_foreach(GTK_TREE_MODEL(store),
@@ -1706,24 +1617,12 @@ static void thunar_list_model_set_date_custom_style(
     }
 }
 
-/**
- * thunar_list_model_get_folder:
- * @store : a valid #ThunarListModel object.
- *
- * Return value: the #ThunarFolder @store is associated with
- *               or %NULL if @store has no folder.
- **/
 ThunarFolder* thunar_list_model_get_folder(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), NULL);
     return store->folder;
 }
 
-/**
- * thunar_list_model_set_folder:
- * @store  : a valid #ThunarListModel.
- * @folder : a #ThunarFolder or %NULL.
- **/
 void thunar_list_model_set_folder(ThunarListModel *store,
                                   ThunarFolder    *folder)
 {
@@ -1810,31 +1709,18 @@ void thunar_list_model_set_folder(ThunarListModel *store,
     }
 
     /* notify listeners that we have a new folder */
-    g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_FOLDER]);
-    g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_NUM_FILES]);
+    g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_FOLDER]);
+    g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_NUM_FILES]);
 
     g_object_thaw_notify(G_OBJECT(store));
 }
 
-/**
- * thunar_list_model_get_folders_first:
- * @store : a #ThunarListModel.
- *
- * Determines whether @store lists folders first.
- *
- * Return value: %TRUE if @store lists folders first.
- **/
 static gboolean thunar_list_model_get_folders_first(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), FALSE);
     return store->sort_folders_first;
 }
 
-/**
- * thunar_list_model_set_folders_first:
- * @store         : a #ThunarListModel.
- * @folders_first : %TRUE to let @store list folders first.
- **/
 void thunar_list_model_set_folders_first(ThunarListModel *store,
                                          gboolean         folders_first)
 {
@@ -1847,7 +1733,7 @@ void thunar_list_model_set_folders_first(ThunarListModel *store,
 
     /* apply the new setting(re-sorting the store) */
     store->sort_folders_first = folders_first;
-    g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_FOLDERS_FIRST]);
+    g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_FOLDERS_FIRST]);
     thunar_list_model_sort(store);
 
     /* emit a "changed" signal for each row, so the display is
@@ -1857,23 +1743,12 @@ void thunar_list_model_set_folders_first(ThunarListModel *store,
                             NULL);
 }
 
-/**
- * thunar_list_model_get_show_hidden:
- * @store : a #ThunarListModel.
- *
- * Return value: %TRUE if hidden files will be shown, else %FALSE.
- **/
 gboolean thunar_list_model_get_show_hidden(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), FALSE);
     return store->show_hidden;
 }
 
-/**
- * thunar_list_model_set_show_hidden:
- * @store       : a #ThunarListModel.
- * @show_hidden : %TRUE if hidden files should be shown, else %FALSE.
- **/
 void thunar_list_model_set_show_hidden(ThunarListModel *store,
                                        gboolean         show_hidden)
 {
@@ -1949,34 +1824,17 @@ void thunar_list_model_set_show_hidden(ThunarListModel *store,
 
     /* notify listeners about the new setting */
     g_object_freeze_notify(G_OBJECT(store));
-    g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_NUM_FILES]);
-    g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_SHOW_HIDDEN]);
+    g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_NUM_FILES]);
+    g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_SHOW_HIDDEN]);
     g_object_thaw_notify(G_OBJECT(store));
 }
 
-/**
- * thunar_list_model_get_file_size_binary:
- * @store : a valid #ThunarListModel object.
- *
- * Returns %TRUE if the file size should be formatted
- * as binary.
- *
- * Return value: %TRUE if file size format is binary.
- **/
 gboolean thunar_list_model_get_file_size_binary(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), FALSE);
     return store->file_size_binary;
 }
 
-/**
- * thunar_list_model_set_file_size_binary:
- * @store            : a valid #ThunarListModel object.
- * @file_size_binary : %TRUE to format file size as binary.
- *
- * If @file_size_binary is %TRUE the file size should be
- * formatted as binary.
- **/
 void thunar_list_model_set_file_size_binary(ThunarListModel *store,
                                             gboolean        file_size_binary)
 {
@@ -1995,7 +1853,7 @@ void thunar_list_model_set_file_size_binary(ThunarListModel *store,
         thunar_list_model_sort(store);
 
         /* notify listeners */
-        g_object_notify_by_pspec(G_OBJECT(store), list_model_props[PROP_FILE_SIZE_BINARY]);
+        g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_FILE_SIZE_BINARY]);
 
         /* emit a "changed" signal for each row, so the display is
            reloaded with the new binary file size setting */
@@ -2005,38 +1863,22 @@ void thunar_list_model_set_file_size_binary(ThunarListModel *store,
     }
 }
 
-/**
- * thunar_list_model_get_file:
- * @store : a #ThunarListModel.
- * @iter  : a valid #GtkTreeIter for @store.
- *
- * Returns the #ThunarFile referred to by @iter. Free
- * the returned object using #g_object_unref() when
- * you are done with it.
- *
- * Return value: the #ThunarFile.
- **/
 ThunarFile* thunar_list_model_get_file(ThunarListModel *store,
                                        GtkTreeIter     *iter)
 {
+    // g_object_unref
+
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), NULL);
     thunar_return_val_if_fail(iter->stamp == store->stamp, NULL);
 
     return g_object_ref(g_sequence_get(iter->user_data));
 }
 
-/**
- * thunar_list_model_get_num_files:
- * @store : a #ThunarListModel.
- *
- * Counts the number of visible files for @store, taking into account the
- * current setting of "show-hidden".
- *
- * Return value: ahe number of visible files in @store.
- **/
+// Counts the number of visible files into the store
 static gint thunar_list_model_get_num_files(ThunarListModel *store)
 {
     thunar_return_val_if_fail(THUNAR_IS_LIST_MODEL(store), 0);
+
     return g_sequence_get_length(store->rows);
 }
 
@@ -2141,22 +1983,12 @@ GList* thunar_list_model_get_paths_for_pattern(ThunarListModel *store,
     return paths;
 }
 
-/**
- * thunar_list_model_get_statusbar_text_for_files:
- * @files                        : list of files for which a text is requested
- * @show_file_size_binary_format : weather the file size should be displayed in binary format
- *
- * Generates the statusbar text for the given @files.
- *
- * The caller is reponsible to free the returned text using
- * g_free() when it's no longer needed.
- *
- * Return value: the statusbar text for @store with the given @files.
- **/
 static gchar* thunar_list_model_get_statusbar_text_for_files(
                                         GList    *files,
                                         gboolean  show_file_size_binary_format)
 {
+    // g_free
+
     guint64  size_summary = 0;
     gint     folder_count = 0;
     gint     non_folder_count = 0;
@@ -2217,28 +2049,11 @@ static gchar* thunar_list_model_get_statusbar_text_for_files(
     return text;
 }
 
-/**
- * thunar_list_model_get_statusbar_text:
- * @store          : a #ThunarListModel instance.
- * @selected_items : the list of selected items(as GtkTreePath's).
- *
- * Generates the statusbar text for @store with the given
- * @selected_items.
- *
- * This function is used by the #ThunarStandardView(and thereby
- * implicitly by #ThunarIconView and #ThunarDetailsView) to
- * calculate the text to display in the statusbar for a given
- * file selection.
- *
- * The caller is reponsible to free the returned text using
- * g_free() when it's no longer needed.
- *
- * Return value: the statusbar text for @store with the given
- *               @selected_items.
- **/
 gchar* thunar_list_model_get_statusbar_text(ThunarListModel *store,
                                             GList           *selected_items)
 {
+    // g_free
+
     const gchar       *content_type;
     const gchar       *original_path;
     GtkTreeIter        iter;

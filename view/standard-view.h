@@ -153,7 +153,7 @@ GType standard_view_get_type() G_GNUC_CONST;
 
 void standard_view_context_menu(ThunarStandardView *standard_view);
 void standard_view_queue_popup(ThunarStandardView *standard_view,
-                                      GdkEventButton *event);
+                               GdkEventButton *event);
 
 void standard_view_selection_changed(ThunarStandardView *standard_view);
 

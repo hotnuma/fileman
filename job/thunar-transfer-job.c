@@ -25,7 +25,7 @@
 
 #include <thunar-application.h>
 #include <thunar-gio-extensions.h>
-#include <thunar-io-scan-directory.h>
+#include <io-scan-directory.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
 #include <thunar-transfer-job.h>
@@ -313,7 +313,7 @@ static gboolean thunar_transfer_job_collect_node(ThunarTransferJob  *job,
     if (g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
     {
         /* scan the directory for immediate children */
-        file_list = thunar_io_scan_directory(THUNAR_JOB(job), node->source_file,
+        file_list = io_scan_directory(THUNAR_JOB(job), node->source_file,
                                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                               FALSE, FALSE, FALSE, &err);
 

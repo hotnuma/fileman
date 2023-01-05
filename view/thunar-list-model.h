@@ -26,14 +26,14 @@ G_BEGIN_DECLS;
 typedef struct _ThunarListModelClass ThunarListModelClass;
 typedef struct _ThunarListModel      ThunarListModel;
 
-#define THUNAR_TYPE_LIST_MODEL            (thunar_list_model_get_type ())
+#define THUNAR_TYPE_LIST_MODEL            (list_model_get_type())
 #define THUNAR_LIST_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_LIST_MODEL, ThunarListModel))
 #define THUNAR_LIST_MODEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_LIST_MODEL, ThunarListModelClass))
 #define THUNAR_IS_LIST_MODEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_LIST_MODEL))
 #define THUNAR_IS_LIST_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_LIST_MODEL))
 #define THUNAR_LIST_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_LIST_MODEL, ThunarListModelClass))
 
-GType thunar_list_model_get_type() G_GNUC_CONST;
+GType list_model_get_type() G_GNUC_CONST;
 
 ThunarListModel* thunar_list_model_new();
 

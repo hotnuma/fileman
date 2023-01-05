@@ -33,7 +33,7 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-io-scan-directory.h>
+#include <io-scan-directory.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
 #include <thunar-device-monitor.h>
@@ -2521,7 +2521,7 @@ static GtkWidget* thunar_launcher_create_document_submenu_new(
     if (G_LIKELY(templates_dir != NULL))
     {
         /* load the ThunarFiles */
-        files = thunar_io_scan_directory(NULL, templates_dir, G_FILE_QUERY_INFO_NONE, TRUE, FALSE, TRUE, NULL);
+        files = io_scan_directory(NULL, templates_dir, G_FILE_QUERY_INFO_NONE, TRUE, FALSE, TRUE, NULL);
     }
 
     submenu = gtk_menu_new();

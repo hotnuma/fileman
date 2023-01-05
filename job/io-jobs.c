@@ -23,7 +23,7 @@
 #include <thunar-application.h>
 #include <enum-types.h>
 #include <thunar-gio-extensions.h>
-#include <thunar-io-scan-directory.h>
+#include <io-scan-directory.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
 #include <thunar-simple-job.h>
@@ -89,7 +89,7 @@ static gboolean _io_ls(ThunarJob  *job,
     thunar_assert(G_IS_FILE(directory));
 
     /* collect directory contents(non-recursively) */
-    file_list = thunar_io_scan_directory(job, directory,
+    file_list = io_scan_directory(job, directory,
                                           G_FILE_QUERY_INFO_NONE,
                                           FALSE, FALSE, TRUE, &err);
 
@@ -602,7 +602,7 @@ static GList* _io_collect_nofollow(ThunarJob *job,
             lp = lp->next)
     {
         /* try to scan the directory */
-        child_file_list = thunar_io_scan_directory(job, lp->data,
+        child_file_list = io_scan_directory(job, lp->data,
                           G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                           TRUE, unlinking, FALSE, &err);
 

@@ -17,26 +17,24 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#include <gio/gio.h>
+#include <io-scan-directory.h>
 
 #include <libext.h>
 #include <thx-file-info.h>
-
 #include <thunar-gio-extensions.h>
 #include <thunar-job.h>
-#include <thunar-io-scan-directory.h>
 
-GList* thunar_io_scan_directory(ThunarJob          *job,
-                                GFile              *file,
-                                GFileQueryInfoFlags flags,
-                                gboolean            recursively,
-                                gboolean            unlinking,
-                                gboolean            return_thunar_files,
-                                GError            **error)
+#include <gio/gio.h>
+
+
+GList* io_scan_directory(ThunarJob           *job,
+                         GFile               *file,
+                         GFileQueryInfoFlags flags,
+                         gboolean            recursively,
+                         gboolean            unlinking,
+                         gboolean            return_thunar_files,
+                         GError              **error)
 {
     GFileEnumerator *enumerator;
     GFileInfo       *info;
@@ -62,9 +60,8 @@ GList* thunar_io_scan_directory(ThunarJob          *job,
      * the trash can be modified and deleted directly. See
      * https://bugzilla.xfce.org/show_bug.cgi?id=7147
      * for more information */
-    if (unlinking
-            && thunar_g_file_is_trashed(file)
-            && !thunar_g_file_is_root(file))
+
+    if (unlinking && thunar_g_file_is_trashed(file) && !thunar_g_file_is_root(file))
     {
         return NULL;
     }
@@ -102,7 +99,7 @@ GList* thunar_io_scan_directory(ThunarJob          *job,
     }
 
     /* iterate over children one by one */
-    while(job == NULL || !exo_job_is_cancelled(EXO_JOB(job)))
+    while (job == NULL || !exo_job_is_cancelled(EXO_JOB(job)))
     {
         /* query info of the child */
         info = g_file_enumerator_next_file(enumerator, cancellable, &err);
@@ -146,7 +143,7 @@ GList* thunar_io_scan_directory(ThunarJob          *job,
                 && is_mounted
                 && g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
         {
-            child_files = thunar_io_scan_directory(job, child_file, flags, recursively,
+            child_files = io_scan_directory(job, child_file, flags, recursively,
                                                     unlinking, return_thunar_files, &err);
 
             /* prepend children to the file list to make sure they're
