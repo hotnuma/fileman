@@ -22,7 +22,7 @@
 #include <thunar-clipboard-manager.h>
 #include <thunar-history.h>
 #include <thunar-icon-factory.h>
-#include <thunar-list-model.h>
+#include <list-model.h>
 #include <thunar-view.h>
 
 G_BEGIN_DECLS

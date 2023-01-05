@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <thunar-list-model.h>
+#include <list-model.h>
 
 #include <thunar-application.h>
 #include <thunar-file-monitor.h>
