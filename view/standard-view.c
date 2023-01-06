@@ -40,7 +40,7 @@
 #include <thunar-gtk-extensions.h>
 #include <thunar-history.h>
 #include <thunar-icon-renderer.h>
-#include <thunar-launcher.h>
+#include <launcher.h>
 #include <thunar-marshal.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-properties-dialog.h>

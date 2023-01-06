@@ -24,7 +24,7 @@
 #include <exo-tree-view.h>
 #include <thunar-column-model.h>
 #include <thunar-details-view.h>
-#include <thunar-launcher.h>
+#include <launcher.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-window.h>
 

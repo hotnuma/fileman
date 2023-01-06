@@ -19,7 +19,7 @@
 #include <thunar-menu.h>
 
 #include <thunar-gtk-extensions.h>
-#include <thunar-launcher.h>
+#include <launcher.h>
 #include <thunar-window.h>
 
 /**

@@ -21,7 +21,7 @@
 
 #include <enum-types.h>
 #include <thunar-folder.h>
-#include <thunar-launcher.h>
+#include <launcher.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 

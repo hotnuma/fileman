@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <thunar-launcher.h>
+#include <launcher.h>
 
 #include <preferences.h>
 #include <fnmatch.h>

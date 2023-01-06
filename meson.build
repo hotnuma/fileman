@@ -73,7 +73,7 @@ app_sources = [
     'libext/exo-job.c',
     'libext/exo-tree-view.c',
     'libext/libext.c',
-    'menu/thunar-launcher.c',
+    'menu/launcher.c',
     'menu/thunar-menu.c',
     'misc/enum-types.c',
     'misc/thunar-browser.c',

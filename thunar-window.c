@@ -35,7 +35,7 @@
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-history.h>
-#include <thunar-launcher.h>
+#include <launcher.h>
 #include <thunar-location-entry.h>
 #include <thunar-marshal.h>
 #include <thunar-menu.h>

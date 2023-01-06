@@ -44,7 +44,7 @@ HEADERS = \
     libext/exo-job.h \
     libext/exo-tree-view.h \
     libext/libext.h \
-    menu/thunar-launcher.h \
+    menu/launcher.h \
     menu/thunar-menu.h \
     misc/enum-types.h \
     misc/thunar-browser.h \
@@ -109,6 +109,7 @@ SOURCES = \
     libext/exo-job.c \
     libext/exo-tree-view.c \
     libext/libext.c \
+    menu/launcher.c \
     misc/enum-types.c \
     misc/thunar-browser.c \
     misc/thunar-component.c \
@@ -125,7 +126,6 @@ SOURCES = \
     job/thunar-job.c \
     job/thunar-simple-job.c \
     job/thunar-transfer-job.c \
-    menu/thunar-launcher.c \
     menu/thunar-menu.c \
     side/thunar-side-pane.c \
     side/thunar-tree-model.c \
