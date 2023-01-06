@@ -22,11 +22,11 @@
 #include <gio/gio.h>
 
 #include <libext.h>
-#include <egdk-pixbuf.h>
+#include <gdkpixbuf-ext.h>
 
-#include <gio-extensions.h>
-#include <gobject-extensions.h>
-#include <gdk-extensions.h>
+#include <gio-ext.h>
+#include <gobject-ext.h>
+#include <gdk-ext.h>
 #include <thunar-icon-factory.h>
 #include <thunar-shortcuts-icon-renderer.h>
 #include <device.h>
@@ -264,7 +264,7 @@ static void thunar_shortcuts_icon_renderer_render(GtkCellRenderer     *renderer,
             if (gdk_rectangle_intersect(&clip_area, &icon_area, NULL))
             {
                 /* render the invalid parts of the icon */
-                thunar_gdk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
+                egdk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
                 cairo_paint_with_alpha(cr, alpha);
             }
 

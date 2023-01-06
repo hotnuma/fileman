@@ -32,7 +32,7 @@
 
 #include <libext.h>
 
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 #include <thunar-icon-factory.h>
 #include <thunar-icon-renderer.h>
 #include <list-model.h>

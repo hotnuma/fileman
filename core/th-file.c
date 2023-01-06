@@ -26,8 +26,8 @@
 #include <application.h>
 #include <thunar-chooser-dialog.h>
 #include <filemon.h>
-#include <gio-extensions.h>
-#include <gobject-extensions.h>
+#include <gio-ext.h>
+#include <gobject-ext.h>
 #include <user.h>
 #include <utils.h>
 #include <dialogs.h>

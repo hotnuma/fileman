@@ -26,8 +26,8 @@
 
 #include <thunar-browser.h>
 #include <dialogs.h>
-#include <gobject-extensions.h>
-#include <gtk-extensions.h>
+#include <gobject-ext.h>
+#include <gtk-ext.h>
 #include <thunar-icon-factory.h>
 #include <thunar-location-entry.h>
 #include <marshal.h>

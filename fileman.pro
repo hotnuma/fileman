@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = fileman
 CONFIG = c11 link_pkgconfig
-DEFINES = GTK HAVE_CONFIG_H
+DEFINES = HAVE_CONFIG_H
 
 PKGCONFIG = \
     gtk+-3.0 \
@@ -14,7 +14,6 @@ PKGCONFIG = \
 INCLUDEPATH = core dialog job libext menu misc side view widget
 
 HEADERS = \
-    application.h \
     core/clipman.h \
     core/device.h \
     core/devmon.h \
@@ -24,7 +23,6 @@ HEADERS = \
     core/th-folder.h \
     core/thx-file-info.h \
     core/user.h \
-    debug.h \
     dialog/dialogs.h \
     dialog/thunar-chooser-button.h \
     dialog/thunar-chooser-dialog.h \
@@ -40,18 +38,17 @@ HEADERS = \
     job/thunar-job.h \
     job/thunar-simple-job.h \
     job/thunar-transfer-job.h \
-    libext/egdk-pixbuf.h \
     libext/exo-icon.h \
     libext/exo-job.h \
     libext/exo-tree-view.h \
-    libext/gdk-extensions.h \
-    libext/gio-extensions.h \
-    libext/gobject-extensions.h \
-    libext/gtk-extensions.h \
+    libext/gdk-ext.h \
+    libext/gdkpixbuf-ext.h \
+    libext/gio-ext.h \
+    libext/gobject-ext.h \
+    libext/gtk-ext.h \
     libext/libext.h \
-    libext/pango-extensions.h \
+    libext/pango-ext.h \
     libext/utils.h \
-    marshal.h \
     menu/launcher.h \
     menu/menu.h \
     misc/enum-types.h \
@@ -78,13 +75,15 @@ HEADERS = \
     widget/thunar-shortcuts-icon-renderer.h \
     widget/thunar-size-label.h \
     widget/thunar-statusbar.h \
+    application.h \
     config.h \
+    debug.h \
+    marshal.h \
     preferences.h \
     window.h
 
 SOURCES = \
     0Temp.c \
-    application.c \
     core/clipman.c \
     core/device.c \
     core/devmon.c \
@@ -94,7 +93,6 @@ SOURCES = \
     core/th-folder.c \
     core/thx-file-info.c \
     core/user.c \
-    core/utils.c \
     dialog/dialogs.c \
     dialog/thunar-chooser-button.c \
     dialog/thunar-chooser-dialog.c \
@@ -105,17 +103,17 @@ SOURCES = \
     dialog/thunar-properties-dialog.c \
     job/io-jobs.c \
     job/io-scan-directory.c \
-    libext/egdk-pixbuf.c \
     libext/exo-icon.c \
     libext/exo-job.c \
     libext/exo-tree-view.c \
-    libext/gdk-extensions.c \
-    libext/gio-extensions.c \
-    libext/gobject-extensions.c \
-    libext/gtk-extensions.c \
+    libext/gdk-ext.c \
+    libext/gdkpixbuf-ext.c \
+    libext/gio-ext.c \
+    libext/gobject-ext.c \
+    libext/gtk-ext.c \
     libext/libext.c \
-    libext/pango-extensions.c \
-    marshal.c \
+    libext/pango-ext.c \
+    libext/utils.c \
     menu/launcher.c \
     menu/menu.c \
     misc/enum-types.c \
@@ -147,7 +145,9 @@ SOURCES = \
     widget/thunar-shortcuts-icon-renderer.c \
     widget/thunar-size-label.c \
     widget/thunar-statusbar.c \
+    application.c \
     main.c \
+    marshal.c \
     preferences.c \
     window.c
 

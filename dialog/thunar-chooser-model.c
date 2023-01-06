@@ -24,7 +24,7 @@
 #include <libext.h>
 
 #include <thunar-chooser-model.h>
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 #include <thunar-icon-factory.h>
 
 /* Property identifiers */

@@ -22,9 +22,9 @@
 #include <libext.h>
 
 #include <dialogs.h>
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 #include <thunar-job.h>
-#include <pango-extensions.h>
+#include <pango-ext.h>
 #include <utils.h>
 #include <thunar-transfer-job.h>
 #include <thunar-progress-view.h>

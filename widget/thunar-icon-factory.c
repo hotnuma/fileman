@@ -24,9 +24,9 @@
 #include <string.h>
 
 #include <libext.h>
-#include <egdk-pixbuf.h>
+#include <gdkpixbuf-ext.h>
 
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 #include <thunar-icon-factory.h>
 #include <utils.h>
 

@@ -36,8 +36,8 @@
 #include <application.h>
 #include <thunar-browser.h>
 #include <dialogs.h>
-#include <gdk-extensions.h>
-#include <gobject-extensions.h>
+#include <gdk-ext.h>
+#include <gobject-ext.h>
 #include <io-jobs.h>
 #include <preferences.h>
 #include <thunar-progress-dialog.h>

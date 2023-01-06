@@ -18,7 +18,7 @@
 #include <config.h>
 #include <menu.h>
 
-#include <gtk-extensions.h>
+#include <gtk-ext.h>
 #include <launcher.h>
 #include <window.h>
 

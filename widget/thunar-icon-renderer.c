@@ -19,11 +19,11 @@
 #include <config.h>
 
 #include <libext.h>
-#include <egdk-pixbuf.h>
+#include <gdkpixbuf-ext.h>
 
 #include <clipman.h>
-#include <gobject-extensions.h>
-#include <gdk-extensions.h>
+#include <gobject-ext.h>
+#include <gdk-ext.h>
 #include <thunar-icon-factory.h>
 #include <thunar-icon-renderer.h>
 
@@ -447,7 +447,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
         g_object_unref(G_OBJECT(clipboard));
 
         /* render the invalid parts of the icon */
-        thunar_gdk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
+        egdk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
         cairo_paint_with_alpha(cr, alpha);
 
         /* check if we should render an insensitive icon */

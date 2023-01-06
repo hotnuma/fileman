@@ -22,7 +22,7 @@
 
 #include <libext.h>
 #include <thx-file-info.h>
-#include <gio-extensions.h>
+#include <gio-ext.h>
 #include <thunar-job.h>
 
 #include <gio/gio.h>

@@ -23,7 +23,7 @@
 
 #include <gio/gio.h>
 
-#include <gio-extensions.h>
+#include <gio-ext.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
 #include <utils.h>

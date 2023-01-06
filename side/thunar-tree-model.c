@@ -25,8 +25,8 @@
 
 #include <filemon.h>
 #include <th-folder.h>
-#include <gio-extensions.h>
-#include <pango-extensions.h>
+#include <gio-ext.h>
+#include <pango-ext.h>
 #include <thunar-tree-model.h>
 #include <devmon.h>
 #include <utils.h>

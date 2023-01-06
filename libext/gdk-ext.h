@@ -16,26 +16,19 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_GDK_EXTENSIONS_H__
-#define __THUNAR_GDK_EXTENSIONS_H__
+#ifndef __GDK_EXTENSIONS_H__
+#define __GDK_EXTENSIONS_H__
 
 #include <gdk/gdk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-#if 0
-GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
-                                  GError **error);
-#endif
+void egdk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
+                                  gdouble pixbuf_x, gdouble pixbuf_y);
 
-void thunar_gdk_cairo_set_source_pixbuf(cairo_t *cr,
-                                        GdkPixbuf *pixbuf,
-                                        gdouble pixbuf_x,
-                                        gdouble pixbuf_y);
+G_END_DECLS
 
-G_END_DECLS;
-
-#endif /* !__THUNAR_GDK_EXTENSIONS_H__ */
+#endif // __GDK_EXTENSIONS_H__
 
 

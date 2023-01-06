@@ -37,9 +37,9 @@
 #include <window.h>
 
 #include <libext.h>
-#include <gio-extensions.h>
-#include <gobject-extensions.h>
-#include <gtk-extensions.h>
+#include <gio-ext.h>
+#include <gobject-ext.h>
+#include <gtk-ext.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <cstring.h>

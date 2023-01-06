@@ -25,8 +25,8 @@
 #include <thunar-chooser-model.h>
 #include <exo-icon.h>
 #include <thunar-icon-factory.h>
-#include <gobject-extensions.h>
-#include <gtk-extensions.h>
+#include <gobject-ext.h>
+#include <gtk-ext.h>
 
 #include <memory.h>
 #include <string.h>

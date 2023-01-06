@@ -29,8 +29,8 @@
 #include <device.h>
 #include <dialogs.h>
 #include <dnd.h>
-#include <gio-extensions.h>
-#include <gtk-extensions.h>
+#include <gio-ext.h>
+#include <gtk-ext.h>
 #include <thunar-job.h>
 #include <marshal.h>
 #include <menu.h>

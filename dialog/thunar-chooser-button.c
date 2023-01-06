@@ -26,10 +26,10 @@
 #include <thunar-chooser-button.h>
 #include <thunar-chooser-dialog.h>
 #include <dialogs.h>
-#include <gobject-extensions.h>
-#include <gtk-extensions.h>
+#include <gobject-ext.h>
+#include <gtk-ext.h>
 #include <thunar-icon-factory.h>
-#include <pango-extensions.h>
+#include <pango-ext.h>
 
 /* Property identifiers */
 enum

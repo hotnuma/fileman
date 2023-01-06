@@ -34,7 +34,7 @@
 
 #include <libext.h>
 
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 
 static void transform_string_to_boolean(const GValue *src, GValue *dst);
 static void transform_string_to_enum(const GValue *src, GValue *dst);

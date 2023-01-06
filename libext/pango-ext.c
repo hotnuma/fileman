@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #endif
 
-#include <pango-extensions.h>
+#include <pango-ext.h>
 
 static PangoAttrList* _thunar_pango_attr_list_wrap(PangoAttribute *attribute, ...)
                                                    G_GNUC_MALLOC;

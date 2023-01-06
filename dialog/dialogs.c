@@ -26,11 +26,11 @@
 #include <libext.h>
 
 #include <dialogs.h>
-#include <gtk-extensions.h>
+#include <gtk-ext.h>
 #include <thunar-icon-factory.h>
 #include <io-jobs.h>
 #include <thunar-job.h>
-#include <pango-extensions.h>
+#include <pango-ext.h>
 #include <utils.h>
 
 static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);

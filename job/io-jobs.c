@@ -22,7 +22,7 @@
 
 #include <application.h>
 #include <enum-types.h>
-#include <gio-extensions.h>
+#include <gio-ext.h>
 #include <io-scan-directory.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>

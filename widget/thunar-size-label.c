@@ -25,7 +25,7 @@
 #include <libext.h>
 
 #include <thunar-deep-count-job.h>
-#include <gtk-extensions.h>
+#include <gtk-ext.h>
 #include <thunar-size-label.h>
 
 /* Property identifiers */

@@ -27,10 +27,10 @@
 
 #include <dialogs.h>
 #include <enum-types.h>
-#include <gobject-extensions.h>
-#include <gtk-extensions.h>
+#include <gobject-ext.h>
+#include <gtk-ext.h>
 #include <io-jobs.h>
-#include <pango-extensions.h>
+#include <pango-ext.h>
 #include <thunar-permissions-chooser.h>
 #include <user.h>
 

@@ -37,7 +37,7 @@
 #endif
 
 #include <application.h>
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 #include <thunar-notify.h>
 
 int

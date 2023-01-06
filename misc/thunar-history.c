@@ -20,8 +20,8 @@
 #include <config.h>
 #endif
 
-#include <gobject-extensions.h>
-#include <gtk-extensions.h>
+#include <gobject-ext.h>
+#include <gtk-ext.h>
 #include <thunar-history.h>
 #include <thunar-icon-factory.h>
 #include <thunar-navigator.h>

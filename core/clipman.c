@@ -23,7 +23,7 @@
 
 #include <application.h>
 #include <dialogs.h>
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 #include <libext.h>
 
 #include <string.h>

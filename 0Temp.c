@@ -1,6 +1,81 @@
 
 #if 0
 
+GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
+                                  GError **error);
+/*
+ * thunar_gdk_screen_open:
+ * @display_name : a fully qualified display name.
+ * @error        : return location for errors or %NULL.
+ *
+ * Opens the screen referenced by the @display_name. Returns a
+ * reference on the #GdkScreen for @display_name or %NULL if
+ * @display_name couldn't be opened.
+ *
+ * If @display_name is the empty string "", a reference on the
+ * default screen will be returned.
+ *
+ * The caller is responsible to free the returned object
+ * using g_object_unref() when no longer needed.
+ *
+ * Return value: the #GdkScreen for @display_name or %NULL if
+ *               @display_name could not be opened.
+ */
+GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
+                                  GError     **error)
+{
+    const gchar *other_name;
+    GdkDisplay  *display = NULL;
+    GdkScreen   *screen = NULL;
+    GSList      *displays;
+    GSList      *dp;
+
+    thunar_return_val_if_fail(display_name != NULL, NULL);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
+
+    /* check if the default screen should be opened */
+    if (G_UNLIKELY(*display_name == '\0'))
+        return g_object_ref(gdk_screen_get_default());
+
+    /* check if we already have that display */
+    displays = gdk_display_manager_list_displays(gdk_display_manager_get());
+    for(dp = displays; dp != NULL; dp = dp->next)
+    {
+        other_name = gdk_display_get_name(dp->data);
+        if (strncmp(other_name, display_name, strlen(display_name)) == 0)
+        {
+            display = dp->data;
+            break;
+        }
+        /* This second comparison will as well match the short notation, ":0" with the long notation ":0.0" */
+        if (strncmp(other_name, display_name, strlen(other_name)) == 0)
+        {
+            display = dp->data;
+            break;
+        }
+    }
+    g_slist_free(displays);
+
+    /* try to open the display if not already done */
+    if (display == NULL)
+        display = gdk_display_open(display_name);
+
+    /* try to locate the screen on the display */
+    if (display != NULL)
+    {
+        screen = gdk_display_get_default_screen(display);
+
+        if (screen != NULL)
+            g_object_ref(G_OBJECT(screen));
+    }
+
+    /* check if we were successfull here */
+    if (G_UNLIKELY(screen == NULL))
+        g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_FAILED, "Failed to open display \"%s\"", display_name);
+
+    return screen;
+}
+
 // ----------------------------------------------------------------------------
 
 GdkPixbuf *egdk_pixbuf_lucent(const GdkPixbuf *source, guint percent)

@@ -23,7 +23,7 @@
 
 #include <application.h>
 #include <filemon.h>
-#include <gobject-extensions.h>
+#include <gobject-ext.h>
 #include <user.h>
 #include <libext.h>
 
