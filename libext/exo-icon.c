@@ -19,11 +19,11 @@
  */
 
 #include <config.h>
-#include <cell-renderer-icon.h>
+#include <exo-icon.h>
 
 #include <gio/gio.h>
 
-#include <gdk-pixbuf-extensions.h>
+#include <egdk-pixbuf.h>
 
 /**
  * SECTION: exo-cell-renderer-icon

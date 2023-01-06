@@ -19,7 +19,7 @@
 #include <config.h>
 
 #include <libext.h>
-#include <gdk-pixbuf-extensions.h>
+#include <egdk-pixbuf.h>
 
 #include <clipman.h>
 #include <gobject-extensions.h>

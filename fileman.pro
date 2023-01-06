@@ -40,11 +40,11 @@ HEADERS = \
     job/thunar-job.h \
     job/thunar-simple-job.h \
     job/thunar-transfer-job.h \
-    libext/cell-renderer-icon.h \
+    libext/egdk-pixbuf.h \
+    libext/exo-icon.h \
     libext/exo-job.h \
     libext/exo-tree-view.h \
     libext/gdk-extensions.h \
-    libext/gdk-pixbuf-extensions.h \
     libext/gio-extensions.h \
     libext/gobject-extensions.h \
     libext/gtk-extensions.h \
@@ -105,11 +105,11 @@ SOURCES = \
     dialog/thunar-properties-dialog.c \
     job/io-jobs.c \
     job/io-scan-directory.c \
-    libext/cell-renderer-icon.c \
+    libext/egdk-pixbuf.c \
+    libext/exo-icon.c \
     libext/exo-job.c \
     libext/exo-tree-view.c \
     libext/gdk-extensions.c \
-    libext/gdk-pixbuf-extensions.c \
     libext/gio-extensions.c \
     libext/gobject-extensions.c \
     libext/gtk-extensions.c \

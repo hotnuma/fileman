@@ -23,7 +23,7 @@
 #include <application.h>
 #include <dialogs.h>
 #include <thunar-chooser-model.h>
-#include <cell-renderer-icon.h>
+#include <exo-icon.h>
 #include <thunar-icon-factory.h>
 #include <gobject-extensions.h>
 #include <gtk-extensions.h>

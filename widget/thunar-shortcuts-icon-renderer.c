@@ -22,7 +22,7 @@
 #include <gio/gio.h>
 
 #include <libext.h>
-#include <gdk-pixbuf-extensions.h>
+#include <egdk-pixbuf.h>
 
 #include <gio-extensions.h>
 #include <gobject-extensions.h>

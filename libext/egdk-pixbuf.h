@@ -26,30 +26,24 @@
 
 G_BEGIN_DECLS
 
-GdkPixbuf *egdk_pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
+GdkPixbuf* egdk_pixbuf_colorize(const GdkPixbuf *source, const GdkColor *color)
                                 G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-GdkPixbuf *egdk_pixbuf_frame(const GdkPixbuf *source, const GdkPixbuf *frame,
+GdkPixbuf* egdk_pixbuf_frame(const GdkPixbuf *source, const GdkPixbuf *frame,
                              gint left_offset, gint top_offset,
                              gint right_offset, gint bottom_offset)
                              G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-GdkPixbuf *egdk_pixbuf_lucent(const GdkPixbuf *source, guint percent)
-                              G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-
-GdkPixbuf *egdk_pixbuf_spotlight(const GdkPixbuf *source)
+GdkPixbuf* egdk_pixbuf_spotlight(const GdkPixbuf *source)
                                  G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-GdkPixbuf *egdk_pixbuf_scale_down(GdkPixbuf *source,
+GdkPixbuf* egdk_pixbuf_scale_down(GdkPixbuf *source,
                                   gboolean  preserve_aspect_ratio,
                                   gint      dest_width,
                                   gint      dest_height)
                                   G_GNUC_WARN_UNUSED_RESULT;
 
-GdkPixbuf *egdk_pixbuf_scale_ratio(GdkPixbuf *source, gint dest_size)
-                                   G_GNUC_WARN_UNUSED_RESULT;
-
-GdkPixbuf *egdk_pixbuf_new_from_file_at_max_size(
+GdkPixbuf* egdk_pixbuf_new_from_file_at_max_size(
                                         const gchar *filename,
                                         gint        max_width,
                                         gint        max_height,
