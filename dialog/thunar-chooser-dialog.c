@@ -18,20 +18,18 @@
  */
 
 #include <config.h>
+#include <thunar-chooser-dialog.h>
+
+#include <application.h>
+#include <dialogs.h>
+#include <thunar-chooser-model.h>
+#include <cell-renderer-icon.h>
+#include <thunar-icon-factory.h>
+#include <gobject-extensions.h>
+#include <gtk-extensions.h>
 
 #include <memory.h>
 #include <string.h>
-
-//#include <libext.h>
-#include <exo-cell-renderer-icon.h>
-
-#include <application.h>
-#include <thunar-chooser-dialog.h>
-#include <thunar-chooser-model.h>
-#include <dialogs.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gtk-extensions.h>
-#include <thunar-icon-factory.h>
 
 /* Property identifiers */
 enum
@@ -212,7 +210,12 @@ static void thunar_chooser_dialog_init(ThunarChooserDialog *dialog)
 
     /* append the tree view column */
     column = g_object_new(GTK_TYPE_TREE_VIEW_COLUMN, "expand", TRUE, NULL);
-    renderer = g_object_new(EXO_TYPE_CELL_RENDERER_ICON, "follow-state", FALSE, "size", 24, NULL);
+    renderer = g_object_new(EXO_TYPE_CELL_RENDERER_ICON,
+                            "follow-state",
+                            FALSE,
+                            "size",
+                            24,
+                            NULL);
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_attributes(column, renderer,
                                          "gicon", THUNAR_CHOOSER_MODEL_COLUMN_ICON,

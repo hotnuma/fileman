@@ -26,7 +26,7 @@
 #include <thunar-browser.h>
 #include <th-file.h>
 #include <utils.h>
-#include <thunar-gtk-extensions.h>
+#include <gtk-extensions.h>
 
 typedef struct _PokeFileData   PokeFileData;
 typedef struct _PokeDeviceData PokeDeviceData;

@@ -3,6 +3,93 @@
 
 // ----------------------------------------------------------------------------
 
+GFile*      eg_file_new_for_desktop();
+GFile*      thunar_g_file_new_for_computer();
+GFile*      thunar_g_file_new_for_bookmarks();
+gboolean    eg_file_write_key_file(GFile *file,
+                                         GKeyFile *key_file,
+                                         GCancellable *cancellable,
+                                         GError **error);
+gboolean    eg_vfs_metadata_is_supported();
+
+GFile* eg_file_new_for_desktop()
+{
+    return g_file_new_for_path(g_get_user_special_dir(G_USER_DIRECTORY_DESKTOP));
+}
+
+GFile* thunar_g_file_new_for_bookmarks()
+{
+    gchar *filename;
+    GFile *bookmarks;
+
+    filename = g_build_filename(g_get_user_config_dir(), "gtk-3.0", "bookmarks", NULL);
+    bookmarks = g_file_new_for_path(filename);
+    g_free(filename);
+
+    return bookmarks;
+}
+
+gboolean eg_file_write_key_file(GFile         *file,
+                                      GKeyFile      *key_file,
+                                      GCancellable  *cancellable,
+                                      GError        **error)
+{
+    gchar    *contents;
+    gsize     length;
+    gboolean  result = TRUE;
+
+    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(key_file != NULL, FALSE);
+    thunar_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
+    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+
+    /* write the key file into the contents buffer */
+    contents = g_key_file_to_data(key_file, &length, NULL);
+
+    /* try to replace the file contents with the key file data */
+    if (contents != NULL)
+    {
+        result = g_file_replace_contents(file, contents, length, NULL, FALSE,
+                                          G_FILE_CREATE_NONE,
+                                          NULL, cancellable, error);
+
+        /* cleanup */
+        g_free(contents);
+    }
+
+    return result;
+}
+
+gboolean eg_vfs_metadata_is_supported()
+{
+    GFile                  *root;
+    GFileAttributeInfoList *attr_info_list;
+    gint                    n;
+    gboolean                metadata_is_supported = FALSE;
+
+    /* get a GFile for the root directory, and obtain the list of writable namespaces for it */
+    root = eg_file_new_for_root();
+    attr_info_list = g_file_query_writable_namespaces(root, NULL, NULL);
+    g_object_unref(root);
+
+    /* loop through the returned namespace names and check if "metadata" is included */
+    for(n = 0; n < attr_info_list->n_infos; n++)
+    {
+        if (g_strcmp0(attr_info_list->infos[n].name, "metadata") == 0)
+        {
+            metadata_is_supported = TRUE;
+            break;
+        }
+    }
+
+    /* release the attribute info list */
+    g_file_attribute_info_list_unref(attr_info_list);
+
+    return metadata_is_supported;
+}
+
+// ----------------------------------------------------------------------------
+
 // marshal.list
 VOID:STRING,STRING
 VOID:UINT,BOXED,UINT,STRING

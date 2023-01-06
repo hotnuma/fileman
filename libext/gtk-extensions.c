@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <thunar-gtk-extensions.h>
+#include <gtk-extensions.h>
 
 #include <libext.h>
 #include <utils.h>

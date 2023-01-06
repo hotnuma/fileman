@@ -26,8 +26,8 @@
 #include <application.h>
 #include <thunar-chooser-dialog.h>
 #include <filemon.h>
-#include <thunar-gio-extensions.h>
-#include <thunar-gobject-extensions.h>
+#include <gio-extensions.h>
+#include <gobject-extensions.h>
 #include <user.h>
 #include <utils.h>
 #include <dialogs.h>
@@ -730,7 +730,8 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
         /* determine the custom icon and display name for .desktop files */
 
         /* query a key file for the .desktop file */
-        key_file = thunar_g_file_query_key_file(file->gfile, cancellable, NULL);
+        key_file = eg_file_query_key_file(file->gfile, cancellable, NULL);
+
         if (key_file != NULL)
         {
             /* read the icon name from the .desktop file */
@@ -764,7 +765,7 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     /* determine the display name */
     if (file->display_name == NULL)
     {
-        if (G_UNLIKELY(thunar_g_file_is_trash(file->gfile)))
+        if (G_UNLIKELY(eg_file_is_trash(file->gfile)))
             file->display_name = g_strdup(_("Trash"));
         else if (G_LIKELY(file->info != NULL))
         {
@@ -780,7 +781,7 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
 
         /* fall back to a name for the gfile */
         if (file->display_name == NULL)
-            file->display_name = thunar_g_file_get_display_name(file->gfile);
+            file->display_name = eg_file_get_display_name(file->gfile);
     }
 
     /* create case sensitive collation key */
@@ -1035,7 +1036,7 @@ gboolean th_file_execute(ThunarFile  *file,
     thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     gchar      *location;
-    location = thunar_g_file_get_location(file->gfile);
+    location = eg_file_get_location(file->gfile);
     GSList     *uri_list = NULL;
     GList      *li;
     for (li = file_list; li != NULL; li = li->next)
@@ -1047,7 +1048,7 @@ gboolean th_file_execute(ThunarFile  *file,
     if (th_file_is_desktop_file(file, &is_secure))
     {
         /* parse file first, even if it is insecure */
-        key_file = thunar_g_file_query_key_file(file->gfile, NULL, &err);
+        key_file = eg_file_query_key_file(file->gfile, NULL, &err);
         if (key_file == NULL)
         {
             g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
@@ -1154,14 +1155,14 @@ gboolean th_file_execute(ThunarFile  *file,
             {
                 /* use the directory of the first list item */
                 file_parent = g_file_get_parent(file_list->data);
-                directory =(file_parent != NULL) ? thunar_g_file_get_location(file_parent) : NULL;
+                directory =(file_parent != NULL) ? eg_file_get_location(file_parent) : NULL;
                 g_object_unref(file_parent);
             }
             else
             {
                 /* use the directory of the executable file */
                 parent = g_file_get_parent(file->gfile);
-                directory =(parent != NULL) ? thunar_g_file_get_location(parent) : NULL;
+                directory =(parent != NULL) ? eg_file_get_location(parent) : NULL;
                 g_object_unref(parent);
             }
         }
@@ -1396,7 +1397,7 @@ GdkDragAction th_file_accepts_drop(ThunarFile     *file,
             }
 
             /* copy/move/link within the trash not possible */
-            if (G_UNLIKELY(thunar_g_file_is_trashed(lp->data) && th_file_is_trashed(file)))
+            if (G_UNLIKELY(eg_file_is_trashed(lp->data) && th_file_is_trashed(file)))
                 return 0;
         }
 
@@ -1412,7 +1413,7 @@ GdkDragAction th_file_accepts_drop(ThunarFile     *file,
             for(lp = file_list; lp != NULL; lp = lp->next)
             {
                 /* dropping from the trash always suggests move */
-                if (G_UNLIKELY(thunar_g_file_is_trashed(lp->data)))
+                if (G_UNLIKELY(eg_file_is_trashed(lp->data)))
                     break;
 
                 /* determine the cached version of the source file */
@@ -2223,7 +2224,7 @@ gboolean th_file_is_regular(const ThunarFile *file)
 gboolean th_file_is_trashed(const ThunarFile *file)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    return thunar_g_file_is_trashed(file->gfile);
+    return eg_file_is_trashed(file->gfile);
 }
 
 /**
@@ -3177,7 +3178,7 @@ gchar* th_file_cached_display_name(const GFile *file)
     else
     {
         /* determine something a hopefully good approximation of the display name */
-        display_name = thunar_g_file_get_display_name(G_FILE(file));
+        display_name = eg_file_get_display_name(G_FILE(file));
     }
 
     return display_name;
@@ -3290,7 +3291,7 @@ GList* th_file_list_get_applications(GList *file_list)
         /* grab a pointer on the next application */
         next = ap->next;
 
-        if (!thunar_g_app_info_should_show(ap->data))
+        if (!eg_app_info_should_show(ap->data))
         {
             /* drop our reference on the application */
             g_object_unref(G_OBJECT(ap->data));

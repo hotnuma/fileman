@@ -32,7 +32,7 @@
 
 #include <libext.h>
 
-#include <thunar-gobject-extensions.h>
+#include <gobject-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-icon-renderer.h>
 #include <list-model.h>
@@ -464,7 +464,7 @@ static void thunar_path_entry_drag_data_get(GtkWidget        *widget,
         file_list.data = th_file_get_file(path_entry->current_file);
 
         /* setup the uri list for the drag selection */
-        uris = thunar_g_file_list_to_stringv(&file_list);
+        uris = eg_file_list_to_stringv(&file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
     }

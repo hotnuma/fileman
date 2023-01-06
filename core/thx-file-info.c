@@ -21,7 +21,7 @@
 #include <config.h>
 #include <thx-file-info.h>
 
-#include <thunar-gio-extensions.h>
+#include <gio-extensions.h>
 
 /* Signal identifiers */
 enum

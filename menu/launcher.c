@@ -37,9 +37,9 @@
 #include <window.h>
 
 #include <libext.h>
-#include <thunar-gio-extensions.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gtk-extensions.h>
+#include <gio-extensions.h>
+#include <gobject-extensions.h>
+#include <gtk-extensions.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <cstring.h>
@@ -972,7 +972,7 @@ static void _launcher_open_paths(GAppInfo       *app_info,
         working_directory = th_file_get_file(launcher->current_directory);
 
     /* try to execute the application with the given URIs */
-    if (!thunar_g_app_info_launch(app_info, working_directory, path_list, G_APP_LAUNCH_CONTEXT(context), &error))
+    if (!eg_app_info_launch(app_info, working_directory, path_list, G_APP_LAUNCH_CONTEXT(context), &error))
     {
         /* figure out the appropriate error message */
         n = g_list_length(path_list);
@@ -1335,7 +1335,7 @@ static gboolean thunar_launcher_show_trash(ThunarLauncher *launcher)
     return !th_file_is_writable(launcher->parent_folder)
             || (!th_file_is_trashed(launcher->parent_folder)
             && launcher->files_to_process_trashable
-            && thunar_g_vfs_is_uri_scheme_supported("trash"));
+            && eg_vfs_is_uri_scheme_supported("trash"));
 }
 
 
@@ -1930,7 +1930,7 @@ static void _launcher_action_trash_delete(ThunarLauncher *launcher)
 {
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
+    if (!eg_vfs_is_uri_scheme_supported("trash"))
         return;
 
     GdkModifierType event_state;
@@ -2495,7 +2495,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
 
     thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
 
-    home_dir = thunar_g_file_new_for_home();
+    home_dir = eg_file_new_for_home();
     path = g_get_user_special_dir(G_USER_DIRECTORY_TEMPLATES);
 
     if (G_LIKELY(path != NULL))

@@ -18,7 +18,7 @@
 #include <config.h>
 #include <menu.h>
 
-#include <thunar-gtk-extensions.h>
+#include <gtk-extensions.h>
 #include <launcher.h>
 #include <window.h>
 

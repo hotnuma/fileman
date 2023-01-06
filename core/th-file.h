@@ -21,7 +21,7 @@
 #define __THUNAR_FILE_H__
 
 #include <enum-types.h>
-#include <thunar-gio-extensions.h>
+#include <gio-extensions.h>
 #include <user.h>
 
 G_BEGIN_DECLS
@@ -195,7 +195,7 @@ gchar*          th_file_cached_display_name(const GFile *file);
 GList*          th_file_list_get_applications(GList *file_list);
 GList*          th_file_list_to_thunar_g_file_list(GList *file_list);
 
-#define th_file_is_root(file) (thunar_g_file_is_root(th_file_get_file(file)))
+#define th_file_is_root(file) (eg_file_is_root(th_file_get_file(file)))
 #define th_file_has_parent(file) (!th_file_is_root(THUNAR_FILE((file))))
 #define th_file_has_uri_scheme(file, uri_scheme) (g_file_has_uri_scheme(th_file_get_file(file),(uri_scheme)))
 #define th_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))

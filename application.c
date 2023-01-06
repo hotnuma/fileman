@@ -36,8 +36,8 @@
 #include <application.h>
 #include <thunar-browser.h>
 #include <dialogs.h>
-#include <thunar-gdk-extensions.h>
-#include <thunar-gobject-extensions.h>
+#include <gdk-extensions.h>
+#include <gobject-extensions.h>
 #include <io-jobs.h>
 #include <preferences.h>
 #include <thunar-progress-dialog.h>
@@ -637,7 +637,7 @@ static void thunar_application_collect_and_launch(
     for (lp = g_list_last(source_file_list); err == NULL && lp != NULL; lp = lp->prev)
     {
         /* verify that we're not trying to collect a root node */
-        if (G_UNLIKELY(thunar_g_file_is_root(lp->data)))
+        if (G_UNLIKELY(eg_file_is_root(lp->data)))
         {
             /* tell the user that we cannot perform the requested operation */
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s", g_strerror(EINVAL));
@@ -736,9 +736,9 @@ static void thunar_application_launch(ThunarApplication *application,
     job =(*launcher)(source_file_list, target_file_list);
 
     if (update_source_folders)
-        parent_folder_list = g_list_concat(parent_folder_list, thunar_g_file_list_get_parents(source_file_list));
+        parent_folder_list = g_list_concat(parent_folder_list, eg_file_list_get_parents(source_file_list));
     if (update_target_folders)
-        parent_folder_list = g_list_concat(parent_folder_list, thunar_g_file_list_get_parents(target_file_list));
+        parent_folder_list = g_list_concat(parent_folder_list, eg_file_list_get_parents(target_file_list));
 
     /* connect a callback to instantly refresh the parent folders after the operation finished */
     g_signal_connect(G_OBJECT(job), "finished",
@@ -1461,7 +1461,7 @@ void thunar_application_move_into(ThunarApplication *application,
     thunar_return_if_fail(target_file != NULL);
 
     /* launch the appropriate operation depending on the target file */
-    if (thunar_g_file_is_trashed(target_file))
+    if (eg_file_is_trashed(target_file))
     {
         thunar_application_trash(application, parent, source_file_list);
     }
@@ -1745,7 +1745,7 @@ void thunar_application_empty_trash(ThunarApplication *application,
         /* fake a path list with only the trash root(the root
          * folder itself will never be unlinked, so this is safe)
          */
-        file_list.data = thunar_g_file_new_for_trash();
+        file_list.data = eg_file_new_for_trash();
         file_list.next = NULL;
         file_list.prev = NULL;
 

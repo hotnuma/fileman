@@ -24,7 +24,7 @@
 #include <libext.h>
 
 #include <application.h>
-#include <thunar-gio-extensions.h>
+#include <gio-extensions.h>
 #include <io-scan-directory.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
@@ -1426,7 +1426,7 @@ static gboolean thunar_transfer_job_execute(ExoJob  *job, GError **error)
 
         /* check if we are moving a file out of the trash */
         if (transfer_job->type == THUNAR_TRANSFER_JOB_MOVE
-                && thunar_g_file_is_trashed(node->source_file))
+                && eg_file_is_trashed(node->source_file))
         {
             if (!thunar_transfer_job_prepare_untrash_file(job, info, tp->data, &err))
                 break;
@@ -1545,7 +1545,7 @@ ThunarJob* thunar_transfer_job_new(GList    *source_node_list,
             sp = sp->next, tp = tp->next)
     {
         /* make sure we don't transfer root directories. this should be prevented in the GUI */
-        if (G_UNLIKELY(thunar_g_file_is_root(sp->data) || thunar_g_file_is_root(tp->data)))
+        if (G_UNLIKELY(eg_file_is_root(sp->data) || eg_file_is_root(tp->data)))
             continue;
 
         /* only process non-equal pairs unless we're copying */

@@ -25,7 +25,7 @@
 #include <thunar-column-model.h>
 #include <thunar-details-view.h>
 #include <launcher.h>
-#include <thunar-gtk-extensions.h>
+#include <gtk-extensions.h>
 #include <window.h>
 
 /* Property identifiers */

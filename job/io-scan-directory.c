@@ -22,7 +22,7 @@
 
 #include <libext.h>
 #include <thx-file-info.h>
-#include <thunar-gio-extensions.h>
+#include <gio-extensions.h>
 #include <thunar-job.h>
 
 #include <gio/gio.h>
@@ -61,7 +61,7 @@ GList* io_scan_directory(ThunarJob           *job,
      * https://bugzilla.xfce.org/show_bug.cgi?id=7147
      * for more information */
 
-    if (unlinking && thunar_g_file_is_trashed(file) && !thunar_g_file_is_root(file))
+    if (unlinking && eg_file_is_trashed(file) && !eg_file_is_root(file))
     {
         return NULL;
     }

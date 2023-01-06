@@ -22,11 +22,11 @@
 #include <gio/gio.h>
 
 #include <libext.h>
-#include <exo-gdk-pixbuf-extensions.h>
+#include <gdk-pixbuf-extensions.h>
 
-#include <thunar-gio-extensions.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gdk-extensions.h>
+#include <gio-extensions.h>
+#include <gobject-extensions.h>
+#include <gdk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-shortcuts-icon-renderer.h>
 #include <device.h>

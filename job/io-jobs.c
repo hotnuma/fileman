@@ -22,7 +22,7 @@
 
 #include <application.h>
 #include <enum-types.h>
-#include <thunar-gio-extensions.h>
+#include <gio-extensions.h>
 #include <io-scan-directory.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
@@ -519,7 +519,7 @@ static gboolean _io_unlink(ThunarJob  *job,
         g_assert(G_IS_FILE(lp->data));
 
         /* skip root folders which cannot be deleted anyway */
-        if (thunar_g_file_is_root(lp->data))
+        if (eg_file_is_root(lp->data))
             continue;
 
         /* update progress information */

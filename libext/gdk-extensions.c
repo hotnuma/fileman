@@ -33,7 +33,7 @@
 #include <string.h>
 #endif
 
-#include <thunar-gdk-extensions.h>
+#include <gdk-extensions.h>
 
 static const cairo_user_data_key_t cairo_key;
 

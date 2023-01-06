@@ -24,7 +24,7 @@
 #include <libext.h>
 
 #include <thunar-chooser-model.h>
-#include <thunar-gobject-extensions.h>
+#include <gobject-extensions.h>
 #include <thunar-icon-factory.h>
 
 /* Property identifiers */
@@ -192,7 +192,7 @@ static void thunar_chooser_model_append(ThunarChooserModel *model,
         /* insert the program items */
         for(lp = app_infos; lp != NULL; lp = lp->next)
         {
-            if (!thunar_g_app_info_should_show(lp->data))
+            if (!eg_app_info_should_show(lp->data))
                 continue;
 
             /* append the tree row with the program data */

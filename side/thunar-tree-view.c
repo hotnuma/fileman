@@ -29,8 +29,8 @@
 #include <device.h>
 #include <dialogs.h>
 #include <dnd.h>
-#include <thunar-gio-extensions.h>
-#include <thunar-gtk-extensions.h>
+#include <gio-extensions.h>
+#include <gtk-extensions.h>
 #include <thunar-job.h>
 #include <marshal.h>
 #include <menu.h>
@@ -912,9 +912,9 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
         g_list_free(files);
 
-        if (thunar_g_file_is_trash(th_file_get_file(file))
-            || thunar_g_file_is_computer(th_file_get_file(file))
-            || thunar_g_file_is_network(th_file_get_file(file)))
+        if (eg_file_is_trash(th_file_get_file(file))
+            || eg_file_is_computer(th_file_get_file(file))
+            || eg_file_is_network(th_file_get_file(file)))
         {
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN, TRUE);
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
@@ -1115,7 +1115,7 @@ gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_TREE_VIEW(view), FALSE);
 
-    if (!thunar_g_vfs_is_uri_scheme_supported("trash"))
+    if (!eg_vfs_is_uri_scheme_supported("trash"))
         return TRUE;
 
     /* Check if there is a user defined accelerator for the delete action,
@@ -1536,8 +1536,8 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
         return NULL;
 
     /* get GFiles for special toplevel items */
-    home = thunar_g_file_new_for_home();
-    root = thunar_g_file_new_for_root();
+    home = eg_file_new_for_home();
+    root = eg_file_new_for_root();
 
     /* we prefer certain toplevel items to others */
     if (th_file_is_gfile_ancestor(file, home))
@@ -1629,7 +1629,7 @@ static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
     {
         /* extract the URI list from the selection data(if valid) */
         if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0)
-            view->drop_file_list = thunar_g_file_list_new_from_string((const gchar *) gtk_selection_data_get_data(selection_data));
+            view->drop_file_list = eg_file_list_new_from_string((const gchar *) gtk_selection_data_get_data(selection_data));
 
         /* reset the state */
         view->drop_data_ready = TRUE;

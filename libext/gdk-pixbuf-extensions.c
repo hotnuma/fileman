@@ -28,7 +28,7 @@
 #define GDK_PIXBUF_ENABLE_BACKEND
 #endif
 
-#include <exo-gdk-pixbuf-extensions.h>
+#include <gdk-pixbuf-extensions.h>
 
 #include <sys/types.h>
 #include <sys/mman.h>

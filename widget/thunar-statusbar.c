@@ -22,7 +22,7 @@
 
 #include <libext.h>
 
-#include <thunar-gobject-extensions.h>
+#include <gobject-extensions.h>
 #include <thunar-statusbar.h>
 
 enum

@@ -40,16 +40,16 @@ HEADERS = \
     job/thunar-job.h \
     job/thunar-simple-job.h \
     job/thunar-transfer-job.h \
-    libext/exo-cell-renderer-icon.h \
-    libext/exo-gdk-pixbuf-extensions.h \
+    libext/cell-renderer-icon.h \
     libext/exo-job.h \
     libext/exo-tree-view.h \
+    libext/gdk-extensions.h \
+    libext/gdk-pixbuf-extensions.h \
+    libext/gio-extensions.h \
+    libext/gobject-extensions.h \
+    libext/gtk-extensions.h \
     libext/libext.h \
-    libext/thunar-gdk-extensions.h \
-    libext/thunar-gio-extensions.h \
-    libext/thunar-gobject-extensions.h \
-    libext/thunar-gtk-extensions.h \
-    libext/thunar-pango-extensions.h \
+    libext/pango-extensions.h \
     libext/utils.h \
     marshal.h \
     menu/launcher.h \
@@ -105,16 +105,16 @@ SOURCES = \
     dialog/thunar-properties-dialog.c \
     job/io-jobs.c \
     job/io-scan-directory.c \
-    libext/exo-cell-renderer-icon.c \
-    libext/exo-gdk-pixbuf-extensions.c \
+    libext/cell-renderer-icon.c \
     libext/exo-job.c \
     libext/exo-tree-view.c \
+    libext/gdk-extensions.c \
+    libext/gdk-pixbuf-extensions.c \
+    libext/gio-extensions.c \
+    libext/gobject-extensions.c \
+    libext/gtk-extensions.c \
     libext/libext.c \
-    libext/thunar-gdk-extensions.c \
-    libext/thunar-gio-extensions.c \
-    libext/thunar-gobject-extensions.c \
-    libext/thunar-gtk-extensions.c \
-    libext/thunar-pango-extensions.c \
+    libext/pango-extensions.c \
     marshal.c \
     menu/launcher.c \
     menu/menu.c \

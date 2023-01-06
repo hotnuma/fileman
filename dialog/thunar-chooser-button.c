@@ -26,10 +26,10 @@
 #include <thunar-chooser-button.h>
 #include <thunar-chooser-dialog.h>
 #include <dialogs.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gtk-extensions.h>
+#include <gobject-extensions.h>
+#include <gtk-extensions.h>
 #include <thunar-icon-factory.h>
-#include <thunar-pango-extensions.h>
+#include <pango-extensions.h>
 
 /* Property identifiers */
 enum
@@ -419,7 +419,7 @@ static void thunar_chooser_button_file_changed(ThunarChooserButton *chooser_butt
             /* add all possible applications */
             for(lp = app_infos, i = 0; lp != NULL; lp = lp->next, ++i)
             {
-                if (thunar_g_app_info_should_show(lp->data))
+                if (eg_app_info_should_show(lp->data))
                 {
                     /* insert the item into the store */
                     gtk_list_store_insert_with_values(chooser_button->store, &iter, i,

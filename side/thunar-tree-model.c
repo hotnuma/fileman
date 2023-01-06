@@ -25,8 +25,8 @@
 
 #include <filemon.h>
 #include <th-folder.h>
-#include <thunar-gio-extensions.h>
-#include <thunar-pango-extensions.h>
+#include <gio-extensions.h>
+#include <pango-extensions.h>
 #include <thunar-tree-model.h>
 #include <devmon.h>
 #include <utils.h>
@@ -294,22 +294,22 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
     g_signal_connect(model->device_monitor, "device-changed", G_CALLBACK(thunar_tree_model_device_changed), model);
 
     /* append the computer icon if browsing the computer is supported */
-    if (thunar_g_vfs_is_uri_scheme_supported("computer"))
+    if (eg_vfs_is_uri_scheme_supported("computer"))
         system_paths = g_list_append(system_paths, g_file_new_for_uri("computer://"));
 
     /* add the home folder to the system paths */
-    home = thunar_g_file_new_for_home();
+    home = eg_file_new_for_home();
     system_paths = g_list_append(system_paths, g_object_ref(home));
 
     /* append the trash icon if the trash is supported */
-    if (thunar_g_vfs_is_uri_scheme_supported("trash"))
-        system_paths = g_list_append(system_paths, thunar_g_file_new_for_trash());
+    if (eg_vfs_is_uri_scheme_supported("trash"))
+        system_paths = g_list_append(system_paths, eg_file_new_for_trash());
 
     /* append the root file system */
-    system_paths = g_list_append(system_paths, thunar_g_file_new_for_root());
+    system_paths = g_list_append(system_paths, eg_file_new_for_root());
 
     /* append the network icon if browsing the network is supported */
-    if (thunar_g_vfs_is_uri_scheme_supported("network"))
+    if (eg_vfs_is_uri_scheme_supported("network"))
         system_paths = g_list_append(system_paths, g_file_new_for_uri("network://"));
 
     /* append the system defined nodes('Computer', 'Home', 'Trash', 'File System', 'Network') */

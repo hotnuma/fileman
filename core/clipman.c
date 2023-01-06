@@ -23,7 +23,7 @@
 
 #include <application.h>
 #include <dialogs.h>
-#include <thunar-gobject-extensions.h>
+#include <gobject-extensions.h>
 #include <libext.h>
 
 #include <string.h>
@@ -503,7 +503,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
     switch(target_info)
     {
     case TARGET_TEXT_URI_LIST:
-        uris = thunar_g_file_list_to_stringv(file_list);
+        uris = eg_file_list_to_stringv(file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
         break;
@@ -615,7 +615,7 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
         }
 
         /* determine the path list stored with the selection */
-        file_list = thunar_g_file_list_new_from_string(data);
+        file_list = eg_file_list_new_from_string(data);
     }
 
     /* perform the action if possible */

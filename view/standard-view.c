@@ -35,14 +35,14 @@
 #include <dialogs.h>
 #include <dnd.h>
 #include <enum-types.h>
-#include <thunar-gio-extensions.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gtk-extensions.h>
+#include <gio-extensions.h>
+#include <gobject-extensions.h>
+#include <gtk-extensions.h>
 #include <thunar-history.h>
 #include <thunar-icon-renderer.h>
 #include <launcher.h>
 #include <marshal.h>
-#include <thunar-pango-extensions.h>
+#include <pango-extensions.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
 #include <utils.h>
@@ -2342,7 +2342,7 @@ static ThunarFile* _standard_view_get_fallback_directory(
     if (new_directory == NULL)
     {
         /* fall-back to the home directory */
-        path = thunar_g_file_new_for_home();
+        path = eg_file_new_for_home();
         new_directory = th_file_get(path, &error);
         g_object_unref(path);
     }
@@ -2580,7 +2580,7 @@ static void _standard_view_drag_data_get(GtkWidget          *view,
     /* set the URI list for the drag selection */
     if (standard_view->priv->drag_g_file_list != NULL)
     {
-        uris = thunar_g_file_list_to_stringv(standard_view->priv->drag_g_file_list);
+        uris = eg_file_list_to_stringv(standard_view->priv->drag_g_file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
     }
@@ -2861,7 +2861,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
     {
         /* extract the URI list from the selection data(if valid) */
         if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0)
-            standard_view->priv->drop_file_list = thunar_g_file_list_new_from_string((gchar *) gtk_selection_data_get_data(selection_data));
+            standard_view->priv->drop_file_list = eg_file_list_new_from_string((gchar *) gtk_selection_data_get_data(selection_data));
 
         /* reset the state */
         standard_view->priv->drop_data_ready = TRUE;

@@ -23,7 +23,7 @@
 
 #include <application.h>
 #include <filemon.h>
-#include <thunar-gobject-extensions.h>
+#include <gobject-extensions.h>
 #include <user.h>
 #include <libext.h>
 
@@ -2127,7 +2127,7 @@ gchar* list_model_get_statusbar_text(ThunarListModel *store,
 
         /* check if we can determine the amount of free space for the volume */
         if (G_LIKELY(file != NULL
-                      && thunar_g_file_get_free_space(th_file_get_file(file), &size, NULL)))
+                      && eg_file_get_free_space(th_file_get_file(file), &size, NULL)))
         {
             size_string = thunar_list_model_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
 

@@ -19,11 +19,11 @@
 #include <config.h>
 
 #include <libext.h>
-#include <exo-gdk-pixbuf-extensions.h>
+#include <gdk-pixbuf-extensions.h>
 
 #include <clipman.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gdk-extensions.h>
+#include <gobject-extensions.h>
+#include <gdk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-icon-renderer.h>
 

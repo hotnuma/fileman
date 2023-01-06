@@ -20,8 +20,6 @@
 #ifndef __EXO_CELL_RENDERER_ICON_H__
 #define __EXO_CELL_RENDERER_ICON_H__
 
-//#include <exo/exo-config.h>
-
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
@@ -63,10 +61,12 @@ struct _ExoCellRendererIcon
   GtkCellRenderer __parent__;
 };
 
-GType            exo_cell_renderer_icon_get_type (void) G_GNUC_CONST;
+GType exo_cell_renderer_icon_get_type() G_GNUC_CONST;
 
-GtkCellRenderer *exo_cell_renderer_icon_new      (void) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+GtkCellRenderer* exo_cell_renderer_icon_new() G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 
-#endif /* !__EXO_CELL_RENDERER_ICON_H__ */
+#endif // __EXO_CELL_RENDERER_ICON_H__
+
+

@@ -20,8 +20,8 @@
 #include <config.h>
 #endif
 
-#include <thunar-gobject-extensions.h>
-#include <thunar-gtk-extensions.h>
+#include <gobject-extensions.h>
+#include <gtk-extensions.h>
 #include <thunar-history.h>
 #include <thunar-icon-factory.h>
 #include <thunar-navigator.h>
@@ -515,11 +515,11 @@ void thunar_history_show_menu(ThunarHistory         *history,
         if (image == NULL)
         {
             /* some custom likely alternatives */
-            if (thunar_g_file_is_home(lp->data))
+            if (eg_file_is_home(lp->data))
                 icon_name = "user-home";
             else if (!g_file_has_uri_scheme(lp->data, "file"))
                 icon_name = "folder-remote";
-            else if (thunar_g_file_is_root(lp->data))
+            else if (eg_file_is_root(lp->data))
                 icon_name = "drive-harddisk";
             else
                 icon_name = "folder";

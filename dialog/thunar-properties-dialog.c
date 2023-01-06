@@ -31,15 +31,15 @@
 #include <application.h>
 #include <thunar-chooser-button.h>
 #include <dialogs.h>
-#include <thunar-gio-extensions.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gtk-extensions.h>
+#include <gio-extensions.h>
+#include <gobject-extensions.h>
+#include <gtk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-image.h>
 #include <io-jobs.h>
 #include <thunar-job.h>
 #include <marshal.h>
-#include <thunar-pango-extensions.h>
+#include <pango-extensions.h>
 #include <thunar-permissions-chooser.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-size-label.h>
@@ -1026,9 +1026,9 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     /* update the free space(only for folders) */
     if (th_file_is_directory(file))
     {
-        fs_string = thunar_g_file_get_free_space_string(th_file_get_file(file),
+        fs_string = eg_file_get_free_space_string(th_file_get_file(file),
                     dialog->file_size_binary);
-        if (thunar_g_file_get_free_space(th_file_get_file(file), &fs_free, &fs_size)
+        if (eg_file_get_free_space(th_file_get_file(file), &fs_free, &fs_size)
                 && fs_size > 0)
         {
             /* free disk space fraction */

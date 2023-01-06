@@ -31,15 +31,15 @@
 #include <clipman.h>
 #include <thunar-details-view.h>
 #include <dialogs.h>
-#include <thunar-gio-extensions.h>
-#include <thunar-gobject-extensions.h>
-#include <thunar-gtk-extensions.h>
+#include <gio-extensions.h>
+#include <gobject-extensions.h>
+#include <gtk-extensions.h>
 #include <thunar-history.h>
 #include <launcher.h>
 #include <thunar-location-entry.h>
 #include <marshal.h>
 #include <menu.h>
-#include <thunar-pango-extensions.h>
+#include <pango-extensions.h>
 #include <preferences.h>
 #include <utils.h>
 #include <thunar-statusbar.h>
@@ -1444,7 +1444,7 @@ static void thunar_window_action_open_home(ThunarWindow *window)
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* determine the path to the home directory */
-    home = thunar_g_file_new_for_home();
+    home = eg_file_new_for_home();
 
     /* determine the file for the home directory */
     home_file = th_file_get(home, &error);
@@ -1755,7 +1755,7 @@ void thunar_window_set_current_directory(ThunarWindow *window,
         }
 
         thunar_window_history_changed(window);
-        gtk_widget_set_sensitive(window->toolbar_item_parent, !thunar_g_file_is_root(th_file_get_file(current_directory)));
+        gtk_widget_set_sensitive(window->toolbar_item_parent, !eg_file_is_root(th_file_get_file(current_directory)));
     }
 
     /* tell everybody that we have a new "current-directory",
