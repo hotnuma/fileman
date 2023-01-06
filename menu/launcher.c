@@ -25,7 +25,7 @@
 #include <preferences.h>
 #include <thunar-browser.h>
 #include <thunar-chooser-dialog.h>
-#include <clipboard-man.h>
+#include <clipman.h>
 #include <dialogs.h>
 #include <thunar-icon-factory.h>
 #include <io-scan-directory.h>

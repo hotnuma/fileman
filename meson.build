@@ -43,7 +43,7 @@ app_deps = [
 ]
 
 app_sources = [
-    'core/clipboard-man.c',
+    'core/clipman.c',
     'core/device-monitor.c',
     'core/device.c',
     'core/dnd.c',

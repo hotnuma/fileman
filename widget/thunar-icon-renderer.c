@@ -21,7 +21,7 @@
 #include <libext.h>
 #include <exo-gdk-pixbuf-extensions.h>
 
-#include <clipboard-man.h>
+#include <clipman.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gdk-extensions.h>
 #include <thunar-icon-factory.h>

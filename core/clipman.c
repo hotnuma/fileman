@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <clipboard-man.h>
+#include <clipman.h>
 
 #include <application.h>
 #include <dialogs.h>
