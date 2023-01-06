@@ -888,7 +888,7 @@ static void thunar_window_realize(GtkWidget *widget)
     /* connect to the clipboard manager of the new display and be sure to redraw the window
      * whenever the clipboard contents change to make sure we always display up2date state.
      */
-    window->clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(widget));
+    window->clipboard = clipman_get_for_display(gtk_widget_get_display(widget));
     g_signal_connect_swapped(G_OBJECT(window->clipboard), "changed",
                               G_CALLBACK(gtk_widget_queue_draw), widget);
 }

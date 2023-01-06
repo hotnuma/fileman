@@ -41,21 +41,14 @@ typedef struct _ThunarClipboardManager      ThunarClipboardManager;
 
 GType clipman_get_type() G_GNUC_CONST;
 
-ThunarClipboardManager *thunar_clipboard_manager_get_for_display(GdkDisplay *display);
+ThunarClipboardManager* clipman_get_for_display(GdkDisplay *display);
+gboolean clipman_get_can_paste(ThunarClipboardManager *manager);
+gboolean clipman_has_cutted_file(ThunarClipboardManager *manager, const ThunarFile *file);
 
-gboolean thunar_clipboard_manager_get_can_paste(ThunarClipboardManager *manager);
-
-gboolean thunar_clipboard_manager_has_cutted_file(ThunarClipboardManager *manager,
-                                                  const ThunarFile *file);
-
-void thunar_clipboard_manager_copy_files(ThunarClipboardManager *manager,
-                                         GList *files);
-void thunar_clipboard_manager_cut_files(ThunarClipboardManager *manager,
-                                        GList *files);
-void thunar_clipboard_manager_paste_files(ThunarClipboardManager *manager,
-                                          GFile *target_file,
-                                          GtkWidget *widget,
-                                          GClosure *new_files_closure);
+void clipman_copy_files(ThunarClipboardManager *manager, GList *files);
+void clipman_cut_files(ThunarClipboardManager *manager, GList *files);
+void clipman_paste_files(ThunarClipboardManager *manager, GFile *target_file,
+                         GtkWidget *widget, GClosure *new_files_closure);
 
 G_END_DECLS
 

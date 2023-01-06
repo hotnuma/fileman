@@ -407,7 +407,7 @@ static void thunar_tree_view_realize(GtkWidget *widget)
 
     /* query the clipboard manager for the display */
     display = gtk_widget_get_display(widget);
-    view->clipboard = thunar_clipboard_manager_get_for_display(display);
+    view->clipboard = clipman_get_for_display(display);
 }
 
 static void thunar_tree_view_unrealize(GtkWidget *widget)

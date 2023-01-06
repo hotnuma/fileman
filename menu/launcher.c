@@ -1500,9 +1500,9 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     case LAUNCHER_ACTION_PASTE_INTO_FOLDER:
         if (!launcher->single_directory_to_process)
             return NULL;
-        clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
+        clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
         item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
-        gtk_widget_set_sensitive(item, thunar_clipboard_manager_get_can_paste(clipboard) && th_file_is_writable(launcher->single_folder));
+        gtk_widget_set_sensitive(item, clipman_get_can_paste(clipboard) && th_file_is_writable(launcher->single_folder));
         g_object_unref(clipboard);
         return item;
 
@@ -1527,11 +1527,11 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                                                     menu,
                                                     LAUNCHER_ACTION_PASTE_INTO_FOLDER,
                                                     force);
-            clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
+            clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
             item = xfce_gtk_menu_item_new_from_action_entry(action_entry,
                                                             G_OBJECT(launcher),
                                                             GTK_MENU_SHELL(menu));
-            gtk_widget_set_sensitive(item, thunar_clipboard_manager_get_can_paste(clipboard) && th_file_is_writable(launcher->current_directory));
+            gtk_widget_set_sensitive(item, clipman_get_can_paste(clipboard) && th_file_is_writable(launcher->current_directory));
             g_object_unref(clipboard);
         }
         return item;
@@ -1881,8 +1881,8 @@ static void _launcher_action_cut(ThunarLauncher *launcher)
     if (launcher->files_are_selected == FALSE || launcher->parent_folder == NULL)
         return;
 
-    clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
-    thunar_clipboard_manager_cut_files(clipboard, launcher->files_to_process);
+    clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
+    clipman_cut_files(clipboard, launcher->files_to_process);
     g_object_unref(G_OBJECT(clipboard));
 }
 
@@ -1895,8 +1895,8 @@ static void _launcher_action_copy(ThunarLauncher *launcher)
     if (launcher->files_are_selected == FALSE)
         return;
 
-    clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
-    thunar_clipboard_manager_copy_files(clipboard, launcher->files_to_process);
+    clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
+    clipman_copy_files(clipboard, launcher->files_to_process);
     g_object_unref(G_OBJECT(clipboard));
 }
 
@@ -1909,8 +1909,8 @@ static void _launcher_action_paste_into_folder(ThunarLauncher *launcher)
     if (!launcher->single_directory_to_process)
         return;
 
-    clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
-    thunar_clipboard_manager_paste_files(clipboard, th_file_get_file(launcher->single_folder), launcher->widget, launcher->select_files_closure);
+    clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
+    clipman_paste_files(clipboard, th_file_get_file(launcher->single_folder), launcher->widget, launcher->select_files_closure);
     g_object_unref(G_OBJECT(clipboard));
 }
 
@@ -1920,8 +1920,8 @@ static void _launcher_action_paste(ThunarLauncher *launcher)
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    clipboard = thunar_clipboard_manager_get_for_display(gtk_widget_get_display(launcher->widget));
-    thunar_clipboard_manager_paste_files(clipboard, th_file_get_file(launcher->current_directory), launcher->widget, launcher->select_files_closure);
+    clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
+    clipman_paste_files(clipboard, th_file_get_file(launcher->current_directory), launcher->widget, launcher->select_files_closure);
     g_object_unref(G_OBJECT(clipboard));
 }
 
