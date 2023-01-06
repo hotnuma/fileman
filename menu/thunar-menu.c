@@ -234,7 +234,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
 
     if (menu_sections & THUNAR_MENU_SECTION_OPEN)
     {
-        if (thunar_launcher_append_open_section(
+        if (launcher_append_open_section(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
                                         FALSE,
@@ -252,7 +252,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_CREATE_FOLDER,
+                                        LAUNCHER_ACTION_CREATE_FOLDER,
                                         force) != NULL);
 
         // No document creation for tree-view
@@ -260,7 +260,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
             item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_CREATE_DOCUMENT,
+                                        LAUNCHER_ACTION_CREATE_DOCUMENT,
                                         force) != NULL);
         if (item_added)
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
@@ -272,7 +272,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_CUT,
+                                        LAUNCHER_ACTION_CUT,
                                         force) != NULL);
 
     if (menu_sections & THUNAR_MENU_SECTION_COPY_PASTE)
@@ -280,20 +280,20 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_COPY,
+                                        LAUNCHER_ACTION_COPY,
                                         force) != NULL);
 
         if (menu->type == THUNAR_MENU_TYPE_CONTEXT_LOCATION_BUTTONS)
             item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_PASTE_INTO_FOLDER,
+                                        LAUNCHER_ACTION_PASTE_INTO_FOLDER,
                                         force) != NULL);
         else
             item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_PASTE,
+                                        LAUNCHER_ACTION_PASTE,
                                         force) != NULL);
     }
 
@@ -306,12 +306,12 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         item_added |=(launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_MOVE_TO_TRASH,
+                                        LAUNCHER_ACTION_MOVE_TO_TRASH,
                                         force) != NULL);
         item_added |=(launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_DELETE,
+                                        LAUNCHER_ACTION_DELETE,
                                         force) != NULL);
         if (item_added)
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
@@ -322,7 +322,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         if (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_EMPTY_TRASH,
+                                        LAUNCHER_ACTION_EMPTY_TRASH,
                                         FALSE) != NULL)
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
     }
@@ -332,7 +332,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         if (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_RESTORE,
+                                        LAUNCHER_ACTION_RESTORE,
                                         FALSE) != NULL)
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
     }
@@ -342,21 +342,21 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
     if (menu_sections & THUNAR_MENU_SECTION_DUPLICATE)
         item_added |= (launcher_append_menu_item(menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_DUPLICATE,
+                                        LAUNCHER_ACTION_DUPLICATE,
                                         force) != NULL);
 
     if (menu_sections & THUNAR_MENU_SECTION_MAKELINK)
         item_added |=(launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_MAKE_LINK,
+                                        LAUNCHER_ACTION_MAKE_LINK,
                                         force) != NULL);
 
     if (menu_sections & THUNAR_MENU_SECTION_RENAME)
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_RENAME,
+                                        LAUNCHER_ACTION_RENAME,
                                         force) != NULL);
 
     if (item_added)
@@ -371,7 +371,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_TERMINAL,
+                                        LAUNCHER_ACTION_TERMINAL,
                                         force) != NULL);
     }
 
@@ -380,7 +380,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_EXTRACT,
+                                        LAUNCHER_ACTION_EXTRACT,
                                         force) != NULL);
     }
 
@@ -396,19 +396,19 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_MOUNT,
+                                        LAUNCHER_ACTION_MOUNT,
                                         FALSE) != NULL);
 
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_UNMOUNT,
+                                        LAUNCHER_ACTION_UNMOUNT,
                                         FALSE) != NULL);
 
         item_added |= (launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_EJECT,
+                                        LAUNCHER_ACTION_EJECT,
                                         FALSE) != NULL);
 
         if (item_added)
@@ -422,7 +422,7 @@ gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sect
         launcher_append_menu_item(
                                         menu->launcher,
                                         GTK_MENU_SHELL(menu),
-                                        THUNAR_LAUNCHER_ACTION_PROPERTIES,
+                                        LAUNCHER_ACTION_PROPERTIES,
                                         FALSE);
     }
 

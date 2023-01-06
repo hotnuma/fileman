@@ -779,8 +779,8 @@ static void thunar_details_view_row_activated(GtkTreeView       *tree_view,
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
     launcher = thunar_window_get_launcher(THUNAR_WINDOW(window));
-    thunar_launcher_activate_selected_files(launcher,
-                                             THUNAR_LAUNCHER_CHANGE_DIRECTORY,
+    launcher_activate_selected_files(launcher,
+                                             LAUNCHER_CHANGE_DIRECTORY,
                                              NULL);
 
     // FOCUS
@@ -809,7 +809,7 @@ static gboolean thunar_details_view_select_cursor_row(GtkTreeView       *tree_vi
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
     launcher = thunar_window_get_launcher(THUNAR_WINDOW(window));
-    thunar_launcher_activate_selected_files(launcher, THUNAR_LAUNCHER_CHANGE_DIRECTORY, NULL);
+    launcher_activate_selected_files(launcher, LAUNCHER_CHANGE_DIRECTORY, NULL);
 
     return TRUE;
 }

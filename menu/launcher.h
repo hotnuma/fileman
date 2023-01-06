@@ -43,77 +43,77 @@ typedef struct _ThunarLauncher      ThunarLauncher;
 
 typedef enum
 {
-    THUNAR_LAUNCHER_ACTION_OPEN,
-    THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,
-    THUNAR_LAUNCHER_ACTION_OPEN_WITH_OTHER,
+    LAUNCHER_ACTION_OPEN,
+    LAUNCHER_ACTION_OPEN_IN_WINDOW,
+    LAUNCHER_ACTION_OPEN_WITH_OTHER,
 
-    THUNAR_LAUNCHER_ACTION_EXECUTE,
+    LAUNCHER_ACTION_EXECUTE,
 
-    THUNAR_LAUNCHER_ACTION_CREATE_FOLDER,
-    THUNAR_LAUNCHER_ACTION_CREATE_DOCUMENT,
+    LAUNCHER_ACTION_CREATE_FOLDER,
+    LAUNCHER_ACTION_CREATE_DOCUMENT,
 
-    THUNAR_LAUNCHER_ACTION_CUT,
-    THUNAR_LAUNCHER_ACTION_COPY,
-    THUNAR_LAUNCHER_ACTION_PASTE_INTO_FOLDER,
-    THUNAR_LAUNCHER_ACTION_PASTE,
+    LAUNCHER_ACTION_CUT,
+    LAUNCHER_ACTION_COPY,
+    LAUNCHER_ACTION_PASTE_INTO_FOLDER,
+    LAUNCHER_ACTION_PASTE,
 
-    THUNAR_LAUNCHER_ACTION_TRASH_DELETE,
-    THUNAR_LAUNCHER_ACTION_MOVE_TO_TRASH,
-    THUNAR_LAUNCHER_ACTION_DELETE,
-    THUNAR_LAUNCHER_ACTION_EMPTY_TRASH,
-    THUNAR_LAUNCHER_ACTION_RESTORE,
+    LAUNCHER_ACTION_TRASH_DELETE,
+    LAUNCHER_ACTION_MOVE_TO_TRASH,
+    LAUNCHER_ACTION_DELETE,
+    LAUNCHER_ACTION_EMPTY_TRASH,
+    LAUNCHER_ACTION_RESTORE,
 
-    THUNAR_LAUNCHER_ACTION_DUPLICATE,
-    THUNAR_LAUNCHER_ACTION_MAKE_LINK,
-    THUNAR_LAUNCHER_ACTION_RENAME,
+    LAUNCHER_ACTION_DUPLICATE,
+    LAUNCHER_ACTION_MAKE_LINK,
+    LAUNCHER_ACTION_RENAME,
 
-    THUNAR_LAUNCHER_ACTION_TERMINAL,
-    THUNAR_LAUNCHER_ACTION_EXTRACT,
+    LAUNCHER_ACTION_TERMINAL,
+    LAUNCHER_ACTION_EXTRACT,
 
-    THUNAR_LAUNCHER_ACTION_MOUNT,
-    THUNAR_LAUNCHER_ACTION_UNMOUNT,
-    THUNAR_LAUNCHER_ACTION_EJECT,
+    LAUNCHER_ACTION_MOUNT,
+    LAUNCHER_ACTION_UNMOUNT,
+    LAUNCHER_ACTION_EJECT,
 
-    THUNAR_LAUNCHER_ACTION_PROPERTIES,
+    LAUNCHER_ACTION_PROPERTIES,
 
-} ThunarLauncherAction;
+} LauncherAction;
 
 typedef enum
 {
-    THUNAR_LAUNCHER_CHANGE_DIRECTORY,
-    THUNAR_LAUNCHER_OPEN_AS_NEW_WINDOW,
-    THUNAR_LAUNCHER_NO_ACTION,
+    LAUNCHER_CHANGE_DIRECTORY,
+    LAUNCHER_OPEN_AS_NEW_WINDOW,
+    LAUNCHER_NO_ACTION,
 
-} ThunarLauncherFolderOpenAction;
+} FolderOpenAction;
 
 GType       launcher_get_type() G_GNUC_CONST;
 
-void        thunar_launcher_activate_selected_files(ThunarLauncher *launcher,
-                                                    ThunarLauncherFolderOpenAction action,
-                                                    GAppInfo *app_info);
-void        thunar_launcher_open_selected_folders(ThunarLauncher *launcher);
+void        launcher_activate_selected_files(ThunarLauncher *launcher,
+                                             FolderOpenAction action,
+                                             GAppInfo *app_info);
+void        launcher_open_selected_folders(ThunarLauncher *launcher);
 
-void        thunar_launcher_set_widget(ThunarLauncher *launcher,
-                                       GtkWidget *widget);
-GtkWidget*  thunar_launcher_get_widget(ThunarLauncher *launcher);
+void        launcher_set_widget(ThunarLauncher *launcher,
+                                GtkWidget *widget);
+GtkWidget*  launcher_get_widget(ThunarLauncher *launcher);
 
-void        thunar_launcher_append_accelerators(ThunarLauncher *launcher,
-                                                GtkAccelGroup *accel_group);
+void        launcher_append_accelerators(ThunarLauncher *launcher,
+                                         GtkAccelGroup *accel_group);
 GtkWidget*  launcher_append_menu_item(ThunarLauncher *launcher,
                                       GtkMenuShell *menu,
-                                      ThunarLauncherAction action,
+                                      LauncherAction action,
                                       gboolean force);
-gboolean    thunar_launcher_append_open_section(ThunarLauncher *launcher,
-                                                GtkMenuShell *menu,
-                                                gboolean support_tabs,
-                                                gboolean support_change_directory,
-                                                gboolean force);
+gboolean    launcher_append_open_section(ThunarLauncher *launcher,
+                                         GtkMenuShell *menu,
+                                         gboolean support_tabs,
+                                         gboolean support_change_directory,
+                                         gboolean force);
 
-void        thunar_launcher_action_mount(ThunarLauncher *launcher);
-void        thunar_launcher_action_unmount(ThunarLauncher *launcher);
-void        thunar_launcher_action_eject(ThunarLauncher *launcher);
+void        launcher_action_mount(ThunarLauncher *launcher);
+void        launcher_action_unmount(ThunarLauncher *launcher);
+void        launcher_action_eject(ThunarLauncher *launcher);
 
-void        thunar_launcher_action_rename(ThunarLauncher *launcher);
+void        launcher_action_rename(ThunarLauncher *launcher);
 
 G_END_DECLS
 

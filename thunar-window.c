@@ -538,7 +538,7 @@ static void thunar_window_init(ThunarWindow *window)
 
     g_object_bind_property(G_OBJECT(window), "current-directory", G_OBJECT(window->launcher), "current-directory", G_BINDING_SYNC_CREATE);
     g_signal_connect_swapped(G_OBJECT(window->launcher), "change-directory", G_CALLBACK(thunar_window_set_current_directory), window);
-    thunar_launcher_append_accelerators(window->launcher, window->accel_group);
+    launcher_append_accelerators(window->launcher, window->accel_group);
 
     gtk_window_set_default_size(GTK_WINDOW(window),
                                 prefs->window_width,

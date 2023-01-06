@@ -715,7 +715,7 @@ static gboolean thunar_tree_view_button_release_event(GtkWidget      *widget,
         }
         else if (G_UNLIKELY(event->button == 2))
         {
-            thunar_launcher_open_selected_folders(view->launcher);
+            launcher_open_selected_folders(view->launcher);
 
             /* set the cursor back to the previously selected item */
             if (view->select_path != NULL)
@@ -790,7 +790,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
                         view->select_path = gtk_tree_path_copy(path);
                         g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
                         g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
-                        thunar_launcher_action_unmount(view->launcher);
+                        launcher_action_unmount(view->launcher);
                         g_object_unref(G_OBJECT(device));
                     }
             }
@@ -809,7 +809,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
         {
             g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
             g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
-            thunar_launcher_action_mount(view->launcher);
+            launcher_action_mount(view->launcher);
         }
         else
         {
@@ -916,8 +916,8 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
             || thunar_g_file_is_computer(th_file_get_file(file))
             || thunar_g_file_is_network(th_file_get_file(file)))
         {
-            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN, TRUE);
-            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
+            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN, TRUE);
+            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
 
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
 
@@ -948,12 +948,12 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
         launcher_append_menu_item(view->launcher,
                                          GTK_MENU_SHELL(context_menu),
-                                         THUNAR_LAUNCHER_ACTION_OPEN,
+                                         LAUNCHER_ACTION_OPEN,
                                          TRUE);
 
         launcher_append_menu_item(view->launcher,
                                          GTK_MENU_SHELL(context_menu),
-                                         THUNAR_LAUNCHER_ACTION_OPEN_IN_WINDOW,
+                                         LAUNCHER_ACTION_OPEN_IN_WINDOW,
                                          TRUE);
 
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
@@ -997,7 +997,7 @@ static void thunar_tree_view_action_open(ThunarTreeView *view)
         {
             g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
             g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
-            thunar_launcher_action_mount(view->launcher);
+            launcher_action_mount(view->launcher);
         }
     }
     else if (file != NULL)
@@ -1081,7 +1081,7 @@ static gboolean thunar_tree_view_test_expand_row(GtkTreeView *tree_view,
             g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
             g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
             /* The closure will expand the row after the mount operation finished */
-            thunar_launcher_action_mount(view->launcher);
+            launcher_action_mount(view->launcher);
         }
 
         /* release the device */
@@ -1200,7 +1200,7 @@ void thunar_tree_view_rename_selected(ThunarTreeView *view)
     g_list_free(files);
     g_object_unref(file);
 
-    thunar_launcher_action_rename(view->launcher);
+    launcher_action_rename(view->launcher);
 
     return;
 }
