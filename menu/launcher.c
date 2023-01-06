@@ -31,7 +31,7 @@
 #include <io-scan-directory.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
-#include <device-mon.h>
+#include <devmon.h>
 #include <thunar-tree-view.h>
 #include <utils.h>
 #include <window.h>

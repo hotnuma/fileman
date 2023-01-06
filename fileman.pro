@@ -16,10 +16,10 @@ INCLUDEPATH = core dialog job libext menu misc side view widget
 HEADERS = \
     application.h \
     core/clipman.h \
-    core/device-mon.h \
     core/device.h \
+    core/devmon.h \
     core/dnd.h \
-    core/file-mon.h \
+    core/filemon.h \
     core/th-file.h \
     core/th-folder.h \
     core/thx-file-info.h \
@@ -86,10 +86,10 @@ SOURCES = \
     0Temp.c \
     application.c \
     core/clipman.c \
-    core/device-mon.c \
     core/device.c \
+    core/devmon.c \
     core/dnd.c \
-    core/file-mon.c \
+    core/filemon.c \
     core/th-file.c \
     core/th-folder.c \
     core/thx-file-info.c \

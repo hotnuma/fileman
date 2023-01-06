@@ -45,7 +45,7 @@
 #include <thunar-statusbar.h>
 #include <thunar-tree-pane.h>
 #include <window.h>
-#include <device-mon.h>
+#include <devmon.h>
 
 #include <glib.h>
 #include <syslog.h>
@@ -515,7 +515,7 @@ static void thunar_window_init(ThunarWindow *window)
     g_signal_connect(window, "delete-event", G_CALLBACK(thunar_window_delete), NULL);
 
     /* connect to the volume monitor */
-    window->device_monitor = thunar_device_monitor_get();
+    window->device_monitor = devmon_get();
     g_signal_connect(window->device_monitor, "device-pre-unmount", G_CALLBACK(thunar_window_device_pre_unmount), window);
     g_signal_connect(window->device_monitor, "device-removed", G_CALLBACK(thunar_window_device_changed), window);
     g_signal_connect(window->device_monitor, "device-changed", G_CALLBACK(thunar_window_device_changed), window);

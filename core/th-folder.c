@@ -21,7 +21,7 @@
 #include <th-folder.h>
 
 #include <io-jobs.h>
-#include <file-mon.h>
+#include <filemon.h>
 
 #define DEBUG_FILE_CHANGES FALSE
 

@@ -20,7 +20,7 @@
 #include <config.h>
 #endif
 
-#include <file-mon.h>
+#include <filemon.h>
 
 /* Signal identifiers */
 enum

@@ -21,7 +21,7 @@
 #include <libext.h>
 
 #include <device.h>
-#include <device-mon.h>
+#include <devmon.h>
 #include <th-file.h>
 #include <thunar-notify.h>
 
@@ -259,7 +259,7 @@ static void thunar_device_emit_pre_unmount(ThunarDevice *device,
     {
         /* make sure the pre-unmount event is emitted, this is important
          * for the interface */
-        monitor = thunar_device_monitor_get();
+        monitor = devmon_get();
         g_signal_emit_by_name(monitor, "device-pre-unmount", device, root_file);
         g_object_unref(monitor);
         g_object_unref(root_file);

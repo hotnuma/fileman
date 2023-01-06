@@ -23,12 +23,12 @@
 
 #include <libext.h>
 
-#include <file-mon.h>
+#include <filemon.h>
 #include <th-folder.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-tree-model.h>
-#include <device-mon.h>
+#include <devmon.h>
 #include <utils.h>
 
 /* convenience macros */
@@ -287,7 +287,7 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
     model->network = NULL;
 
     /* connect to the volume monitor */
-    model->device_monitor = thunar_device_monitor_get();
+    model->device_monitor = devmon_get();
     g_signal_connect(model->device_monitor, "device-added", G_CALLBACK(thunar_tree_model_device_added), model);
     g_signal_connect(model->device_monitor, "device-pre-unmount", G_CALLBACK(thunar_tree_model_device_pre_unmount), model);
     g_signal_connect(model->device_monitor, "device-removed", G_CALLBACK(thunar_tree_model_device_removed), model);
@@ -349,7 +349,7 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
     g_object_unref(home);
 
     /* setup the initial devices */
-    devices = thunar_device_monitor_get_devices(model->device_monitor);
+    devices = devmon_get_devices(model->device_monitor);
     for(lp = devices; lp != NULL; lp = lp->next)
     {
         thunar_tree_model_device_added(model->device_monitor, lp->data, model);

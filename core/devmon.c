@@ -18,14 +18,13 @@
  */
 
 #include <config.h>
+#include <devmon.h>
+
+#include <libext.h>
+#include <marshal.h>
 
 #include <gio/gio.h>
 #include <gio/gunixmounts.h>
-
-#include <libext.h>
-
-#include <device-mon.h>
-#include <marshal.h>
 
 /* signal identifiers */
 enum
@@ -111,13 +110,11 @@ struct _ThunarDeviceMonitor
 
 static guint device_monitor_signals[LAST_SIGNAL];
 
-G_DEFINE_TYPE(ThunarDeviceMonitor, thunar_device_monitor, G_TYPE_OBJECT)
+G_DEFINE_TYPE(ThunarDeviceMonitor, devmon, G_TYPE_OBJECT)
 
-static void thunar_device_monitor_class_init(ThunarDeviceMonitorClass *klass)
+static void devmon_class_init(ThunarDeviceMonitorClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = thunar_device_monitor_finalize;
     gobject_class->get_property = thunar_device_monitor_get_property;
     gobject_class->set_property = thunar_device_monitor_set_property;
@@ -168,7 +165,7 @@ static void thunar_device_monitor_class_init(ThunarDeviceMonitorClass *klass)
                       G_TYPE_OBJECT, G_TYPE_OBJECT);
 }
 
-static void thunar_device_monitor_init(ThunarDeviceMonitor *monitor)
+static void devmon_init(ThunarDeviceMonitor *monitor)
 {
     GList *list;
     GList *lp;
@@ -224,7 +221,7 @@ static void thunar_device_monitor_finalize(GObject *object)
     /* clear list of hidden volumes */
     g_list_free_full(monitor->hidden_volumes, g_object_unref);
 
-   (*G_OBJECT_CLASS(thunar_device_monitor_parent_class)->finalize)(object);
+   (*G_OBJECT_CLASS(devmon_parent_class)->finalize)(object);
 }
 
 static void thunar_device_monitor_get_property(GObject    *object,
@@ -622,7 +619,7 @@ static void thunar_device_monitor_list_prepend(gpointer key,
     *list = g_list_prepend(*list, g_object_ref(value));
 }
 
-ThunarDeviceMonitor* thunar_device_monitor_get()
+ThunarDeviceMonitor* devmon_get()
 {
     static ThunarDeviceMonitor *monitor = NULL;
 
@@ -639,7 +636,7 @@ ThunarDeviceMonitor* thunar_device_monitor_get()
     return monitor;
 }
 
-GList* thunar_device_monitor_get_devices(ThunarDeviceMonitor *monitor)
+GList* devmon_get_devices(ThunarDeviceMonitor *monitor)
 {
     GList *list = NULL;
 
@@ -650,7 +647,7 @@ GList* thunar_device_monitor_get_devices(ThunarDeviceMonitor *monitor)
     return list;
 }
 
-void thunar_device_monitor_set_hidden(ThunarDeviceMonitor *monitor,
+void devmon_set_hidden(ThunarDeviceMonitor *monitor,
                                       ThunarDevice        *device,
                                       gboolean             hidden)
 {
