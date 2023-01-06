@@ -25,7 +25,7 @@
 #include <libext.h>
 
 #include <application.h>
-#include <clipboard-manager.h>
+#include <clipboard-man.h>
 #include <dialogs.h>
 #include <thunar-gobject-extensions.h>
 

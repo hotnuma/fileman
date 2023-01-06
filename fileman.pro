@@ -15,7 +15,7 @@ INCLUDEPATH = core dialog job libext menu misc side view widget
 
 HEADERS = \
     application.h \
-    core/clipboard-manager.h \
+    core/clipboard-man.h \
     core/device-monitor.h \
     core/device.h \
     core/dnd.h \
@@ -85,7 +85,7 @@ HEADERS = \
 SOURCES = \
     0Temp.c \
     application.c \
-    core/clipboard-manager.c \
+    core/clipboard-man.c \
     core/device-monitor.c \
     core/device.c \
     core/dnd.c \

@@ -25,7 +25,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <application.h>
-#include <clipboard-manager.h>
+#include <clipboard-man.h>
 #include <device.h>
 #include <dialogs.h>
 #include <dnd.h>

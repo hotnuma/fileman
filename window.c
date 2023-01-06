@@ -28,7 +28,7 @@
 
 #include <application.h>
 #include <thunar-browser.h>
-#include <clipboard-manager.h>
+#include <clipboard-man.h>
 #include <thunar-details-view.h>
 #include <dialogs.h>
 #include <thunar-gio-extensions.h>

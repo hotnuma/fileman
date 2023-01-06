@@ -17,12 +17,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_CLIPBOARD_MANAGER_H__
-#define __THUNAR_CLIPBOARD_MANAGER_H__
+#ifndef __CLIPBOARD_MANAGER_H__
+#define __CLIPBOARD_MANAGER_H__
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarClipboardManagerClass ThunarClipboardManagerClass;
 typedef struct _ThunarClipboardManager      ThunarClipboardManager;
@@ -52,8 +52,8 @@ void thunar_clipboard_manager_paste_files(ThunarClipboardManager *manager,
                                           GtkWidget *widget,
                                           GClosure *new_files_closure);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_CLIPBOARD_MANAGER_H__ */
+#endif // __CLIPBOARD_MANAGER_H__
 
 
