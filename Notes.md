@@ -1,20 +1,21 @@
 #### Biggest files
 
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
-130162	./view/standard-view.c
-110346	./core/th-file.c
-99883	./menu/thunar-launcher.c
-81508	./view/thunar-list-model.c
+
+130057	./view/standard-view.c
+103287	./core/th-file.c
+99869	./menu/thunar-launcher.c
+75707	./view/list-model.c
 74583	./thunar-window.c
 73011	./side/thunar-tree-view.c
-70876	./thunar-application.c
+70773	./thunar-application.c
 65936	./side/thunar-tree-model.c
-62714	./job/thunar-transfer-job.c
-54007	./dialog/thunar-permissions-chooser.c
-52281	./dialog/thunar-properties-dialog.c
+62700	./job/thunar-transfer-job.c
+53953	./dialog/thunar-permissions-chooser.c
+52258	./dialog/thunar-properties-dialog.c
 47297	./dialog/thunar-chooser-dialog.c
-44941	./job/thunar-io-jobs.c
-44246	./widget/thunar-path-entry.c
+45239	./job/io-jobs.c
+44211	./widget/thunar-path-entry.c
 43338	./view/thunar-details-view.c
 
 

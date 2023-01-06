@@ -454,7 +454,7 @@ static XfceGtkActionEntry _launcher_actions[] =
                                     id)
 
 G_DEFINE_TYPE_WITH_CODE(ThunarLauncher,
-                        thunar_launcher,
+                        launcher,
                         G_TYPE_OBJECT,
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER,
                                               NULL)
@@ -463,7 +463,7 @@ G_DEFINE_TYPE_WITH_CODE(ThunarLauncher,
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
                                               thunar_launcher_component_init))
 
-static void thunar_launcher_class_init(ThunarLauncherClass *klass)
+static void launcher_class_init(ThunarLauncherClass *klass)
 {
     GObjectClass *gobject_class;
     gpointer     g_iface;
@@ -532,19 +532,19 @@ static void thunar_launcher_class_init(ThunarLauncherClass *klass)
     g_object_class_install_properties(gobject_class, N_PROPERTIES, launcher_props);
 }
 
-static void thunar_launcher_component_init(ThunarComponentIface *iface)
-{
-    iface->get_selected_files = (gpointer) e_noop_null;
-    iface->set_selected_files = thunar_launcher_set_selected_files;
-}
-
 static void thunar_launcher_navigator_init(ThunarNavigatorIface *iface)
 {
     iface->get_current_directory = thunar_launcher_get_current_directory;
     iface->set_current_directory = thunar_launcher_set_current_directory;
 }
 
-static void thunar_launcher_init(ThunarLauncher *launcher)
+static void thunar_launcher_component_init(ThunarComponentIface *iface)
+{
+    iface->get_selected_files = (gpointer) e_noop_null;
+    iface->set_selected_files = thunar_launcher_set_selected_files;
+}
+
+static void launcher_init(ThunarLauncher *launcher)
 {
     launcher->files_to_process = NULL;
     launcher->select_files_closure = NULL;
@@ -567,14 +567,14 @@ static void thunar_launcher_dispose(GObject *object)
     if (launcher->parent_folder != NULL)
         g_object_unref(launcher->parent_folder);
 
-   (*G_OBJECT_CLASS(thunar_launcher_parent_class)->dispose)(object);
+    G_OBJECT_CLASS(launcher_parent_class)->dispose(object);
 }
 
 static void thunar_launcher_finalize(GObject *object)
 {
     //ThunarLauncher *launcher = THUNAR_LAUNCHER(object);
 
-   (*G_OBJECT_CLASS(thunar_launcher_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(launcher_parent_class)->finalize(object);
 }
 
 // Properties -----------------------------------------------------------------
