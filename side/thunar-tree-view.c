@@ -176,7 +176,7 @@ struct _ThunarTreeViewClass
 struct _ThunarTreeView
 {
     GtkTreeView             __parent__;
-    ThunarClipboardManager  *clipboard;
+    ClipboardManager  *clipboard;
     GtkCellRenderer         *icon_renderer;
     ThunarFile              *current_directory;
     ThunarTreeModel         *model;

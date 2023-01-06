@@ -201,7 +201,7 @@ struct _ThunarWindow
     //ThunarxProviderFactory *provider_factory;
     GList                  *thunarx_preferences_providers;
 
-    ThunarClipboardManager *clipboard;
+    ClipboardManager *clipboard;
 
     ThunarIconFactory      *icon_factory;
 

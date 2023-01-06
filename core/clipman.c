@@ -55,14 +55,14 @@ static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
 
 
 static void _clipman_owner_changed(GtkClipboard *clipboard, GdkEventOwnerChange *event,
-                                   ThunarClipboardManager *manager);
+                                   ClipboardManager *manager);
 static void _clipman_targets_received(GtkClipboard *clipboard,
                                       GtkSelectionData *selection_data,
                                       gpointer user_data);
 
-static void _clipman_transfer_files(ThunarClipboardManager *manager, gboolean copy,
+static void _clipman_transfer_files(ClipboardManager *manager, gboolean copy,
                                     GList *files);
-static void _clipman_file_destroyed(ThunarFile *file, ThunarClipboardManager *manager);
+static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager);
 static void _clipman_get_callback(GtkClipboard *clipboard,
                                                   GtkSelectionData *selection_data,
                                                   guint info,
@@ -76,14 +76,14 @@ static void clipman_contents_received(GtkClipboard *clipboard,
                                                        GtkSelectionData *selection_data,
                                                        gpointer user_data);
 
-struct _ThunarClipboardManagerClass
+struct _ClipboardManagerClass
 {
     GObjectClass __parent__;
 
-    void (*changed) (ThunarClipboardManager *manager);
+    void (*changed) (ClipboardManager *manager);
 };
 
-struct _ThunarClipboardManager
+struct _ClipboardManager
 {
     GObject __parent__;
 
@@ -98,7 +98,7 @@ struct _ThunarClipboardManager
 
 typedef struct
 {
-    ThunarClipboardManager *manager;
+    ClipboardManager *manager;
     GFile                  *target_file;
     GtkWidget              *widget;
     GClosure               *new_files_closure;
@@ -115,9 +115,9 @@ static const GtkTargetEntry _clipman_targets[] =
 static GQuark _clipman_quark = 0;
 static guint  _clipman_signals[LAST_SIGNAL];
 
-G_DEFINE_TYPE(ThunarClipboardManager, clipman, G_TYPE_OBJECT)
+G_DEFINE_TYPE(ClipboardManager, clipman, G_TYPE_OBJECT)
 
-static void clipman_class_init(ThunarClipboardManagerClass *klass)
+static void clipman_class_init(ClipboardManagerClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = clipman_dispose;
@@ -125,10 +125,10 @@ static void clipman_class_init(ThunarClipboardManagerClass *klass)
     gobject_class->get_property = clipman_get_property;
 
     /**
-     * ThunarClipboardManager:can-paste:
+     * ClipboardManager:can-paste:
      *
      * This property tells whether the current clipboard content of
-     * this #ThunarClipboardManager can be pasted into a folder
+     * this #ClipboardManager can be pasted into a folder
      * displayed by a #ThunarView.
      **/
     g_object_class_install_property(gobject_class,
@@ -140,8 +140,8 @@ static void clipman_class_init(ThunarClipboardManagerClass *klass)
                                                          E_PARAM_READABLE));
 
     /**
-     * ThunarClipboardManager::changed:
-     * @manager : a #ThunarClipboardManager.
+     * ClipboardManager::changed:
+     * @manager : a #ClipboardManager.
      *
      * This signal is emitted whenever the contents of the
      * clipboard associated with @manager changes.
@@ -150,7 +150,7 @@ static void clipman_class_init(ThunarClipboardManagerClass *klass)
         g_signal_new(I_("changed"),
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_FIRST,
-                     G_STRUCT_OFFSET(ThunarClipboardManagerClass, changed),
+                     G_STRUCT_OFFSET(ClipboardManagerClass, changed),
                      NULL,
                      NULL,
                      g_cclosure_marshal_VOID__VOID,
@@ -158,14 +158,14 @@ static void clipman_class_init(ThunarClipboardManagerClass *klass)
                      0);
 }
 
-static void clipman_init(ThunarClipboardManager *manager)
+static void clipman_init(ClipboardManager *manager)
 {
     manager->x_special_gnome_copied_files = gdk_atom_intern_static_string("x-special/gnome-copied-files");
 }
 
 static void clipman_dispose(GObject *object)
 {
-    ThunarClipboardManager *manager = THUNAR_CLIPBOARD_MANAGER(object);
+    ClipboardManager *manager = CLIPBOARD_MANAGER(object);
 
     /* store the clipboard if we still own it and a clipboard
      * manager is running(gtk_clipboard_store checks this) */
@@ -183,7 +183,7 @@ static void clipman_dispose(GObject *object)
 
 static void clipman_finalize(GObject *object)
 {
-    ThunarClipboardManager *manager = THUNAR_CLIPBOARD_MANAGER(object);
+    ClipboardManager *manager = CLIPBOARD_MANAGER(object);
     GList                  *lp;
 
     /* release any pending files */
@@ -210,7 +210,7 @@ static void clipman_get_property(GObject    *object,
 {
     UNUSED(pspec);
 
-    ThunarClipboardManager *manager = THUNAR_CLIPBOARD_MANAGER(object);
+    ClipboardManager *manager = CLIPBOARD_MANAGER(object);
 
     switch(prop_id)
     {
@@ -261,17 +261,17 @@ static gchar* thunar_clipboard_manager_g_file_list_to_string(GList       *list,
  * thunar_clipboard_manager_get_for_display:
  * @display : a #GdkDisplay.
  *
- * Determines the #ThunarClipboardManager that is used to manage
+ * Determines the #ClipboardManager that is used to manage
  * the clipboard on the given @display.
  *
  * The caller is responsible for freeing the returned object
  * using g_object_unref() when it's no longer needed.
  *
- * Return value: the #ThunarClipboardManager for @display.
+ * Return value: the #ClipboardManager for @display.
  **/
-ThunarClipboardManager* clipman_get_for_display(GdkDisplay *display)
+ClipboardManager* clipman_get_for_display(GdkDisplay *display)
 {
-    ThunarClipboardManager *manager;
+    ClipboardManager *manager;
     GtkClipboard           *clipboard;
 
     thunar_return_val_if_fail(GDK_IS_DISPLAY(display), NULL);
@@ -292,7 +292,7 @@ ThunarClipboardManager* clipman_get_for_display(GdkDisplay *display)
     }
 
     /* allocate a new manager */
-    manager = g_object_new(THUNAR_TYPE_CLIPBOARD_MANAGER, NULL);
+    manager = g_object_new(TYPE_CLIPBOARD_MANAGER, NULL);
     manager->clipboard = GTK_CLIPBOARD(g_object_ref(G_OBJECT(clipboard)));
     g_object_set_qdata(G_OBJECT(clipboard), _clipman_quark, manager);
 
@@ -308,10 +308,10 @@ ThunarClipboardManager* clipman_get_for_display(GdkDisplay *display)
 
 static void _clipman_owner_changed(GtkClipboard           *clipboard,
                                                    GdkEventOwnerChange    *event,
-                                                   ThunarClipboardManager *manager)
+                                                   ClipboardManager *manager)
 {
     thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     thunar_return_if_fail(manager->clipboard == clipboard);
     UNUSED(event);
 
@@ -329,13 +329,13 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
                                                       GtkSelectionData *selection_data,
                                                       gpointer          user_data)
 {
-    ThunarClipboardManager *manager = THUNAR_CLIPBOARD_MANAGER(user_data);
+    ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
     GdkAtom                *targets;
     gint                    n_targets;
     gint                    n;
 
     thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     thunar_return_if_fail(manager->clipboard == clipboard);
 
     /* reset the "can-paste" state */
@@ -365,7 +365,7 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
 
 /**
  * thunar_clipboard_manager_get_can_paste:
- * @manager : a #ThunarClipboardManager.
+ * @manager : a #ClipboardManager.
  *
  * Tells whether the contents of the clipboard represented
  * by @manager can be pasted into a folder.
@@ -374,25 +374,25 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
  *               represented by @manager can be pasted
  *               into a folder.
  **/
-gboolean clipman_get_can_paste(ThunarClipboardManager *manager)
+gboolean clipman_get_can_paste(ClipboardManager *manager)
 {
-    thunar_return_val_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager), FALSE);
+    thunar_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
     return manager->can_paste;
 }
 
 /**
  * thunar_clipboard_manager_has_cutted_file:
- * @manager : a #ThunarClipboardManager.
+ * @manager : a #ClipboardManager.
  * @file    : a #ThunarFile.
  *
  * Checks whether @file was cutted to the given @manager earlier.
  *
  * Return value: %TRUE if @file is on the cutted list of @manager.
  **/
-gboolean clipman_has_cutted_file(ThunarClipboardManager *manager,
+gboolean clipman_has_cutted_file(ClipboardManager *manager,
                                                   const ThunarFile       *file)
 {
-    thunar_return_val_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager), FALSE);
+    thunar_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     return(manager->files_cutted && g_list_find(manager->files, file) != NULL);
@@ -400,37 +400,37 @@ gboolean clipman_has_cutted_file(ThunarClipboardManager *manager,
 
 /**
  * thunar_clipboard_manager_copy_files:
- * @manager : a #ThunarClipboardManager.
+ * @manager : a #ClipboardManager.
  * @files   : a list of #ThunarFile<!---->s.
  *
  * Sets the clipboard represented by @manager to
  * contain the @files and marks them to be copied
  * when the user pastes from the clipboard.
  **/
-void clipman_copy_files(ThunarClipboardManager *manager,
+void clipman_copy_files(ClipboardManager *manager,
                                          GList                  *files)
 {
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     _clipman_transfer_files(manager, TRUE, files);
 }
 
 /**
  * thunar_clipboard_manager_cut_files:
- * @manager : a #ThunarClipboardManager.
+ * @manager : a #ClipboardManager.
  * @files   : a list of #ThunarFile<!---->s.
  *
  * Sets the clipboard represented by @manager to
  * contain the @files and marks them to be moved
  * when the user pastes from the clipboard.
  **/
-void clipman_cut_files(ThunarClipboardManager *manager,
+void clipman_cut_files(ClipboardManager *manager,
                                         GList                  *files)
 {
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     _clipman_transfer_files(manager, FALSE, files);
 }
 
-static void _clipman_transfer_files(ThunarClipboardManager *manager,
+static void _clipman_transfer_files(ClipboardManager *manager,
                                                     gboolean                copy,
                                                     GList                  *files)
 {
@@ -469,9 +469,9 @@ static void _clipman_transfer_files(ThunarClipboardManager *manager,
 }
 
 static void _clipman_file_destroyed(ThunarFile             *file,
-                                                    ThunarClipboardManager *manager)
+                                                    ClipboardManager *manager)
 {
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     thunar_return_if_fail(g_list_find(manager->files, file) != NULL);
 
     /* remove the file from our list */
@@ -487,7 +487,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
                                                   guint             target_info,
                                                   gpointer          user_data)
 {
-    ThunarClipboardManager  *manager = THUNAR_CLIPBOARD_MANAGER(user_data);
+    ClipboardManager  *manager = CLIPBOARD_MANAGER(user_data);
     GList                   *file_list;
     gchar                   *str;
     gchar                  **uris;
@@ -495,7 +495,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
     gsize                    len;
 
     thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     thunar_return_if_fail(manager->clipboard == clipboard);
 
     /* determine the path list from the file list */
@@ -533,11 +533,11 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
 static void _clipman_clear_callback(GtkClipboard *clipboard,
                                                     gpointer      user_data)
 {
-    ThunarClipboardManager *manager = THUNAR_CLIPBOARD_MANAGER(user_data);
+    ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
     GList                  *lp;
 
     thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     thunar_return_if_fail(manager->clipboard == clipboard);
 
     /* release the pending files */
@@ -553,7 +553,7 @@ static void _clipman_clear_callback(GtkClipboard *clipboard,
 
 /**
  * thunar_clipboard_manager_paste_files:
- * @manager           : a #ThunarClipboardManager.
+ * @manager           : a #ClipboardManager.
  * @target_file       : the #GFile of the folder to which the contents on the clipboard
  *                      should be pasted.
  * @widget            : a #GtkWidget, on which to perform the paste or %NULL if no widget is
@@ -566,19 +566,19 @@ static void _clipman_clear_callback(GtkClipboard *clipboard,
  * Pastes the contents from the clipboard associated with @manager to the directory
  * referenced by @target_file.
  **/
-void clipman_paste_files(ThunarClipboardManager *manager,
+void clipman_paste_files(ClipboardManager *manager,
                                           GFile                  *target_file,
                                           GtkWidget              *widget,
                                           GClosure               *new_files_closure)
 {
     ThunarClipboardPasteRequest *request;
 
-    thunar_return_if_fail(THUNAR_IS_CLIPBOARD_MANAGER(manager));
+    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     thunar_return_if_fail(widget == NULL || GTK_IS_WIDGET(widget));
 
     /* prepare the paste request */
     request = g_slice_new0(ThunarClipboardPasteRequest);
-    request->manager = THUNAR_CLIPBOARD_MANAGER(g_object_ref(G_OBJECT(manager)));
+    request->manager = CLIPBOARD_MANAGER(g_object_ref(G_OBJECT(manager)));
     request->target_file = g_object_ref(target_file);
     request->widget = widget;
 
@@ -606,8 +606,9 @@ static void clipman_contents_received(GtkClipboard     *clipboard,
                                                        gpointer          user_data)
 {
     UNUSED(clipboard);
+
     ThunarClipboardPasteRequest *request = user_data;
-    ThunarClipboardManager      *manager = THUNAR_CLIPBOARD_MANAGER(request->manager);
+    ClipboardManager      *manager = CLIPBOARD_MANAGER(request->manager);
     ThunarApplication           *application;
     gboolean                     path_copy = TRUE;
     GList                       *file_list = NULL;

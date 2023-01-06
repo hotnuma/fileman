@@ -1358,7 +1358,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     gchar                    *label_text;
     gchar                    *tooltip_text;
     gboolean                  show_item;
-    ThunarClipboardManager   *clipboard;
+    ClipboardManager   *clipboard;
     ThunarFile               *parent;
     gint                      n;
 
@@ -1874,7 +1874,7 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
 
 static void _launcher_action_cut(ThunarLauncher *launcher)
 {
-    ThunarClipboardManager *clipboard;
+    ClipboardManager *clipboard;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -1888,7 +1888,7 @@ static void _launcher_action_cut(ThunarLauncher *launcher)
 
 static void _launcher_action_copy(ThunarLauncher *launcher)
 {
-    ThunarClipboardManager *clipboard;
+    ClipboardManager *clipboard;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -1902,7 +1902,7 @@ static void _launcher_action_copy(ThunarLauncher *launcher)
 
 static void _launcher_action_paste_into_folder(ThunarLauncher *launcher)
 {
-    ThunarClipboardManager *clipboard;
+    ClipboardManager *clipboard;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -1916,7 +1916,7 @@ static void _launcher_action_paste_into_folder(ThunarLauncher *launcher)
 
 static void _launcher_action_paste(ThunarLauncher *launcher)
 {
-    ThunarClipboardManager *clipboard;
+    ClipboardManager *clipboard;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 

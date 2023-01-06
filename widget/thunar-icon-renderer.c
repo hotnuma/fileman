@@ -350,7 +350,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
 {
     UNUSED(background_area);
 
-    ThunarClipboardManager *clipboard;
+    ClipboardManager *clipboard;
     ThunarFileIconState     icon_state;
     ThunarIconRenderer     *icon_renderer = THUNAR_ICON_RENDERER(renderer);
     ThunarIconFactory      *icon_factory;
