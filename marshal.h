@@ -60,16 +60,7 @@ void _thunar_marshal_FLAGS__STRING_FLAGS (GClosure     *closure,
                                           gpointer      invocation_hint,
                                           gpointer      marshal_data);
 
-/* VOID:STRING,STRING (marshal.list:7) */
-extern
-void _thunar_marshal_VOID__STRING_STRING (GClosure     *closure,
-                                          GValue       *return_value,
-                                          guint         n_param_values,
-                                          const GValue *param_values,
-                                          gpointer      invocation_hint,
-                                          gpointer      marshal_data);
-
-/* VOID:UINT64,UINT,UINT,UINT (marshal.list:8) */
+/* VOID:UINT64,UINT,UINT,UINT (marshal.list:7) */
 extern
 void _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
                                                   GValue       *return_value,
@@ -78,25 +69,7 @@ void _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
                                                   gpointer      invocation_hint,
                                                   gpointer      marshal_data);
 
-/* VOID:UINT,BOXED,UINT,STRING (marshal.list:9) */
-extern
-void _thunar_marshal_VOID__UINT_BOXED_UINT_STRING (GClosure     *closure,
-                                                   GValue       *return_value,
-                                                   guint         n_param_values,
-                                                   const GValue *param_values,
-                                                   gpointer      invocation_hint,
-                                                   gpointer      marshal_data);
-
-/* VOID:UINT,BOXED (marshal.list:10) */
-extern
-void _thunar_marshal_VOID__UINT_BOXED (GClosure     *closure,
-                                       GValue       *return_value,
-                                       guint         n_param_values,
-                                       const GValue *param_values,
-                                       gpointer      invocation_hint,
-                                       gpointer      marshal_data);
-
-/* VOID:OBJECT,OBJECT (marshal.list:11) */
+/* VOID:OBJECT,OBJECT (marshal.list:8) */
 extern
 void _thunar_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
                                           GValue       *return_value,

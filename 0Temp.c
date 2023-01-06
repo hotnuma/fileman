@@ -1,6 +1,15 @@
 
 #if 0
 
+// ----------------------------------------------------------------------------
+
+// marshal.list
+VOID:STRING,STRING
+VOID:UINT,BOXED,UINT,STRING
+VOID:UINT,BOXED
+
+// ----------------------------------------------------------------------------
+
 GtkWidget* menu_get_launcher(ThunarMenu *menu)
 {
     thunar_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);

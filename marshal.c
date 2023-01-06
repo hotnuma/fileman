@@ -283,44 +283,7 @@ _thunar_marshal_FLAGS__STRING_FLAGS (GClosure     *closure,
   g_value_set_flags (return_value, v_return);
 }
 
-/* VOID:STRING,STRING (marshal.list:7) */
-void
-_thunar_marshal_VOID__STRING_STRING (GClosure     *closure,
-                                     GValue       *return_value G_GNUC_UNUSED,
-                                     guint         n_param_values,
-                                     const GValue *param_values,
-                                     gpointer      invocation_hint G_GNUC_UNUSED,
-                                     gpointer      marshal_data)
-{
-  typedef void (*GMarshalFunc_VOID__STRING_STRING) (gpointer data1,
-                                                    gpointer arg1,
-                                                    gpointer arg2,
-                                                    gpointer data2);
-  GCClosure *cc = (GCClosure *) closure;
-  gpointer data1, data2;
-  GMarshalFunc_VOID__STRING_STRING callback;
-
-  g_return_if_fail (n_param_values == 3);
-
-  if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-      data1 = closure->data;
-      data2 = g_value_peek_pointer (param_values + 0);
-    }
-  else
-    {
-      data1 = g_value_peek_pointer (param_values + 0);
-      data2 = closure->data;
-    }
-  callback = (GMarshalFunc_VOID__STRING_STRING) (marshal_data ? marshal_data : cc->callback);
-
-  callback (data1,
-            g_marshal_value_peek_string (param_values + 1),
-            g_marshal_value_peek_string (param_values + 2),
-            data2);
-}
-
-/* VOID:UINT64,UINT,UINT,UINT (marshal.list:8) */
+/* VOID:UINT64,UINT,UINT,UINT (marshal.list:7) */
 void
 _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
                                              GValue       *return_value G_GNUC_UNUSED,
@@ -361,85 +324,7 @@ _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
             data2);
 }
 
-/* VOID:UINT,BOXED,UINT,STRING (marshal.list:9) */
-void
-_thunar_marshal_VOID__UINT_BOXED_UINT_STRING (GClosure     *closure,
-                                              GValue       *return_value G_GNUC_UNUSED,
-                                              guint         n_param_values,
-                                              const GValue *param_values,
-                                              gpointer      invocation_hint G_GNUC_UNUSED,
-                                              gpointer      marshal_data)
-{
-  typedef void (*GMarshalFunc_VOID__UINT_BOXED_UINT_STRING) (gpointer data1,
-                                                             guint arg1,
-                                                             gpointer arg2,
-                                                             guint arg3,
-                                                             gpointer arg4,
-                                                             gpointer data2);
-  GCClosure *cc = (GCClosure *) closure;
-  gpointer data1, data2;
-  GMarshalFunc_VOID__UINT_BOXED_UINT_STRING callback;
-
-  g_return_if_fail (n_param_values == 5);
-
-  if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-      data1 = closure->data;
-      data2 = g_value_peek_pointer (param_values + 0);
-    }
-  else
-    {
-      data1 = g_value_peek_pointer (param_values + 0);
-      data2 = closure->data;
-    }
-  callback = (GMarshalFunc_VOID__UINT_BOXED_UINT_STRING) (marshal_data ? marshal_data : cc->callback);
-
-  callback (data1,
-            g_marshal_value_peek_uint (param_values + 1),
-            g_marshal_value_peek_boxed (param_values + 2),
-            g_marshal_value_peek_uint (param_values + 3),
-            g_marshal_value_peek_string (param_values + 4),
-            data2);
-}
-
-/* VOID:UINT,BOXED (marshal.list:10) */
-void
-_thunar_marshal_VOID__UINT_BOXED (GClosure     *closure,
-                                  GValue       *return_value G_GNUC_UNUSED,
-                                  guint         n_param_values,
-                                  const GValue *param_values,
-                                  gpointer      invocation_hint G_GNUC_UNUSED,
-                                  gpointer      marshal_data)
-{
-  typedef void (*GMarshalFunc_VOID__UINT_BOXED) (gpointer data1,
-                                                 guint arg1,
-                                                 gpointer arg2,
-                                                 gpointer data2);
-  GCClosure *cc = (GCClosure *) closure;
-  gpointer data1, data2;
-  GMarshalFunc_VOID__UINT_BOXED callback;
-
-  g_return_if_fail (n_param_values == 3);
-
-  if (G_CCLOSURE_SWAP_DATA (closure))
-    {
-      data1 = closure->data;
-      data2 = g_value_peek_pointer (param_values + 0);
-    }
-  else
-    {
-      data1 = g_value_peek_pointer (param_values + 0);
-      data2 = closure->data;
-    }
-  callback = (GMarshalFunc_VOID__UINT_BOXED) (marshal_data ? marshal_data : cc->callback);
-
-  callback (data1,
-            g_marshal_value_peek_uint (param_values + 1),
-            g_marshal_value_peek_boxed (param_values + 2),
-            data2);
-}
-
-/* VOID:OBJECT,OBJECT (marshal.list:11) */
+/* VOID:OBJECT,OBJECT (marshal.list:8) */
 void
 _thunar_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
                                      GValue       *return_value G_GNUC_UNUSED,
