@@ -16,7 +16,7 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <config.h>
-#include <thunar-menu.h>
+#include <menu.h>
 
 #include <thunar-gtk-extensions.h>
 #include <launcher.h>

@@ -31,7 +31,7 @@
 
 #include <libext.h>
 #include <thunar-application.h>
-#include <thunar-menu.h>
+#include <menu.h>
 #include <thunar-dialogs.h>
 #include <thunar-dnd.h>
 #include <enum-types.h>

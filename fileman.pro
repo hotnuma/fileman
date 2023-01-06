@@ -44,19 +44,19 @@ HEADERS = \
     libext/exo-job.h \
     libext/exo-tree-view.h \
     libext/libext.h \
+    libext/thunar-gdk-extensions.h \
+    libext/thunar-gio-extensions.h \
+    libext/thunar-gobject-extensions.h \
+    libext/thunar-gtk-extensions.h \
+    libext/thunar-pango-extensions.h \
     menu/launcher.h \
-    menu/thunar-menu.h \
+    menu/menu.h \
     misc/enum-types.h \
     misc/thunar-browser.h \
     misc/thunar-component.h \
-    misc/thunar-gdk-extensions.h \
-    misc/thunar-gio-extensions.h \
-    misc/thunar-gobject-extensions.h \
-    misc/thunar-gtk-extensions.h \
     misc/thunar-history.h \
     misc/thunar-navigator.h \
     misc/thunar-notify.h \
-    misc/thunar-pango-extensions.h \
     side/thunar-side-pane.h \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
@@ -109,24 +109,24 @@ SOURCES = \
     libext/exo-job.c \
     libext/exo-tree-view.c \
     libext/libext.c \
+    libext/thunar-gdk-extensions.c \
+    libext/thunar-gio-extensions.c \
+    libext/thunar-gobject-extensions.c \
+    libext/thunar-gtk-extensions.c \
+    libext/thunar-pango-extensions.c \
     menu/launcher.c \
+    menu/menu.c \
     misc/enum-types.c \
     misc/thunar-browser.c \
     misc/thunar-component.c \
-    misc/thunar-gdk-extensions.c \
-    misc/thunar-gio-extensions.c \
-    misc/thunar-gobject-extensions.c \
-    misc/thunar-gtk-extensions.c \
     misc/thunar-history.c \
     misc/thunar-navigator.c \
     misc/thunar-notify.c \
-    misc/thunar-pango-extensions.c \
     job/thunar-deep-count-job.c \
     job/thunar-io-jobs-util.c \
     job/thunar-job.c \
     job/thunar-simple-job.c \
     job/thunar-transfer-job.c \
-    menu/thunar-menu.c \
     side/thunar-side-pane.c \
     side/thunar-tree-model.c \
     side/thunar-tree-pane.c \

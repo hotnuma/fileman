@@ -38,7 +38,7 @@
 #include <launcher.h>
 #include <thunar-location-entry.h>
 #include <thunar-marshal.h>
-#include <thunar-menu.h>
+#include <menu.h>
 #include <thunar-pango-extensions.h>
 #include <preferences.h>
 #include <thunar-util.h>
