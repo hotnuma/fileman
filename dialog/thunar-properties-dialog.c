@@ -28,9 +28,9 @@
 #include <libext.h>
 #include <libxfce4ui/libxfce4ui.h>
 
-#include <thunar-application.h>
+#include <application.h>
 #include <thunar-chooser-button.h>
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
@@ -38,12 +38,12 @@
 #include <thunar-image.h>
 #include <io-jobs.h>
 #include <thunar-job.h>
-#include <thunar-marshal.h>
+#include <marshal.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-permissions-chooser.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-size-label.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 #include <thx-file-info.h>
 

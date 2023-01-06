@@ -29,7 +29,7 @@
 #include <thunar-gdk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-shortcuts-icon-renderer.h>
-#include <thunar-device.h>
+#include <device.h>
 
 /* Property identifiers */
 enum

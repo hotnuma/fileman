@@ -25,10 +25,10 @@
 //#include <libext.h>
 #include <exo-cell-renderer-icon.h>
 
-#include <thunar-application.h>
+#include <application.h>
 #include <thunar-chooser-dialog.h>
 #include <thunar-chooser-model.h>
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>

@@ -24,9 +24,9 @@
 
 #include <libext.h>
 
-#include <thunar-application.h>
-#include <thunar-clipboard-manager.h>
-#include <thunar-dialogs.h>
+#include <application.h>
+#include <clipboard-manager.h>
+#include <dialogs.h>
 #include <thunar-gobject-extensions.h>
 
 enum

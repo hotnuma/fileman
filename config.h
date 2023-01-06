@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 #include <stdbool.h>
-#include <thunar-debug.h>
+#include <debug.h>
 
 #if defined(GETTEXT_PACKAGE)
 #include <glib/gi18n-lib.h>

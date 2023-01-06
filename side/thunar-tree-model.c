@@ -23,13 +23,13 @@
 
 #include <libext.h>
 
-#include <thunar-file-monitor.h>
-#include <thunar-folder.h>
+#include <file-monitor.h>
+#include <th-folder.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-tree-model.h>
-#include <thunar-device-monitor.h>
-#include <thunar-util.h>
+#include <device-monitor.h>
+#include <utils.h>
 
 /* convenience macros */
 #define G_NODE(node)                    ((GNode *)(node))

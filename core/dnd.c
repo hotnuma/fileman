@@ -22,9 +22,9 @@
 #include <config.h>
 #endif
 
-#include <thunar-application.h>
-#include <thunar-dialogs.h>
-#include <thunar-dnd.h>
+#include <application.h>
+#include <dialogs.h>
+#include <dnd.h>
 #include <thunar-gtk-extensions.h>
 
 static void dnd_action_selected(GtkWidget     *item,

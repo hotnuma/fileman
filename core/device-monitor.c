@@ -24,8 +24,8 @@
 
 #include <libext.h>
 
-#include <thunar-device-monitor.h>
-#include <thunar-marshal.h>
+#include <device-monitor.h>
+#include <marshal.h>
 
 /* signal identifiers */
 enum

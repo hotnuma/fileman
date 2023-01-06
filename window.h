@@ -20,7 +20,7 @@
 #define __THUNAR_WINDOW_H__
 
 #include <enum-types.h>
-#include <thunar-folder.h>
+#include <th-folder.h>
 #include <launcher.h>
 
 #include <libxfce4ui/libxfce4ui.h>

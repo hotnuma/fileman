@@ -26,26 +26,26 @@
 
 #include <libext.h>
 
-#include <thunar-application.h>
+#include <application.h>
 #include <thunar-browser.h>
-#include <thunar-clipboard-manager.h>
+#include <clipboard-manager.h>
 #include <thunar-details-view.h>
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-history.h>
 #include <launcher.h>
 #include <thunar-location-entry.h>
-#include <thunar-marshal.h>
+#include <marshal.h>
 #include <menu.h>
 #include <thunar-pango-extensions.h>
 #include <preferences.h>
-#include <thunar-util.h>
+#include <utils.h>
 #include <thunar-statusbar.h>
 #include <thunar-tree-pane.h>
-#include <thunar-window.h>
-#include <thunar-device-monitor.h>
+#include <window.h>
+#include <device-monitor.h>
 
 #include <glib.h>
 #include <syslog.h>

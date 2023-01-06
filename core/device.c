@@ -20,8 +20,8 @@
 
 #include <libext.h>
 
-#include <thunar-device.h>
-#include <thunar-device-monitor.h>
+#include <device.h>
+#include <device-monitor.h>
 #include <th-file.h>
 #include <thunar-notify.h>
 

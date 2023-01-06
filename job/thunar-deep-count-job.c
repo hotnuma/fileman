@@ -28,8 +28,8 @@
 
 #include <thunar-deep-count-job.h>
 #include <thunar-job.h>
-#include <thunar-marshal.h>
-#include <thunar-util.h>
+#include <marshal.h>
+#include <utils.h>
 
 /* Signal identifiers */
 enum

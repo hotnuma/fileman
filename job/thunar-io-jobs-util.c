@@ -26,7 +26,7 @@
 #include <thunar-gio-extensions.h>
 #include <thunar-io-jobs-util.h>
 #include <thunar-job.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 /**
  * thunar_io_jobs_util_next_duplicate_file:

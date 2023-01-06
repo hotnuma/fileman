@@ -36,7 +36,7 @@
 #include <thunar-session-client.h>
 #endif
 
-#include <thunar-application.h>
+#include <application.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-notify.h>
 

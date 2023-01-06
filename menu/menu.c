@@ -20,7 +20,7 @@
 
 #include <thunar-gtk-extensions.h>
 #include <launcher.h>
-#include <thunar-window.h>
+#include <window.h>
 
 /*
  * ThunarMenu is a GtkMenu which provides a unified menu-creation

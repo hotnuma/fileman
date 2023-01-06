@@ -6,7 +6,7 @@
 
 G_BEGIN_DECLS
 
-/* BOOLEAN:BOOLEAN (thunar-marshal.list:1) */
+/* BOOLEAN:BOOLEAN (marshal.list:1) */
 extern
 void _thunar_marshal_BOOLEAN__BOOLEAN (GClosure     *closure,
                                        GValue       *return_value,
@@ -15,7 +15,7 @@ void _thunar_marshal_BOOLEAN__BOOLEAN (GClosure     *closure,
                                        gpointer      invocation_hint,
                                        gpointer      marshal_data);
 
-/* BOOLEAN:POINTER (thunar-marshal.list:2) */
+/* BOOLEAN:POINTER (marshal.list:2) */
 extern
 void _thunar_marshal_BOOLEAN__POINTER (GClosure     *closure,
                                        GValue       *return_value,
@@ -24,7 +24,7 @@ void _thunar_marshal_BOOLEAN__POINTER (GClosure     *closure,
                                        gpointer      invocation_hint,
                                        gpointer      marshal_data);
 
-/* BOOLEAN:VOID (thunar-marshal.list:3) */
+/* BOOLEAN:VOID (marshal.list:3) */
 extern
 void _thunar_marshal_BOOLEAN__VOID (GClosure     *closure,
                                     GValue       *return_value,
@@ -33,7 +33,7 @@ void _thunar_marshal_BOOLEAN__VOID (GClosure     *closure,
                                     gpointer      invocation_hint,
                                     gpointer      marshal_data);
 
-/* BOOLEAN:INT (thunar-marshal.list:4) */
+/* BOOLEAN:INT (marshal.list:4) */
 extern
 void _thunar_marshal_BOOLEAN__INT (GClosure     *closure,
                                    GValue       *return_value,
@@ -42,7 +42,7 @@ void _thunar_marshal_BOOLEAN__INT (GClosure     *closure,
                                    gpointer      invocation_hint,
                                    gpointer      marshal_data);
 
-/* FLAGS:OBJECT,OBJECT (thunar-marshal.list:5) */
+/* FLAGS:OBJECT,OBJECT (marshal.list:5) */
 extern
 void _thunar_marshal_FLAGS__OBJECT_OBJECT (GClosure     *closure,
                                            GValue       *return_value,
@@ -51,7 +51,7 @@ void _thunar_marshal_FLAGS__OBJECT_OBJECT (GClosure     *closure,
                                            gpointer      invocation_hint,
                                            gpointer      marshal_data);
 
-/* FLAGS:STRING,FLAGS (thunar-marshal.list:6) */
+/* FLAGS:STRING,FLAGS (marshal.list:6) */
 extern
 void _thunar_marshal_FLAGS__STRING_FLAGS (GClosure     *closure,
                                           GValue       *return_value,
@@ -60,7 +60,7 @@ void _thunar_marshal_FLAGS__STRING_FLAGS (GClosure     *closure,
                                           gpointer      invocation_hint,
                                           gpointer      marshal_data);
 
-/* VOID:STRING,STRING (thunar-marshal.list:7) */
+/* VOID:STRING,STRING (marshal.list:7) */
 extern
 void _thunar_marshal_VOID__STRING_STRING (GClosure     *closure,
                                           GValue       *return_value,
@@ -69,7 +69,7 @@ void _thunar_marshal_VOID__STRING_STRING (GClosure     *closure,
                                           gpointer      invocation_hint,
                                           gpointer      marshal_data);
 
-/* VOID:UINT64,UINT,UINT,UINT (thunar-marshal.list:8) */
+/* VOID:UINT64,UINT,UINT,UINT (marshal.list:8) */
 extern
 void _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
                                                   GValue       *return_value,
@@ -78,7 +78,7 @@ void _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
                                                   gpointer      invocation_hint,
                                                   gpointer      marshal_data);
 
-/* VOID:UINT,BOXED,UINT,STRING (thunar-marshal.list:9) */
+/* VOID:UINT,BOXED,UINT,STRING (marshal.list:9) */
 extern
 void _thunar_marshal_VOID__UINT_BOXED_UINT_STRING (GClosure     *closure,
                                                    GValue       *return_value,
@@ -87,7 +87,7 @@ void _thunar_marshal_VOID__UINT_BOXED_UINT_STRING (GClosure     *closure,
                                                    gpointer      invocation_hint,
                                                    gpointer      marshal_data);
 
-/* VOID:UINT,BOXED (thunar-marshal.list:10) */
+/* VOID:UINT,BOXED (marshal.list:10) */
 extern
 void _thunar_marshal_VOID__UINT_BOXED (GClosure     *closure,
                                        GValue       *return_value,
@@ -96,7 +96,7 @@ void _thunar_marshal_VOID__UINT_BOXED (GClosure     *closure,
                                        gpointer      invocation_hint,
                                        gpointer      marshal_data);
 
-/* VOID:OBJECT,OBJECT (thunar-marshal.list:11) */
+/* VOID:OBJECT,OBJECT (marshal.list:11) */
 extern
 void _thunar_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
                                           GValue       *return_value,

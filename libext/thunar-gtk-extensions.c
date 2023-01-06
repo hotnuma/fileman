@@ -20,7 +20,7 @@
 #include <thunar-gtk-extensions.h>
 
 #include <libext.h>
-#include <thunar-util.h>
+#include <utils.h>
 #include <stdarg.h>
 
 #include <libxfce4ui/libxfce4ui.h>

@@ -22,7 +22,7 @@
 #ifndef __THUNAR_APPLICATION_H__
 #define __THUNAR_APPLICATION_H__
 
-#include <thunar-window.h>
+#include <window.h>
 
 G_BEGIN_DECLS;
 

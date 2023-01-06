@@ -25,7 +25,7 @@
 
 #include <thunar-chooser-button.h>
 #include <thunar-chooser-dialog.h>
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>

@@ -21,10 +21,10 @@
 #include <config.h>
 #include <list-model.h>
 
-#include <thunar-application.h>
-#include <thunar-file-monitor.h>
+#include <application.h>
+#include <file-monitor.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-user.h>
+#include <user.h>
 #include <libext.h>
 
 #include <memory.h>

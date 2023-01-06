@@ -22,7 +22,7 @@
 
 #include <enum-types.h>
 #include <thunar-gio-extensions.h>
-#include <thunar-user.h>
+#include <user.h>
 
 G_BEGIN_DECLS
 

@@ -36,7 +36,7 @@
 #include <thunar-icon-factory.h>
 #include <thunar-icon-renderer.h>
 #include <list-model.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 #define ICON_MARGIN (2)
 

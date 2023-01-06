@@ -26,7 +26,7 @@
 #include <thunar-details-view.h>
 #include <launcher.h>
 #include <thunar-gtk-extensions.h>
-#include <thunar-window.h>
+#include <window.h>
 
 /* Property identifiers */
 enum

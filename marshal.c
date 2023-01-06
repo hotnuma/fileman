@@ -47,7 +47,7 @@
 #define g_marshal_value_peek_variant(v)  (v)->data[0].v_pointer
 #endif /* !G_ENABLE_DEBUG */
 
-/* BOOLEAN:BOOLEAN (thunar-marshal.list:1) */
+/* BOOLEAN:BOOLEAN (marshal.list:1) */
 void
 _thunar_marshal_BOOLEAN__BOOLEAN (GClosure     *closure,
                                   GValue       *return_value,
@@ -86,7 +86,7 @@ _thunar_marshal_BOOLEAN__BOOLEAN (GClosure     *closure,
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:POINTER (thunar-marshal.list:2) */
+/* BOOLEAN:POINTER (marshal.list:2) */
 void
 _thunar_marshal_BOOLEAN__POINTER (GClosure     *closure,
                                   GValue       *return_value,
@@ -125,7 +125,7 @@ _thunar_marshal_BOOLEAN__POINTER (GClosure     *closure,
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:VOID (thunar-marshal.list:3) */
+/* BOOLEAN:VOID (marshal.list:3) */
 void
 _thunar_marshal_BOOLEAN__VOID (GClosure     *closure,
                                GValue       *return_value,
@@ -162,7 +162,7 @@ _thunar_marshal_BOOLEAN__VOID (GClosure     *closure,
   g_value_set_boolean (return_value, v_return);
 }
 
-/* BOOLEAN:INT (thunar-marshal.list:4) */
+/* BOOLEAN:INT (marshal.list:4) */
 void
 _thunar_marshal_BOOLEAN__INT (GClosure     *closure,
                               GValue       *return_value,
@@ -201,7 +201,7 @@ _thunar_marshal_BOOLEAN__INT (GClosure     *closure,
   g_value_set_boolean (return_value, v_return);
 }
 
-/* FLAGS:OBJECT,OBJECT (thunar-marshal.list:5) */
+/* FLAGS:OBJECT,OBJECT (marshal.list:5) */
 void
 _thunar_marshal_FLAGS__OBJECT_OBJECT (GClosure     *closure,
                                       GValue       *return_value,
@@ -242,7 +242,7 @@ _thunar_marshal_FLAGS__OBJECT_OBJECT (GClosure     *closure,
   g_value_set_flags (return_value, v_return);
 }
 
-/* FLAGS:STRING,FLAGS (thunar-marshal.list:6) */
+/* FLAGS:STRING,FLAGS (marshal.list:6) */
 void
 _thunar_marshal_FLAGS__STRING_FLAGS (GClosure     *closure,
                                      GValue       *return_value,
@@ -283,7 +283,7 @@ _thunar_marshal_FLAGS__STRING_FLAGS (GClosure     *closure,
   g_value_set_flags (return_value, v_return);
 }
 
-/* VOID:STRING,STRING (thunar-marshal.list:7) */
+/* VOID:STRING,STRING (marshal.list:7) */
 void
 _thunar_marshal_VOID__STRING_STRING (GClosure     *closure,
                                      GValue       *return_value G_GNUC_UNUSED,
@@ -320,7 +320,7 @@ _thunar_marshal_VOID__STRING_STRING (GClosure     *closure,
             data2);
 }
 
-/* VOID:UINT64,UINT,UINT,UINT (thunar-marshal.list:8) */
+/* VOID:UINT64,UINT,UINT,UINT (marshal.list:8) */
 void
 _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
                                              GValue       *return_value G_GNUC_UNUSED,
@@ -361,7 +361,7 @@ _thunar_marshal_VOID__UINT64_UINT_UINT_UINT (GClosure     *closure,
             data2);
 }
 
-/* VOID:UINT,BOXED,UINT,STRING (thunar-marshal.list:9) */
+/* VOID:UINT,BOXED,UINT,STRING (marshal.list:9) */
 void
 _thunar_marshal_VOID__UINT_BOXED_UINT_STRING (GClosure     *closure,
                                               GValue       *return_value G_GNUC_UNUSED,
@@ -402,7 +402,7 @@ _thunar_marshal_VOID__UINT_BOXED_UINT_STRING (GClosure     *closure,
             data2);
 }
 
-/* VOID:UINT,BOXED (thunar-marshal.list:10) */
+/* VOID:UINT,BOXED (marshal.list:10) */
 void
 _thunar_marshal_VOID__UINT_BOXED (GClosure     *closure,
                                   GValue       *return_value G_GNUC_UNUSED,
@@ -439,7 +439,7 @@ _thunar_marshal_VOID__UINT_BOXED (GClosure     *closure,
             data2);
 }
 
-/* VOID:OBJECT,OBJECT (thunar-marshal.list:11) */
+/* VOID:OBJECT,OBJECT (marshal.list:11) */
 void
 _thunar_marshal_VOID__OBJECT_OBJECT (GClosure     *closure,
                                      GValue       *return_value G_GNUC_UNUSED,

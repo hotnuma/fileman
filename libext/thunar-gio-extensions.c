@@ -32,7 +32,7 @@
 
 #include <th-file.h>
 #include <thunar-gio-extensions.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 GFile* thunar_g_file_new_for_home()
 {

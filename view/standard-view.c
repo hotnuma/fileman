@@ -30,10 +30,10 @@
 #endif
 
 #include <libext.h>
-#include <thunar-application.h>
+#include <application.h>
 #include <menu.h>
-#include <thunar-dialogs.h>
-#include <thunar-dnd.h>
+#include <dialogs.h>
+#include <dnd.h>
 #include <enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
@@ -41,11 +41,11 @@
 #include <thunar-history.h>
 #include <thunar-icon-renderer.h>
 #include <launcher.h>
-#include <thunar-marshal.h>
+#include <marshal.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 // Property identifiers
 enum

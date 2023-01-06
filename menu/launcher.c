@@ -21,20 +21,20 @@
 #include <config.h>
 #include <launcher.h>
 
-#include <thunar-application.h>
+#include <application.h>
 #include <preferences.h>
 #include <thunar-browser.h>
 #include <thunar-chooser-dialog.h>
-#include <thunar-clipboard-manager.h>
-#include <thunar-dialogs.h>
+#include <clipboard-manager.h>
+#include <dialogs.h>
 #include <thunar-icon-factory.h>
 #include <io-scan-directory.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-simple-job.h>
-#include <thunar-device-monitor.h>
+#include <device-monitor.h>
 #include <thunar-tree-view.h>
-#include <thunar-util.h>
-#include <thunar-window.h>
+#include <utils.h>
+#include <window.h>
 
 #include <libext.h>
 #include <thunar-gio-extensions.h>

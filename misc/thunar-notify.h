@@ -21,7 +21,7 @@
 #define __THUNAR_NOTIFY_H__
 
 #include <glib.h>
-#include <thunar-device.h>
+#include <device.h>
 
 G_BEGIN_DECLS
 

@@ -21,11 +21,11 @@
 
 #include <libext.h>
 
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-job.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-util.h>
+#include <utils.h>
 #include <thunar-transfer-job.h>
 #include <thunar-progress-view.h>
 

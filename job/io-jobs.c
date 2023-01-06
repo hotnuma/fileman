@@ -20,7 +20,7 @@
 #include <config.h>
 #include <io-jobs.h>
 
-#include <thunar-application.h>
+#include <application.h>
 #include <enum-types.h>
 #include <thunar-gio-extensions.h>
 #include <io-scan-directory.h>

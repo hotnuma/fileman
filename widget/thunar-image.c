@@ -24,8 +24,8 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include <thunar-application.h>
-#include <thunar-file-monitor.h>
+#include <application.h>
+#include <file-monitor.h>
 #include <thunar-image.h>
 #include <thunar-icon-factory.h>
 

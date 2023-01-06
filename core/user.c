@@ -31,8 +31,8 @@
 
 #include <libext.h>
 
-#include <thunar-user.h>
-#include <thunar-util.h>
+#include <user.h>
+#include <utils.h>
 
 /* the interval in which the user/group cache is flushed(in seconds) */
 #define THUNAR_USER_MANAGER_FLUSH_INTERVAL (10 * 60)

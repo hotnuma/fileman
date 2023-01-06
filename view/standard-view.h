@@ -19,7 +19,7 @@
 #ifndef __THUNAR_STANDARD_VIEW_H__
 #define __THUNAR_STANDARD_VIEW_H__
 
-#include <thunar-clipboard-manager.h>
+#include <clipboard-manager.h>
 #include <thunar-history.h>
 #include <thunar-icon-factory.h>
 #include <list-model.h>

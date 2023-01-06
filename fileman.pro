@@ -14,20 +14,21 @@ PKGCONFIG = \
 INCLUDEPATH = core dialog job libext menu misc side view widget
 
 HEADERS = \
+    application.h \
+    core/clipboard-manager.h \
+    core/device-monitor.h \
+    core/device.h \
+    core/dnd.h \
+    core/file-monitor.h \
     core/th-file.h \
-    core/thunar-clipboard-manager.h \
-    core/thunar-device.h \
-    core/thunar-device-monitor.h \
-    core/thunar-dnd.h \
-    core/thunar-file-monitor.h \
-    core/thunar-folder.h \
-    core/thunar-user.h \
-    core/thunar-util.h \
+    core/th-folder.h \
     core/thx-file-info.h \
+    core/user.h \
+    debug.h \
+    dialog/dialogs.h \
     dialog/thunar-chooser-button.h \
     dialog/thunar-chooser-dialog.h \
     dialog/thunar-chooser-model.h \
-    dialog/thunar-dialogs.h \
     dialog/thunar-permissions-chooser.h \
     dialog/thunar-progress-dialog.h \
     dialog/thunar-progress-view.h \
@@ -49,6 +50,8 @@ HEADERS = \
     libext/thunar-gobject-extensions.h \
     libext/thunar-gtk-extensions.h \
     libext/thunar-pango-extensions.h \
+    libext/utils.h \
+    marshal.h \
     menu/launcher.h \
     menu/menu.h \
     misc/enum-types.h \
@@ -61,7 +64,6 @@ HEADERS = \
     side/thunar-tree-model.h \
     side/thunar-tree-pane.h \
     side/thunar-tree-view.h \
-    thunar-debug.h \
     view/list-model.h \
     view/standard-view.h \
     view/thunar-column-model.h \
@@ -78,26 +80,25 @@ HEADERS = \
     widget/thunar-statusbar.h \
     config.h \
     preferences.h \
-    thunar-application.h \
-    thunar-marshal.h \
-    thunar-window.h \
+    window.h
 
 SOURCES = \
     0Temp.c \
+    application.c \
+    core/clipboard-manager.c \
+    core/device-monitor.c \
+    core/device.c \
+    core/dnd.c \
+    core/file-monitor.c \
     core/th-file.c \
-    core/thunar-clipboard-manager.c \
-    core/thunar-device.c \
-    core/thunar-device-monitor.c \
-    core/thunar-dnd.c \
-    core/thunar-file-monitor.c \
-    core/thunar-folder.c \
-    core/thunar-user.c \
-    core/thunar-util.c \
+    core/th-folder.c \
     core/thx-file-info.c \
+    core/user.c \
+    core/utils.c \
+    dialog/dialogs.c \
     dialog/thunar-chooser-button.c \
     dialog/thunar-chooser-dialog.c \
     dialog/thunar-chooser-model.c \
-    dialog/thunar-dialogs.c \
     dialog/thunar-permissions-chooser.c \
     dialog/thunar-progress-dialog.c \
     dialog/thunar-progress-view.c \
@@ -114,6 +115,7 @@ SOURCES = \
     libext/thunar-gobject-extensions.c \
     libext/thunar-gtk-extensions.c \
     libext/thunar-pango-extensions.c \
+    marshal.c \
     menu/launcher.c \
     menu/menu.c \
     misc/enum-types.c \
@@ -147,16 +149,14 @@ SOURCES = \
     widget/thunar-statusbar.c \
     main.c \
     preferences.c \
-    thunar-application.c \
-    thunar-marshal.c \
-    thunar-window.c \
+    window.c
 
 DISTFILES = \
     Notes.md \
     deps_search.txt \
     install.sh \
+    marshal.list \
     meson.build \
     Readme.md \
-    thunar-marshal.list \
 
 

@@ -23,7 +23,7 @@
 
 #include <libext.h>
 
-#include <thunar-application.h>
+#include <application.h>
 #include <thunar-gio-extensions.h>
 #include <io-scan-directory.h>
 #include <thunar-io-jobs-util.h>

@@ -24,22 +24,22 @@
 
 #include <gdk/gdkkeysyms.h>
 
-#include <thunar-application.h>
-#include <thunar-clipboard-manager.h>
-#include <thunar-device.h>
-#include <thunar-dialogs.h>
-#include <thunar-dnd.h>
+#include <application.h>
+#include <clipboard-manager.h>
+#include <device.h>
+#include <dialogs.h>
+#include <dnd.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-job.h>
-#include <thunar-marshal.h>
+#include <marshal.h>
 #include <menu.h>
 #include <thunar-properties-dialog.h>
 #include <thunar-shortcuts-icon-renderer.h>
 #include <thunar-simple-job.h>
 #include <thunar-tree-model.h>
 #include <thunar-tree-view.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 // drag dest expand timeout
 #define THUNAR_TREE_VIEW_EXPAND_TIMEOUT 750

@@ -19,7 +19,7 @@
 #ifndef __THUNAR_LIST_MODEL_H__
 #define __THUNAR_LIST_MODEL_H__
 
-#include <thunar-folder.h>
+#include <th-folder.h>
 
 G_BEGIN_DECLS;
 

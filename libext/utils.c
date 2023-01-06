@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 #include <sys/types.h>
 #include <sys/param.h>

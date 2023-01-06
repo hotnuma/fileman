@@ -25,13 +25,13 @@
 #include <libxfce4ui/libxfce4ui.h>
 #include <libext.h>
 
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <io-jobs.h>
 #include <thunar-job.h>
 #include <thunar-pango-extensions.h>
-#include <thunar-util.h>
+#include <utils.h>
 
 static void _thunar_dialogs_select_filename(GtkWidget  *entry, ThunarFile *file);
 

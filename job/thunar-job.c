@@ -32,7 +32,7 @@
 
 #include <enum-types.h>
 #include <thunar-job.h>
-#include <thunar-marshal.h>
+#include <marshal.h>
 
 /* Signal identifiers */
 enum

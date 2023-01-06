@@ -25,14 +25,14 @@
 
 #include <libext.h>
 
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <enum-types.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <io-jobs.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-permissions-chooser.h>
-#include <thunar-user.h>
+#include <user.h>
 
 #include <thx-file-info.h>
 

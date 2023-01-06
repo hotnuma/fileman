@@ -20,7 +20,7 @@
 #include <config.h>
 #endif
 
-#include <thunar-file-monitor.h>
+#include <file-monitor.h>
 
 /* Signal identifiers */
 enum

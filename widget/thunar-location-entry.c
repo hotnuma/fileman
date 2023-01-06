@@ -25,12 +25,12 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <thunar-browser.h>
-#include <thunar-dialogs.h>
+#include <dialogs.h>
 #include <thunar-gobject-extensions.h>
 #include <thunar-gtk-extensions.h>
 #include <thunar-icon-factory.h>
 #include <thunar-location-entry.h>
-#include <thunar-marshal.h>
+#include <marshal.h>
 #include <thunar-path-entry.h>
 
 /* Property identifiers */

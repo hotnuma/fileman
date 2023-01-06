@@ -18,10 +18,10 @@
  */
 
 #include <config.h>
-#include <thunar-folder.h>
+#include <th-folder.h>
 
 #include <io-jobs.h>
-#include <thunar-file-monitor.h>
+#include <file-monitor.h>
 
 #define DEBUG_FILE_CHANGES FALSE
 

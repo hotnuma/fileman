@@ -23,14 +23,14 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <thx-file-info.h>
-#include <thunar-application.h>
+#include <application.h>
 #include <thunar-chooser-dialog.h>
-#include <thunar-file-monitor.h>
+#include <file-monitor.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
-#include <thunar-user.h>
-#include <thunar-util.h>
-#include <thunar-dialogs.h>
+#include <user.h>
+#include <utils.h>
+#include <dialogs.h>
 #include <thunar-icon-factory.h>
 
 #include <sys/types.h>
