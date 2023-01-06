@@ -1779,36 +1779,36 @@ void standard_view_context_menu(ThunarStandardView *standard_view)
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
 
-    context_menu = g_object_new(THUNAR_TYPE_MENU, "menu-type", THUNAR_MENU_TYPE_CONTEXT_STANDARD_VIEW,
+    context_menu = g_object_new(THUNAR_TYPE_MENU, "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
                                  "launcher", thunar_window_get_launcher(THUNAR_WINDOW(window)), NULL);
     if (selected_items != NULL)
     {
-        thunar_menu_add_sections(context_menu,
-                                 THUNAR_MENU_SECTION_OPEN
-                                 | THUNAR_MENU_SECTION_CUT
-                                 | THUNAR_MENU_SECTION_COPY_PASTE
-                                 | THUNAR_MENU_SECTION_TRASH_DELETE
-                                 | THUNAR_MENU_SECTION_EMPTY_TRASH
-                                 | THUNAR_MENU_SECTION_RESTORE
-                                 | THUNAR_MENU_SECTION_RENAME
-                                 | THUNAR_MENU_SECTION_TERMINAL
-                                 | THUNAR_MENU_SECTION_EXTRACT
-                                 | THUNAR_MENU_SECTION_PROPERTIES);
+        menu_add_sections(context_menu,
+                                 MENU_SECTION_OPEN
+                                 | MENU_SECTION_CUT
+                                 | MENU_SECTION_COPY_PASTE
+                                 | MENU_SECTION_TRASH_DELETE
+                                 | MENU_SECTION_EMPTY_TRASH
+                                 | MENU_SECTION_RESTORE
+                                 | MENU_SECTION_RENAME
+                                 | MENU_SECTION_TERMINAL
+                                 | MENU_SECTION_EXTRACT
+                                 | MENU_SECTION_PROPERTIES);
     }
     else /* right click on some empty space */
     {
-        thunar_menu_add_sections(context_menu,
-                                 THUNAR_MENU_SECTION_CREATE_NEW_FILES
-                                 | THUNAR_MENU_SECTION_COPY_PASTE
-                                 | THUNAR_MENU_SECTION_EMPTY_TRASH
-                                 | THUNAR_MENU_SECTION_TERMINAL);
+        menu_add_sections(context_menu,
+                                 MENU_SECTION_CREATE_NEW_FILES
+                                 | MENU_SECTION_COPY_PASTE
+                                 | MENU_SECTION_EMPTY_TRASH
+                                 | MENU_SECTION_TERMINAL);
 
         _standard_view_append_menu_items(standard_view, GTK_MENU(context_menu), NULL);
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
-        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
+        menu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
 
-    thunar_menu_hide_accel_labels(context_menu);
+    menu_hide_accel_labels(context_menu);
     gtk_widget_show_all(GTK_WIDGET(context_menu));
     thunar_window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
 

@@ -20,61 +20,62 @@
 
 #include <gtk/gtk.h>
 
-#include <th-file.h>
-
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarMenuClass ThunarMenuClass;
 typedef struct _ThunarMenu      ThunarMenu;
 
-#define THUNAR_TYPE_MENU            (thunar_menu_get_type ())
-#define THUNAR_MENU(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_MENU, ThunarMenu))
-#define THUNAR_MENU_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_MENU, ThunarMenuClass))
-#define THUNAR_IS_MENU(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_MENU))
-#define THUNAR_IS_MENU_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_MENU))
-#define THUNAR_MENU_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_MENU, ThunarMenu))
+#define THUNAR_TYPE_MENU (menu_get_type())
+#define THUNAR_MENU(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_MENU, ThunarMenu))
+#define THUNAR_MENU_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_MENU, ThunarMenuClass))
+#define THUNAR_IS_MENU(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_MENU))
+#define THUNAR_IS_MENU_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_MENU))
+#define THUNAR_MENU_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_MENU, ThunarMenu))
 
 /* For window menu, some items are shown insensitive, instead of hidden */
 typedef enum
 {
-    THUNAR_MENU_TYPE_WINDOW,
-    THUNAR_MENU_TYPE_CONTEXT_STANDARD_VIEW,
-    THUNAR_MENU_TYPE_CONTEXT_LOCATION_BUTTONS,
-    THUNAR_MENU_TYPE_CONTEXT_RENAMER,
-    THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
-    N_THUNAR_MENU_TYPE,
+    MENU_TYPE_WINDOW,
+    MENU_TYPE_CONTEXT_STANDARD_VIEW,
+    MENU_TYPE_CONTEXT_LOCATION_BUTTONS,
+    MENU_TYPE_CONTEXT_RENAMER,
+    MENU_TYPE_CONTEXT_TREE_VIEW,
+    N_MENU_TYPE,
 
-} ThunarMenuType;
+} MenuType;
 
 /* Bundles of #GtkMenuItems, which can be created by this widget */
 typedef enum
 {
-    THUNAR_MENU_SECTION_OPEN             = 1 << 0,
-    THUNAR_MENU_SECTION_CREATE_NEW_FILES = 1 << 1,
-    THUNAR_MENU_SECTION_CUT              = 1 << 2,
-    THUNAR_MENU_SECTION_COPY_PASTE       = 1 << 3,
-    THUNAR_MENU_SECTION_TRASH_DELETE     = 1 << 4,
-    THUNAR_MENU_SECTION_EMPTY_TRASH      = 1 << 5,
-    THUNAR_MENU_SECTION_RESTORE          = 1 << 6,
-    THUNAR_MENU_SECTION_DUPLICATE        = 1 << 7,
-    THUNAR_MENU_SECTION_MAKELINK         = 1 << 8,
-    THUNAR_MENU_SECTION_RENAME           = 1 << 9,
-    THUNAR_MENU_SECTION_TERMINAL         = 1 << 10,
-    THUNAR_MENU_SECTION_ZOOM             = 1 << 11,
-    THUNAR_MENU_SECTION_PROPERTIES       = 1 << 12,
-    THUNAR_MENU_SECTION_MOUNTABLE        = 1 << 13,
-    THUNAR_MENU_SECTION_EXTRACT          = 1 << 14,
+    MENU_SECTION_OPEN             = 1 << 0,
+    MENU_SECTION_CREATE_NEW_FILES = 1 << 1,
+    MENU_SECTION_CUT              = 1 << 2,
+    MENU_SECTION_COPY_PASTE       = 1 << 3,
+    MENU_SECTION_TRASH_DELETE     = 1 << 4,
+    MENU_SECTION_EMPTY_TRASH      = 1 << 5,
+    MENU_SECTION_RESTORE          = 1 << 6,
+    MENU_SECTION_DUPLICATE        = 1 << 7,
+    MENU_SECTION_MAKELINK         = 1 << 8,
+    MENU_SECTION_RENAME           = 1 << 9,
+    MENU_SECTION_TERMINAL         = 1 << 10,
+    MENU_SECTION_ZOOM             = 1 << 11,
+    MENU_SECTION_PROPERTIES       = 1 << 12,
+    MENU_SECTION_MOUNTABLE        = 1 << 13,
+    MENU_SECTION_EXTRACT          = 1 << 14,
 
-} ThunarMenuSections;
+} MenuSections;
 
-GType thunar_menu_get_type() G_GNUC_CONST;
+GType menu_get_type() G_GNUC_CONST;
+gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections);
+void menu_hide_accel_labels(ThunarMenu *menu);
 
-gboolean thunar_menu_add_sections(ThunarMenu *menu, ThunarMenuSections menu_sections);
-GtkWidget* thunar_menu_get_launcher(ThunarMenu *menu);
-void thunar_menu_hide_accel_labels(ThunarMenu *menu);
+G_END_DECLS
 
-G_END_DECLS;
-
-#endif /* !__THUNAR_CONTEXT_MENU_H__ */
+#endif // __THUNAR_CONTEXT_MENU_H__
 
 

@@ -890,7 +890,7 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
     ThunarMenu *context_menu = g_object_new(
                                     THUNAR_TYPE_MENU,
                                     "menu-type",
-                                    THUNAR_MENU_TYPE_CONTEXT_TREE_VIEW,
+                                    MENU_TYPE_CONTEXT_TREE_VIEW,
                                     "launcher",
                                     view->launcher,
                                     "force-section-open",
@@ -921,23 +921,23 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
 
-            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_EMPTY_TRASH);
+            menu_add_sections(context_menu, MENU_SECTION_EMPTY_TRASH);
         }
         else
         {
-            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_OPEN);
+            menu_add_sections(context_menu, MENU_SECTION_OPEN);
 
-            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_CREATE_NEW_FILES
-                                                   | THUNAR_MENU_SECTION_CUT
-                                                   | THUNAR_MENU_SECTION_COPY_PASTE
-                                                   | THUNAR_MENU_SECTION_TRASH_DELETE
-                                                   | THUNAR_MENU_SECTION_RESTORE
-                                                   | THUNAR_MENU_SECTION_RENAME
-                                                   | THUNAR_MENU_SECTION_TERMINAL);
+            menu_add_sections(context_menu, MENU_SECTION_CREATE_NEW_FILES
+                                                   | MENU_SECTION_CUT
+                                                   | MENU_SECTION_COPY_PASTE
+                                                   | MENU_SECTION_TRASH_DELETE
+                                                   | MENU_SECTION_RESTORE
+                                                   | MENU_SECTION_RENAME
+                                                   | MENU_SECTION_TERMINAL);
         }
 
-        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
-        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
+        menu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
+        menu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
     else
     {
@@ -958,13 +958,13 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
 
-        thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_MOUNTABLE);
+        menu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
 
         if (thunar_device_is_mounted(device))
-            thunar_menu_add_sections(context_menu, THUNAR_MENU_SECTION_PROPERTIES);
+            menu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
 
-    thunar_menu_hide_accel_labels(context_menu);
+    menu_hide_accel_labels(context_menu);
     gtk_widget_show_all(GTK_WIDGET(context_menu));
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));

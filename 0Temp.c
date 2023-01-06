@@ -1,6 +1,15 @@
 
 #if 0
 
+GtkWidget* menu_get_launcher(ThunarMenu *menu)
+{
+    thunar_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
+
+    return GTK_WIDGET(menu->launcher);
+}
+
+// ----------------------------------------------------------------------------
+
 gchar*      th_file_get_size_string(const ThunarFile *file)
                                         G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
