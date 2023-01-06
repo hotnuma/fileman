@@ -658,7 +658,7 @@ static void thunar_application_collect_and_launch(
     if (G_UNLIKELY(err != NULL))
     {
         /* display an error message to the user */
-        thunar_dialogs_show_error(parent, err, _("Failed to launch operation"));
+        dialog_error(parent, err, _("Failed to launch operation"));
 
         /* release the error */
         g_error_free(err);
@@ -1174,7 +1174,7 @@ static void thunar_application_process_files_finish(ThunarBrowser  *browser,
         if (error->domain != G_IO_ERROR || error->code != G_IO_ERROR_CANCELLED)
         {
             /* tell the user that we were unable to launch the file specified */
-            thunar_dialogs_show_error(screen, error, _("Failed to open \"%s\""),
+            dialog_error(screen, error, _("Failed to open \"%s\""),
                                        th_file_get_display_name(file));
         }
 
@@ -1306,7 +1306,7 @@ gboolean thunar_application_process_filenames(ThunarApplication *application,
         else
         {
             /* tell the user that we were unable to launch the file specified */
-            thunar_dialogs_show_error(screen, derror, _("Failed to open \"%s\""),
+            dialog_error(screen, derror, _("Failed to open \"%s\""),
                                        filenames[n]);
 
             g_set_error(error, derror->domain, derror->code,
@@ -1811,7 +1811,7 @@ void thunar_application_restore_files(ThunarApplication *application,
     if (G_UNLIKELY(err != NULL))
     {
         /* display an error dialog */
-        thunar_dialogs_show_error(parent, err, _("Could not restore \"%s\""),
+        dialog_error(parent, err, _("Could not restore \"%s\""),
                                    th_file_get_display_name(lp->data));
         g_error_free(err);
     }

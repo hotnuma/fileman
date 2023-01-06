@@ -2183,7 +2183,7 @@ static void _standard_view_error(ThunarListModel    *model,
         return;
 
     /* inform the user about the problem */
-    thunar_dialogs_show_error(GTK_WIDGET(standard_view), error,
+    dialog_error(GTK_WIDGET(standard_view), error,
                                _("Failed to open directory \"%s\""),
                                th_file_get_display_name(file));
 }
@@ -2257,7 +2257,7 @@ static void _standard_view_current_directory_destroy(ThunarFile *current_directo
     if (G_UNLIKELY(new_directory == NULL))
     {
         /* display an error to the user */
-        thunar_dialogs_show_error(GTK_WIDGET(standard_view), error, _("Failed to open the home folder"));
+        dialog_error(GTK_WIDGET(standard_view), error, _("Failed to open the home folder"));
         g_error_free(error);
         return;
     }
@@ -2800,7 +2800,7 @@ static gboolean _standard_view_drag_drop(GtkWidget          *view,
                 else
                 {
                     /* tell the user that the file name provided by the X Direct Save source is invalid */
-                    thunar_dialogs_show_error(GTK_WIDGET(standard_view), NULL, _("Invalid filename provided by XDS drag site"));
+                    dialog_error(GTK_WIDGET(standard_view), NULL, _("Invalid filename provided by XDS drag site"));
                 }
 
                 /* cleanup */
@@ -2965,7 +2965,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                             if (G_UNLIKELY(!succeed))
                             {
                                 /* display an error dialog to the user */
-                                thunar_dialogs_show_error(standard_view, error, _("Failed to create a link for the URL \"%s\""), bits[0]);
+                                dialog_error(standard_view, error, _("Failed to create a link for the URL \"%s\""), bits[0]);
                                 g_free(working_directory);
                                 g_error_free(error);
                             }

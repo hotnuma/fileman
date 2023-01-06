@@ -277,7 +277,7 @@ static void thunar_chooser_button_changed(GtkComboBox *combo_box)
         if (!g_app_info_set_as_default_for_type(app_info, content_type, &error))
         {
             /* tell the user that it didn't work */
-            thunar_dialogs_show_error(GTK_WIDGET(chooser_button), error,
+            dialog_error(GTK_WIDGET(chooser_button), error,
                                        _("Failed to set default application for \"%s\""),
                                        th_file_get_display_name(chooser_button->file));
             g_error_free(error);

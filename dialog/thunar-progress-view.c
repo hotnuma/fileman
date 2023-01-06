@@ -401,7 +401,7 @@ static ThunarJobResponse thunar_progress_view_ask(ThunarProgressView *view,
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
     /* display the question view */
-    return thunar_dialogs_show_job_ask(window != NULL ? GTK_WINDOW(window) : NULL,
+    return dialog_job_ask(window != NULL ? GTK_WINDOW(window) : NULL,
                                         message, choices);
 }
 
@@ -425,7 +425,7 @@ static ThunarJobResponse thunar_progress_view_ask_replace(ThunarProgressView *vi
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
     /* display the question view */
-    return thunar_dialogs_show_job_ask_replace(window != NULL ? GTK_WINDOW(window) : NULL,
+    return dialog_job_ask_replace(window != NULL ? GTK_WINDOW(window) : NULL,
             src_file, dst_file);
 }
 
@@ -447,7 +447,7 @@ static void thunar_progress_view_error(ThunarProgressView *view,
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
     /* display the error message */
-    thunar_dialogs_show_job_error(window != NULL ? GTK_WINDOW(window) : NULL, error);
+    dialog_job_error(window != NULL ? GTK_WINDOW(window) : NULL, error);
 }
 
 static void thunar_progress_view_finished(ThunarProgressView *view,

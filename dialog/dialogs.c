@@ -33,19 +33,116 @@
 #include <thunar-pango-extensions.h>
 #include <utils.h>
 
-static void _thunar_dialogs_select_filename(GtkWidget  *entry, ThunarFile *file);
+static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);
+static void _dialog_job_ask_replace_callback(GtkWidget *button, gpointer user_data);
 
-gchar* thunar_dialogs_show_create(gpointer      parent,
-                                  const gchar   *content_type,
-                                  const gchar   *filename,
-                                  const gchar   *title)
+
+gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFile *file,
+                                 const gchar *command)
 {
-    thunar_return_val_if_fail(parent == NULL
-                              || GDK_IS_SCREEN(parent)
-                              || GTK_IS_WIDGET(parent),
-                              NULL);
+    GdkScreen      *screen;
+    GtkWindow      *window;
+    gint            response;
+    GtkWidget      *dialog;
+    GString        *secondary;
+    ThunarFileMode  old_mode;
+    ThunarFileMode  new_mode;
+    GFileInfo      *info;
+    GError         *err = NULL;
 
+    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    thunar_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
+
+    /* parse the parent window and screen */
+    screen = thunar_util_parse_parent(parent, &window);
+
+    /* secondary text */
+    secondary = g_string_new(NULL);
+    g_string_append_printf(secondary, _("The desktop file \"%s\" is in an insecure location "
+                                         "and not marked as executable. If you do not trust "
+                                         "this program, click Cancel."),
+                            th_file_get_display_name(file));
+    g_string_append(secondary, "\n\n");
+    if (e_str_looks_like_an_uri(command))
+        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
+    else
+        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);
+
+    /* allocate and display the error message dialog */
+    dialog = gtk_message_dialog_new(window,
+                                     GTK_DIALOG_MODAL |
+                                     GTK_DIALOG_DESTROY_WITH_PARENT,
+                                     GTK_MESSAGE_WARNING,
+                                     GTK_BUTTONS_NONE,
+                                     "%s", primary);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Launch Anyway"), GTK_RESPONSE_OK);
+    if (th_file_is_chmodable(file))
+        gtk_dialog_add_button(GTK_DIALOG(dialog), _("Mark _Executable"), GTK_RESPONSE_APPLY);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    if (screen != NULL && window == NULL)
+        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary->str);
+    g_string_free(secondary, TRUE);
+    response = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    /* check if we should make the file executable */
+    if (response == GTK_RESPONSE_APPLY)
+    {
+        /* try to query information about the file */
+        info = g_file_query_info(th_file_get_file(file),
+                                  G_FILE_ATTRIBUTE_UNIX_MODE,
+                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                  NULL, &err);
+
+        if (G_LIKELY(info != NULL))
+        {
+            if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_UNIX_MODE))
+            {
+                /* determine the current mode */
+                old_mode = g_file_info_get_attribute_uint32(info, G_FILE_ATTRIBUTE_UNIX_MODE);
+
+                /* generate the new mode */
+                new_mode = old_mode | THUNAR_FILE_MODE_USR_EXEC | THUNAR_FILE_MODE_GRP_EXEC | THUNAR_FILE_MODE_OTH_EXEC;
+
+                if (old_mode != new_mode)
+                {
+                    g_file_set_attribute_uint32(th_file_get_file(file),
+                                                 G_FILE_ATTRIBUTE_UNIX_MODE, new_mode,
+                                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                                 NULL, &err);
+                }
+            }
+            else
+            {
+                g_warning("No %s attribute found", G_FILE_ATTRIBUTE_UNIX_MODE);
+            }
+
+            g_object_unref(info);
+        }
+
+        if (err != NULL)
+        {
+            dialog_error(parent, err,("Unable to mark launcher executable"));
+            g_error_free(err);
+        }
+
+        /* just launch */
+        response = GTK_RESPONSE_OK;
+    }
+
+    return (response == GTK_RESPONSE_OK);
+}
+
+
+gchar* dialog_create(gpointer parent, const gchar *content_type, const gchar *filename,
+                     const gchar *title)
+{
     // The caller must free the returned string.
+
+    thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                              || GTK_IS_WIDGET(parent), NULL);
 
     /* parse the parent window and screen */
     GtkWindow *window;
@@ -138,7 +235,7 @@ gchar* thunar_dialogs_show_create(gpointer      parent,
         if (G_UNLIKELY(name == NULL))
         {
             /* display an error message */
-            thunar_dialogs_show_error(dialog, error, _("Cannot convert filename \"%s\" to the local encoding"), filename);
+            dialog_error(dialog, error, _("Cannot convert filename \"%s\" to the local encoding"), filename);
 
             /* release the error */
             g_error_free(error);
@@ -151,19 +248,44 @@ gchar* thunar_dialogs_show_create(gpointer      parent,
     return name;
 }
 
-/**
- * thunar_dialogs_show_rename_file:
- * @parent : a #GtkWidget on which the error dialog should be shown, or a #GdkScreen
- *           if no #GtkWidget is known. May also be %NULL, in which case the default
- *           #GdkScreen will be used.
- * @file   : the #ThunarFile we're going to rename.
- *
- * Displays the Thunar rename dialog for a single file rename.
- *
- * Return value: The #ThunarJob responsible for renaming the file or
- *               %NULL if there was no renaming required.
- **/
-ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
+gboolean dialog_folder_trash(GtkWindow *window)
+{
+    //GdkScreen *screen = thunar_util_parse_parent(parent, &window);
+
+    gchar *message = g_strdup_printf(
+    _("Are you sure that you want to delete folder?"));
+
+    /* ask the user to confirm the delete operation */
+    GtkWidget *dialog = gtk_message_dialog_new(
+                                        window,
+                                        GTK_DIALOG_MODAL
+                                        | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_MESSAGE_QUESTION,
+                                        GTK_BUTTONS_NONE,
+                                        "%s",
+                                        message);
+
+    //if (G_UNLIKELY(window == NULL && screen != NULL))
+    //    gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                            _("_Cancel"), GTK_RESPONSE_CANCEL,
+                            _("_Delete"), GTK_RESPONSE_YES,
+                            NULL);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                                             _("Secondary."));
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    g_free(message);
+
+    /* perform the delete operation */
+    return (response == GTK_RESPONSE_YES);
+}
+
+ThunarJob* dialog_rename_file(gpointer parent, ThunarFile *file)
 {
     thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
@@ -258,7 +380,7 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
     xfce_filename_input_check(filename_input);
 
     /* select the filename without the extension */
-    _thunar_dialogs_select_filename(GTK_WIDGET(xfce_filename_input_get_entry(filename_input)), file);
+    _dialog_select_filename(GTK_WIDGET(xfce_filename_input_get_entry(filename_input)), file);
 
     /* get the size the entry requires to render the full text */
     layout = gtk_entry_get_layout(xfce_filename_input_get_entry(filename_input));
@@ -313,62 +435,39 @@ ThunarJob* thunar_dialogs_show_rename_file(gpointer parent, ThunarFile *file)
     return job;
 }
 
-gboolean thunar_dialogs_show_folder_trash(GtkWindow *window)
+static void _dialog_select_filename(GtkWidget  *entry,
+                                           ThunarFile *file)
 {
-    //GdkScreen *screen = thunar_util_parse_parent(parent, &window);
+    const gchar *filename;
+    const gchar *ext;
+    glong        offset;
 
-    gchar *message = g_strdup_printf(
-    _("Are you sure that you want to delete folder?"));
+    /* check if we have a directory here */
+    if (th_file_is_directory(file))
+    {
+        gtk_editable_select_region(GTK_EDITABLE(entry), 0, -1);
+        return;
+    }
 
-    /* ask the user to confirm the delete operation */
-    GtkWidget *dialog = gtk_message_dialog_new(
-                                        window,
-                                        GTK_DIALOG_MODAL
-                                        | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                        GTK_MESSAGE_QUESTION,
-                                        GTK_BUTTONS_NONE,
-                                        "%s",
-                                        message);
+    filename = th_file_get_display_name(file);
 
-    //if (G_UNLIKELY(window == NULL && screen != NULL))
-    //    gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+    /* check if the filename contains an extension */
+    ext = thunar_util_str_get_extension(filename);
+    if (G_UNLIKELY(ext == NULL))
+        return;
 
-    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
-                            _("_Cancel"), GTK_RESPONSE_CANCEL,
-                            _("_Delete"), GTK_RESPONSE_YES,
-                            NULL);
+    /* grab focus to the entry first, else the selection will be altered later */
+    gtk_widget_grab_focus(entry);
 
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-                                             _("Secondary."));
+    /* determine the UTF-8 char offset */
+    offset = g_utf8_pointer_to_offset(filename, ext);
 
-    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-    g_free(message);
-
-    /* perform the delete operation */
-    return (response == GTK_RESPONSE_YES);
+    /* select the text prior to the dot */
+    if (G_LIKELY(offset > 0))
+        gtk_editable_select_region(GTK_EDITABLE(entry), 0, offset);
 }
 
-/**
- * thunar_dialogs_show_error:
- * @parent : a #GtkWidget on which the error dialog should be shown, or a #GdkScreen
- *           if no #GtkWidget is known. May also be %NULL, in which case the default
- *           #GdkScreen will be used.
- * @error  : a #GError, which gives a more precise description of the problem or %NULL.
- * @format : the printf()-style format for the primary problem description.
- * @...    : argument list for the @format.
- *
- * Displays an error dialog on @widget using the @format as primary message and optionally
- * displaying @error as secondary error text.
- *
- * If @widget is not %NULL and @widget is part of a #GtkWindow, the function makes sure
- * that the toplevel window is visible prior to displaying the error dialog.
- **/
-void thunar_dialogs_show_error(gpointer      parent,
-                               const GError *error,
-                               const gchar  *format,
-                               ...)
+void dialog_error(gpointer parent, const GError *error, const gchar  *format, ...)
 {
     GtkWidget *dialog;
     GtkWindow *window;
@@ -426,20 +525,9 @@ void thunar_dialogs_show_error(gpointer      parent,
     g_list_free(children);
 }
 
-/**
- * thunar_dialogs_show_job_ask:
- * @parent   : the parent #GtkWindow or %NULL.
- * @question : the question text.
- * @choices  : possible responses.
- *
- * Utility function to display a question dialog for the ThunarJob::ask
- * signal.
- *
- * Return value: the #ThunarJobResponse.
- **/
-ThunarJobResponse thunar_dialogs_show_job_ask(GtkWindow        *parent,
-                                              const gchar      *question,
-                                              ThunarJobResponse choices)
+
+ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
+                                 ThunarJobResponse choices)
 {
     const gchar *separator;
     const gchar *mnemonic;
@@ -599,32 +687,8 @@ ThunarJobResponse thunar_dialogs_show_job_ask(GtkWindow        *parent,
     return response;
 }
 
-static void thunar_dialogs_show_job_ask_replace_callback(GtkWidget *button,
-                                                         gpointer   user_data)
-{
-    gint response;
-
-    thunar_return_if_fail(GTK_IS_DIALOG(user_data));
-
-    response = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "response-id"));
-    gtk_dialog_response(GTK_DIALOG(user_data), response);
-}
-
-/**
- * thunar_dialogs_show_job_ask_replace:
- * @parent   : the parent #GtkWindow or %NULL.
- * @src_file : the #ThunarFile of the source file.
- * @dst_file : the #ThunarFile of the destination file that
- *             may be replaced with the source file.
- *
- * Asks the user whether to replace the destination file with the
- * source file identified by @src_file.
- *
- * Return value: the selected #ThunarJobResponse.
- **/
-ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
-                                                      ThunarFile *src_file,
-                                                      ThunarFile *dst_file)
+ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file,
+                                         ThunarFile *dst_file)
 {
     ThunarIconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
@@ -682,13 +746,13 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     renameall_button  = gtk_button_new_with_mnemonic(_("Rena_me All"));
     rename_button     = gtk_button_new_with_mnemonic(_("Re_name"));
 
-    g_signal_connect(cancel_button,      "clicked", G_CALLBACK(thunar_dialogs_show_job_ask_replace_callback), dialog);
-    g_signal_connect(skipall_button,     "clicked", G_CALLBACK(thunar_dialogs_show_job_ask_replace_callback), dialog);
-    g_signal_connect(skip_button,        "clicked", G_CALLBACK(thunar_dialogs_show_job_ask_replace_callback), dialog);
-    g_signal_connect(replaceall_button,  "clicked", G_CALLBACK(thunar_dialogs_show_job_ask_replace_callback), dialog);
-    g_signal_connect(replace_button,     "clicked", G_CALLBACK(thunar_dialogs_show_job_ask_replace_callback), dialog);
-    g_signal_connect(renameall_button,   "clicked", G_CALLBACK(thunar_dialogs_show_job_ask_replace_callback), dialog);
-    g_signal_connect(rename_button,      "clicked", G_CALLBACK(thunar_dialogs_show_job_ask_replace_callback), dialog);
+    g_signal_connect(cancel_button,      "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_signal_connect(skipall_button,     "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_signal_connect(skip_button,        "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_signal_connect(replaceall_button,  "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_signal_connect(replace_button,     "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_signal_connect(renameall_button,   "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_signal_connect(rename_button,      "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
 
     g_object_set_data(G_OBJECT(cancel_button),     "response-id", GINT_TO_POINTER(GTK_RESPONSE_CANCEL));
     g_object_set_data(G_OBJECT(skipall_button),    "response-id", GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP_ALL));
@@ -844,16 +908,18 @@ ThunarJobResponse thunar_dialogs_show_job_ask_replace(GtkWindow  *parent,
     return response;
 }
 
-/**
- * thunar_dialogs_show_job_error:
- * @parent : the parent #GtkWindow or %NULL.
- * @error  : the #GError provided by the #ThunarJob.
- *
- * Utility function to display a message dialog for the
- * ThunarJob::error signal.
- **/
-void thunar_dialogs_show_job_error(GtkWindow *parent,
-                                   GError    *error)
+static void _dialog_job_ask_replace_callback(GtkWidget *button,
+                                                         gpointer user_data)
+{
+    gint response;
+
+    thunar_return_if_fail(GTK_IS_DIALOG(user_data));
+
+    response = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "response-id"));
+    gtk_dialog_response(GTK_DIALOG(user_data), response);
+}
+
+void dialog_job_error(GtkWindow *parent, GError *error)
 {
     const gchar *separator;
     GtkWidget   *message;
@@ -903,138 +969,6 @@ void thunar_dialogs_show_job_error(GtkWindow *parent,
     /* cleanup */
     g_string_free(secondary, TRUE);
     g_string_free(primary, TRUE);
-}
-
-gboolean thunar_dialogs_show_insecure_program(gpointer     parent,
-                                              const gchar *primary,
-                                              ThunarFile  *file,
-                                              const gchar *command)
-{
-    GdkScreen      *screen;
-    GtkWindow      *window;
-    gint            response;
-    GtkWidget      *dialog;
-    GString        *secondary;
-    ThunarFileMode  old_mode;
-    ThunarFileMode  new_mode;
-    GFileInfo      *info;
-    GError         *err = NULL;
-
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
-
-    /* parse the parent window and screen */
-    screen = thunar_util_parse_parent(parent, &window);
-
-    /* secondary text */
-    secondary = g_string_new(NULL);
-    g_string_append_printf(secondary, _("The desktop file \"%s\" is in an insecure location "
-                                         "and not marked as executable. If you do not trust "
-                                         "this program, click Cancel."),
-                            th_file_get_display_name(file));
-    g_string_append(secondary, "\n\n");
-    if (e_str_looks_like_an_uri(command))
-        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
-    else
-        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);
-
-    /* allocate and display the error message dialog */
-    dialog = gtk_message_dialog_new(window,
-                                     GTK_DIALOG_MODAL |
-                                     GTK_DIALOG_DESTROY_WITH_PARENT,
-                                     GTK_MESSAGE_WARNING,
-                                     GTK_BUTTONS_NONE,
-                                     "%s", primary);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Launch Anyway"), GTK_RESPONSE_OK);
-    if (th_file_is_chmodable(file))
-        gtk_dialog_add_button(GTK_DIALOG(dialog), _("Mark _Executable"), GTK_RESPONSE_APPLY);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
-    if (screen != NULL && window == NULL)
-        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary->str);
-    g_string_free(secondary, TRUE);
-    response = gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-
-    /* check if we should make the file executable */
-    if (response == GTK_RESPONSE_APPLY)
-    {
-        /* try to query information about the file */
-        info = g_file_query_info(th_file_get_file(file),
-                                  G_FILE_ATTRIBUTE_UNIX_MODE,
-                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                  NULL, &err);
-
-        if (G_LIKELY(info != NULL))
-        {
-            if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_UNIX_MODE))
-            {
-                /* determine the current mode */
-                old_mode = g_file_info_get_attribute_uint32(info, G_FILE_ATTRIBUTE_UNIX_MODE);
-
-                /* generate the new mode */
-                new_mode = old_mode | THUNAR_FILE_MODE_USR_EXEC | THUNAR_FILE_MODE_GRP_EXEC | THUNAR_FILE_MODE_OTH_EXEC;
-
-                if (old_mode != new_mode)
-                {
-                    g_file_set_attribute_uint32(th_file_get_file(file),
-                                                 G_FILE_ATTRIBUTE_UNIX_MODE, new_mode,
-                                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                                 NULL, &err);
-                }
-            }
-            else
-            {
-                g_warning("No %s attribute found", G_FILE_ATTRIBUTE_UNIX_MODE);
-            }
-
-            g_object_unref(info);
-        }
-
-        if (err != NULL)
-        {
-            thunar_dialogs_show_error(parent, err,("Unable to mark launcher executable"));
-            g_error_free(err);
-        }
-
-        /* just launch */
-        response = GTK_RESPONSE_OK;
-    }
-
-    return (response == GTK_RESPONSE_OK);
-}
-
-static void _thunar_dialogs_select_filename(GtkWidget  *entry,
-                                           ThunarFile *file)
-{
-    const gchar *filename;
-    const gchar *ext;
-    glong        offset;
-
-    /* check if we have a directory here */
-    if (th_file_is_directory(file))
-    {
-        gtk_editable_select_region(GTK_EDITABLE(entry), 0, -1);
-        return;
-    }
-
-    filename = th_file_get_display_name(file);
-
-    /* check if the filename contains an extension */
-    ext = thunar_util_str_get_extension(filename);
-    if (G_UNLIKELY(ext == NULL))
-        return;
-
-    /* grab focus to the entry first, else the selection will be altered later */
-    gtk_widget_grab_focus(entry);
-
-    /* determine the UTF-8 char offset */
-    offset = g_utf8_pointer_to_offset(filename, ext);
-
-    /* select the text prior to the dot */
-    if (G_LIKELY(offset > 0))
-        gtk_editable_select_region(GTK_EDITABLE(entry), 0, offset);
 }
 
 

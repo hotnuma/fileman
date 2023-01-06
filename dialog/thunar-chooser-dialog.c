@@ -416,7 +416,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
         if (G_UNLIKELY(app_info == NULL))
         {
             /* display an error to the user */
-            thunar_dialogs_show_error(GTK_WIDGET(dialog), error, _("Failed to add new application \"%s\""), custom_command);
+            dialog_error(GTK_WIDGET(dialog), error, _("Failed to add new application \"%s\""), custom_command);
 
             /* release the error */
             g_error_free(error);
@@ -453,7 +453,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
         if (G_UNLIKELY(!succeed))
         {
             /* display an error to the user */
-            thunar_dialogs_show_error(GTK_WIDGET(dialog),
+            dialog_error(GTK_WIDGET(dialog),
                                        error,
                                        _("Failed to set default application for \"%s\""),
                                        th_file_get_display_name(dialog->file));
@@ -492,7 +492,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
         if (!g_app_info_launch(app_info, &list, G_APP_LAUNCH_CONTEXT(context), &error))
         {
             /* display an error to the user */
-            thunar_dialogs_show_error(GTK_WIDGET(dialog),
+            dialog_error(GTK_WIDGET(dialog),
                                        error,
                                        _("Failed to execute application \"%s\""),
                                        g_app_info_get_name(app_info));
@@ -711,7 +711,7 @@ static void thunar_chooser_dialog_action_remove(ThunarChooserDialog *dialog)
             if (!thunar_chooser_model_remove(THUNAR_CHOOSER_MODEL(model), &iter, &error))
             {
                 /* display an error to the user */
-                thunar_dialogs_show_error(dialog, error, _("Failed to remove \"%s\""), name);
+                dialog_error(dialog, error, _("Failed to remove \"%s\""), name);
                 g_error_free(error);
             }
             else if (G_LIKELY(dialog->file != NULL))

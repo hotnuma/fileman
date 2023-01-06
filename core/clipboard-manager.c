@@ -314,7 +314,7 @@ static void thunar_clipboard_manager_contents_received(GtkClipboard     *clipboa
     else
     {
         /* tell the user that we cannot paste */
-        thunar_dialogs_show_error(request->widget, NULL, _("There is nothing on the clipboard to paste"));
+        dialog_error(request->widget, NULL, _("There is nothing on the clipboard to paste"));
     }
 
     /* free the request */

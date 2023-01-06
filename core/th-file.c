@@ -1063,7 +1063,7 @@ gboolean th_file_execute(ThunarFile  *file,
             if (G_LIKELY(exec != NULL))
             {
                 /* if the .desktop file is not secure, ask user what to do */
-                if (is_secure || thunar_dialogs_show_insecure_program(parent, _("Untrusted application launcher"), file, exec))
+                if (is_secure || dialog_insecure_program(parent, _("Untrusted application launcher"), file, exec))
                 {
                     /* parse other fields */
                     name = g_key_file_get_locale_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_NAME, NULL, NULL);
@@ -1100,7 +1100,7 @@ gboolean th_file_execute(ThunarFile  *file,
             if (G_LIKELY(url != NULL))
             {
                 /* if the .desktop file is not secure, ask user what to do */
-                if (is_secure || thunar_dialogs_show_insecure_program(parent, _("Untrusted link launcher"), file, url))
+                if (is_secure || dialog_insecure_program(parent, _("Untrusted link launcher"), file, url))
                 {
                     /* pass the URL to the webbrowser, this could be a bit strange,
                      * but then at least we are on the secure side */

@@ -1409,7 +1409,7 @@ static void thunar_window_action_go_up(ThunarWindow *window)
         /* the root folder '/' has no parent. In this special case we do not need a dialog */
         if (error->code != G_FILE_ERROR_NOENT)
         {
-            thunar_dialogs_show_error(GTK_WIDGET(window), error, _("Failed to open parent folder"));
+            dialog_error(GTK_WIDGET(window), error, _("Failed to open parent folder"));
         }
         g_error_free(error);
     }
@@ -1451,7 +1451,7 @@ static void thunar_window_action_open_home(ThunarWindow *window)
     if (G_UNLIKELY(home_file == NULL))
     {
         /* display an error to the user */
-        thunar_dialogs_show_error(GTK_WIDGET(window), error, _("Failed to open the home folder"));
+        dialog_error(GTK_WIDGET(window), error, _("Failed to open the home folder"));
         g_error_free(error);
     }
     else

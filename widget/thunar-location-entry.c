@@ -328,7 +328,7 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
     /* check if we need to display an error dialog */
     if (error != NULL)
     {
-        thunar_dialogs_show_error(location_entry->path_entry, error,
+        dialog_error(location_entry->path_entry, error,
                                    _("Failed to open \"%s\""),
                                    th_file_get_display_name(file));
         g_error_free(error);
@@ -348,7 +348,7 @@ static void thunar_location_entry_poke_file_finish(ThunarBrowser *browser,
     if (error != NULL)
     {
         /* display an error explaining why we couldn't open/mount the file */
-        thunar_dialogs_show_error(THUNAR_LOCATION_ENTRY(browser)->path_entry,
+        dialog_error(THUNAR_LOCATION_ENTRY(browser)->path_entry,
                                    error, _("Failed to open \"%s\""),
                                    th_file_get_display_name(file));
         return;

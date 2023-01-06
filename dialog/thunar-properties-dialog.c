@@ -664,7 +664,7 @@ static void thunar_properties_dialog_rename_error(ExoJob                 *job,
                         th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
 
     /* display an error message */
-    thunar_dialogs_show_error(GTK_WIDGET(dialog), error, _("Failed to rename \"%s\""),
+    dialog_error(GTK_WIDGET(dialog), error, _("Failed to rename \"%s\""),
                                th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
 }
 
@@ -769,7 +769,7 @@ static void thunar_properties_dialog_icon_button_clicked(
             gtk_widget_hide(chooser);
 
             /* tell the user that we failed to change the icon of the .desktop file */
-            thunar_dialogs_show_error(GTK_WIDGET(dialog), err,
+            dialog_error(GTK_WIDGET(dialog), err,
                                        _("Failed to change icon of \"%s\""),
                                        thunar_file_get_display_name(file));
             g_error_free(err);
@@ -780,9 +780,7 @@ static void thunar_properties_dialog_icon_button_clicked(
     /* destroy the chooser */
     gtk_widget_destroy(chooser);
 }
-#endif
 
-#if 0
 static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog)
 {
     GtkWidget *label_widget;

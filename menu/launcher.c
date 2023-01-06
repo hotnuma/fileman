@@ -850,7 +850,7 @@ static void _launcher_execute_files(ThunarLauncher *launcher,
         if (!th_file_execute(lp->data, working_directory, launcher->widget, NULL, NULL, &error))
         {
             /* display an error message to the user */
-            thunar_dialogs_show_error(launcher->widget,
+            dialog_error(launcher->widget,
                                       error,
                                       _("Failed to execute file \"%s\""),
                                       th_file_get_display_name(lp->data));
@@ -990,7 +990,7 @@ static void _launcher_open_paths(GAppInfo       *app_info,
         }
 
         /* display an error dialog to the user */
-        thunar_dialogs_show_error(launcher->widget, error, "%s", message);
+        dialog_error(launcher->widget, error, "%s", message);
         g_error_free(error);
         g_free(message);
     }
@@ -1110,7 +1110,7 @@ static void thunar_launcher_poke_device_finish(ThunarBrowser *browser,
     if (error != NULL)
     {
         device_name = thunar_device_get_name(volume);
-        thunar_dialogs_show_error(GTK_WIDGET(THUNAR_LAUNCHER(browser)->widget), error, _("Failed to mount \"%s\""), device_name);
+        dialog_error(GTK_WIDGET(THUNAR_LAUNCHER(browser)->widget), error, _("Failed to mount \"%s\""), device_name);
         g_free(device_name);
     }
 
@@ -1761,7 +1761,7 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
         return;
 
     /* ask the user to enter a name for the new folder */
-    name = thunar_dialogs_show_create(launcher->widget,
+    name = dialog_create(launcher->widget,
                                        "inode/directory",
                                        _("New Folder"),
                                        _("Create New Folder"));
@@ -1810,7 +1810,7 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
                                  th_file_get_display_name(template_file));
 
         /* ask the user to enter a name for the new document */
-        name = thunar_dialogs_show_create(launcher->widget,
+        name = dialog_create(launcher->widget,
                                            th_file_get_content_type(THUNAR_FILE(template_file)),
                                            th_file_get_display_name(template_file),
                                            title);
@@ -1820,7 +1820,7 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
     else
     {
         /* ask the user to enter a name for the new empty file */
-        name = thunar_dialogs_show_create(launcher->widget,
+        name = dialog_create(launcher->widget,
                                           "text/plain",
                                           _("New Empty File"),
                                           _("New Empty File..."));
@@ -1960,7 +1960,7 @@ static void _launcher_action_key_trash_delete(ThunarLauncher *launcher)
         return;
     }
 
-    if (thunar_dialogs_show_folder_trash(GTK_WINDOW(window)) == FALSE)
+    if (dialog_folder_trash(GTK_WINDOW(window)) == FALSE)
         return;
 
     thunar_tree_view_delete_selected_files(THUNAR_TREE_VIEW(tree_view));
@@ -2118,7 +2118,7 @@ static void _thunar_launcher_rename_error(ExoJob    *job,
     param_values = thunar_simple_job_get_param_values(THUNAR_SIMPLE_JOB(job));
     file = g_value_get_object(&g_array_index(param_values, GValue, 0));
 
-    thunar_dialogs_show_error(GTK_WIDGET(widget), error,
+    dialog_error(GTK_WIDGET(widget), error,
                                _("Failed to rename \"%s\""),
                                th_file_get_display_name(file));
     g_object_unref(file);
@@ -2143,7 +2143,7 @@ void launcher_action_rename(ThunarLauncher *launcher)
     if (g_list_length(launcher->files_to_process) == 1)
     {
         /* run the rename dialog */
-        ThunarJob *job = thunar_dialogs_show_rename_file(
+        ThunarJob *job = dialog_rename_file(
                             GTK_WINDOW(window),
                             THUNAR_FILE(launcher->files_to_process->data));
 
@@ -2251,7 +2251,7 @@ static void thunar_launcher_action_eject_finish(ThunarDevice  *device,
     {
         /* display an error dialog to inform the user */
         device_name = thunar_device_get_name(device);
-        thunar_dialogs_show_error(GTK_WIDGET(launcher->widget), error, _("Failed to eject \"%s\""), device_name);
+        dialog_error(GTK_WIDGET(launcher->widget), error, _("Failed to eject \"%s\""), device_name);
         g_free(device_name);
     }
     else
@@ -2298,7 +2298,7 @@ static void thunar_launcher_action_unmount_finish(ThunarDevice *device,
     {
         /* display an error dialog to inform the user */
         device_name = thunar_device_get_name(device);
-        thunar_dialogs_show_error(GTK_WIDGET(launcher->widget), error, _("Failed to unmount \"%s\""), device_name);
+        dialog_error(GTK_WIDGET(launcher->widget), error, _("Failed to unmount \"%s\""), device_name);
         g_free(device_name);
     }
     else

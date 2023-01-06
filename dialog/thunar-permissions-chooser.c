@@ -1128,7 +1128,7 @@ static ThunarJobResponse thunar_permissions_chooser_job_ask(ThunarPermissionsCho
         return THUNAR_JOB_RESPONSE_CANCEL;
 
     /* display the question dialog */
-    return thunar_dialogs_show_job_ask(GTK_WINDOW(toplevel), message, choices);
+    return dialog_job_ask(GTK_WINDOW(toplevel), message, choices);
 }
 
 static void thunar_permissions_chooser_job_cancel(ThunarPermissionsChooser *chooser)
@@ -1174,7 +1174,7 @@ static void thunar_permissions_chooser_job_error(ThunarPermissionsChooser *choos
         return;
 
     /* popup the error message dialog */
-    thunar_dialogs_show_job_error(GTK_WINDOW(toplevel), error);
+    dialog_job_error(GTK_WINDOW(toplevel), error);
 }
 
 static void thunar_permissions_chooser_job_finished(ThunarPermissionsChooser *chooser, ThunarJob *job)
