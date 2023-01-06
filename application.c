@@ -649,7 +649,7 @@ static void thunar_application_collect_and_launch(
             g_free(base_name);
 
             /* add to the target file list */
-            target_file_list = thunar_g_file_list_prepend(target_file_list, file);
+            target_file_list = eg_list_prepend_ref(target_file_list, file);
             g_object_unref(file);
         }
     }
@@ -1520,7 +1520,7 @@ void thunar_application_unlink_files(ThunarApplication *application,
     for (lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
     {
         /* prepend the path to the path list */
-        path_list = thunar_g_file_list_prepend(path_list, th_file_get_file(lp->data));
+        path_list = eg_list_prepend_ref(path_list, th_file_get_file(lp->data));
 
         /* permanently delete if at least one of the file is not a local
          * file(e.g. resides in the trash) or cannot be trashed */
@@ -1802,8 +1802,8 @@ void thunar_application_restore_files(ThunarApplication *application,
         /* TODO we might have to distinguish between URIs and paths here */
         target_path = g_file_new_for_commandline_arg(original_uri);
 
-        source_path_list = thunar_g_file_list_append(source_path_list, th_file_get_file(lp->data));
-        target_path_list = thunar_g_file_list_append(target_path_list, target_path);
+        source_path_list = eg_list_append_ref(source_path_list, th_file_get_file(lp->data));
+        target_path_list = eg_list_append_ref(target_path_list, target_path);
 
         g_object_unref(target_path);
     }

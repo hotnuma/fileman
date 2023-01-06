@@ -129,13 +129,13 @@ GList* io_scan_directory(ThunarJob           *job,
         {
             /* Prepend the ThunarFile */
             thunar_file = th_file_get_with_info(child_file, info, !is_mounted);
-            files = thunar_g_file_list_prepend(files, thunar_file);
+            files = eg_list_prepend_ref(files, thunar_file);
             g_object_unref(G_OBJECT(thunar_file));
         }
         else
         {
             /* Prepend the GFile */
-            files = thunar_g_file_list_prepend(files, child_file);
+            files = eg_list_prepend_ref(files, child_file);
         }
 
         /* if the child is a directory and we need to recurse ... just do so */

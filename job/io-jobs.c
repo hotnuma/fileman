@@ -607,7 +607,7 @@ static GList* _io_collect_nofollow(ThunarJob *job,
                           TRUE, unlinking, FALSE, &err);
 
         /* prepend the new files to the existing list */
-        file_list = thunar_g_file_list_prepend(file_list, lp->data);
+        file_list = eg_list_prepend_ref(file_list, lp->data);
         file_list = g_list_concat(child_file_list, file_list);
     }
 
@@ -717,7 +717,7 @@ static gboolean _io_link(ThunarJob  *job,
             /* queue the file for the folder update unless it was skipped */
             if (sp->data != real_target_file)
             {
-                new_files_list = thunar_g_file_list_prepend(new_files_list,
+                new_files_list = eg_list_prepend_ref(new_files_list,
                                  real_target_file);
 
             }

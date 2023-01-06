@@ -711,7 +711,7 @@ retry_copy:
                 if (G_LIKELY(target_file_list_return != NULL))
                 {
                     *target_file_list_return =
-                        thunar_g_file_list_prepend(*target_file_list_return,
+                        eg_list_prepend_ref(*target_file_list_return,
                                                     real_target_file);
                 }
 
@@ -1047,7 +1047,7 @@ static gboolean thunar_transfer_job_move_file(ExoJob            *job,
         if (move_successful)
         {
             /* add the target file to the new files list */
-            *new_files_list_p = thunar_g_file_list_prepend(*new_files_list_p, tp->data);
+            *new_files_list_p = eg_list_prepend_ref(*new_files_list_p, tp->data);
         }
 
         /* release source and target files */
@@ -1559,7 +1559,7 @@ ThunarJob* thunar_transfer_job_new(GList    *source_node_list,
             job->source_node_list = g_list_append(job->source_node_list, node);
 
             /* append target file */
-            job->target_file_list = thunar_g_file_list_append(job->target_file_list, tp->data);
+            job->target_file_list = eg_list_append_ref(job->target_file_list, tp->data);
         }
     }
 

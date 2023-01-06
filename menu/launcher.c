@@ -926,7 +926,7 @@ static void _launcher_open_files(ThunarLauncher *launcher,
             }
 
             /* append our new URI to the list */
-            file_list = thunar_g_file_list_append(file_list, th_file_get_file(lp->data));
+            file_list = eg_list_append_ref(file_list, th_file_get_file(lp->data));
 
             /*(re)insert the URI list for the application */
             g_hash_table_insert(applications, app_info, file_list);

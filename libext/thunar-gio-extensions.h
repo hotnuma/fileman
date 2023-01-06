@@ -26,6 +26,7 @@
 
 G_BEGIN_DECLS
 
+// GFile
 GFile*      thunar_g_file_new_for_home();
 GFile*      thunar_g_file_new_for_root();
 GFile*      thunar_g_file_new_for_trash();
@@ -54,38 +55,28 @@ gchar*      thunar_g_file_get_display_name(GFile *file);
 
 gchar*      thunar_g_file_get_display_name_remote(GFile *file);
 
-gboolean    thunar_g_vfs_is_uri_scheme_supported(const gchar *scheme);
-
 gboolean    thunar_g_file_get_free_space(GFile *file,
                                          guint64 *fs_free_return,
                                          guint64 *fs_size_return);
 
 gchar*      thunar_g_file_get_free_space_string(GFile *file, gboolean file_size_binary);
 
-/**
- * THUNAR_TYPE_G_FILE_LIST:
- *
- * Returns the type ID for #GList<!---->s of #GFile<!---->s which is a
- * boxed type.
- **/
+// File List
 #define THUNAR_TYPE_G_FILE_LIST (thunar_g_file_list_get_type())
 
 GType       thunar_g_file_list_get_type();
 GList* eg_list_copy(GList *list);
 void eg_list_free(GList *list);
 
-
 GList*      thunar_g_file_list_new_from_string(const gchar *string);
 gchar**     thunar_g_file_list_to_stringv(GList *list);
 GList*      thunar_g_file_list_get_parents(GList *list);
 
-/* deep copy jobs for GLists */
-#define thunar_g_file_list_append(list,object) g_list_append(list, g_object_ref(G_OBJECT(object)))
-#define thunar_g_file_list_prepend(list,object) g_list_prepend(list, g_object_ref(G_OBJECT(object)))
+// deep copy jobs for GLists
+#define eg_list_append_ref(list, object) g_list_append(list, g_object_ref(G_OBJECT(object)))
+#define eg_list_prepend_ref(list, object) g_list_prepend(list, g_object_ref(G_OBJECT(object)))
 
-//#define thunar_g_file_list_copy thunarx_file_info_list_copy
-//#define thunar_g_file_list_free thunarx_file_info_list_free
-
+// App Info
 gboolean    thunar_g_app_info_launch(GAppInfo *info,
                                      GFile *working_directory,
                                      GList *path_list,
@@ -94,11 +85,13 @@ gboolean    thunar_g_app_info_launch(GAppInfo *info,
 
 gboolean    thunar_g_app_info_should_show(GAppInfo *info);
 
-gboolean    thunar_g_vfs_metadata_is_supported();
+// VFS
+gboolean    thunar_g_vfs_is_uri_scheme_supported(const gchar *scheme);
 
+gboolean    thunar_g_vfs_metadata_is_supported();
 
 G_END_DECLS
 
-#endif /* !__THUNAR_GIO_EXTENSIONS_H__ */
+#endif // __THUNAR_GIO_EXTENSIONS_H__
 
 
