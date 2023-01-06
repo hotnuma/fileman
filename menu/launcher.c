@@ -553,7 +553,7 @@ static void launcher_dispose(GObject *object)
     launcher_set_widget(THUNAR_LAUNCHER(launcher), NULL);
 
     /* disconnect from the currently selected files */
-    thunar_g_file_list_free(launcher->files_to_process);
+    eg_list_free(launcher->files_to_process);
     launcher->files_to_process = NULL;
 
     /* unref parent, if any */
@@ -678,7 +678,7 @@ static void launcher_set_selected_files(ThunarComponent *component,
 
     /* disconnect from the previous files to process */
     if (launcher->files_to_process != NULL)
-        thunar_g_file_list_free(launcher->files_to_process);
+        eg_list_free(launcher->files_to_process);
 
     launcher->files_to_process = NULL;
 
@@ -707,7 +707,7 @@ static void launcher_set_selected_files(ThunarComponent *component,
 
     /* if nothing is selected, the current directory is the folder to use for all menus */
     if (launcher->files_are_selected)
-        launcher->files_to_process = thunar_g_file_list_copy(selected_files);
+        launcher->files_to_process = eg_list_copy(selected_files);
     else
         launcher->files_to_process = g_list_append(launcher->files_to_process,
                                                    launcher->current_directory);
@@ -894,7 +894,7 @@ static void _launcher_open_files(ThunarLauncher *launcher,
     applications = g_hash_table_new_full(thunar_launcher_g_app_info_hash,
                                          (GEqualFunc) g_app_info_equal,
                                          (GDestroyNotify) g_object_unref,
-                                         (GDestroyNotify) thunar_g_file_list_free);
+                                         (GDestroyNotify) eg_list_free);
 
     for (lp = files; lp != NULL; lp = lp->next)
     {
@@ -922,7 +922,7 @@ static void _launcher_open_files(ThunarLauncher *launcher,
             if (G_LIKELY(file_list != NULL))
             {
                 /* take a copy of the list as the old one will be dropped by the insert */
-                file_list = thunar_g_file_list_copy(file_list);
+                file_list = eg_list_copy(file_list);
             }
 
             /* append our new URI to the list */
@@ -1071,7 +1071,7 @@ static LauncherPokeData* _launcher_poke_data_new(
 {
     LauncherPokeData *data = g_slice_new0(LauncherPokeData);
 
-    data->files_to_poke = thunar_g_file_list_copy(files_to_poke);
+    data->files_to_poke = eg_list_copy(files_to_poke);
     data->files_poked = NULL;
     data->application_to_use = application_to_use;
 
@@ -1088,8 +1088,8 @@ static void _launcher_poke_data_free(LauncherPokeData *data)
 {
     thunar_return_if_fail(data != NULL);
 
-    thunar_g_file_list_free(data->files_to_poke);
-    thunar_g_file_list_free(data->files_poked);
+    eg_list_free(data->files_to_poke);
+    eg_list_free(data->files_poked);
 
     if (data->application_to_use != NULL)
         g_object_unref(data->application_to_use);
@@ -2064,7 +2064,7 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
         g_object_unref(G_OBJECT(application));
 
         /* clean up */
-        thunar_g_file_list_free(files_to_process);
+        eg_list_free(files_to_process);
     }
 }
 
@@ -2528,7 +2528,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
     else
     {
         thunar_launcher_create_document_submenu_templates(launcher, submenu, files);
-        thunar_g_file_list_free(files);
+        eg_list_free(files);
     }
 
     xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(submenu));

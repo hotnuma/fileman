@@ -300,10 +300,10 @@ static void thunar_folder_finalize(GObject *object)
         g_source_remove(folder->content_type_idle_id);
 
     /* release references to the new files */
-    thunar_g_file_list_free(folder->new_files);
+    eg_list_free(folder->new_files);
 
     /* release references to the current files */
-    thunar_g_file_list_free(folder->files);
+    eg_list_free(folder->files);
 
    (*G_OBJECT_CLASS(thunar_folder_parent_class)->finalize)(object);
 }
@@ -499,11 +499,11 @@ static void thunar_folder_finished(ExoJob *job, ThunarFolder *folder)
             g_signal_emit(G_OBJECT(folder), folder_signals[FILES_REMOVED], 0, files);
 
             /* release the removed files list */
-            thunar_g_file_list_free(files);
+            eg_list_free(files);
         }
 
         /* drop the temporary new_files list */
-        thunar_g_file_list_free(folder->new_files);
+        eg_list_free(folder->new_files);
         folder->new_files = NULL;
     }
     else
@@ -937,7 +937,7 @@ void thunar_folder_reload(ThunarFolder *folder,
     }
 
     /* reset the new_files list */
-    thunar_g_file_list_free(folder->new_files);
+    eg_list_free(folder->new_files);
     folder->new_files = NULL;
 
     /* start a new job */

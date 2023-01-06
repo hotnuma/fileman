@@ -53,6 +53,7 @@ static void clipman_dispose(GObject *object);
 static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
                                  GParamSpec *pspec);
 
+// Public ---------------------------------------------------------------------
 
 static void _clipman_owner_changed(GtkClipboard *clipboard, GdkEventOwnerChange *event,
                                    ClipboardManager *manager);
@@ -70,9 +71,7 @@ static void _clipman_get_callback(GtkClipboard *clipboard,
 static void _clipman_clear_callback(GtkClipboard *clipboard,
                                                     gpointer user_data);
 
-// Public ---------------------------------------------------------------------
-
-static void clipman_contents_received(GtkClipboard *clipboard,
+static void _clipman_contents_received(GtkClipboard *clipboard,
                                                        GtkSelectionData *selection_data,
                                                        gpointer user_data);
 
@@ -99,11 +98,11 @@ struct _ClipboardManager
 typedef struct
 {
     ClipboardManager *manager;
-    GFile                  *target_file;
-    GtkWidget              *widget;
-    GClosure               *new_files_closure;
+    GFile       *target_file;
+    GtkWidget   *widget;
+    GClosure    *new_files_closure;
 
-} ThunarClipboardPasteRequest;
+} ClipboardPasteRequest;
 
 static const GtkTargetEntry _clipman_targets[] =
 {
@@ -527,7 +526,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
     }
 
     /* cleanup */
-    thunar_g_file_list_free(file_list);
+    eg_list_free(file_list);
 }
 
 static void _clipman_clear_callback(GtkClipboard *clipboard,
@@ -550,34 +549,15 @@ static void _clipman_clear_callback(GtkClipboard *clipboard,
     manager->files = NULL;
 }
 
-
-/**
- * thunar_clipboard_manager_paste_files:
- * @manager           : a #ClipboardManager.
- * @target_file       : the #GFile of the folder to which the contents on the clipboard
- *                      should be pasted.
- * @widget            : a #GtkWidget, on which to perform the paste or %NULL if no widget is
- *                      known.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Pastes the contents from the clipboard associated with @manager to the directory
- * referenced by @target_file.
- **/
-void clipman_paste_files(ClipboardManager *manager,
-                                          GFile                  *target_file,
-                                          GtkWidget              *widget,
-                                          GClosure               *new_files_closure)
+void clipman_paste_files(ClipboardManager *manager, GFile *target_file,
+                         GtkWidget *widget, GClosure *new_files_closure)
 {
-    ThunarClipboardPasteRequest *request;
-
     thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     thunar_return_if_fail(widget == NULL || GTK_IS_WIDGET(widget));
 
     /* prepare the paste request */
-    request = g_slice_new0(ThunarClipboardPasteRequest);
+    ClipboardPasteRequest *request = g_slice_new0(ClipboardPasteRequest);
+
     request->manager = CLIPBOARD_MANAGER(g_object_ref(G_OBJECT(manager)));
     request->target_file = g_object_ref(target_file);
     request->widget = widget;
@@ -594,31 +574,32 @@ void clipman_paste_files(ClipboardManager *manager,
      * completing the clipboard contents retrieval
      */
     if (G_LIKELY(request->widget != NULL))
-        g_object_add_weak_pointer(G_OBJECT(request->widget),(gpointer) &request->widget);
+        g_object_add_weak_pointer(G_OBJECT(request->widget), (gpointer) &request->widget);
 
     /* schedule the request */
-    gtk_clipboard_request_contents(manager->clipboard, manager->x_special_gnome_copied_files,
-                                    clipman_contents_received, request);
+    gtk_clipboard_request_contents(manager->clipboard,
+                                   manager->x_special_gnome_copied_files,
+                                   _clipman_contents_received,
+                                   request);
 }
 
-static void clipman_contents_received(GtkClipboard     *clipboard,
-                                                       GtkSelectionData *selection_data,
-                                                       gpointer          user_data)
+static void _clipman_contents_received(GtkClipboard *clipboard,
+                                       GtkSelectionData *selection_data,
+                                       gpointer user_data)
 {
     UNUSED(clipboard);
 
-    ThunarClipboardPasteRequest *request = user_data;
+    ClipboardPasteRequest *request = user_data;
     ClipboardManager      *manager = CLIPBOARD_MANAGER(request->manager);
-    ThunarApplication           *application;
     gboolean                     path_copy = TRUE;
     GList                       *file_list = NULL;
-    gchar                       *data;
 
     /* check whether the retrieval worked */
     if (G_LIKELY(gtk_selection_data_get_length(selection_data) > 0))
     {
         /* be sure the selection data is zero-terminated */
-        data =(gchar *) gtk_selection_data_get_data(selection_data);
+        gchar                       *data;
+        data = (gchar *) gtk_selection_data_get_data(selection_data);
         data[gtk_selection_data_get_length(selection_data)] = '\0';
 
         /* check whether to copy or move */
@@ -640,13 +621,15 @@ static void clipman_contents_received(GtkClipboard     *clipboard,
     /* perform the action if possible */
     if (G_LIKELY(file_list != NULL))
     {
-        application = thunar_application_get();
+        ThunarApplication *application = thunar_application_get();
+
         if (G_LIKELY(path_copy))
             thunar_application_copy_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
         else
             thunar_application_move_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
+
         g_object_unref(G_OBJECT(application));
-        thunar_g_file_list_free(file_list);
+        eg_list_free(file_list);
 
         /* clear the clipboard if it contained "cutted data"
          *(gtk_clipboard_clear takes care of not clearing
@@ -673,9 +656,10 @@ static void clipman_contents_received(GtkClipboard     *clipboard,
         g_object_remove_weak_pointer(G_OBJECT(request->widget),(gpointer) &request->widget);
     if (G_LIKELY(request->new_files_closure != NULL))
         g_closure_unref(request->new_files_closure);
+
     g_object_unref(G_OBJECT(request->manager));
     g_object_unref(request->target_file);
-    g_slice_free(ThunarClipboardPasteRequest, request);
+    g_slice_free(ClipboardPasteRequest, request);
 }
 
 

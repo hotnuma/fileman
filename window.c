@@ -1376,7 +1376,7 @@ static void thunar_window_create_view(ThunarWindow *window,
 
     /* restore the file selection */
     thunar_component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
-    thunar_g_file_list_free(selected_files);
+    eg_list_free(selected_files);
 
     /* release the file references */
     if (G_UNLIKELY(file != NULL))

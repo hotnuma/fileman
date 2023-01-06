@@ -364,7 +364,7 @@ static void thunar_application_shutdown(GApplication *gapp)
     prefs_cleanup();
 
     /* unqueue all files waiting to be processed */
-    thunar_g_file_list_free(application->files_to_launch);
+    eg_list_free(application->files_to_launch);
 
     /* save the current accel map */
     if (G_UNLIKELY(application->accel_map_save_id != 0))
@@ -671,7 +671,7 @@ static void thunar_application_collect_and_launch(
     }
 
     /* release the target path list */
-    thunar_g_file_list_free(target_file_list);
+    eg_list_free(target_file_list);
 }
 
 static void thunar_application_launch_finished(ThunarJob  *job,
@@ -1179,7 +1179,7 @@ static void thunar_application_process_files_finish(ThunarBrowser  *browser,
         }
 
         /* stop processing files */
-        thunar_g_file_list_free(application->files_to_launch);
+        eg_list_free(application->files_to_launch);
         application->files_to_launch = NULL;
     }
     else
@@ -1313,7 +1313,7 @@ gboolean thunar_application_process_filenames(ThunarApplication *application,
                          _("Failed to open \"%s\": %s"), filenames[n], derror->message);
             g_error_free(derror);
 
-            thunar_g_file_list_free(file_list);
+            eg_list_free(file_list);
 
             return FALSE;
         }
@@ -1597,7 +1597,7 @@ void thunar_application_unlink_files(ThunarApplication *application,
     }
 
     /* release the path list */
-    thunar_g_file_list_free(path_list);
+    eg_list_free(path_list);
 }
 
 static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
@@ -1824,8 +1824,8 @@ void thunar_application_restore_files(ThunarApplication *application,
     }
 
     /* free path lists */
-    thunar_g_file_list_free(source_path_list);
-    thunar_g_file_list_free(target_path_list);
+    eg_list_free(source_path_list);
+    eg_list_free(target_path_list);
 }
 
 

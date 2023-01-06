@@ -21,6 +21,8 @@
 #include <config.h>
 #include <thx-file-info.h>
 
+#include <thunar-gio-extensions.h>
+
 /* Signal identifiers */
 enum
 {
@@ -289,42 +291,24 @@ GType thunarx_file_info_list_get_type()
     if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         type = g_boxed_type_register_static(I_("ThunarxFileInfoList"),
-                                            (GBoxedCopyFunc) thunarx_file_info_list_copy,
-                                            (GBoxedFreeFunc) thunarx_file_info_list_free);
+                                            (GBoxedCopyFunc) eg_list_copy,
+                                            (GBoxedFreeFunc) eg_list_free);
     }
 
     return type;
 }
 
-
-
-/**
- * thunarx_file_info_list_copy:
- * @file_infos:(element-type ThunarxFileInfo): a #GList of #ThunarxFileInfo<!---->s.
- *
- * Does a deep copy of @file_infos and returns the
- * new list.
- *
- * Returns:(transfer full)(element-type ThunarxFileInfo): a copy of @file_infos.
- **/
+#if 0
 GList* thunarx_file_info_list_copy(GList *file_infos)
 {
     return g_list_copy_deep(file_infos,(GCopyFunc)(void(*)(void)) g_object_ref, NULL);
 }
 
-
-
-/**
- * thunarx_file_info_list_free:
- * @file_infos:(element-type ThunarxFileInfo): a #GList of #ThunarxFileInfo<!---->s.
- *
- * Frees the resources allocated for the @file_infos
- * list and decreases the reference count on the
- * #ThunarxFileInfo<!---->s contained within.
- **/
 void thunarx_file_info_list_free(GList *file_infos)
 {
     g_list_free_full(file_infos, g_object_unref);
 }
+
+#endif
 
 

@@ -170,7 +170,7 @@ static void thunar_transfer_job_finalize(GObject *object)
     if (job->target_device_fs_id != NULL)
         g_free(job->target_device_fs_id);
 
-    thunar_g_file_list_free(job->target_file_list);
+    eg_list_free(job->target_file_list);
 
    (*G_OBJECT_CLASS(thunar_transfer_job_parent_class)->finalize)(object);
 }
@@ -337,7 +337,7 @@ static gboolean thunar_transfer_job_collect_node(ThunarTransferJob  *job,
         }
 
         /* release the child files */
-        thunar_g_file_list_free(file_list);
+        eg_list_free(file_list);
     }
 
     /* release file info */
@@ -1493,7 +1493,7 @@ static gboolean thunar_transfer_job_execute(ExoJob  *job, GError **error)
     else
     {
         thunar_job_new_files(THUNAR_JOB(job), new_files_list);
-        thunar_g_file_list_free(new_files_list);
+        eg_list_free(new_files_list);
         return TRUE;
     }
 }

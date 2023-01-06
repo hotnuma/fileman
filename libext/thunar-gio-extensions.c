@@ -431,12 +431,23 @@ GType thunar_g_file_list_get_type()
     if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         type = g_boxed_type_register_static(I_("ThunarGFileList"),
-                                            (GBoxedCopyFunc) thunar_g_file_list_copy,
-                                            (GBoxedFreeFunc) thunar_g_file_list_free);
+                                            (GBoxedCopyFunc) eg_list_copy,
+                                            (GBoxedFreeFunc) eg_list_free);
     }
 
     return type;
 }
+
+GList* eg_list_copy(GList *list)
+{
+    return g_list_copy_deep(list, (GCopyFunc)(void(*)(void)) g_object_ref, NULL);
+}
+
+void eg_list_free(GList *list)
+{
+    g_list_free_full(list, g_object_unref);
+}
+
 
 /**
  * thunar_g_file_list_new_from_string:

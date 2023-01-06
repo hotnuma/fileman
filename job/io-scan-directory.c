@@ -161,13 +161,13 @@ GList* io_scan_directory(ThunarJob           *job,
     if (G_UNLIKELY(err != NULL))
     {
         g_propagate_error(error, err);
-        thunar_g_file_list_free(files);
+        eg_list_free(files);
         return NULL;
     }
     else if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
     {
         g_propagate_error(error, err);
-        thunar_g_file_list_free(files);
+        eg_list_free(files);
         return NULL;
     }
 

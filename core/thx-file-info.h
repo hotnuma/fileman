@@ -125,9 +125,6 @@ void        thunarx_file_info_renamed(ThunarxFileInfo *file_info);
 
 GType       thunarx_file_info_list_get_type() G_GNUC_CONST;
 
-GList*      thunarx_file_info_list_copy(GList *file_infos);
-void        thunarx_file_info_list_free(GList *file_infos);
-
 G_END_DECLS
 
 #endif // __THUNARX_FILE_INFO_H__
