@@ -19,15 +19,15 @@
  */
 
 #include <config.h>
-#include <memory.h>
-#include <string.h>
-
-#include <libext.h>
+#include <clipboard-man.h>
 
 #include <application.h>
-#include <clipboard-man.h>
 #include <dialogs.h>
 #include <thunar-gobject-extensions.h>
+#include <libext.h>
+
+#include <string.h>
+#include <memory.h>
 
 enum
 {
@@ -100,25 +100,24 @@ typedef struct
     GFile                  *target_file;
     GtkWidget              *widget;
     GClosure               *new_files_closure;
+
 } ThunarClipboardPasteRequest;
 
 static const GtkTargetEntry clipboard_targets[] =
 {
-    { "text/uri-list", 0, TARGET_TEXT_URI_LIST },
-    { "x-special/gnome-copied-files", 0, TARGET_GNOME_COPIED_FILES },
-    { "UTF8_STRING", 0, TARGET_UTF8_STRING }
+    {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
+    {"x-special/gnome-copied-files", 0, TARGET_GNOME_COPIED_FILES},
+    {"UTF8_STRING", 0, TARGET_UTF8_STRING}
 };
 
-static GQuark thunar_clipboard_manager_quark = 0;
-static guint  manager_signals[LAST_SIGNAL];
+static GQuark _clipman_quark = 0;
+static guint  _clipman_signals[LAST_SIGNAL];
 
-G_DEFINE_TYPE(ThunarClipboardManager, thunar_clipboard_manager, G_TYPE_OBJECT)
+G_DEFINE_TYPE(ThunarClipboardManager, clipman, G_TYPE_OBJECT)
 
-static void thunar_clipboard_manager_class_init(ThunarClipboardManagerClass *klass)
+static void clipman_class_init(ThunarClipboardManagerClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = thunar_clipboard_manager_dispose;
     gobject_class->finalize = thunar_clipboard_manager_finalize;
     gobject_class->get_property = thunar_clipboard_manager_get_property;
@@ -131,10 +130,12 @@ static void thunar_clipboard_manager_class_init(ThunarClipboardManagerClass *kla
      * displayed by a #ThunarView.
      **/
     g_object_class_install_property(gobject_class,
-                                     PROP_CAN_PASTE,
-                                     g_param_spec_boolean("can-paste", "can-paste", "can-paste",
-                                             FALSE,
-                                             E_PARAM_READABLE));
+                                    PROP_CAN_PASTE,
+                                    g_param_spec_boolean("can-paste",
+                                                         "can-paste",
+                                                         "can-paste",
+                                                         FALSE,
+                                                         E_PARAM_READABLE));
 
     /**
      * ThunarClipboardManager::changed:
@@ -143,7 +144,7 @@ static void thunar_clipboard_manager_class_init(ThunarClipboardManagerClass *kla
      * This signal is emitted whenever the contents of the
      * clipboard associated with @manager changes.
      **/
-    manager_signals[CHANGED] =
+    _clipman_signals[CHANGED] =
         g_signal_new(I_("changed"),
                       G_TYPE_FROM_CLASS(klass),
                       G_SIGNAL_RUN_FIRST,
@@ -153,7 +154,7 @@ static void thunar_clipboard_manager_class_init(ThunarClipboardManagerClass *kla
                       G_TYPE_NONE, 0);
 }
 
-static void thunar_clipboard_manager_init(ThunarClipboardManager *manager)
+static void clipman_init(ThunarClipboardManager *manager)
 {
     manager->x_special_gnome_copied_files = gdk_atom_intern_static_string("x-special/gnome-copied-files");
 }
@@ -173,7 +174,7 @@ static void thunar_clipboard_manager_dispose(GObject *object)
         gtk_clipboard_store(manager->clipboard);
     }
 
-   (*G_OBJECT_CLASS(thunar_clipboard_manager_parent_class)->dispose)(object);
+   (*G_OBJECT_CLASS(clipman_parent_class)->dispose)(object);
 }
 
 static void thunar_clipboard_manager_finalize(GObject *object)
@@ -191,10 +192,10 @@ static void thunar_clipboard_manager_finalize(GObject *object)
 
     /* disconnect from the clipboard */
     g_signal_handlers_disconnect_by_func(G_OBJECT(manager->clipboard), thunar_clipboard_manager_owner_changed, manager);
-    g_object_set_qdata(G_OBJECT(manager->clipboard), thunar_clipboard_manager_quark, NULL);
+    g_object_set_qdata(G_OBJECT(manager->clipboard), _clipman_quark, NULL);
     g_object_unref(G_OBJECT(manager->clipboard));
 
-   (*G_OBJECT_CLASS(thunar_clipboard_manager_parent_class)->finalize)(object);
+   (*G_OBJECT_CLASS(clipman_parent_class)->finalize)(object);
 }
 
 static void thunar_clipboard_manager_get_property(GObject    *object,
@@ -357,7 +358,7 @@ static void thunar_clipboard_manager_targets_received(GtkClipboard     *clipboar
     }
 
     /* notify listeners that we have a new clipboard state */
-    g_signal_emit(manager, manager_signals[CHANGED], 0);
+    g_signal_emit(manager, _clipman_signals[CHANGED], 0);
     g_object_notify(G_OBJECT(manager), "can-paste");
 
     /* drop the reference taken for the callback */
@@ -522,14 +523,14 @@ ThunarClipboardManager* thunar_clipboard_manager_get_for_display(GdkDisplay *dis
     thunar_return_val_if_fail(GDK_IS_DISPLAY(display), NULL);
 
     /* generate the quark on-demand */
-    if (G_UNLIKELY(thunar_clipboard_manager_quark == 0))
-        thunar_clipboard_manager_quark = g_quark_from_static_string("thunar-clipboard-manager");
+    if (G_UNLIKELY(_clipman_quark == 0))
+        _clipman_quark = g_quark_from_static_string("thunar-clipboard-manager");
 
     /* figure out the clipboard for the given display */
     clipboard = gtk_clipboard_get_for_display(display, GDK_SELECTION_CLIPBOARD);
 
     /* check if a clipboard manager exists */
-    manager = g_object_get_qdata(G_OBJECT(clipboard), thunar_clipboard_manager_quark);
+    manager = g_object_get_qdata(G_OBJECT(clipboard), _clipman_quark);
     if (G_LIKELY(manager != NULL))
     {
         g_object_ref(G_OBJECT(manager));
@@ -539,7 +540,7 @@ ThunarClipboardManager* thunar_clipboard_manager_get_for_display(GdkDisplay *dis
     /* allocate a new manager */
     manager = g_object_new(THUNAR_TYPE_CLIPBOARD_MANAGER, NULL);
     manager->clipboard = GTK_CLIPBOARD(g_object_ref(G_OBJECT(clipboard)));
-    g_object_set_qdata(G_OBJECT(clipboard), thunar_clipboard_manager_quark, manager);
+    g_object_set_qdata(G_OBJECT(clipboard), _clipman_quark, manager);
 
     /* listen for the "owner-change" signal on the clipboard */
     g_signal_connect(G_OBJECT(manager->clipboard), "owner-change",

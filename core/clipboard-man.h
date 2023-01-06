@@ -27,14 +27,19 @@ G_BEGIN_DECLS
 typedef struct _ThunarClipboardManagerClass ThunarClipboardManagerClass;
 typedef struct _ThunarClipboardManager      ThunarClipboardManager;
 
-#define THUNAR_TYPE_CLIPBOARD_MANAGER             (thunar_clipboard_manager_get_type ())
-#define THUNAR_CLIPBOARD_MANAGER(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_CLIPBOARD_MANAGER, ThunarClipboardManager))
-#define THUNAR_CLIPBOARD_MANAGER_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((obj), THUNAR_TYPE_CLIPBOARD_MANAGER, ThunarClipboardManagerClass))
-#define THUNAR_IS_CLIPBOARD_MANAGER(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_CLIPBOARD_MANAGER))
-#define THUNAR_IS_CLIPBOARD_MANAGER_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_CLIPBOARD_MANAGER))
-#define THUNAR_CLIPBOARD_MANAGER_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CLIPBOARD_MANAGER, ThunarClipboardManagerClass))
+#define THUNAR_TYPE_CLIPBOARD_MANAGER (clipman_get_type())
+#define THUNAR_CLIPBOARD_MANAGER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_CLIPBOARD_MANAGER, ThunarClipboardManager))
+#define THUNAR_CLIPBOARD_MANAGER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((obj),    THUNAR_TYPE_CLIPBOARD_MANAGER, ThunarClipboardManagerClass))
+#define THUNAR_IS_CLIPBOARD_MANAGER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_CLIPBOARD_MANAGER))
+#define THUNAR_IS_CLIPBOARD_MANAGER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_CLIPBOARD_MANAGER))
+#define THUNAR_CLIPBOARD_MANAGER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_CLIPBOARD_MANAGER, ThunarClipboardManagerClass))
 
-GType thunar_clipboard_manager_get_type() G_GNUC_CONST;
+GType clipman_get_type() G_GNUC_CONST;
 
 ThunarClipboardManager *thunar_clipboard_manager_get_for_display(GdkDisplay *display);
 
