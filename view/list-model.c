@@ -22,7 +22,7 @@
 #include <list-model.h>
 
 #include <application.h>
-#include <file-monitor.h>
+#include <file-mon.h>
 #include <thunar-gobject-extensions.h>
 #include <user.h>
 #include <libext.h>

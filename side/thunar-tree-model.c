@@ -23,12 +23,12 @@
 
 #include <libext.h>
 
-#include <file-monitor.h>
+#include <file-mon.h>
 #include <th-folder.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-pango-extensions.h>
 #include <thunar-tree-model.h>
-#include <device-monitor.h>
+#include <device-mon.h>
 #include <utils.h>
 
 /* convenience macros */

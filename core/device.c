@@ -21,7 +21,7 @@
 #include <libext.h>
 
 #include <device.h>
-#include <device-monitor.h>
+#include <device-mon.h>
 #include <th-file.h>
 #include <thunar-notify.h>
 

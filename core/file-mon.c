@@ -20,7 +20,7 @@
 #include <config.h>
 #endif
 
-#include <file-monitor.h>
+#include <file-mon.h>
 
 /* Signal identifiers */
 enum

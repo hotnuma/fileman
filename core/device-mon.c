@@ -24,7 +24,7 @@
 
 #include <libext.h>
 
-#include <device-monitor.h>
+#include <device-mon.h>
 #include <marshal.h>
 
 /* signal identifiers */

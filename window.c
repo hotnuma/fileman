@@ -45,7 +45,7 @@
 #include <thunar-statusbar.h>
 #include <thunar-tree-pane.h>
 #include <window.h>
-#include <device-monitor.h>
+#include <device-mon.h>
 
 #include <glib.h>
 #include <syslog.h>

@@ -25,7 +25,7 @@
 #include <thx-file-info.h>
 #include <application.h>
 #include <thunar-chooser-dialog.h>
-#include <file-monitor.h>
+#include <file-mon.h>
 #include <thunar-gio-extensions.h>
 #include <thunar-gobject-extensions.h>
 #include <user.h>
