@@ -23,16 +23,16 @@
 
 #include <application.h>
 #include <preferences.h>
-#include <thunar-browser.h>
-#include <thunar-chooser-dialog.h>
+#include <browser.h>
+#include <chooser-dlg.h>
 #include <clipman.h>
 #include <dialogs.h>
-#include <thunar-icon-factory.h>
+#include <icon-factory.h>
 #include <io-scan-directory.h>
-#include <thunar-properties-dialog.h>
-#include <thunar-simple-job.h>
+#include <properties-dlg.h>
+#include <simple-job.h>
 #include <devmon.h>
-#include <thunar-tree-view.h>
+#include <tree-view.h>
 #include <utils.h>
 #include <window.h>
 

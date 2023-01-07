@@ -20,7 +20,7 @@
 #ifndef __THUNAR_LAUNCHER_H__
 #define __THUNAR_LAUNCHER_H__
 
-#include <thunar-component.h>
+#include <component.h>
 
 G_BEGIN_DECLS
 

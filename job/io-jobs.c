@@ -24,10 +24,10 @@
 #include <enum-types.h>
 #include <gio-ext.h>
 #include <io-scan-directory.h>
-#include <thunar-io-jobs-util.h>
-#include <thunar-job.h>
-#include <thunar-simple-job.h>
-#include <thunar-transfer-job.h>
+#include <io-jobs-util.h>
+#include <job.h>
+#include <simple-job.h>
+#include <transfer-job.h>
 
 #include <errno.h>
 #include <gio/gio.h>

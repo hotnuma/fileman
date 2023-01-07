@@ -20,10 +20,10 @@
 #define __THUNAR_STANDARD_VIEW_H__
 
 #include <clipman.h>
-#include <thunar-history.h>
-#include <thunar-icon-factory.h>
+#include <history.h>
+#include <icon-factory.h>
 #include <list-model.h>
-#include <thunar-view.h>
+#include <view.h>
 
 G_BEGIN_DECLS
 

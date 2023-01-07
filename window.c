@@ -27,23 +27,23 @@
 #include <libext.h>
 
 #include <application.h>
-#include <thunar-browser.h>
+#include <browser.h>
 #include <clipman.h>
-#include <thunar-details-view.h>
+#include <detail-view.h>
 #include <dialogs.h>
 #include <gio-ext.h>
 #include <gobject-ext.h>
 #include <gtk-ext.h>
-#include <thunar-history.h>
+#include <history.h>
 #include <launcher.h>
-#include <thunar-location-entry.h>
+#include <location-entry.h>
 #include <marshal.h>
 #include <menu.h>
 #include <pango-ext.h>
 #include <preferences.h>
 #include <utils.h>
-#include <thunar-statusbar.h>
-#include <thunar-tree-pane.h>
+#include <statusbar.h>
+#include <tree-pane.h>
 #include <window.h>
 #include <devmon.h>
 

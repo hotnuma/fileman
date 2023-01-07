@@ -23,7 +23,7 @@
 #include <device.h>
 #include <devmon.h>
 #include <th-file.h>
-#include <thunar-notify.h>
+#include <notify.h>
 
 typedef gboolean (*AsyncCallbackFinish) (GObject       *object,
                                          GAsyncResult  *result,

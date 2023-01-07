@@ -38,7 +38,7 @@
 
 #include <application.h>
 #include <gobject-ext.h>
-#include <thunar-notify.h>
+#include <notify.h>
 
 int
 main(int argc, char **argv)

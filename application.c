@@ -34,15 +34,15 @@
 #include <libxfce4ui/libxfce4ui.h>
 
 #include <application.h>
-#include <thunar-browser.h>
+#include <browser.h>
 #include <dialogs.h>
 #include <gdk-ext.h>
 #include <gobject-ext.h>
 #include <io-jobs.h>
 #include <preferences.h>
-#include <thunar-progress-dialog.h>
+#include <progress-dlg.h>
 #include <utils.h>
-#include <thunar-view.h>
+#include <view.h>
 
 #ifdef ENABLE_LIBSM
 #include <thunar-session-client.h>

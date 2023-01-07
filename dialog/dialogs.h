@@ -21,7 +21,7 @@
 
 #include <enum-types.h>
 #include <th-file.h>
-#include <thunar-job.h>
+#include <job.h>
 
 G_BEGIN_DECLS
 

@@ -20,7 +20,7 @@
 #ifndef __THUNAR_IO_SCAN_DIRECTORY_H__
 #define __THUNAR_IO_SCAN_DIRECTORY_H__
 
-#include <thunar-job.h>
+#include <job.h>
 
 G_BEGIN_DECLS
 

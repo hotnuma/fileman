@@ -20,7 +20,7 @@
 #ifndef __THUNAR_IO_JOBS_H__
 #define __THUNAR_IO_JOBS_H__
 
-#include <thunar-job.h>
+#include <job.h>
 #include <enum-types.h>
 
 G_BEGIN_DECLS

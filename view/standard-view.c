@@ -38,13 +38,13 @@
 #include <gio-ext.h>
 #include <gobject-ext.h>
 #include <gtk-ext.h>
-#include <thunar-history.h>
-#include <thunar-icon-renderer.h>
+#include <history.h>
+#include <icon-render.h>
 #include <launcher.h>
 #include <marshal.h>
 #include <pango-ext.h>
-#include <thunar-properties-dialog.h>
-#include <thunar-simple-job.h>
+#include <properties-dlg.h>
+#include <simple-job.h>
 #include <utils.h>
 
 // Property identifiers
