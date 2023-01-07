@@ -20,16 +20,15 @@
  */
 
 #include <config.h>
+#include <chooser-combo.h>
 
-#include <libext.h>
-
-#include <chooser-button.h>
 #include <chooser-dlg.h>
 #include <dialogs.h>
 #include <gobject-ext.h>
 #include <gtk-ext.h>
-#include <icon-factory.h>
 #include <pango-ext.h>
+#include <icon-factory.h>
+#include <libext.h>
 
 /* Property identifiers */
 enum

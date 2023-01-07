@@ -23,7 +23,7 @@ HEADERS = \
     core/th-folder.h \
     core/thx-file-info.h \
     core/user.h \
-    dialog/chooser-button.h \
+    dialog/chooser-combo.h \
     dialog/chooser-dlg.h \
     dialog/chooser-model.h \
     dialog/dialogs.h \
@@ -93,7 +93,7 @@ SOURCES = \
     core/th-folder.c \
     core/thx-file-info.c \
     core/user.c \
-    dialog/chooser-button.c \
+    dialog/chooser-combo.c \
     dialog/chooser-dlg.c \
     dialog/chooser-model.c \
     dialog/dialogs.c \

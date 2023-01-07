@@ -29,7 +29,7 @@
 #include <libxfce4ui/libxfce4ui.h>
 
 #include <application.h>
-#include <chooser-button.h>
+#include <chooser-combo.h>
 #include <dialogs.h>
 #include <gio-ext.h>
 #include <gobject-ext.h>

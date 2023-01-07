@@ -52,7 +52,7 @@ app_sources = [
     'core/th-folder.c',
     'core/thx-file-info.c',
     'core/user.c',
-    'dialog/chooser-button.c',
+    'dialog/chooser-combo.c',
     'dialog/chooser-dlg.c',
     'dialog/chooser-model.c',
     'dialog/dialogs.c',
