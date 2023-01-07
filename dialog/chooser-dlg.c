@@ -218,14 +218,14 @@ static void thunar_chooser_dialog_init(ThunarChooserDialog *dialog)
                             NULL);
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_attributes(column, renderer,
-                                         "gicon", THUNAR_CHOOSER_MODEL_COLUMN_ICON,
+                                         "gicon", CHOOSER_MODEL_COLUMN_ICON,
                                          NULL);
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, TRUE);
     gtk_tree_view_column_set_attributes(column, renderer,
-                                         "style", THUNAR_CHOOSER_MODEL_COLUMN_STYLE,
-                                         "text", THUNAR_CHOOSER_MODEL_COLUMN_NAME,
-                                         "weight", THUNAR_CHOOSER_MODEL_COLUMN_WEIGHT,
+                                         "style", CHOOSER_MODEL_COLUMN_STYLE,
+                                         "text", CHOOSER_MODEL_COLUMN_NAME,
+                                         "weight", CHOOSER_MODEL_COLUMN_WEIGHT,
                                          NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(dialog->tree_view), column);
 
@@ -400,7 +400,7 @@ static void thunar_chooser_dialog_response(GtkDialog *widget,
     {
         selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
         if (gtk_tree_selection_get_selected(selection, &model, &iter))
-            gtk_tree_model_get(model, &iter, THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
+            gtk_tree_model_get(model, &iter, CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
     }
     else
     {
@@ -529,7 +529,7 @@ static gboolean thunar_chooser_dialog_selection_func(GtkTreeSelection *selection
     {
         /* check if there's an application for the path */
         gtk_tree_model_get_iter(model, &iter, path);
-        gtk_tree_model_get_value(model, &iter, THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION, &value);
+        gtk_tree_model_get_value(model, &iter, CHOOSER_MODEL_COLUMN_APPLICATION, &value);
         permitted =(g_value_get_object(&value) != NULL);
         g_value_unset(&value);
     }
@@ -554,7 +554,7 @@ static gboolean thunar_chooser_dialog_context_menu(ThunarChooserDialog *dialog)
         return FALSE;
 
     /* determine the app info for the row */
-    gtk_tree_model_get(model, &iter, THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
+    gtk_tree_model_get(model, &iter, CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
     if (G_UNLIKELY(app_info == NULL))
         return FALSE;
 
@@ -600,7 +600,7 @@ static void thunar_chooser_dialog_update_accept(ThunarChooserDialog *dialog)
         if (gtk_tree_selection_get_selected(selection, &model, &iter))
         {
             /* check if the selected row refers to a valid application */
-            gtk_tree_model_get_value(model, &iter, THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION, &value);
+            gtk_tree_model_get_value(model, &iter, CHOOSER_MODEL_COLUMN_APPLICATION, &value);
             sensitive =(g_value_get_object(&value) != NULL);
             g_value_unset(&value);
         }
@@ -678,7 +678,7 @@ static void thunar_chooser_dialog_action_remove(ThunarChooserDialog *dialog)
         return;
 
     /* determine the app info for the row */
-    gtk_tree_model_get(model, &iter, THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
+    gtk_tree_model_get(model, &iter, CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
     if (G_UNLIKELY(app_info == NULL))
         return;
 
@@ -711,7 +711,7 @@ static void thunar_chooser_dialog_action_remove(ThunarChooserDialog *dialog)
         if (G_LIKELY(response == GTK_RESPONSE_YES))
         {
             /* try to delete the application from the model */
-            if (!thunar_chooser_model_remove(THUNAR_CHOOSER_MODEL(model), &iter, &error))
+            if (!chooser_model_remove(THUNAR_CHOOSER_MODEL(model), &iter, &error))
             {
                 /* display an error to the user */
                 dialog_error(dialog, error, _("Failed to remove \"%s\""), name);
@@ -964,7 +964,7 @@ static void thunar_chooser_dialog_row_activated(GtkTreeView         *treeview,
 
     /* determine the application for the tree path */
     gtk_tree_model_get_iter(model, &iter, path);
-    gtk_tree_model_get_value(model, &iter, THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION, &value);
+    gtk_tree_model_get_value(model, &iter, CHOOSER_MODEL_COLUMN_APPLICATION, &value);
 
     /* check if the row refers to a valid application */
     if (G_LIKELY(g_value_get_object(&value) != NULL))
@@ -999,7 +999,7 @@ static void thunar_chooser_dialog_selection_changed(GtkTreeSelection    *selecti
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
     {
         /* determine the app info for the selected row */
-        gtk_tree_model_get(model, &iter, THUNAR_CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
+        gtk_tree_model_get(model, &iter, CHOOSER_MODEL_COLUMN_APPLICATION, &app_info, -1);
 
         /* determine the command for the app info */
         exec = g_app_info_get_executable(app_info);
@@ -1042,7 +1042,7 @@ static ThunarFile* thunar_chooser_dialog_get_file(ThunarChooserDialog *dialog)
 static void thunar_chooser_dialog_set_file(ThunarChooserDialog *dialog,
                                            ThunarFile          *file)
 {
-    ThunarChooserModel *model;
+    ChooserModel *model;
 
     thunar_return_if_fail(THUNAR_IS_CHOOSER_DIALOG(dialog));
     thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
@@ -1075,7 +1075,7 @@ static void thunar_chooser_dialog_set_file(ThunarChooserDialog *dialog,
         g_signal_connect_swapped(G_OBJECT(file), "destroy", G_CALLBACK(gtk_widget_destroy), dialog);
 
         /* allocate the new chooser model */
-        model = thunar_chooser_model_new(th_file_get_content_type(file));
+        model = chooser_model_new(th_file_get_content_type(file));
         gtk_tree_view_set_model(GTK_TREE_VIEW(dialog->tree_view), GTK_TREE_MODEL(model));
         thunar_chooser_dialog_expand(dialog);
         g_object_unref(G_OBJECT(model));
