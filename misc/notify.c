@@ -26,7 +26,7 @@
 #endif
 
 #include <notify.h>
-#include <device.h>
+#include <th-device.h>
 
 #ifdef HAVE_LIBNOTIFY
 static gboolean thunar_notify_initted = FALSE;

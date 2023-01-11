@@ -20,7 +20,7 @@
 
 #include <libext.h>
 
-#include <device.h>
+#include <th-device.h>
 #include <devmon.h>
 #include <th-file.h>
 #include <notify.h>

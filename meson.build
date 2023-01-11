@@ -44,10 +44,10 @@ app_deps = [
 
 app_sources = [
     'core/clipman.c',
-    'core/device.c',
     'core/devmon.c',
     'core/dnd.c',
     'core/filemon.c',
+    'core/th-device.c',
     'core/th-file.c',
     'core/th-folder.c',
     'core/thx-file-info.c',

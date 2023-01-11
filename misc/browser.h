@@ -21,7 +21,7 @@
 #define __THUNAR_BROWSER_H__
 
 #include <th-file.h>
-#include <device.h>
+#include <th-device.h>
 
 G_BEGIN_DECLS
 

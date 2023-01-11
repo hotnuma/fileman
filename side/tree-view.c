@@ -26,7 +26,7 @@
 
 #include <application.h>
 #include <clipman.h>
-#include <device.h>
+#include <th-device.h>
 #include <dialogs.h>
 #include <dnd.h>
 #include <gio-ext.h>

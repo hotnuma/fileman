@@ -29,7 +29,7 @@
 #include <gdk-ext.h>
 #include <icon-factory.h>
 #include <shortcut-render.h>
-#include <device.h>
+#include <th-device.h>
 
 /* Property identifiers */
 enum
