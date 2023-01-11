@@ -3001,7 +3001,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
             {
                 /* ask the user what to do with the drop data */
                 action = (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
-                         ? thunar_dnd_ask(GTK_WIDGET(standard_view), file, standard_view->priv->drop_file_list, actions)
+                         ? dnd_ask(GTK_WIDGET(standard_view), file, standard_view->priv->drop_file_list, actions)
                          : gdk_drag_context_get_selected_action(context);
 
                 /* perform the requested action */
@@ -3018,7 +3018,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                             source_view = NULL;
                     }
 
-                    succeed = thunar_dnd_perform(GTK_WIDGET(standard_view), file, standard_view->priv->drop_file_list,
+                    succeed = dnd_perform(GTK_WIDGET(standard_view), file, standard_view->priv->drop_file_list,
                                                   action, _standard_view_new_files_closure(standard_view, source_view));
                 }
             }

@@ -97,20 +97,20 @@ static void thunar_tree_model_sort(ThunarTreeModel *model,
                                    GNode *node);
 static gboolean thunar_tree_model_cleanup_idle(gpointer user_data);
 static void thunar_tree_model_cleanup_idle_destroy(gpointer user_data);
-static void thunar_tree_model_file_changed(ThunarFileMonitor *file_monitor,
+static void thunar_tree_model_file_changed(FileMonitor *file_monitor,
                                            ThunarFile *file,
                                            ThunarTreeModel *model);
-static void thunar_tree_model_device_added(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_added(DeviceMonitor *device_monitor,
                                            ThunarDevice *device,
                                            ThunarTreeModel *model);
-static void thunar_tree_model_device_pre_unmount(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_pre_unmount(DeviceMonitor *device_monitor,
                                                  ThunarDevice *device,
                                                  GFile *root_file,
                                                  ThunarTreeModel *model);
-static void thunar_tree_model_device_removed(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_removed(DeviceMonitor *device_monitor,
                                              ThunarDevice *device,
                                              ThunarTreeModel *model);
-static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_changed(DeviceMonitor *device_monitor,
                                              ThunarDevice *device,
                                              ThunarTreeModel *model);
 static ThunarTreeModelItem *thunar_tree_model_item_new_with_file(
@@ -171,9 +171,9 @@ struct _ThunarTreeModel
 #endif
 
     /* removable devices */
-    ThunarDeviceMonitor *device_monitor;
+    DeviceMonitor *device_monitor;
 
-    ThunarFileMonitor   *file_monitor;
+    FileMonitor   *file_monitor;
 
     gboolean        sort_case_sensitive;
 
@@ -276,7 +276,7 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
     model->cleanup_idle_id = 0;
 
     /* connect to the file monitor */
-    model->file_monitor = thunar_file_monitor_get_default();
+    model->file_monitor = filemon_get_default();
     g_signal_connect(G_OBJECT(model->file_monitor), "file-changed", G_CALLBACK(thunar_tree_model_file_changed), model);
 
     /* allocate the "virtual root node" */
@@ -865,11 +865,11 @@ static void thunar_tree_model_cleanup_idle_destroy(gpointer user_data)
 }
 
 static void
-thunar_tree_model_file_changed(ThunarFileMonitor *file_monitor,
+thunar_tree_model_file_changed(FileMonitor *file_monitor,
                                 ThunarFile        *file,
                                 ThunarTreeModel   *model)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
     thunar_return_if_fail(model->file_monitor == file_monitor);
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
@@ -879,7 +879,7 @@ thunar_tree_model_file_changed(ThunarFileMonitor *file_monitor,
         g_node_traverse(model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1, thunar_tree_model_node_traverse_changed, file);
 }
 
-static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_changed(DeviceMonitor *device_monitor,
                                              ThunarDevice        *device,
                                              ThunarTreeModel     *model)
 {
@@ -889,7 +889,7 @@ static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor
     GFile               *mount_point;
     GNode               *node;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     thunar_return_if_fail(model->device_monitor == device_monitor);
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
@@ -943,14 +943,14 @@ static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor
     gtk_tree_path_free(path);
 }
 
-static void thunar_tree_model_device_pre_unmount(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_pre_unmount(DeviceMonitor *device_monitor,
                                                  ThunarDevice        *device,
                                                  GFile               *root_file,
                                                  ThunarTreeModel     *model)
 {
     GNode *node;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     thunar_return_if_fail(model->device_monitor == device_monitor);
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
     thunar_return_if_fail(G_IS_FILE(root_file));
@@ -976,7 +976,7 @@ static void thunar_tree_model_device_pre_unmount(ThunarDeviceMonitor *device_mon
     thunar_tree_model_node_insert_dummy(node, model);
 }
 
-static void thunar_tree_model_device_added(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_added(DeviceMonitor *device_monitor,
                                            ThunarDevice        *device,
                                            ThunarTreeModel     *model)
 {
@@ -985,7 +985,7 @@ static void thunar_tree_model_device_added(ThunarDeviceMonitor *device_monitor,
     GtkTreeIter          iter;
     GNode               *node;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     thunar_return_if_fail(model->device_monitor == device_monitor);
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
@@ -1030,13 +1030,13 @@ static void thunar_tree_model_device_added(ThunarDeviceMonitor *device_monitor,
     thunar_tree_model_node_insert_dummy(node, model);
 }
 
-static void thunar_tree_model_device_removed(ThunarDeviceMonitor *device_monitor,
+static void thunar_tree_model_device_removed(DeviceMonitor *device_monitor,
                                              ThunarDevice        *device,
                                              ThunarTreeModel     *model)
 {
     GNode *node;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     thunar_return_if_fail(model->device_monitor == device_monitor);
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));

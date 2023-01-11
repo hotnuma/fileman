@@ -1648,7 +1648,7 @@ static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
         {
             /* ask the user what to do with the drop data */
             action = (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
-                     ? thunar_dnd_ask(GTK_WIDGET(view),
+                     ? dnd_ask(GTK_WIDGET(view),
                                       file,
                                       view->drop_file_list,
                                       actions)
@@ -1656,7 +1656,7 @@ static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
 
             /* perform the requested action */
             if (G_LIKELY(action != 0))
-                succeed = thunar_dnd_perform(GTK_WIDGET(view), file, view->drop_file_list, action, NULL);
+                succeed = dnd_perform(GTK_WIDGET(view), file, view->drop_file_list, action, NULL);
         }
 
         /* release the file reference */

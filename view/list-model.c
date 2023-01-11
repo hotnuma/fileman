@@ -138,7 +138,7 @@ static gboolean list_model_has_default_sort_func(GtkTreeSortable *sortable);
 
 // ----------------------------------------------------------------------------
 
-static void _list_model_file_changed(ThunarFileMonitor *file_monitor,
+static void _list_model_file_changed(FileMonitor *file_monitor,
                                            ThunarFile *file,
                                            ThunarListModel *store);
 static void _list_model_folder_destroy(ThunarFolder *folder,
@@ -234,11 +234,11 @@ struct _ThunarListModel
     ThunarDateStyle date_style;
     char           *date_custom_style;
 
-    /* Use the shared ThunarFileMonitor instance, so we
+    /* Use the shared FileMonitor instance, so we
      * do not need to connect "changed" handler to every
      * file in the model.
      */
-    ThunarFileMonitor *file_monitor;
+    FileMonitor *file_monitor;
 
     /* ids for the "row-inserted" and "row-deleted" signals
      * of GtkTreeModel to speed up folder changing.
@@ -399,10 +399,10 @@ static void list_model_init(ThunarListModel *store)
 
     store->rows = g_sequence_new(g_object_unref);
 
-    /* connect to the shared ThunarFileMonitor, so we don't need to
+    /* connect to the shared FileMonitor, so we don't need to
      * connect "changed" to every single ThunarFile we own.
      */
-    store->file_monitor = thunar_file_monitor_get_default();
+    store->file_monitor = filemon_get_default();
 
     g_signal_connect(G_OBJECT(store->file_monitor), "file-changed",
                      G_CALLBACK(_list_model_file_changed), store);
@@ -1074,7 +1074,7 @@ static void _list_model_sort(ThunarListModel *store)
     }
 }
 
-static void _list_model_file_changed(ThunarFileMonitor *file_monitor,
+static void _list_model_file_changed(FileMonitor *file_monitor,
                                            ThunarFile        *file,
                                            ThunarListModel   *store)
 {
@@ -1088,7 +1088,7 @@ static void _list_model_file_changed(ThunarFileMonitor *file_monitor,
     GtkTreePath   *path;
     GtkTreeIter    iter;
 
-    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
     thunar_return_if_fail(THUNAR_IS_LIST_MODEL(store));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 

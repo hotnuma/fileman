@@ -48,38 +48,38 @@ static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
 static void devmon_set_property(GObject *object, guint prop_id, const GValue *value,
                                 GParamSpec *pspec);
 static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data);
-static gboolean _devmon_id_is_hidden(ThunarDeviceMonitor *monitor, const gchar *id);
+static gboolean _devmon_id_is_hidden(DeviceMonitor *monitor, const gchar *id);
 
 // ----------------------------------------------------------------------------
 
 static void _devmon_volume_added(GVolumeMonitor *volume_monitor, GVolume *volume,
-                                 ThunarDeviceMonitor *monitor);
+                                 DeviceMonitor *monitor);
 static void _devmon_volume_removed(GVolumeMonitor *volume_monitor, GVolume *volume,
-                                   ThunarDeviceMonitor *monitor);
+                                   DeviceMonitor *monitor);
 static void _devmon_volume_changed(GVolumeMonitor *volume_monitor, GVolume *volume,
-                                   ThunarDeviceMonitor *monitor);
+                                   DeviceMonitor *monitor);
 static void _devmon_mount_added(GVolumeMonitor *volume_monitor, GMount *mount,
-                                ThunarDeviceMonitor *monitor);
+                                DeviceMonitor *monitor);
 static void _devmon_mount_removed(GVolumeMonitor *volume_monitor, GMount *mount,
-                                  ThunarDeviceMonitor *monitor);
+                                  DeviceMonitor *monitor);
 static void _devmon_mount_changed(GVolumeMonitor *volume_monitor, GMount *mount,
-                                  ThunarDeviceMonitor *monitor);
+                                  DeviceMonitor *monitor);
 static void _devmon_mount_pre_unmount(GVolumeMonitor *volume_monitor, GMount *mount,
-                                      ThunarDeviceMonitor *monitor);
+                                      DeviceMonitor *monitor);
 
-struct _ThunarDeviceMonitorClass
+struct _DeviceMonitorClass
 {
     GObjectClass __parent__;
 
     /* signals */
-    void (*device_added)       (ThunarDeviceMonitor *monitor, ThunarDevice *device);
-    void (*device_removed)     (ThunarDeviceMonitor *monitor, ThunarDevice *device);
-    void (*device_changed)     (ThunarDeviceMonitor *monitor, ThunarDevice *device);
-    void (*device_pre_unmount) (ThunarDeviceMonitor *monitor, ThunarDevice *device,
+    void (*device_added)       (DeviceMonitor *monitor, ThunarDevice *device);
+    void (*device_removed)     (DeviceMonitor *monitor, ThunarDevice *device);
+    void (*device_changed)     (DeviceMonitor *monitor, ThunarDevice *device);
+    void (*device_pre_unmount) (DeviceMonitor *monitor, ThunarDevice *device,
                                 GFile *root_file);
 };
 
-struct _ThunarDeviceMonitor
+struct _DeviceMonitor
 {
     GObject __parent__;
 
@@ -97,9 +97,9 @@ struct _ThunarDeviceMonitor
 
 static guint _devmon_signals[LAST_SIGNAL];
 
-G_DEFINE_TYPE(ThunarDeviceMonitor, devmon, G_TYPE_OBJECT)
+G_DEFINE_TYPE(DeviceMonitor, devmon, G_TYPE_OBJECT)
 
-static void devmon_class_init(ThunarDeviceMonitorClass *klass)
+static void devmon_class_init(DeviceMonitorClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = devmon_finalize;
@@ -119,7 +119,7 @@ static void devmon_class_init(ThunarDeviceMonitorClass *klass)
         g_signal_new(I_("device-added"),
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_LAST,
-                     G_STRUCT_OFFSET(ThunarDeviceMonitorClass, device_added),
+                     G_STRUCT_OFFSET(DeviceMonitorClass, device_added),
                      NULL, NULL,
                      g_cclosure_marshal_VOID__OBJECT,
                      G_TYPE_NONE, 1, G_TYPE_OBJECT);
@@ -128,7 +128,7 @@ static void devmon_class_init(ThunarDeviceMonitorClass *klass)
         g_signal_new(I_("device-removed"),
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_LAST,
-                     G_STRUCT_OFFSET(ThunarDeviceMonitorClass, device_removed),
+                     G_STRUCT_OFFSET(DeviceMonitorClass, device_removed),
                      NULL, NULL,
                      g_cclosure_marshal_VOID__OBJECT,
                      G_TYPE_NONE, 1, G_TYPE_OBJECT);
@@ -137,7 +137,7 @@ static void devmon_class_init(ThunarDeviceMonitorClass *klass)
         g_signal_new(I_("device-changed"),
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_LAST,
-                     G_STRUCT_OFFSET(ThunarDeviceMonitorClass, device_changed),
+                     G_STRUCT_OFFSET(DeviceMonitorClass, device_changed),
                      NULL, NULL,
                      g_cclosure_marshal_VOID__OBJECT,
                      G_TYPE_NONE, 1, G_TYPE_OBJECT);
@@ -146,14 +146,14 @@ static void devmon_class_init(ThunarDeviceMonitorClass *klass)
         g_signal_new(I_("device-pre-unmount"),
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_RUN_LAST,
-                     G_STRUCT_OFFSET(ThunarDeviceMonitorClass, device_pre_unmount),
+                     G_STRUCT_OFFSET(DeviceMonitorClass, device_pre_unmount),
                      NULL, NULL,
                      _thunar_marshal_VOID__OBJECT_OBJECT,
                      G_TYPE_NONE, 2,
                      G_TYPE_OBJECT, G_TYPE_OBJECT);
 }
 
-static void devmon_init(ThunarDeviceMonitor *monitor)
+static void devmon_init(DeviceMonitor *monitor)
 {
     GList *list;
     GList *lp;
@@ -202,7 +202,7 @@ static void devmon_init(ThunarDeviceMonitor *monitor)
 
 static void devmon_finalize(GObject *object)
 {
-    ThunarDeviceMonitor *monitor = THUNAR_DEVICE_MONITOR(object);
+    DeviceMonitor *monitor = DEVICE_MONITOR(object);
 
     /* release properties */
     g_strfreev(monitor->hidden_devices);
@@ -223,7 +223,7 @@ static void devmon_finalize(GObject *object)
 static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
                                 GParamSpec *pspec)
 {
-    ThunarDeviceMonitor *monitor = THUNAR_DEVICE_MONITOR(object);
+    DeviceMonitor *monitor = DEVICE_MONITOR(object);
 
     switch (prop_id)
     {
@@ -240,7 +240,7 @@ static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
 static void devmon_set_property(GObject *object, guint prop_id, const GValue *value,
                                 GParamSpec *pspec)
 {
-    ThunarDeviceMonitor *monitor = THUNAR_DEVICE_MONITOR(object);
+    DeviceMonitor *monitor = DEVICE_MONITOR(object);
 
     switch (prop_id)
     {
@@ -264,8 +264,8 @@ static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data)
 {
     UNUSED(key);
 
-    ThunarDevice        *device = THUNAR_DEVICE(value);
-    ThunarDeviceMonitor *monitor = THUNAR_DEVICE_MONITOR(data);
+    ThunarDevice *device = THUNAR_DEVICE(value);
+    DeviceMonitor *monitor = DEVICE_MONITOR(data);
 
     /* get state of the device */
     gchar               *id;
@@ -281,7 +281,7 @@ static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data)
     }
 }
 
-static gboolean _devmon_id_is_hidden(ThunarDeviceMonitor *monitor, const gchar *id)
+static gboolean _devmon_id_is_hidden(DeviceMonitor *monitor, const gchar *id)
 {
     guint n;
 
@@ -301,10 +301,10 @@ static gboolean _devmon_id_is_hidden(ThunarDeviceMonitor *monitor, const gchar *
 
 static void _devmon_volume_added(GVolumeMonitor *volume_monitor,
                                  GVolume        *volume,
-                                 ThunarDeviceMonitor *monitor)
+                                 DeviceMonitor *monitor)
 {
     thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
     thunar_return_if_fail(G_IS_VOLUME(volume));
 
@@ -325,10 +325,10 @@ static void _devmon_volume_added(GVolumeMonitor *volume_monitor,
 
 static void _devmon_volume_removed(GVolumeMonitor *volume_monitor,
                                    GVolume        *volume,
-                                   ThunarDeviceMonitor *monitor)
+                                   DeviceMonitor *monitor)
 {
     thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
     thunar_return_if_fail(G_IS_VOLUME(volume));
 
@@ -365,10 +365,10 @@ static void _devmon_volume_removed(GVolumeMonitor *volume_monitor,
 
 static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
                                    GVolume        *volume,
-                                   ThunarDeviceMonitor *monitor)
+                                   DeviceMonitor *monitor)
 {
     thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
     thunar_return_if_fail(G_IS_VOLUME(volume));
 
@@ -418,7 +418,7 @@ static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
 
 static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
                                 GMount         *mount,
-                                ThunarDeviceMonitor *monitor)
+                                DeviceMonitor *monitor)
 {
     ThunarDevice     *device;
     GFile            *location;
@@ -427,7 +427,7 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
     gchar            *id;
 
     thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
     thunar_return_if_fail(G_IS_MOUNT(mount));
 
@@ -501,14 +501,14 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
 
 static void _devmon_mount_removed(GVolumeMonitor *volume_monitor,
                                   GMount         *mount,
-                                  ThunarDeviceMonitor *monitor)
+                                  DeviceMonitor *monitor)
 {
     ThunarDevice *device;
     GVolume      *volume;
     GFile        *root_file;
 
     thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
     thunar_return_if_fail(G_IS_MOUNT(mount));
 
@@ -546,10 +546,10 @@ static void _devmon_mount_removed(GVolumeMonitor *volume_monitor,
 
 static void _devmon_mount_changed(GVolumeMonitor *volume_monitor,
                                   GMount         *mount,
-                                  ThunarDeviceMonitor *monitor)
+                                  DeviceMonitor *monitor)
 {
     thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
     thunar_return_if_fail(G_IS_MOUNT(mount));
 
@@ -565,10 +565,10 @@ static void _devmon_mount_changed(GVolumeMonitor *volume_monitor,
 
 static void _devmon_mount_pre_unmount(GVolumeMonitor *volume_monitor,
                                       GMount         *mount,
-                                      ThunarDeviceMonitor *monitor)
+                                      DeviceMonitor *monitor)
 {
     thunar_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(monitor->volume_monitor == volume_monitor);
     thunar_return_if_fail(G_IS_MOUNT(mount));
 
@@ -609,13 +609,13 @@ static void _devmon_list_prepend(gpointer key, gpointer value, gpointer user_dat
     *list = g_list_prepend(*list, g_object_ref(value));
 }
 
-ThunarDeviceMonitor* devmon_get()
+DeviceMonitor* devmon_get()
 {
-    static ThunarDeviceMonitor *monitor = NULL;
+    static DeviceMonitor *monitor = NULL;
 
     if (G_UNLIKELY(monitor == NULL))
     {
-        monitor = g_object_new(THUNAR_TYPE_DEVICE_MONITOR, NULL);
+        monitor = g_object_new(TYPE_DEVICE_MONITOR, NULL);
         g_object_add_weak_pointer(G_OBJECT(monitor),(gpointer) &monitor);
     }
     else
@@ -626,9 +626,9 @@ ThunarDeviceMonitor* devmon_get()
     return monitor;
 }
 
-GList* devmon_get_devices(ThunarDeviceMonitor *monitor)
+GList* devmon_get_devices(DeviceMonitor *monitor)
 {
-    thunar_return_val_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor), NULL);
+    thunar_return_val_if_fail(IS_DEVICE_MONITOR(monitor), NULL);
 
     GList *list = NULL;
 
@@ -637,7 +637,7 @@ GList* devmon_get_devices(ThunarDeviceMonitor *monitor)
     return list;
 }
 
-void devmon_set_hidden(ThunarDeviceMonitor *monitor, ThunarDevice *device,
+void devmon_set_hidden(DeviceMonitor *monitor, ThunarDevice *device,
                        gboolean hidden)
 {
     gchar  *id;
@@ -646,7 +646,7 @@ void devmon_set_hidden(ThunarDeviceMonitor *monitor, ThunarDevice *device,
     guint   n;
     guint   pos;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
 
     id = th_device_get_identifier(device);

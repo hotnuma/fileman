@@ -46,7 +46,7 @@ static void thunar_image_set_property(GObject *object,
                                       const GValue      *value,
                                       GParamSpec        *pspec);
 
-static void _thunar_image_file_changed(ThunarFileMonitor *monitor,
+static void _thunar_image_file_changed(FileMonitor *monitor,
                                        ThunarFile        *file,
                                        ThunarImage       *image);
 
@@ -64,7 +64,7 @@ struct _ThunarImage
 
 struct _ThunarImagePrivate
 {
-    ThunarFileMonitor *monitor;
+    FileMonitor *monitor;
     ThunarFile        *file;
 };
 
@@ -93,7 +93,7 @@ static void thunar_image_init(ThunarImage *image)
     image->priv = thunar_image_get_instance_private(image);
     image->priv->file = NULL;
 
-    image->priv->monitor = thunar_file_monitor_get_default();
+    image->priv->monitor = filemon_get_default();
     g_signal_connect(image->priv->monitor, "file-changed",
                      G_CALLBACK(_thunar_image_file_changed), image);
 }
@@ -171,11 +171,11 @@ static void thunar_image_update(ThunarImage *image)
     }
 }
 
-static void _thunar_image_file_changed(ThunarFileMonitor *monitor,
+static void _thunar_image_file_changed(FileMonitor *monitor,
                                        ThunarFile        *file,
                                        ThunarImage       *image)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(monitor));
+    thunar_return_if_fail(IS_FILE_MONITOR(monitor));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
     thunar_return_if_fail(THUNAR_IS_IMAGE(image));
 

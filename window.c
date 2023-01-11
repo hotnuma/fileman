@@ -151,11 +151,11 @@ static void thunar_window_menu_item_deselected(ThunarWindow *window,
 static void thunar_window_notify_loading(ThunarView *view,
                                          GParamSpec *pspec,
                                          ThunarWindow *window);
-static void thunar_window_device_pre_unmount(ThunarDeviceMonitor *device_monitor,
+static void thunar_window_device_pre_unmount(DeviceMonitor *device_monitor,
                                              ThunarDevice *device,
                                              GFile *root_file,
                                              ThunarWindow *window);
-static void thunar_window_device_changed(ThunarDeviceMonitor *device_monitor,
+static void thunar_window_device_changed(DeviceMonitor *device_monitor,
                                          ThunarDevice *device,
                                          ThunarWindow *window);
 static gboolean thunar_window_save_paned(ThunarWindow *window);
@@ -206,7 +206,7 @@ struct _ThunarWindow
     ThunarIconFactory      *icon_factory;
 
     /* to be able to change folder on "device-pre-unmount" if required */
-    ThunarDeviceMonitor    *device_monitor;
+    DeviceMonitor    *device_monitor;
 
     GtkWidget              *grid;
     GtkWidget              *paned;
@@ -1603,12 +1603,12 @@ static void thunar_window_notify_loading(ThunarView   *view,
     }
 }
 
-static void thunar_window_device_pre_unmount(ThunarDeviceMonitor *device_monitor,
+static void thunar_window_device_pre_unmount(DeviceMonitor *device_monitor,
                                              ThunarDevice        *device,
                                              GFile               *root_file,
                                              ThunarWindow        *window)
 {
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     thunar_return_if_fail(window->device_monitor == device_monitor);
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
     thunar_return_if_fail(G_IS_FILE(root_file));
@@ -1627,13 +1627,13 @@ static void thunar_window_device_pre_unmount(ThunarDeviceMonitor *device_monitor
     }
 }
 
-static void thunar_window_device_changed(ThunarDeviceMonitor *device_monitor,
+static void thunar_window_device_changed(DeviceMonitor *device_monitor,
                                          ThunarDevice        *device,
                                          ThunarWindow        *window)
 {
     GFile *root_file;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(device_monitor));
+    thunar_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     thunar_return_if_fail(window->device_monitor == device_monitor);
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));

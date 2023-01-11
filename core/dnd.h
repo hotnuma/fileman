@@ -16,26 +16,21 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_DND_H__
-#define __THUNAR_DND_H__
+#ifndef __DND_H__
+#define __DND_H__
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-GdkDragAction thunar_dnd_ask(GtkWidget    *widget,
-                             ThunarFile   *folder,
-                             GList        *path_list,
-                             GdkDragAction actions);
+GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
+                      GdkDragAction actions);
 
-gboolean thunar_dnd_perform(GtkWidget    *widget,
-                            ThunarFile   *file,
-                            GList        *uri_list,
-                            GdkDragAction action,
-                            GClosure     *new_files_closure);
+gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *uri_list,
+                     GdkDragAction action, GClosure *new_files_closure);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_DND_H__ */
+#endif // __DND_H__
 
 

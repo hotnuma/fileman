@@ -23,27 +23,27 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarDeviceMonitorClass ThunarDeviceMonitorClass;
-typedef struct _ThunarDeviceMonitor      ThunarDeviceMonitor;
+typedef struct _DeviceMonitorClass DeviceMonitorClass;
+typedef struct _DeviceMonitor      DeviceMonitor;
 
-#define THUNAR_TYPE_DEVICE_MONITOR (devmon_get_type())
-#define THUNAR_DEVICE_MONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_DEVICE_MONITOR, ThunarDeviceMonitor))
-#define THUNAR_DEVICE_MONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_DEVICE_MONITOR, ThunarDeviceMonitorClass))
-#define THUNAR_IS_DEVICE_MONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_DEVICE_MONITOR))
-#define THUNAR_IS_DEVICE_MONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((obj),    THUNAR_TYPE_DEVICE_MONITOR))
-#define THUNAR_DEVICE_MONITOR_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_DEVICE_MONITOR, ThunarDeviceMonitorClass))
+#define TYPE_DEVICE_MONITOR (devmon_get_type())
+#define DEVICE_MONITOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_DEVICE_MONITOR, DeviceMonitor))
+#define DEVICE_MONITOR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_DEVICE_MONITOR, DeviceMonitorClass))
+#define IS_DEVICE_MONITOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_DEVICE_MONITOR))
+#define IS_DEVICE_MONITOR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((obj),    TYPE_DEVICE_MONITOR))
+#define DEVICE_MONITOR_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_DEVICE_MONITOR, DeviceMonitorClass))
 
 GType   devmon_get_type() G_GNUC_CONST;
 
-ThunarDeviceMonitor* devmon_get();
+DeviceMonitor* devmon_get();
 
-GList*  devmon_get_devices(ThunarDeviceMonitor *monitor);
-void    devmon_set_hidden(ThunarDeviceMonitor *monitor, ThunarDevice *device,
+GList*  devmon_get_devices(DeviceMonitor *monitor);
+void    devmon_set_hidden(DeviceMonitor *monitor, ThunarDevice *device,
                           gboolean hidden);
 
 G_END_DECLS

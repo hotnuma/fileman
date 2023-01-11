@@ -609,7 +609,7 @@ static void _th_device_emit_pre_unmount(ThunarDevice *device,
                                         gboolean all_volumes)
 {
     UNUSED(all_volumes);
-    ThunarDeviceMonitor *monitor;
+    DeviceMonitor *monitor;
     GFile               *root_file;
 
     root_file = th_device_get_root(device);

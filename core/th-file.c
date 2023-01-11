@@ -170,16 +170,16 @@ typedef struct
 {
     GFileMonitor    *monitor;
     guint           watch_count;
-}
-ThunarFileWatch;
+
+} ThunarFileWatch;
 
 typedef struct
 {
     ThunarFileGetFunc func;
     gpointer        user_data;
     GCancellable    *cancellable;
-}
-ThunarFileGetData;
+
+} ThunarFileGetData;
 
 static struct
 {
@@ -523,7 +523,7 @@ static void th_file_info_changed(ThunarxFileInfo *file_info)
     FLAG_SET_THUMB_STATE(file, 0);
 
     // tell the file monitor that this file has changed
-    thunar_file_monitor_file_changed(file);
+    filemon_file_changed(file);
 }
 
 
@@ -2996,7 +2996,7 @@ void th_file_destroy(ThunarFile *file)
         g_object_ref(G_OBJECT(file));
 
         /* tell the file monitor that this file was destroyed */
-        thunar_file_monitor_file_destroyed(file);
+        filemon_file_destroyed(file);
 
         /* run the dispose handler */
         g_object_run_dispose(G_OBJECT(file));

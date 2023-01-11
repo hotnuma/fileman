@@ -2,7 +2,8 @@
     
 core/clipman
 core/devmon
-
+core/dnd
+core/filemon
 
 
 #### Biggest files

@@ -56,10 +56,10 @@ static void th_folder_real_destroy(ThunarFolder *folder);
 
 
 
-static void _th_folder_file_changed(ThunarFileMonitor *file_monitor,
+static void _th_folder_file_changed(FileMonitor *file_monitor,
                                        ThunarFile *file,
                                        ThunarFolder *folder);
-static void _th_folder_file_destroyed(ThunarFileMonitor *file_monitor,
+static void _th_folder_file_destroyed(FileMonitor *file_monitor,
                                          ThunarFile *file,
                                          ThunarFolder *folder);
 static void _th_folder_monitor(GFileMonitor *monitor,
@@ -107,7 +107,7 @@ struct _ThunarFolder
 
     guint       in_destruction : 1;
 
-    ThunarFileMonitor   *file_monitor;
+    FileMonitor   *file_monitor;
 
     GFileMonitor        *monitor;
 };
@@ -223,8 +223,8 @@ static void th_folder_class_init(ThunarFolderClass *klass)
 
 static void th_folder_init(ThunarFolder *folder)
 {
-    /* connect to the ThunarFileMonitor instance */
-    folder->file_monitor = thunar_file_monitor_get_default();
+    /* connect to the FileMonitor instance */
+    folder->file_monitor = filemon_get_default();
 
     g_signal_connect(G_OBJECT(folder->file_monitor), "file-changed",
                      G_CALLBACK(_th_folder_file_changed), folder);
@@ -275,7 +275,7 @@ static void th_folder_finalize(GObject *object)
     if (folder->corresponding_file)
         th_file_unwatch(folder->corresponding_file);
 
-    /* disconnect from the ThunarFileMonitor instance */
+    /* disconnect from the FileMonitor instance */
     g_signal_handlers_disconnect_matched(folder->file_monitor, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, folder);
     g_object_unref(folder->file_monitor);
 
@@ -370,13 +370,13 @@ static void th_folder_real_destroy(ThunarFolder *folder)
 
 // ----------------------------------------------------------------------------
 
-static void _th_folder_file_changed(ThunarFileMonitor *file_monitor,
+static void _th_folder_file_changed(FileMonitor *file_monitor,
                                     ThunarFile        *file,
                                     ThunarFolder      *folder)
 {
     thunar_return_if_fail(THUNAR_IS_FILE(file));
     thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
 
     /* check if the corresponding file changed... */
     if (G_UNLIKELY(folder->corresponding_file == file))
@@ -386,7 +386,7 @@ static void _th_folder_file_changed(ThunarFileMonitor *file_monitor,
     }
 }
 
-static void _th_folder_file_destroyed(ThunarFileMonitor *file_monitor,
+static void _th_folder_file_destroyed(FileMonitor *file_monitor,
                                          ThunarFile        *file,
                                          ThunarFolder      *folder)
 {
@@ -396,7 +396,7 @@ static void _th_folder_file_destroyed(ThunarFileMonitor *file_monitor,
 
     thunar_return_if_fail(THUNAR_IS_FILE(file));
     thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(THUNAR_IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
 
     /* check if the corresponding file was destroyed */
     if (G_UNLIKELY(folder->corresponding_file == file))

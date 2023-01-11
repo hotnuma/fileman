@@ -16,32 +16,37 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_FILE_MONITOR_H__
-#define __THUNAR_FILE_MONITOR_H__
+#ifndef __FILE_MONITOR_H__
+#define __FILE_MONITOR_H__
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarFileMonitorClass ThunarFileMonitorClass;
-typedef struct _ThunarFileMonitor      ThunarFileMonitor;
+typedef struct _FileMonitorClass FileMonitorClass;
+typedef struct _FileMonitor      FileMonitor;
 
-#define THUNAR_TYPE_FILE_MONITOR            (thunar_file_monitor_get_type ())
-#define THUNAR_FILE_MONITOR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_FILE_MONITOR, ThunarFileMonitor))
-#define THUNAR_FILE_MONITOR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_FILE_MONITOR, ThunarFileMonitorClass))
-#define THUNAR_IS_FILE_MONITOR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_FILE_MONITOR))
-#define THUNAR_IS_FILE_MONITOR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_FILE_MONITOR))
-#define THUNAR_FILE_MONITOR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_FILE_MONITOR, ThunarFileMonitorClass))
+#define TYPE_FILE_MONITOR (filemon_get_type())
+#define FILE_MONITOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_FILE_MONITOR, FileMonitor))
+#define FILE_MONITOR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_FILE_MONITOR, FileMonitorClass))
+#define IS_FILE_MONITOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_FILE_MONITOR))
+#define IS_FILE_MONITOR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_FILE_MONITOR))
+#define FILE_MONITOR_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_FILE_MONITOR, FileMonitorClass))
 
-GType thunar_file_monitor_get_type() G_GNUC_CONST;
+GType filemon_get_type() G_GNUC_CONST;
 
-ThunarFileMonitor *thunar_file_monitor_get_default();
+FileMonitor *filemon_get_default();
 
-void thunar_file_monitor_file_changed(ThunarFile *file);
-void thunar_file_monitor_file_destroyed(ThunarFile *file);
+void filemon_file_changed(ThunarFile *file);
+void filemon_file_destroyed(ThunarFile *file);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_FILE_MONITOR_H__ */
+#endif // __FILE_MONITOR_H__
 
 
