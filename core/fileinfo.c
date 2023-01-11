@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <thx-file-info.h>
+#include <fileinfo.h>
 
 #include <gio-ext.h>
 

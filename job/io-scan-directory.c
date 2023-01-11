@@ -21,7 +21,7 @@
 #include <io-scan-directory.h>
 
 #include <libext.h>
-#include <thx-file-info.h>
+#include <fileinfo.h>
 #include <gio-ext.h>
 #include <job.h>
 

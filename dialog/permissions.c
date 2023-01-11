@@ -34,7 +34,7 @@
 #include <permissions.h>
 #include <user.h>
 
-#include <thx-file-info.h>
+#include <fileinfo.h>
 
 /* Use native strlcpy() if available */
 #if defined(HAVE_STRLCPY)

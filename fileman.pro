@@ -17,11 +17,11 @@ HEADERS = \
     core/clipman.h \
     core/devmon.h \
     core/dnd.h \
+    core/fileinfo.h \
     core/filemon.h \
     core/th-device.h \
     core/th-file.h \
     core/th-folder.h \
-    core/thx-file-info.h \
     core/user.h \
     dialog/chooser-combo.h \
     dialog/chooser-dlg.h \
@@ -87,11 +87,11 @@ SOURCES = \
     core/clipman.c \
     core/devmon.c \
     core/dnd.c \
+    core/fileinfo.c \
     core/filemon.c \
     core/th-device.c \
     core/th-file.c \
     core/th-folder.c \
-    core/thx-file-info.c \
     core/user.c \
     dialog/chooser-combo.c \
     dialog/chooser-dlg.c \

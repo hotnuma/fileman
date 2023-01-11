@@ -45,7 +45,7 @@
 #include <size-label.h>
 #include <utils.h>
 
-#include <thx-file-info.h>
+#include <fileinfo.h>
 
 /* Property identifiers */
 enum

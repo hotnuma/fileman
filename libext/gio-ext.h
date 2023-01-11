@@ -21,7 +21,7 @@
 #define __GIO_EXTENSIONS_H__
 
 #include <gio/gio.h>
-#include <thx-file-info.h>
+#include <fileinfo.h>
 
 G_BEGIN_DECLS
 
