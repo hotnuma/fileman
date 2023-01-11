@@ -1171,9 +1171,9 @@ static void thunar_tree_view_action_unlink_selected_folder(ThunarTreeView *view,
         file_list.prev = NULL;
 
         /* delete the file */
-        ThunarApplication *application = thunar_application_get();
+        Application *application = application_get();
 
-        thunar_application_unlink_files(application,
+        application_unlink_files(application,
                                         GTK_WIDGET(view),
                                         &file_list,
                                         permanently);

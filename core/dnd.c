@@ -210,8 +210,8 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
     thunar_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
 
     /* query a reference on the application object */
-    ThunarApplication *application;
-    application = thunar_application_get();
+    Application *application;
+    application = application_get();
 
     gboolean           succeed = TRUE;
     GError            *error = NULL;
@@ -223,15 +223,15 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
         switch(action)
         {
         case GDK_ACTION_COPY:
-            thunar_application_copy_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
+            application_copy_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
             break;
 
         case GDK_ACTION_MOVE:
-            thunar_application_move_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
+            application_move_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
             break;
 
         case GDK_ACTION_LINK:
-            thunar_application_link_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
+            application_link_into(application, widget, file_list, th_file_get_file(file), new_files_closure);
             break;
 
         default:

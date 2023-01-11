@@ -679,23 +679,25 @@ static void thunar_window_screen_changed(GtkWidget *widget,
  * Visually selects the files, given by the list
  **/
 static void thunar_window_select_files(ThunarWindow *window,
-                                       GList        *files_to_selected)
+                                       GList *files_to_selected)
 {
-    GList        *thunar_files = NULL;
-    ThunarFolder *thunar_folder;
-
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* If possible, reload the current directory to make sure new files got added to the view */
-    thunar_folder = th_folder_get_for_file(window->current_directory);
+    ThunarFolder *thunar_folder = th_folder_get_for_file(window->current_directory);
     if (thunar_folder != NULL)
     {
-        th_folder_reload(thunar_folder, FALSE);
+        th_folder_load(thunar_folder, FALSE);
         g_object_unref(thunar_folder);
     }
 
-    for(GList *lp = files_to_selected; lp != NULL; lp = lp->next)
+    GList *thunar_files = NULL;
+
+    for (GList *lp = files_to_selected; lp != NULL; lp = lp->next)
+    {
         thunar_files = g_list_append(thunar_files, th_file_get(G_FILE(lp->data), NULL));
+    }
+
     thunar_view_set_selected_files(THUNAR_VIEW(window->view), thunar_files);
     g_list_free_full(thunar_files, g_object_unref);
 }

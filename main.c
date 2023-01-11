@@ -43,7 +43,7 @@
 int
 main(int argc, char **argv)
 {
-    ThunarApplication   *application;
+    Application   *application;
     //GError              *error = NULL;
 
     /* setup translation domain */
@@ -77,7 +77,7 @@ main(int argc, char **argv)
     thunar_g_initialize_transformations();
 
     /* acquire a reference on the global application */
-    application = thunar_application_get();
+    application = application_get();
 
     /* use the Thunar icon as default for new windows */
     gtk_window_set_default_icon_name("Thunar");

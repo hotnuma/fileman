@@ -1220,11 +1220,11 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent, const gchar *startup_
     /* check if we have a folder here */
     if (th_file_is_directory(file))
     {
-        ThunarApplication   *application;
-        application = thunar_application_get();
+        Application   *application;
+        application = application_get();
 
         // Create app window
-        thunar_application_open_window(application, file, screen, startup_id, FALSE);
+        application_open_window(application, file, screen, startup_id, FALSE);
 
         g_object_unref(G_OBJECT(application));
         return TRUE;

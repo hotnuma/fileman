@@ -932,7 +932,7 @@ void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
 static void thunar_file_move_thumbnail_cache_file(GFile *old_file,
                                                   GFile *new_file)
 {
-    ThunarApplication    *application;
+    Application *application;
     ThunarThumbnailCache *thumbnail_cache;
 
     thunar_return_if_fail(G_IS_FILE(old_file));

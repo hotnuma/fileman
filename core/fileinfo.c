@@ -23,7 +23,7 @@
 
 #include <gio-ext.h>
 
-/* Signal identifiers */
+// Signal identifiers
 enum
 {
     CHANGED,
@@ -36,48 +36,37 @@ static guint _fileinfo_signals[LAST_SIGNAL];
 GType fileinfo_get_type()
 {
     static volatile gsize type__volatile = 0;
-    GType                 type;
+    GType type;
 
     if (g_once_init_enter((gsize*) &type__volatile))
     {
         type = g_type_register_static_simple(G_TYPE_INTERFACE,
-                                              I_("FileInfo"),
-                                              sizeof(FileInfoIface),
-                                              NULL,
-                                              0,
-                                              NULL,
-                                              0);
+                                             I_("FileInfo"),
+                                             sizeof(FileInfoIface),
+                                             NULL,
+                                             0,
+                                             NULL,
+                                             0);
 
         g_type_interface_add_prerequisite(type, G_TYPE_OBJECT);
 
-        /*
-         * Thunar plugins should use this signal to stay informed about
-         * changes to a @file_info for which they currently display
-         * information(i.e. in a #ThunarxPropertyPage), and update
-         * it's user interface whenever a change is noticed on @file_info.
-         */
         _fileinfo_signals[CHANGED] =
             g_signal_new(I_("changed"),
-                          type,
-                          G_SIGNAL_RUN_FIRST,
-                          G_STRUCT_OFFSET(FileInfoIface, changed),
-                          NULL, NULL,
-                          g_cclosure_marshal_VOID__VOID,
-                          G_TYPE_NONE, 0);
+                         type,
+                         G_SIGNAL_RUN_FIRST,
+                         G_STRUCT_OFFSET(FileInfoIface, changed),
+                         NULL, NULL,
+                         g_cclosure_marshal_VOID__VOID,
+                         G_TYPE_NONE, 0);
 
-        /*
-         * For example, within Thunar, #ThunarFolder uses this
-         * signal to reregister it's VFS directory monitor, after
-         * the corresponding file was renamed.
-         */
         _fileinfo_signals[RENAMED] =
             g_signal_new(I_("renamed"),
-                          type,
-                          G_SIGNAL_RUN_FIRST,
-                          G_STRUCT_OFFSET(FileInfoIface, renamed),
-                          NULL, NULL,
-                          g_cclosure_marshal_VOID__VOID,
-                          G_TYPE_NONE, 0);
+                         type,
+                         G_SIGNAL_RUN_FIRST,
+                         G_STRUCT_OFFSET(FileInfoIface, renamed),
+                         NULL, NULL,
+                         g_cclosure_marshal_VOID__VOID,
+                         G_TYPE_NONE, 0);
 
         g_once_init_leave(&type__volatile, type);
     }
@@ -126,36 +115,7 @@ gchar* fileinfo_get_mime_type(FileInfo *file_info)
     return FILE_INFO_GET_IFACE(file_info)->get_mime_type(file_info);
 }
 
-
-
-/**
- * thunarx_file_info_has_mime_type:
- * @file_info : a #FileInfo.
- * @mime_type : a MIME-type(e.g. "text/plain").
- *
- * Checks whether @file_info is of the given @mime_type
- * or whether the MIME-type of @file_info is a subclass
- * of @mime_type.
- *
- * This is the preferred way for most extensions to check
- * whether they support a given file or not, and you should
- * consider using this method rather than
- * thunarx_file_info_get_mime_type(). A simple example would
- * be a menu extension that performs a certain action on
- * text files. In this case you want to check whether a given
- * #FileInfo refers to any kind of text file, not only
- * to "text/plain"(e.g. this also includes "text/xml" and
- * "application/x-desktop").
- *
- * But you should be aware that this method may take some
- * time to test whether @mime_type is valid for @file_info,
- * so don't call it too often.
- *
- * Return value: %TRUE if @mime_type is valid for @file_info,
- *               else %FALSE.
- **/
-gboolean fileinfo_has_mime_type(FileInfo *file_info,
-                                         const gchar     *mime_type)
+gboolean fileinfo_has_mime_type(FileInfo *file_info, const gchar *mime_type)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), FALSE);
     g_return_val_if_fail(mime_type != NULL, FALSE);
@@ -163,16 +123,6 @@ gboolean fileinfo_has_mime_type(FileInfo *file_info,
     return FILE_INFO_GET_IFACE(file_info)->has_mime_type(file_info, mime_type);
 }
 
-
-
-/**
- * thunarx_file_info_is_directory:
- * @file_info : a #FileInfo.
- *
- * Checks whether @file_info refers to a directory.
- *
- * Return value: %TRUE if @file_info is a directory.
- **/
 gboolean fileinfo_is_directory(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), FALSE);
@@ -180,81 +130,34 @@ gboolean fileinfo_is_directory(FileInfo *file_info)
     return FILE_INFO_GET_IFACE(file_info)->is_directory(file_info);
 }
 
-
-
-/**
- * thunarx_file_info_get_file_info:
- * @file_info : a #FileInfo.
- *
- * Returns the #GFileInfo associated with @file_info,
- * which includes additional information about the @file_info
- * as queried from GIO earlier. The caller is responsible to free the
- * returned #GFileInfo object using g_object_unref() when
- * no longer needed.
- *
- * Returns:(transfer full): the #GFileInfo object associated with @file_info,
- *          which MUST be freed using g_object_unref().
- **/
 GFileInfo* fileinfo_get_file_info(FileInfo *file_info)
 {
+    // g_object_unref
+
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
     return FILE_INFO_GET_IFACE(file_info)->get_file_info(file_info);
 }
 
-
-
-/**
- * thunarx_file_info_get_filesystem_info:
- * @file_info : a #FileInfo.
- *
- * Returns the #GFileInfo which includes additional information about
- * the filesystem @file_info resides on. The caller is responsible to
- * free the returned #GFileInfo object using g_object_unref() when
- * no longer needed.
- *
- * Returns:(transfer full): the #GFileInfo containing information about the
- *          filesystem of @file_info or %NULL if no filesystem information is
- *          available. It MUST be released using g_object_unref().
- **/
 GFileInfo* fileinfo_get_filesystem_info(FileInfo *file_info)
 {
+    // g_object_unref
+
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+
     return FILE_INFO_GET_IFACE(file_info)->get_filesystem_info(file_info);
 }
 
-
-
-/**
- * thunarx_file_info_get_location:
- * @file_info : a #FileInfo.
- *
- * Returns the #GFile @file_info points to. The #GFile is a more
- * powerful tool than just the URI or the path. The caller
- * is responsible to release the returned #GFile using g_object_unref()
- * when no longer needed.
- *
- * Returns:(transfer full): the #GFile to which @file_info points. It MUST be
- *          released using g_object_unref().
- **/
 GFile* fileinfo_get_location(FileInfo *file_info)
 {
+    // g_object_unref
+
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
     return FILE_INFO_GET_IFACE(file_info)->get_location(file_info);
 }
 
-
-
-/**
- * thunarx_file_info_changed:
- * @file_info : a #FileInfo.
- *
- * Emits the ::changed signal on @file_info. This method should not
- * be invoked by Thunar plugins, instead the file manager itself
- * will use this method to emit ::changed whenever it notices a
- * change on @file_info.
- **/
+// The file manager uses this method to emit the ::changed signal.
 void fileinfo_changed(FileInfo *file_info)
 {
     g_return_if_fail(IS_FILE_INFO(file_info));
@@ -262,20 +165,7 @@ void fileinfo_changed(FileInfo *file_info)
     g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[CHANGED], 0);
 }
 
-
-
-/**
- * thunarx_file_info_renamed:
- * @file_info : a #FileInfo.
- *
- * Emits the ::renamed signal on @file_info. This method should
- * not be invoked by Thunar plugins, instead the file manager
- * will emit this signal whenever the user renamed the @file_info.
- *
- * The plugins should instead connect to the ::renamed signal
- * and update it's internal state and it's user interface
- * after the file manager renamed a file.
- **/
+// The file manager emits this signal whenever the user renamed the file_info.
 void fileinfo_renamed(FileInfo *file_info)
 {
     g_return_if_fail(IS_FILE_INFO(file_info));

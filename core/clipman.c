@@ -595,12 +595,12 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     /* perform the action if possible */
     if (G_LIKELY(file_list != NULL))
     {
-        ThunarApplication *application = thunar_application_get();
+        Application *application = application_get();
 
         if (G_LIKELY(path_copy))
-            thunar_application_copy_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
+            application_copy_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
         else
-            thunar_application_move_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
+            application_move_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
 
         g_object_unref(G_OBJECT(application));
         eg_list_free(file_list);

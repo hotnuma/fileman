@@ -1002,7 +1002,7 @@ static void _launcher_open_paths(GAppInfo       *app_info,
 static void _launcher_open_windows(ThunarLauncher *launcher,
                                          GList          *directories)
 {
-    ThunarApplication *application;
+    Application *application;
     GtkWidget         *dialog;
     GtkWidget         *window;
     GdkScreen         *screen;
@@ -1040,14 +1040,14 @@ static void _launcher_open_windows(ThunarLauncher *launcher,
     if (G_LIKELY(response == GTK_RESPONSE_YES))
     {
         /* query the application object */
-        application = thunar_application_get();
+        application = application_get();
 
         /* determine the screen on which to open the new windows */
         screen = gtk_widget_get_screen(launcher->widget);
 
         /* open all requested windows */
         for (lp = directories; lp != NULL; lp = lp->next)
-            thunar_application_open_window(application, lp->data, screen, NULL, TRUE);
+            application_open_window(application, lp->data, screen, NULL, TRUE);
 
         /* release the application object */
         g_object_unref(G_OBJECT(application));
@@ -1749,7 +1749,7 @@ static void _launcher_action_open_with_other(ThunarLauncher *launcher)
 
 static void _launcher_action_create_folder(ThunarLauncher *launcher)
 {
-    ThunarApplication *application;
+    Application *application;
     GList              path_list;
     gchar             *name;
 
@@ -1775,8 +1775,8 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
         path_list.next = path_list.prev = NULL;
 
         /* launch the operation */
-        application = thunar_application_get();
-        thunar_application_mkdir(application, launcher->widget, &path_list, launcher->select_files_closure);
+        application = application_get();
+        application_mkdir(application, launcher->widget, &path_list, launcher->select_files_closure);
         g_object_unref(G_OBJECT(application));
 
         /* release the path */
@@ -1790,7 +1790,7 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
 static void _launcher_action_create_document(ThunarLauncher   *launcher,
                                                    GtkWidget        *menu_item)
 {
-    ThunarApplication *application;
+    Application *application;
     GList              target_path_list;
     gchar             *name;
     gchar             *title;
@@ -1852,8 +1852,8 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
             target_path_list.prev = NULL;
 
             /* launch the operation */
-            application = thunar_application_get();
-            thunar_application_creat(application,
+            application = application_get();
+            application_creat(application,
                                      launcher->widget,
                                      &target_path_list,
                                      template_file != NULL
@@ -1975,9 +1975,9 @@ static void _launcher_action_move_to_trash(ThunarLauncher *launcher)
         || launcher->files_are_selected == FALSE)
         return;
 
-    ThunarApplication *application = thunar_application_get();
+    Application *application = application_get();
 
-    thunar_application_unlink_files(application,
+    application_unlink_files(application,
                                     launcher->widget,
                                     launcher->files_to_process,
                                     FALSE);
@@ -1987,7 +1987,7 @@ static void _launcher_action_move_to_trash(ThunarLauncher *launcher)
 
 static void _launcher_action_delete(ThunarLauncher *launcher)
 {
-    ThunarApplication *application;
+    Application *application;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -1995,9 +1995,9 @@ static void _launcher_action_delete(ThunarLauncher *launcher)
         || launcher->files_are_selected == FALSE)
         return;
 
-    application = thunar_application_get();
+    application = application_get();
 
-    thunar_application_unlink_files(application,
+    application_unlink_files(application,
                                      launcher->widget,
                                      launcher->files_to_process,
                                      TRUE);
@@ -2007,7 +2007,7 @@ static void _launcher_action_delete(ThunarLauncher *launcher)
 
 static void _launcher_action_empty_trash(ThunarLauncher *launcher)
 {
-    ThunarApplication *application;
+    Application *application;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -2017,14 +2017,14 @@ static void _launcher_action_empty_trash(ThunarLauncher *launcher)
             || !th_file_is_trashed(launcher->single_folder))
         return;
 
-    application = thunar_application_get();
-    thunar_application_empty_trash(application, launcher->widget, NULL);
+    application = application_get();
+    application_empty_trash(application, launcher->widget, NULL);
     g_object_unref(G_OBJECT(application));
 }
 
 static void _launcher_action_restore(ThunarLauncher *launcher)
 {
-    ThunarApplication *application;
+    Application *application;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -2033,15 +2033,15 @@ static void _launcher_action_restore(ThunarLauncher *launcher)
         return;
 
     /* restore the selected files */
-    application = thunar_application_get();
-    thunar_application_restore_files(application, launcher->widget, launcher->files_to_process, NULL);
+    application = application_get();
+    application_restore_files(application, launcher->widget, launcher->files_to_process, NULL);
     g_object_unref(G_OBJECT(application));
 }
 
 
 static void _launcher_action_duplicate(ThunarLauncher *launcher)
 {
-    ThunarApplication *application;
+    Application *application;
     GList             *files_to_process;
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
@@ -2058,8 +2058,8 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
         /* copy the selected files into the current directory, which effectively
          * creates duplicates of the files.
          */
-        application = thunar_application_get();
-        thunar_application_copy_into(application, launcher->widget, files_to_process,
+        application = application_get();
+        application_copy_into(application, launcher->widget, files_to_process,
                                       th_file_get_file(launcher->current_directory), launcher->select_files_closure);
         g_object_unref(G_OBJECT(application));
 
@@ -2070,7 +2070,7 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
 
 static void _launcher_action_make_link(ThunarLauncher *launcher)
 {
-    ThunarApplication *application;
+    Application *application;
     GList             *g_files = NULL;
     GList             *lp;
 
@@ -2088,8 +2088,8 @@ static void _launcher_action_make_link(ThunarLauncher *launcher)
     /* link the selected files into the current directory, which effectively
      * creates new unique links for the files.
      */
-    application = thunar_application_get();
-    thunar_application_link_into(application, launcher->widget, g_files,
+    application = application_get();
+    application_link_into(application, launcher->widget, g_files,
                                   th_file_get_file(launcher->current_directory), launcher->select_files_closure);
     g_object_unref(G_OBJECT(application));
     g_list_free(g_files);

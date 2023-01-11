@@ -3,7 +3,12 @@
 core/clipman
 core/devmon
 core/dnd
+core/fileinfo
 core/filemon
+core/th-device
+core/th-file
+core/th-folder
+
 
 
 #### Biggest files

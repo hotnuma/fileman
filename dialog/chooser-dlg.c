@@ -1145,7 +1145,7 @@ void thunar_show_chooser_dialog(gpointer    parent,
                                 ThunarFile *file,
                                 gboolean    open)
 {
-    ThunarApplication *application;
+    Application *application;
     GdkScreen         *screen;
     GtkWidget         *dialog;
     GtkWidget         *window = NULL;
@@ -1191,8 +1191,8 @@ void thunar_show_chooser_dialog(gpointer    parent,
     g_signal_connect_after(G_OBJECT(dialog), "response", G_CALLBACK(gtk_widget_destroy), NULL);
 
     /* let the application handle the dialog */
-    application = thunar_application_get();
-    thunar_application_take_window(application, GTK_WINDOW(dialog));
+    application = application_get();
+    application_take_window(application, GTK_WINDOW(dialog));
     g_object_unref(G_OBJECT(application));
 
     /* display the dialog */
