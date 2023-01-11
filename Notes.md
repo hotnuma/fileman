@@ -1,6 +1,7 @@
 #### Formatting
     
 core/clipman
+core/devmon
 
 
 
