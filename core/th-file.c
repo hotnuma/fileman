@@ -55,24 +55,24 @@ enum
 
 // Allocate -------------------------------------------------------------------
 
-static void th_file_info_init(ThunarxFileInfoIface *iface);
+static void th_file_info_init(FileInfoIface *iface);
 static void th_file_dispose(GObject *object);
 static void th_file_finalize(GObject *object);
 
-// ThunarxFileInfo ------------------------------------------------------------
+// FileInfo ------------------------------------------------------------
 
-static gchar* th_file_info_get_name(ThunarxFileInfo *file_info);
-static gchar* th_file_info_get_uri(ThunarxFileInfo *file_info);
-static gchar* th_file_info_get_parent_uri(ThunarxFileInfo *file_info);
-static gchar* th_file_info_get_uri_scheme(ThunarxFileInfo *file_info);
-static gchar* th_file_info_get_mime_type(ThunarxFileInfo *file_info);
-static gboolean th_file_info_has_mime_type(ThunarxFileInfo *file_info,
+static gchar* th_file_info_get_name(FileInfo *file_info);
+static gchar* th_file_info_get_uri(FileInfo *file_info);
+static gchar* th_file_info_get_parent_uri(FileInfo *file_info);
+static gchar* th_file_info_get_uri_scheme(FileInfo *file_info);
+static gchar* th_file_info_get_mime_type(FileInfo *file_info);
+static gboolean th_file_info_has_mime_type(FileInfo *file_info,
                                            const gchar *mime_type);
-static gboolean th_file_info_is_directory(ThunarxFileInfo *file_info);
-static GFileInfo* th_file_info_get_file_info(ThunarxFileInfo *file_info);
-static GFileInfo* th_file_info_get_filesystem_info(ThunarxFileInfo *file_info);
-static GFile* th_file_info_get_location(ThunarxFileInfo *file_info);
-static void th_file_info_changed(ThunarxFileInfo *file_info);
+static gboolean th_file_info_is_directory(FileInfo *file_info);
+static GFileInfo* th_file_info_get_file_info(FileInfo *file_info);
+static GFileInfo* th_file_info_get_filesystem_info(FileInfo *file_info);
+static GFile* th_file_info_get_location(FileInfo *file_info);
+static void th_file_info_changed(FileInfo *file_info);
 
 // Public ---------------------------------------------------------------------
 
@@ -202,7 +202,7 @@ thunar_file_dirs[] =
 G_DEFINE_TYPE_WITH_CODE(ThunarFile,
                         th_file,
                         G_TYPE_OBJECT,
-                        G_IMPLEMENT_INTERFACE(THUNARX_TYPE_FILE_INFO,
+                        G_IMPLEMENT_INTERFACE(TYPE_FILE_INFO,
                                               th_file_info_init))
 
 static GWeakRef* weak_ref_new(GObject *obj)
@@ -344,7 +344,7 @@ static void th_file_init(ThunarFile *file)
     UNUSED(file);
 }
 
-static void th_file_info_init(ThunarxFileInfoIface *iface)
+static void th_file_info_init(FileInfoIface *iface)
 {
     iface->get_name = th_file_info_get_name;
     iface->get_uri = th_file_info_get_uri;
@@ -425,23 +425,23 @@ static void th_file_finalize(GObject *object)
 }
 
 
-// ThunarxFileInfo ------------------------------------------------------------
+// FileInfo ------------------------------------------------------------
 
-static gchar* th_file_info_get_name(ThunarxFileInfo *file_info)
+static gchar* th_file_info_get_name(FileInfo *file_info)
 {
     // g_free when unneeded
 
     return g_strdup(th_file_get_basename(THUNAR_FILE(file_info)));
 }
 
-static gchar* th_file_info_get_uri(ThunarxFileInfo *file_info)
+static gchar* th_file_info_get_uri(FileInfo *file_info)
 {
     // g_free when unneeded
 
     return th_file_dup_uri(THUNAR_FILE(file_info));
 }
 
-static gchar* th_file_info_get_parent_uri(ThunarxFileInfo *file_info)
+static gchar* th_file_info_get_parent_uri(FileInfo *file_info)
 {
     // g_free when unneeded
 
@@ -456,19 +456,19 @@ static gchar* th_file_info_get_parent_uri(ThunarxFileInfo *file_info)
     return uri;
 }
 
-static gchar* th_file_info_get_uri_scheme(ThunarxFileInfo *file_info)
+static gchar* th_file_info_get_uri_scheme(FileInfo *file_info)
 {
     return g_file_get_uri_scheme(THUNAR_FILE(file_info)->gfile);
 }
 
-static gchar* th_file_info_get_mime_type(ThunarxFileInfo *file_info)
+static gchar* th_file_info_get_mime_type(FileInfo *file_info)
 {
     // g_free
 
     return g_strdup(th_file_get_content_type(THUNAR_FILE(file_info)));
 }
 
-static gboolean th_file_info_has_mime_type(ThunarxFileInfo *file_info,
+static gboolean th_file_info_has_mime_type(FileInfo *file_info,
                                                const gchar     *mime_type)
 {
     if (THUNAR_FILE(file_info)->info == NULL)
@@ -478,12 +478,12 @@ static gboolean th_file_info_has_mime_type(ThunarxFileInfo *file_info,
                                mime_type);
 }
 
-static gboolean th_file_info_is_directory(ThunarxFileInfo *file_info)
+static gboolean th_file_info_is_directory(FileInfo *file_info)
 {
     return th_file_is_directory(THUNAR_FILE(file_info));
 }
 
-static GFileInfo* th_file_info_get_file_info(ThunarxFileInfo *file_info)
+static GFileInfo* th_file_info_get_file_info(FileInfo *file_info)
 {
     // g_object_unref
 
@@ -495,17 +495,17 @@ static GFileInfo* th_file_info_get_file_info(ThunarxFileInfo *file_info)
         return NULL;
 }
 
-static GFileInfo* th_file_info_get_filesystem_info(ThunarxFileInfo *file_info)
+static GFileInfo* th_file_info_get_filesystem_info(FileInfo *file_info)
 {
     thunar_return_val_if_fail(THUNAR_IS_FILE(file_info), NULL);
 
     return g_file_query_filesystem_info(THUNAR_FILE(file_info)->gfile,
-                                        THUNARX_FILESYSTEM_INFO_NAMESPACE,
+                                        FILESYSTEM_INFO_NAMESPACE,
                                         NULL,
                                         NULL);
 }
 
-static GFile* th_file_info_get_location(ThunarxFileInfo *file_info)
+static GFile* th_file_info_get_location(FileInfo *file_info)
 {
     // g_object_unref
 
@@ -514,7 +514,7 @@ static GFile* th_file_info_get_location(ThunarxFileInfo *file_info)
     return g_object_ref(THUNAR_FILE(file_info)->gfile);
 }
 
-static void th_file_info_changed(ThunarxFileInfo *file_info)
+static void th_file_info_changed(FileInfo *file_info)
 {
     thunar_return_if_fail(THUNAR_IS_FILE(file_info));
 
@@ -587,7 +587,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
 
     /* query a new file info */
     file->info = g_file_query_info(file->gfile,
-                                   THUNARX_FILE_INFO_NAMESPACE,
+                                   FILE_INFO_NAMESPACE,
                                    G_FILE_QUERY_INFO_NONE,
                                    cancellable,
                                    &err);
@@ -886,7 +886,7 @@ void th_file_get_async(GFile *location, GCancellable *cancellable,
 
     /* load the file information asynchronously */
     g_file_query_info_async(location,
-                            THUNARX_FILE_INFO_NAMESPACE,
+                            FILE_INFO_NAMESPACE,
                             G_FILE_QUERY_INFO_NONE,
                             G_PRIORITY_DEFAULT,
                             cancellable,

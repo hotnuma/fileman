@@ -152,7 +152,7 @@ thunar_permissions_chooser_class_init(ThunarPermissionsChooserClass *klass)
     g_object_class_install_property(gobject_class,
                                      PROP_FILES,
                                      g_param_spec_boxed("files", "files", "files",
-                                             THUNARX_TYPE_FILE_INFO_LIST,
+                                             TYPE_FILE_INFO_LIST,
                                              E_PARAM_READWRITE));
 
     /**

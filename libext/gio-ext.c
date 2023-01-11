@@ -323,7 +323,7 @@ gboolean eg_file_get_free_space(GFile   *file,
     thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
 
     filesystem_info = g_file_query_filesystem_info(file,
-                      THUNARX_FILESYSTEM_INFO_NAMESPACE,
+                      FILESYSTEM_INFO_NAMESPACE,
                       NULL, NULL);
 
     if (filesystem_info != NULL)

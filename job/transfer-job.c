@@ -801,7 +801,7 @@ static gboolean thunar_transfer_job_verify_destination(
     dest = g_file_get_parent(G_FILE(transfer_job->target_file_list->data));
 
     /* query information about the filesystem */
-    filesystem_info = g_file_query_filesystem_info(dest, THUNARX_FILESYSTEM_INFO_NAMESPACE,
+    filesystem_info = g_file_query_filesystem_info(dest, FILESYSTEM_INFO_NAMESPACE,
                       exo_job_get_cancellable(EXO_JOB(transfer_job)),
                       NULL);
 

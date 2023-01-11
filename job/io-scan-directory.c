@@ -82,7 +82,7 @@ GList* io_scan_directory(ThunarJob           *job,
 
     /* determine the namespace */
     if (return_thunar_files)
-        namespace = THUNARX_FILE_INFO_NAMESPACE;
+        namespace = FILE_INFO_NAMESPACE;
     else
         namespace = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
                         G_FILE_ATTRIBUTE_STANDARD_NAME;

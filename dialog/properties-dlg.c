@@ -162,7 +162,7 @@ static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *kla
         g_param_spec_boxed("files",
                            "files",
                            "files",
-                           THUNARX_TYPE_FILE_INFO_LIST,
+                           TYPE_FILE_INFO_LIST,
                            E_PARAM_READWRITE));
 
     /**

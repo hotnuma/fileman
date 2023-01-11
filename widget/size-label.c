@@ -103,7 +103,7 @@ static void thunar_size_label_class_init(ThunarSizeLabelClass *klass)
                                         "files",
                                         "files",
                                         "files",
-                                        THUNARX_TYPE_FILE_INFO_LIST,
+                                        TYPE_FILE_INFO_LIST,
                                         E_PARAM_READWRITE));
 
     /**
