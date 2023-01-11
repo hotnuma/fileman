@@ -1,6 +1,28 @@
 
 #if 0
 
+struct _ThunarBookmark
+{
+    GFile *g_file;
+    gchar *name;
+};
+
+typedef struct _ThunarBookmark ThunarBookmark;
+
+static gboolean _window_check_uca_key_activation(ThunarWindow *window,
+                                                       GdkEventKey  *key_event,
+                                                       gpointer      user_data)
+{
+    UNUSED(user_data);
+
+    if (thunar_launcher_check_uca_key_activation(window->launcher, key_event))
+        return GDK_EVENT_STOP;
+
+    return GDK_EVENT_PROPAGATE;
+}
+
+// ----------------------------------------------------------------------------
+
 GList* thunarx_file_info_list_copy(GList *file_infos)
 {
     return g_list_copy_deep(file_infos,(GCopyFunc)(void(*)(void)) g_object_ref, NULL);

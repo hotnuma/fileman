@@ -1780,7 +1780,7 @@ void standard_view_context_menu(ThunarStandardView *standard_view)
     window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
 
     context_menu = g_object_new(THUNAR_TYPE_MENU, "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
-                                 "launcher", thunar_window_get_launcher(THUNAR_WINDOW(window)), NULL);
+                                 "launcher", window_get_launcher(THUNAR_WINDOW(window)), NULL);
     if (selected_items != NULL)
     {
         menu_add_sections(context_menu,
@@ -1810,7 +1810,7 @@ void standard_view_context_menu(ThunarStandardView *standard_view)
 
     menu_hide_accel_labels(context_menu);
     gtk_widget_show_all(GTK_WIDGET(context_menu));
-    thunar_window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
+    window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
 
     /* if there is a drag_timer_event(long press), we use it */
     if (standard_view->priv->drag_timer_event != NULL)
@@ -2265,7 +2265,7 @@ static void _standard_view_current_directory_destroy(ThunarFile *current_directo
     /* let the parent window update all active and inactive views(tabs) */
     GtkWidget  *window;
     window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
-    thunar_window_update_directories(THUNAR_WINDOW(window),
+    window_update_directories(THUNAR_WINDOW(window),
                                       current_directory,
                                       new_directory);
 

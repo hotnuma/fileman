@@ -1110,7 +1110,7 @@ GtkWidget* application_open_window(Application *application,
 
     /* change the directory */
     if (directory != NULL)
-        thunar_window_set_current_directory(THUNAR_WINDOW(window), directory);
+        window_set_current_directory(THUNAR_WINDOW(window), directory);
 
     return window;
 }

@@ -778,7 +778,7 @@ static void thunar_details_view_row_activated(GtkTreeView       *tree_view,
     }
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
-    launcher = thunar_window_get_launcher(THUNAR_WINDOW(window));
+    launcher = window_get_launcher(THUNAR_WINDOW(window));
     launcher_activate_selected_files(launcher,
                                              LAUNCHER_CHANGE_DIRECTORY,
                                              NULL);
@@ -808,7 +808,7 @@ static gboolean thunar_details_view_select_cursor_row(GtkTreeView       *tree_vi
     g_signal_stop_emission_by_name(tree_view,"select-cursor-row");
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
-    launcher = thunar_window_get_launcher(THUNAR_WINDOW(window));
+    launcher = window_get_launcher(THUNAR_WINDOW(window));
     launcher_activate_selected_files(launcher, LAUNCHER_CHANGE_DIRECTORY, NULL);
 
     return TRUE;
