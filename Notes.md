@@ -1,3 +1,9 @@
+#### Formatting
+    
+core/clipman
+
+
+
 #### Biggest files
 
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15

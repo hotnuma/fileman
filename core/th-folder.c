@@ -686,6 +686,7 @@ ThunarFolder* th_folder_get_for_file(ThunarFile *file)
 ThunarFile* th_folder_get_corresponding_file(const ThunarFolder *folder)
 {
     thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
+
     return folder->corresponding_file;
 }
 
@@ -701,6 +702,7 @@ ThunarFile* th_folder_get_corresponding_file(const ThunarFolder *folder)
 GList* th_folder_get_files(const ThunarFolder *folder)
 {
     thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
+
     return folder->files;
 }
 
