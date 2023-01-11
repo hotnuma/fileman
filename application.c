@@ -91,17 +91,17 @@ static void application_set_property(GObject *object,
                                             GParamSpec *pspec);
 
 #if ENABLE_DBUS
-static void thunar_application_dbus_acquired_cb(GDBusConnection *conn,
+static void _application_dbus_acquired_cb(GDBusConnection *conn,
                                                 const gchar *name,
                                                 gpointer user_data);
-static void thunar_application_name_acquired_cb(GDBusConnection *connection,
+static void _application_name_acquired_cb(GDBusConnection *connection,
                                                 const gchar *name,
                                                 gpointer user_data);
-static void thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
+static void _application_dbus_name_lost_cb(GDBusConnection *connection,
                                                  const gchar *name,
                                                  gpointer user_data);
-static void thunar_application_dbus_init(Application *application);
-static gboolean thunar_application_dbus_register(GApplication *application,
+static void _application_dbus_init(Application *application);
+static gboolean _application_dbus_register(GApplication *application,
                                                  GDBusConnection *connection,
                                                  const gchar *object_path,
                                                  GError **error);
@@ -193,9 +193,9 @@ struct _Application
 #endif
 };
 
-static GQuark thunar_application_screen_quark;
-static GQuark thunar_application_startup_id_quark;
-static GQuark thunar_application_file_quark;
+static GQuark _app_screen_quark;
+static GQuark _app_startup_id_quark;
+static GQuark _app_file_quark;
 
 G_DEFINE_TYPE_EXTENDED(Application,
                        application,
@@ -206,43 +206,33 @@ G_DEFINE_TYPE_EXTENDED(Application,
 static void application_class_init(ApplicationClass *klass)
 {
     /* pre-allocate the required quarks */
-    thunar_application_screen_quark =
-        g_quark_from_static_string("thunar-application-screen");
-    thunar_application_startup_id_quark =
-        g_quark_from_static_string("thunar-application-startup-id");
-    thunar_application_file_quark =
-        g_quark_from_static_string("thunar-application-file");
+    _app_screen_quark = g_quark_from_static_string("application-screen");
+    _app_startup_id_quark = g_quark_from_static_string("application-startup-id");
+    _app_file_quark = g_quark_from_static_string("application-file");
 
-    GObjectClass        *gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = application_finalize;
     gobject_class->get_property = application_get_property;
     gobject_class->set_property = application_set_property;
 
-    GApplicationClass   *gapplication_class = G_APPLICATION_CLASS(klass);
-    gapplication_class->startup              = application_startup;
-    gapplication_class->activate             = application_activate;
-    gapplication_class->shutdown             = application_shutdown;
-    gapplication_class->command_line         = application_command_line;
+    GApplicationClass *gapplication_class = G_APPLICATION_CLASS(klass);
+    gapplication_class->startup = application_startup;
+    gapplication_class->activate = application_activate;
+    gapplication_class->shutdown = application_shutdown;
+    gapplication_class->command_line = application_command_line;
 
 #ifdef ENABLE_DBUS
-    gapplication_class->dbus_register        = thunar_application_dbus_register;
+    gapplication_class->dbus_register = _application_dbus_register;
 #endif
 
-    /**
-     * Application:daemon:
-     *
-     * %TRUE if the application should be run in daemon mode,
-     * in which case it will never terminate. %FALSE if the
-     * application should terminate once the last window is
-     * closed.
-     **/
     g_object_class_install_property(gobject_class,
-                                     PROP_DAEMON,
-                                     g_param_spec_boolean("daemon",
-                                             "daemon",
-                                             "daemon",
-                                             FALSE,
-                                             E_PARAM_READWRITE));
+                                    PROP_DAEMON,
+                                    g_param_spec_boolean(
+                                        "daemon",
+                                        "daemon",
+                                        "daemon",
+                                        FALSE,
+                                        E_PARAM_READWRITE));
 }
 
 static void application_init(Application *application)
@@ -258,21 +248,21 @@ static void application_init(Application *application)
 }
 
 #ifdef ENABLE_DBUS
-static void thunar_application_dbus_acquired_cb(GDBusConnection *conn,
+static void _application_dbus_acquired_cb(GDBusConnection *conn,
                                                 const gchar     *name,
                                                 gpointer         user_data)
 {
     g_debug(_("Acquired the session message bus '%s'\n"), name);
 }
 
-static void thunar_application_name_acquired_cb(GDBusConnection *connection,
+static void _application_name_acquired_cb(GDBusConnection *connection,
                                                 const gchar     *name,
                                                 gpointer         user_data)
 {
     g_debug(_("Acquired the name '%s' on the session message bus\n"), name);
 }
 
-static void thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
+static void _application_dbus_name_lost_cb(GDBusConnection *connection,
                                                  const gchar     *name,
                                                  gpointer         user_data)
 {
@@ -281,23 +271,23 @@ static void thunar_application_dbus_name_lost_cb(GDBusConnection *connection,
 
 /* TODO: [GTK3 Port] Check if there's a cleaner way to register */
 /* these extra dbus names(besides org.xfce.Thunar) */
-static void thunar_application_dbus_init(Application *application)
+static void _application_dbus_init(Application *application)
 {
     application->dbus_owner_id_xfce = g_bus_own_name(G_BUS_TYPE_SESSION,
                                       "org.xfce.FileManager",
                                       G_BUS_NAME_OWNER_FLAGS_NONE,
-                                      thunar_application_dbus_acquired_cb,
-                                      thunar_application_name_acquired_cb,
-                                      thunar_application_dbus_name_lost_cb,
+                                      _application_dbus_acquired_cb,
+                                      _application_name_acquired_cb,
+                                      _application_dbus_name_lost_cb,
                                       application,
                                       NULL);
 
     application->dbus_owner_id_fdo = g_bus_own_name(G_BUS_TYPE_SESSION,
                                      "org.freedesktop.FileManager1",
                                      G_BUS_NAME_OWNER_FLAGS_NONE,
-                                     thunar_application_dbus_acquired_cb,
-                                     thunar_application_name_acquired_cb,
-                                     thunar_application_dbus_name_lost_cb,
+                                     _application_dbus_acquired_cb,
+                                     _application_name_acquired_cb,
+                                     _application_dbus_name_lost_cb,
                                      application,
                                      NULL);
 }
@@ -324,7 +314,7 @@ static void application_startup(GApplication *gapp)
 #endif
 
 #ifdef ENABLE_DBUS
-    thunar_application_dbus_init(application);
+    _application_dbus_init(application);
 #endif
 
     G_APPLICATION_CLASS(application_parent_class)->startup(gapp);
@@ -544,7 +534,7 @@ out:
 }
 
 #ifdef ENABLE_DBUS
-static gboolean thunar_application_dbus_register(GApplication   *gapp,
+static gboolean _application_dbus_register(GApplication   *gapp,
                                                  GDBusConnection *connection,
                                                  const gchar    *object_path,
                                                  GError         **error)
@@ -968,7 +958,7 @@ static void _application_show_dialogs_destroy(gpointer user_data)
 }
 
 /**
- * thunar_application_get:
+ * application_get:
  *
  * Returns the global shared #Application instance.
  * This method takes a reference on the global instance
@@ -991,7 +981,7 @@ Application* application_get()
 }
 
 /**
- * thunar_application_get_daemon:
+ * application_get_daemon:
  * @application : a #Application.
  *
  * Returns %TRUE if @application is in daemon mode.
@@ -1005,7 +995,7 @@ gboolean application_get_daemon(Application *application)
 }
 
 /**
- * thunar_application_set_daemon:
+ * application_set_daemon:
  * @application : a #Application.
  * @daemonize   : %TRUE to set @application into daemon mode.
  *
@@ -1029,7 +1019,7 @@ void application_set_daemon(Application *application,
 }
 
 /**
- * thunar_application_take_window:
+ * application_take_window:
  * @application : a #Application.
  * @window      : a #GtkWindow.
  *
@@ -1062,7 +1052,7 @@ void application_take_window(Application *application,
 }
 
 /**
- * thunar_application_open_window:
+ * application_open_window:
  * @application      : a #Application.
  * @directory        : the directory to open.
  * @screen           : the #GdkScreen on which to open the window or %NULL
@@ -1084,7 +1074,7 @@ GtkWidget* application_open_window(Application *application,
 {
     UNUSED(force_new_window);
 
-    //DPRINT("thunar_application_open_window\n");
+    //DPRINT("application_open_window\n");
 
     GtkWidget *window;
     gchar     *role;
@@ -1144,7 +1134,7 @@ static GtkWidget* _application_get_progress_dialog(
     return application->progress_dialog;
 }
 
-static void thunar_application_process_files_finish(ThunarBrowser  *browser,
+static void _application_process_files_finish(ThunarBrowser  *browser,
                                                     ThunarFile     *file,
                                                     ThunarFile     *target_file,
                                                     GError         *error,
@@ -1161,11 +1151,11 @@ static void thunar_application_process_files_finish(ThunarBrowser  *browser,
     thunar_return_if_fail(IS_APPLICATION(application));
 
     /* determine and reset the screen of the file */
-    screen = g_object_get_qdata(G_OBJECT(file), thunar_application_screen_quark);
-    g_object_set_qdata(G_OBJECT(file), thunar_application_screen_quark, NULL);
+    screen = g_object_get_qdata(G_OBJECT(file), _app_screen_quark);
+    g_object_set_qdata(G_OBJECT(file), _app_screen_quark, NULL);
 
     /* determine and the startup id of the file */
-    startup_id = g_object_get_qdata(G_OBJECT(file), thunar_application_startup_id_quark);
+    startup_id = g_object_get_qdata(G_OBJECT(file), _app_startup_id_quark);
 
     /* check if resolving/mounting failed */
     if (error != NULL)
@@ -1205,7 +1195,7 @@ static void thunar_application_process_files_finish(ThunarBrowser  *browser,
 
     /* unset the startup id */
     if (startup_id != NULL)
-        g_object_set_qdata(G_OBJECT(file), thunar_application_startup_id_quark, NULL);
+        g_object_set_qdata(G_OBJECT(file), _app_startup_id_quark, NULL);
 
     /* release the application */
     g_application_release(G_APPLICATION(application));
@@ -1215,7 +1205,7 @@ static void _application_process_files(Application *application)
 {
     thunar_return_if_fail(IS_APPLICATION(application));
 
-    //DPRINT("thunar_application_process_files\n");
+    //DPRINT("application_process_files\n");
 
     ThunarFile *file;
     GdkScreen  *screen;
@@ -1228,7 +1218,7 @@ static void _application_process_files(Application *application)
     file = THUNAR_FILE(application->files_to_launch->data);
 
     /* retrieve the screen we need to launch the file on */
-    screen = g_object_get_qdata(G_OBJECT(file), thunar_application_screen_quark);
+    screen = g_object_get_qdata(G_OBJECT(file), _app_screen_quark);
 
     /* make sure to hold a reference to the application while file processing is going on */
     g_application_hold(G_APPLICATION(application));
@@ -1238,12 +1228,12 @@ static void _application_process_files(Application *application)
     thunar_browser_poke_file(THUNAR_BROWSER(application),
                               file,
                               screen,
-                              thunar_application_process_files_finish,
+                              _application_process_files_finish,
                               NULL);
 }
 
 /**
- * thunar_application_process_filenames:
+ * application_process_filenames:
  * @application       : a #Application.
  * @working_directory : the working directory relative to which the @filenames should
  *                      be interpreted.
@@ -1323,11 +1313,11 @@ gboolean application_process_filenames(Application *application,
     for (lp = file_list; lp != NULL; lp = lp->next)
     {
         /* remember the screen to launch the file on */
-        g_object_set_qdata(G_OBJECT(lp->data), thunar_application_screen_quark, screen);
+        g_object_set_qdata(G_OBJECT(lp->data), _app_screen_quark, screen);
 
         /* remember the startup id to set on the window */
         if (G_LIKELY(startup_id != NULL && *startup_id != '\0'))
-            g_object_set_qdata_full(G_OBJECT(lp->data), thunar_application_startup_id_quark,
+            g_object_set_qdata_full(G_OBJECT(lp->data), _app_startup_id_quark,
                                      g_strdup(startup_id),(GDestroyNotify) g_free);
 
         /* append the file to the list of files we need to launch */
@@ -1346,7 +1336,7 @@ gboolean application_process_filenames(Application *application,
 }
 
 /**
- * thunar_application_copy_into:
+ * application_copy_into:
  * @application       : a #Application.
  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
  * @source_file_list  : the list of #GFile<!---->s that should be copied.
@@ -1389,7 +1379,7 @@ void application_copy_into(Application *application,
 }
 
 /**
- * thunar_application_link_into:
+ * application_link_into:
  * @application       : a #Application.
  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
  * @source_file_list  : the list of #GFile<!---->s that should be symlinked.
@@ -1433,7 +1423,7 @@ void application_link_into(Application *application,
 }
 
 /**
- * thunar_application_move_into:
+ * application_move_into:
  * @application       : a #Application.
  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
  * @source_file_list  : the list of #GFile<!---->s that should be moved.
@@ -1492,7 +1482,7 @@ static ThunarJob* unlink_stub(GList *source_path_list, GList *target_path_list)
 }
 
 /**
- * thunar_application_unlink_files:
+ * application_unlink_files:
  * @application : a #Application.
  * @parent      : a #GdkScreen, a #GtkWidget or %NULL.
  * @file_list   : the list of #ThunarFile<!---->s that should be deleted.
@@ -1627,7 +1617,7 @@ static ThunarJob* creat_stub(GList *template_file, GList *target_path_list)
 }
 
 /**
- * thunar_application_creat:
+ * application_creat:
  * @application       : a #Application.
  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
  * @file_list         : the list of files to create.
@@ -1666,7 +1656,7 @@ static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list)
 }
 
 /**
- * thunar_application_mkdir:
+ * application_mkdir:
  * @application       : a #Application.
  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
  * @file_list         : the list of directories to create.
@@ -1693,7 +1683,7 @@ void application_mkdir(Application *application,
 }
 
 /**
- * thunar_application_empty_trash:
+ * application_empty_trash:
  * @application : a #Application.
  * @parent      : the parent, which can either be the associated
  *                #GtkWidget, the screen on which display the
@@ -1760,7 +1750,7 @@ void application_empty_trash(Application *application,
 }
 
 /**
- * thunar_application_restore_files:
+ * application_restore_files:
  * @application       : a #Application.
  * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
  * @trash_file_list   : a #GList of #ThunarFile<!---->s in the trash.

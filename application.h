@@ -46,71 +46,66 @@ GType application_get_type() G_GNUC_CONST;
 Application* application_get();
 
 gboolean application_get_daemon(Application *application);
-void application_set_daemon(Application *application,
-                                   gboolean daemon);
+void application_set_daemon(Application *application, gboolean daemon);
 
-void application_take_window(Application *application,
-                                    GtkWindow *window);
+void application_take_window(Application *application, GtkWindow *window);
 
 GtkWidget *application_open_window(Application *application,
-                                          ThunarFile *directory,
-                                          GdkScreen *screen,
-                                          const gchar *startup_id,
-                                          gboolean force_new_window);
+                                   ThunarFile *directory,
+                                   GdkScreen *screen,
+                                   const gchar *startup_id,
+                                   gboolean force_new_window);
 
 gboolean application_process_filenames(Application *application,
-                                              const gchar *working_directory,
-                                              gchar **filenames,
-                                              GdkScreen *screen,
-                                              const gchar *startup_id,
-                                              GError **error);
+                                       const gchar *working_directory,
+                                       gchar **filenames,
+                                       GdkScreen *screen,
+                                       const gchar *startup_id,
+                                       GError **error);
 
 void application_copy_into(Application *application,
-                                  gpointer parent,
-                                  GList *source_file_list,
-                                  GFile *target_file,
-                                  GClosure *new_files_closure);
+                           gpointer parent,
+                           GList *source_file_list,
+                           GFile *target_file,
+                           GClosure *new_files_closure);
 
 void application_link_into(Application *application,
-                                  gpointer parent,
-                                  GList *source_file_list,
-                                  GFile *target_file,
-                                  GClosure *new_files_closure);
+                           gpointer parent,
+                           GList *source_file_list,
+                           GFile *target_file,
+                           GClosure *new_files_closure);
 
 void application_move_into(Application *application,
-                                  gpointer parent,
-                                  GList *source_file_list,
-                                  GFile *target_file,
-                                  GClosure *new_files_closure);
+                           gpointer parent,
+                           GList *source_file_list,
+                           GFile *target_file,
+                           GClosure *new_files_closure);
 
 void application_unlink_files(Application *application,
-                                     gpointer parent,
-                                     GList *file_list,
-                                     gboolean permanently);
-
-void application_trash(Application *application,
                               gpointer parent,
-                              GList *file_list);
+                              GList *file_list,
+                              gboolean permanently);
+
+void application_trash(Application *application, gpointer parent, GList *file_list);
 
 void application_creat(Application *application,
-                              gpointer parent,
-                              GList *file_list,
-                              GFile *template_file,
-                              GClosure *new_files_closure);
+                       gpointer parent,
+                       GList *file_list,
+                       GFile *template_file,
+                       GClosure *new_files_closure);
 
 void application_mkdir(Application *application,
-                              gpointer parent,
-                              GList *file_list,
-                              GClosure *new_files_closure);
+                       gpointer parent,
+                       GList *file_list,
+                       GClosure *new_files_closure);
 
-void application_empty_trash(Application *application,
-                                    gpointer parent,
-                                    const gchar *startup_id);
+void application_empty_trash(Application *application, gpointer parent,
+                             const gchar *startup_id);
 
 void application_restore_files(Application *application,
-                                      gpointer parent,
-                                      GList *trash_file_list,
-                                      GClosure *new_files_closure);
+                               gpointer parent,
+                               GList *trash_file_list,
+                               GClosure *new_files_closure);
 
 G_END_DECLS
 
