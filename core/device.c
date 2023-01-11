@@ -25,9 +25,10 @@
 #include <th-file.h>
 #include <notify.h>
 
-typedef gboolean (*AsyncCallbackFinish) (GObject       *object,
-                                         GAsyncResult  *result,
-                                         GError       **error);
+typedef struct _ThunarDeviceOperation ThunarDeviceOperation;
+
+typedef gboolean (*AsyncCallbackFinish) (GObject *object, GAsyncResult *result,
+                                         GError **error);
 enum
 {
     PROP_0,
@@ -36,15 +37,25 @@ enum
     PROP_KIND
 };
 
-static void thunar_device_finalize(GObject *object);
-static void thunar_device_get_property(GObject *object,
-                                       guint prop_id,
-                                       GValue *value,
-                                       GParamSpec *pspec);
-static void thunar_device_set_property(GObject *object,
-                                       guint prop_id,
-                                       const GValue *value,
-                                       GParamSpec *pspec);
+static void th_device_finalize(GObject *object);
+static void th_device_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec);
+static void th_device_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec);
+
+// Public ---------------------------------------------------------------------
+
+static ThunarDeviceOperation* _th_device_operation_new(
+                                        ThunarDevice         *device,
+                                        ThunarDeviceCallback callback,
+                                        gpointer             user_data,
+                                        gpointer             callback_finish);
+
+static void _th_device_operation_finish(GObject *object, GAsyncResult *result,
+                                        gpointer user_data);
+
+static void _th_device_emit_pre_unmount(ThunarDevice *device,
+                                        gboolean all_volumes);
 
 struct _ThunarDeviceClass
 {
@@ -67,7 +78,7 @@ struct _ThunarDevice
     gint64            stamp;
 };
 
-typedef struct
+struct _ThunarDeviceOperation
 {
     /* the device the operation is working on */
     ThunarDevice         *device;
@@ -78,69 +89,68 @@ typedef struct
     /* callback for the user */
     ThunarDeviceCallback  callback;
     gpointer              user_data;
-}
-ThunarDeviceOperation;
 
-G_DEFINE_TYPE(ThunarDevice, thunar_device, G_TYPE_OBJECT)
+};
 
-static void thunar_device_class_init(ThunarDeviceClass *klass)
+G_DEFINE_TYPE(ThunarDevice, th_device, G_TYPE_OBJECT)
+
+static void th_device_class_init(ThunarDeviceClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_device_finalize;
-    gobject_class->get_property = thunar_device_get_property;
-    gobject_class->set_property = thunar_device_set_property;
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->finalize = th_device_finalize;
+    gobject_class->get_property = th_device_get_property;
+    gobject_class->set_property = th_device_set_property;
 
     g_object_class_install_property(gobject_class,
-                                     PROP_DEVICE,
-                                     g_param_spec_object("device",
-                                             "device",
-                                             "device",
-                                             G_TYPE_OBJECT,
-                                             E_PARAM_READWRITE
-                                             | G_PARAM_CONSTRUCT_ONLY));
+                                    PROP_DEVICE,
+                                    g_param_spec_object(
+                                        "device",
+                                        "device",
+                                        "device",
+                                        G_TYPE_OBJECT,
+                                        E_PARAM_READWRITE
+                                        | G_PARAM_CONSTRUCT_ONLY));
 
     g_object_class_install_property(gobject_class,
-                                     PROP_HIDDEN,
-                                     g_param_spec_boolean("hidden",
-                                             "hidden",
-                                             "hidden",
-                                             FALSE,
-                                             E_PARAM_READWRITE));
+                                    PROP_HIDDEN,
+                                    g_param_spec_boolean(
+                                        "hidden",
+                                        "hidden",
+                                        "hidden",
+                                        FALSE,
+                                        E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,
-                                     PROP_KIND,
-                                     g_param_spec_uint("kind",
-                                             "kind",
-                                             "kind",
-                                             THUNAR_DEVICE_KIND_VOLUME,
-                                             THUNAR_DEVICE_KIND_MOUNT_REMOTE,
-                                             THUNAR_DEVICE_KIND_VOLUME,
-                                             E_PARAM_READWRITE
-                                             | G_PARAM_CONSTRUCT_ONLY));
+                                    PROP_KIND,
+                                    g_param_spec_uint(
+                                        "kind",
+                                        "kind",
+                                        "kind",
+                                        THUNAR_DEVICE_KIND_VOLUME,
+                                        THUNAR_DEVICE_KIND_MOUNT_REMOTE,
+                                        THUNAR_DEVICE_KIND_VOLUME,
+                                        E_PARAM_READWRITE
+                                        | G_PARAM_CONSTRUCT_ONLY));
 }
 
-static void thunar_device_init(ThunarDevice *device)
+static void th_device_init(ThunarDevice *device)
 {
     device->kind = THUNAR_DEVICE_KIND_VOLUME;
     device->stamp = g_get_real_time();
 }
 
-static void thunar_device_finalize(GObject *object)
+static void th_device_finalize(GObject *object)
 {
     ThunarDevice *device = THUNAR_DEVICE(object);
 
     if (device->device != NULL)
         g_object_unref(G_OBJECT(device->device));
 
-   (*G_OBJECT_CLASS(thunar_device_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(th_device_parent_class)->finalize(object);
 }
 
-static void thunar_device_get_property(GObject    *object,
-                                       guint       prop_id,
-                                       GValue     *value,
-                                       GParamSpec *pspec)
+static void th_device_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec)
 {
     ThunarDevice *device = THUNAR_DEVICE(object);
 
@@ -164,10 +174,8 @@ static void thunar_device_get_property(GObject    *object,
     }
 }
 
-static void thunar_device_set_property(GObject      *object,
-                                       guint         prop_id,
-                                       const GValue *value,
-                                       GParamSpec   *pspec)
+static void th_device_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec)
 {
     ThunarDevice *device = THUNAR_DEVICE(object);
 
@@ -192,81 +200,7 @@ static void thunar_device_set_property(GObject      *object,
     }
 }
 
-static ThunarDeviceOperation* thunar_device_operation_new(
-                                                ThunarDevice         *device,
-                                                ThunarDeviceCallback  callback,
-                                                gpointer              user_data,
-                                                gpointer              callback_finish)
-{
-    ThunarDeviceOperation *op;
-
-    op = g_slice_new0(ThunarDeviceOperation);
-    op->device = g_object_ref(device);
-    op->callback = callback;
-    op->callback_finish = callback_finish;
-    op->user_data = user_data;
-
-    return op;
-}
-
-static void thunar_device_operation_finish(GObject      *object,
-                                           GAsyncResult *result,
-                                           gpointer      user_data)
-{
-    ThunarDeviceOperation *op = user_data;
-    GError                *error = NULL;
-
-    thunar_return_if_fail(G_IS_OBJECT(object));
-    thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
-
-    /* remove notification */
-    thunar_notify_finish(op->device);
-
-    /* finish the operation */
-    if (!(op->callback_finish)(object, result, &error))
-    {
-        /* unset the error if a helper program has already interacted with the user */
-        if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_FAILED_HANDLED))
-            g_clear_error(&error);
-
-        if (op->callback_finish ==(AsyncCallbackFinish) g_volume_mount_finish)
-        {
-            /* special handling for mount operation */
-            if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_ALREADY_MOUNTED)
-                    || g_error_matches(error, G_IO_ERROR, G_IO_ERROR_PENDING))
-                g_clear_error(&error);
-        }
-    }
-
-    /* user callback */
-   (op->callback)(op->device, error, op->user_data);
-
-    /* cleanup */
-    g_clear_error(&error);
-    g_object_unref(G_OBJECT(op->device));
-    g_slice_free(ThunarDeviceOperation, op);
-}
-
-static void thunar_device_emit_pre_unmount(ThunarDevice *device,
-                                           gboolean      all_volumes)
-{
-    UNUSED(all_volumes);
-    ThunarDeviceMonitor *monitor;
-    GFile               *root_file;
-
-    root_file = thunar_device_get_root(device);
-    if (root_file != NULL)
-    {
-        /* make sure the pre-unmount event is emitted, this is important
-         * for the interface */
-        monitor = devmon_get();
-        g_signal_emit_by_name(monitor, "device-pre-unmount", device, root_file);
-        g_object_unref(monitor);
-        g_object_unref(root_file);
-    }
-}
-
-gchar* thunar_device_get_name(const ThunarDevice *device)
+gchar* th_device_get_name(const ThunarDevice *device)
 {
     GFile *mount_point;
     gchar *display_name = NULL;
@@ -280,7 +214,7 @@ gchar* thunar_device_get_name(const ThunarDevice *device)
     else if (G_IS_MOUNT(device->device))
     {
         /* probably we can make a nicer name for this mount */
-        mount_point = thunar_device_get_root(device);
+        mount_point = th_device_get_root(device);
         if (mount_point != NULL)
         {
             display_name = eg_file_get_display_name_remote(mount_point);
@@ -298,7 +232,7 @@ gchar* thunar_device_get_name(const ThunarDevice *device)
     return NULL;
 }
 
-GIcon* thunar_device_get_icon(const ThunarDevice *device)
+GIcon* th_device_get_icon(const ThunarDevice *device)
 {
     thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
 
@@ -312,13 +246,13 @@ GIcon* thunar_device_get_icon(const ThunarDevice *device)
     return NULL;
 }
 
-ThunarDeviceKind thunar_device_get_kind(const ThunarDevice *device)
+ThunarDeviceKind th_device_get_kind(const ThunarDevice *device)
 {
     thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), THUNAR_DEVICE_KIND_VOLUME);
     return device->kind;
 }
 
-gchar* thunar_device_get_identifier(const ThunarDevice *device)
+gchar* th_device_get_identifier(const ThunarDevice *device)
 {
     gchar *ident = NULL;
 
@@ -344,7 +278,7 @@ gchar* thunar_device_get_identifier(const ThunarDevice *device)
     return ident;
 }
 
-gchar* thunar_device_get_identifier_unix(const ThunarDevice *device)
+gchar* th_device_get_identifier_unix(const ThunarDevice *device)
 {
     gchar *ident = NULL;
 
@@ -360,7 +294,7 @@ gchar* thunar_device_get_identifier_unix(const ThunarDevice *device)
     return ident;
 }
 
-gboolean thunar_device_get_hidden(const ThunarDevice *device)
+gboolean th_device_get_hidden(const ThunarDevice *device)
 {
     thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), FALSE);
     return device->hidden;
@@ -371,7 +305,7 @@ gboolean thunar_device_get_hidden(const ThunarDevice *device)
  *
  * If the user should see the option to eject this device.
  **/
-gboolean thunar_device_can_eject(const ThunarDevice *device)
+gboolean th_device_can_eject(const ThunarDevice *device)
 {
     gboolean  can_eject = FALSE;
     GDrive   *drive;
@@ -409,7 +343,7 @@ gboolean thunar_device_can_eject(const ThunarDevice *device)
  *
  * If the user should see the option to mount this device.
  **/
-gboolean thunar_device_can_mount(const ThunarDevice *device)
+gboolean th_device_can_mount(const ThunarDevice *device)
 {
     gboolean  can_mount = FALSE;
     GMount   *volume_mount;
@@ -441,7 +375,7 @@ gboolean thunar_device_can_mount(const ThunarDevice *device)
  *
  * If the user should see the option to unmount this device.
  **/
-gboolean thunar_device_can_unmount(const ThunarDevice *device)
+gboolean th_device_can_unmount(const ThunarDevice *device)
 {
     gboolean  can_unmount = FALSE;
     GMount   *volume_mount;
@@ -469,7 +403,7 @@ gboolean thunar_device_can_unmount(const ThunarDevice *device)
     return can_unmount;
 }
 
-gboolean thunar_device_is_mounted(const ThunarDevice *device)
+gboolean th_device_is_mounted(const ThunarDevice *device)
 {
     gboolean  is_mounted = FALSE;
     GMount   *volume_mount;
@@ -497,7 +431,7 @@ gboolean thunar_device_is_mounted(const ThunarDevice *device)
     return is_mounted;
 }
 
-GFile* thunar_device_get_root(const ThunarDevice *device)
+GFile* th_device_get_root(const ThunarDevice *device)
 {
     GFile  *root = NULL;
     GMount *volume_mount;
@@ -526,7 +460,7 @@ GFile* thunar_device_get_root(const ThunarDevice *device)
     return root;
 }
 
-gint thunar_device_sort(const ThunarDevice *device1,
+gint th_device_sort(const ThunarDevice *device1,
                         const ThunarDevice *device2)
 {
     thunar_return_val_if_fail(THUNAR_IS_DEVICE(device1), 0);
@@ -540,7 +474,7 @@ gint thunar_device_sort(const ThunarDevice *device1,
     return device1->stamp > device2->stamp ? 1 : -1;
 }
 
-void thunar_device_mount(ThunarDevice         *device,
+void th_device_mount(ThunarDevice         *device,
                          GMountOperation      *mount_operation,
                          GCancellable         *cancellable,
                          ThunarDeviceCallback  callback,
@@ -555,15 +489,69 @@ void thunar_device_mount(ThunarDevice         *device,
 
     if (G_IS_VOLUME(device->device))
     {
-        op = thunar_device_operation_new(device, callback, user_data,
+        op = _th_device_operation_new(device, callback, user_data,
                                           g_volume_mount_finish);
         g_volume_mount(G_VOLUME(device->device),
                         G_MOUNT_MOUNT_NONE,
                         mount_operation,
                         cancellable,
-                        thunar_device_operation_finish,
+                        _th_device_operation_finish,
                         op);
     }
+}
+
+static ThunarDeviceOperation* _th_device_operation_new(
+                                                ThunarDevice         *device,
+                                                ThunarDeviceCallback  callback,
+                                                gpointer              user_data,
+                                                gpointer              callback_finish)
+{
+    ThunarDeviceOperation *op;
+
+    op = g_slice_new0(ThunarDeviceOperation);
+    op->device = g_object_ref(device);
+    op->callback = callback;
+    op->callback_finish = callback_finish;
+    op->user_data = user_data;
+
+    return op;
+}
+
+static void _th_device_operation_finish(GObject *object, GAsyncResult *result,
+                                        gpointer user_data)
+{
+    ThunarDeviceOperation *op = user_data;
+    GError                *error = NULL;
+
+    thunar_return_if_fail(G_IS_OBJECT(object));
+    thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
+
+    /* remove notification */
+    thunar_notify_finish(op->device);
+
+    /* finish the operation */
+    if (!(op->callback_finish)(object, result, &error))
+    {
+        /* unset the error if a helper program has already interacted with the user */
+        if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_FAILED_HANDLED))
+            g_clear_error(&error);
+
+        if (op->callback_finish ==(AsyncCallbackFinish) g_volume_mount_finish)
+        {
+            /* special handling for mount operation */
+            if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_ALREADY_MOUNTED)
+                    || g_error_matches(error, G_IO_ERROR, G_IO_ERROR_PENDING))
+                g_clear_error(&error);
+        }
+    }
+
+    /* user callback */
+    (op->callback)(op->device, error, op->user_data);
+
+    /* cleanup */
+    g_clear_error(&error);
+    g_object_unref(G_OBJECT(op->device));
+    g_slice_free(ThunarDeviceOperation, op);
 }
 
 /**
@@ -571,7 +559,7 @@ void thunar_device_mount(ThunarDevice         *device,
  *
  * Unmount a #ThunarDevice. Don't try to eject.
  **/
-void thunar_device_unmount(ThunarDevice         *device,
+void th_device_unmount(ThunarDevice         *device,
                            GMountOperation      *mount_operation,
                            GCancellable         *cancellable,
                            ThunarDeviceCallback  callback,
@@ -602,18 +590,37 @@ void thunar_device_unmount(ThunarDevice         *device,
             thunar_notify_unmount(device);
 
             /* try unmounting the mount */
-            thunar_device_emit_pre_unmount(device, FALSE);
-            op = thunar_device_operation_new(device, callback, user_data,
+            _th_device_emit_pre_unmount(device, FALSE);
+            op = _th_device_operation_new(device, callback, user_data,
                                               g_mount_unmount_with_operation_finish);
             g_mount_unmount_with_operation(mount,
                                             G_MOUNT_UNMOUNT_NONE,
                                             mount_operation,
                                             cancellable,
-                                            thunar_device_operation_finish,
+                                            _th_device_operation_finish,
                                             op);
         }
 
         g_object_unref(G_OBJECT(mount));
+    }
+}
+
+static void _th_device_emit_pre_unmount(ThunarDevice *device,
+                                        gboolean all_volumes)
+{
+    UNUSED(all_volumes);
+    ThunarDeviceMonitor *monitor;
+    GFile               *root_file;
+
+    root_file = th_device_get_root(device);
+    if (root_file != NULL)
+    {
+        /* make sure the pre-unmount event is emitted, this is important
+         * for the interface */
+        monitor = devmon_get();
+        g_signal_emit_by_name(monitor, "device-pre-unmount", device, root_file);
+        g_object_unref(monitor);
+        g_object_unref(root_file);
     }
 }
 
@@ -622,7 +629,7 @@ void thunar_device_unmount(ThunarDevice         *device,
  *
  * Try to eject a #ThunarDevice, fall-back to unmounting
  **/
-void thunar_device_eject(ThunarDevice         *device,
+void th_device_eject(ThunarDevice         *device,
                          GMountOperation      *mount_operation,
                          GCancellable         *cancellable,
                          ThunarDeviceCallback  callback,
@@ -651,14 +658,14 @@ void thunar_device_eject(ThunarDevice         *device,
                 thunar_notify_eject(device);
 
                 /* try to stop the drive */
-                thunar_device_emit_pre_unmount(device, TRUE);
-                op = thunar_device_operation_new(device, callback, user_data,
+                _th_device_emit_pre_unmount(device, TRUE);
+                op = _th_device_operation_new(device, callback, user_data,
                                                   g_drive_stop_finish);
                 g_drive_stop(drive,
                               G_MOUNT_UNMOUNT_NONE,
                               mount_operation,
                               cancellable,
-                              thunar_device_operation_finish,
+                              _th_device_operation_finish,
                               op);
 
                 g_object_unref(drive);
@@ -672,14 +679,14 @@ void thunar_device_eject(ThunarDevice         *device,
                 thunar_notify_eject(device);
 
                 /* try to stop the drive */
-                thunar_device_emit_pre_unmount(device, TRUE);
-                op = thunar_device_operation_new(device, callback, user_data,
+                _th_device_emit_pre_unmount(device, TRUE);
+                op = _th_device_operation_new(device, callback, user_data,
                                                   g_drive_eject_with_operation_finish);
                 g_drive_eject_with_operation(drive,
                                               G_MOUNT_UNMOUNT_NONE,
                                               mount_operation,
                                               cancellable,
-                                              thunar_device_operation_finish,
+                                              _th_device_operation_finish,
                                               op);
 
                 g_object_unref(drive);
@@ -697,14 +704,14 @@ void thunar_device_eject(ThunarDevice         *device,
             thunar_notify_eject(device);
 
             /* try ejecting the volume */
-            thunar_device_emit_pre_unmount(device, TRUE);
-            op = thunar_device_operation_new(device, callback, user_data,
+            _th_device_emit_pre_unmount(device, TRUE);
+            op = _th_device_operation_new(device, callback, user_data,
                                               g_volume_eject_with_operation_finish);
             g_volume_eject_with_operation(volume,
                                            G_MOUNT_UNMOUNT_NONE,
                                            mount_operation,
                                            cancellable,
-                                           thunar_device_operation_finish,
+                                           _th_device_operation_finish,
                                            op);
 
             /* done */
@@ -732,14 +739,14 @@ void thunar_device_eject(ThunarDevice         *device,
             thunar_notify_eject(device);
 
             /* try ejecting the mount */
-            thunar_device_emit_pre_unmount(device, FALSE);
-            op = thunar_device_operation_new(device, callback, user_data,
+            _th_device_emit_pre_unmount(device, FALSE);
+            op = _th_device_operation_new(device, callback, user_data,
                                               g_mount_eject_with_operation_finish);
             g_mount_eject_with_operation(mount,
                                           G_MOUNT_UNMOUNT_NONE,
                                           mount_operation,
                                           cancellable,
-                                          thunar_device_operation_finish,
+                                          _th_device_operation_finish,
                                           op);
         }
         else if (g_mount_can_unmount(mount))
@@ -748,14 +755,14 @@ void thunar_device_eject(ThunarDevice         *device,
             thunar_notify_unmount(device);
 
             /* try unmounting the mount */
-            thunar_device_emit_pre_unmount(device, FALSE);
-            op = thunar_device_operation_new(device, callback, user_data,
+            _th_device_emit_pre_unmount(device, FALSE);
+            op = _th_device_operation_new(device, callback, user_data,
                                               g_mount_unmount_with_operation_finish);
             g_mount_unmount_with_operation(mount,
                                             G_MOUNT_UNMOUNT_NONE,
                                             mount_operation,
                                             cancellable,
-                                            thunar_device_operation_finish,
+                                            _th_device_operation_finish,
                                             op);
         }
 
@@ -768,14 +775,14 @@ void thunar_device_eject(ThunarDevice         *device,
  *
  * Reload the related #ThunarFile of the #ThunarDevice
  **/
-void thunar_device_reload_file(ThunarDevice *device)
+void th_device_reload_file(ThunarDevice *device)
 {
     ThunarFile *file;
     GFile      *mount_point;
 
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
 
-    mount_point = thunar_device_get_root(device);
+    mount_point = th_device_get_root(device);
 
     if (mount_point != NULL)
     {

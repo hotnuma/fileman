@@ -295,11 +295,11 @@ static void thunar_device_monitor_update_hidden(gpointer key,
     gboolean             hidden;
 
     /* get state of the device */
-    id = thunar_device_get_identifier(device);
+    id = th_device_get_identifier(device);
     hidden = thunar_device_monitor_id_is_hidden(monitor, id);
     g_free(id);
 
-    if (thunar_device_get_hidden(device) != hidden)
+    if (th_device_get_hidden(device) != hidden)
     {
         g_object_set(G_OBJECT(device), "hidden", hidden, NULL);
         g_signal_emit(G_OBJECT(monitor), device_monitor_signals[DEVICE_CHANGED], 0, device);
@@ -396,7 +396,7 @@ static void thunar_device_monitor_volume_changed(GVolumeMonitor      *volume_mon
                                NULL);
 
         /* set visibility */
-        id = thunar_device_get_identifier(device);
+        id = th_device_get_identifier(device);
         g_object_set(G_OBJECT(device),
                       "hidden", thunar_device_monitor_id_is_hidden(monitor, id),
                       NULL);
@@ -477,7 +477,7 @@ static void thunar_device_monitor_mount_added(GVolumeMonitor      *volume_monito
                                NULL);
 
         /* set visibility */
-        id = thunar_device_get_identifier(device);
+        id = th_device_get_identifier(device);
         g_object_set(G_OBJECT(device),
                       "hidden", thunar_device_monitor_id_is_hidden(monitor, id),
                       NULL);
@@ -496,7 +496,7 @@ static void thunar_device_monitor_mount_added(GVolumeMonitor      *volume_monito
         if (device != NULL)
         {
             /* reload the related ThunarFile */
-            thunar_device_reload_file(device);
+            th_device_reload_file(device);
 
             /* notify */
             g_signal_emit(G_OBJECT(monitor), device_monitor_signals[DEVICE_CHANGED], 0, device);
@@ -660,7 +660,7 @@ void devmon_set_hidden(ThunarDeviceMonitor *monitor,
     thunar_return_if_fail(THUNAR_IS_DEVICE_MONITOR(monitor));
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
 
-    id = thunar_device_get_identifier(device);
+    id = th_device_get_identifier(device);
     if (id == NULL)
         return;
 

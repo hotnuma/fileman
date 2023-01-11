@@ -527,7 +527,7 @@ static void thunar_browser_poke_device_finish(ThunarDevice *device,
     thunar_return_if_fail(device == poke_data->device);
 
     if (error == NULL)
-        mount_point = thunar_device_get_root(device);
+        mount_point = th_device_get_root(device);
 
     if (mount_point == NULL)
     {
@@ -586,9 +586,9 @@ void thunar_browser_poke_device(ThunarBrowser   *browser,
     thunar_return_if_fail(THUNAR_IS_BROWSER(browser));
     thunar_return_if_fail(THUNAR_DEVICE(device));
 
-    if (thunar_device_is_mounted(device))
+    if (th_device_is_mounted(device))
     {
-        mount_point = thunar_device_get_root(device);
+        mount_point = th_device_get_root(device);
 
         poke_data = thunar_browser_poke_device_data_new(browser, device, func, user_data);
 
@@ -604,7 +604,7 @@ void thunar_browser_poke_device(ThunarBrowser   *browser,
 
         mount_operation = thunar_gtk_mount_operation_new(widget);
 
-        thunar_device_mount(device,
+        th_device_mount(device,
                              mount_operation,
                              NULL,
                              thunar_browser_poke_device_finish,

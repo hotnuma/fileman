@@ -575,7 +575,7 @@ static void thunar_tree_model_get_value(GtkTreeModel *tree_model,
     case THUNAR_TREE_MODEL_COLUMN_NAME:
         g_value_init(value, G_TYPE_STRING);
         if (G_LIKELY(item != NULL && item->device != NULL))
-            g_value_take_string(value, thunar_device_get_name(item->device));
+            g_value_take_string(value, th_device_get_name(item->device));
         else if (G_LIKELY(item != NULL && item->file != NULL))
             g_value_set_static_string(value, th_file_get_display_name(item->file));
         else
@@ -907,9 +907,9 @@ static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor
     thunar_assert(item->device == device);
 
     /* check if the volume is mounted and we don't have a file yet */
-    if (thunar_device_is_mounted(device) && item->file == NULL)
+    if (th_device_is_mounted(device) && item->file == NULL)
     {
-        mount_point = thunar_device_get_root(device);
+        mount_point = th_device_get_root(device);
         if (mount_point != NULL)
         {
             /* try to determine the file for the mount point */
@@ -921,7 +921,7 @@ static void thunar_tree_model_device_changed(ThunarDeviceMonitor *device_monitor
             g_object_unref(mount_point);
         }
     }
-    else if (!thunar_device_is_mounted(device) && item->file != NULL)
+    else if (!th_device_is_mounted(device) && item->file != NULL)
     {
         /* reset the item for the node */
         thunar_tree_model_item_reset(item);
@@ -991,7 +991,7 @@ static void thunar_tree_model_device_added(ThunarDeviceMonitor *device_monitor,
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     /* check if the new node should be inserted after "File System" or "Network" */
-    if (model->network && thunar_device_get_kind(device) == THUNAR_DEVICE_KIND_MOUNT_REMOTE)
+    if (model->network && th_device_get_kind(device) == THUNAR_DEVICE_KIND_MOUNT_REMOTE)
         node = model->network;
     else
         node = model->file_system;
@@ -1008,7 +1008,7 @@ static void thunar_tree_model_device_added(ThunarDeviceMonitor *device_monitor,
             break;
 
         /* sort devices by timestamp */
-        if (thunar_device_sort(item->device, device) > 0)
+        if (th_device_sort(item->device, device) > 0)
             break;
     }
 
@@ -1079,9 +1079,9 @@ static ThunarTreeModelItem* thunar_tree_model_item_new_with_device(
     item->model = model;
 
     /* check if the volume is mounted */
-    if (thunar_device_is_mounted(device))
+    if (th_device_is_mounted(device))
     {
-        mount_point = thunar_device_get_root(device);
+        mount_point = th_device_get_root(device);
         if (G_LIKELY(mount_point != NULL))
         {
             /* try to determine the file for the mount point */
@@ -1310,9 +1310,9 @@ static gboolean thunar_tree_model_item_load_idle(gpointer user_data)
     THUNAR_THREADS_ENTER
 
     /* check if we don't have a file yet and this is a mounted volume */
-    if (item->file == NULL && item->device != NULL && thunar_device_is_mounted(item->device))
+    if (item->file == NULL && item->device != NULL && th_device_is_mounted(item->device))
     {
-        mount_point = thunar_device_get_root(item->device);
+        mount_point = th_device_get_root(item->device);
         if (G_LIKELY(mount_point != NULL))
         {
             /* try to determine the file for the mount point */

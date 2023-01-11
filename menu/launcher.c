@@ -1109,7 +1109,7 @@ static void thunar_launcher_poke_device_finish(ThunarBrowser *browser,
 
     if (error != NULL)
     {
-        device_name = thunar_device_get_name(volume);
+        device_name = th_device_get_name(volume);
         dialog_error(GTK_WIDGET(THUNAR_LAUNCHER(browser)->widget), error, _("Failed to mount \"%s\""), device_name);
         g_free(device_name);
     }
@@ -1657,7 +1657,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case LAUNCHER_ACTION_MOUNT:
         if (launcher->device_to_process == NULL
-            || thunar_device_is_mounted(launcher->device_to_process) == TRUE)
+            || th_device_is_mounted(launcher->device_to_process) == TRUE)
             return NULL;
         return xfce_gtk_menu_item_new_from_action_entry(action_entry,
                                                         G_OBJECT(launcher),
@@ -1665,7 +1665,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case LAUNCHER_ACTION_UNMOUNT:
         if (launcher->device_to_process == NULL
-            || thunar_device_is_mounted(launcher->device_to_process) == FALSE)
+            || th_device_is_mounted(launcher->device_to_process) == FALSE)
             return NULL;
         return xfce_gtk_menu_item_new_from_action_entry(action_entry,
                                                         G_OBJECT(launcher),
@@ -1673,12 +1673,12 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case LAUNCHER_ACTION_EJECT:
         if (launcher->device_to_process == NULL
-            || thunar_device_get_kind(launcher->device_to_process) != THUNAR_DEVICE_KIND_VOLUME)
+            || th_device_get_kind(launcher->device_to_process) != THUNAR_DEVICE_KIND_VOLUME)
             return NULL;
         item = xfce_gtk_menu_item_new_from_action_entry(action_entry,
                                                         G_OBJECT(launcher),
                                                         GTK_MENU_SHELL(menu));
-        gtk_widget_set_sensitive(item, thunar_device_can_eject(launcher->device_to_process));
+        gtk_widget_set_sensitive(item, th_device_can_eject(launcher->device_to_process));
         return item;
 
     default:
@@ -2250,7 +2250,7 @@ static void thunar_launcher_action_eject_finish(ThunarDevice  *device,
     if (error != NULL)
     {
         /* display an error dialog to inform the user */
-        device_name = thunar_device_get_name(device);
+        device_name = th_device_get_name(device);
         dialog_error(GTK_WIDGET(launcher->widget), error, _("Failed to eject \"%s\""), device_name);
         g_free(device_name);
     }
@@ -2273,7 +2273,7 @@ void launcher_action_eject(ThunarLauncher *launcher)
         mount_operation = thunar_gtk_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         /* eject */
-        thunar_device_eject(launcher->device_to_process,
+        th_device_eject(launcher->device_to_process,
                              mount_operation,
                              NULL,
                              thunar_launcher_action_eject_finish,
@@ -2297,7 +2297,7 @@ static void thunar_launcher_action_unmount_finish(ThunarDevice *device,
     if (error != NULL)
     {
         /* display an error dialog to inform the user */
-        device_name = thunar_device_get_name(device);
+        device_name = th_device_get_name(device);
         dialog_error(GTK_WIDGET(launcher->widget), error, _("Failed to unmount \"%s\""), device_name);
         g_free(device_name);
     }
@@ -2319,7 +2319,7 @@ void launcher_action_unmount(ThunarLauncher *launcher)
         mount_operation = thunar_gtk_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         /* eject */
-        thunar_device_unmount(launcher->device_to_process,
+        th_device_unmount(launcher->device_to_process,
                                mount_operation,
                                NULL,
                                thunar_launcher_action_unmount_finish,

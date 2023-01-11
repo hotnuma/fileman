@@ -216,7 +216,7 @@ static void thunar_shortcuts_icon_renderer_render(GtkCellRenderer     *renderer,
         if (shortcuts_icon_renderer->gicon != NULL)
             gicon = g_object_ref(shortcuts_icon_renderer->gicon);
         else
-            gicon = thunar_device_get_icon(shortcuts_icon_renderer->device);
+            gicon = th_device_get_icon(shortcuts_icon_renderer->device);
 
         icon_info = gtk_icon_theme_lookup_by_gicon(icon_theme, gicon, cell_area->width,
                     GTK_ICON_LOOKUP_USE_BUILTIN |
@@ -252,7 +252,7 @@ static void thunar_shortcuts_icon_renderer_render(GtkCellRenderer     *renderer,
 
             /* 50% translucent for unmounted volumes */
             if (shortcuts_icon_renderer->device != NULL
-                    && !thunar_device_is_mounted(shortcuts_icon_renderer->device))
+                    && !th_device_is_mounted(shortcuts_icon_renderer->device))
                 alpha = 0.50;
             else
                 alpha = 1.00;

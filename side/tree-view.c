@@ -675,7 +675,7 @@ static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
                                     THUNAR_TREE_MODEL_COLUMN_FILE, &file,
                                     THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
 
-            if ((device != NULL && thunar_device_is_mounted(device)) ||
+            if ((device != NULL && th_device_is_mounted(device)) ||
                    (file != NULL && th_file_is_mounted(file)))
             {
                 view->pressed_button = event->button;
@@ -784,7 +784,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
                                         THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
 
                 if (device != NULL)
-                    if (thunar_device_is_mounted(device) && thunar_device_can_unmount(device))
+                    if (th_device_is_mounted(device) && th_device_can_unmount(device))
                     {
                         /* mark this path for selection after unmounting */
                         view->select_path = gtk_tree_path_copy(path);
@@ -805,7 +805,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
         if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
             gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter,
                                 THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
-        if (device != NULL && thunar_device_is_mounted(device) == FALSE)
+        if (device != NULL && th_device_is_mounted(device) == FALSE)
         {
             g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
             g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
@@ -899,7 +899,7 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
     g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
 
-    gboolean file_is_available = (device == NULL || thunar_device_is_mounted(device));
+    gboolean file_is_available = (device == NULL || th_device_is_mounted(device));
 
     if (file_is_available)
     {
@@ -960,7 +960,7 @@ static void thunar_tree_view_context_menu(ThunarTreeView *view,
 
         menu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
 
-        if (thunar_device_is_mounted(device))
+        if (th_device_is_mounted(device))
             menu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
 
@@ -991,7 +991,7 @@ static void thunar_tree_view_action_open(ThunarTreeView *view)
 
     if (device != NULL)
     {
-        if (thunar_device_is_mounted(device))
+        if (th_device_is_mounted(device))
             thunar_tree_view_open_selection(view);
         else
         {
@@ -1074,7 +1074,7 @@ static gboolean thunar_tree_view_test_expand_row(GtkTreeView *tree_view,
     if (G_UNLIKELY(device != NULL))
     {
         /* check if we need to mount the device first */
-        if (!thunar_device_is_mounted(device))
+        if (!th_device_is_mounted(device))
         {
             /* we need to mount the device before we can expand the row */
             expandable = FALSE;

@@ -1638,10 +1638,10 @@ static void thunar_window_device_changed(ThunarDeviceMonitor *device_monitor,
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
-    if (thunar_device_is_mounted(device))
+    if (th_device_is_mounted(device))
         return;
 
-    root_file = thunar_device_get_root(device);
+    root_file = th_device_get_root(device);
     if (root_file != NULL)
     {
         thunar_window_device_pre_unmount(device_monitor, device, root_file, window);

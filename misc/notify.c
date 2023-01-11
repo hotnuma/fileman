@@ -63,7 +63,7 @@ static void _thunar_notify_show(ThunarDevice *device,
     const gchar* const *icon_names;
 
     /* get suitable icon for the device */
-    icon = thunar_device_get_icon(device);
+    icon = th_device_get_icon(device);
     if (icon != NULL)
     {
         if (G_IS_THEMED_ICON(icon))
@@ -112,7 +112,7 @@ static gboolean _thunar_notify_device_readonly(ThunarDevice *device)
     gboolean   readonly = TRUE;
     GFileInfo *info;
 
-    mount_point = thunar_device_get_root(device);
+    mount_point = th_device_get_root(device);
     if (mount_point != NULL)
     {
         info = g_file_query_info(mount_point, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
@@ -145,7 +145,7 @@ void thunar_notify_unmount(ThunarDevice *device)
     if (!_thunar_notify_init())
         return;
 
-    name = thunar_device_get_name(device);
+    name = th_device_get_name(device);
 
     if (_thunar_notify_device_readonly(device))
     {
@@ -184,7 +184,7 @@ void thunar_notify_eject(ThunarDevice *device)
     if (!_thunar_notify_init())
         return;
 
-    name = thunar_device_get_name(device);
+    name = th_device_get_name(device);
 
     if (_thunar_notify_device_readonly(device))
     {

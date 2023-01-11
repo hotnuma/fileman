@@ -85,10 +85,10 @@ struct _ThunarFolderClass
     GObjectClass __parent__;
 
     /* signals */
-    void (*destroy)         (ThunarFolder *folder);
-    void (*error)           (ThunarFolder *folder, const GError *error);
-    void (*files_added)     (ThunarFolder *folder, GList *files);
-    void (*files_removed)   (ThunarFolder *folder, GList *files);
+    void (*destroy)       (ThunarFolder *folder);
+    void (*error)         (ThunarFolder *folder, const GError *error);
+    void (*files_added)   (ThunarFolder *folder, GList *files);
+    void (*files_removed) (ThunarFolder *folder, GList *files);
 };
 
 struct _ThunarFolder

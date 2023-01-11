@@ -40,13 +40,13 @@ typedef struct _ThunarFolder      ThunarFolder;
 
 GType th_folder_get_type() G_GNUC_CONST;
 
-ThunarFolder* th_folder_get_for_file(ThunarFile *file);
-ThunarFile* th_folder_get_corresponding_file(const ThunarFolder *folder);
-GList* th_folder_get_files(const ThunarFolder *folder);
-gboolean th_folder_get_loading(const ThunarFolder *folder);
-gboolean th_folder_has_folder_monitor(const ThunarFolder *folder);
+ThunarFolder*   th_folder_get_for_file(ThunarFile *file);
+ThunarFile*     th_folder_get_corresponding_file(const ThunarFolder *folder);
+GList*          th_folder_get_files(const ThunarFolder *folder);
+gboolean        th_folder_get_loading(const ThunarFolder *folder);
+gboolean        th_folder_has_folder_monitor(const ThunarFolder *folder);
 
-void th_folder_reload(ThunarFolder *folder, gboolean reload_info);
+void            th_folder_reload(ThunarFolder *folder, gboolean reload_info);
 
 G_END_DECLS
 
