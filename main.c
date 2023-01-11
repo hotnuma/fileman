@@ -18,34 +18,23 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#include <application.h>
+
+#include <gobject-ext.h>
+#include <notify.h>
 
 #include <stdio.h>
-#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
-
 #include <glib/gstdio.h>
-#ifdef HAVE_GIO_UNIX
 #include <gio/gdesktopappinfo.h>
-#endif
 
 #ifdef ENABLE_LIBSM
 #include <thunar-session-client.h>
 #endif
 
-#include <application.h>
-#include <gobject-ext.h>
-#include <notify.h>
-
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-    Application   *application;
-    //GError              *error = NULL;
-
     /* setup translation domain */
 #ifdef ENABLE_GETTEXT
     xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
@@ -55,29 +44,14 @@ main(int argc, char **argv)
     g_set_application_name(_("Fileman"));
 
 #ifdef G_ENABLE_DEBUG
-    /* Do NOT remove this line for now, If something doesn't work,
-     * fix your code instead!
-     */
     g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
 #endif
 
-
-    /* initialize xfconf */
-//    if (!xfconf_init(&error))
-//    {
-//        g_printerr(PACKAGE_NAME ": Failed to initialize Xfconf: %s\n\n", error->message);
-//        g_clear_error(&error);
-
-//        /* disable get/set properties */
-//        thunar_preferences_xfconf_init_failed();
-//    }
-
-
     /* register additional transformation functions */
-    thunar_g_initialize_transformations();
+    eg_initialize_transformations();
 
     /* acquire a reference on the global application */
-    application = application_get();
+    Application *application = application_get();
 
     /* use the Thunar icon as default for new windows */
     gtk_window_set_default_icon_name("Thunar");
@@ -89,7 +63,7 @@ main(int argc, char **argv)
     g_object_unref(G_OBJECT(application));
 
 #ifdef HAVE_LIBNOTIFY
-    thunar_notify_uninit();
+    notify_uninit();
 #endif
 
     return EXIT_SUCCESS;

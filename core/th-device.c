@@ -527,7 +527,7 @@ static void _th_device_operation_finish(GObject *object, GAsyncResult *result,
     thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
 
     /* remove notification */
-    thunar_notify_finish(op->device);
+    notify_finish(op->device);
 
     /* finish the operation */
     if (!(op->callback_finish)(object, result, &error))
@@ -587,7 +587,7 @@ void th_device_unmount(ThunarDevice         *device,
         if (g_mount_can_unmount(mount))
         {
             /* inform user */
-            thunar_notify_unmount(device);
+            notify_unmount(device);
 
             /* try unmounting the mount */
             _th_device_emit_pre_unmount(device, FALSE);
@@ -655,7 +655,7 @@ void th_device_eject(ThunarDevice         *device,
             if (g_drive_can_stop(drive))
             {
                 /* inform user */
-                thunar_notify_eject(device);
+                notify_eject(device);
 
                 /* try to stop the drive */
                 _th_device_emit_pre_unmount(device, TRUE);
@@ -676,7 +676,7 @@ void th_device_eject(ThunarDevice         *device,
             else if (g_drive_can_eject(drive))
             {
                 /* inform user */
-                thunar_notify_eject(device);
+                notify_eject(device);
 
                 /* try to stop the drive */
                 _th_device_emit_pre_unmount(device, TRUE);
@@ -701,7 +701,7 @@ void th_device_eject(ThunarDevice         *device,
         if (g_volume_can_eject(volume))
         {
             /* inform user */
-            thunar_notify_eject(device);
+            notify_eject(device);
 
             /* try ejecting the volume */
             _th_device_emit_pre_unmount(device, TRUE);
@@ -736,7 +736,7 @@ void th_device_eject(ThunarDevice         *device,
         if (g_mount_can_eject(mount))
         {
             /* inform user */
-            thunar_notify_eject(device);
+            notify_eject(device);
 
             /* try ejecting the mount */
             _th_device_emit_pre_unmount(device, FALSE);
@@ -752,7 +752,7 @@ void th_device_eject(ThunarDevice         *device,
         else if (g_mount_can_unmount(mount))
         {
             /* inform user */
-            thunar_notify_unmount(device);
+            notify_unmount(device);
 
             /* try unmounting the mount */
             _th_device_emit_pre_unmount(device, FALSE);

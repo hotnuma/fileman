@@ -18,12 +18,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_GOBJECT_EXTENSIONS_H__
-#define __THUNAR_GOBJECT_EXTENSIONS_H__
+#ifndef __GOBJECT_EXTENSIONS_H__
+#define __GOBJECT_EXTENSIONS_H__
 
 #include <glib-object.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 /* We don't need to implement all the G_OBJECT_WARN_INVALID_PROPERTY_ID()
  * macros for regular builds, as all properties are only accessible from
@@ -36,11 +36,11 @@ G_BEGIN_DECLS;
 #define G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec) G_STMT_START{ (void)0; }G_STMT_END
 #endif
 
-void thunar_g_initialize_transformations();
-gchar* thunar_g_strescape(const gchar *source);
+void    eg_initialize_transformations();
+gchar*  eg_strescape(const gchar *source);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_GOBJECT_EXTENSIONS_H__ */
+#endif // __GOBJECT_EXTENSIONS_H__
 
 

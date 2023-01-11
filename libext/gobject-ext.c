@@ -85,7 +85,7 @@ static void transform_string_to_uint(const GValue *src, GValue *dst)
  * GLib Type System, which are used by g_value_transform()
  * to transform between different kinds of values.
  **/
-void thunar_g_initialize_transformations()
+void eg_initialize_transformations()
 {
     if (!g_value_type_transformable(G_TYPE_STRING, G_TYPE_BOOLEAN))
         g_value_register_transform_func(G_TYPE_STRING, G_TYPE_BOOLEAN, transform_string_to_boolean);
@@ -110,7 +110,7 @@ void thunar_g_initialize_transformations()
  *
  * Return value: (transfer full): The new string. Has to be freed with g_free after usage.
  **/
-gchar* thunar_g_strescape(const gchar *source)
+gchar* eg_strescape(const gchar *source)
 {
     gchar*       g_escaped;
     gchar*       result;

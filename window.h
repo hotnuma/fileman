@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_WINDOW_H__
-#define __THUNAR_WINDOW_H__
+#ifndef __WINDOW_H__
+#define __WINDOW_H__
 
 #include <enum-types.h>
 #include <th-folder.h>
@@ -25,7 +25,7 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarWindowClass ThunarWindowClass;
 typedef struct _ThunarWindow      ThunarWindow;
@@ -89,8 +89,8 @@ const XfceGtkActionEntry* thunar_window_get_action_entry(ThunarWindow *window,
 
 GtkWidget* thunar_window_get_focused_tree_view(ThunarWindow *window);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_WINDOW_H__ */
+#endif // __WINDOW_H__
 
 

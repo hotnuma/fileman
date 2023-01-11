@@ -1,9 +1,10 @@
-#include "preferences.h"
-#include "config.h"
-#include "cinifile.h"
+#include <config.h>
+#include <preferences.h>
 
-#include <libpath.h>
 #include <cfile.h>
+#include <cinifile.h>
+#include <libpath.h>
+
 #include <glib.h>
 
 static Preferences _prefs;

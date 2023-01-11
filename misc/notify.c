@@ -132,7 +132,7 @@ static gboolean _thunar_notify_device_readonly(ThunarDevice *device)
 }
 #endif
 
-void thunar_notify_unmount(ThunarDevice *device)
+void notify_unmount(ThunarDevice *device)
 {
 #ifdef HAVE_LIBNOTIFY
 
@@ -171,7 +171,7 @@ void thunar_notify_unmount(ThunarDevice *device)
 #endif
 }
 
-void thunar_notify_eject(ThunarDevice *device)
+void notify_eject(ThunarDevice *device)
 {
 #ifdef HAVE_LIBNOTIFY
 
@@ -209,7 +209,7 @@ void thunar_notify_eject(ThunarDevice *device)
 #endif
 }
 
-void thunar_notify_finish(ThunarDevice *device)
+void notify_finish(ThunarDevice *device)
 {
 #ifdef HAVE_LIBNOTIFY
 
@@ -230,7 +230,7 @@ void thunar_notify_finish(ThunarDevice *device)
 #endif
 }
 
-void thunar_notify_uninit(void)
+void notify_uninit(void)
 {
 #ifdef HAVE_LIBNOTIFY
 

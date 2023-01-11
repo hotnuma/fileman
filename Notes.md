@@ -11,6 +11,12 @@ core/th-folder
 
 
 
+application
+main
+preferences
+
+
+
 #### Biggest files
 
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
