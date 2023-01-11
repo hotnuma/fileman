@@ -204,7 +204,7 @@ GList*          th_file_list_to_thunar_g_file_list(GList *file_list);
 // by derived classes whenever they notice changes to the @file.
 #define th_file_changed(file)                         \
 G_STMT_START{                                             \
-    thunarx_file_info_changed(FILE_INFO((file))); \
+    fileinfo_changed(FILE_INFO((file))); \
 }G_STMT_END
 
 G_END_DECLS

@@ -1,6 +1,18 @@
 
 #if 0
 
+GList* thunarx_file_info_list_copy(GList *file_infos)
+{
+    return g_list_copy_deep(file_infos,(GCopyFunc)(void(*)(void)) g_object_ref, NULL);
+}
+
+void thunarx_file_info_list_free(GList *file_infos)
+{
+    g_list_free_full(file_infos, g_object_unref);
+}
+
+// ----------------------------------------------------------------------------
+
 GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
                                   GError **error);
 /*

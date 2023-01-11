@@ -31,7 +31,7 @@ enum
     LAST_SIGNAL,
 };
 
-static guint _fi_signals[LAST_SIGNAL];
+static guint _fileinfo_signals[LAST_SIGNAL];
 
 GType fileinfo_get_type()
 {
@@ -56,7 +56,7 @@ GType fileinfo_get_type()
          * information(i.e. in a #ThunarxPropertyPage), and update
          * it's user interface whenever a change is noticed on @file_info.
          */
-        _fi_signals[CHANGED] =
+        _fileinfo_signals[CHANGED] =
             g_signal_new(I_("changed"),
                           type,
                           G_SIGNAL_RUN_FIRST,
@@ -70,7 +70,7 @@ GType fileinfo_get_type()
          * signal to reregister it's VFS directory monitor, after
          * the corresponding file was renamed.
          */
-        _fi_signals[RENAMED] =
+        _fileinfo_signals[RENAMED] =
             g_signal_new(I_("renamed"),
                           type,
                           G_SIGNAL_RUN_FIRST,
@@ -85,14 +85,14 @@ GType fileinfo_get_type()
     return type__volatile;
 }
 
-gchar* thunarx_file_info_get_name(FileInfo *file_info)
+gchar* fileinfo_get_name(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
     return FILE_INFO_GET_IFACE(file_info)->get_name(file_info);
 }
 
-gchar* thunarx_file_info_get_uri(FileInfo *file_info)
+gchar* fileinfo_get_uri(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
@@ -105,21 +105,21 @@ gchar* thunarx_file_info_get_uri(FileInfo *file_info)
  * URI of @file_info. For example, the
  * parent of "file:///" is "computer:///".
  */
-gchar* thunarx_file_info_get_parent_uri(FileInfo *file_info)
+gchar* fileinfo_get_parent_uri(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
     return FILE_INFO_GET_IFACE(file_info)->get_parent_uri(file_info);
 }
 
-gchar* thunarx_file_info_get_uri_scheme(FileInfo *file_info)
+gchar* fileinfo_get_uri_scheme(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
     return FILE_INFO_GET_IFACE(file_info)->get_uri_scheme(file_info);
 }
 
-gchar* thunarx_file_info_get_mime_type(FileInfo *file_info)
+gchar* fileinfo_get_mime_type(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
@@ -154,7 +154,7 @@ gchar* thunarx_file_info_get_mime_type(FileInfo *file_info)
  * Return value: %TRUE if @mime_type is valid for @file_info,
  *               else %FALSE.
  **/
-gboolean thunarx_file_info_has_mime_type(FileInfo *file_info,
+gboolean fileinfo_has_mime_type(FileInfo *file_info,
                                          const gchar     *mime_type)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), FALSE);
@@ -173,7 +173,7 @@ gboolean thunarx_file_info_has_mime_type(FileInfo *file_info,
  *
  * Return value: %TRUE if @file_info is a directory.
  **/
-gboolean thunarx_file_info_is_directory(FileInfo *file_info)
+gboolean fileinfo_is_directory(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), FALSE);
 
@@ -195,7 +195,7 @@ gboolean thunarx_file_info_is_directory(FileInfo *file_info)
  * Returns:(transfer full): the #GFileInfo object associated with @file_info,
  *          which MUST be freed using g_object_unref().
  **/
-GFileInfo* thunarx_file_info_get_file_info(FileInfo *file_info)
+GFileInfo* fileinfo_get_file_info(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
@@ -217,7 +217,7 @@ GFileInfo* thunarx_file_info_get_file_info(FileInfo *file_info)
  *          filesystem of @file_info or %NULL if no filesystem information is
  *          available. It MUST be released using g_object_unref().
  **/
-GFileInfo* thunarx_file_info_get_filesystem_info(FileInfo *file_info)
+GFileInfo* fileinfo_get_filesystem_info(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
     return FILE_INFO_GET_IFACE(file_info)->get_filesystem_info(file_info);
@@ -237,7 +237,7 @@ GFileInfo* thunarx_file_info_get_filesystem_info(FileInfo *file_info)
  * Returns:(transfer full): the #GFile to which @file_info points. It MUST be
  *          released using g_object_unref().
  **/
-GFile* thunarx_file_info_get_location(FileInfo *file_info)
+GFile* fileinfo_get_location(FileInfo *file_info)
 {
     g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
 
@@ -255,11 +255,11 @@ GFile* thunarx_file_info_get_location(FileInfo *file_info)
  * will use this method to emit ::changed whenever it notices a
  * change on @file_info.
  **/
-void thunarx_file_info_changed(FileInfo *file_info)
+void fileinfo_changed(FileInfo *file_info)
 {
     g_return_if_fail(IS_FILE_INFO(file_info));
 
-    g_signal_emit(G_OBJECT(file_info), _fi_signals[CHANGED], 0);
+    g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[CHANGED], 0);
 }
 
 
@@ -276,15 +276,13 @@ void thunarx_file_info_changed(FileInfo *file_info)
  * and update it's internal state and it's user interface
  * after the file manager renamed a file.
  **/
-void thunarx_file_info_renamed(FileInfo *file_info)
+void fileinfo_renamed(FileInfo *file_info)
 {
     g_return_if_fail(IS_FILE_INFO(file_info));
-    g_signal_emit(G_OBJECT(file_info), _fi_signals[RENAMED], 0);
+    g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[RENAMED], 0);
 }
 
-
-
-GType thunarx_file_info_list_get_type()
+GType fileinfo_list_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
@@ -297,18 +295,5 @@ GType thunarx_file_info_list_get_type()
 
     return type;
 }
-
-#if 0
-GList* thunarx_file_info_list_copy(GList *file_infos)
-{
-    return g_list_copy_deep(file_infos,(GCopyFunc)(void(*)(void)) g_object_ref, NULL);
-}
-
-void thunarx_file_info_list_free(GList *file_infos)
-{
-    g_list_free_full(file_infos, g_object_unref);
-}
-
-#endif
 
 
