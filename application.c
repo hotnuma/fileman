@@ -692,13 +692,13 @@ static void thunar_application_launch_finished(ThunarJob  *job,
         {
             if (th_file_is_directory(file))
             {
-                folder = thunar_folder_get_for_file(file);
+                folder = th_folder_get_for_file(file);
                 if (folder != NULL)
                 {
                     /* If the folder is connected to a folder monitor, we dont need to trigger the reload manually */
-                    if (!thunar_folder_has_folder_monitor(folder))
+                    if (!th_folder_has_folder_monitor(folder))
                     {
-                        thunar_folder_reload(folder, FALSE);
+                        th_folder_reload(folder, FALSE);
                     }
                     g_object_unref(folder);
                 }

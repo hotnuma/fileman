@@ -687,10 +687,10 @@ static void thunar_window_select_files(ThunarWindow *window,
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* If possible, reload the current directory to make sure new files got added to the view */
-    thunar_folder = thunar_folder_get_for_file(window->current_directory);
+    thunar_folder = th_folder_get_for_file(window->current_directory);
     if (thunar_folder != NULL)
     {
-        thunar_folder_reload(thunar_folder, FALSE);
+        th_folder_reload(thunar_folder, FALSE);
         g_object_unref(thunar_folder);
     }
 

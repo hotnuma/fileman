@@ -1174,7 +1174,7 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
     g_object_set(G_OBJECT(gtk_bin_get_child(GTK_BIN(standard_view))), "model", NULL, NULL);
 
     /* open the new directory as folder */
-    folder = thunar_folder_get_for_file(current_directory);
+    folder = th_folder_get_for_file(current_directory);
 
     standard_view->loading_binding =
         g_object_bind_property_full(folder,
@@ -1631,10 +1631,10 @@ static void standard_view_reload(ThunarView *view, gboolean reload_info)
 
     if (G_LIKELY(folder != NULL))
     {
-        file = thunar_folder_get_corresponding_file(folder);
+        file = th_folder_get_corresponding_file(folder);
 
         if (th_file_exists(file))
-            thunar_folder_reload(folder, reload_info);
+            th_folder_reload(folder, reload_info);
         else
             _standard_view_current_directory_destroy(file, standard_view);
     }
@@ -2895,8 +2895,8 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                     if (th_file_is_directory(file))
                     {
                         /* reload the folder corresponding to the file */
-                        folder = thunar_folder_get_for_file(file);
-                        thunar_folder_reload(folder, FALSE);
+                        folder = th_folder_get_for_file(file);
+                        th_folder_reload(folder, FALSE);
                         g_object_unref(G_OBJECT(folder));
                     }
 

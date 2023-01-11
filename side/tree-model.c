@@ -1274,7 +1274,7 @@ static void thunar_tree_model_item_notify_loading(ThunarTreeModelItem *item,
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(item->model));
 
     /* be sure to drop the dummy child node once the folder is loaded */
-    if (G_LIKELY(!thunar_folder_get_loading(folder)))
+    if (G_LIKELY(!th_folder_get_loading(folder)))
     {
         /* lookup the node for the item... */
         node = g_node_find(item->model->root, G_POST_ORDER, G_TRAVERSE_ALL, item);
@@ -1325,7 +1325,7 @@ static gboolean thunar_tree_model_item_load_idle(gpointer user_data)
     if (G_LIKELY(item->file != NULL))
     {
         /* open the folder for the item */
-        item->folder = thunar_folder_get_for_file(item->file);
+        item->folder = th_folder_get_for_file(item->file);
         if (G_LIKELY(item->folder != NULL))
         {
             /* connect signals */
@@ -1334,12 +1334,12 @@ static gboolean thunar_tree_model_item_load_idle(gpointer user_data)
             g_signal_connect_swapped(G_OBJECT(item->folder), "notify::loading", G_CALLBACK(thunar_tree_model_item_notify_loading), item);
 
             /* load the initial set of files(if any) */
-            files = thunar_folder_get_files(item->folder);
+            files = th_folder_get_files(item->folder);
             if (G_UNLIKELY(files != NULL))
                 thunar_tree_model_item_files_added(item, files, item->folder);
 
             /* notify for "loading" if already loaded */
-            if (!thunar_folder_get_loading(item->folder))
+            if (!th_folder_get_loading(item->folder))
                 g_object_notify(G_OBJECT(item->folder), "loading");
         }
     }

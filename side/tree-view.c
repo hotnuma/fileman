@@ -1401,8 +1401,8 @@ static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
         file = THUNAR_FILE(lp->data);
 
         /* 3. Check if the contents of the corresponding folder is still being loaded */
-        folder = thunar_folder_get_for_file(file);
-        if (folder != NULL && thunar_folder_get_loading(folder))
+        folder = th_folder_get_for_file(file);
+        if (folder != NULL && th_folder_get_loading(folder))
         {
             g_object_unref(folder);
             break;

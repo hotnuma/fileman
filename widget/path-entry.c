@@ -554,7 +554,7 @@ static void thunar_path_entry_changed(GtkEditable *editable)
 
         /* try to open the current-folder file as folder */
         if (current_folder != NULL && th_file_is_directory(current_folder))
-            folder = thunar_folder_get_for_file(current_folder);
+            folder = th_folder_get_for_file(current_folder);
         else
             folder = NULL;
 

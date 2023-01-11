@@ -1730,7 +1730,7 @@ void list_model_set_folder(ThunarListModel *store,
         g_object_ref(G_OBJECT(folder));
 
         /* get the already loaded files */
-        files = thunar_folder_get_files(folder);
+        files = th_folder_get_files(folder);
 
         /* insert the files */
         if (files != NULL)
@@ -2123,7 +2123,7 @@ gchar* list_model_get_statusbar_text(ThunarListModel *store,
         }
 
         /* try to determine a file for the current folder */
-        file =(store->folder != NULL) ? thunar_folder_get_corresponding_file(store->folder) : NULL;
+        file =(store->folder != NULL) ? th_folder_get_corresponding_file(store->folder) : NULL;
 
         /* check if we can determine the amount of free space for the volume */
         if (G_LIKELY(file != NULL
