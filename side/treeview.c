@@ -288,7 +288,7 @@ static void treeview_init(TreeView *view)
     /* Create a tree model for this tree view */
     view->model = g_object_new(TYPE_TREEMODEL, NULL);
 
-    thunar_tree_model_set_visible_func(view->model, _treeview_visible_func, view);
+    treemodel_set_visible_func(view->model, _treeview_visible_func, view);
     gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(view->model));
 
     /* configure the tree view */
@@ -528,7 +528,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
                 if (th_file_is_hidden(file))
                 {
                     /* update the filter */
-                    thunar_tree_model_refilter(view->model);
+                    treemodel_refilter(view->model);
 
                     /* release the file */
                     g_object_unref(G_OBJECT(file));
@@ -551,7 +551,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
 
     /* refilter the model if necessary */
     if (needs_refiltering)
-        thunar_tree_model_refilter(view->model);
+        treemodel_refilter(view->model);
 
     /* notify listeners */
     g_object_notify(G_OBJECT(view), "current-directory");
@@ -583,7 +583,7 @@ static void _treeview_set_show_hidden(TreeView *view,
         view->show_hidden = show_hidden;
 
         /* update the model */
-        thunar_tree_model_refilter(view->model);
+        treemodel_refilter(view->model);
 
         /* notify listeners */
         g_object_notify(G_OBJECT(view), "show-hidden");
@@ -1093,7 +1093,7 @@ static void treeview_row_collapsed(GtkTreeView *tree_view,
     UNUSED(path);
 
     /* schedule a cleanup of the tree model */
-    thunar_tree_model_cleanup(TREEVIEW(tree_view)->model);
+    treemodel_cleanup(TREEVIEW(tree_view)->model);
 }
 
 
@@ -1441,7 +1441,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
                 if (!g_file_info_get_attribute_boolean(file_info, G_FILE_ATTRIBUTE_ACCESS_CAN_READ))
                 {
                     /* We KNOW that there is a File. Lets just create the required tree-node */
-                    thunar_tree_model_add_child(view->model, iter.user_data,  THUNAR_FILE(lp->next->data));
+                    treemodel_add_child(view->model, iter.user_data,  THUNAR_FILE(lp->next->data));
                 }
             }
             break; /* we dont have a valid child_iter by now, so we cannot continue.                         */

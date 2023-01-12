@@ -14,9 +14,9 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 97137	./menu/launcher.c
 75604	./view/list-model.c
 74250	./window.c
-72503	./side/tree-view.c
+72503	./side/treeview.c
 70502	./application.c
-65623	./side/tree-model.c
+65623	./side/treemodel.c
 62578	./job/transfer-job.c
 53843	./dialog/permissions.c
 52050	./dialog/properties-dlg.c

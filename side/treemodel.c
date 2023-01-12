@@ -18,25 +18,25 @@
  */
 
 #include <config.h>
-#include <memory.h>
-#include <string.h>
+#include <treemodel.h>
 
 #include <libext.h>
-
 #include <filemon.h>
 #include <th-folder.h>
 #include <gio-ext.h>
 #include <pango-ext.h>
-#include <treemodel.h>
 #include <devmon.h>
 #include <utils.h>
 
+#include <memory.h>
+#include <string.h>
+
 /* convenience macros */
-#define G_NODE(node) ((GNode *)(node))
-#define TREEMODEL_ITEM(item) ((TreeModelItem *)(item))
+#define G_NODE(node)           ((GNode *)(node))
+#define TREEMODEL_ITEM(item)   ((TreeModelItem *)(item))
 #define G_NODE_HAS_DUMMY(node) (node->children != NULL \
-                                         && node->children->data == NULL \
-                                         && node->children->next == NULL)
+                                && node->children->data == NULL \
+                                && node->children->next == NULL)
 
 /* Property identifiers */
 enum
@@ -1189,7 +1189,7 @@ static void thunar_tree_model_item_files_added(TreeModelItem *item,
             node = g_node_find(model->root, G_POST_ORDER, G_TRAVERSE_ALL, item);
         thunar_return_if_fail(node != NULL);
 
-        thunar_tree_model_add_child(model, node, file);
+        treemodel_add_child(model, node, file);
     }
 
     /* sort the folders if any new ones were added */
@@ -1679,7 +1679,7 @@ static void thunar_tree_model_set_case_sensitive(TreeModel *model,
  * The function should return %TRUE if the given row should be visible
  * and %FALSE otherwise.
  **/
-void thunar_tree_model_set_visible_func(TreeModel            *model,
+void treemodel_set_visible_func(TreeModel            *model,
                                         TreeModelVisibleFunc  func,
                                         gpointer                    data)
 {
@@ -1698,7 +1698,7 @@ void thunar_tree_model_set_visible_func(TreeModel            *model,
  * Walks all the folders in the #TreeModel and updates their
  * visibility.
  **/
-void thunar_tree_model_refilter(TreeModel *model)
+void treemodel_refilter(TreeModel *model)
 {
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
@@ -1714,7 +1714,7 @@ void thunar_tree_model_refilter(TreeModel *model)
  * Walks all the folders in the #TreeModel and release them when
  * they are unused by the treeview.
  **/
-void thunar_tree_model_cleanup(TreeModel *model)
+void treemodel_cleanup(TreeModel *model)
 {
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
@@ -1726,21 +1726,6 @@ void thunar_tree_model_cleanup(TreeModel *model)
     }
 }
 
-/**
- * thunar_tree_model_node_has_dummy:
- * @model : a #TreeModel.
- * @node : GNode to check
- *
- * Checks if node is a dummy node( if it only has a dummy item )
- *
- * Return value: %TRUE if @node has a dummy item
- **/
-gboolean thunar_tree_model_node_has_dummy(TreeModel *model,
-                                          GNode           *node)
-{
-    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
-    return G_NODE_HAS_DUMMY(node);
-}
 
 /**
  * thunar_tree_model_add_child:
@@ -1751,7 +1736,7 @@ gboolean thunar_tree_model_node_has_dummy(TreeModel *model,
  * Creates a new #TreeModelItem as a child of @node and stores a reference to the passed @file
  * Automatically creates/removes dummy items if required
  **/
-void thunar_tree_model_add_child(TreeModel *model,
+void treemodel_add_child(TreeModel *model,
                                  GNode           *node,
                                  ThunarFile      *file)
 {

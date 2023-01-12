@@ -26,9 +26,8 @@ G_BEGIN_DECLS
 typedef struct _TreeModelClass TreeModelClass;
 typedef struct _TreeModel      TreeModel;
 
-typedef gboolean (*TreeModelVisibleFunc) (TreeModel *model,
-                                                 ThunarFile      *file,
-                                                 gpointer         data);
+typedef gboolean (*TreeModelVisibleFunc) (TreeModel *model, ThunarFile *file,
+                                          gpointer data);
 
 #define TYPE_TREEMODEL (treemodel_get_type ())
 #define TREEMODEL(obj) \
@@ -64,17 +63,11 @@ typedef enum
 
 GType treemodel_get_type() G_GNUC_CONST;
 
-void thunar_tree_model_set_visible_func(TreeModel *model,
-                                        TreeModelVisibleFunc func,
-                                        gpointer data);
-void thunar_tree_model_refilter(TreeModel *model);
-
-void thunar_tree_model_cleanup(TreeModel *model);
-gboolean thunar_tree_model_node_has_dummy(TreeModel *model,
-                                          GNode *node);
-void thunar_tree_model_add_child(TreeModel *model,
-                                 GNode *node,
-                                 ThunarFile *file);
+void treemodel_set_visible_func(TreeModel *model, TreeModelVisibleFunc func,
+                                gpointer data);
+void treemodel_refilter(TreeModel *model);
+void treemodel_cleanup(TreeModel *model);
+void treemodel_add_child(TreeModel *model, GNode *node, ThunarFile *file);
 
 G_END_DECLS
 

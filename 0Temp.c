@@ -1,6 +1,17 @@
 
 #if 0
 
+gboolean treemodel_node_has_dummy(TreeModel *model, GNode *node);
+
+gboolean treemodel_node_has_dummy(TreeModel *model,
+                                          GNode           *node)
+{
+    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
+    return G_NODE_HAS_DUMMY(node);
+}
+
+// ----------------------------------------------------------------------------
+
 struct _ThunarBookmark
 {
     GFile *g_file;
