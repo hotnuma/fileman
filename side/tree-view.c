@@ -58,111 +58,111 @@ enum
 };
 
 static void treeview_navigator_init(ThunarNavigatorIface *iface);
-static void thunar_tree_view_finalize(GObject *object);
-static void thunar_tree_view_get_property(GObject *object,
+static void treeview_finalize(GObject *object);
+static void treeview_get_property(GObject *object,
                                           guint prop_id,
                                           GValue *value,
                                           GParamSpec *pspec);
-static void thunar_tree_view_set_property(GObject *object,
+static void treeview_set_property(GObject *object,
                                           guint prop_id,
                                           const GValue *value,
                                           GParamSpec *pspec);
 
-static ThunarFile *thunar_tree_view_get_current_directory(ThunarNavigator *navigator);
-static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
+static ThunarFile *treeview_get_current_directory(ThunarNavigator *navigator);
+static void treeview_set_current_directory(ThunarNavigator *navigator,
                                                    ThunarFile *current_directory);
 
-static void thunar_tree_view_realize(GtkWidget *widget);
-static void thunar_tree_view_unrealize(GtkWidget *widget);
+static void treeview_realize(GtkWidget *widget);
+static void treeview_unrealize(GtkWidget *widget);
 
 
-static void thunar_tree_view_action_open(TreeView *view);
-static void thunar_tree_view_open_selection(TreeView *view);
+static void _treeview_action_open(TreeView *view);
+static void _treeview_open_selection(TreeView *view);
 
-static void thunar_tree_view_select_files(TreeView *view,
+static void _treeview_select_files(TreeView *view,
                                           GList *files_to_selected);
 
-static gboolean thunar_tree_view_button_press_event(GtkWidget *widget,
+static gboolean treeview_button_press_event(GtkWidget *widget,
                                                     GdkEventButton *event);
-static gboolean thunar_tree_view_button_release_event(GtkWidget *widget,
+static gboolean treeview_button_release_event(GtkWidget *widget,
                                                       GdkEventButton *event);
-static gboolean thunar_tree_view_key_press_event(GtkWidget *widget,
+static gboolean _treeview_key_press_event(GtkWidget *widget,
                                                  GdkEventKey *event);
 
-static void thunar_tree_view_drag_data_received(GtkWidget *widget,
+static void treeview_drag_data_received(GtkWidget *widget,
                                                 GdkDragContext *context,
                                                 gint x,
                                                 gint y,
                                                 GtkSelectionData *selection_data,
                                                 guint info,
                                                 guint time);
-static gboolean thunar_tree_view_drag_drop(GtkWidget *widget,
+static gboolean treeview_drag_drop(GtkWidget *widget,
                                            GdkDragContext *context,
                                            gint x,
                                            gint y,
                                            guint time);
-static gboolean thunar_tree_view_drag_motion(GtkWidget *widget,
+static gboolean treeview_drag_motion(GtkWidget *widget,
                                              GdkDragContext *context,
                                              gint x,
                                              gint y,
                                              guint time);
-static void thunar_tree_view_drag_leave(GtkWidget *widget,
+static void treeview_drag_leave(GtkWidget *widget,
                                         GdkDragContext *context,
                                         guint time);
 
-static gboolean thunar_tree_view_popup_menu(GtkWidget *widget);
+static gboolean treeview_popup_menu(GtkWidget *widget);
 
-static void thunar_tree_view_row_activated(GtkTreeView *tree_view,
+static void treeview_row_activated(GtkTreeView *tree_view,
                                            GtkTreePath *path,
                                            GtkTreeViewColumn *column);
-static gboolean thunar_tree_view_test_expand_row(GtkTreeView *tree_view,
+static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
                                                  GtkTreeIter *iter,
                                                  GtkTreePath *path);
-static void thunar_tree_view_row_collapsed(GtkTreeView *tree_view,
+static void treeview_row_collapsed(GtkTreeView *tree_view,
                                            GtkTreeIter *iter,
                                            GtkTreePath *path);
 
-static void thunar_tree_view_context_menu(TreeView *view,
+static void _treeview_context_menu(TreeView *view,
                                           GtkTreeModel *model,
                                           GtkTreeIter *iter);
 
-static GdkDragAction thunar_tree_view_get_dest_actions(TreeView *view,
+static GdkDragAction _treeview_get_dest_actions(TreeView *view,
                                                        GdkDragContext *context,
                                                        gint x,
                                                        gint y,
                                                        guint time,
                                                        ThunarFile **file_return);
 
-static ThunarFile *thunar_tree_view_get_selected_file(TreeView *view);
-static ThunarDevice *thunar_tree_view_get_selected_device(TreeView *view);
+static ThunarFile* _treeview_get_selected_file(TreeView *view);
+static ThunarDevice* _treeview_get_selected_device(TreeView *view);
 
-static gboolean thunar_tree_view_visible_func(ThunarTreeModel *model,
+static gboolean _treeview_visible_func(ThunarTreeModel *model,
                                               ThunarFile *file,
                                               gpointer user_data);
-static gboolean thunar_tree_view_selection_func(GtkTreeSelection *selection,
+static gboolean _treeview_selection_func(GtkTreeSelection *selection,
                                                 GtkTreeModel *model,
                                                 GtkTreePath *path,
                                                 gboolean path_currently_selected,
                                                 gpointer user_data);
 
-static gboolean thunar_tree_view_cursor_idle(gpointer user_data);
-static void thunar_tree_view_cursor_idle_destroy(gpointer user_data);
+static gboolean _treeview_cursor_idle(gpointer user_data);
+static void _treeview_cursor_idle_destroy(gpointer user_data);
 
-static gboolean thunar_tree_view_drag_scroll_timer(gpointer user_data);
-static void thunar_tree_view_drag_scroll_timer_destroy(gpointer user_data);
+static gboolean _treeview_drag_scroll_timer(gpointer user_data);
+static void _treeview_drag_scroll_timer_destroy(gpointer user_data);
 
-static gboolean thunar_tree_view_expand_timer(gpointer user_data);
-static void thunar_tree_view_expand_timer_destroy(gpointer user_data);
+static gboolean _treeview_expand_timer(gpointer user_data);
+static void _treeview_expand_timer_destroy(gpointer user_data);
 
-static gboolean thunar_tree_view_get_show_hidden(TreeView *view);
-static void thunar_tree_view_set_show_hidden(TreeView *view,
+static gboolean _treeview_get_show_hidden(TreeView *view);
+static void _treeview_set_show_hidden(TreeView *view,
                                              gboolean show_hidden);
 
-static GtkTreePath *_tree_view_get_preferred_toplevel_path(
+static GtkTreePath* _treeview_get_preferred_toplevel_path(
                                                         TreeView *view,
                                                         ThunarFile *file);
 
-static void thunar_tree_view_action_unlink_selected_folder(TreeView *view,
+static void _treeview_action_unlink_selected_folder(TreeView *view,
                                                            gboolean permanently);
 
 // Allocation -----------------------------------------------------------------
@@ -245,25 +245,25 @@ static void treeview_class_init(TreeViewClass *klass)
     GObjectClass     *gobject_class;
 
     gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_tree_view_finalize;
-    gobject_class->get_property = thunar_tree_view_get_property;
-    gobject_class->set_property = thunar_tree_view_set_property;
+    gobject_class->finalize = treeview_finalize;
+    gobject_class->get_property = treeview_get_property;
+    gobject_class->set_property = treeview_set_property;
 
     gtkwidget_class = GTK_WIDGET_CLASS(klass);
-    gtkwidget_class->realize = thunar_tree_view_realize;
-    gtkwidget_class->unrealize = thunar_tree_view_unrealize;
-    gtkwidget_class->button_press_event = thunar_tree_view_button_press_event;
-    gtkwidget_class->button_release_event = thunar_tree_view_button_release_event;
-    gtkwidget_class->drag_data_received = thunar_tree_view_drag_data_received;
-    gtkwidget_class->drag_drop = thunar_tree_view_drag_drop;
-    gtkwidget_class->drag_motion = thunar_tree_view_drag_motion;
-    gtkwidget_class->drag_leave = thunar_tree_view_drag_leave;
-    gtkwidget_class->popup_menu = thunar_tree_view_popup_menu;
+    gtkwidget_class->realize = treeview_realize;
+    gtkwidget_class->unrealize = treeview_unrealize;
+    gtkwidget_class->button_press_event = treeview_button_press_event;
+    gtkwidget_class->button_release_event = treeview_button_release_event;
+    gtkwidget_class->drag_data_received = treeview_drag_data_received;
+    gtkwidget_class->drag_drop = treeview_drag_drop;
+    gtkwidget_class->drag_motion = treeview_drag_motion;
+    gtkwidget_class->drag_leave = treeview_drag_leave;
+    gtkwidget_class->popup_menu = treeview_popup_menu;
 
     gtktree_view_class = GTK_TREE_VIEW_CLASS(klass);
-    gtktree_view_class->row_activated = thunar_tree_view_row_activated;
-    gtktree_view_class->test_expand_row = thunar_tree_view_test_expand_row;
-    gtktree_view_class->row_collapsed = thunar_tree_view_row_collapsed;
+    gtktree_view_class->row_activated = treeview_row_activated;
+    gtktree_view_class->test_expand_row = treeview_test_expand_row;
+    gtktree_view_class->row_collapsed = treeview_row_collapsed;
 
     /* Override ThunarNavigator's properties */
     g_object_class_override_property(gobject_class,
@@ -281,8 +281,8 @@ static void treeview_class_init(TreeViewClass *klass)
 
 static void treeview_navigator_init(ThunarNavigatorIface *iface)
 {
-    iface->get_current_directory = thunar_tree_view_get_current_directory;
-    iface->set_current_directory = thunar_tree_view_set_current_directory;
+    iface->get_current_directory = treeview_get_current_directory;
+    iface->set_current_directory = treeview_set_current_directory;
 }
 
 static void treeview_init(TreeView *view)
@@ -297,7 +297,7 @@ static void treeview_init(TreeView *view)
     /* Create a tree model for this tree view */
     view->model = g_object_new(THUNAR_TYPE_TREE_MODEL, NULL);
 
-    thunar_tree_model_set_visible_func(view->model, thunar_tree_view_visible_func, view);
+    thunar_tree_model_set_visible_func(view->model, _treeview_visible_func, view);
     gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(view->model));
 
     /* configure the tree view */
@@ -332,29 +332,29 @@ static void treeview_init(TreeView *view)
     /* setup the tree selection */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-    gtk_tree_selection_set_select_function(selection, thunar_tree_view_selection_func, view, NULL);
+    gtk_tree_selection_set_select_function(selection, _treeview_selection_func, view, NULL);
 
     /* custom keyboard handler for better navigation */
     g_signal_connect(GTK_WIDGET(view), "key_press_event",
-                     G_CALLBACK(thunar_tree_view_key_press_event), NULL);
+                     G_CALLBACK(_treeview_key_press_event), NULL);
 
     /* enable drop support for the tree view */
     gtk_drag_dest_set(GTK_WIDGET(view), 0, drop_targets, G_N_ELEMENTS(drop_targets),
                       GDK_ACTION_COPY | GDK_ACTION_LINK | GDK_ACTION_MOVE);
 
     view->new_files_closure = g_cclosure_new_swap(
-                                    G_CALLBACK(thunar_tree_view_select_files), view, NULL);
+                                    G_CALLBACK(_treeview_select_files), view, NULL);
     g_closure_ref(view->new_files_closure);
     g_closure_sink(view->new_files_closure);
 
     view->launcher =  g_object_new(THUNAR_TYPE_LAUNCHER, "widget", GTK_WIDGET(view),
                                    "select-files-closure", view->new_files_closure, NULL);
 
-    g_signal_connect_swapped(G_OBJECT(view->launcher), "change-directory", G_CALLBACK(thunar_tree_view_action_open), view);
+    g_signal_connect_swapped(G_OBJECT(view->launcher), "change-directory", G_CALLBACK(_treeview_action_open), view);
     g_object_bind_property(G_OBJECT(view), "current-directory", G_OBJECT(view->launcher), "current-directory", G_BINDING_SYNC_CREATE);
 }
 
-static void thunar_tree_view_finalize(GObject *object)
+static void treeview_finalize(GObject *object)
 {
     TreeView *view = TREEVIEW(object);
 
@@ -396,7 +396,7 @@ static void thunar_tree_view_finalize(GObject *object)
     G_OBJECT_CLASS(treeview_parent_class)->finalize(object);
 }
 
-static void thunar_tree_view_realize(GtkWidget *widget)
+static void treeview_realize(GtkWidget *widget)
 {
     TreeView *view = TREEVIEW(widget);
     GdkDisplay     *display;
@@ -409,7 +409,7 @@ static void thunar_tree_view_realize(GtkWidget *widget)
     view->clipboard = clipman_get_for_display(display);
 }
 
-static void thunar_tree_view_unrealize(GtkWidget *widget)
+static void treeview_unrealize(GtkWidget *widget)
 {
     TreeView *view = TREEVIEW(widget);
 
@@ -423,7 +423,7 @@ static void thunar_tree_view_unrealize(GtkWidget *widget)
 
 // Properties -----------------------------------------------------------------
 
-static void thunar_tree_view_get_property(GObject   *object,
+static void treeview_get_property(GObject   *object,
                                           guint     prop_id,
                                           GValue    *value,
                                           GParamSpec *pspec)
@@ -435,7 +435,7 @@ static void thunar_tree_view_get_property(GObject   *object,
         break;
 
     case PROP_SHOW_HIDDEN:
-        g_value_set_boolean(value, thunar_tree_view_get_show_hidden(TREEVIEW(object)));
+        g_value_set_boolean(value, _treeview_get_show_hidden(TREEVIEW(object)));
         break;
 
     default:
@@ -444,7 +444,7 @@ static void thunar_tree_view_get_property(GObject   *object,
     }
 }
 
-static void thunar_tree_view_set_property(GObject       *object,
+static void treeview_set_property(GObject       *object,
                                           guint         prop_id,
                                           const GValue  *value,
                                           GParamSpec    *pspec)
@@ -456,7 +456,7 @@ static void thunar_tree_view_set_property(GObject       *object,
         break;
 
     case PROP_SHOW_HIDDEN:
-        thunar_tree_view_set_show_hidden(TREEVIEW(object), g_value_get_boolean(value));
+        _treeview_set_show_hidden(TREEVIEW(object), g_value_get_boolean(value));
         break;
 
     default:
@@ -468,13 +468,13 @@ static void thunar_tree_view_set_property(GObject       *object,
 
 // Current Directory ----------------------------------------------------------
 
-static ThunarFile* thunar_tree_view_get_current_directory(
+static ThunarFile* treeview_get_current_directory(
                                                     ThunarNavigator *navigator)
 {
     return TREEVIEW(navigator)->current_directory;
 }
 
-static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
+static void treeview_set_current_directory(ThunarNavigator *navigator,
                                                    ThunarFile *current_directory)
 {
     TreeView *view = TREEVIEW(navigator);
@@ -558,7 +558,7 @@ static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
 
         /* schedule an idle source to set the cursor to the current directory */
         if (G_LIKELY(view->cursor_idle_id == 0))
-            view->cursor_idle_id = g_idle_add_full(G_PRIORITY_LOW, thunar_tree_view_cursor_idle, view, thunar_tree_view_cursor_idle_destroy);
+            view->cursor_idle_id = g_idle_add_full(G_PRIORITY_LOW, _treeview_cursor_idle, view, _treeview_cursor_idle_destroy);
     }
 
     /* refilter the model if necessary */
@@ -572,14 +572,14 @@ static void thunar_tree_view_set_current_directory(ThunarNavigator *navigator,
 
 // Show Hidden ----------------------------------------------------------------
 
-static gboolean thunar_tree_view_get_show_hidden(TreeView *view)
+static gboolean _treeview_get_show_hidden(TreeView *view)
 {
     thunar_return_val_if_fail(IS_TREEVIEW(view), FALSE);
 
     return view->show_hidden;
 }
 
-static void thunar_tree_view_set_show_hidden(TreeView *view,
+static void _treeview_set_show_hidden(TreeView *view,
                                              gboolean        show_hidden)
 {
     thunar_return_if_fail(IS_TREEVIEW(view));
@@ -604,7 +604,7 @@ static void thunar_tree_view_set_show_hidden(TreeView *view,
 
 // Events ---------------------------------------------------------------------
 
-static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
+static gboolean treeview_button_press_event(GtkWidget      *widget,
                                                     GdkEventButton *event)
 {
     TreeView    *view = TREEVIEW(widget);
@@ -647,7 +647,7 @@ static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
             if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
             {
                 /* popup the context menu */
-                thunar_tree_view_context_menu(view, GTK_TREE_MODEL(view->model), &iter);
+                _treeview_context_menu(view, GTK_TREE_MODEL(view->model), &iter);
 
                 /* we effectively handled the event */
                 result = TRUE;
@@ -702,7 +702,7 @@ static gboolean thunar_tree_view_button_press_event(GtkWidget      *widget,
     return result;
 }
 
-static gboolean thunar_tree_view_button_release_event(GtkWidget      *widget,
+static gboolean treeview_button_release_event(GtkWidget      *widget,
                                                       GdkEventButton *event)
 {
     TreeView *view = TREEVIEW(widget);
@@ -713,7 +713,7 @@ static gboolean thunar_tree_view_button_release_event(GtkWidget      *widget,
         /* check if we should simply open or open in new window */
         if (G_LIKELY(event->button == 1))
         {
-            thunar_tree_view_action_open(view);
+            _treeview_action_open(view);
         }
         else if (G_UNLIKELY(event->button == 2))
         {
@@ -737,7 +737,7 @@ static gboolean thunar_tree_view_button_release_event(GtkWidget      *widget,
     return GTK_WIDGET_CLASS(treeview_parent_class)->button_release_event(widget, event);
 }
 
-static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
+static gboolean _treeview_key_press_event(GtkWidget   *widget,
                                                  GdkEventKey *event)
 {
     TreeView *view = TREEVIEW(widget);
@@ -761,7 +761,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
         /* sync with new tree view selection */
         gtk_tree_path_free(path);
         gtk_tree_view_get_cursor(GTK_TREE_VIEW(view), &path, NULL);
-        thunar_tree_view_open_selection(view);
+        _treeview_open_selection(view);
 
         stopPropagation = TRUE;
         break;
@@ -796,7 +796,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
                         g_object_unref(G_OBJECT(device));
                     }
             }
-        thunar_tree_view_open_selection(view);
+        _treeview_open_selection(view);
 
         stopPropagation = TRUE;
         break;
@@ -822,7 +822,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
             {
                 gtk_tree_path_down(path);
                 gtk_tree_view_set_cursor(GTK_TREE_VIEW(view), path, NULL, FALSE);
-                thunar_tree_view_action_open(view);
+                _treeview_action_open(view);
             }
         }
         stopPropagation = TRUE;
@@ -831,7 +831,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
     case GDK_KEY_space:
     case GDK_KEY_Return:
     case GDK_KEY_KP_Enter:
-        thunar_tree_view_open_selection(view);
+        _treeview_open_selection(view);
         stopPropagation = TRUE;
         break;
     }
@@ -846,7 +846,7 @@ static gboolean thunar_tree_view_key_press_event(GtkWidget   *widget,
 
 // Popup Menu -----------------------------------------------------------------
 
-static gboolean thunar_tree_view_popup_menu(GtkWidget *widget)
+static gboolean treeview_popup_menu(GtkWidget *widget)
 {
     GtkTreeSelection *selection;
     TreeView   *view = TREEVIEW(widget);
@@ -859,7 +859,7 @@ static gboolean thunar_tree_view_popup_menu(GtkWidget *widget)
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
     {
         /* popup the context menu */
-        thunar_tree_view_context_menu(view, model, &iter);
+        _treeview_context_menu(view, model, &iter);
 
         return TRUE;
     }
@@ -872,7 +872,7 @@ static gboolean thunar_tree_view_popup_menu(GtkWidget *widget)
     return FALSE;
 }
 
-static void thunar_tree_view_context_menu(TreeView *view,
+static void _treeview_context_menu(TreeView *view,
                                           GtkTreeModel   *model,
                                           GtkTreeIter    *iter)
 {
@@ -983,18 +983,18 @@ static void thunar_tree_view_context_menu(TreeView *view,
 
 // Open -----------------------------------------------------------------------
 
-static void thunar_tree_view_action_open(TreeView *view)
+static void _treeview_action_open(TreeView *view)
 {
     ThunarFile   *file;
     ThunarDevice *device;
 
-    device = thunar_tree_view_get_selected_device(view);
-    file = thunar_tree_view_get_selected_file(view);
+    device = _treeview_get_selected_device(view);
+    file = _treeview_get_selected_file(view);
 
     if (device != NULL)
     {
         if (th_device_is_mounted(device))
-            thunar_tree_view_open_selection(view);
+            _treeview_open_selection(view);
         else
         {
             g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
@@ -1004,7 +1004,7 @@ static void thunar_tree_view_action_open(TreeView *view)
     }
     else if (file != NULL)
     {
-        thunar_tree_view_open_selection(view);
+        _treeview_open_selection(view);
     }
 
     if (device != NULL)
@@ -1014,14 +1014,14 @@ static void thunar_tree_view_action_open(TreeView *view)
         g_object_unref(file);
 }
 
-static void thunar_tree_view_open_selection(TreeView *view)
+static void _treeview_open_selection(TreeView *view)
 {
     ThunarFile *file;
 
     thunar_return_if_fail(IS_TREEVIEW(view));
 
     /* determine the selected file */
-    file = thunar_tree_view_get_selected_file(view);
+    file = _treeview_get_selected_file(view);
     if (G_LIKELY(file != NULL))
     {
         /* open that folder in the main view */
@@ -1034,7 +1034,7 @@ static void thunar_tree_view_open_selection(TreeView *view)
 
 // ----------------------------------------------------------------------------
 
-static void thunar_tree_view_row_activated(GtkTreeView       *tree_view,
+static void treeview_row_activated(GtkTreeView       *tree_view,
                                            GtkTreePath       *path,
                                            GtkTreeViewColumn *column)
 {
@@ -1053,14 +1053,14 @@ static void thunar_tree_view_row_activated(GtkTreeView       *tree_view,
         if (gtk_tree_view_expand_row(tree_view, path, FALSE))
         {
             /* ...open the selected folder */
-            thunar_tree_view_action_open(TREEVIEW(tree_view));
+            _treeview_action_open(TREEVIEW(tree_view));
         }
     }
 }
 
 
 
-static gboolean thunar_tree_view_test_expand_row(GtkTreeView *tree_view,
+static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
                                                  GtkTreeIter *iter,
                                                  GtkTreePath *path)
 {
@@ -1097,7 +1097,7 @@ static gboolean thunar_tree_view_test_expand_row(GtkTreeView *tree_view,
     return !expandable;
 }
 
-static void thunar_tree_view_row_collapsed(GtkTreeView *tree_view,
+static void treeview_row_collapsed(GtkTreeView *tree_view,
                                            GtkTreeIter *iter,
                                            GtkTreePath *path)
 {
@@ -1140,25 +1140,25 @@ gboolean treeview_delete_selected_files(TreeView *view)
 
     if (gtk_get_current_event_state(&state) && (state & GDK_SHIFT_MASK) != 0)
     {
-        thunar_tree_view_action_unlink_selected_folder(view, TRUE);
+        _treeview_action_unlink_selected_folder(view, TRUE);
     }
     else
     {
-        thunar_tree_view_action_unlink_selected_folder(view, FALSE);
+        _treeview_action_unlink_selected_folder(view, FALSE);
     }
 
     /* ...and we're done */
     return TRUE;
 }
 
-static void thunar_tree_view_action_unlink_selected_folder(TreeView *view,
+static void _treeview_action_unlink_selected_folder(TreeView *view,
                                                            gboolean permanently)
 {
     thunar_return_if_fail(IS_TREEVIEW(view));
 
     /* determine the selected file */
 
-    ThunarFile *file = thunar_tree_view_get_selected_file(view);
+    ThunarFile *file = _treeview_get_selected_file(view);
 
     if (G_UNLIKELY(file == NULL))
         return;
@@ -1189,7 +1189,7 @@ static void thunar_tree_view_action_unlink_selected_folder(TreeView *view,
 
 void treeview_rename_selected(TreeView *view)
 {
-    ThunarFile *file = thunar_tree_view_get_selected_file(view);
+    ThunarFile *file = _treeview_get_selected_file(view);
     if (!file)
         return;
 
@@ -1214,7 +1214,7 @@ void treeview_rename_selected(TreeView *view)
 
 // Selections -----------------------------------------------------------------
 
-static ThunarFile* thunar_tree_view_get_selected_file(TreeView *view)
+static ThunarFile* _treeview_get_selected_file(TreeView *view)
 {
     GtkTreeSelection *selection;
     GtkTreeModel     *model;
@@ -1235,7 +1235,7 @@ static ThunarFile* thunar_tree_view_get_selected_file(TreeView *view)
     return file;
 }
 
-static ThunarDevice* thunar_tree_view_get_selected_device(TreeView *view)
+static ThunarDevice* _treeview_get_selected_device(TreeView *view)
 {
     GtkTreeSelection *selection;
     ThunarDevice     *device = NULL;
@@ -1250,7 +1250,7 @@ static ThunarDevice* thunar_tree_view_get_selected_device(TreeView *view)
     return device;
 }
 
-static void thunar_tree_view_select_files(TreeView *view,
+static void _treeview_select_files(TreeView *view,
                                           GList          *files_to_selected)
 {
     ThunarFile *file = NULL;
@@ -1272,7 +1272,7 @@ static void thunar_tree_view_select_files(TreeView *view,
     }
 }
 
-static gboolean thunar_tree_view_visible_func(ThunarTreeModel *model,
+static gboolean _treeview_visible_func(ThunarTreeModel *model,
                                               ThunarFile      *file,
                                               gpointer         user_data)
 {
@@ -1295,7 +1295,7 @@ static gboolean thunar_tree_view_visible_func(ThunarTreeModel *model,
     return visible;
 }
 
-static gboolean thunar_tree_view_selection_func(GtkTreeSelection *selection,
+static gboolean _treeview_selection_func(GtkTreeSelection *selection,
                                                 GtkTreeModel     *model,
                                                 GtkTreePath      *path,
                                                 gboolean          path_currently_selected,
@@ -1344,7 +1344,7 @@ static gboolean thunar_tree_view_selection_func(GtkTreeSelection *selection,
     return result;
 }
 
-static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
+static gboolean _treeview_cursor_idle(gpointer user_data)
 {
     TreeView *view = TREEVIEW(user_data);
     GtkTreePath    *path;
@@ -1374,7 +1374,7 @@ static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
         return TRUE;
 
     /* get the preferred toplevel path for the current directory */
-    path = _tree_view_get_preferred_toplevel_path(view, view->current_directory);
+    path = _treeview_get_preferred_toplevel_path(view, view->current_directory);
 
     /* fallback to a newly created root node */
     if (path == NULL)
@@ -1482,14 +1482,14 @@ static gboolean thunar_tree_view_cursor_idle(gpointer user_data)
     return !done;
 }
 
-static void thunar_tree_view_cursor_idle_destroy(gpointer user_data)
+static void _treeview_cursor_idle_destroy(gpointer user_data)
 {
     TREEVIEW(user_data)->cursor_idle_id = 0;
 }
 
 
 
-static GtkTreePath* _tree_view_get_preferred_toplevel_path(
+static GtkTreePath* _treeview_get_preferred_toplevel_path(
                                                         TreeView *view,
                                                         ThunarFile     *file)
 {
@@ -1612,7 +1612,7 @@ static GtkTreePath* _tree_view_get_preferred_toplevel_path(
 
 // DnD ------------------------------------------------------------------------
 
-static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
+static void treeview_drag_data_received(GtkWidget        *widget,
                                                 GdkDragContext   *context,
                                                 gint              x,
                                                 gint              y,
@@ -1644,7 +1644,7 @@ static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
         view->drop_occurred = FALSE;
 
         /* determine the drop position */
-        actions = thunar_tree_view_get_dest_actions(view, context, x, y, timestamp, &file);
+        actions = _treeview_get_dest_actions(view, context, x, y, timestamp, &file);
 
         if (G_LIKELY((actions & (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK)) != 0))
         {
@@ -1669,11 +1669,11 @@ static void thunar_tree_view_drag_data_received(GtkWidget        *widget,
         gtk_drag_finish(context, succeed, FALSE, timestamp);
 
         /* disable the highlighting and release the drag data */
-        thunar_tree_view_drag_leave(GTK_WIDGET(view), context, timestamp);
+        treeview_drag_leave(GTK_WIDGET(view), context, timestamp);
     }
 }
 
-static gboolean thunar_tree_view_drag_drop(GtkWidget      *widget,
+static gboolean treeview_drag_drop(GtkWidget      *widget,
                                            GdkDragContext *context,
                                            gint            x,
                                            gint            y,
@@ -1705,7 +1705,7 @@ static gboolean thunar_tree_view_drag_drop(GtkWidget      *widget,
     return TRUE;
 }
 
-static gboolean thunar_tree_view_drag_motion(GtkWidget      *widget,
+static gboolean treeview_drag_motion(GtkWidget      *widget,
                                              GdkDragContext *context,
                                              gint            x,
                                              gint            y,
@@ -1740,21 +1740,21 @@ static gboolean thunar_tree_view_drag_motion(GtkWidget      *widget,
     else
     {
         /* check if we can drop here */
-        thunar_tree_view_get_dest_actions(view, context, x, y, timestamp, NULL);
+        _treeview_get_dest_actions(view, context, x, y, timestamp, NULL);
     }
 
     /* start the drag autoscroll timer if not already running */
     if (G_UNLIKELY(view->drag_scroll_timer_id == 0))
     {
         /* schedule the drag autoscroll timer */
-        view->drag_scroll_timer_id = g_timeout_add_full(G_PRIORITY_LOW, 50, thunar_tree_view_drag_scroll_timer,
-                                     view, thunar_tree_view_drag_scroll_timer_destroy);
+        view->drag_scroll_timer_id = g_timeout_add_full(G_PRIORITY_LOW, 50, _treeview_drag_scroll_timer,
+                                     view, _treeview_drag_scroll_timer_destroy);
     }
 
     return TRUE;
 }
 
-static void thunar_tree_view_drag_leave(GtkWidget      *widget,
+static void treeview_drag_leave(GtkWidget      *widget,
                                         GdkDragContext *context,
                                         guint           timestamp)
 {
@@ -1779,7 +1779,7 @@ static void thunar_tree_view_drag_leave(GtkWidget      *widget,
     GTK_WIDGET_CLASS(treeview_parent_class)->drag_leave(widget, context, timestamp);
 }
 
-static GdkDragAction thunar_tree_view_get_dest_actions(
+static GdkDragAction _treeview_get_dest_actions(
                                                     TreeView *view,
                                                     GdkDragContext *context,
                                                     gint            x,
@@ -1829,8 +1829,8 @@ static GdkDragAction thunar_tree_view_get_dest_actions(
     {
         /* schedule a new expand timer to expand the drag dest row */
         view->expand_timer_id = g_timeout_add_full(G_PRIORITY_LOW, TREEVIEW_EXPAND_TIMEOUT,
-                                thunar_tree_view_expand_timer, view,
-                                thunar_tree_view_expand_timer_destroy);
+                                _treeview_expand_timer, view,
+                                _treeview_expand_timer_destroy);
     }
 
     /* setup the new "drop-file" */
@@ -1858,7 +1858,7 @@ static GdkDragAction thunar_tree_view_get_dest_actions(
     return actions;
 }
 
-static gboolean thunar_tree_view_drag_scroll_timer(gpointer user_data)
+static gboolean _treeview_drag_scroll_timer(gpointer user_data)
 {
     TreeView *view = TREEVIEW(user_data);
     GtkAdjustment  *vadjustment;
@@ -1926,8 +1926,8 @@ static gboolean thunar_tree_view_drag_scroll_timer(gpointer user_data)
                             {
                                 /* schedule a new expand timer to expand the drag dest row */
                                 view->expand_timer_id = g_timeout_add_full(G_PRIORITY_LOW, TREEVIEW_EXPAND_TIMEOUT,
-                                                        thunar_tree_view_expand_timer, view,
-                                                        thunar_tree_view_expand_timer_destroy);
+                                                        _treeview_expand_timer, view,
+                                                        _treeview_expand_timer_destroy);
                             }
 
                             /* release the drag dest row */
@@ -1948,12 +1948,12 @@ static gboolean thunar_tree_view_drag_scroll_timer(gpointer user_data)
     return TRUE;
 }
 
-static void thunar_tree_view_drag_scroll_timer_destroy(gpointer user_data)
+static void _treeview_drag_scroll_timer_destroy(gpointer user_data)
 {
     TREEVIEW(user_data)->drag_scroll_timer_id = 0;
 }
 
-static gboolean thunar_tree_view_expand_timer(gpointer user_data)
+static gboolean _treeview_expand_timer(gpointer user_data)
 {
     TreeView *view = TREEVIEW(user_data);
     GtkTreePath    *path;
@@ -1978,7 +1978,7 @@ static gboolean thunar_tree_view_expand_timer(gpointer user_data)
     return FALSE;
 }
 
-static void thunar_tree_view_expand_timer_destroy(gpointer user_data)
+static void _treeview_expand_timer_destroy(gpointer user_data)
 {
     TREEVIEW(user_data)->expand_timer_id = 0;
 }
