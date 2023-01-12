@@ -17,26 +17,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#include <app-notify.h>
 
-#ifdef HAVE_LIBNOTIFY
 #include <libnotify/notify.h>
-#endif
-
-#include <notify.h>
 #include <th-device.h>
 
-#ifdef HAVE_LIBNOTIFY
-static gboolean thunar_notify_initted = FALSE;
+static gboolean _app_notify_initted = FALSE;
 
-static gboolean _thunar_notify_init()
+static gboolean _app_notify_init()
 {
     gchar *spec_version = NULL;
 
-    if (!thunar_notify_initted
-            && notify_init(PACKAGE_NAME))
+    if (!_app_notify_initted && notify_init(PACKAGE_NAME))
     {
         /* we do this to work around bugs in libnotify < 0.6.0. Older
          * versions crash in notify_uninit() when no notifications are
@@ -46,10 +39,10 @@ static gboolean _thunar_notify_init()
         notify_get_server_info(NULL, NULL, NULL, &spec_version);
         g_free(spec_version);
 
-        thunar_notify_initted = TRUE;
+        _app_notify_initted = TRUE;
     }
 
-    return thunar_notify_initted;
+    return _app_notify_initted;
 }
 
 static void _thunar_notify_show(ThunarDevice *device,
@@ -101,7 +94,7 @@ static void _thunar_notify_show(ThunarDevice *device,
 
     /* attach to object for finalize */
     g_object_set_data_full(G_OBJECT(device), I_("thunar-notification"),
-                            notification, g_object_unref);
+                           notification, g_object_unref);
 
     g_free(icon_name);
 }
@@ -116,12 +109,13 @@ static gboolean _thunar_notify_device_readonly(ThunarDevice *device)
     if (mount_point != NULL)
     {
         info = g_file_query_info(mount_point, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
-                                  G_FILE_QUERY_INFO_NONE, NULL, NULL);
+                                 G_FILE_QUERY_INFO_NONE, NULL, NULL);
 
         if (info != NULL)
         {
             if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
                 readonly = !g_file_info_get_attribute_boolean(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
+
             g_object_unref(info);
         }
 
@@ -130,19 +124,16 @@ static gboolean _thunar_notify_device_readonly(ThunarDevice *device)
 
     return readonly;
 }
-#endif
 
-void notify_unmount(ThunarDevice *device)
+void app_notify_unmount(ThunarDevice *device)
 {
-#ifdef HAVE_LIBNOTIFY
-
     gchar       *name;
     const gchar *summary;
     gchar       *message;
 
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
 
-    if (!_thunar_notify_init())
+    if (!_app_notify_init())
         return;
 
     name = th_device_get_name(device);
@@ -167,21 +158,17 @@ void notify_unmount(ThunarDevice *device)
 
     g_free(name);
     g_free(message);
-
-#endif
 }
 
-void notify_eject(ThunarDevice *device)
+void app_notify_eject(ThunarDevice *device)
 {
-#ifdef HAVE_LIBNOTIFY
-
     gchar       *name;
     const gchar *summary;
     gchar       *message;
 
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
 
-    if (!_thunar_notify_init())
+    if (!_app_notify_init())
         return;
 
     name = th_device_get_name(device);
@@ -205,14 +192,10 @@ void notify_eject(ThunarDevice *device)
 
     g_free(name);
     g_free(message);
-
-#endif
 }
 
-void notify_finish(ThunarDevice *device)
+void app_notify_finish(ThunarDevice *device)
 {
-#ifdef HAVE_LIBNOTIFY
-
     NotifyNotification *notification;
 
     thunar_return_if_fail(THUNAR_IS_DEVICE(device));
@@ -226,18 +209,12 @@ void notify_finish(ThunarDevice *device)
 
         g_object_set_data(G_OBJECT(device), I_("thunar-notification"), NULL);
     }
-
-#endif
 }
 
-void notify_uninit(void)
+void app_notify_uninit()
 {
-#ifdef HAVE_LIBNOTIFY
-
-    if (thunar_notify_initted && notify_is_initted())
+    if (_app_notify_initted && notify_is_initted())
         notify_uninit();
-
-#endif
 }
 
 

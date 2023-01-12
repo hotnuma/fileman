@@ -22,7 +22,7 @@
 #include <application.h>
 
 #include <gobject-ext.h>
-#include <notify.h>
+#include <app-notify.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,9 +62,7 @@ int main(int argc, char **argv)
     /* release the application reference */
     g_object_unref(G_OBJECT(application));
 
-#ifdef HAVE_LIBNOTIFY
-    notify_uninit();
-#endif
+    app_notify_uninit();
 
     return EXIT_SUCCESS;
 }

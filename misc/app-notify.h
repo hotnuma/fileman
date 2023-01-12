@@ -17,21 +17,20 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __NOTIFY_H__
-#define __NOTIFY_H__
+#ifndef __APP_NOTIFY_H__
+#define __APP_NOTIFY_H__
 
-#include <glib.h>
 #include <th-device.h>
 
 G_BEGIN_DECLS
 
-void notify_unmount(ThunarDevice *device);
-void notify_eject(ThunarDevice *device);
-void notify_finish(ThunarDevice *device);
-void notify_uninit();
+void app_notify_unmount(ThunarDevice *device);
+void app_notify_eject(ThunarDevice *device);
+void app_notify_finish(ThunarDevice *device);
+void app_notify_uninit();
 
 G_END_DECLS
 
-#endif // __NOTIFY_H__
+#endif // __APP_NOTIFY_H__
 
 

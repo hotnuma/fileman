@@ -51,12 +51,12 @@ HEADERS = \
     libext/utils.h \
     menu/launcher.h \
     menu/menu.h \
+    misc/app-notify.h \
     misc/browser.h \
     misc/component.h \
     misc/enum-types.h \
     misc/history.h \
     misc/navigator.h \
-    misc/notify.h \
     side/sidepane.h \
     side/treemodel.h \
     side/treepane.h \
@@ -121,12 +121,12 @@ SOURCES = \
     libext/utils.c \
     menu/launcher.c \
     menu/menu.c \
+    misc/app-notify.c \
     misc/browser.c \
     misc/component.c \
     misc/enum-types.c \
     misc/history.c \
     misc/navigator.c \
-    misc/notify.c \
     side/sidepane.c \
     side/treemodel.c \
     side/treepane.c \
