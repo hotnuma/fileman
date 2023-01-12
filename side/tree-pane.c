@@ -34,7 +34,7 @@ enum
 
 static void thunar_tree_pane_component_init(ThunarComponentIface *iface);
 static void thunar_tree_pane_navigator_init(ThunarNavigatorIface *iface);
-static void thunar_tree_pane_side_pane_init(ThunarSidePaneIface *iface);
+static void thunar_tree_pane_side_pane_init(SidePaneIface *iface);
 static void thunar_tree_pane_dispose(GObject *object);
 static void thunar_tree_pane_get_property(GObject *object,
                                           guint prop_id,
@@ -47,8 +47,8 @@ static void thunar_tree_pane_set_property(GObject *object,
 static ThunarFile *thunar_tree_pane_get_current_directory(ThunarNavigator *navigator);
 static void thunar_tree_pane_set_current_directory(ThunarNavigator *navigator,
                                                    ThunarFile *current_directory);
-static gboolean thunar_tree_pane_get_show_hidden(ThunarSidePane *side_pane);
-static void thunar_tree_pane_set_show_hidden(ThunarSidePane *side_pane,
+static gboolean thunar_tree_pane_get_show_hidden(SidePane *side_pane);
+static void thunar_tree_pane_set_show_hidden(SidePane *side_pane,
                                              gboolean show_hidden);
 
 struct _ThunarTreePaneClass
@@ -72,7 +72,7 @@ G_DEFINE_TYPE_WITH_CODE(ThunarTreePane,
                                               thunar_tree_pane_navigator_init)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
                                               thunar_tree_pane_component_init)
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_SIDE_PANE,
+                        G_IMPLEMENT_INTERFACE(TYPE_SIDEPANE,
                                               thunar_tree_pane_side_pane_init))
 
 static void thunar_tree_pane_class_init(ThunarTreePaneClass *klass)
@@ -94,7 +94,7 @@ static void thunar_tree_pane_class_init(ThunarTreePaneClass *klass)
                                      PROP_SELECTED_FILES,
                                      "selected-files");
 
-    /* override ThunarSidePane's properties */
+    /* override SidePane's properties */
     g_object_class_override_property(gobject_class,
                                      PROP_SHOW_HIDDEN,
                                      "show-hidden");
@@ -112,7 +112,7 @@ static void thunar_tree_pane_navigator_init(ThunarNavigatorIface *iface)
     iface->set_current_directory = thunar_tree_pane_set_current_directory;
 }
 
-static void thunar_tree_pane_side_pane_init(ThunarSidePaneIface *iface)
+static void thunar_tree_pane_side_pane_init(SidePaneIface *iface)
 {
     iface->get_show_hidden = thunar_tree_pane_get_show_hidden;
     iface->set_show_hidden = thunar_tree_pane_set_show_hidden;
@@ -165,7 +165,7 @@ static void thunar_tree_pane_get_property(GObject    *object,
 
     case PROP_SHOW_HIDDEN:
         g_value_set_boolean(value,
-                            thunar_side_pane_get_show_hidden(THUNAR_SIDE_PANE(object)));
+                            sidepane_get_show_hidden(SIDEPANE(object)));
         break;
 
     default:
@@ -192,7 +192,7 @@ static void thunar_tree_pane_set_property(GObject      *object,
         break;
 
     case PROP_SHOW_HIDDEN:
-        thunar_side_pane_set_show_hidden(THUNAR_SIDE_PANE(object),
+        sidepane_set_show_hidden(SIDEPANE(object),
                                          g_value_get_boolean(value));
         break;
 
@@ -227,12 +227,12 @@ static void thunar_tree_pane_set_current_directory(ThunarNavigator  *navigator,
     g_object_notify(G_OBJECT(tree_pane), "current-directory");
 }
 
-static gboolean thunar_tree_pane_get_show_hidden(ThunarSidePane *side_pane)
+static gboolean thunar_tree_pane_get_show_hidden(SidePane *side_pane)
 {
     return THUNAR_TREE_PANE(side_pane)->show_hidden;
 }
 
-static void thunar_tree_pane_set_show_hidden(ThunarSidePane *side_pane,
+static void thunar_tree_pane_set_show_hidden(SidePane *side_pane,
                                              gboolean       show_hidden)
 {
     ThunarTreePane *tree_pane = THUNAR_TREE_PANE(side_pane);

@@ -17,27 +17,26 @@
  */
 
 #include <config.h>
+#include <side-pane.h>
 
 #include <libext.h>
 
-#include <side-pane.h>
+static void sidepane_class_init(gpointer klass);
 
-static void thunar_side_pane_class_init(gpointer klass);
-
-GType thunar_side_pane_get_type()
+GType sidepane_get_type()
 {
     static volatile gsize type__volatile = 0;
-    GType                 type;
 
     if (g_once_init_enter((gsize*) &type__volatile))
     {
-        type = g_type_register_static_simple(G_TYPE_INTERFACE,
-                                             I_("ThunarSidePane"),
-                                             sizeof(ThunarSidePaneIface),
-                                             (GClassInitFunc)(void(*)(void)) thunar_side_pane_class_init,
-                                             0,
-                                             NULL,
-                                             0);
+        GType type = g_type_register_static_simple(
+            G_TYPE_INTERFACE,
+            I_("SidePane"),
+            sizeof(SidePaneIface),
+            (GClassInitFunc)(void(*)(void)) sidepane_class_init,
+            0,
+            NULL,
+            0);
 
         g_type_interface_add_prerequisite(type, GTK_TYPE_WIDGET);
         g_type_interface_add_prerequisite(type, THUNAR_TYPE_COMPONENT);
@@ -48,52 +47,29 @@ GType thunar_side_pane_get_type()
     return type__volatile;
 }
 
-static void thunar_side_pane_class_init(gpointer klass)
+static void sidepane_class_init(gpointer klass)
 {
-    /**
-     * ThunarSidePane:show-hidden:
-     *
-     * Tells whether hidden folders will be displayed in
-     * the #ThunarSidePane instance.
-     **/
     g_object_interface_install_property(klass,
-                                        g_param_spec_boolean("show-hidden",
-                                                             "show-hidden",
-                                                             "show-hidden",
-                                                             FALSE,
-                                                             E_PARAM_READWRITE));
+                                        g_param_spec_boolean(
+                                            "show-hidden",
+                                            "show-hidden",
+                                            "show-hidden",
+                                            FALSE,
+                                            E_PARAM_READWRITE));
 }
 
-/**
- * thunar_side_pane_get_show_hidden:
- * @side_pane : a #ThunarSidePane.
- *
- * Returns %TRUE if hidden folders are shown
- * in the @side_pane.
- *
- * Return value: %TRUE if hidden folders are
- *               shown in the @side_pane.
- **/
-gboolean thunar_side_pane_get_show_hidden(ThunarSidePane *side_pane)
+gboolean sidepane_get_show_hidden(SidePane *side_pane)
 {
-    thunar_return_val_if_fail(THUNAR_IS_SIDE_PANE(side_pane), FALSE);
+    thunar_return_val_if_fail(IS_SIDEPANE(side_pane), FALSE);
 
-    return (*THUNAR_SIDE_PANE_GET_IFACE(side_pane)->get_show_hidden)(side_pane);
+    return SIDEPANE_GET_IFACE(side_pane)->get_show_hidden(side_pane);
 }
 
-/**
- * thunar_side_pane_set_show_hidden:
- * @side_pane   : a #ThunarSidePane.
- * @show_hidden : %TRUE to display hidden folders.
- *
- * If @show_hidden is %TRUE, hidden folders will be
- * shown in the @side_pane.
- **/
-void thunar_side_pane_set_show_hidden(ThunarSidePane *side_pane, gboolean show_hidden)
+void sidepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden)
 {
-    thunar_return_if_fail(THUNAR_IS_SIDE_PANE(side_pane));
+    thunar_return_if_fail(IS_SIDEPANE(side_pane));
 
-    (*THUNAR_SIDE_PANE_GET_IFACE(side_pane)->set_show_hidden)(side_pane, show_hidden);
+    SIDEPANE_GET_IFACE(side_pane)->set_show_hidden(side_pane, show_hidden);
 }
 
 

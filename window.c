@@ -853,7 +853,7 @@ gboolean window_has_shortcut_sidepane(ThunarWindow *window)
  * thunar_window_get_sidepane:
  * @window : a #ThunarWindow instance.
  *
- * Return value:(transfer none): The #ThunarSidePane of this window, or NULL if not available
+ * Return value:(transfer none): The #SidePane of this window, or NULL if not available
  **/
 GtkWidget* window_get_sidepane(ThunarWindow *window)
 {
@@ -1252,7 +1252,7 @@ static void _window_install_sidepane(ThunarWindow *window,
 {
     GtkStyleContext *context;
 
-    thunar_return_if_fail(type == G_TYPE_NONE || g_type_is_a(type, THUNAR_TYPE_SIDE_PANE));
+    thunar_return_if_fail(type == G_TYPE_NONE || g_type_is_a(type, TYPE_SIDEPANE));
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* drop the previous side pane(if any) */
@@ -1281,7 +1281,7 @@ static void _window_install_sidepane(ThunarWindow *window,
 
         /* apply show_hidden config to tree pane */
         if (type == THUNAR_TYPE_TREE_PANE)
-            thunar_side_pane_set_show_hidden(THUNAR_SIDE_PANE(window->sidepane), window->show_hidden);
+            sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
     }
 }
 
@@ -1492,7 +1492,7 @@ static void _window_action_show_hidden(ThunarWindow *window)
     gtk_container_foreach(GTK_CONTAINER(window->notebook),(GtkCallback)(void(*)(void)) thunar_view_set_show_hidden, GINT_TO_POINTER(window->show_hidden));
 
     if (G_LIKELY(window->sidepane != NULL))
-        thunar_side_pane_set_show_hidden(THUNAR_SIDE_PANE(window->sidepane), window->show_hidden);
+        sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
 }
 
 static void _window_current_directory_changed(ThunarFile *current_directory,

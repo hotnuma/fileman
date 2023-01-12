@@ -16,37 +16,40 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_SIDE_PANE_H__
-#define __THUNAR_SIDE_PANE_H__
+#ifndef __SIDEPANE_H__
+#define __SIDEPANE_H__
 
 #include <component.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarSidePaneIface ThunarSidePaneIface;
-typedef struct _ThunarSidePane      ThunarSidePane;
+typedef struct _SidePaneIface SidePaneIface;
+typedef struct _SidePane      SidePane;
 
-#define THUNAR_TYPE_SIDE_PANE           (thunar_side_pane_get_type ())
-#define THUNAR_SIDE_PANE(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_SIDE_PANE, ThunarSidePane))
-#define THUNAR_IS_SIDE_PANE(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_SIDE_PANE))
-#define THUNAR_SIDE_PANE_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), THUNAR_TYPE_SIDE_PANE, ThunarSidePaneIface))
+#define TYPE_SIDEPANE (sidepane_get_type())
+#define SIDEPANE(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj),     TYPE_SIDEPANE, SidePane))
+#define IS_SIDEPANE(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj),     TYPE_SIDEPANE))
+#define SIDEPANE_GET_IFACE(obj) \
+    (G_TYPE_INSTANCE_GET_INTERFACE ((obj),  TYPE_SIDEPANE, SidePaneIface))
 
-struct _ThunarSidePaneIface
+struct _SidePaneIface
 {
     GTypeInterface __parent__;
 
     /* virtual methods */
-    gboolean (*get_show_hidden) (ThunarSidePane *side_pane);
-    void     (*set_show_hidden) (ThunarSidePane *side_pane, gboolean show_hidden);
+    gboolean (*get_show_hidden) (SidePane *side_pane);
+    void     (*set_show_hidden) (SidePane *side_pane, gboolean show_hidden);
 };
 
-GType thunar_side_pane_get_type() G_GNUC_CONST;
+GType sidepane_get_type() G_GNUC_CONST;
 
-gboolean thunar_side_pane_get_show_hidden(ThunarSidePane *side_pane);
-void thunar_side_pane_set_show_hidden(ThunarSidePane *side_pane, gboolean show_hidden);
+gboolean    sidepane_get_show_hidden(SidePane *side_pane);
+void        sidepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_SIDE_PANE_H__ */
+#endif // __SIDEPANE_H__
 
 
