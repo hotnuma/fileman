@@ -35,7 +35,7 @@
 #include <properties-dlg.h>
 #include <shortcut-render.h>
 #include <simple-job.h>
-#include <tree-model.h>
+#include <treemodel.h>
 #include <utils.h>
 
 #include <gdk/gdkkeysyms.h>

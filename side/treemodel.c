@@ -27,7 +27,7 @@
 #include <th-folder.h>
 #include <gio-ext.h>
 #include <pango-ext.h>
-#include <tree-model.h>
+#include <treemodel.h>
 #include <devmon.h>
 #include <utils.h>
 
