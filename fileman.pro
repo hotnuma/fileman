@@ -60,7 +60,7 @@ HEADERS = \
     side/sidepane.h \
     side/tree-model.h \
     side/tree-pane.h \
-    side/tree-view.h \
+    side/treeview.h \
     view/column-model.h \
     view/detail-view.h \
     view/list-model.h \
@@ -130,7 +130,7 @@ SOURCES = \
     side/sidepane.c \
     side/tree-model.c \
     side/tree-pane.c \
-    side/tree-view.c \
+    side/treeview.c \
     view/column-model.c \
     view/detail-view.c \
     view/list-model.c \

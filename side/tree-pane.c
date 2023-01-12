@@ -21,7 +21,7 @@
 #include <libext.h>
 
 #include <tree-pane.h>
-#include <tree-view.h>
+#include <treeview.h>
 
 /* Property identifiers */
 enum

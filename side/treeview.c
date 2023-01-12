@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <tree-view.h>
+#include <treeview.h>
 
 #include <libext.h>
 #include <application.h>

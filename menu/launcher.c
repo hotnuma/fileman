@@ -32,7 +32,7 @@
 #include <properties-dlg.h>
 #include <simple-job.h>
 #include <devmon.h>
-#include <tree-view.h>
+#include <treeview.h>
 #include <utils.h>
 #include <window.h>
 
