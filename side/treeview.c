@@ -136,7 +136,7 @@ static GdkDragAction _treeview_get_dest_actions(TreeView *view,
 static ThunarFile* _treeview_get_selected_file(TreeView *view);
 static ThunarDevice* _treeview_get_selected_device(TreeView *view);
 
-static gboolean _treeview_visible_func(ThunarTreeModel *model,
+static gboolean _treeview_visible_func(TreeModel *model,
                                               ThunarFile *file,
                                               gpointer user_data);
 static gboolean _treeview_selection_func(GtkTreeSelection *selection,
@@ -178,7 +178,7 @@ struct _TreeView
     ClipboardManager  *clipboard;
     GtkCellRenderer         *icon_renderer;
     ThunarFile              *current_directory;
-    ThunarTreeModel         *model;
+    TreeModel         *model;
 
     /* whether to display hidden/backup files */
     guint                   show_hidden : 1;
@@ -286,7 +286,7 @@ static void treeview_init(TreeView *view)
     GtkCellRenderer   *renderer;
 
     /* Create a tree model for this tree view */
-    view->model = g_object_new(THUNAR_TYPE_TREE_MODEL, NULL);
+    view->model = g_object_new(TYPE_TREEMODEL, NULL);
 
     thunar_tree_model_set_visible_func(view->model, _treeview_visible_func, view);
     gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(view->model));
@@ -308,16 +308,16 @@ static void treeview_init(TreeView *view)
     view->icon_renderer = thunar_shortcuts_icon_renderer_new();
     gtk_tree_view_column_pack_start(column, view->icon_renderer, FALSE);
     gtk_tree_view_column_set_attributes(column, view->icon_renderer,
-                                        "file", THUNAR_TREE_MODEL_COLUMN_FILE,
-                                        "device", THUNAR_TREE_MODEL_COLUMN_DEVICE,
+                                        "file", TREEMODEL_COLUMN_FILE,
+                                        "device", TREEMODEL_COLUMN_DEVICE,
                                         NULL);
 
     /* allocate the text renderer */
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, TRUE);
     gtk_tree_view_column_set_attributes(column, renderer,
-                                        "attributes", THUNAR_TREE_MODEL_COLUMN_ATTR,
-                                        "text", THUNAR_TREE_MODEL_COLUMN_NAME,
+                                        "attributes", TREEMODEL_COLUMN_ATTR,
+                                        "text", TREEMODEL_COLUMN_NAME,
                                         NULL);
 
     /* setup the tree selection */
@@ -662,8 +662,8 @@ static gboolean treeview_button_press_event(GtkWidget      *widget,
             if (path != NULL && gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model),
                                                         &iter, path))
                 gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter,
-                                    THUNAR_TREE_MODEL_COLUMN_FILE, &file,
-                                    THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+                                    TREEMODEL_COLUMN_FILE, &file,
+                                    TREEMODEL_COLUMN_DEVICE, &device, -1);
 
             if ((device != NULL && th_device_is_mounted(device)) ||
                    (file != NULL && th_file_is_mounted(file)))
@@ -771,7 +771,7 @@ static gboolean _treeview_key_press_event(GtkWidget   *widget,
                 /* if this is a toplevel item and a mountable device, unmount it */
                 if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
                     gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter,
-                                        THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+                                        TREEMODEL_COLUMN_DEVICE, &device, -1);
 
                 if (device != NULL)
                     if (th_device_is_mounted(device) && th_device_can_unmount(device))
@@ -794,7 +794,7 @@ static gboolean _treeview_key_press_event(GtkWidget   *widget,
         /* if this is a toplevel item and a mountable device, mount it */
         if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
             gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter,
-                                THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+                                TREEMODEL_COLUMN_DEVICE, &device, -1);
         if (device != NULL && th_device_is_mounted(device) == FALSE)
         {
             g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
@@ -872,8 +872,8 @@ static void _treeview_context_menu(TreeView *view,
     ThunarFile *file;
     ThunarDevice *device;
     gtk_tree_model_get(model, iter,
-                       THUNAR_TREE_MODEL_COLUMN_FILE, &file,
-                       THUNAR_TREE_MODEL_COLUMN_DEVICE, &device,
+                       TREEMODEL_COLUMN_FILE, &file,
+                       TREEMODEL_COLUMN_DEVICE, &device,
                        -1);
 
     // create popup menu
@@ -1058,7 +1058,7 @@ static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
     ThunarDevice            *device;
 
     /* determine the device for the iterator */
-    gtk_tree_model_get(GTK_TREE_MODEL(view->model), iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+    gtk_tree_model_get(GTK_TREE_MODEL(view->model), iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
 
     /* check if we have a device */
     if (G_UNLIKELY(device != NULL))
@@ -1218,7 +1218,7 @@ static ThunarFile* _treeview_get_selected_file(TreeView *view)
         return NULL;
 
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
+        gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_FILE, &file, -1);
 
     return file;
 }
@@ -1233,7 +1233,7 @@ static ThunarDevice* _treeview_get_selected_device(TreeView *view)
     /* determine file for the selected row */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+        gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
 
     return device;
 }
@@ -1260,7 +1260,7 @@ static void _treeview_select_files(TreeView *view,
     }
 }
 
-static gboolean _treeview_visible_func(ThunarTreeModel *model,
+static gboolean _treeview_visible_func(TreeModel *model,
                                               ThunarFile      *file,
                                               gpointer         user_data)
 {
@@ -1305,7 +1305,7 @@ static gboolean _treeview_selection_func(GtkTreeSelection *selection,
     if (gtk_tree_model_get_iter(model, &iter, path))
     {
         /* determine the file for the iterator */
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
+        gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_FILE, &file, -1);
         if (G_LIKELY(file != NULL))
         {
             /* rows with files can be selected */
@@ -1317,7 +1317,7 @@ static gboolean _treeview_selection_func(GtkTreeSelection *selection,
         else
         {
             /* but maybe the row has a device */
-            gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_DEVICE, &device, -1);
+            gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
             if (G_LIKELY(device != NULL))
             {
                 /* rows with devices can also be selected */
@@ -1376,7 +1376,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
         path_as_list = g_list_prepend(path_as_list, file);
 
     /* 1. skip files on path_as_list till we found the beginning of the tree(which e.g. may start at $HOME */
-    gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file_in_tree, -1);
+    gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, TREEMODEL_COLUMN_FILE, &file_in_tree, -1);
     for(lp = path_as_list; lp != NULL; lp = lp->next)
     {
         if (THUNAR_FILE(lp->data) == file_in_tree)
@@ -1403,7 +1403,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
         /* 4. Loop on all items of current tree-level to see if any folder matches the path we search */
         while (TRUE)
         {
-            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file_in_tree, -1);
+            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, TREEMODEL_COLUMN_FILE, &file_in_tree, -1);
             if (file == file_in_tree)
             {
                 g_object_unref(file_in_tree);
@@ -1503,7 +1503,7 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(
         if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
         {
             /* lookup file for the toplevel item */
-            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &toplevel_file, -1);
+            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, TREEMODEL_COLUMN_FILE, &toplevel_file, -1);
             if (toplevel_file)
             {
                 /* check if the toplevel file is an ancestor */
@@ -1540,7 +1540,7 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(
     /* loop over all top-level nodes to find the best-matching top-level item */
     do
     {
-        gtk_tree_model_get(model, &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &toplevel_file, -1);
+        gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_FILE, &toplevel_file, -1);
         /* this toplevel item has no file, so continue with the next */
         if (toplevel_file == NULL)
             continue;
@@ -1792,7 +1792,7 @@ static GdkDragAction _treeview_get_dest_actions(
         if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
         {
             /* determine the file for the given path */
-            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, THUNAR_TREE_MODEL_COLUMN_FILE, &file, -1);
+            gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, TREEMODEL_COLUMN_FILE, &file, -1);
 
             if (G_LIKELY(file != NULL))
             {

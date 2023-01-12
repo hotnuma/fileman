@@ -16,63 +16,68 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_TREE_MODEL_H__
-#define __THUNAR_TREE_MODEL_H__
+#ifndef __TREEMODEL_H__
+#define __TREEMODEL_H__
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarTreeModelClass ThunarTreeModelClass;
-typedef struct _ThunarTreeModel      ThunarTreeModel;
+typedef struct _TreeModelClass TreeModelClass;
+typedef struct _TreeModel      TreeModel;
 
-typedef gboolean (* ThunarTreeModelVisibleFunc) (ThunarTreeModel *model,
+typedef gboolean (*TreeModelVisibleFunc) (TreeModel *model,
                                                  ThunarFile      *file,
                                                  gpointer         data);
 
-#define THUNAR_TYPE_TREE_MODEL            (thunar_tree_model_get_type ())
-#define THUNAR_TREE_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_TREE_MODEL, ThunarTreeModel))
-#define THUNAR_TREE_MODEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_TREE_MODEL, ThunarTreeModelClass))
-#define THUNAR_IS_TREE_MODEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_TREE_MODEL))
-#define THUNAR_IS_TREE_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_TREE_MODEL))
-#define THUNAR_TREE_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_TREE_MODEL, ThunarTreeModelClass))
+#define TYPE_TREEMODEL (treemodel_get_type ())
+#define TREEMODEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TREEMODEL, TreeModel))
+#define TREEMODEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_TREEMODEL, TreeModelClass))
+#define THUNAR_IS_TREE_MODEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_TREEMODEL))
+#define THUNAR_IS_TREE_MODEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_TREEMODEL))
+#define TREEMODEL_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_TREEMODEL, TreeModelClass))
 
 /**
- * ThunarTreeModelColumn:
- * @THUNAR_TREE_MODEL_COLUMN_FILE   : the index of the file column.
- * @THUNAR_TREE_MODEL_COLUMN_NAME   : the index of the name column.
- * @THUNAR_TREE_MODEL_COLUMN_ATTR   : the index of the #PangoAttrList column.
- * @THUNAR_TREE_MODEL_COLUMN_DEVICE : the index of the #ThunarDevice column.
+ * TreeModelColumn:
+ * @TREEMODEL_COLUMN_FILE   : the index of the file column.
+ * @TREEMODEL_COLUMN_NAME   : the index of the name column.
+ * @TREEMODEL_COLUMN_ATTR   : the index of the #PangoAttrList column.
+ * @TREEMODEL_COLUMN_DEVICE : the index of the #ThunarDevice column.
  *
- * Columns exported by the #ThunarTreeModel using the
+ * Columns exported by the #TreeModel using the
  * #GtkTreeModel interface.
  **/
 typedef enum
 {
-    THUNAR_TREE_MODEL_COLUMN_FILE,
-    THUNAR_TREE_MODEL_COLUMN_NAME,
-    THUNAR_TREE_MODEL_COLUMN_ATTR,
-    THUNAR_TREE_MODEL_COLUMN_DEVICE,
-    THUNAR_TREE_MODEL_N_COLUMNS,
+    TREEMODEL_COLUMN_FILE,
+    TREEMODEL_COLUMN_NAME,
+    TREEMODEL_COLUMN_ATTR,
+    TREEMODEL_COLUMN_DEVICE,
+    TREEMODEL_N_COLUMNS,
 
-} ThunarTreeModelColumn;
+} TreeModelColumn;
 
-GType thunar_tree_model_get_type() G_GNUC_CONST;
+GType treemodel_get_type() G_GNUC_CONST;
 
-void thunar_tree_model_set_visible_func(ThunarTreeModel *model,
-                                        ThunarTreeModelVisibleFunc func,
+void thunar_tree_model_set_visible_func(TreeModel *model,
+                                        TreeModelVisibleFunc func,
                                         gpointer data);
-void thunar_tree_model_refilter(ThunarTreeModel *model);
+void thunar_tree_model_refilter(TreeModel *model);
 
-void thunar_tree_model_cleanup(ThunarTreeModel *model);
-gboolean thunar_tree_model_node_has_dummy(ThunarTreeModel *model,
+void thunar_tree_model_cleanup(TreeModel *model);
+gboolean thunar_tree_model_node_has_dummy(TreeModel *model,
                                           GNode *node);
-void thunar_tree_model_add_child(ThunarTreeModel *model,
+void thunar_tree_model_add_child(TreeModel *model,
                                  GNode *node,
                                  ThunarFile *file);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_TREE_MODEL_H__ */
+#endif // __TREEMODEL_H__
 
 
