@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <appdialog.h>
+#include <appchooser.h>
 
 #include <application.h>
 #include <dialogs.h>

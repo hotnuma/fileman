@@ -22,7 +22,7 @@
 #include <config.h>
 #include <appcombo.h>
 
-#include <appdialog.h>
+#include <appchooser.h>
 #include <dialogs.h>
 #include <gobject-ext.h>
 #include <gtk-ext.h>

@@ -24,7 +24,7 @@
 #include <application.h>
 #include <preferences.h>
 #include <browser.h>
-#include <appdialog.h>
+#include <appchooser.h>
 #include <clipman.h>
 #include <dialogs.h>
 #include <icon-factory.h>

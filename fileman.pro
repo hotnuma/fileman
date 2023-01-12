@@ -23,8 +23,8 @@ HEADERS = \
     core/th-file.h \
     core/th-folder.h \
     core/user.h \
+    dialog/appchooser.h \
     dialog/appcombo.h \
-    dialog/appdialog.h \
     dialog/appmodel.h \
     dialog/dialogs.h \
     dialog/permissions.h \
@@ -93,8 +93,8 @@ SOURCES = \
     core/th-file.c \
     core/th-folder.c \
     core/user.c \
+    dialog/appchooser.c \
     dialog/appcombo.c \
-    dialog/appdialog.c \
     dialog/appmodel.c \
     dialog/dialogs.c \
     dialog/permissions.c \
