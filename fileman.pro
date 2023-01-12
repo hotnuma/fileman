@@ -27,7 +27,7 @@ HEADERS = \
     dialog/appcombo.h \
     dialog/appmodel.h \
     dialog/dialogs.h \
-    dialog/permissions.h \
+    dialog/permbox.h \
     dialog/progress-dlg.h \
     dialog/progress-view.h \
     dialog/properties-dlg.h \
@@ -97,7 +97,7 @@ SOURCES = \
     dialog/appcombo.c \
     dialog/appmodel.c \
     dialog/dialogs.c \
-    dialog/permissions.c \
+    dialog/permbox.c \
     dialog/progress-dlg.c \
     dialog/progress-view.c \
     dialog/properties-dlg.c \

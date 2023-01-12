@@ -40,7 +40,7 @@
 #include <job.h>
 #include <marshal.h>
 #include <pango-ext.h>
-#include <permissions.h>
+#include <permbox.h>
 #include <properties-dlg.h>
 #include <size-label.h>
 #include <utils.h>

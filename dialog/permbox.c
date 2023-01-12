@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <permissions.h>
+#include <permbox.h>
 
 #include <memory.h>
 #include <string.h>

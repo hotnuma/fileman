@@ -56,7 +56,7 @@ app_sources = [
     'dialog/appcombo.c',
     'dialog/appmodel.c',
     'dialog/dialogs.c',
-    'dialog/permissions.c',
+    'dialog/permbox.c',
     'dialog/progress-dlg.c',
     'dialog/progress-view.c',
     'dialog/properties-dlg.c',
