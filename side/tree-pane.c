@@ -127,7 +127,7 @@ static void thunar_tree_pane_init(ThunarTreePane *tree_pane)
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tree_pane), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
     /* allocate the tree view */
-    tree_pane->view = thunar_tree_view_new();
+    tree_pane->view = treeview_new();
 
     g_object_bind_property(G_OBJECT(tree_pane), "show-hidden", G_OBJECT(tree_pane->view), "show-hidden", G_BINDING_SYNC_CREATE);
     g_object_bind_property(G_OBJECT(tree_pane), "current-directory", G_OBJECT(tree_pane->view), "current-directory", G_BINDING_SYNC_CREATE);
@@ -250,9 +250,9 @@ static void thunar_tree_pane_set_show_hidden(ThunarSidePane *side_pane,
     }
 }
 
-ThunarTreeView* thunar_tree_pane_get_view(ThunarTreePane *tree_pane)
+TreeView* thunar_tree_pane_get_view(ThunarTreePane *tree_pane)
 {
-    return THUNAR_TREE_VIEW(tree_pane->view);
+    return TREEVIEW(tree_pane->view);
 }
 
 

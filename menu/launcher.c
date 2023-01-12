@@ -1426,7 +1426,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                                         menu);
 
     case LAUNCHER_ACTION_CREATE_FOLDER:
-        if (THUNAR_IS_TREE_VIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
+        if (IS_TREEVIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
             parent = launcher->single_folder;
         else
             parent = launcher->current_directory;
@@ -1437,7 +1437,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         return item;
 
     case LAUNCHER_ACTION_CREATE_DOCUMENT:
-        if (THUNAR_IS_TREE_VIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
+        if (IS_TREEVIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
             parent = launcher->single_folder;
         else
             parent = launcher->current_directory;
@@ -1768,7 +1768,7 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
     if (G_LIKELY(name != NULL))
     {
         /* fake the path list */
-        if (THUNAR_IS_TREE_VIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
+        if (IS_TREEVIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
             path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->single_folder), name);
         else
             path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->current_directory), name);
@@ -1831,7 +1831,7 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
         if (G_LIKELY(launcher->parent_folder != NULL))
         {
             /* fake the target path list */
-            if (THUNAR_IS_TREE_VIEW(launcher->widget)
+            if (IS_TREEVIEW(launcher->widget)
                 && launcher->files_are_selected
                 && launcher->single_directory_to_process)
             {
@@ -1963,7 +1963,7 @@ static void _launcher_action_key_trash_delete(ThunarLauncher *launcher)
     if (dialog_folder_trash(GTK_WINDOW(window)) == FALSE)
         return;
 
-    thunar_tree_view_delete_selected_files(THUNAR_TREE_VIEW(tree_view));
+    treeview_delete_selected_files(TREEVIEW(tree_view));
 
 }
 
@@ -2172,7 +2172,7 @@ static void _launcher_action_key_rename(ThunarLauncher *launcher)
         return;
     }
 
-    thunar_tree_view_rename_selected(THUNAR_TREE_VIEW(tree_view));
+    treeview_rename_selected(TREEVIEW(tree_view));
 }
 
 

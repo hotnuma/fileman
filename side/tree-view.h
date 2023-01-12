@@ -16,32 +16,37 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_TREE_VIEW_H__
-#define __THUNAR_TREE_VIEW_H__
+#ifndef __TREEVIEW_H__
+#define __TREEVIEW_H__
 
 #include <navigator.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarTreeViewClass ThunarTreeViewClass;
-typedef struct _ThunarTreeView      ThunarTreeView;
+typedef struct _TreeViewClass TreeViewClass;
+typedef struct _TreeView      TreeView;
 
-#define THUNAR_TYPE_TREE_VIEW               (thunar_tree_view_get_type ())
-#define THUNAR_TREE_VIEW(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_TREE_VIEW, ThunarTreeView))
-#define THUNAR_TREE_VIEW_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_TREE_VIEW, ThunarTreeViewClass))
-#define THUNAR_IS_TREE_VIEW(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_TREE_VIEW))
-#define THUNAR_IS_TREE_VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_TREE_VIEW))
-#define THUNAR_TREE_VIEW_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_TREE_VIEW, ThunarTreeViewClass))
+#define TYPE_TREEVIEW (treeview_get_type())
+#define TREEVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TREEVIEW, TreeView))
+#define TREEVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_TREEVIEW, TreeViewClass))
+#define IS_TREEVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_TREEVIEW))
+#define IS_TREEVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_TREEVIEW))
+#define TREEVIEW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_TREEVIEW, TreeViewClass))
 
-GType thunar_tree_view_get_type() G_GNUC_CONST;
+GType treeview_get_type() G_GNUC_CONST;
 
-GtkWidget *thunar_tree_view_new() G_GNUC_MALLOC;
+GtkWidget* treeview_new() G_GNUC_MALLOC;
 
-gboolean thunar_tree_view_delete_selected_files(ThunarTreeView *view);
-void thunar_tree_view_rename_selected(ThunarTreeView *view);
+gboolean treeview_delete_selected_files(TreeView *view);
+void treeview_rename_selected(TreeView *view);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_TREE_VIEW_H__ */
+#endif // __TREEVIEW_H__
 
 
