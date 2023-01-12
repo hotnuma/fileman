@@ -45,9 +45,8 @@ static gboolean _app_notify_init()
     return _app_notify_initted;
 }
 
-static void _thunar_notify_show(ThunarDevice *device,
-                                const gchar  *summary,
-                                const gchar  *message)
+static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
+                             const gchar  *message)
 {
     NotifyNotification *notification;
     GIcon              *icon;
@@ -99,7 +98,7 @@ static void _thunar_notify_show(ThunarDevice *device,
     g_free(icon_name);
 }
 
-static gboolean _thunar_notify_device_readonly(ThunarDevice *device)
+static gboolean _app_notify_device_readonly(ThunarDevice *device)
 {
     GFile     *mount_point;
     gboolean   readonly = TRUE;
@@ -138,7 +137,7 @@ void app_notify_unmount(ThunarDevice *device)
 
     name = th_device_get_name(device);
 
-    if (_thunar_notify_device_readonly(device))
+    if (_app_notify_device_readonly(device))
     {
         summary = _("Unmounting device");
         message = g_strdup_printf(_("The device \"%s\" is being unmounted by the system. "
@@ -154,7 +153,7 @@ void app_notify_unmount(ThunarDevice *device)
                                    name);
     }
 
-    _thunar_notify_show(device, summary, message);
+    _app_notify_show(device, summary, message);
 
     g_free(name);
     g_free(message);
@@ -173,7 +172,7 @@ void app_notify_eject(ThunarDevice *device)
 
     name = th_device_get_name(device);
 
-    if (_thunar_notify_device_readonly(device))
+    if (_app_notify_device_readonly(device))
     {
         summary = _("Ejecting device");
         message = g_strdup_printf(_("The device \"%s\" is being ejected. "
@@ -188,7 +187,7 @@ void app_notify_eject(ThunarDevice *device)
                                    name);
     }
 
-    _thunar_notify_show(device, summary, message);
+    _app_notify_show(device, summary, message);
 
     g_free(name);
     g_free(message);
