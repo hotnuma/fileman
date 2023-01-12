@@ -19,6 +19,8 @@
  */
 
 #include <config.h>
+#include <permissions.h>
+
 #include <memory.h>
 #include <string.h>
 #include <unistd.h>
@@ -31,7 +33,6 @@
 #include <gtk-ext.h>
 #include <io-jobs.h>
 #include <pango-ext.h>
-#include <permissions.h>
 #include <user.h>
 
 #include <fileinfo.h>
@@ -108,12 +109,12 @@ static void thunar_permissions_chooser_set_files(ThunarPermissionsChooser *choos
 
 struct _ThunarPermissionsChooserClass
 {
-    GtkVBoxClass __parent__;
+    GtkBoxClass __parent__;
 };
 
 struct _ThunarPermissionsChooser
 {
-    GtkVBox     __parent__;
+    GtkBox     __parent__;
 
     GList      *files;
 
@@ -137,37 +138,28 @@ G_DEFINE_TYPE(ThunarPermissionsChooser, thunar_permissions_chooser, GTK_TYPE_BOX
 static void
 thunar_permissions_chooser_class_init(ThunarPermissionsChooserClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = thunar_permissions_chooser_finalize;
     gobject_class->get_property = thunar_permissions_chooser_get_property;
     gobject_class->set_property = thunar_permissions_chooser_set_property;
 
-    /**
-     * ThunarPermissionsChooser:file:
-     *
-     * The #ThunarFile whose permissions will be edited/viewed.
-     **/
     g_object_class_install_property(gobject_class,
-                                     PROP_FILES,
-                                     g_param_spec_boxed("files", "files", "files",
-                                             TYPE_FILE_INFO_LIST,
-                                             E_PARAM_READWRITE));
+                                    PROP_FILES,
+                                    g_param_spec_boxed(
+                                        "files",
+                                        "files",
+                                        "files",
+                                        TYPE_FILE_INFO_LIST,
+                                        E_PARAM_READWRITE));
 
-    /**
-     * ThunarPermissionsChooser:mutable:
-     *
-     * Whether the current #ThunarFile<!---->s permissions are
-     * mutable.
-     **/
     g_object_class_install_property(gobject_class,
-                                     PROP_MUTABLE,
-                                     g_param_spec_boolean("mutable",
-                                             "mutable",
-                                             "mutable",
-                                             FALSE,
-                                             E_PARAM_READABLE));
+                                    PROP_MUTABLE,
+                                    g_param_spec_boolean(
+                                        "mutable",
+                                        "mutable",
+                                        "mutable",
+                                        FALSE,
+                                        E_PARAM_READABLE));
 }
 
 static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
@@ -183,7 +175,8 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
     /* setup the chooser */
     gtk_container_set_border_width(GTK_CONTAINER(chooser), 12);
 
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(chooser), GTK_ORIENTATION_VERTICAL);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(chooser),
+                                   GTK_ORIENTATION_VERTICAL);
 
     /* allocate the shared renderer for the various combo boxes */
     renderer_text = gtk_cell_renderer_text_new();
@@ -478,7 +471,6 @@ static void thunar_permissions_chooser_set_property(GObject      *object,
 
 static gboolean thunar_permissions_chooser_ask_recursive(ThunarPermissionsChooser *chooser)
 {
-    //ThunarPreferences             *preferences;
     GtkWidget                     *toplevel;
     GtkWidget                     *dialog;
     GtkWidget                     *button;
@@ -541,6 +533,7 @@ static gboolean thunar_permissions_chooser_ask_recursive(ThunarPermissionsChoose
 
         /* run the dialog and save the selected option(if requested) */
         response = gtk_dialog_run(GTK_DIALOG(dialog));
+
         //switch (response)
         //{
         //case GTK_RESPONSE_YES:
@@ -568,9 +561,6 @@ static gboolean thunar_permissions_chooser_ask_recursive(ThunarPermissionsChoose
     {
         response = GTK_RESPONSE_NO;
     }
-
-    /* release the reference on the preferences */
-    //g_object_unref(G_OBJECT(preferences));
 
     return response;
 }
