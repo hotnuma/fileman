@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <tree-pane.h>
+#include <treepane.h>
 
 #include <libext.h>
 #include <treeview.h>

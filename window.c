@@ -38,7 +38,7 @@
 #include <preferences.h>
 #include <utils.h>
 #include <statusbar.h>
-#include <tree-pane.h>
+#include <treepane.h>
 #include <window.h>
 #include <devmon.h>
 

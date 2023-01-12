@@ -88,7 +88,7 @@ app_sources = [
     'misc/notify.c',
     'side/sidepane.c',
     'side/tree-model.c',
-    'side/tree-pane.c',
+    'side/treepane.c',
     'side/treeview.c',
     'view/column-model.c',
     'view/detail-view.c',

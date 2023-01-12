@@ -59,7 +59,7 @@ HEADERS = \
     misc/notify.h \
     side/sidepane.h \
     side/tree-model.h \
-    side/tree-pane.h \
+    side/treepane.h \
     side/treeview.h \
     view/column-model.h \
     view/detail-view.h \
@@ -129,7 +129,7 @@ SOURCES = \
     misc/notify.c \
     side/sidepane.c \
     side/tree-model.c \
-    side/tree-pane.c \
+    side/treepane.c \
     side/treeview.c \
     view/column-model.c \
     view/detail-view.c \
