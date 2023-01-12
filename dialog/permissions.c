@@ -757,8 +757,8 @@ static void thunar_permissions_chooser_access_changed(ThunarPermissionsChooser *
 static gint _group_compare(gconstpointer group_a, gconstpointer group_b, gpointer      group_primary)
 {
     guint32 group_primary_id;
-    guint32 group_a_id = thunar_group_get_id(THUNAR_GROUP(group_a));
-    guint32 group_b_id = thunar_group_get_id(THUNAR_GROUP(group_b));
+    guint32 group_a_id = group_get_id(THUNAR_GROUP(group_a));
+    guint32 group_b_id = group_get_id(THUNAR_GROUP(group_b));
 
     /* check if the groups are equal */
     if (group_a_id == group_b_id)
@@ -767,7 +767,7 @@ static gint _group_compare(gconstpointer group_a, gconstpointer group_b, gpointe
     /* the primary group is always sorted first */
     if (group_primary != NULL)
     {
-        group_primary_id = thunar_group_get_id(THUNAR_GROUP(group_primary));
+        group_primary_id = group_get_id(THUNAR_GROUP(group_primary));
         if (group_a_id == group_primary_id)
             return -1;
         else if (group_b_id == group_primary_id)
@@ -781,8 +781,8 @@ static gint _group_compare(gconstpointer group_a, gconstpointer group_b, gpointe
         return -1;
 
     /* otherwise just sort by name */
-    return g_ascii_strcasecmp(thunar_group_get_name(THUNAR_GROUP(group_a)),
-                               thunar_group_get_name(THUNAR_GROUP(group_b)));
+    return g_ascii_strcasecmp(group_get_name(THUNAR_GROUP(group_a)),
+                               group_get_name(THUNAR_GROUP(group_b)));
 }
 
 static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *chooser)
@@ -854,8 +854,8 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
     if (G_LIKELY(user != NULL))
     {
         /* determine sane display name for the owner */
-        user_name = thunar_user_get_name(user);
-        real_name = thunar_user_get_real_name(user);
+        user_name = user_get_name(user);
+        real_name = user_get_real_name(user);
         if (G_LIKELY(real_name != NULL))
             g_snprintf(buffer, sizeof(buffer), "%s(%s)", real_name, user_name);
         else
@@ -872,8 +872,8 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
     if (G_UNLIKELY(geteuid() == 0))
     {
         /* determine all groups in the system */
-        user_manager = thunar_user_manager_get_default();
-        groups = thunar_user_manager_get_all_groups(user_manager);
+        user_manager = user_manager_get_default();
+        groups = user_manager_get_all_groups(user_manager);
         g_object_unref(G_OBJECT(user_manager));
     }
     else
@@ -881,15 +881,15 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
         if (G_UNLIKELY(user == NULL && n_files > 1))
         {
             /* get groups of the active user */
-            user_manager = thunar_user_manager_get_default();
-            user = thunar_user_manager_get_user_by_id(user_manager, geteuid());
+            user_manager = user_manager_get_default();
+            user = user_manager_get_user_by_id(user_manager, geteuid());
             g_object_unref(G_OBJECT(user_manager));
         }
 
         /* determine the groups for the user and take a copy */
         if (G_LIKELY(user != NULL))
         {
-            groups = g_list_copy(thunar_user_get_groups(user));
+            groups = g_list_copy(user_get_groups(user));
             g_list_foreach(groups,(GFunc)(void(*)(void)) g_object_ref, NULL);
         }
     }
@@ -906,13 +906,13 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
     {
         /* append a separator after the primary group and after the user-groups(not system groups) */
         if (group != NULL
-                && thunar_group_get_id(groups->data) == thunar_group_get_id(group)
+                && group_get_id(groups->data) == group_get_id(group)
                 && lp != groups && n == 0)
         {
             gtk_list_store_append(store, &iter);
             n += 1;
         }
-        else if (lp != groups && thunar_group_get_id(lp->data) < 100 && n == 1)
+        else if (lp != groups && group_get_id(lp->data) < 100 && n == 1)
         {
             gtk_list_store_append(store, &iter);
             n += 1;
@@ -921,8 +921,8 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
         /* append a new item for the group */
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter,
-                            THUNAR_PERMISSIONS_STORE_COLUMN_NAME, thunar_group_get_name(lp->data),
-                            THUNAR_PERMISSIONS_STORE_COLUMN_GID, thunar_group_get_id(lp->data),
+                            THUNAR_PERMISSIONS_STORE_COLUMN_NAME, group_get_name(lp->data),
+                            THUNAR_PERMISSIONS_STORE_COLUMN_GID, group_get_id(lp->data),
                             -1);
 
         /* set the active iter for the combo box if this group is the primary group */

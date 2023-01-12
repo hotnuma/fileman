@@ -667,7 +667,7 @@ static void list_model_get_value(GtkTreeModel *model,
         group = th_file_get_group(file);
         if (G_LIKELY(group != NULL))
         {
-            g_value_set_string(value, thunar_group_get_name(group));
+            g_value_set_string(value, group_get_name(group));
             g_object_unref(G_OBJECT(group));
         }
         else
@@ -692,8 +692,8 @@ static void list_model_get_value(GtkTreeModel *model,
         if (G_LIKELY(user != NULL))
         {
             /* determine sane display name for the owner */
-            name = thunar_user_get_name(user);
-            real_name = thunar_user_get_real_name(user);
+            name = user_get_name(user);
+            real_name = user_get_real_name(user);
             if (G_LIKELY(real_name != NULL))
             {
                 if (strcmp(name, real_name) == 0)
@@ -1356,8 +1356,8 @@ static gint _sort_by_group(const ThunarFile *a,
 
     if (group_a != NULL && group_b != NULL)
     {
-        name_a = thunar_group_get_name(group_a);
-        name_b = thunar_group_get_name(group_b);
+        name_a = group_get_name(group_a);
+        name_b = group_get_name(group_b);
 
         if (!case_sensitive)
             result = strcasecmp(name_a, name_b);
@@ -1431,8 +1431,8 @@ static gint _sort_by_owner(const ThunarFile *a,
     if (user_a != NULL && user_b != NULL)
     {
         /* compare the system names */
-        name_a = thunar_user_get_name(user_a);
-        name_b = thunar_user_get_name(user_b);
+        name_a = user_get_name(user_a);
+        name_b = user_get_name(user_b);
 
         if (!case_sensitive)
             result = strcasecmp(name_a, name_b);

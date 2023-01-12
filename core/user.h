@@ -18,72 +18,76 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __THUNAR_USER_H__
-#define __THUNAR_USER_H__
+#ifndef __USER_H__
+#define __USER_H__
 
 #include <glib-object.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
+
+// Group ----------------------------------------------------------------------
 
 typedef struct _ThunarGroupClass ThunarGroupClass;
 typedef struct _ThunarGroup      ThunarGroup;
 
-#define THUNAR_TYPE_GROUP            (thunar_group_get_type ())
+#define THUNAR_TYPE_GROUP            (group_get_type ())
 #define THUNAR_GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_GROUP, ThunarGroup))
 #define THUNAR_GROUP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_GROUP, ThunarGroupClass))
 #define THUNAR_IS_GROUP(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_GROUP))
 #define THUNAR_IS_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_GROUP))
 #define THUNAR_GROUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_GROUP, ThunarGroupClass))
 
-GType thunar_group_get_type() G_GNUC_CONST;
+GType           group_get_type() G_GNUC_CONST;
 
-guint32 thunar_group_get_id(ThunarGroup *group);
-const gchar* thunar_group_get_name(ThunarGroup *group);
+guint32         group_get_id(ThunarGroup *group);
+const gchar*    group_get_name(ThunarGroup *group);
 
+
+// User -----------------------------------------------------------------------
 
 typedef struct _ThunarUserClass ThunarUserClass;
 typedef struct _ThunarUser      ThunarUser;
 
-#define THUNAR_TYPE_USER            (thunar_user_get_type ())
+#define THUNAR_TYPE_USER            (user_get_type ())
 #define THUNAR_USER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_USER, ThunarUser))
 #define THUNAR_USER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_USER, ThunarUserClass))
 #define THUNAR_IS_USER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_USER))
 #define THUNAR_IS_USER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_USER))
 #define THUNAR_USER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_USER, ThunarUserClass))
 
-GType thunar_user_get_type() G_GNUC_CONST;
+GType user_get_type() G_GNUC_CONST;
 
-GList* thunar_user_get_groups(ThunarUser *user);
-const gchar* thunar_user_get_name(ThunarUser *user);
-const gchar* thunar_user_get_real_name(ThunarUser *user);
-gboolean thunar_user_is_me(ThunarUser *user);
+GList*          user_get_groups(ThunarUser *user);
+const gchar*    user_get_name(ThunarUser *user);
+const gchar*    user_get_real_name(ThunarUser *user);
+gboolean        user_is_me(ThunarUser *user);
+
+// User Manager ---------------------------------------------------------------
 
 typedef struct _ThunarUserManagerClass ThunarUserManagerClass;
 typedef struct _ThunarUserManager      ThunarUserManager;
 
-#define THUNAR_TYPE_USER_MANAGER            (thunar_user_manager_get_type ())
+#define THUNAR_TYPE_USER_MANAGER            (user_manager_get_type ())
 #define THUNAR_USER_MANAGER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManager))
 #define THUNAR_USER_MANAGER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
 #define THUNAR_IS_USER_MANAGER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_USER_MANAGER))
 #define THUNAR_IS_USER_MANAGER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_USER_MANAGER))
 #define THUNAR_USER_MANAGER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
 
-GType thunar_user_manager_get_type() G_GNUC_CONST;
+GType user_manager_get_type() G_GNUC_CONST;
 
-ThunarUserManager* thunar_user_manager_get_default() G_GNUC_WARN_UNUSED_RESULT;
+ThunarUserManager* user_manager_get_default() G_GNUC_WARN_UNUSED_RESULT;
 
-ThunarGroup* thunar_user_manager_get_group_by_id(ThunarUserManager *manager,
-                                                 guint32            id)
-                                                 G_GNUC_WARN_UNUSED_RESULT;
-ThunarUser* thunar_user_manager_get_user_by_id(ThunarUserManager *manager,
-                                               guint32            id)
-                                               G_GNUC_WARN_UNUSED_RESULT;
+ThunarGroup*    user_manager_get_group_by_id(ThunarUserManager *manager, guint32 id)
+                                             G_GNUC_WARN_UNUSED_RESULT;
+ThunarUser*     user_manager_get_user_by_id(ThunarUserManager *manager, guint32 id)
+                                            G_GNUC_WARN_UNUSED_RESULT;
 
-GList* thunar_user_manager_get_all_groups(ThunarUserManager *manager)
-                                          G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+GList*          user_manager_get_all_groups(ThunarUserManager *manager)
+                                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_USER_H__ */
+#endif // __USER_H__
 
 

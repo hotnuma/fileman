@@ -316,7 +316,7 @@ static void th_file_class_init(ThunarFileClass *klass)
     _file_watch_quark = g_quark_from_static_string("thunar-file-watch");
 
     /* grab a reference on the user manager */
-    _user_manager = thunar_user_manager_get_default();
+    _user_manager = user_manager_get_default();
 
     /* determine the effective user id of the process */
     _effective_user_id = geteuid();
@@ -1739,7 +1739,7 @@ ThunarGroup* th_file_get_group(const ThunarFile *file)
     gid = g_file_info_get_attribute_uint32(file->info,
                                             G_FILE_ATTRIBUTE_UNIX_GID);
 
-    return thunar_user_manager_get_group_by_id(_user_manager, gid);
+    return user_manager_get_group_by_id(_user_manager, gid);
 }
 
 /**
@@ -1765,7 +1765,7 @@ ThunarUser* th_file_get_user(const ThunarFile *file)
     uid = g_file_info_get_attribute_uint32(file->info,
                                             G_FILE_ATTRIBUTE_UNIX_UID);
 
-    return thunar_user_manager_get_user_by_id(_user_manager, uid);
+    return user_manager_get_user_by_id(_user_manager, uid);
 }
 
 /**
