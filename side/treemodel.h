@@ -29,7 +29,7 @@ typedef struct _TreeModel      TreeModel;
 typedef gboolean (*TreeModelVisibleFunc) (TreeModel *model, ThunarFile *file,
                                           gpointer data);
 
-#define TYPE_TREEMODEL (treemodel_get_type ())
+#define TYPE_TREEMODEL (treemodel_get_type())
 #define TREEMODEL(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TREEMODEL, TreeModel))
 #define TREEMODEL_CLASS(klass) \
@@ -41,16 +41,6 @@ typedef gboolean (*TreeModelVisibleFunc) (TreeModel *model, ThunarFile *file,
 #define TREEMODEL_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_TREEMODEL, TreeModelClass))
 
-/**
- * TreeModelColumn:
- * @TREEMODEL_COLUMN_FILE   : the index of the file column.
- * @TREEMODEL_COLUMN_NAME   : the index of the name column.
- * @TREEMODEL_COLUMN_ATTR   : the index of the #PangoAttrList column.
- * @TREEMODEL_COLUMN_DEVICE : the index of the #ThunarDevice column.
- *
- * Columns exported by the #TreeModel using the
- * #GtkTreeModel interface.
- **/
 typedef enum
 {
     TREEMODEL_COLUMN_FILE,
