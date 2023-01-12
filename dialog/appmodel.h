@@ -17,50 +17,47 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __CHOOSER_MODEL_H__
-#define __CHOOSER_MODEL_H__
+#ifndef __APPCHOOSER_MODEL_H__
+#define __APPCHOOSER_MODEL_H__
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ChooserModelClass ChooserModelClass;
-typedef struct _ChooserModel      ChooserModel;
+typedef struct _AppChooserModelClass AppChooserModelClass;
+typedef struct _AppChooserModel      AppChooserModel;
 
-#define THUNAR_TYPE_CHOOSER_MODEL (chooser_model_get_type ())
-#define THUNAR_CHOOSER_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_CHOOSER_MODEL, ChooserModel))
-#define THUNAR_CHOOSER_MODEL_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_CHOOSER_MODEL, ChooserModelClass))
-#define THUNAR_IS_CHOOSER_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_CHOOSER_MODEL))
-#define THUNAR_IS_CHOOSER_MODEL_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_CHOOSER_MODEL))
-#define THUNAR_CHOOSER_MODEL_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CHOOSER_MODEL, ChooserModelClass))
+#define TYPE_APPCHOOSER_MODEL (appmodel_get_type ())
+#define APPCHOOSER_MODEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_APPCHOOSER_MODEL, AppChooserModel))
+#define APPCHOOSER_MODEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_APPCHOOSER_MODEL, AppChooserModelClass))
+#define IS_APPCHOOSER_MODEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_APPCHOOSER_MODEL))
+#define IS_APPCHOOSER_MODEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_APPCHOOSER_MODEL))
+#define APPCHOOSER_MODEL_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_APPCHOOSER_MODEL, AppChooserModelClass))
 
 typedef enum
 {
-    CHOOSER_MODEL_COLUMN_NAME,
-    CHOOSER_MODEL_COLUMN_ICON,
-    CHOOSER_MODEL_COLUMN_APPLICATION,
-    CHOOSER_MODEL_COLUMN_STYLE,
-    CHOOSER_MODEL_COLUMN_WEIGHT,
-    CHOOSER_MODEL_N_COLUMNS,
+    APPCHOOSER_COLUMN_NAME,
+    APPCHOOSER_COLUMN_ICON,
+    APPCHOOSER_COLUMN_APPLICATION,
+    APPCHOOSER_COLUMN_STYLE,
+    APPCHOOSER_COLUMN_WEIGHT,
+    APPCHOOSER_N_COLUMNS,
 
-} ChooserModelColumn;
+} AppChooserModelColumn;
 
-GType chooser_model_get_type() G_GNUC_CONST;
+GType appmodel_get_type() G_GNUC_CONST;
 
-ChooserModel* chooser_model_new(const gchar *content_type)
-                                             G_GNUC_MALLOC;
-const gchar* chooser_model_get_content_type(ChooserModel *model);
-gboolean chooser_model_remove(ChooserModel *model,
-                                     GtkTreeIter    *iter,
-                                     GError         **error);
+AppChooserModel* appmodel_new(const gchar *content_type) G_GNUC_MALLOC;
+const gchar* appmodel_get_content_type(AppChooserModel *model);
+gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **error);
 
 G_END_DECLS
 
-#endif // __CHOOSER_MODEL_H__
+#endif // __APPCHOOSER_MODEL_H__
 
 
