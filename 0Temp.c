@@ -929,7 +929,7 @@ thunar_window_notebook_page_removed
 
 //-----------------------------------------------------------------------------
 
-void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
+void standard_view_open_on_middle_click(StandardView *standard_view,
                                         GtkTreePath        *tree_path,
                                         guint               event_state)
 {
@@ -940,7 +940,7 @@ void standard_view_open_on_middle_click(ThunarStandardView *standard_view,
     GtkWidget      *window;
     ThunarLauncher *launcher;
 
-    thunar_return_if_fail(THUNAR_IS_STANDARD_VIEW(standard_view));
+    thunar_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* determine the file for the path */
     gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, tree_path);

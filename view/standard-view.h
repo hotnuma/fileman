@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_STANDARD_VIEW_H__
-#define __THUNAR_STANDARD_VIEW_H__
+#ifndef __STANDARD_VIEW_H__
+#define __STANDARD_VIEW_H__
 
 #include <clipman.h>
 #include <history.h>
@@ -27,66 +27,66 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarStandardViewPrivate ThunarStandardViewPrivate;
-typedef struct _ThunarStandardViewClass   ThunarStandardViewClass;
-typedef struct _ThunarStandardView        ThunarStandardView;
+typedef struct _StandardViewPrivate StandardViewPrivate;
+typedef struct _StandardViewClass   StandardViewClass;
+typedef struct _StandardView        StandardView;
 
-#define THUNAR_TYPE_STANDARD_VIEW (standard_view_get_type())
-#define THUNAR_STANDARD_VIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardView))
-#define THUNAR_STANDARD_VIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardViewClass))
-#define THUNAR_IS_STANDARD_VIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_STANDARD_VIEW))
-#define THUNAR_IS_STANDARD_VIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_STANDARD_VIEW))
-#define THUNAR_STANDARD_VIEW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_STANDARD_VIEW, ThunarStandardViewClass))
+#define TYPE_STANDARD_VIEW (standard_view_get_type())
+#define STANDARD_VIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_STANDARD_VIEW, StandardView))
+#define STANDARD_VIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_STANDARD_VIEW, StandardViewClass))
+#define IS_STANDARD_VIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_STANDARD_VIEW))
+#define IS_STANDARD_VIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_STANDARD_VIEW))
+#define STANDARD_VIEW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_STANDARD_VIEW, StandardViewClass))
 
 // Action Entrys provided by this widget
 
 typedef enum
 {
-    THUNAR_STANDARD_VIEW_ACTION_SELECT_ALL_FILES,
-    THUNAR_STANDARD_VIEW_ACTION_SELECT_BY_PATTERN,
-    THUNAR_STANDARD_VIEW_ACTION_INVERT_SELECTION,
+    STANDARD_VIEW_ACTION_SELECT_ALL_FILES,
+    STANDARD_VIEW_ACTION_SELECT_BY_PATTERN,
+    STANDARD_VIEW_ACTION_INVERT_SELECTION,
 
-} ThunarStandardViewAction;
+} StandardViewAction;
 
-struct _ThunarStandardViewClass
+struct _StandardViewClass
 {
     GtkScrolledWindowClass __parent__;
 
     /* Returns the list of currently selected GtkTreePath's, where
      * both the list and the items are owned by the caller. */
-    GList*  (*get_selected_items)   (ThunarStandardView *standard_view);
+    GList*  (*get_selected_items)   (StandardView *standard_view);
 
     /* Selects all items in the view */
-    void    (*select_all)           (ThunarStandardView *standard_view);
+    void    (*select_all)           (StandardView *standard_view);
 
     /* Unselects all items in the view */
-    void    (*unselect_all)         (ThunarStandardView *standard_view);
+    void    (*unselect_all)         (StandardView *standard_view);
 
     /* Invert selection in the view */
-    void    (*selection_invert)     (ThunarStandardView *standard_view);
+    void    (*selection_invert)     (StandardView *standard_view);
 
     /* Selects the given item */
-    void    (*select_path)          (ThunarStandardView *standard_view,
+    void    (*select_path)          (StandardView *standard_view,
                                      GtkTreePath        *path);
 
-    /* Called by the ThunarStandardView class to let derived class
+    /* Called by the StandardView class to let derived class
      * place the cursor on the item/row referred to by path. If
      * start_editing is TRUE, the derived class should also start
      * editing that item/row.
      */
-    void    (*set_cursor)           (ThunarStandardView *standard_view,
+    void    (*set_cursor)           (StandardView *standard_view,
                                      GtkTreePath        *path,
                                      gboolean            start_editing);
 
-    /* Called by the ThunarStandardView class to let derived class
+    /* Called by the StandardView class to let derived class
      * scroll the view to the given path.
      */
-    void    (*scroll_to_path)       (ThunarStandardView *standard_view,
+    void    (*scroll_to_path)       (StandardView *standard_view,
                                      GtkTreePath        *path,
                                      gboolean            use_align,
                                      gfloat              row_align,
@@ -95,36 +95,36 @@ struct _ThunarStandardViewClass
     /* Returns the path at the given position or NULL if no item/row
      * is located at that coordinates. The path is freed by the caller.
      */
-    GtkTreePath* (*get_path_at_pos) (ThunarStandardView *standard_view,
+    GtkTreePath* (*get_path_at_pos) (StandardView *standard_view,
                                      gint                x,
                                      gint                y);
 
     /* Returns the visible range */
-    gboolean (*get_visible_range)   (ThunarStandardView *standard_view,
+    gboolean (*get_visible_range)   (StandardView *standard_view,
                                      GtkTreePath       **start_path,
                                      GtkTreePath       **end_path);
 
     /* Sets the item/row that is highlighted for feedback. NULL is
      * passed for path to disable the highlighting.
      */
-    void    (*highlight_path)       (ThunarStandardView  *standard_view,
+    void    (*highlight_path)       (StandardView  *standard_view,
                                      GtkTreePath         *path);
 
     /* external signals */
-    void    (*start_open_location)  (ThunarStandardView *standard_view,
+    void    (*start_open_location)  (StandardView *standard_view,
                                      const gchar        *initial_text);
 
     /* Appends view-specific menu items to the given menu */
-    void    (*append_menu_items)    (ThunarStandardView *standard_view, GtkMenu *menu, GtkAccelGroup *accel_group);
+    void    (*append_menu_items)    (StandardView *standard_view, GtkMenu *menu, GtkAccelGroup *accel_group);
 
     /* Connects view-specific accelerators to the given accelGroup */
-    void    (*connect_accelerators) (ThunarStandardView *standard_view, GtkAccelGroup *accel_group);
+    void    (*connect_accelerators) (StandardView *standard_view, GtkAccelGroup *accel_group);
 
     /* Disconnects view-specific accelerators to the given accelGroup */
-    void    (*disconnect_accelerators) (ThunarStandardView *standard_view, GtkAccelGroup *accel_group);
+    void    (*disconnect_accelerators) (StandardView *standard_view, GtkAccelGroup *accel_group);
 
     /* Internal action signals */
-    gboolean (*delete_selected_files) (ThunarStandardView *standard_view);
+    gboolean (*delete_selected_files) (StandardView *standard_view);
 
     /* The name of the property in ThunarPreferences, that determines
      * the last(and default) zoom-level for the view classes.
@@ -132,7 +132,7 @@ struct _ThunarStandardViewClass
     const gchar* zoom_level_property_name;
 };
 
-struct _ThunarStandardView
+struct _StandardView
 {
     GtkScrolledWindow   __parent__;
 
@@ -146,23 +146,23 @@ struct _ThunarStandardView
     gboolean            loading;
     GtkAccelGroup       *accel_group;
 
-    ThunarStandardViewPrivate *priv;
+    StandardViewPrivate *priv;
 };
 
 GType standard_view_get_type() G_GNUC_CONST;
 
-void standard_view_context_menu(ThunarStandardView *standard_view);
-void standard_view_queue_popup(ThunarStandardView *standard_view,
+void standard_view_context_menu(StandardView *standard_view);
+void standard_view_queue_popup(StandardView *standard_view,
                                GdkEventButton *event);
 
-void standard_view_selection_changed(ThunarStandardView *standard_view);
+void standard_view_selection_changed(StandardView *standard_view);
 
-ThunarHistory* standard_view_get_history(ThunarStandardView *standard_view);
-void standard_view_set_history(ThunarStandardView *standard_view,
+ThunarHistory* standard_view_get_history(StandardView *standard_view);
+void standard_view_set_history(StandardView *standard_view,
                                ThunarHistory *history);
 
 G_END_DECLS
 
-#endif // __THUNAR_STANDARD_VIEW_H__
+#endif // __STANDARD_VIEW_H__
 
 

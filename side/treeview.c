@@ -1115,7 +1115,7 @@ gboolean treeview_delete_selected_files(TreeView *view)
     GtkAccelKey key;
 
     if (gtk_accel_map_lookup_entry(
-                        "<Actions>/ThunarStandardView/move-to-trash",
+                        "<Actions>/StandardView/move-to-trash",
                         &key)
         &&(key.accel_key != 0 || key.accel_mods != 0))
     {

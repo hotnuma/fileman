@@ -231,7 +231,7 @@ static XfceGtkActionEntry _launcher_actions[] =
 
 
     {LAUNCHER_ACTION_CREATE_FOLDER,
-     "<Actions>/ThunarStandardView/create-folder",
+     "<Actions>/StandardView/create-folder",
      "<Primary><shift>N",
      XFCE_GTK_IMAGE_MENU_ITEM,
      N_("Create _Folder..."),
@@ -240,7 +240,7 @@ static XfceGtkActionEntry _launcher_actions[] =
      G_CALLBACK(_launcher_action_create_folder)},
 
     {LAUNCHER_ACTION_CREATE_DOCUMENT,
-     "<Actions>/ThunarStandardView/create-document",
+     "<Actions>/StandardView/create-document",
      "",
      XFCE_GTK_IMAGE_MENU_ITEM,
      N_("Create _Document"),
@@ -360,7 +360,7 @@ static XfceGtkActionEntry _launcher_actions[] =
 
 
     {LAUNCHER_ACTION_DUPLICATE,
-     "<Actions>/ThunarStandardView/duplicate",
+     "<Actions>/StandardView/duplicate",
      "",
      XFCE_GTK_MENU_ITEM,
      N_("Du_plicate"),
@@ -369,7 +369,7 @@ static XfceGtkActionEntry _launcher_actions[] =
      G_CALLBACK(_launcher_action_duplicate)},
 
     {LAUNCHER_ACTION_MAKE_LINK,
-     "<Actions>/ThunarStandardView/make-link",
+     "<Actions>/StandardView/make-link",
      "",
      XFCE_GTK_MENU_ITEM,
      N_("Ma_ke Link"),
@@ -378,7 +378,7 @@ static XfceGtkActionEntry _launcher_actions[] =
      G_CALLBACK(_launcher_action_make_link)},
 
     {LAUNCHER_ACTION_RENAME,
-     "<Actions>/ThunarStandardView/rename",
+     "<Actions>/StandardView/rename",
      "",
      XFCE_GTK_MENU_ITEM,
      N_("_Rename..."),
@@ -387,7 +387,7 @@ static XfceGtkActionEntry _launcher_actions[] =
      G_CALLBACK(launcher_action_rename)},
 
     {LAUNCHER_ACTION_RENAME,
-     "<Actions>/ThunarStandardView/rename-2",
+     "<Actions>/StandardView/rename-2",
      "F2",
      XFCE_GTK_MENU_ITEM,
      N_("_Rename..."),
@@ -397,7 +397,7 @@ static XfceGtkActionEntry _launcher_actions[] =
 
 
     {LAUNCHER_ACTION_TERMINAL,
-     "<Actions>/ThunarStandardView/terminal",
+     "<Actions>/StandardView/terminal",
      "",
      XFCE_GTK_IMAGE_MENU_ITEM,
      N_("MyTerminal..."),
@@ -406,7 +406,7 @@ static XfceGtkActionEntry _launcher_actions[] =
      G_CALLBACK(_launcher_action_terminal)},
 
     {LAUNCHER_ACTION_EXTRACT,
-     "<Actions>/ThunarStandardView/extract",
+     "<Actions>/StandardView/extract",
      "",
      XFCE_GTK_IMAGE_MENU_ITEM,
      N_("Extract..."),
@@ -444,7 +444,7 @@ static XfceGtkActionEntry _launcher_actions[] =
 
 
     {LAUNCHER_ACTION_PROPERTIES,
-     "<Actions>/ThunarStandardView/properties",
+     "<Actions>/StandardView/properties",
      "<Alt>Return",
      XFCE_GTK_IMAGE_MENU_ITEM,
      N_("_Properties..."),
