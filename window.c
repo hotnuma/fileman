@@ -610,7 +610,7 @@ static void window_init(ThunarWindow *window)
 
 
     // Left pane : Treeview
-    type = THUNAR_TYPE_TREE_PANE;
+    type = TYPE_TREEPANE;
     _window_install_sidepane(window, type);
 
 
@@ -1280,7 +1280,7 @@ static void _window_install_sidepane(ThunarWindow *window,
             _window_binding_create(window, window->view, "selected-files", window->sidepane, "selected-files", G_BINDING_SYNC_CREATE);
 
         /* apply show_hidden config to tree pane */
-        if (type == THUNAR_TYPE_TREE_PANE)
+        if (type == TYPE_TREEPANE)
             sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
     }
 }
@@ -1962,8 +1962,8 @@ GtkWidget* window_get_focused_tree_view(ThunarWindow *window)
 {
     thunar_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
 
-    GtkWidget *tree_view = GTK_WIDGET(thunar_tree_pane_get_view(
-                                     THUNAR_TREE_PANE(window->sidepane)));
+    GtkWidget *tree_view = GTK_WIDGET(treepane_get_view(
+                                     TREEPANE(window->sidepane)));
 
     GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
 

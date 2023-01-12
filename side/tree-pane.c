@@ -17,10 +17,9 @@
  */
 
 #include <config.h>
+#include <tree-pane.h>
 
 #include <libext.h>
-
-#include <tree-pane.h>
 #include <treeview.h>
 
 /* Property identifiers */
@@ -32,31 +31,34 @@ enum
     PROP_SHOW_HIDDEN,
 };
 
-static void thunar_tree_pane_component_init(ThunarComponentIface *iface);
-static void thunar_tree_pane_navigator_init(ThunarNavigatorIface *iface);
-static void thunar_tree_pane_side_pane_init(SidePaneIface *iface);
-static void thunar_tree_pane_dispose(GObject *object);
-static void thunar_tree_pane_get_property(GObject *object,
+static void treepane_component_init(ThunarComponentIface *iface);
+static void treepane_navigator_init(ThunarNavigatorIface *iface);
+static void treepane_sidepane_init(SidePaneIface *iface);
+
+static void treepane_dispose(GObject *object);
+static void treepane_get_property(GObject *object,
                                           guint prop_id,
                                           GValue *value,
                                           GParamSpec *pspec);
-static void thunar_tree_pane_set_property(GObject *object,
+static void treepane_set_property(GObject *object,
                                           guint prop_id,
                                           const GValue *value,
                                           GParamSpec *pspec);
-static ThunarFile *thunar_tree_pane_get_current_directory(ThunarNavigator *navigator);
-static void thunar_tree_pane_set_current_directory(ThunarNavigator *navigator,
+
+static ThunarFile *treepane_get_current_directory(ThunarNavigator *navigator);
+static void treepane_set_current_directory(ThunarNavigator *navigator,
                                                    ThunarFile *current_directory);
-static gboolean thunar_tree_pane_get_show_hidden(SidePane *side_pane);
-static void thunar_tree_pane_set_show_hidden(SidePane *side_pane,
+
+static gboolean treepane_get_show_hidden(SidePane *side_pane);
+static void treepane_set_show_hidden(SidePane *side_pane,
                                              gboolean show_hidden);
 
-struct _ThunarTreePaneClass
+struct _TreePaneClass
 {
     GtkScrolledWindowClass __parent__;
 };
 
-struct _ThunarTreePane
+struct _TreePane
 {
     GtkScrolledWindow __parent__;
 
@@ -65,24 +67,22 @@ struct _ThunarTreePane
     gboolean    show_hidden;
 };
 
-G_DEFINE_TYPE_WITH_CODE(ThunarTreePane,
-                        thunar_tree_pane,
+G_DEFINE_TYPE_WITH_CODE(TreePane,
+                        treepane,
                         GTK_TYPE_SCROLLED_WINDOW,
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
-                                              thunar_tree_pane_navigator_init)
+                                              treepane_navigator_init)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
-                                              thunar_tree_pane_component_init)
+                                              treepane_component_init)
                         G_IMPLEMENT_INTERFACE(TYPE_SIDEPANE,
-                                              thunar_tree_pane_side_pane_init))
+                                              treepane_sidepane_init))
 
-static void thunar_tree_pane_class_init(ThunarTreePaneClass *klass)
+static void treepane_class_init(TreePaneClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->dispose = thunar_tree_pane_dispose;
-    gobject_class->get_property = thunar_tree_pane_get_property;
-    gobject_class->set_property = thunar_tree_pane_set_property;
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->dispose = treepane_dispose;
+    gobject_class->get_property = treepane_get_property;
+    gobject_class->set_property = treepane_set_property;
 
     /* override ThunarNavigator's properties */
     g_object_class_override_property(gobject_class,
@@ -100,25 +100,25 @@ static void thunar_tree_pane_class_init(ThunarTreePaneClass *klass)
                                      "show-hidden");
 }
 
-static void thunar_tree_pane_component_init(ThunarComponentIface *iface)
+static void treepane_component_init(ThunarComponentIface *iface)
 {
-    iface->get_selected_files =(gpointer) e_noop_null;
-    iface->set_selected_files =(gpointer) e_noop;
+    iface->get_selected_files = (gpointer) e_noop_null;
+    iface->set_selected_files = (gpointer) e_noop;
 }
 
-static void thunar_tree_pane_navigator_init(ThunarNavigatorIface *iface)
+static void treepane_navigator_init(ThunarNavigatorIface *iface)
 {
-    iface->get_current_directory = thunar_tree_pane_get_current_directory;
-    iface->set_current_directory = thunar_tree_pane_set_current_directory;
+    iface->get_current_directory = treepane_get_current_directory;
+    iface->set_current_directory = treepane_set_current_directory;
 }
 
-static void thunar_tree_pane_side_pane_init(SidePaneIface *iface)
+static void treepane_sidepane_init(SidePaneIface *iface)
 {
-    iface->get_show_hidden = thunar_tree_pane_get_show_hidden;
-    iface->set_show_hidden = thunar_tree_pane_set_show_hidden;
+    iface->get_show_hidden = treepane_get_show_hidden;
+    iface->set_show_hidden = treepane_set_show_hidden;
 }
 
-static void thunar_tree_pane_init(ThunarTreePane *tree_pane)
+static void treepane_init(TreePane *tree_pane)
 {
     /* configure the GtkScrolledWindow */
     gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(tree_pane), NULL);
@@ -136,17 +136,17 @@ static void thunar_tree_pane_init(ThunarTreePane *tree_pane)
     gtk_widget_show(tree_pane->view);
 }
 
-static void thunar_tree_pane_dispose(GObject *object)
+static void treepane_dispose(GObject *object)
 {
-    ThunarTreePane *tree_pane = THUNAR_TREE_PANE(object);
+    TreePane *tree_pane = TREEPANE(object);
 
     thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(tree_pane), NULL);
     thunar_component_set_selected_files(THUNAR_COMPONENT(tree_pane), NULL);
 
-    (*G_OBJECT_CLASS(thunar_tree_pane_parent_class)->dispose)(object);
+    G_OBJECT_CLASS(treepane_parent_class)->dispose(object);
 }
 
-static void thunar_tree_pane_get_property(GObject    *object,
+static void treepane_get_property(GObject    *object,
                                           guint       prop_id,
                                           GValue     *value,
                                           GParamSpec *pspec)
@@ -174,7 +174,7 @@ static void thunar_tree_pane_get_property(GObject    *object,
     }
 }
 
-static void thunar_tree_pane_set_property(GObject      *object,
+static void treepane_set_property(GObject      *object,
                                           guint         prop_id,
                                           const GValue *value,
                                           GParamSpec   *pspec)
@@ -202,15 +202,15 @@ static void thunar_tree_pane_set_property(GObject      *object,
     }
 }
 
-static ThunarFile* thunar_tree_pane_get_current_directory(ThunarNavigator *navigator)
+static ThunarFile* treepane_get_current_directory(ThunarNavigator *navigator)
 {
-    return THUNAR_TREE_PANE(navigator)->current_directory;
+    return TREEPANE(navigator)->current_directory;
 }
 
-static void thunar_tree_pane_set_current_directory(ThunarNavigator  *navigator,
+static void treepane_set_current_directory(ThunarNavigator  *navigator,
                                                    ThunarFile       *current_directory)
 {
-    ThunarTreePane *tree_pane = THUNAR_TREE_PANE(navigator);
+    TreePane *tree_pane = TREEPANE(navigator);
 
     /* disconnect from the previously set current directory */
     if (G_LIKELY(tree_pane->current_directory != NULL))
@@ -227,15 +227,15 @@ static void thunar_tree_pane_set_current_directory(ThunarNavigator  *navigator,
     g_object_notify(G_OBJECT(tree_pane), "current-directory");
 }
 
-static gboolean thunar_tree_pane_get_show_hidden(SidePane *side_pane)
+static gboolean treepane_get_show_hidden(SidePane *side_pane)
 {
-    return THUNAR_TREE_PANE(side_pane)->show_hidden;
+    return TREEPANE(side_pane)->show_hidden;
 }
 
-static void thunar_tree_pane_set_show_hidden(SidePane *side_pane,
+static void treepane_set_show_hidden(SidePane *side_pane,
                                              gboolean       show_hidden)
 {
-    ThunarTreePane *tree_pane = THUNAR_TREE_PANE(side_pane);
+    TreePane *tree_pane = TREEPANE(side_pane);
 
     show_hidden = !!show_hidden;
 
@@ -250,7 +250,7 @@ static void thunar_tree_pane_set_show_hidden(SidePane *side_pane,
     }
 }
 
-TreeView* thunar_tree_pane_get_view(ThunarTreePane *tree_pane)
+TreeView* treepane_get_view(TreePane *tree_pane)
 {
     return TREEVIEW(tree_pane->view);
 }

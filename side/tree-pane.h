@@ -16,29 +16,34 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_TREE_PANE_H__
-#define __THUNAR_TREE_PANE_H__
+#ifndef __TREEPANE_H__
+#define __TREEPANE_H__
 
 #include <sidepane.h>
 #include <treeview.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarTreePaneClass ThunarTreePaneClass;
-typedef struct _ThunarTreePane      ThunarTreePane;
+typedef struct _TreePaneClass TreePaneClass;
+typedef struct _TreePane      TreePane;
 
-#define THUNAR_TYPE_TREE_PANE               (thunar_tree_pane_get_type ())
-#define THUNAR_TREE_PANE(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_TREE_PANE, ThunarTreePane))
-#define THUNAR_TREE_PANE_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_TREE_PANE, ThunarTreePaneClass))
-#define THUNAR_IS_TREE_PANE(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_TREE_PANE))
-#define THUNAR_IS_TREE_PANE_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_TREE_PANE))
-#define THUNAR_TREE_PANE_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_TREE_PANE, ThunarTreePaneClass))
+#define TYPE_TREEPANE (treepane_get_type())
+#define TREEPANE(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TREEPANE, TreePane))
+#define TREEPANE_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_TREEPANE, TreePaneClass))
+#define IS_TREEPANE(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_TREEPANE))
+#define IS_TREEPANE_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_TREEPANE))
+#define TREEPANE_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_TREEPANE, TreePaneClass))
 
-GType thunar_tree_pane_get_type() G_GNUC_CONST;
-TreeView* thunar_tree_pane_get_view(ThunarTreePane *tree_pane);
+GType       treepane_get_type() G_GNUC_CONST;
+TreeView*   treepane_get_view(TreePane *tree_pane);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_TREE_PANE_H__ */
+#endif // __TREEPANE_H__
 
 
