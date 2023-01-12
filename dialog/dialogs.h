@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_DIALOGS_H__
-#define __THUNAR_DIALOGS_H__
+#ifndef __DIALOGS_H__
+#define __DIALOGS_H__
 
 #include <enum-types.h>
 #include <th-file.h>
@@ -45,6 +45,6 @@ void dialog_job_error(GtkWindow *parent, GError *error);
 
 G_END_DECLS
 
-#endif // __THUNAR_DIALOGS_H__
+#endif // __DIALOGS_H__
 
 

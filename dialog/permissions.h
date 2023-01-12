@@ -16,12 +16,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_PERMISSIONS_CHOOSER_H__
-#define __THUNAR_PERMISSIONS_CHOOSER_H__
+#ifndef __PERMISSIONS_CHOOSER_H__
+#define __PERMISSIONS_CHOOSER_H__
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarPermissionsChooserClass ThunarPermissionsChooserClass;
 typedef struct _ThunarPermissionsChooser      ThunarPermissionsChooser;
@@ -37,8 +37,8 @@ GType thunar_permissions_chooser_get_type() G_GNUC_CONST;
 
 GtkWidget* thunar_permissions_chooser_new() G_GNUC_MALLOC;
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_PERMISSIONS_CHOOSER_H__ */
+#endif // __PERMISSIONS_CHOOSER_H__
 
 
