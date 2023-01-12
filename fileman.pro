@@ -24,8 +24,8 @@ HEADERS = \
     core/th-folder.h \
     core/user.h \
     dialog/appcombo.h \
-    dialog/chooser-dlg.h \
-    dialog/chooser-model.h \
+    dialog/appdialog.h \
+    dialog/appmodel.h \
     dialog/dialogs.h \
     dialog/permissions.h \
     dialog/progress-dlg.h \
@@ -94,8 +94,8 @@ SOURCES = \
     core/th-folder.c \
     core/user.c \
     dialog/appcombo.c \
-    dialog/chooser-dlg.c \
-    dialog/chooser-model.c \
+    dialog/appdialog.c \
+    dialog/appmodel.c \
     dialog/dialogs.c \
     dialog/permissions.c \
     dialog/progress-dlg.c \

@@ -24,7 +24,7 @@
 #include <libxfce4ui/libxfce4ui.h>
 #include <fileinfo.h>
 #include <application.h>
-#include <chooser-dlg.h>
+#include <appdialog.h>
 #include <filemon.h>
 #include <gio-ext.h>
 #include <gobject-ext.h>

@@ -18,11 +18,11 @@
  */
 
 #include <config.h>
-#include <chooser-dlg.h>
+#include <appdialog.h>
 
 #include <application.h>
 #include <dialogs.h>
-#include <chooser-model.h>
+#include <appmodel.h>
 #include <exo-icon.h>
 #include <icon-factory.h>
 #include <gobject-ext.h>

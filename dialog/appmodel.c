@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <chooser-model.h>
+#include <appmodel.h>
 
 #include <gio-ext.h>
 
