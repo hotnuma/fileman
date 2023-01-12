@@ -920,11 +920,11 @@ gboolean thunar_file_has_directory_specific_settings(ThunarFile *file)
 
 //-----------------------------------------------------------------------------
 
-thunar_window_notebook_insert
-thunar_window_notebook_page_added
-thunar_window_notebook_show_tabs
-thunar_window_notebook_switch_page
-thunar_window_notebook_page_removed
+window_notebook_insert
+window_notebook_page_added
+window_notebook_show_tabs
+window_notebook_switch_page
+window_notebook_page_removed
 
 
 //-----------------------------------------------------------------------------
@@ -951,7 +951,7 @@ void standard_view_open_on_middle_click(StandardView *standard_view,
         if (thunar_file_is_directory(file))
         {
             window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
-            launcher = thunar_window_get_launcher(THUNAR_WINDOW(window));
+            launcher = window_get_launcher(THUNAR_WINDOW(window));
             launcher_open_selected_folders(launcher);
         }
         /* release the file reference */
