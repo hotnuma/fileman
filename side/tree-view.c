@@ -180,8 +180,6 @@ struct _TreeView
     ThunarFile              *current_directory;
     ThunarTreeModel         *model;
 
-    //ThunarxProviderFactory  *provider_factory;
-
     /* whether to display hidden/backup files */
     guint                   show_hidden : 1;
 
@@ -240,16 +238,12 @@ GtkWidget* treeview_new()
 
 static void treeview_class_init(TreeViewClass *klass)
 {
-    GtkTreeViewClass *gtktree_view_class;
-    GtkWidgetClass   *gtkwidget_class;
-    GObjectClass     *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = treeview_finalize;
     gobject_class->get_property = treeview_get_property;
     gobject_class->set_property = treeview_set_property;
 
-    gtkwidget_class = GTK_WIDGET_CLASS(klass);
+    GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
     gtkwidget_class->realize = treeview_realize;
     gtkwidget_class->unrealize = treeview_unrealize;
     gtkwidget_class->button_press_event = treeview_button_press_event;
@@ -260,7 +254,7 @@ static void treeview_class_init(TreeViewClass *klass)
     gtkwidget_class->drag_leave = treeview_drag_leave;
     gtkwidget_class->popup_menu = treeview_popup_menu;
 
-    gtktree_view_class = GTK_TREE_VIEW_CLASS(klass);
+    GtkTreeViewClass *gtktree_view_class = GTK_TREE_VIEW_CLASS(klass);
     gtktree_view_class->row_activated = treeview_row_activated;
     gtktree_view_class->test_expand_row = treeview_test_expand_row;
     gtktree_view_class->row_collapsed = treeview_row_collapsed;
@@ -290,9 +284,6 @@ static void treeview_init(TreeView *view)
     GtkTreeViewColumn *column;
     GtkTreeSelection  *selection;
     GtkCellRenderer   *renderer;
-
-    /* grab a reference on the provider factory */
-    //view->provider_factory = thunarx_provider_factory_get_default();
 
     /* Create a tree model for this tree view */
     view->model = g_object_new(THUNAR_TYPE_TREE_MODEL, NULL);
@@ -360,9 +351,6 @@ static void treeview_finalize(GObject *object)
 
     /* release drop path list(if drag_leave wasn't called) */
     eg_list_free(view->drop_file_list);
-
-    /* release the provider factory */
-    //g_object_unref(G_OBJECT(view->provider_factory));
 
     /* be sure to cancel the cursor idle source */
     if (G_UNLIKELY(view->cursor_idle_id != 0))
