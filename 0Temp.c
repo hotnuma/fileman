@@ -26,7 +26,7 @@ static gboolean _window_check_uca_key_activation(ThunarWindow *window,
 {
     UNUSED(user_data);
 
-    if (thunar_launcher_check_uca_key_activation(window->launcher, key_event))
+    if (launcher_check_uca_key_activation(window->launcher, key_event))
         return GDK_EVENT_STOP;
 
     return GDK_EVENT_PROPAGATE;
@@ -952,7 +952,7 @@ void standard_view_open_on_middle_click(StandardView *standard_view,
         {
             window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
             launcher = thunar_window_get_launcher(THUNAR_WINDOW(window));
-            thunar_launcher_open_selected_folders(launcher);
+            launcher_open_selected_folders(launcher);
         }
         /* release the file reference */
         g_object_unref(G_OBJECT(file));
@@ -982,7 +982,7 @@ static void thunar_file_move_thumbnail_cache_file(GFile *old_file,
 
 //-----------------------------------------------------------------------------
 
-gboolean thunar_launcher_append_custom_actions(ThunarLauncher *launcher,
+gboolean launcher_append_custom_actions(ThunarLauncher *launcher,
                                                GtkMenuShell   *menu)
 {
     gboolean                uca_added = FALSE;
@@ -1036,7 +1036,7 @@ gboolean thunar_launcher_append_custom_actions(ThunarLauncher *launcher,
     return uca_added;
 }
 
-gboolean thunar_launcher_check_uca_key_activation(ThunarLauncher *launcher,
+gboolean launcher_check_uca_key_activation(ThunarLauncher *launcher,
                                                   GdkEventKey    *key_event)
 {
     GtkWidget              *window;

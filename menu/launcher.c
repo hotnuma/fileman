@@ -860,7 +860,7 @@ static void _launcher_execute_files(ThunarLauncher *launcher,
     }
 }
 
-static guint thunar_launcher_g_app_info_hash(gconstpointer app_info)
+static guint _launcher_g_app_info_hash(gconstpointer app_info)
 {
     UNUSED(app_info);
 
@@ -891,7 +891,7 @@ static void _launcher_open_files(ThunarLauncher *launcher,
      * new GAppInfo objects every time, g_direct_hash does not work. we therefore use
      * a fake hash function to always hit the collision list of the hash table and
      * avoid storing multiple equal GAppInfos by means of g_app_info_equal(). */
-    applications = g_hash_table_new_full(thunar_launcher_g_app_info_hash,
+    applications = g_hash_table_new_full(_launcher_g_app_info_hash,
                                          (GEqualFunc) g_app_info_equal,
                                          (GDestroyNotify) g_object_unref,
                                          (GDestroyNotify) eg_list_free);
@@ -1097,7 +1097,7 @@ static void _launcher_poke_data_free(LauncherPokeData *data)
     g_slice_free(LauncherPokeData, data);
 }
 
-static void thunar_launcher_poke_device_finish(ThunarBrowser *browser,
+static void _launcher_poke_device_finish(ThunarBrowser *browser,
                                                ThunarDevice  *volume,
                                                ThunarFile    *mount_point,
                                                GError        *error,
@@ -1135,7 +1135,7 @@ static void thunar_launcher_poke_device_finish(ThunarBrowser *browser,
     _launcher_poke_data_free(poke_data);
 }
 
-static void thunar_launcher_poke_files_finish(ThunarBrowser *browser,
+static void _launcher_poke_files_finish(ThunarBrowser *browser,
                                               ThunarFile    *file,
                                               ThunarFile    *target_file,
                                               GError        *error,
@@ -1250,7 +1250,7 @@ static void thunar_launcher_poke_files_finish(ThunarBrowser *browser,
         thunar_browser_poke_file(browser,
                                  poke_data->files_to_poke->data,
                                  (THUNAR_LAUNCHER(browser))->widget,
-                                 thunar_launcher_poke_files_finish,
+                                 _launcher_poke_files_finish,
                                  poke_data);
     }
 }
@@ -1265,7 +1265,7 @@ static void _launcher_poke(
 
     if (launcher->files_to_process == NULL)
     {
-        g_warning("No files to process. thunar_launcher_poke aborted.");
+        g_warning("No files to process. _launcher_poke aborted.");
         return;
     }
 
@@ -1279,7 +1279,7 @@ static void _launcher_poke(
         thunar_browser_poke_device(THUNAR_BROWSER(launcher),
                                    launcher->device_to_process,
                                    launcher->widget,
-                                   thunar_launcher_poke_device_finish,
+                                   _launcher_poke_device_finish,
                                    poke_data);
     }
     else
@@ -1290,7 +1290,7 @@ static void _launcher_poke(
         thunar_browser_poke_file(THUNAR_BROWSER(launcher),
                                  poke_data->files_to_poke->data,
                                  launcher->widget,
-                                 thunar_launcher_poke_files_finish,
+                                 _launcher_poke_files_finish,
                                  poke_data);
     }
 }
@@ -1323,7 +1323,7 @@ void launcher_append_accelerators(ThunarLauncher *launcher,
                                                 launcher);
 }
 
-static gboolean thunar_launcher_show_trash(ThunarLauncher *launcher)
+static gboolean _launcher_show_trash(ThunarLauncher *launcher)
 {
     if (launcher->parent_folder == NULL)
         return FALSE;
@@ -1537,7 +1537,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         return item;
 
     case LAUNCHER_ACTION_MOVE_TO_TRASH:
-        if (!thunar_launcher_show_trash(launcher))
+        if (!_launcher_show_trash(launcher))
             return NULL;
 
         show_item = launcher->files_are_selected;
@@ -1553,7 +1553,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
 
     case LAUNCHER_ACTION_DELETE:
-        if (thunar_launcher_show_trash(launcher) && !show_delete_item)
+        if (_launcher_show_trash(launcher) && !show_delete_item)
             return NULL;
 
         show_item = launcher->files_are_selected;
@@ -1755,7 +1755,7 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
 
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    //DPRINT("thunar_launcher_action_create_folder\n");
+    //DPRINT("_launcher_action_create_folder\n");
 
     if (th_file_is_trashed(launcher->current_directory))
         return;
@@ -2095,7 +2095,7 @@ static void _launcher_action_make_link(ThunarLauncher *launcher)
     g_list_free(g_files);
 }
 
-static void _thunar_launcher_rename_finished(ExoJob    *job,
+static void _launcher_rename_finished(ExoJob    *job,
                                              GtkWidget *widget)
 {
     thunar_return_if_fail(EXO_IS_JOB(job));
@@ -2105,7 +2105,7 @@ static void _thunar_launcher_rename_finished(ExoJob    *job,
     g_object_unref(job);
 }
 
-static void _thunar_launcher_rename_error(ExoJob    *job,
+static void _launcher_rename_error(ExoJob    *job,
                                          GError    *error,
                                          GtkWidget *widget)
 {
@@ -2151,11 +2151,11 @@ void launcher_action_rename(ThunarLauncher *launcher)
         {
             g_signal_connect(job,
                              "error",
-                             G_CALLBACK(_thunar_launcher_rename_error),
+                             G_CALLBACK(_launcher_rename_error),
                              launcher->widget);
             g_signal_connect(job,
                              "finished",
-                             G_CALLBACK(_thunar_launcher_rename_finished),
+                             G_CALLBACK(_launcher_rename_finished),
                              launcher->widget);
         }
     }
@@ -2236,7 +2236,7 @@ void launcher_action_mount(ThunarLauncher *launcher)
     _launcher_poke(launcher, NULL, LAUNCHER_NO_ACTION);
 }
 
-static void thunar_launcher_action_eject_finish(ThunarDevice  *device,
+static void _launcher_action_eject_finish(ThunarDevice  *device,
                                                 const GError *error,
                                                 gpointer      user_data)
 {
@@ -2276,14 +2276,14 @@ void launcher_action_eject(ThunarLauncher *launcher)
         th_device_eject(launcher->device_to_process,
                              mount_operation,
                              NULL,
-                             thunar_launcher_action_eject_finish,
+                             _launcher_action_eject_finish,
                              g_object_ref(launcher));
 
         g_object_unref(mount_operation);
     }
 }
 
-static void thunar_launcher_action_unmount_finish(ThunarDevice *device,
+static void _launcher_action_unmount_finish(ThunarDevice *device,
                                                   const GError *error,
                                                   gpointer      user_data)
 {
@@ -2322,7 +2322,7 @@ void launcher_action_unmount(ThunarLauncher *launcher)
         th_device_unmount(launcher->device_to_process,
                                mount_operation,
                                NULL,
-                               thunar_launcher_action_unmount_finish,
+                               _launcher_action_unmount_finish,
                                g_object_ref(launcher));
 
         /* release the device */
@@ -2365,7 +2365,7 @@ static void _launcher_action_properties(ThunarLauncher *launcher)
 
 /* helper method in order to find the parent menu for a menu item */
 static GtkWidget*
-thunar_launcher_create_document_submenu_templates_find_parent_menu(
+_launcher_create_document_submenu_templates_find_parent_menu(
                                                         ThunarFile *file,
                                                         GList      *dirs,
                                                         GList      *items)
@@ -2402,7 +2402,7 @@ thunar_launcher_create_document_submenu_templates_find_parent_menu(
 }
 
 /* recursive helper method in order to create menu items for all available templates */
-static gboolean thunar_launcher_create_document_submenu_templates(
+static gboolean _launcher_create_document_submenu_templates(
                                             ThunarLauncher *launcher,
                                             GtkWidget   *create_file_submenu,
                                             GList       *files)
@@ -2436,7 +2436,7 @@ static gboolean thunar_launcher_create_document_submenu_templates(
         file = lp->data;
 
         /* determine the parent menu for this file/directory */
-        parent_menu = thunar_launcher_create_document_submenu_templates_find_parent_menu(file, dirs, items);
+        parent_menu = _launcher_create_document_submenu_templates_find_parent_menu(file, dirs, items);
         if (parent_menu == NULL)
             parent_menu = create_file_submenu;
 
@@ -2527,7 +2527,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
     }
     else
     {
-        thunar_launcher_create_document_submenu_templates(launcher, submenu, files);
+        _launcher_create_document_submenu_templates(launcher, submenu, files);
         eg_list_free(files);
     }
 
@@ -2542,7 +2542,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
     return submenu;
 }
 
-static GtkWidget* thunar_launcher_build_application_submenu(
+static GtkWidget* _launcher_build_application_submenu(
                                                 ThunarLauncher *launcher,
                                                 GList          *applications)
 {
@@ -2655,7 +2655,7 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
         menu_item = xfce_gtk_menu_item_new(_("Open With"),
                                             _("Choose another application with which to open the selected file"),
                                             NULL, NULL, NULL, menu);
-        submenu = thunar_launcher_build_application_submenu(launcher, applications);
+        submenu = _launcher_build_application_submenu(launcher, applications);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
     }
     else
