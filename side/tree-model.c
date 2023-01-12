@@ -205,6 +205,7 @@ typedef struct
 {
     gint    offset;
     GNode   *node;
+
 } SortTuple;
 
 G_DEFINE_TYPE_WITH_CODE(ThunarTreeModel, thunar_tree_model, G_TYPE_OBJECT,
@@ -294,8 +295,8 @@ static void thunar_tree_model_init(ThunarTreeModel *model)
     g_signal_connect(model->device_monitor, "device-changed", G_CALLBACK(thunar_tree_model_device_changed), model);
 
     /* append the computer icon if browsing the computer is supported */
-    if (eg_vfs_is_uri_scheme_supported("computer"))
-        system_paths = g_list_append(system_paths, g_file_new_for_uri("computer://"));
+    //if (eg_vfs_is_uri_scheme_supported("computer"))
+    //    system_paths = g_list_append(system_paths, g_file_new_for_uri("computer://"));
 
     /* add the home folder to the system paths */
     home = eg_file_new_for_home();
