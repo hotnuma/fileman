@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#include <chooser-combo.h>
+#include <appcombo.h>
 
 #include <chooser-dlg.h>
 #include <dialogs.h>
@@ -59,22 +59,22 @@ static void thunar_chooser_button_set_property(GObject *object,
 static gboolean thunar_chooser_button_scroll_event(GtkWidget *widget,
                                                    GdkEventScroll *event);
 static void thunar_chooser_button_changed(GtkComboBox *combo_box);
-static void thunar_chooser_button_popup(ThunarChooserButton *chooser_button);
+static void thunar_chooser_button_popup(AppCombo *chooser_button);
 static gint thunar_chooser_button_sort_applications(gconstpointer a,
                                                     gconstpointer b);
 static gboolean thunar_chooser_button_row_separator(GtkTreeModel *model,
                                                     GtkTreeIter *iter,
                                                     gpointer data);
-static void thunar_chooser_button_chooser_dialog(ThunarChooserButton *chooser_button);
-static void thunar_chooser_button_file_changed(ThunarChooserButton *chooser_button,
+static void thunar_chooser_button_chooser_dialog(AppCombo *chooser_button);
+static void thunar_chooser_button_file_changed(AppCombo *chooser_button,
                                                ThunarFile *file);
 
-struct _ThunarChooserButtonClass
+struct _AppComboClass
 {
     GtkComboBoxClass __parent__;
 };
 
-struct _ThunarChooserButton
+struct _AppCombo
 {
     GtkComboBox   __parent__;
 
@@ -83,9 +83,9 @@ struct _ThunarChooserButton
     gboolean      has_default_application;
 };
 
-G_DEFINE_TYPE(ThunarChooserButton, thunar_chooser_button, GTK_TYPE_COMBO_BOX)
+G_DEFINE_TYPE(AppCombo, appcombo, GTK_TYPE_COMBO_BOX)
 
-static void thunar_chooser_button_class_init(ThunarChooserButtonClass *klass)
+static void appcombo_class_init(AppComboClass *klass)
 {
     GObjectClass   *gobject_class;
     GtkWidgetClass *gtkwidget_class;
@@ -99,7 +99,7 @@ static void thunar_chooser_button_class_init(ThunarChooserButtonClass *klass)
     gtkwidget_class->scroll_event = thunar_chooser_button_scroll_event;
 
     /**
-     * ThunarChooserButton:file:
+     * AppCombo:file:
      *
      * The #ThunarFile for which a preferred application should
      * be chosen.
@@ -113,7 +113,7 @@ static void thunar_chooser_button_class_init(ThunarChooserButtonClass *klass)
                                     E_PARAM_READWRITE));
 }
 
-static void thunar_chooser_button_init(ThunarChooserButton *chooser_button)
+static void appcombo_init(AppCombo *chooser_button)
 {
     GtkCellRenderer *renderer;
 
@@ -162,7 +162,7 @@ static void thunar_chooser_button_init(ThunarChooserButton *chooser_button)
 
 static void thunar_chooser_button_finalize(GObject *object)
 {
-    ThunarChooserButton *chooser_button = THUNAR_CHOOSER_BUTTON(object);
+    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(object);
 
     /* reset the "file" property */
     thunar_chooser_button_set_file(chooser_button, NULL);
@@ -170,7 +170,7 @@ static void thunar_chooser_button_finalize(GObject *object)
     /* release the store */
     g_object_unref(G_OBJECT(chooser_button->store));
 
-    (*G_OBJECT_CLASS(thunar_chooser_button_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(appcombo_parent_class)->finalize(object);
 }
 
 static void thunar_chooser_button_get_property(GObject    *object,
@@ -179,9 +179,10 @@ static void thunar_chooser_button_get_property(GObject    *object,
                                                GParamSpec *pspec)
 {
     UNUSED(pspec);
-    ThunarChooserButton *chooser_button = THUNAR_CHOOSER_BUTTON(object);
 
-    switch(prop_id)
+    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(object);
+
+    switch (prop_id)
     {
     case PROP_FILE:
         g_value_set_object(value, chooser_button->file);
@@ -200,9 +201,9 @@ static void thunar_chooser_button_set_property(GObject      *object,
 {
     UNUSED(pspec);
 
-    ThunarChooserButton *chooser_button = THUNAR_CHOOSER_BUTTON(object);
+    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_FILE:
         thunar_chooser_button_set_file(chooser_button, g_value_get_object(value));
@@ -217,7 +218,7 @@ static void thunar_chooser_button_set_property(GObject      *object,
 static gboolean thunar_chooser_button_scroll_event(GtkWidget      *widget,
                                                    GdkEventScroll *event)
 {
-    ThunarChooserButton *chooser_button = THUNAR_CHOOSER_BUTTON(widget);
+    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(widget);
     GtkTreeIter          iter;
     GObject             *application;
     GtkTreeModel        *model = GTK_TREE_MODEL(chooser_button->store);
@@ -240,12 +241,12 @@ static gboolean thunar_chooser_button_scroll_event(GtkWidget      *widget,
         g_object_unref(G_OBJECT(application));
     }
 
-    return(*GTK_WIDGET_CLASS(thunar_chooser_button_parent_class)->scroll_event)(widget, event);
+    return GTK_WIDGET_CLASS(appcombo_parent_class)->scroll_event(widget, event);
 }
 
 static void thunar_chooser_button_changed(GtkComboBox *combo_box)
 {
-    ThunarChooserButton *chooser_button = THUNAR_CHOOSER_BUTTON(combo_box);
+    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(combo_box);
     GtkTreeIter          iter;
     const gchar         *content_type;
     GAppInfo            *app_info;
@@ -297,7 +298,7 @@ static void thunar_chooser_button_changed(GtkComboBox *combo_box)
     }
 }
 
-static void thunar_chooser_button_popup(ThunarChooserButton *chooser_button)
+static void thunar_chooser_button_popup(AppCombo *chooser_button)
 {
     thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
 
@@ -338,7 +339,7 @@ static gboolean thunar_chooser_button_row_separator(GtkTreeModel *model,
     return TRUE;
 }
 
-static void thunar_chooser_button_chooser_dialog(ThunarChooserButton *chooser_button)
+static void thunar_chooser_button_chooser_dialog(AppCombo *chooser_button)
 {
     GtkWidget *toplevel;
     GtkWidget *dialog;
@@ -369,7 +370,7 @@ static void thunar_chooser_button_chooser_dialog(ThunarChooserButton *chooser_bu
     gtk_widget_destroy(dialog);
 }
 
-static void thunar_chooser_button_file_changed(ThunarChooserButton *chooser_button,
+static void thunar_chooser_button_file_changed(AppCombo *chooser_button,
                                                ThunarFile          *file)
 {
     const gchar *content_type;
@@ -484,9 +485,9 @@ static void thunar_chooser_button_file_changed(ThunarChooserButton *chooser_butt
 /**
  * thunar_chooser_button_new:
  *
- * Allocates a new #ThunarChooserButton instance.
+ * Allocates a new #AppCombo instance.
  *
- * Return value: the newly allocated #ThunarChooserButton.
+ * Return value: the newly allocated #AppCombo.
  **/
 GtkWidget* thunar_chooser_button_new()
 {
@@ -495,12 +496,12 @@ GtkWidget* thunar_chooser_button_new()
 
 /**
  * thunar_chooser_button_set_file:
- * @chooser_button : a #ThunarChooserButton instance.
+ * @chooser_button : a #AppCombo instance.
  * @file           : a #ThunarFile or %NULL.
  *
  * Associates @chooser_button with the specified @file.
  **/
-void thunar_chooser_button_set_file(ThunarChooserButton *chooser_button,
+void thunar_chooser_button_set_file(AppCombo *chooser_button,
                                     ThunarFile          *file)
 {
     thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));

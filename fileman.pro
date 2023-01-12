@@ -23,7 +23,7 @@ HEADERS = \
     core/th-file.h \
     core/th-folder.h \
     core/user.h \
-    dialog/chooser-combo.h \
+    dialog/appcombo.h \
     dialog/chooser-dlg.h \
     dialog/chooser-model.h \
     dialog/dialogs.h \
@@ -93,7 +93,7 @@ SOURCES = \
     core/th-file.c \
     core/th-folder.c \
     core/user.c \
-    dialog/chooser-combo.c \
+    dialog/appcombo.c \
     dialog/chooser-dlg.c \
     dialog/chooser-model.c \
     dialog/dialogs.c \

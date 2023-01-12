@@ -23,21 +23,21 @@
 
 G_BEGIN_DECLS;
 
-typedef struct _ThunarChooserButtonClass ThunarChooserButtonClass;
-typedef struct _ThunarChooserButton      ThunarChooserButton;
+typedef struct _AppComboClass AppComboClass;
+typedef struct _AppCombo      AppCombo;
 
-#define THUNAR_TYPE_CHOOSER_BUTTON            (thunar_chooser_button_get_type ())
-#define THUNAR_CHOOSER_BUTTON(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_CHOOSER_BUTTON, ThunarChooserButton))
-#define THUNAR_CHOOSER_BUTTON_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_CHOOSER_BUTTON, ThunarChooserButtonClass))
+#define THUNAR_TYPE_CHOOSER_BUTTON            (appcombo_get_type ())
+#define THUNAR_CHOOSER_BUTTON(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_CHOOSER_BUTTON, AppCombo))
+#define THUNAR_CHOOSER_BUTTON_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_CHOOSER_BUTTON, AppComboClass))
 #define THUNAR_IS_CHOOSER_BUTTON(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_CHOOSER_BUTTON))
 #define THUNAR_IS_CHOOSER_BUTTON_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_CHOOSER_BUTTON))
-#define THUNAR_CHOOSER_BUTTON_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CHOOSER_BUTTON, ThunarChooserButtonClass))
+#define THUNAR_CHOOSER_BUTTON_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CHOOSER_BUTTON, AppComboClass))
 
-GType thunar_chooser_button_get_type() G_GNUC_CONST;
+GType appcombo_get_type() G_GNUC_CONST;
 
 GtkWidget* thunar_chooser_button_new() G_GNUC_MALLOC;
 
-void thunar_chooser_button_set_file(ThunarChooserButton *chooser_button,
+void thunar_chooser_button_set_file(AppCombo *chooser_button,
                                     ThunarFile          *file);
 
 G_END_DECLS;
