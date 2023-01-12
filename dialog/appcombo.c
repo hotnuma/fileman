@@ -39,12 +39,12 @@ enum
 
 enum
 {
-    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_NAME,
-    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_ICON,
-    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_APPLICATION,
-    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_SENSITIVE,
-    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_STYLE,
-    THUNAR_CHOOSER_BUTTON_STORE_N_COLUMNS
+    APPCOMBO_STORE_COLUMN_NAME,
+    APPCOMBO_STORE_COLUMN_ICON,
+    APPCOMBO_STORE_COLUMN_APPLICATION,
+    APPCOMBO_STORE_COLUMN_SENSITIVE,
+    APPCOMBO_STORE_COLUMN_STYLE,
+    APPCOMBO_STORE_N_COLUMNS
 };
 
 static void thunar_chooser_button_finalize(GObject *object);
@@ -118,7 +118,7 @@ static void appcombo_init(AppCombo *chooser_button)
     GtkCellRenderer *renderer;
 
     /* allocate a new store for the combo box */
-    chooser_button->store = gtk_list_store_new(THUNAR_CHOOSER_BUTTON_STORE_N_COLUMNS,
+    chooser_button->store = gtk_list_store_new(APPCOMBO_STORE_N_COLUMNS,
                             G_TYPE_STRING,
                             G_TYPE_ICON,
                             G_TYPE_OBJECT,
@@ -142,9 +142,9 @@ static void appcombo_init(AppCombo *chooser_button)
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(chooser_button), renderer, FALSE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(chooser_button), renderer,
                                     "gicon",
-                                    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_ICON,
+                                    APPCOMBO_STORE_COLUMN_ICON,
                                     "sensitive",
-                                    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_SENSITIVE,
+                                    APPCOMBO_STORE_COLUMN_SENSITIVE,
                                     NULL);
 
     /* add renderer for the application name */
@@ -152,17 +152,17 @@ static void appcombo_init(AppCombo *chooser_button)
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(chooser_button), renderer, FALSE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(chooser_button), renderer,
                                     "text",
-                                    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_NAME,
+                                    APPCOMBO_STORE_COLUMN_NAME,
                                     "sensitive",
-                                    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_SENSITIVE,
+                                    APPCOMBO_STORE_COLUMN_SENSITIVE,
                                     "style",
-                                    THUNAR_CHOOSER_BUTTON_STORE_COLUMN_STYLE,
+                                    APPCOMBO_STORE_COLUMN_STYLE,
                                     NULL);
 }
 
 static void thunar_chooser_button_finalize(GObject *object)
 {
-    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(object);
+    AppCombo *chooser_button = APPCOMBO(object);
 
     /* reset the "file" property */
     thunar_chooser_button_set_file(chooser_button, NULL);
@@ -180,7 +180,7 @@ static void thunar_chooser_button_get_property(GObject    *object,
 {
     UNUSED(pspec);
 
-    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(object);
+    AppCombo *chooser_button = APPCOMBO(object);
 
     switch (prop_id)
     {
@@ -201,7 +201,7 @@ static void thunar_chooser_button_set_property(GObject      *object,
 {
     UNUSED(pspec);
 
-    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(object);
+    AppCombo *chooser_button = APPCOMBO(object);
 
     switch (prop_id)
     {
@@ -218,12 +218,12 @@ static void thunar_chooser_button_set_property(GObject      *object,
 static gboolean thunar_chooser_button_scroll_event(GtkWidget      *widget,
                                                    GdkEventScroll *event)
 {
-    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(widget);
+    AppCombo *chooser_button = APPCOMBO(widget);
     GtkTreeIter          iter;
     GObject             *application;
     GtkTreeModel        *model = GTK_TREE_MODEL(chooser_button->store);
 
-    g_return_val_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button), FALSE);
+    g_return_val_if_fail(IS_APPCOMBO(chooser_button), FALSE);
 
     /* check if the next application in the store is valid if we scroll down,
      * else drop the event so we don't popup the chooser dailog */
@@ -232,7 +232,7 @@ static gboolean thunar_chooser_button_scroll_event(GtkWidget      *widget,
             && gtk_tree_model_iter_next(model, &iter))
     {
         gtk_tree_model_get(model, &iter,
-                            THUNAR_CHOOSER_BUTTON_STORE_COLUMN_APPLICATION,
+                            APPCOMBO_STORE_COLUMN_APPLICATION,
                             &application, -1);
 
         if (application == NULL)
@@ -246,13 +246,13 @@ static gboolean thunar_chooser_button_scroll_event(GtkWidget      *widget,
 
 static void thunar_chooser_button_changed(GtkComboBox *combo_box)
 {
-    AppCombo *chooser_button = THUNAR_CHOOSER_BUTTON(combo_box);
+    AppCombo *chooser_button = APPCOMBO(combo_box);
     GtkTreeIter          iter;
     const gchar         *content_type;
     GAppInfo            *app_info;
     GError              *error = NULL;
 
-    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
     thunar_return_if_fail(GTK_IS_LIST_STORE(chooser_button->store));
 
     /* verify that we still have a valid file */
@@ -265,7 +265,7 @@ static void thunar_chooser_button_changed(GtkComboBox *combo_box)
 
     /* determine the application that was set for the item */
     gtk_tree_model_get(GTK_TREE_MODEL(chooser_button->store), &iter,
-                        THUNAR_CHOOSER_BUTTON_STORE_COLUMN_APPLICATION,
+                        APPCOMBO_STORE_COLUMN_APPLICATION,
                         &app_info, -1);
 
     if (G_LIKELY(app_info != NULL))
@@ -300,7 +300,7 @@ static void thunar_chooser_button_changed(GtkComboBox *combo_box)
 
 static void thunar_chooser_button_popup(AppCombo *chooser_button)
 {
-    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
 
     if (!chooser_button->has_default_application)
     {
@@ -329,7 +329,7 @@ static gboolean thunar_chooser_button_row_separator(GtkTreeModel *model,
     gchar *name;
 
     /* determine the value of the "name" column */
-    gtk_tree_model_get(model, iter, THUNAR_CHOOSER_BUTTON_STORE_COLUMN_NAME, &name, -1);
+    gtk_tree_model_get(model, iter, APPCOMBO_STORE_COLUMN_NAME, &name, -1);
     if (G_LIKELY(name != NULL))
     {
         g_free(name);
@@ -344,7 +344,7 @@ static void thunar_chooser_button_chooser_dialog(AppCombo *chooser_button)
     GtkWidget *toplevel;
     GtkWidget *dialog;
 
-    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
 
     /* determine the toplevel window for the chooser */
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser_button));
@@ -381,7 +381,7 @@ static void thunar_chooser_button_file_changed(AppCombo *chooser_button,
     gchar       *description;
     guint        i = 0;
 
-    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
     thunar_return_if_fail(chooser_button->file == file);
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 
@@ -423,13 +423,13 @@ static void thunar_chooser_button_file_changed(AppCombo *chooser_button,
                 {
                     /* insert the item into the store */
                     gtk_list_store_insert_with_values(chooser_button->store, &iter, i,
-                                                       THUNAR_CHOOSER_BUTTON_STORE_COLUMN_NAME,
+                                                       APPCOMBO_STORE_COLUMN_NAME,
                                                        g_app_info_get_name(lp->data),
-                                                       THUNAR_CHOOSER_BUTTON_STORE_COLUMN_APPLICATION,
+                                                       APPCOMBO_STORE_COLUMN_APPLICATION,
                                                        lp->data,
-                                                       THUNAR_CHOOSER_BUTTON_STORE_COLUMN_ICON,
+                                                       APPCOMBO_STORE_COLUMN_ICON,
                                                        g_app_info_get_icon(lp->data),
-                                                       THUNAR_CHOOSER_BUTTON_STORE_COLUMN_SENSITIVE,
+                                                       APPCOMBO_STORE_COLUMN_SENSITIVE,
                                                        TRUE,
                                                        -1);
 
@@ -457,9 +457,9 @@ static void thunar_chooser_button_file_changed(AppCombo *chooser_button,
     {
         /* add the "No application selected" item and set as active */
         gtk_list_store_insert_with_values(chooser_button->store, &iter, 0,
-                                           THUNAR_CHOOSER_BUTTON_STORE_COLUMN_NAME,
+                                           APPCOMBO_STORE_COLUMN_NAME,
                                            _("No application selected"),
-                                           THUNAR_CHOOSER_BUTTON_STORE_COLUMN_STYLE,
+                                           APPCOMBO_STORE_COLUMN_STYLE,
                                            PANGO_STYLE_ITALIC,
                                            -1);
         gtk_combo_box_set_active_iter(GTK_COMBO_BOX(chooser_button), &iter);
@@ -470,9 +470,9 @@ static void thunar_chooser_button_file_changed(AppCombo *chooser_button,
 
     /* add the "Other Application..." option */
     gtk_list_store_insert_with_values(chooser_button->store, NULL, ++i,
-                                       THUNAR_CHOOSER_BUTTON_STORE_COLUMN_NAME,
+                                       APPCOMBO_STORE_COLUMN_NAME,
                                        _("Other Application..."),
-                                       THUNAR_CHOOSER_BUTTON_STORE_COLUMN_SENSITIVE,
+                                       APPCOMBO_STORE_COLUMN_SENSITIVE,
                                        TRUE,
                                        -1);
 
@@ -491,7 +491,7 @@ static void thunar_chooser_button_file_changed(AppCombo *chooser_button,
  **/
 GtkWidget* thunar_chooser_button_new()
 {
-    return g_object_new(THUNAR_TYPE_CHOOSER_BUTTON, NULL);
+    return g_object_new(TYPE_APPCOMBO, NULL);
 }
 
 /**
@@ -504,7 +504,7 @@ GtkWidget* thunar_chooser_button_new()
 void thunar_chooser_button_set_file(AppCombo *chooser_button,
                                     ThunarFile          *file)
 {
-    thunar_return_if_fail(THUNAR_IS_CHOOSER_BUTTON(chooser_button));
+    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
     thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     /* check if we already use that file */

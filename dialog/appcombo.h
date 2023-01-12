@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_CHOOSER_BUTTON_H__
-#define __THUNAR_CHOOSER_BUTTON_H__
+#ifndef __APPCOMBO_H__
+#define __APPCOMBO_H__
 
 #include <th-file.h>
 
@@ -26,12 +26,17 @@ G_BEGIN_DECLS;
 typedef struct _AppComboClass AppComboClass;
 typedef struct _AppCombo      AppCombo;
 
-#define THUNAR_TYPE_CHOOSER_BUTTON            (appcombo_get_type ())
-#define THUNAR_CHOOSER_BUTTON(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_CHOOSER_BUTTON, AppCombo))
-#define THUNAR_CHOOSER_BUTTON_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_CHOOSER_BUTTON, AppComboClass))
-#define THUNAR_IS_CHOOSER_BUTTON(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_CHOOSER_BUTTON))
-#define THUNAR_IS_CHOOSER_BUTTON_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_CHOOSER_BUTTON))
-#define THUNAR_CHOOSER_BUTTON_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CHOOSER_BUTTON, AppComboClass))
+#define TYPE_APPCOMBO (appcombo_get_type())
+#define APPCOMBO(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_APPCOMBO, AppCombo))
+#define APPCOMBO_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_APPCOMBO, AppComboClass))
+#define IS_APPCOMBO(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_APPCOMBO))
+#define IS_APPCOMBO_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_APPCOMBO))
+#define APPCOMBO_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_APPCOMBO, AppComboClass))
 
 GType appcombo_get_type() G_GNUC_CONST;
 
@@ -42,6 +47,6 @@ void thunar_chooser_button_set_file(AppCombo *chooser_button,
 
 G_END_DECLS;
 
-#endif /* !__THUNAR_CHOOSER_BUTTON_H__ */
+#endif /* !__APPCOMBO_H__ */
 
 

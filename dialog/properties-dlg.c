@@ -935,7 +935,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     show_chooser = th_file_is_regular(file) && !th_file_is_executable(file);
     gtk_widget_set_visible(dialog->openwith_chooser, show_chooser);
     if (show_chooser)
-        thunar_chooser_button_set_file(THUNAR_CHOOSER_BUTTON(dialog->openwith_chooser), file);
+        thunar_chooser_button_set_file(APPCOMBO(dialog->openwith_chooser), file);
 
     /* update the link target */
     path = th_file_is_symlink(file) ? th_file_get_symlink_target(file) : NULL;
