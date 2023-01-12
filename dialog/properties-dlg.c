@@ -541,7 +541,7 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
        Permissions chooser
      */
     label = gtk_label_new(_("Permissions"));
-    dialog->permissions_chooser = thunar_permissions_chooser_new();
+    dialog->permissions_chooser = permbox_new();
     g_object_bind_property(G_OBJECT(dialog), "files", G_OBJECT(dialog->permissions_chooser), "files", G_BINDING_SYNC_CREATE);
     gtk_notebook_append_page(GTK_NOTEBOOK(dialog->notebook), dialog->permissions_chooser, label);
     gtk_widget_show(dialog->permissions_chooser);

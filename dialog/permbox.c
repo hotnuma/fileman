@@ -58,61 +58,65 @@ enum
     THUNAR_PERMISSIONS_STORE_N_COLUMNS,
 };
 
-static void thunar_permissions_chooser_finalize(GObject *object);
-static void thunar_permissions_chooser_get_property(GObject *object,
+static void permbox_finalize(GObject *object);
+static void permbox_get_property(GObject *object,
                                                      guint prop_id,
                                                      GValue *value,
                                                      GParamSpec *pspec);
-static void thunar_permissions_chooser_set_property(GObject *object,
+static void permbox_set_property(GObject *object,
                                                      guint prop_id,
                                                      const GValue *value,
                                                      GParamSpec *pspec);
-static gint thunar_permissions_chooser_ask_recursive(ThunarPermissionsChooser *chooser);
-static void thunar_permissions_chooser_change_group(ThunarPermissionsChooser *chooser,
+
+static gint _permbox_ask_recursive(PermissionBox *chooser);
+static void _permbox_change_group(PermissionBox *chooser,
                                                      guint32 gid);
-static gboolean thunar_permissions_chooser_change_mode(ThunarPermissionsChooser *chooser,
+static gboolean _permbox_change_mode(PermissionBox *chooser,
                                                          ThunarFileMode dir_mask,
                                                          ThunarFileMode dir_mode,
                                                          ThunarFileMode file_mask,
                                                          ThunarFileMode file_mode);
-static void thunar_permissions_chooser_access_changed(ThunarPermissionsChooser *chooser,
+static void _permbox_access_changed(PermissionBox *chooser,
                                                      GtkWidget *combo);
-static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *chooser);
-static void thunar_permissions_chooser_group_changed(ThunarPermissionsChooser *chooser,
+static void _permbox_file_changed(PermissionBox *chooser);
+static void _permbox_group_changed(PermissionBox *chooser,
                                                      GtkWidget *combo);
-static void thunar_permissions_chooser_program_toggled(ThunarPermissionsChooser *chooser,
+static void _permbox_program_toggled(PermissionBox *chooser,
                                                          GtkWidget *button);
-static void thunar_permissions_chooser_fixperm_clicked(ThunarPermissionsChooser *chooser,
+static void _permbox_fixperm_clicked(PermissionBox *chooser,
                                                      GtkWidget *button);
-static ThunarJobResponse thunar_permissions_chooser_job_ask(ThunarPermissionsChooser *chooser,
+
+static ThunarJobResponse _permbox_job_ask(PermissionBox *chooser,
                                                      const gchar *message,
                                                      ThunarJobResponse choices,
                                                      ThunarJob *job);
-static void thunar_permissions_chooser_job_cancel(ThunarPermissionsChooser *chooser);
-static void thunar_permissions_chooser_job_error(ThunarPermissionsChooser *chooser,
+static void _permbox_job_cancel(PermissionBox *chooser);
+static void _permbox_job_error(PermissionBox *chooser,
                                                  GError *error,
                                                  ThunarJob *job);
-static void thunar_permissions_chooser_job_finished(ThunarPermissionsChooser *chooser,
+static void _permbox_job_finished(PermissionBox *chooser,
                                                      ThunarJob *job);
-static void thunar_permissions_chooser_job_percent(ThunarPermissionsChooser *chooser,
+static void _permbox_job_percent(PermissionBox *chooser,
                                                  gdouble percent,
                                                  ThunarJob *job);
-static void thunar_permissions_chooser_job_start(ThunarPermissionsChooser *chooser,
+static void _permbox_job_start(PermissionBox *chooser,
                                                  ThunarJob *job,
                                                  gboolean recursive);
-static gboolean thunar_permissions_chooser_row_separator(GtkTreeModel *model,
+
+static gboolean _permbox_row_separator(GtkTreeModel *model,
                                                      GtkTreeIter *iter,
                                                      gpointer data);
-static GList* thunar_permissions_chooser_get_files(ThunarPermissionsChooser *chooser);
-static void thunar_permissions_chooser_set_files(ThunarPermissionsChooser *chooser,
+
+static GList* _permbox_get_files(PermissionBox *chooser);
+static void _permbox_set_files(PermissionBox *chooser,
                                                      GList *files);
 
-struct _ThunarPermissionsChooserClass
+struct _PermissionBoxClass
 {
     GtkBoxClass __parent__;
 };
 
-struct _ThunarPermissionsChooser
+struct _PermissionBox
 {
     GtkBox     __parent__;
 
@@ -133,15 +137,14 @@ struct _ThunarPermissionsChooser
     GtkWidget  *job_progress;
 };
 
-G_DEFINE_TYPE(ThunarPermissionsChooser, thunar_permissions_chooser, GTK_TYPE_BOX)
+G_DEFINE_TYPE(PermissionBox, permbox, GTK_TYPE_BOX)
 
-static void
-thunar_permissions_chooser_class_init(ThunarPermissionsChooserClass *klass)
+static void permbox_class_init(PermissionBoxClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_permissions_chooser_finalize;
-    gobject_class->get_property = thunar_permissions_chooser_get_property;
-    gobject_class->set_property = thunar_permissions_chooser_set_property;
+    gobject_class->finalize = permbox_finalize;
+    gobject_class->get_property = permbox_get_property;
+    gobject_class->set_property = permbox_set_property;
 
     g_object_class_install_property(gobject_class,
                                     PROP_FILES,
@@ -162,7 +165,7 @@ thunar_permissions_chooser_class_init(ThunarPermissionsChooserClass *klass)
                                         E_PARAM_READABLE));
 }
 
-static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
+static void permbox_init(PermissionBox *chooser)
 {
     GtkCellRenderer *renderer_text;
     GtkWidget       *separator;
@@ -224,7 +227,7 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
                            G_OBJECT (chooser->access_combos[2]),
                            "sensitive", G_BINDING_SYNC_CREATE);
 
-    g_signal_connect_swapped(G_OBJECT(chooser->access_combos[2]), "changed", G_CALLBACK(thunar_permissions_chooser_access_changed), chooser);
+    g_signal_connect_swapped(G_OBJECT(chooser->access_combos[2]), "changed", G_CALLBACK(_permbox_access_changed), chooser);
     gtk_widget_set_hexpand(chooser->access_combos[2], TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->access_combos[2], 1, row, 1, 1);
     thunar_gtk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[2]);
@@ -249,9 +252,9 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
     gtk_label_set_mnemonic_widget(GTK_LABEL(label), chooser->group_combo);
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(chooser->group_combo), renderer_text, TRUE);
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(chooser->group_combo), renderer_text, "text", THUNAR_PERMISSIONS_STORE_COLUMN_NAME);
-    gtk_combo_box_set_row_separator_func(GTK_COMBO_BOX(chooser->group_combo), thunar_permissions_chooser_row_separator, NULL, NULL);
+    gtk_combo_box_set_row_separator_func(GTK_COMBO_BOX(chooser->group_combo), _permbox_row_separator, NULL, NULL);
     g_object_bind_property(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->group_combo), "sensitive", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped(G_OBJECT(chooser->group_combo), "changed", G_CALLBACK(thunar_permissions_chooser_group_changed), chooser);
+    g_signal_connect_swapped(G_OBJECT(chooser->group_combo), "changed", G_CALLBACK(_permbox_group_changed), chooser);
     gtk_widget_set_hexpand(chooser->group_combo, TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->group_combo, 1, row, 1, 1);
     thunar_gtk_label_set_a11y_relation(GTK_LABEL(label), chooser->group_combo);
@@ -270,7 +273,7 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(chooser->access_combos[1]), renderer_text, TRUE);
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(chooser->access_combos[1]), renderer_text, "text", 0);
     g_object_bind_property(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->access_combos[1]), "sensitive", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped(G_OBJECT(chooser->access_combos[1]), "changed", G_CALLBACK(thunar_permissions_chooser_access_changed), chooser);
+    g_signal_connect_swapped(G_OBJECT(chooser->access_combos[1]), "changed", G_CALLBACK(_permbox_access_changed), chooser);
     gtk_widget_set_hexpand(chooser->access_combos[1], TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->access_combos[1], 1, row, 1, 1);
     thunar_gtk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[1]);
@@ -304,7 +307,7 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(chooser->access_combos[0]), renderer_text, TRUE);
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(chooser->access_combos[0]), renderer_text, "text", 0);
     g_object_bind_property(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->access_combos[0]), "sensitive", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped(G_OBJECT(chooser->access_combos[0]), "changed", G_CALLBACK(thunar_permissions_chooser_access_changed), chooser);
+    g_signal_connect_swapped(G_OBJECT(chooser->access_combos[0]), "changed", G_CALLBACK(_permbox_access_changed), chooser);
     gtk_widget_set_hexpand(chooser->access_combos[0], TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->access_combos[0], 1, row, 1, 1);
     thunar_gtk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[0]);
@@ -328,7 +331,7 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
     chooser->program_button = gtk_check_button_new_with_mnemonic(_("Allow this file to _run as a program"));
     g_object_bind_property(G_OBJECT(chooser->program_button), "visible", G_OBJECT(label), "visible", G_BINDING_SYNC_CREATE);
     g_object_bind_property(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->program_button), "sensitive", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped(G_OBJECT(chooser->program_button), "toggled", G_CALLBACK(thunar_permissions_chooser_program_toggled), chooser);
+    g_signal_connect_swapped(G_OBJECT(chooser->program_button), "toggled", G_CALLBACK(_permbox_program_toggled), chooser);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->program_button, 1, row, 1, 1);
     thunar_gtk_label_set_a11y_relation(GTK_LABEL(label), chooser->program_button);
     gtk_widget_show(chooser->program_button);
@@ -377,7 +380,7 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
 
     chooser->fixperm_button = gtk_button_new_with_mnemonic(_("Correct _folder permissions..."));
     gtk_widget_set_tooltip_text(chooser->fixperm_button, _("Click here to automatically fix the folder permissions."));
-    g_signal_connect_swapped(G_OBJECT(chooser->fixperm_button), "clicked", G_CALLBACK(thunar_permissions_chooser_fixperm_clicked), chooser);
+    g_signal_connect_swapped(G_OBJECT(chooser->fixperm_button), "clicked", G_CALLBACK(_permbox_fixperm_clicked), chooser);
     g_object_bind_property(G_OBJECT(chooser->fixperm_button), "visible", G_OBJECT(hbox), "visible", G_BINDING_SYNC_CREATE);
     gtk_box_pack_end(GTK_BOX(hbox), chooser->fixperm_button, FALSE, FALSE, 0);
     gtk_widget_show(chooser->fixperm_button);
@@ -393,14 +396,14 @@ static void thunar_permissions_chooser_init(ThunarPermissionsChooser *chooser)
 
     button = gtk_button_new();
     gtk_widget_set_tooltip_text(button, _("Stop applying permissions recursively."));
-    g_signal_connect_swapped(G_OBJECT(button), "clicked", G_CALLBACK(thunar_permissions_chooser_job_cancel), chooser);
+    g_signal_connect_swapped(G_OBJECT(button), "clicked", G_CALLBACK(_permbox_job_cancel), chooser);
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
     gtk_widget_show(button);
 }
 
-static void thunar_permissions_chooser_finalize(GObject *object)
+static void permbox_finalize(GObject *object)
 {
-    ThunarPermissionsChooser *chooser = THUNAR_PERMISSIONS_CHOOSER(object);
+    PermissionBox *chooser = PERMISSIONBOX(object);
 
     /* cancel any pending job */
     if (G_UNLIKELY(chooser->job != NULL))
@@ -415,24 +418,24 @@ static void thunar_permissions_chooser_finalize(GObject *object)
     }
 
     /* drop the reference on the file(if any) */
-    thunar_permissions_chooser_set_files(chooser, NULL);
+    _permbox_set_files(chooser, NULL);
 
-    (*G_OBJECT_CLASS(thunar_permissions_chooser_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(permbox_parent_class)->finalize(object);
 }
 
-static void thunar_permissions_chooser_get_property(GObject    *object,
+static void permbox_get_property(GObject    *object,
                                                     guint       prop_id,
                                                     GValue     *value,
                                                     GParamSpec *pspec)
 {
-    ThunarPermissionsChooser *chooser = THUNAR_PERMISSIONS_CHOOSER(object);
+    PermissionBox *chooser = PERMISSIONBOX(object);
     GList *lp;
     UNUSED(pspec);
 
     switch (prop_id)
     {
     case PROP_FILES:
-        g_value_set_boxed(value, thunar_permissions_chooser_get_files(chooser));
+        g_value_set_boxed(value, _permbox_get_files(chooser));
         break;
 
     case PROP_MUTABLE:
@@ -449,18 +452,18 @@ static void thunar_permissions_chooser_get_property(GObject    *object,
     }
 }
 
-static void thunar_permissions_chooser_set_property(GObject      *object,
+static void permbox_set_property(GObject      *object,
                                                     guint         prop_id,
                                                     const GValue *value,
                                                     GParamSpec   *pspec)
 {
-    ThunarPermissionsChooser *chooser = THUNAR_PERMISSIONS_CHOOSER(object);
+    PermissionBox *chooser = PERMISSIONBOX(object);
     UNUSED(pspec);
 
     switch (prop_id)
     {
     case PROP_FILES:
-        thunar_permissions_chooser_set_files(chooser, g_value_get_boxed(value));
+        _permbox_set_files(chooser, g_value_get_boxed(value));
         break;
 
     default:
@@ -469,7 +472,7 @@ static void thunar_permissions_chooser_set_property(GObject      *object,
     }
 }
 
-static gboolean thunar_permissions_chooser_ask_recursive(ThunarPermissionsChooser *chooser)
+static gboolean _permbox_ask_recursive(PermissionBox *chooser)
 {
     GtkWidget                     *toplevel;
     GtkWidget                     *dialog;
@@ -565,7 +568,7 @@ static gboolean thunar_permissions_chooser_ask_recursive(ThunarPermissionsChoose
     return response;
 }
 
-static gboolean thunar_permissions_chooser_has_directory(ThunarPermissionsChooser *chooser)
+static gboolean thunar_permissions_chooser_has_directory(PermissionBox *chooser)
 {
     GList *lp;
 
@@ -591,7 +594,7 @@ static gboolean thunar_permissions_chooser_is_fixable_directory(ThunarFile *file
     return((mode & 0111) !=((mode >> 2) & 0111));
 }
 
-static gboolean thunar_permissions_chooser_has_fixable_directory(ThunarPermissionsChooser *chooser)
+static gboolean thunar_permissions_chooser_has_fixable_directory(PermissionBox *chooser)
 {
     GList *lp;
 
@@ -603,7 +606,7 @@ static gboolean thunar_permissions_chooser_has_fixable_directory(ThunarPermissio
 }
 
 /* free returned list with g_list_free_full(file_list, g_object_unref); */
-static GList* thunar_permissions_chooser_get_file_list(ThunarPermissionsChooser *chooser)
+static GList* thunar_permissions_chooser_get_file_list(PermissionBox *chooser)
 {
     GList *file_list = NULL;
     GList *lp;
@@ -619,20 +622,20 @@ static GList* thunar_permissions_chooser_get_file_list(ThunarPermissionsChooser 
     return file_list;
 }
 
-static void thunar_permissions_chooser_change_group(ThunarPermissionsChooser *chooser, guint32 gid)
+static void _permbox_change_group(PermissionBox *chooser, guint32 gid)
 {
     ThunarJob *job;
     gboolean   recursive = FALSE;
     gint       response;
     GList     *file_list;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(chooser->files != NULL);
 
     /* check if we should operate recursively */
     if (thunar_permissions_chooser_has_directory(chooser))
     {
-        response = thunar_permissions_chooser_ask_recursive(chooser);
+        response = _permbox_ask_recursive(chooser);
         switch(response)
         {
         case GTK_RESPONSE_YES:
@@ -644,7 +647,7 @@ static void thunar_permissions_chooser_change_group(ThunarPermissionsChooser *ch
             break;
 
         default:  /* cancelled by the user */
-            thunar_permissions_chooser_file_changed(chooser);
+            _permbox_file_changed(chooser);
             return;
         }
     }
@@ -652,12 +655,12 @@ static void thunar_permissions_chooser_change_group(ThunarPermissionsChooser *ch
     /* try to allocate the new job */
     file_list = thunar_permissions_chooser_get_file_list(chooser);
     job = io_change_group(file_list, gid, recursive);
-    thunar_permissions_chooser_job_start(chooser, job, recursive);
+    _permbox_job_start(chooser, job, recursive);
     g_list_free_full(file_list, g_object_unref);
     g_object_unref(job);
 }
 
-static gboolean thunar_permissions_chooser_change_mode(ThunarPermissionsChooser *chooser,
+static gboolean _permbox_change_mode(PermissionBox *chooser,
                                                        ThunarFileMode            dir_mask,
                                                        ThunarFileMode            dir_mode,
                                                        ThunarFileMode            file_mask,
@@ -668,13 +671,13 @@ static gboolean thunar_permissions_chooser_change_mode(ThunarPermissionsChooser 
     gint       response;
     GList     *file_list;
 
-    thunar_return_val_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser), FALSE);
+    thunar_return_val_if_fail(IS_PERMISSIONBOX(chooser), FALSE);
     thunar_return_val_if_fail(chooser->files != NULL, FALSE);
 
     /* check if we should operate recursively */
     if (thunar_permissions_chooser_has_directory(chooser))
     {
-        response = thunar_permissions_chooser_ask_recursive(chooser);
+        response = _permbox_ask_recursive(chooser);
         switch(response)
         {
         case GTK_RESPONSE_YES:
@@ -686,7 +689,7 @@ static gboolean thunar_permissions_chooser_change_mode(ThunarPermissionsChooser 
             break;
 
         default:  /* cancelled by the user */
-            thunar_permissions_chooser_file_changed(chooser);
+            _permbox_file_changed(chooser);
             return FALSE;
         }
     }
@@ -694,14 +697,14 @@ static gboolean thunar_permissions_chooser_change_mode(ThunarPermissionsChooser 
     /* try to allocate the new job */
     file_list = thunar_permissions_chooser_get_file_list(chooser);
     job = io_change_mode(file_list, dir_mask, dir_mode, file_mask, file_mode, recursive);
-    thunar_permissions_chooser_job_start(chooser, job, recursive);
+    _permbox_job_start(chooser, job, recursive);
     g_list_free_full(file_list, g_object_unref);
     g_object_unref(job);
 
     return TRUE;
 }
 
-static void thunar_permissions_chooser_access_changed(ThunarPermissionsChooser *chooser, GtkWidget *combo)
+static void _permbox_access_changed(PermissionBox *chooser, GtkWidget *combo)
 {
     ThunarFileMode  file_mask;
     ThunarFileMode  file_mode;
@@ -712,7 +715,7 @@ static void thunar_permissions_chooser_access_changed(ThunarPermissionsChooser *
     GtkTreeModel   *model;
     GtkTreeIter     iter;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(GTK_IS_COMBO_BOX(combo));
 
     /* leave if the active mode is varying */
@@ -735,7 +738,7 @@ static void thunar_permissions_chooser_access_changed(ThunarPermissionsChooser *
     }
 
     /* change the permissions */
-    if (thunar_permissions_chooser_change_mode(chooser, dir_mask, dir_mode, file_mask, file_mode))
+    if (_permbox_change_mode(chooser, dir_mask, dir_mode, file_mask, file_mode))
     {
         /* for better feedback remove the varying item */
         model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo));
@@ -775,7 +778,7 @@ static gint _group_compare(gconstpointer group_a, gconstpointer group_b, gpointe
                                group_get_name(THUNAR_GROUP(group_b)));
 }
 
-static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *chooser)
+static void _permbox_file_changed(PermissionBox *chooser)
 {
     ThunarFile        *file;
     ThunarUserManager *user_manager;
@@ -795,7 +798,7 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
     gint               file_modes[3];
     GtkListStore      *access_store;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
 
     /* compare multiple files */
     for(lp = chooser->files; lp != NULL; lp = lp->next)
@@ -836,7 +839,7 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
     file = THUNAR_FILE(chooser->files->data);
 
     /* allocate a new store for the group combo box */
-    g_signal_handlers_block_by_func(G_OBJECT(chooser->group_combo), thunar_permissions_chooser_group_changed, chooser);
+    g_signal_handlers_block_by_func(G_OBJECT(chooser->group_combo), _permbox_group_changed, chooser);
     store = gtk_list_store_new(THUNAR_PERMISSIONS_STORE_N_COLUMNS, G_TYPE_STRING, G_TYPE_UINT);
     gtk_combo_box_set_model(GTK_COMBO_BOX(chooser->group_combo), GTK_TREE_MODEL(store));
 
@@ -931,7 +934,7 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
     /* determine the file mode and update the combo boxes */
     for(n = 0; n < G_N_ELEMENTS(chooser->access_combos); ++n)
     {
-        g_signal_handlers_block_by_func(G_OBJECT(chooser->access_combos[n]), thunar_permissions_chooser_access_changed, chooser);
+        g_signal_handlers_block_by_func(G_OBJECT(chooser->access_combos[n]), _permbox_access_changed, chooser);
 
         /* allocate the store for the permission combos */
         access_store = gtk_list_store_new(1, G_TYPE_STRING);
@@ -945,16 +948,16 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
         gtk_combo_box_set_model(GTK_COMBO_BOX(chooser->access_combos[n]), GTK_TREE_MODEL(access_store));
         gtk_combo_box_set_active(GTK_COMBO_BOX(chooser->access_combos[n]), modes[n]);
 
-        g_signal_handlers_unblock_by_func(G_OBJECT(chooser->access_combos[n]), thunar_permissions_chooser_access_changed, chooser);
+        g_signal_handlers_unblock_by_func(G_OBJECT(chooser->access_combos[n]), _permbox_access_changed, chooser);
 
         g_object_unref(G_OBJECT(access_store));
     }
 
     /* update the program setting based on the mode(only visible for regular files) */
-    g_signal_handlers_block_by_func(G_OBJECT(chooser->program_button), thunar_permissions_chooser_program_toggled, chooser);
+    g_signal_handlers_block_by_func(G_OBJECT(chooser->program_button), _permbox_program_toggled, chooser);
     g_object_set(G_OBJECT(chooser->program_button), "visible", th_file_is_regular(file), NULL);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chooser->program_button),(mode & 0111) != 0);
-    g_signal_handlers_unblock_by_func(G_OBJECT(chooser->program_button), thunar_permissions_chooser_program_toggled, chooser);
+    g_signal_handlers_unblock_by_func(G_OBJECT(chooser->program_button), _permbox_program_toggled, chooser);
 
     /* update the "inconsistent folder permissions" warning and the "fix permissions" button based on the mode */
     if (thunar_permissions_chooser_has_fixable_directory(chooser))
@@ -971,20 +974,20 @@ static void thunar_permissions_chooser_file_changed(ThunarPermissionsChooser *ch
     }
 
     /* release our reference on the new combo store and unblock the combo */
-    g_signal_handlers_unblock_by_func(G_OBJECT(chooser->group_combo), thunar_permissions_chooser_group_changed, chooser);
+    g_signal_handlers_unblock_by_func(G_OBJECT(chooser->group_combo), _permbox_group_changed, chooser);
     g_object_unref(G_OBJECT(store));
 
     /* emit notification on "mutable", so all widgets update their sensitivity */
     g_object_notify(G_OBJECT(chooser), "mutable");
 }
 
-static void thunar_permissions_chooser_group_changed(ThunarPermissionsChooser *chooser, GtkWidget *combo)
+static void _permbox_group_changed(PermissionBox *chooser, GtkWidget *combo)
 {
     GtkTreeModel *model;
     GtkTreeIter   iter;
     guint32       gid;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(chooser->group_combo == combo);
     thunar_return_if_fail(GTK_IS_COMBO_BOX(combo));
 
@@ -1002,15 +1005,15 @@ static void thunar_permissions_chooser_group_changed(ThunarPermissionsChooser *c
         gtk_tree_model_get(model, &iter, THUNAR_PERMISSIONS_STORE_COLUMN_GID, &gid, -1);
 
         /* ...and try to change the group to the new gid */
-        thunar_permissions_chooser_change_group(chooser, gid);
+        _permbox_change_group(chooser, gid);
     }
 }
 
-static void thunar_permissions_chooser_program_toggled(ThunarPermissionsChooser *chooser, GtkWidget *button)
+static void _permbox_program_toggled(PermissionBox *chooser, GtkWidget *button)
 {
     ThunarFileMode mode;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(chooser->program_button == button);
     thunar_return_if_fail(GTK_IS_TOGGLE_BUTTON(button));
 
@@ -1022,10 +1025,10 @@ static void thunar_permissions_chooser_program_toggled(ThunarPermissionsChooser 
     mode =(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) ? 0111 : 0000;
 
     /* apply the new mode(only the executable bits for files) */
-    thunar_permissions_chooser_change_mode(chooser, 0000, 0000, 0111, mode);
+    _permbox_change_mode(chooser, 0000, 0000, 0111, mode);
 }
 
-static void thunar_permissions_chooser_fixperm_clicked(ThunarPermissionsChooser *chooser, GtkWidget *button)
+static void _permbox_fixperm_clicked(PermissionBox *chooser, GtkWidget *button)
 {
     ThunarFileMode mode;
     GtkWidget     *dialog;
@@ -1035,7 +1038,7 @@ static void thunar_permissions_chooser_fixperm_clicked(ThunarPermissionsChooser 
     GList         *lp;
     GList          file_list;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(chooser->fixperm_button == button);
     thunar_return_if_fail(GTK_IS_BUTTON(button));
     thunar_return_if_fail(thunar_permissions_chooser_has_fixable_directory(chooser));
@@ -1091,20 +1094,20 @@ static void thunar_permissions_chooser_fixperm_clicked(ThunarPermissionsChooser 
                                               0511, mode, 0000, 0000, FALSE);
 
             /* handle the job */
-            thunar_permissions_chooser_job_start(chooser, job, FALSE);
+            _permbox_job_start(chooser, job, FALSE);
             g_object_unref(job);
         }
     }
 }
 
-static ThunarJobResponse thunar_permissions_chooser_job_ask(ThunarPermissionsChooser *chooser,
+static ThunarJobResponse _permbox_job_ask(PermissionBox *chooser,
                                                             const gchar              *message,
                                                             ThunarJobResponse         choices,
                                                             ThunarJob                *job)
 {
     GtkWidget *toplevel;
 
-    thunar_return_val_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser), THUNAR_JOB_RESPONSE_CANCEL);
+    thunar_return_val_if_fail(IS_PERMISSIONBOX(chooser), THUNAR_JOB_RESPONSE_CANCEL);
     thunar_return_val_if_fail(g_utf8_validate(message, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
     thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     thunar_return_val_if_fail(chooser->job == job, THUNAR_JOB_RESPONSE_CANCEL);
@@ -1121,9 +1124,9 @@ static ThunarJobResponse thunar_permissions_chooser_job_ask(ThunarPermissionsCho
     return dialog_job_ask(GTK_WINDOW(toplevel), message, choices);
 }
 
-static void thunar_permissions_chooser_job_cancel(ThunarPermissionsChooser *chooser)
+static void _permbox_job_cancel(PermissionBox *chooser)
 {
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
 
     /* verify that we have a job to cancel */
     if (G_UNLIKELY(chooser->job == NULL))
@@ -1144,13 +1147,13 @@ static void thunar_permissions_chooser_job_cancel(ThunarPermissionsChooser *choo
     gtk_widget_set_sensitive(chooser->grid, TRUE);
 }
 
-static void thunar_permissions_chooser_job_error(ThunarPermissionsChooser *chooser,
+static void _permbox_job_error(PermissionBox *chooser,
                                                  GError                   *error,
                                                  ThunarJob                *job)
 {
     GtkWidget *toplevel;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(error != NULL && error->message != NULL);
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(chooser->job == job);
@@ -1167,21 +1170,21 @@ static void thunar_permissions_chooser_job_error(ThunarPermissionsChooser *choos
     dialog_job_error(GTK_WINDOW(toplevel), error);
 }
 
-static void thunar_permissions_chooser_job_finished(ThunarPermissionsChooser *chooser, ThunarJob *job)
+static void _permbox_job_finished(PermissionBox *chooser, ThunarJob *job)
 {
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(chooser->job == job);
 
     /* we can just use job_cancel(), since the job is already done */
-    thunar_permissions_chooser_job_cancel(chooser);
+    _permbox_job_cancel(chooser);
 }
 
-static void thunar_permissions_chooser_job_percent(ThunarPermissionsChooser *chooser,
+static void _permbox_job_percent(PermissionBox *chooser,
                                                    gdouble                   percent,
                                                    ThunarJob                *job)
 {
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(chooser->job == job);
 
@@ -1189,23 +1192,23 @@ static void thunar_permissions_chooser_job_percent(ThunarPermissionsChooser *cho
     gtk_widget_show(chooser->job_progress);
 }
 
-static void thunar_permissions_chooser_job_start(ThunarPermissionsChooser *chooser,
+static void _permbox_job_start(PermissionBox *chooser,
                                                  ThunarJob                *job,
                                                  gboolean                  recursive)
 {
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(chooser->job == NULL);
 
     /* take a reference to the job and connect signals */
     chooser->job = g_object_ref(job);
-    g_signal_connect_swapped(job, "ask", G_CALLBACK(thunar_permissions_chooser_job_ask), chooser);
-    g_signal_connect_swapped(job, "error", G_CALLBACK(thunar_permissions_chooser_job_error), chooser);
-    g_signal_connect_swapped(job, "finished", G_CALLBACK(thunar_permissions_chooser_job_finished), chooser);
+    g_signal_connect_swapped(job, "ask", G_CALLBACK(_permbox_job_ask), chooser);
+    g_signal_connect_swapped(job, "error", G_CALLBACK(_permbox_job_error), chooser);
+    g_signal_connect_swapped(job, "finished", G_CALLBACK(_permbox_job_finished), chooser);
 
     /* don't connect percent for single file operations */
     if (G_UNLIKELY(recursive))
-        g_signal_connect_swapped(job, "percent", G_CALLBACK(thunar_permissions_chooser_job_percent), chooser);
+        g_signal_connect_swapped(job, "percent", G_CALLBACK(_permbox_job_percent), chooser);
 
     /* setup the progress bar */
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(chooser->job_progress), 0.0);
@@ -1214,7 +1217,7 @@ static void thunar_permissions_chooser_job_start(ThunarPermissionsChooser *choos
     gtk_widget_set_sensitive(chooser->grid, !recursive);
 }
 
-static gboolean thunar_permissions_chooser_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
+static gboolean _permbox_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
                                                          gpointer      data)
 {
     UNUSED(data);
@@ -1233,30 +1236,30 @@ static gboolean thunar_permissions_chooser_row_separator(GtkTreeModel *model, Gt
 
 /**
  * thunar_permissions_chooser_get_files:
- * @chooser : a #ThunarPermissionsChooser.
+ * @chooser : a #PermissionBox.
  *
  * Returns the #ThunarFile's associated with the specified @chooser.
  *
  * Return value: the file associated with @chooser.
  **/
-GList* thunar_permissions_chooser_get_files(ThunarPermissionsChooser *chooser)
+GList* _permbox_get_files(PermissionBox *chooser)
 {
-    thunar_return_val_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser), NULL);
+    thunar_return_val_if_fail(IS_PERMISSIONBOX(chooser), NULL);
     return chooser->files;
 }
 
 /**
  * thunar_permissions_chooser_set_files:
- * @chooser : a #ThunarPermissionsChooser.
+ * @chooser : a #PermissionBox.
  * @files   : a list of #ThunarFiles or %NULL.
  *
  * Associates @chooser with the specified @file.
  **/
-void thunar_permissions_chooser_set_files(ThunarPermissionsChooser *chooser, GList *files)
+void _permbox_set_files(PermissionBox *chooser, GList *files)
 {
     GList *lp;
 
-    thunar_return_if_fail(THUNAR_IS_PERMISSIONS_CHOOSER(chooser));
+    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
 
     /* check if we already use that file */
     if (G_UNLIKELY(chooser->files == files))
@@ -1266,7 +1269,7 @@ void thunar_permissions_chooser_set_files(ThunarPermissionsChooser *chooser, GLi
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
         thunar_assert(THUNAR_IS_FILE(lp->data));
-        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), thunar_permissions_chooser_file_changed, chooser);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _permbox_file_changed, chooser);
         g_object_unref(G_OBJECT(lp->data));
     }
     g_list_free(chooser->files);
@@ -1282,12 +1285,12 @@ void thunar_permissions_chooser_set_files(ThunarPermissionsChooser *chooser, GLi
         g_object_ref(G_OBJECT(lp->data));
 
         /* stay informed about changes */
-        g_signal_connect_swapped(G_OBJECT(lp->data), "changed", G_CALLBACK(thunar_permissions_chooser_file_changed), chooser);
+        g_signal_connect_swapped(G_OBJECT(lp->data), "changed", G_CALLBACK(_permbox_file_changed), chooser);
     }
 
     /* update our state */
     if (chooser->files != NULL)
-        thunar_permissions_chooser_file_changed(chooser);
+        _permbox_file_changed(chooser);
 
     /* notify listeners */
     g_object_notify(G_OBJECT(chooser), "files");
@@ -1296,13 +1299,13 @@ void thunar_permissions_chooser_set_files(ThunarPermissionsChooser *chooser, GLi
 /**
  * thunar_permissions_chooser_new:
  *
- * Allocates a new #ThunarPermissionsChooser instance.
+ * Allocates a new #PermissionBox instance.
  *
- * Return value: the newly allocated #ThunarPermissionsChooser.
+ * Return value: the newly allocated #PermissionBox.
  **/
-GtkWidget* thunar_permissions_chooser_new()
+GtkWidget* permbox_new()
 {
-    return g_object_new(THUNAR_TYPE_PERMISSIONS_CHOOSER, NULL);
+    return g_object_new(TYPE_PERMISSIONBOX, NULL);
 }
 
 

@@ -1,6 +1,6 @@
 #### Formatting
     
-dialog/permissions
+dialog/progress-dlg
 
 
 #### Biggest files

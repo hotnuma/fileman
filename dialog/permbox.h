@@ -16,29 +16,34 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __PERMISSIONS_CHOOSER_H__
-#define __PERMISSIONS_CHOOSER_H__
+#ifndef __PERMISSIONBOX_H__
+#define __PERMISSIONBOX_H__
 
 #include <th-file.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarPermissionsChooserClass ThunarPermissionsChooserClass;
-typedef struct _ThunarPermissionsChooser      ThunarPermissionsChooser;
+typedef struct _PermissionBoxClass PermissionBoxClass;
+typedef struct _PermissionBox      PermissionBox;
 
-#define THUNAR_TYPE_PERMISSIONS_CHOOSER             (thunar_permissions_chooser_get_type ())
-#define THUNAR_PERMISSIONS_CHOOSER(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_PERMISSIONS_CHOOSER, ThunarPermissionsChooser))
-#define THUNAR_PERMISSIONS_CHOOSER_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_PERMISSIONS_CHOOSER, ThunarPermissionsChooserClass))
-#define THUNAR_IS_PERMISSIONS_CHOOSER(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_PERMISSIONS_CHOOSER))
-#define THUNAR_IS_PERMISSIONS_CHOOSER_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_PERMISSIONS_CHOOSER))
-#define THUNAR_PERMISSIONS_CHOOSER_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_PERMISSIONS_CHOOSER, ThunarPermissionsChooserClass))
+#define TYPE_PERMISSIONBOX (permbox_get_type ())
+#define PERMISSIONBOX(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_PERMISSIONBOX, PermissionBox))
+#define PERMISSIONBOX_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_PERMISSIONBOX, PermissionBoxClass))
+#define IS_PERMISSIONBOX(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_PERMISSIONBOX))
+#define IS_PERMISSIONBOX_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_PERMISSIONBOX))
+#define PERMISSIONBOX_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_PERMISSIONBOX, PermissionBoxClass))
 
-GType thunar_permissions_chooser_get_type() G_GNUC_CONST;
+GType permbox_get_type() G_GNUC_CONST;
 
-GtkWidget* thunar_permissions_chooser_new() G_GNUC_MALLOC;
+GtkWidget* permbox_new() G_GNUC_MALLOC;
 
 G_END_DECLS
 
-#endif // __PERMISSIONS_CHOOSER_H__
+#endif // __PERMISSIONBOX_H__
 
 
