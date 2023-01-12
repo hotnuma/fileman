@@ -934,7 +934,7 @@ static void _launcher_open_files(ThunarLauncher *launcher,
         else
         {
             /* display a chooser dialog for the file and stop */
-            thunar_show_chooser_dialog(launcher->widget, lp->data, TRUE);
+            appchooser_dialog(launcher->widget, lp->data, TRUE);
             break;
         }
     }
@@ -1744,7 +1744,7 @@ static void _launcher_action_open_with_other(ThunarLauncher *launcher)
     thunar_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     if (launcher->n_files_to_process == 1)
-        thunar_show_chooser_dialog(launcher->widget, launcher->files_to_process->data, TRUE);
+        appchooser_dialog(launcher->widget, launcher->files_to_process->data, TRUE);
 }
 
 static void _launcher_action_create_folder(ThunarLauncher *launcher)

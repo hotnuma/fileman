@@ -16,31 +16,34 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_CHOOSER_DIALOG_H__
-#define __THUNAR_CHOOSER_DIALOG_H__
+#ifndef __APPCHOOSER_DIALOG_H__
+#define __APPCHOOSER_DIALOG_H__
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarChooserDialogClass ThunarChooserDialogClass;
-typedef struct _ThunarChooserDialog      ThunarChooserDialog;
+typedef struct _AppChooserDialogClass AppChooserDialogClass;
+typedef struct _AppChooserDialog      AppChooserDialog;
 
-#define THUNAR_TYPE_CHOOSER_DIALOG            (thunar_chooser_dialog_get_type ())
-#define THUNAR_CHOOSER_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_CHOOSER_DIALOG, ThunarChooserDialog))
-#define THUNAR_CHOOSER_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_CHOOSER_DIALOG, ThunarChooserDialogClass))
-#define THUNAR_IS_CHOOSER_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_CHOOSER_DIALOG))
-#define THUNAR_IS_CHOOSER_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_CHOOSER_DIALOG))
-#define THUNAR_CHOOSER_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_CHOOSER_DIALOG, ThunarChooserDialogClass))
+#define TYPE_APPCHOOSER_DIALOG (appchooser_get_type())
+#define APPCHOOSER_DIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_APPCHOOSER_DIALOG, AppChooserDialog))
+#define APPCHOOSER_DIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_APPCHOOSER_DIALOG, AppChooserDialogClass))
+#define IS_APPCHOOSER_DIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_APPCHOOSER_DIALOG))
+#define IS_APPCHOOSER_DIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_APPCHOOSER_DIALOG))
+#define APPCHOOSER_DIALOG_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_APPCHOOSER_DIALOG, AppChooserDialogClass))
 
-GType thunar_chooser_dialog_get_type() G_GNUC_CONST;
+GType appchooser_get_type() G_GNUC_CONST;
 
-void thunar_show_chooser_dialog(gpointer    parent,
-                                ThunarFile  *file,
-                                gboolean    open);
+void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif // __THUNAR_CHOOSER_DIALOG_H__
+#endif // __APPCHOOSER_DIALOG_H__
 
 
