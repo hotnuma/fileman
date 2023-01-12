@@ -86,7 +86,7 @@ app_sources = [
     'misc/history.c',
     'misc/navigator.c',
     'misc/notify.c',
-    'side/side-pane.c',
+    'side/sidepane.c',
     'side/tree-model.c',
     'side/tree-pane.c',
     'side/tree-view.c',

@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <side-pane.h>
+#include <sidepane.h>
 
 #include <libext.h>
 

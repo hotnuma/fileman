@@ -57,7 +57,7 @@ HEADERS = \
     misc/history.h \
     misc/navigator.h \
     misc/notify.h \
-    side/side-pane.h \
+    side/sidepane.h \
     side/tree-model.h \
     side/tree-pane.h \
     side/tree-view.h \
@@ -127,7 +127,7 @@ SOURCES = \
     misc/history.c \
     misc/navigator.c \
     misc/notify.c \
-    side/side-pane.c \
+    side/sidepane.c \
     side/tree-model.c \
     side/tree-pane.c \
     side/tree-view.c \

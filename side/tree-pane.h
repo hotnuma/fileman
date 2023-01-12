@@ -19,7 +19,7 @@
 #ifndef __THUNAR_TREE_PANE_H__
 #define __THUNAR_TREE_PANE_H__
 
-#include <side-pane.h>
+#include <sidepane.h>
 #include <tree-view.h>
 
 G_BEGIN_DECLS;
