@@ -170,7 +170,7 @@ static void thunar_location_entry_init(ThunarLocationEntry *location_entry)
     gtk_box_set_spacing(GTK_BOX(location_entry), 0);
     gtk_orientable_set_orientation(GTK_ORIENTABLE(location_entry), GTK_ORIENTATION_HORIZONTAL);
 
-    location_entry->path_entry = thunar_path_entry_new();
+    location_entry->path_entry = pathentry_new();
     g_object_bind_property(G_OBJECT(location_entry), "current-directory", G_OBJECT(location_entry->path_entry), "current-file", G_BINDING_SYNC_CREATE);
     g_signal_connect_after(G_OBJECT(location_entry->path_entry), "activate", G_CALLBACK(thunar_location_entry_activate), location_entry);
     gtk_box_pack_start(GTK_BOX(location_entry), location_entry->path_entry, TRUE, TRUE, 0);
@@ -233,7 +233,7 @@ static void thunar_location_entry_set_property(GObject      *object,
     {
     case PROP_CURRENT_DIRECTORY:
         thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
-        thunar_path_entry_set_working_directory(PATHENTRY(entry->path_entry),
+        pathentry_set_working_directory(PATHENTRY(entry->path_entry),
                 entry->current_directory);
         break;
 
@@ -315,7 +315,7 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
             /* be sure to reset the current file of the path entry */
             if (G_LIKELY(location_entry->current_directory != NULL))
             {
-                thunar_path_entry_set_current_file(PATHENTRY(location_entry->path_entry),
+                pathentry_set_current_file(PATHENTRY(location_entry->path_entry),
                                                     location_entry->current_directory);
             }
         }
@@ -368,7 +368,7 @@ static void thunar_location_entry_activate(GtkWidget           *path_entry,
 
     /* determine the current file from the path entry */
     ThunarFile *file =
-        thunar_path_entry_get_current_file(PATHENTRY(path_entry));
+        pathentry_get_current_file(PATHENTRY(path_entry));
 
     if (G_UNLIKELY(file == NULL))
         return;
@@ -403,7 +403,7 @@ static gboolean thunar_location_entry_button_press_event(
 static gboolean thunar_location_entry_reset(ThunarLocationEntry *location_entry)
 {
     /* just reset the path entry to our current directory... */
-    thunar_path_entry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
+    pathentry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
 
     /* ...and select the whole text again */
     gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);

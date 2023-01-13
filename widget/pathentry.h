@@ -42,13 +42,11 @@ typedef struct _PathEntry      PathEntry;
 
 GType pathentry_get_type() G_GNUC_CONST;
 
-GtkWidget* thunar_path_entry_new();
+GtkWidget* pathentry_new();
 
-ThunarFile* thunar_path_entry_get_current_file(PathEntry *path_entry);
-void thunar_path_entry_set_current_file(PathEntry *path_entry,
-                                        ThunarFile *current_file);
-void thunar_path_entry_set_working_directory(PathEntry *path_entry,
-                                             ThunarFile      *directory);
+ThunarFile* pathentry_get_current_file(PathEntry *path_entry);
+void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file);
+void pathentry_set_working_directory(PathEntry *path_entry, ThunarFile *directory);
 
 G_END_DECLS
 
