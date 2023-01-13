@@ -71,7 +71,7 @@ HEADERS = \
     widget/image.h \
     widget/location-bar.h \
     widget/location-entry.h \
-    widget/path-entry.h \
+    widget/pathentry.h \
     widget/shortcut-render.h \
     widget/size-label.h \
     application.h \
@@ -141,7 +141,7 @@ SOURCES = \
     widget/image.c \
     widget/location-bar.c \
     widget/location-entry.c \
-    widget/path-entry.c \
+    widget/pathentry.c \
     widget/shortcut-render.c \
     widget/size-label.c \
     application.c \

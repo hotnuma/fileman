@@ -31,7 +31,7 @@
 #include <icon-factory.h>
 #include <location-entry.h>
 #include <marshal.h>
-#include <path-entry.h>
+#include <pathentry.h>
 
 /* Property identifiers */
 enum

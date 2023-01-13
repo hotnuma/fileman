@@ -22,7 +22,7 @@
  */
 
 #include <config.h>
-#include <path-entry.h>
+#include <pathentry.h>
 
 #include <errno.h>
 #include <memory.h>
