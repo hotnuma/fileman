@@ -21,7 +21,7 @@
 
 #include <th-folder.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarListModelClass ThunarListModelClass;
 typedef struct _ThunarListModel      ThunarListModel;

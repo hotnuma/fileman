@@ -7,21 +7,20 @@ dialog/progress-dlg
 
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 
-129511	./view/standard-view.c
-102854	./core/th-file.c
-97137	./menu/launcher.c
-75604	./view/list-model.c
-74250	./window.c
-72503	./side/treeview.c
-70502	./application.c
-65623	./side/treemodel.c
-62578	./job/transfer-job.c
-53843	./dialog/permissions.c
-52050	./dialog/properties-dlg.c
-47185	./dialog/chooser-dlg.c
+128247	./view/standard-view.c
+102794	./core/th-file.c
+96577	./menu/launcher.c
+75555	./view/list-model.c
+72057	./window.c
+70235	./side/treeview.c
+68445	./application.c
+62566	./job/transfer-job.c
+61154	./side/treemodel.c
+51175	./dialog/permbox.c
 45043	./job/io-jobs.c
 44158	./widget/path-entry.c
-43267	./view/detail-view.c
+43849	./dialog/propsdlg.c
+43724	./dialog/appchooser.c
 
 
 
