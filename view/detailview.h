@@ -16,35 +16,40 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_DETAILS_VIEW_H__
-#define __THUNAR_DETAILS_VIEW_H__
+#ifndef __DETAILVIEW_H__
+#define __DETAILVIEW_H__
 
 #include <standard-view.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarDetailsViewClass ThunarDetailsViewClass;
-typedef struct _ThunarDetailsView      ThunarDetailsView;
+typedef struct _DetailViewClass DetailViewClass;
+typedef struct _DetailView      DetailView;
 
-#define THUNAR_TYPE_DETAILS_VIEW            (thunar_details_view_get_type ())
-#define THUNAR_DETAILS_VIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_DETAILS_VIEW, ThunarDetailsView))
-#define THUNAR_DETAILS_VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_DETAILS_VIEW, ThunarDetailsViewClass))
-#define THUNAR_IS_DETAILS_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_DETAILS_VIEW))
-#define THUNAR_IS_DETAILS_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_DETAILS_VIEW))
-#define THUNAR_DETAILS_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_DETAILS_VIEW, ThunarDetailsViewClass))
+#define TYPE_DETAILVIEW (detailview_get_type ())
+#define DETAILVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_DETAILVIEW, DetailView))
+#define DETAILVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_DETAILVIEW, DetailViewClass))
+#define IS_DETAILVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_DETAILVIEW))
+#define IS_DETAILVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_DETAILVIEW))
+#define DETAILVIEW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_DETAILVIEW, DetailViewClass))
 
 // Action Entrys provided by this widget
 
 typedef enum
 {
-    THUNAR_DETAILS_VIEW_ACTION_CONFIGURE_COLUMNS,
+    DETAILVIEW_ACTION_CONFIGURE_COLUMNS,
 
-} ThunarDetailsViewAction;
+} DetailViewAction;
 
-GType thunar_details_view_get_type() G_GNUC_CONST;
+GType detailview_get_type() G_GNUC_CONST;
 
 G_END_DECLS
 
-#endif // __THUNAR_DETAILS_VIEW_H__
+#endif // __DETAILVIEW_H__
 
 

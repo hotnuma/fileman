@@ -70,34 +70,34 @@ static void thunar_details_view_highlight_path(StandardView *standard_view,
                                                GtkTreePath *path);
 static void thunar_details_view_notify_model(GtkTreeView *tree_view,
                                              GParamSpec *pspec,
-                                             ThunarDetailsView *details_view);
+                                             DetailView *details_view);
 static void thunar_details_view_notify_width(GtkTreeViewColumn *tree_view_column,
                                              GParamSpec *pspec,
-                                             ThunarDetailsView *details_view);
+                                             DetailView *details_view);
 static gboolean thunar_details_view_button_press_event(GtkTreeView *tree_view,
                                                        GdkEventButton *event,
-                                                       ThunarDetailsView *details_view);
+                                                       DetailView *details_view);
 static gboolean thunar_details_view_key_press_event(GtkTreeView *tree_view,
                                                     GdkEventKey *event,
-                                                    ThunarDetailsView *details_view);
+                                                    DetailView *details_view);
 
 static void thunar_details_view_row_activated(GtkTreeView *tree_view,
                                               GtkTreePath *path,
                                               GtkTreeViewColumn *column,
-                                              ThunarDetailsView *details_view);
+                                              DetailView *details_view);
 
 static gboolean thunar_details_view_select_cursor_row(GtkTreeView *tree_view,
                                                       gboolean editing,
-                                                      ThunarDetailsView *details_view);
+                                                      DetailView *details_view);
 static void thunar_details_view_row_changed(GtkTreeView *tree_view,
                                             GtkTreePath *path,
                                             GtkTreeViewColumn *column,
-                                            ThunarDetailsView *details_view);
+                                            DetailView *details_view);
 static void thunar_details_view_columns_changed(ThunarColumnModel *column_model,
-                                                ThunarDetailsView *details_view);
-static void thunar_details_view_zoom_level_changed(ThunarDetailsView *details_view);
-static gboolean thunar_details_view_get_fixed_columns(ThunarDetailsView *details_view);
-static void thunar_details_view_set_fixed_columns(ThunarDetailsView *details_view,
+                                                DetailView *details_view);
+static void thunar_details_view_zoom_level_changed(DetailView *details_view);
+static gboolean thunar_details_view_get_fixed_columns(DetailView *details_view);
+static void thunar_details_view_set_fixed_columns(DetailView *details_view,
                                                   gboolean fixed_columns);
 static void thunar_details_view_connect_accelerators(StandardView *standard_view,
                                                      GtkAccelGroup *accel_group);
@@ -106,12 +106,12 @@ static void thunar_details_view_disconnect_accelerators(StandardView *standard_v
 static void thunar_details_view_append_menu_items(StandardView *standard_view,
                                                   GtkMenu *menu,
                                                   GtkAccelGroup *accel_group);
-struct _ThunarDetailsViewClass
+struct _DetailViewClass
 {
     StandardViewClass __parent__;
 };
 
-struct _ThunarDetailsView
+struct _DetailView
 {
     StandardView __parent__;
 
@@ -140,7 +140,7 @@ static void thunar_show_column_editor(gpointer parent)
 
 static XfceGtkActionEntry _details_view_actions[] =
 {
-    {THUNAR_DETAILS_VIEW_ACTION_CONFIGURE_COLUMNS,
+    {DETAILVIEW_ACTION_CONFIGURE_COLUMNS,
      "<Actions>/StandardView/configure-columns",
      "",
      XFCE_GTK_MENU_ITEM,
@@ -155,9 +155,9 @@ static XfceGtkActionEntry _details_view_actions[] =
                                     G_N_ELEMENTS(_details_view_actions), \
                                     id)
 
-G_DEFINE_TYPE(ThunarDetailsView, thunar_details_view, TYPE_STANDARD_VIEW)
+G_DEFINE_TYPE(DetailView, detailview, TYPE_STANDARD_VIEW)
 
-static void thunar_details_view_class_init(ThunarDetailsViewClass *klass)
+static void detailview_class_init(DetailViewClass *klass)
 {
     StandardViewClass *thunarstandard_view_class;
     GtkWidgetClass          *gtkwidget_class;
@@ -190,7 +190,7 @@ static void thunar_details_view_class_init(ThunarDetailsViewClass *klass)
     xfce_gtk_translate_action_entries(_details_view_actions, G_N_ELEMENTS(_details_view_actions));
 
     /**
-     * ThunarDetailsView:fixed-columns:
+     * DetailView:fixed-columns:
      *
      * %TRUE to use fixed column widths.
      **/
@@ -203,7 +203,7 @@ static void thunar_details_view_class_init(ThunarDetailsViewClass *klass)
                                              E_PARAM_READWRITE));
 }
 
-static void thunar_details_view_init(ThunarDetailsView *details_view)
+static void detailview_init(DetailView *details_view)
 {
     GtkTreeSelection *selection;
     GtkCellRenderer  *right_aligned_renderer;
@@ -329,7 +329,7 @@ static void thunar_details_view_get_property(GObject    *object,
                                              GValue     *value,
                                              GParamSpec *pspec)
 {
-    ThunarDetailsView *details_view = THUNAR_DETAILS_VIEW(object);
+    DetailView *details_view = DETAILVIEW(object);
 
     switch(prop_id)
     {
@@ -348,7 +348,7 @@ static void thunar_details_view_set_property(GObject      *object,
                                              const GValue *value,
                                              GParamSpec   *pspec)
 {
-    ThunarDetailsView *details_view = THUNAR_DETAILS_VIEW(object);
+    DetailView *details_view = DETAILVIEW(object);
 
     switch(prop_id)
     {
@@ -364,7 +364,7 @@ static void thunar_details_view_set_property(GObject      *object,
 
 static void thunar_details_view_finalize(GObject *object)
 {
-    ThunarDetailsView *details_view = THUNAR_DETAILS_VIEW(object);
+    DetailView *details_view = DETAILVIEW(object);
     ThunarColumn       column;
 
     /* release the tree view columns array */
@@ -378,15 +378,13 @@ static void thunar_details_view_finalize(GObject *object)
     if (details_view->idle_id)
         g_source_remove(details_view->idle_id);
 
-   (*G_OBJECT_CLASS(thunar_details_view_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(detailview_parent_class)->finalize(object);
 }
 
 static AtkObject* thunar_details_view_get_accessible(GtkWidget *widget)
 {
-    AtkObject *object;
-
     /* query the atk object for the tree view class */
-    object =(*GTK_WIDGET_CLASS(thunar_details_view_parent_class)->get_accessible)(widget);
+    AtkObject *object = GTK_WIDGET_CLASS(detailview_parent_class)->get_accessible(widget);
 
     /* set custom Atk properties for the details view */
     if (G_LIKELY(object != NULL))
@@ -403,7 +401,7 @@ static GList* thunar_details_view_get_selected_items(StandardView *standard_view
 {
     GtkTreeSelection *selection;
 
-    thunar_return_val_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view), NULL);
+    thunar_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     return gtk_tree_selection_get_selected_rows(selection, NULL);
@@ -413,7 +411,7 @@ static void thunar_details_view_select_all(StandardView *standard_view)
 {
     GtkTreeSelection *selection;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view));
+    thunar_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_select_all(selection);
@@ -423,7 +421,7 @@ static void thunar_details_view_unselect_all(StandardView *standard_view)
 {
     GtkTreeSelection *selection;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view));
+    thunar_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_unselect_all(selection);
@@ -448,7 +446,7 @@ static void thunar_details_view_selection_invert(StandardView *standard_view)
     GList            *lp;
     GtkTreePath      *path;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view));
+    thunar_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
 
@@ -480,7 +478,7 @@ static void thunar_details_view_select_path(StandardView *standard_view,
 {
     GtkTreeSelection *selection;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view));
+    thunar_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_select_path(selection, path);
@@ -493,7 +491,7 @@ static void thunar_details_view_set_cursor(StandardView *standard_view,
     GtkCellRendererMode mode;
     GtkTreeViewColumn  *column;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view));
+    thunar_return_if_fail(IS_DETAILVIEW(standard_view));
 
     /* make sure the name renderer is editable */
     g_object_get( G_OBJECT(standard_view->name_renderer), "mode", &mode, NULL);
@@ -517,7 +515,7 @@ static void thunar_details_view_scroll_to_path(StandardView *standard_view,
 {
     GtkTreeViewColumn *column;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view));
+    thunar_return_if_fail(IS_DETAILVIEW(standard_view));
 
     /* tell the tree view to scroll to the given row */
     column = gtk_tree_view_get_column(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), 0);
@@ -530,7 +528,7 @@ static GtkTreePath* thunar_details_view_get_path_at_pos(StandardView *standard_v
 {
     GtkTreePath *path;
 
-    thunar_return_val_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view), NULL);
+    thunar_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
     if (gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), x, y, &path, NULL))
         return path;
@@ -542,7 +540,7 @@ static gboolean thunar_details_view_get_visible_range(StandardView *standard_vie
                                                       GtkTreePath   **start_path,
                                                       GtkTreePath   **end_path)
 {
-    thunar_return_val_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view), FALSE);
+    thunar_return_val_if_fail(IS_DETAILVIEW(standard_view), FALSE);
 
     return gtk_tree_view_get_visible_range(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), start_path, end_path);
 }
@@ -550,13 +548,13 @@ static gboolean thunar_details_view_get_visible_range(StandardView *standard_vie
 static void thunar_details_view_highlight_path(StandardView *standard_view,
                                                GtkTreePath        *path)
 {
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(standard_view));
+    thunar_return_if_fail(IS_DETAILVIEW(standard_view));
     gtk_tree_view_set_drag_dest_row(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), path, GTK_TREE_VIEW_DROP_INTO_OR_AFTER);
 }
 
 static void thunar_details_view_notify_model(GtkTreeView       *tree_view,
                                              GParamSpec        *pspec,
-                                             ThunarDetailsView *details_view)
+                                             DetailView *details_view)
 {
     UNUSED(pspec);
     UNUSED(details_view);
@@ -568,13 +566,13 @@ static void thunar_details_view_notify_model(GtkTreeView       *tree_view,
 
 static void thunar_details_view_notify_width(GtkTreeViewColumn *tree_view_column,
                                              GParamSpec        *pspec,
-                                             ThunarDetailsView *details_view)
+                                             DetailView *details_view)
 {
     UNUSED(pspec);
     ThunarColumn column;
 
     thunar_return_if_fail(GTK_IS_TREE_VIEW_COLUMN(tree_view_column));
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
 
     /* lookup the column no for the given tree view column */
     for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
@@ -593,7 +591,7 @@ static void thunar_details_view_notify_width(GtkTreeViewColumn *tree_view_column
 
 static gboolean thunar_details_view_button_press_event(GtkTreeView          *tree_view,
                                                        GdkEventButton       *event,
-                                                       ThunarDetailsView    *details_view)
+                                                       DetailView    *details_view)
 {
     GtkTreeSelection  *selection;
     GtkTreePath       *path = NULL;
@@ -739,7 +737,7 @@ static gboolean thunar_details_view_button_press_event(GtkTreeView          *tre
 
 static gboolean thunar_details_view_key_press_event(GtkTreeView       *tree_view,
                                                     GdkEventKey       *event,
-                                                    ThunarDetailsView *details_view)
+                                                    DetailView *details_view)
 {
     UNUSED(tree_view);
 
@@ -759,7 +757,7 @@ static gboolean thunar_details_view_key_press_event(GtkTreeView       *tree_view
 static void thunar_details_view_row_activated(GtkTreeView       *tree_view,
                                               GtkTreePath       *path,
                                               GtkTreeViewColumn *column,
-                                              ThunarDetailsView *details_view)
+                                              DetailView *details_view)
 {
     UNUSED(column);
 
@@ -767,7 +765,7 @@ static void thunar_details_view_row_activated(GtkTreeView       *tree_view,
     ThunarLauncher   *launcher;
     GtkWidget        *window;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
 
     /* be sure to have only the clicked item selected */
     if (details_view->button_pressed)
@@ -789,7 +787,7 @@ static void thunar_details_view_row_activated(GtkTreeView       *tree_view,
 
 static gboolean thunar_details_view_select_cursor_row(GtkTreeView       *tree_view,
                                                       gboolean          editing,
-                                                      ThunarDetailsView *details_view)
+                                                      DetailView *details_view)
 {
     /* This function is a work-around to fix bug #2487. The default gtk handler for
      * the "select-cursor-row" signal changes the selection to just the cursor row,
@@ -803,7 +801,7 @@ static gboolean thunar_details_view_select_cursor_row(GtkTreeView       *tree_vi
     ThunarLauncher *launcher;
     GtkWidget      *window;
 
-    thunar_return_val_if_fail(THUNAR_IS_DETAILS_VIEW(details_view), FALSE);
+    thunar_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
 
     g_signal_stop_emission_by_name(tree_view,"select-cursor-row");
 
@@ -817,24 +815,24 @@ static gboolean thunar_details_view_select_cursor_row(GtkTreeView       *tree_vi
 static void thunar_details_view_row_changed(GtkTreeView       *tree_view,
                                             GtkTreePath       *path,
                                             GtkTreeViewColumn *column,
-                                            ThunarDetailsView *details_view)
+                                            DetailView *details_view)
 {
     UNUSED(tree_view);
     UNUSED(path);
     UNUSED(column);
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
 
     gtk_widget_queue_draw(GTK_WIDGET(details_view));
 }
 
 static void thunar_details_view_columns_changed(ThunarColumnModel *column_model,
-                                                ThunarDetailsView *details_view)
+                                                DetailView *details_view)
 {
     const ThunarColumn *column_order;
     ThunarColumn        column;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
     thunar_return_if_fail(THUNAR_IS_COLUMN_MODEL(column_model));
     thunar_return_if_fail(details_view->column_model == column_model);
 
@@ -859,20 +857,20 @@ static void thunar_details_view_columns_changed(ThunarColumnModel *column_model,
 
 static gboolean thunar_details_view_zoom_level_changed_reload_fixed_columns(gpointer data)
 {
-    ThunarDetailsView *details_view = data;
-    thunar_return_val_if_fail(THUNAR_IS_DETAILS_VIEW(details_view), FALSE);
+    DetailView *details_view = data;
+    thunar_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
 
     thunar_details_view_set_fixed_columns(details_view, TRUE);
     details_view->idle_id = 0;
     return FALSE;
 }
 
-static void thunar_details_view_zoom_level_changed(ThunarDetailsView *details_view)
+static void thunar_details_view_zoom_level_changed(DetailView *details_view)
 {
     ThunarColumn column;
     gboolean     fixed_columns_used = FALSE;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
 
     if (details_view->fixed_columns == TRUE)
         fixed_columns_used = TRUE;
@@ -906,9 +904,9 @@ static void thunar_details_view_zoom_level_changed(ThunarDetailsView *details_vi
 static void thunar_details_view_connect_accelerators(StandardView *standard_view,
                                                      GtkAccelGroup      *accel_group)
 {
-    ThunarDetailsView *details_view = THUNAR_DETAILS_VIEW(standard_view);
+    DetailView *details_view = DETAILVIEW(standard_view);
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
 
     xfce_gtk_accel_map_add_entries(_details_view_actions, G_N_ELEMENTS(_details_view_actions));
     xfce_gtk_accel_group_connect_action_entries(accel_group,
@@ -948,41 +946,41 @@ static void thunar_details_view_append_menu_items(StandardView *standard_view,
                                                   GtkAccelGroup      *accel_group)
 {
     UNUSED(accel_group);
-    ThunarDetailsView *details_view = THUNAR_DETAILS_VIEW(standard_view);
+    DetailView *details_view = DETAILVIEW(standard_view);
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
 
-    xfce_gtk_menu_item_new_from_action_entry(get_action_entry(THUNAR_DETAILS_VIEW_ACTION_CONFIGURE_COLUMNS), G_OBJECT(details_view), GTK_MENU_SHELL(menu));
+    xfce_gtk_menu_item_new_from_action_entry(get_action_entry(DETAILVIEW_ACTION_CONFIGURE_COLUMNS), G_OBJECT(details_view), GTK_MENU_SHELL(menu));
 }
 
 /**
  * thunar_details_view_get_fixed_columns:
- * @details_view : a #ThunarDetailsView.
+ * @details_view : a #DetailView.
  *
  * Returns %TRUE if @details_view uses fixed column widths.
  *
  * Return value: %TRUE if @details_view uses fixed column widths.
  **/
-static gboolean thunar_details_view_get_fixed_columns(ThunarDetailsView *details_view)
+static gboolean thunar_details_view_get_fixed_columns(DetailView *details_view)
 {
-    thunar_return_val_if_fail(THUNAR_IS_DETAILS_VIEW(details_view), FALSE);
+    thunar_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
     return details_view->fixed_columns;
 }
 
 /**
  * thunar_details_view_set_fixed_columns:
- * @details_view  : a #ThunarDetailsView.
+ * @details_view  : a #DetailView.
  * @fixed_columns : %TRUE to use fixed column widths.
  *
  * Applies @fixed_columns to @details_view.
  **/
-static void thunar_details_view_set_fixed_columns(ThunarDetailsView *details_view,
+static void thunar_details_view_set_fixed_columns(DetailView *details_view,
                                                   gboolean           fixed_columns)
 {
     ThunarColumn column;
     gint         width;
 
-    thunar_return_if_fail(THUNAR_IS_DETAILS_VIEW(details_view));
+    thunar_return_if_fail(IS_DETAILVIEW(details_view));
 
     /* normalize the value */
     fixed_columns = !!fixed_columns;

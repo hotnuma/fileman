@@ -646,7 +646,7 @@ static void window_init(ThunarWindow *window)
         _window_binding_create(window, window->view, "statusbar-text", window->statusbar, "text", G_BINDING_SYNC_CREATE);
 
     /* ensure that all the view types are registered */
-    g_type_ensure(THUNAR_TYPE_DETAILS_VIEW);
+    g_type_ensure(TYPE_DETAILVIEW);
 }
 
 static void _window_screen_changed(GtkWidget *widget,
@@ -1719,7 +1719,7 @@ void window_set_current_directory(ThunarWindow *window,
         /* create a new view if the window is new */
         if (window->view == NULL /*num_pages == 0*/)
         {
-            _window_create_view(window, window->view, THUNAR_TYPE_DETAILS_VIEW);
+            _window_create_view(window, window->view, TYPE_DETAILVIEW);
         }
 
         /* connect the "changed"/"destroy" signals */
