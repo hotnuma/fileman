@@ -22,7 +22,7 @@
 
 #include <libext.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 #define THUNAR_TYPE_RENAMER_MODE (thunar_renamer_mode_get_type ())
 
@@ -317,8 +317,8 @@ typedef enum /*< flags >*/
 
 GType thunar_file_mode_get_type() G_GNUC_CONST;
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_ENUM_TYPES_H__ */
+#endif // __THUNAR_ENUM_TYPES_H__
 
 

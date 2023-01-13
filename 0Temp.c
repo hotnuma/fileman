@@ -1208,7 +1208,7 @@ gboolean launcher_append_custom_actions(ThunarLauncher *launcher,
     for (lp_provider = providers; lp_provider != NULL; lp_provider = lp_provider->next)
     {
         if (launcher->files_are_selected == FALSE)
-            thunarx_menu_items = thunarx_menu_provider_get_folder_menu_items(lp_provider->data, window, FILE_INFO(launcher->current_directory));
+            thunarx_menu_items = thunarx_menu_provider_get_folder_menu_items(lp_provider->data, window, FILEINFO(launcher->current_directory));
         else
             thunarx_menu_items = thunarx_menu_provider_get_file_menu_items(lp_provider->data, window, launcher->files_to_process);
 
@@ -1256,7 +1256,7 @@ gboolean launcher_check_uca_key_activation(ThunarLauncher *launcher,
     for (lp_provider = providers; lp_provider != NULL; lp_provider = lp_provider->next)
     {
         if (launcher->files_are_selected == FALSE)
-            thunarx_menu_items = thunarx_menu_provider_get_folder_menu_items(lp_provider->data, window, FILE_INFO(launcher->current_directory));
+            thunarx_menu_items = thunarx_menu_provider_get_folder_menu_items(lp_provider->data, window, FILEINFO(launcher->current_directory));
         else
             thunarx_menu_items = thunarx_menu_provider_get_file_menu_items(lp_provider->data, window, launcher->files_to_process);
 

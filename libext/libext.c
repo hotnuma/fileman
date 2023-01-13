@@ -239,7 +239,7 @@ gchar* e_strdup_strftime(const gchar *format, const struct tm *tm)
 
 // XFCE Utils -----------------------------------------------------------------
 
-void e_string_append_quoted(GString *string, const gchar *unquoted)
+void eg_string_append_quoted(GString *string, const gchar *unquoted)
 {
   gchar *quoted;
 
@@ -285,7 +285,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
                   file = g_file_new_for_uri (li->data);
                   filename = g_file_get_path (file);
                   if (G_LIKELY (filename != NULL))
-                    e_string_append_quoted (string, filename);
+                    eg_string_append_quoted (string, filename);
 
                   g_object_unref (file);
                   g_free (filename);
@@ -301,7 +301,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
             case 'U':
               for (li = uri_list; li != NULL; li = li->next)
                 {
-                  e_string_append_quoted (string, li->data);
+                  eg_string_append_quoted (string, li->data);
 
                   if (*p == 'u')
                     break;
@@ -314,18 +314,18 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
               if (icon != NULL && *icon != '\0')
                 {
                   g_string_append (string, "--icon ");
-                  e_string_append_quoted (string, icon);
+                  eg_string_append_quoted (string, icon);
                 }
               break;
 
             case 'c':
               if (name != NULL && *name != '\0')
-                e_string_append_quoted (string, name);
+                eg_string_append_quoted (string, name);
               break;
 
             case 'k':
               if (uri != NULL && *uri != '\0')
-                e_string_append_quoted (string, uri);
+                eg_string_append_quoted (string, uri);
               break;
 
             case '%':

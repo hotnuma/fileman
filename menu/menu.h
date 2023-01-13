@@ -76,6 +76,6 @@ void menu_hide_accel_labels(ThunarMenu *menu);
 
 G_END_DECLS
 
-#endif // __THUNAR_CONTEXT_MENU_H__
+#endif // __THUNAR_MENU_H__
 
 

@@ -76,16 +76,16 @@ GType fileinfo_get_type()
 
 gchar* fileinfo_get_name(FileInfo *file_info)
 {
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_name(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_name(file_info);
 }
 
 gchar* fileinfo_get_uri(FileInfo *file_info)
 {
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_uri(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_uri(file_info);
 }
 
 /*
@@ -96,71 +96,71 @@ gchar* fileinfo_get_uri(FileInfo *file_info)
  */
 gchar* fileinfo_get_parent_uri(FileInfo *file_info)
 {
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_parent_uri(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_parent_uri(file_info);
 }
 
 gchar* fileinfo_get_uri_scheme(FileInfo *file_info)
 {
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_uri_scheme(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_uri_scheme(file_info);
 }
 
 gchar* fileinfo_get_mime_type(FileInfo *file_info)
 {
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_mime_type(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_mime_type(file_info);
 }
 
 gboolean fileinfo_has_mime_type(FileInfo *file_info, const gchar *mime_type)
 {
-    g_return_val_if_fail(IS_FILE_INFO(file_info), FALSE);
+    g_return_val_if_fail(IS_FILEINFO(file_info), FALSE);
     g_return_val_if_fail(mime_type != NULL, FALSE);
 
-    return FILE_INFO_GET_IFACE(file_info)->has_mime_type(file_info, mime_type);
+    return FILEINFO_GET_IFACE(file_info)->has_mime_type(file_info, mime_type);
 }
 
 gboolean fileinfo_is_directory(FileInfo *file_info)
 {
-    g_return_val_if_fail(IS_FILE_INFO(file_info), FALSE);
+    g_return_val_if_fail(IS_FILEINFO(file_info), FALSE);
 
-    return FILE_INFO_GET_IFACE(file_info)->is_directory(file_info);
+    return FILEINFO_GET_IFACE(file_info)->is_directory(file_info);
 }
 
 GFileInfo* fileinfo_get_file_info(FileInfo *file_info)
 {
     // g_object_unref
 
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_file_info(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_file_info(file_info);
 }
 
 GFileInfo* fileinfo_get_filesystem_info(FileInfo *file_info)
 {
     // g_object_unref
 
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_filesystem_info(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_filesystem_info(file_info);
 }
 
 GFile* fileinfo_get_location(FileInfo *file_info)
 {
     // g_object_unref
 
-    g_return_val_if_fail(IS_FILE_INFO(file_info), NULL);
+    g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
-    return FILE_INFO_GET_IFACE(file_info)->get_location(file_info);
+    return FILEINFO_GET_IFACE(file_info)->get_location(file_info);
 }
 
 // The file manager uses this method to emit the ::changed signal.
 void fileinfo_changed(FileInfo *file_info)
 {
-    g_return_if_fail(IS_FILE_INFO(file_info));
+    g_return_if_fail(IS_FILEINFO(file_info));
 
     g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[CHANGED], 0);
 }
@@ -168,7 +168,7 @@ void fileinfo_changed(FileInfo *file_info)
 // The file manager emits this signal whenever the user renamed the file_info.
 void fileinfo_renamed(FileInfo *file_info)
 {
-    g_return_if_fail(IS_FILE_INFO(file_info));
+    g_return_if_fail(IS_FILEINFO(file_info));
     g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[RENAMED], 0);
 }
 

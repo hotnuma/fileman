@@ -137,7 +137,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
             for (lp = providers; lp != NULL; lp = lp->next)
             {
                 /* merge the menu items from this provider */
-                items = g_list_concat(items, thunarx_menu_provider_get_dnd_menu_items(lp->data, window, FILE_INFO(folder), file_list));
+                items = g_list_concat(items, thunarx_menu_provider_get_dnd_menu_items(lp->data, window, FILEINFO(folder), file_list));
                 g_object_unref(G_OBJECT(lp->data));
             }
 

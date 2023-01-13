@@ -982,7 +982,7 @@ static gboolean _io_rename_notify(ThunarFile *file)
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     /* tell the associated folder that the file was renamed */
-    fileinfo_renamed(FILE_INFO(file));
+    fileinfo_renamed(FILEINFO(file));
 
     /* emit the file changed signal */
     th_file_changed(file);

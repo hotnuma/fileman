@@ -409,7 +409,7 @@ static void _th_file_infos_equal(ThunarFile *file, GFile *event_file)
     gchar      *bname;
 
     attrs = g_file_info_list_attributes(info1, NULL);
-    info2 = g_file_query_info(event_file, FILE_INFO_NAMESPACE,
+    info2 = g_file_query_info(event_file, FILEINFO_NAMESPACE,
                                G_FILE_QUERY_INFO_NONE, NULL, NULL);
 
     if (info1 != NULL && info2 != NULL)

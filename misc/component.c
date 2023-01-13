@@ -71,7 +71,7 @@ static void thunar_component_class_init(gpointer klass)
                                          g_param_spec_boxed("selected-files",
                                                  "selected-files",
                                                  "selected-files",
-                                                 TYPE_FILE_INFO_LIST,
+                                                 TYPE_FILEINFO_LIST,
                                                  E_PARAM_READWRITE));
 }
 

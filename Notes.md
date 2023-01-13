@@ -33,33 +33,32 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
     22332	./widget/icon-render.c
 +   21570	./core/clipman.c
     20594	./misc/history.c
-    19810	./dialog/appcombo.c
++   19810	./dialog/appcombo.c
     19073	./misc/enum-types.c
     18633	./libext/utils.c
-    18560	./libext/gio-ext.c
++   18560	./libext/gio-ext.c
     18018	./libext/exo-job.c
     16890	./widget/location-entry.c
     16491	./widget/size-label.c
-    14503	./menu/menu.c
-    14348	./marshal.c
-    14312	./core/user.c
++   14503	./menu/menu.c
++   14312	./core/user.c
     13752	./dialog/progress-dlg.c
     12321	./job/deep-count-job.c
     10992	./widget/shortcut-render.c
     10711	./widget/location-bar.c
-    10567	./dialog/appmodel.c
++   10567	./dialog/appmodel.c
     10313	./libext/gtk-ext.c
-    10060	./view/baseview.c
-    9765	./core/dnd.c
-    9569	./libext/libext.c
-    9029	./side/treepane.c
++   10060	./view/baseview.c
++   9765	./core/dnd.c
++   9569	./libext/libext.c
++   9029	./side/treepane.c
     7837	./job/io-jobs-util.c
     6857	./misc/navigator.c
-    6654	./misc/app-notify.c
++   6654	./misc/app-notify.c
     6286	./widget/image.c
     5994	./libext/pango-ext.c
     5943	./job/simple-job.c
-    5580	./job/io-scan-directory.c
++   5580	./job/io-scan-directory.c
     5449	./core/fileinfo.c
     5019	./libext/gdk-ext.c
     4783	./core/filemon.c

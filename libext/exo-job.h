@@ -91,4 +91,6 @@ gboolean        exo_job_send_to_mainloop       (ExoJob        *job,
 
 G_END_DECLS
 
-#endif /* !__EXO_JOB_H__ */
+#endif // __EXO_JOB_H__
+
+

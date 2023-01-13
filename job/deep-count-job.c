@@ -38,7 +38,7 @@ enum
     LAST_SIGNAL,
 };
 
-#define DEEP_COUNT_FILE_INFO_NAMESPACE \
+#define DEEP_COUNT_FILEINFO_NAMESPACE \
     G_FILE_ATTRIBUTE_STANDARD_TYPE "," \
     G_FILE_ATTRIBUTE_STANDARD_SIZE "," \
     G_FILE_ATTRIBUTE_ID_FILESYSTEM
@@ -176,7 +176,7 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
     {
         /* query size and type of the current file */
         info = g_file_query_info(file,
-                                  DEEP_COUNT_FILE_INFO_NAMESPACE,
+                                  DEEP_COUNT_FILEINFO_NAMESPACE,
                                   count_job->query_flags,
                                   exo_job_get_cancellable(job),
                                   error);
@@ -218,7 +218,7 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
     {
         /* try to read from the directory */
         enumerator = g_file_enumerate_children(file,
-                                                DEEP_COUNT_FILE_INFO_NAMESPACE ","
+                                                DEEP_COUNT_FILEINFO_NAMESPACE ","
                                                 G_FILE_ATTRIBUTE_STANDARD_NAME,
                                                 count_job->query_flags,
                                                 exo_job_get_cancellable(job),

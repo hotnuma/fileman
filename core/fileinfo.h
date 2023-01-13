@@ -18,8 +18,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __FILE_INFO_H__
-#define __FILE_INFO_H__
+#ifndef __FILEINFO_H__
+#define __FILEINFO_H__
 
 #include <gio/gio.h>
 
@@ -29,7 +29,7 @@ G_BEGIN_DECLS
  * File information namespaces available in the GFileInfo returned by
  * thunarx_file_info_get_file_info().
  */
-#define FILE_INFO_NAMESPACE \
+#define FILEINFO_NAMESPACE \
   "access::*," \
   "id::filesystem," \
   "mountable::can-mount,standard::target-uri," \
@@ -54,13 +54,13 @@ G_BEGIN_DECLS
 typedef struct _FileInfoIface FileInfoIface;
 typedef struct _FileInfo      FileInfo;
 
-#define TYPE_FILE_INFO (fileinfo_get_type())
-#define FILE_INFO(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),    TYPE_FILE_INFO, FileInfo))
-#define IS_FILE_INFO(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),    TYPE_FILE_INFO))
-#define FILE_INFO_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE((obj), TYPE_FILE_INFO, FileInfoIface))
+#define TYPE_FILEINFO (fileinfo_get_type())
+#define FILEINFO(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),    TYPE_FILEINFO, FileInfo))
+#define IS_FILEINFO(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),    TYPE_FILEINFO))
+#define FILEINFO_GET_IFACE(obj) \
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj), TYPE_FILEINFO, FileInfoIface))
 
 struct _FileInfoIface
 {
@@ -120,12 +120,12 @@ GFile*      fileinfo_get_location(FileInfo *file_info);
 void        fileinfo_changed(FileInfo *file_info);
 void        fileinfo_renamed(FileInfo *file_info);
 
-#define TYPE_FILE_INFO_LIST (fileinfo_list_get_type())
+#define TYPE_FILEINFO_LIST (fileinfo_list_get_type())
 
 GType       fileinfo_list_get_type() G_GNUC_CONST;
 
 G_END_DECLS
 
-#endif // __FILE_INFO_H__
+#endif // __FILEINFO_H__
 
 

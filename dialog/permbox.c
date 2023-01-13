@@ -152,7 +152,7 @@ static void permbox_class_init(PermissionBoxClass *klass)
                                         "files",
                                         "files",
                                         "files",
-                                        TYPE_FILE_INFO_LIST,
+                                        TYPE_FILEINFO_LIST,
                                         E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,

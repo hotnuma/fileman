@@ -202,7 +202,7 @@ thunar_file_dirs[] =
 G_DEFINE_TYPE_WITH_CODE(ThunarFile,
                         th_file,
                         G_TYPE_OBJECT,
-                        G_IMPLEMENT_INTERFACE(TYPE_FILE_INFO,
+                        G_IMPLEMENT_INTERFACE(TYPE_FILEINFO,
                                               th_file_info_init))
 
 static GWeakRef* weak_ref_new(GObject *obj)
@@ -587,7 +587,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
 
     /* query a new file info */
     file->info = g_file_query_info(file->gfile,
-                                   FILE_INFO_NAMESPACE,
+                                   FILEINFO_NAMESPACE,
                                    G_FILE_QUERY_INFO_NONE,
                                    cancellable,
                                    &err);
@@ -886,7 +886,7 @@ void th_file_get_async(GFile *location, GCancellable *cancellable,
 
     /* load the file information asynchronously */
     g_file_query_info_async(location,
-                            FILE_INFO_NAMESPACE,
+                            FILEINFO_NAMESPACE,
                             G_FILE_QUERY_INFO_NONE,
                             G_PRIORITY_DEFAULT,
                             cancellable,
