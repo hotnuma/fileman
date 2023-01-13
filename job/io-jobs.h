@@ -17,21 +17,24 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __THUNAR_IO_JOBS_H__
-#define __THUNAR_IO_JOBS_H__
+#ifndef __IO_JOBS_H__
+#define __IO_JOBS_H__
 
 #include <job.h>
 #include <enum-types.h>
 
 G_BEGIN_DECLS
 
-ThunarJob* io_list_directory(GFile *directory) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_list_directory(GFile *directory)
+                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-ThunarJob* io_make_directories(GList *file_list) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_make_directories(GList *file_list)
+                               G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 ThunarJob* io_create_files(GList *file_list, GFile *template_file)
                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-ThunarJob* io_unlink_files(GList *file_list) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_unlink_files(GList *file_list)
+                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 ThunarJob* io_move_files(GList *source_file_list, GList *target_file_list)
                          G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 ThunarJob* io_copy_files(GList *source_file_list, GList *target_file_list)
@@ -47,12 +50,16 @@ ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
 
 ThunarJob* io_change_group(GList *files, guint32 gid, gboolean recursive)
                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-ThunarJob* io_change_mode(GList *files, ThunarFileMode dir_mask, ThunarFileMode dir_mode,
-                          ThunarFileMode file_mask, ThunarFileMode file_mode,
-                          gboolean recursive) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_change_mode(GList *files,
+                          ThunarFileMode dir_mask,
+                          ThunarFileMode dir_mode,
+                          ThunarFileMode file_mask,
+                          ThunarFileMode file_mode,
+                          gboolean recursive)
+                          G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 
-#endif // __THUNAR_IO_JOBS_H__
+#endif // __IO_JOBS_H__
 
 

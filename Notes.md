@@ -3,6 +3,7 @@
 dialog/progress-dlg
 dialog/progress-view
 
+widget/path-entry
 column-model
 
 #### Biggest files
