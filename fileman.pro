@@ -61,11 +61,11 @@ HEADERS = \
     side/treemodel.h \
     side/treepane.h \
     side/treeview.h \
+    view/baseview.h \
     view/column-model.h \
     view/detail-view.h \
     view/listmodel.h \
     view/standard-view.h \
-    view/view.h \
     widget/icon-factory.h \
     widget/icon-render.h \
     widget/image.h \
@@ -131,11 +131,11 @@ SOURCES = \
     side/treemodel.c \
     side/treepane.c \
     side/treeview.c \
+    view/baseview.c \
     view/column-model.c \
     view/detail-view.c \
     view/listmodel.c \
     view/standard-view.c \
-    view/view.c \
     widget/icon-factory.c \
     widget/icon-render.c \
     widget/image.c \

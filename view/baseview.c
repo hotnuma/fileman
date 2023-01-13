@@ -20,7 +20,7 @@
 
 #include <libext.h>
 
-#include <view.h>
+#include <baseview.h>
 
 static void thunar_view_class_init(gpointer klass);
 

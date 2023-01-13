@@ -23,7 +23,7 @@
 #include <history.h>
 #include <icon-factory.h>
 #include <listmodel.h>
-#include <view.h>
+#include <baseview.h>
 
 G_BEGIN_DECLS
 

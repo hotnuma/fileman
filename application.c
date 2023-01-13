@@ -32,7 +32,7 @@
 #include <preferences.h>
 #include <progress-dlg.h>
 #include <utils.h>
-#include <view.h>
+#include <baseview.h>
 
 #include <errno.h>
 #include <memory.h>
