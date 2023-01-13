@@ -19,11 +19,11 @@
 #ifndef __STANDARD_VIEW_H__
 #define __STANDARD_VIEW_H__
 
-#include <clipman.h>
-#include <history.h>
-#include <icon-factory.h>
-#include <listmodel.h>
 #include <baseview.h>
+#include <listmodel.h>
+#include <icon-factory.h>
+#include <history.h>
+#include <clipman.h>
 
 G_BEGIN_DECLS
 
