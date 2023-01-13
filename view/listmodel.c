@@ -54,8 +54,8 @@ enum
 
 // Sort Func ------------------------------------------------------------------
 
-typedef gint (*ThunarSortFunc) (const ThunarFile *a, const ThunarFile *b,
-                                gboolean case_sensitive);
+typedef gint (*ModelSortFunc) (const ThunarFile *a, const ThunarFile *b,
+                               gboolean case_sensitive);
 
 // Interfaces -----------------------------------------------------------------
 
@@ -65,145 +65,113 @@ static void listmodel_sortable_init(GtkTreeSortableIface *iface);
 
 // GObject --------------------------------------------------------------------
 
-static void list_model_dispose(GObject *object);
-static void list_model_finalize(GObject *object);
-static void list_model_get_property(GObject *object,
-                                    guint prop_id,
-                                    GValue *value,
-                                    GParamSpec *pspec);
-static void list_model_set_property(GObject *object,
-                                    guint prop_id,
-                                    const GValue *value,
-                                    GParamSpec *pspec);
+static void listmodel_dispose(GObject *object);
+static void listmodel_finalize(GObject *object);
+static void listmodel_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec);
+static void listmodel_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec);
 
 // GtkTreeModel ---------------------------------------------------------------
 
-static GtkTreeModelFlags list_model_get_flags(GtkTreeModel *model);
-static gint list_model_get_n_columns(GtkTreeModel *model);
-static GType list_model_get_column_type(GtkTreeModel *model,
-                                               gint idx);
-static gboolean list_model_get_iter(GtkTreeModel *model,
-                                           GtkTreeIter *iter,
-                                           GtkTreePath *path);
-static GtkTreePath *list_model_get_path(GtkTreeModel *model,
-                                               GtkTreeIter *iter);
-static void list_model_get_value(GtkTreeModel *model,
-                                        GtkTreeIter *iter,
-                                        gint column,
-                                        GValue *value);
-static gboolean list_model_iter_next(GtkTreeModel *model,
-                                            GtkTreeIter *iter);
-static gboolean list_model_iter_children(GtkTreeModel *model,
-                                                GtkTreeIter *iter,
-                                                GtkTreeIter *parent);
-static gboolean list_model_iter_has_child(GtkTreeModel *model,
-                                                 GtkTreeIter *iter);
-static gint list_model_iter_n_children(GtkTreeModel *model,
-                                              GtkTreeIter *iter);
-static gboolean list_model_iter_nth_child(GtkTreeModel *model,
-                                                 GtkTreeIter *iter,
-                                                 GtkTreeIter *parent,
-                                                 gint n);
-static gboolean list_model_iter_parent(GtkTreeModel *model,
-                                              GtkTreeIter *iter,
-                                              GtkTreeIter *child);
+static GtkTreeModelFlags listmodel_get_flags(GtkTreeModel *model);
+static gint listmodel_get_n_columns(GtkTreeModel *model);
+static GType listmodel_get_column_type(GtkTreeModel *model, gint idx);
+static gboolean listmodel_get_iter(GtkTreeModel *model, GtkTreeIter *iter,
+                                   GtkTreePath *path);
+static GtkTreePath* listmodel_get_path(GtkTreeModel *model, GtkTreeIter *iter);
+static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
+                                gint column, GValue *value);
+static gboolean listmodel_iter_next(GtkTreeModel *model, GtkTreeIter *iter);
+static gboolean listmodel_iter_children(GtkTreeModel *model, GtkTreeIter *iter,
+                                        GtkTreeIter *parent);
+static gboolean listmodel_iter_has_child(GtkTreeModel *model, GtkTreeIter *iter);
+static gint listmodel_iter_n_children(GtkTreeModel *model, GtkTreeIter *iter);
+static gboolean listmodel_iter_nth_child(GtkTreeModel *model, GtkTreeIter *iter,
+                                         GtkTreeIter *parent, gint n);
+static gboolean listmodel_iter_parent(GtkTreeModel *model, GtkTreeIter *iter,
+                                      GtkTreeIter *child);
 
 // GtkTreeDragDest ------------------------------------------------------------
 
-static gboolean list_model_drag_data_received(GtkTreeDragDest *dest,
-                                                     GtkTreePath *path,
-                                                     GtkSelectionData *data);
-static gboolean list_model_row_drop_possible(GtkTreeDragDest *dest,
-                                                    GtkTreePath *path,
-                                                    GtkSelectionData *data);
+static gboolean listmodel_drag_data_received(GtkTreeDragDest *dest,
+                                             GtkTreePath *path,
+                                             GtkSelectionData *data);
+static gboolean listmodel_row_drop_possible(GtkTreeDragDest *dest,
+                                            GtkTreePath *path,
+                                            GtkSelectionData *data);
 
 // GtkTreeSortable ------------------------------------------------------------
 
-static gboolean list_model_get_sort_column_id(GtkTreeSortable *sortable,
-                                                     gint *sort_column_id,
-                                                     GtkSortType *order);
-static void list_model_set_sort_column_id(GtkTreeSortable *sortable,
-                                                 gint sort_column_id,
-                                                 GtkSortType order);
-static void list_model_set_default_sort_func(GtkTreeSortable *sortable,
-                                                    GtkTreeIterCompareFunc func,
-                                                    gpointer data,
-                                                    GDestroyNotify destroy);
-static void list_model_set_sort_func(GtkTreeSortable *sortable,
-                                            gint sort_column_id,
+static gboolean listmodel_get_sort_column_id(GtkTreeSortable *sortable,
+                                             gint *sort_column_id,
+                                             GtkSortType *order);
+static void listmodel_set_sort_column_id(GtkTreeSortable *sortable,
+                                         gint sort_column_id,
+                                         GtkSortType order);
+static void listmodel_set_default_sort_func(GtkTreeSortable *sortable,
                                             GtkTreeIterCompareFunc func,
                                             gpointer data,
                                             GDestroyNotify destroy);
-static gboolean list_model_has_default_sort_func(GtkTreeSortable *sortable);
+static void listmodel_set_sort_func(GtkTreeSortable *sortable,
+                                    gint sort_column_id,
+                                    GtkTreeIterCompareFunc func,
+                                    gpointer data,
+                                    GDestroyNotify destroy);
+static gboolean listmodel_has_default_sort_func(GtkTreeSortable *sortable);
 
 // ----------------------------------------------------------------------------
 
-static void _list_model_file_changed(FileMonitor *file_monitor,
-                                           ThunarFile *file,
-                                           ListModel *store);
-static void _list_model_folder_destroy(ThunarFolder *folder,
-                                             ListModel *store);
-static void _list_model_folder_error(ThunarFolder *folder,
-                                           const GError *error,
-                                           ListModel *store);
-static void _list_model_files_added(ThunarFolder *folder,
-                                          GList *files,
-                                          ListModel *store);
-static void _list_model_files_removed(ThunarFolder *folder,
-                                            GList *files,
-                                            ListModel *store);
+static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
+                                    ListModel *store);
+static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store);
+static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
+                                    ListModel *store);
+static void _listmodel_files_added(ThunarFolder *folder, GList *files,
+                                   ListModel *store);
+static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
+                                     ListModel *store);
 
 // ----------------------------------------------------------------------------
 
-static gint _list_model_cmp_func(gconstpointer a,
-                                       gconstpointer b,
-                                       gpointer user_data);
-static void _list_model_sort(ListModel *store);
+static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
+                                gpointer user_data);
+static void _listmodel_sort(ListModel *store);
 
-static gint _sort_by_date_accessed(const ThunarFile *a,
-                                  const ThunarFile *b,
-                                  gboolean case_sensitive);
-static gint _sort_by_date_modified(const ThunarFile *a,
-                                  const ThunarFile *b,
-                                  gboolean case_sensitive);
-static gint _sort_by_group(const ThunarFile *a,
-                          const ThunarFile *b,
+static gint _sort_by_date_accessed(const ThunarFile *a, const ThunarFile *b,
+                                   gboolean case_sensitive);
+static gint _sort_by_date_modified(const ThunarFile *a, const ThunarFile *b,
+                                   gboolean case_sensitive);
+static gint _sort_by_group(const ThunarFile *a, const ThunarFile *b,
+                           gboolean case_sensitive);
+static gint _sort_by_mime_type(const ThunarFile *a, const ThunarFile *b,
+                               gboolean case_sensitive);
+static gint _sort_by_owner(const ThunarFile *a, const ThunarFile *b,
+                           gboolean case_sensitive);
+static gint _sort_by_permissions(const ThunarFile *a, const ThunarFile *b,
+                                 gboolean case_sensitive);
+static gint _sort_by_size(const ThunarFile *a, const ThunarFile *b,
                           gboolean case_sensitive);
-static gint _sort_by_mime_type(const ThunarFile *a,
-                              const ThunarFile *b,
-                              gboolean case_sensitive);
-static gint _sort_by_owner(const ThunarFile *a,
-                          const ThunarFile *b,
+static gint _sort_by_size_in_bytes(const ThunarFile *a, const ThunarFile *b,
+                                   gboolean case_sensitive);
+static gint _sort_by_type(const ThunarFile *a, const ThunarFile *b,
                           gboolean case_sensitive);
-static gint _sort_by_permissions(const ThunarFile *a,
-                                const ThunarFile *b,
-                                gboolean case_sensitive);
-static gint _sort_by_size(const ThunarFile *a,
-                         const ThunarFile *b,
-                         gboolean case_sensitive);
-static gint _sort_by_size_in_bytes(const ThunarFile *a,
-                                  const ThunarFile *b,
-                                  gboolean case_sensitive);
-static gint _sort_by_type(const ThunarFile *a,
-                         const ThunarFile *b,
-                         gboolean case_sensitive);
 
 // ----------------------------------------------------------------------------
 
-static gboolean _list_model_get_case_sensitive(ListModel *store);
-static void _list_model_set_case_sensitive(ListModel *store,
-                                                 gboolean case_sensitive);
+static gboolean _listmodel_get_case_sensitive(ListModel *store);
+static void _listmodel_set_case_sensitive(ListModel *store,
+                                          gboolean case_sensitive);
 
-static ThunarDateStyle _list_model_get_date_style(ListModel *store);
-static void _list_model_set_date_style(ListModel *store,
-                                             ThunarDateStyle date_style);
+static ThunarDateStyle _listmodel_get_date_style(ListModel *store);
+static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_style);
 
-static const char* _list_model_get_date_custom_style(ListModel *store);
-static void _list_model_set_date_custom_style(ListModel *store,
-                                                    const char *date_custom_style);
+static const char* _listmodel_get_date_custom_style(ListModel *store);
+static void _listmodel_set_date_custom_style(ListModel *store,
+                                             const char *date_custom_style);
 
-static gint _list_model_get_num_files(ListModel *store);
-static gboolean _list_model_get_folders_first(ListModel *store);
+static gint _listmodel_get_num_files(ListModel *store);
+static gboolean _listmodel_get_folders_first(ListModel *store);
 
 
 struct _ListModelClass
@@ -249,7 +217,7 @@ struct _ListModel
     gboolean       sort_case_sensitive : 1;
     gboolean       sort_folders_first : 1;
     gint           sort_sign;   /* 1 = ascending, -1 descending */
-    ThunarSortFunc sort_func;
+    ModelSortFunc sort_func;
 };
 
 static guint        _list_model_signals[LAST_SIGNAL];
@@ -268,10 +236,10 @@ G_DEFINE_TYPE_WITH_CODE(ListModel,
 static void listmodel_class_init(ListModelClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->dispose      = list_model_dispose;
-    gobject_class->finalize     = list_model_finalize;
-    gobject_class->get_property = list_model_get_property;
-    gobject_class->set_property = list_model_set_property;
+    gobject_class->dispose      = listmodel_dispose;
+    gobject_class->finalize     = listmodel_finalize;
+    gobject_class->get_property = listmodel_get_property;
+    gobject_class->set_property = listmodel_set_property;
 
     _list_model_props[PROP_CASE_SENSITIVE] =
         g_param_spec_boolean("case-sensitive",
@@ -353,33 +321,33 @@ static void listmodel_class_init(ListModelClass *klass)
 
 static void listmodel_tree_model_init(GtkTreeModelIface *iface)
 {
-    iface->get_flags        = list_model_get_flags;
-    iface->get_n_columns    = list_model_get_n_columns;
-    iface->get_column_type  = list_model_get_column_type;
-    iface->get_iter         = list_model_get_iter;
-    iface->get_path         = list_model_get_path;
-    iface->get_value        = list_model_get_value;
-    iface->iter_next        = list_model_iter_next;
-    iface->iter_children    = list_model_iter_children;
-    iface->iter_has_child   = list_model_iter_has_child;
-    iface->iter_n_children  = list_model_iter_n_children;
-    iface->iter_nth_child   = list_model_iter_nth_child;
-    iface->iter_parent      = list_model_iter_parent;
+    iface->get_flags        = listmodel_get_flags;
+    iface->get_n_columns    = listmodel_get_n_columns;
+    iface->get_column_type  = listmodel_get_column_type;
+    iface->get_iter         = listmodel_get_iter;
+    iface->get_path         = listmodel_get_path;
+    iface->get_value        = listmodel_get_value;
+    iface->iter_next        = listmodel_iter_next;
+    iface->iter_children    = listmodel_iter_children;
+    iface->iter_has_child   = listmodel_iter_has_child;
+    iface->iter_n_children  = listmodel_iter_n_children;
+    iface->iter_nth_child   = listmodel_iter_nth_child;
+    iface->iter_parent      = listmodel_iter_parent;
 }
 
 static void listmodel_drag_dest_init(GtkTreeDragDestIface *iface)
 {
-    iface->drag_data_received = list_model_drag_data_received;
-    iface->row_drop_possible = list_model_row_drop_possible;
+    iface->drag_data_received = listmodel_drag_data_received;
+    iface->row_drop_possible = listmodel_row_drop_possible;
 }
 
 static void listmodel_sortable_init(GtkTreeSortableIface *iface)
 {
-    iface->get_sort_column_id     = list_model_get_sort_column_id;
-    iface->set_sort_column_id     = list_model_set_sort_column_id;
-    iface->set_sort_func          = list_model_set_sort_func;
-    iface->set_default_sort_func  = list_model_set_default_sort_func;
-    iface->has_default_sort_func  = list_model_has_default_sort_func;
+    iface->get_sort_column_id     = listmodel_get_sort_column_id;
+    iface->set_sort_column_id     = listmodel_set_sort_column_id;
+    iface->set_sort_func          = listmodel_set_sort_func;
+    iface->set_default_sort_func  = listmodel_set_default_sort_func;
+    iface->has_default_sort_func  = listmodel_has_default_sort_func;
 }
 
 static void listmodel_init(ListModel *store)
@@ -405,10 +373,10 @@ static void listmodel_init(ListModel *store)
     store->file_monitor = filemon_get_default();
 
     g_signal_connect(G_OBJECT(store->file_monitor), "file-changed",
-                     G_CALLBACK(_list_model_file_changed), store);
+                     G_CALLBACK(_listmodel_file_changed), store);
 }
 
-static void list_model_dispose(GObject *object)
+static void listmodel_dispose(GObject *object)
 {
     /* unlink from the folder(if any) */
     listmodel_set_folder(LISTMODEL(object), NULL);
@@ -416,7 +384,7 @@ static void list_model_dispose(GObject *object)
     G_OBJECT_CLASS(listmodel_parent_class)->dispose(object);
 }
 
-static void list_model_finalize(GObject *object)
+static void listmodel_finalize(GObject *object)
 {
     ListModel *store = LISTMODEL(object);
 
@@ -424,17 +392,15 @@ static void list_model_finalize(GObject *object)
 
     /* disconnect from the file monitor */
     g_signal_handlers_disconnect_by_func(G_OBJECT(store->file_monitor),
-                                         _list_model_file_changed, store);
+                                         _listmodel_file_changed, store);
 
     g_object_unref(G_OBJECT(store->file_monitor));
 
     G_OBJECT_CLASS(listmodel_parent_class)->finalize(object);
 }
 
-static void list_model_get_property(GObject    *object,
-                                           guint       prop_id,
-                                           GValue     *value,
-                                           GParamSpec *pspec)
+static void listmodel_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
@@ -443,15 +409,15 @@ static void list_model_get_property(GObject    *object,
     switch (prop_id)
     {
     case PROP_CASE_SENSITIVE:
-        g_value_set_boolean(value, _list_model_get_case_sensitive(store));
+        g_value_set_boolean(value, _listmodel_get_case_sensitive(store));
         break;
 
     case PROP_DATE_STYLE:
-        g_value_set_enum(value, _list_model_get_date_style(store));
+        g_value_set_enum(value, _listmodel_get_date_style(store));
         break;
 
     case PROP_DATE_CUSTOM_STYLE:
-        g_value_set_string(value, _list_model_get_date_custom_style(store));
+        g_value_set_string(value, _listmodel_get_date_custom_style(store));
         break;
 
     case PROP_FOLDER:
@@ -459,11 +425,11 @@ static void list_model_get_property(GObject    *object,
         break;
 
     case PROP_FOLDERS_FIRST:
-        g_value_set_boolean(value, _list_model_get_folders_first(store));
+        g_value_set_boolean(value, _listmodel_get_folders_first(store));
         break;
 
     case PROP_NUM_FILES:
-        g_value_set_uint(value, _list_model_get_num_files(store));
+        g_value_set_uint(value, _listmodel_get_num_files(store));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -480,10 +446,8 @@ static void list_model_get_property(GObject    *object,
     }
 }
 
-static void list_model_set_property(GObject      *object,
-                                           guint         prop_id,
-                                           const GValue *value,
-                                           GParamSpec   *pspec)
+static void listmodel_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
@@ -492,15 +456,15 @@ static void list_model_set_property(GObject      *object,
     switch (prop_id)
     {
     case PROP_CASE_SENSITIVE:
-        _list_model_set_case_sensitive(store, g_value_get_boolean(value));
+        _listmodel_set_case_sensitive(store, g_value_get_boolean(value));
         break;
 
     case PROP_DATE_STYLE:
-        _list_model_set_date_style(store, g_value_get_enum(value));
+        _listmodel_set_date_style(store, g_value_get_enum(value));
         break;
 
     case PROP_DATE_CUSTOM_STYLE:
-        _list_model_set_date_custom_style(store, g_value_get_string(value));
+        _listmodel_set_date_custom_style(store, g_value_get_string(value));
         break;
 
     case PROP_FOLDER:
@@ -526,22 +490,21 @@ static void list_model_set_property(GObject      *object,
 }
 
 
-static GtkTreeModelFlags list_model_get_flags(GtkTreeModel *model)
+static GtkTreeModelFlags listmodel_get_flags(GtkTreeModel *model)
 {
     UNUSED(model);
 
     return GTK_TREE_MODEL_ITERS_PERSIST | GTK_TREE_MODEL_LIST_ONLY;
 }
 
-static gint list_model_get_n_columns(GtkTreeModel *model)
+static gint listmodel_get_n_columns(GtkTreeModel *model)
 {
     UNUSED(model);
 
     return THUNAR_N_COLUMNS;
 }
 
-static GType list_model_get_column_type(GtkTreeModel *model,
-                                               gint          idx)
+static GType listmodel_get_column_type(GtkTreeModel *model, gint idx)
 {
     UNUSED(model);
 
@@ -589,9 +552,8 @@ static GType list_model_get_column_type(GtkTreeModel *model,
     return G_TYPE_INVALID;
 }
 
-static gboolean list_model_get_iter(GtkTreeModel *model,
-                                           GtkTreeIter  *iter,
-                                           GtkTreePath  *path)
+static gboolean listmodel_get_iter(GtkTreeModel *model, GtkTreeIter *iter,
+                                   GtkTreePath *path)
 {
     ListModel *store = LISTMODEL(model);
     GSequenceIter   *row;
@@ -613,8 +575,7 @@ static gboolean list_model_get_iter(GtkTreeModel *model,
     return FALSE;
 }
 
-static GtkTreePath* list_model_get_path(GtkTreeModel *model,
-                                               GtkTreeIter  *iter)
+static GtkTreePath* listmodel_get_path(GtkTreeModel *model, GtkTreeIter *iter)
 {
     ListModel *store = LISTMODEL(model);
     gint             idx;
@@ -629,10 +590,8 @@ static GtkTreePath* list_model_get_path(GtkTreeModel *model,
     return NULL;
 }
 
-static void list_model_get_value(GtkTreeModel *model,
-                                        GtkTreeIter  *iter,
-                                        gint          column,
-                                        GValue       *value)
+static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
+                                gint column, GValue *value)
 {
     ThunarGroup *group;
     const gchar *content_type;
@@ -755,8 +714,7 @@ static void list_model_get_value(GtkTreeModel *model,
     }
 }
 
-static gboolean list_model_iter_next(GtkTreeModel *model,
-                                            GtkTreeIter  *iter)
+static gboolean listmodel_iter_next(GtkTreeModel *model, GtkTreeIter *iter)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(model), FALSE);
     thunar_return_val_if_fail(iter->stamp ==(LISTMODEL(model))->stamp, FALSE);
@@ -765,9 +723,8 @@ static gboolean list_model_iter_next(GtkTreeModel *model,
     return !g_sequence_iter_is_end(iter->user_data);
 }
 
-static gboolean list_model_iter_children(GtkTreeModel *model,
-                                                GtkTreeIter  *iter,
-                                                GtkTreeIter  *parent)
+static gboolean listmodel_iter_children(GtkTreeModel *model, GtkTreeIter *iter,
+                                        GtkTreeIter *parent)
 {
     ListModel *store = LISTMODEL(model);
 
@@ -783,16 +740,14 @@ static gboolean list_model_iter_children(GtkTreeModel *model,
     return FALSE;
 }
 
-static gboolean list_model_iter_has_child(GtkTreeModel *model,
-                                                 GtkTreeIter  *iter)
+static gboolean listmodel_iter_has_child(GtkTreeModel *model, GtkTreeIter *iter)
 {
     UNUSED(model);
     UNUSED(iter);
     return FALSE;
 }
 
-static gint list_model_iter_n_children(GtkTreeModel *model,
-                                              GtkTreeIter  *iter)
+static gint listmodel_iter_n_children(GtkTreeModel *model, GtkTreeIter *iter)
 {
     ListModel *store = LISTMODEL(model);
 
@@ -801,10 +756,10 @@ static gint list_model_iter_n_children(GtkTreeModel *model,
     return(iter == NULL) ? g_sequence_get_length(store->rows) : 0;
 }
 
-static gboolean list_model_iter_nth_child(GtkTreeModel *model,
-                                                 GtkTreeIter  *iter,
-                                                 GtkTreeIter  *parent,
-                                                 gint          n)
+static gboolean listmodel_iter_nth_child(GtkTreeModel *model,
+                                         GtkTreeIter  *iter,
+                                         GtkTreeIter  *parent,
+                                         gint          n)
 {
     ListModel *store = LISTMODEL(model);
     GSequenceIter   *row;
@@ -824,9 +779,9 @@ static gboolean list_model_iter_nth_child(GtkTreeModel *model,
     return FALSE;
 }
 
-static gboolean list_model_iter_parent(GtkTreeModel *model,
-                                              GtkTreeIter  *iter,
-                                              GtkTreeIter  *child)
+static gboolean listmodel_iter_parent(GtkTreeModel *model,
+                                      GtkTreeIter  *iter,
+                                      GtkTreeIter  *child)
 {
     UNUSED(model);
     UNUSED(iter);
@@ -834,9 +789,9 @@ static gboolean list_model_iter_parent(GtkTreeModel *model,
     return FALSE;
 }
 
-static gboolean list_model_drag_data_received(GtkTreeDragDest  *dest,
-                                                     GtkTreePath      *path,
-                                                     GtkSelectionData *data)
+static gboolean listmodel_drag_data_received(GtkTreeDragDest  *dest,
+                                             GtkTreePath      *path,
+                                             GtkSelectionData *data)
 {
     UNUSED(dest);
     UNUSED(path);
@@ -844,9 +799,9 @@ static gboolean list_model_drag_data_received(GtkTreeDragDest  *dest,
     return FALSE;
 }
 
-static gboolean list_model_row_drop_possible(GtkTreeDragDest  *dest,
-                                                    GtkTreePath      *path,
-                                                    GtkSelectionData *data)
+static gboolean listmodel_row_drop_possible(GtkTreeDragDest  *dest,
+                                            GtkTreePath      *path,
+                                            GtkSelectionData *data)
 {
     UNUSED(dest);
     UNUSED(path);
@@ -854,9 +809,9 @@ static gboolean list_model_row_drop_possible(GtkTreeDragDest  *dest,
     return FALSE;
 }
 
-static gboolean list_model_get_sort_column_id(GtkTreeSortable *sortable,
-                                                     gint            *sort_column_id,
-                                                     GtkSortType     *order)
+static gboolean listmodel_get_sort_column_id(GtkTreeSortable *sortable,
+                                             gint            *sort_column_id,
+                                             GtkSortType     *order)
 {
     ListModel *store = LISTMODEL(sortable);
 
@@ -896,9 +851,9 @@ static gboolean list_model_get_sort_column_id(GtkTreeSortable *sortable,
     return TRUE;
 }
 
-static void list_model_set_sort_column_id(GtkTreeSortable *sortable,
-                                                 gint             sort_column_id,
-                                                 GtkSortType      order)
+static void listmodel_set_sort_column_id(GtkTreeSortable *sortable,
+                                         gint             sort_column_id,
+                                         GtkSortType      order)
 {
     ListModel *store = LISTMODEL(sortable);
 
@@ -955,14 +910,13 @@ static void list_model_set_sort_column_id(GtkTreeSortable *sortable,
     store->sort_sign =(order == GTK_SORT_ASCENDING) ? 1 : -1;
 
     /* re-sort the store */
-    _list_model_sort(store);
+    _listmodel_sort(store);
 
     /* notify listining parties */
     gtk_tree_sortable_sort_column_changed(sortable);
 }
 
-static void list_model_set_default_sort_func(
-                                            GtkTreeSortable       *sortable,
+static void listmodel_set_default_sort_func(GtkTreeSortable        *sortable,
                                             GtkTreeIterCompareFunc func,
                                             gpointer               data,
                                             GDestroyNotify         destroy)
@@ -975,11 +929,11 @@ static void list_model_set_default_sort_func(
     g_critical("ListModel has sorting facilities built-in!");
 }
 
-static void list_model_set_sort_func(GtkTreeSortable       *sortable,
-                                            gint                   sort_column_id,
-                                            GtkTreeIterCompareFunc func,
-                                            gpointer               data,
-                                            GDestroyNotify         destroy)
+static void listmodel_set_sort_func(GtkTreeSortable        *sortable,
+                                    gint                   sort_column_id,
+                                    GtkTreeIterCompareFunc func,
+                                    gpointer               data,
+                                    GDestroyNotify         destroy)
 {
     UNUSED(sortable);
     UNUSED(sort_column_id);
@@ -990,16 +944,14 @@ static void list_model_set_sort_func(GtkTreeSortable       *sortable,
     g_critical("ListModel has sorting facilities built-in!");
 }
 
-static gboolean list_model_has_default_sort_func(
-                                            GtkTreeSortable *sortable)
+static gboolean listmodel_has_default_sort_func(GtkTreeSortable *sortable)
 {
     UNUSED(sortable);
     return FALSE;
 }
 
-static gint _list_model_cmp_func(gconstpointer a,
-                                       gconstpointer b,
-                                       gpointer      user_data)
+static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
+                                gpointer user_data)
 {
     ListModel *store = LISTMODEL(user_data);
     gboolean         isdir_a;
@@ -1019,7 +971,7 @@ static gint _list_model_cmp_func(gconstpointer a,
     return(*store->sort_func)(a, b, store->sort_case_sensitive) * store->sort_sign;
 }
 
-static void _list_model_sort(ListModel *store)
+static void _listmodel_sort(ListModel *store)
 {
     GtkTreePath    *path;
     GSequenceIter **old_order;
@@ -1055,7 +1007,7 @@ static void _list_model_sort(ListModel *store)
     }
 
     /* sort */
-    g_sequence_sort(store->rows, _list_model_cmp_func, store);
+    g_sequence_sort(store->rows, _listmodel_cmp_func, store);
 
     /* new_order[newpos] = oldpos */
     for (n = 0; n < length; ++n)
@@ -1074,9 +1026,8 @@ static void _list_model_sort(ListModel *store)
     }
 }
 
-static void _list_model_file_changed(FileMonitor *file_monitor,
-                                           ThunarFile        *file,
-                                           ListModel   *store)
+static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
+                                    ListModel *store)
 {
     GSequenceIter *row;
     GSequenceIter *end;
@@ -1105,7 +1056,7 @@ static void _list_model_file_changed(FileMonitor *file_monitor,
             thunar_assert(pos_before == g_sequence_iter_get_position(row));
 
             /* check if the sorting changed */
-            g_sequence_sort_changed(row, _list_model_cmp_func, store);
+            g_sequence_sort_changed(row, _listmodel_cmp_func, store);
             pos_after = g_sequence_iter_get_position(row);
             if (pos_after != pos_before)
             {
@@ -1153,8 +1104,7 @@ static void _list_model_file_changed(FileMonitor *file_monitor,
     }
 }
 
-static void _list_model_folder_destroy(ThunarFolder    *folder,
-                                             ListModel *store)
+static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
     thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
@@ -1164,9 +1114,8 @@ static void _list_model_folder_destroy(ThunarFolder    *folder,
     /* TODO: What to do when the folder is deleted? */
 }
 
-static void _list_model_folder_error(ThunarFolder    *folder,
-                                           const GError    *error,
-                                           ListModel *store)
+static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
+                                    ListModel *store)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
     thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
@@ -1179,9 +1128,8 @@ static void _list_model_folder_error(ThunarFolder    *folder,
     listmodel_set_folder(store, NULL);
 }
 
-static void _list_model_files_added(ThunarFolder    *folder,
-                                          GList           *files,
-                                          ListModel *store)
+static void _listmodel_files_added(ThunarFolder *folder, GList *files,
+                                   ListModel *store)
 {
     UNUSED(folder);
 
@@ -1220,7 +1168,7 @@ static void _list_model_files_added(ThunarFolder    *folder,
         {
             /* insert the file */
             row = g_sequence_insert_sorted(store->rows, file,
-                                            _list_model_cmp_func, store);
+                                            _listmodel_cmp_func, store);
 
             if (has_handler)
             {
@@ -1240,9 +1188,8 @@ static void _list_model_files_added(ThunarFolder    *folder,
     g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_NUM_FILES]);
 }
 
-static void _list_model_files_removed(ThunarFolder    *folder,
-                                            GList           *files,
-                                            ListModel *store)
+static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
+                                     ListModel *store)
 {
     UNUSED(folder);
 
@@ -1300,9 +1247,8 @@ static void _list_model_files_removed(ThunarFolder    *folder,
     g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_NUM_FILES]);
 }
 
-static gint _sort_by_date_accessed(const ThunarFile *a,
-                                  const ThunarFile *b,
-                                  gboolean          case_sensitive)
+static gint _sort_by_date_accessed(const ThunarFile *a, const ThunarFile *b,
+                                   gboolean case_sensitive)
 {
     guint64 date_a;
     guint64 date_b;
@@ -1318,9 +1264,8 @@ static gint _sort_by_date_accessed(const ThunarFile *a,
     return th_file_compare_by_name(a, b, case_sensitive);
 }
 
-static gint _sort_by_date_modified(const ThunarFile *a,
-                                  const ThunarFile *b,
-                                  gboolean          case_sensitive)
+static gint _sort_by_date_modified(const ThunarFile *a, const ThunarFile *b,
+                                   gboolean case_sensitive)
 {
     guint64 date_a;
     guint64 date_b;
@@ -1336,9 +1281,8 @@ static gint _sort_by_date_modified(const ThunarFile *a,
     return th_file_compare_by_name(a, b, case_sensitive);
 }
 
-static gint _sort_by_group(const ThunarFile *a,
-                          const ThunarFile *b,
-                          gboolean          case_sensitive)
+static gint _sort_by_group(const ThunarFile *a, const ThunarFile *b,
+                           gboolean case_sensitive)
 {
     ThunarGroup *group_a;
     ThunarGroup *group_b;
@@ -1386,9 +1330,8 @@ static gint _sort_by_group(const ThunarFile *a,
         return result;
 }
 
-static gint _sort_by_mime_type(const ThunarFile *a,
-                              const ThunarFile *b,
-                              gboolean          case_sensitive)
+static gint _sort_by_mime_type(const ThunarFile *a, const ThunarFile *b,
+                               gboolean case_sensitive)
 {
     const gchar *content_type_a;
     const gchar *content_type_b;
@@ -1410,9 +1353,8 @@ static gint _sort_by_mime_type(const ThunarFile *a,
     return result;
 }
 
-static gint _sort_by_owner(const ThunarFile *a,
-                          const ThunarFile *b,
-                          gboolean          case_sensitive)
+static gint _sort_by_owner(const ThunarFile *a, const ThunarFile *b,
+                           gboolean case_sensitive)
 {
     const gchar *name_a;
     const gchar *name_b;
@@ -1455,9 +1397,8 @@ static gint _sort_by_owner(const ThunarFile *a,
         return result;
 }
 
-static gint _sort_by_permissions(const ThunarFile *a,
-                                const ThunarFile *b,
-                                gboolean          case_sensitive)
+static gint _sort_by_permissions(const ThunarFile *a, const ThunarFile *b,
+                                 gboolean case_sensitive)
 {
     ThunarFileMode mode_a;
     ThunarFileMode mode_b;
@@ -1473,9 +1414,8 @@ static gint _sort_by_permissions(const ThunarFile *a,
     return th_file_compare_by_name(a, b, case_sensitive);
 }
 
-static gint _sort_by_size(const ThunarFile *a,
-                         const ThunarFile *b,
-                         gboolean          case_sensitive)
+static gint _sort_by_size(const ThunarFile *a, const ThunarFile *b,
+                          gboolean case_sensitive)
 {
     guint64 size_a;
     guint64 size_b;
@@ -1491,16 +1431,14 @@ static gint _sort_by_size(const ThunarFile *a,
     return th_file_compare_by_name(a, b, case_sensitive);
 }
 
-static gint _sort_by_size_in_bytes(const ThunarFile *a,
-                                  const ThunarFile *b,
-                                  gboolean          case_sensitive)
+static gint _sort_by_size_in_bytes(const ThunarFile *a, const ThunarFile *b,
+                                   gboolean case_sensitive)
 {
     return _sort_by_size(a, b, case_sensitive);
 }
 
-static gint _sort_by_type(const ThunarFile *a,
-                         const ThunarFile *b,
-                         gboolean          case_sensitive)
+static gint _sort_by_type(const ThunarFile *a, const ThunarFile *b,
+                          gboolean case_sensitive)
 {
     const gchar *content_type_a;
     const gchar *content_type_b;
@@ -1561,14 +1499,14 @@ ListModel* listmodel_new()
     return g_object_new(TYPE_LISTMODEL, NULL);
 }
 
-static gboolean _list_model_get_case_sensitive(ListModel *store)
+static gboolean _listmodel_get_case_sensitive(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->sort_case_sensitive;
 }
 
-static void _list_model_set_case_sensitive(ListModel *store,
-                                                 gboolean         case_sensitive)
+static void _listmodel_set_case_sensitive(ListModel *store,
+                                          gboolean case_sensitive)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
 
@@ -1582,7 +1520,7 @@ static void _list_model_set_case_sensitive(ListModel *store,
         store->sort_case_sensitive = case_sensitive;
 
         /* resort the model with the new setting */
-        _list_model_sort(store);
+        _listmodel_sort(store);
 
         /* notify listeners */
         g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_CASE_SENSITIVE]);
@@ -1595,14 +1533,13 @@ static void _list_model_set_case_sensitive(ListModel *store,
     }
 }
 
-static ThunarDateStyle _list_model_get_date_style(ListModel *store)
+static ThunarDateStyle _listmodel_get_date_style(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), THUNAR_DATE_STYLE_SIMPLE);
     return store->date_style;
 }
 
-static void _list_model_set_date_style(ListModel *store,
-                                             ThunarDateStyle  date_style)
+static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_style)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
 
@@ -1623,16 +1560,15 @@ static void _list_model_set_date_style(ListModel *store,
     }
 }
 
-static const char* _list_model_get_date_custom_style(ListModel *store)
+static const char* _listmodel_get_date_custom_style(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), NULL);
 
     return store->date_custom_style;
 }
 
-static void _list_model_set_date_custom_style(
-                                            ListModel *store,
-                                            const char      *date_custom_style)
+static void _listmodel_set_date_custom_style(ListModel *store,
+                                             const char *date_custom_style)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
 
@@ -1734,13 +1670,13 @@ void listmodel_set_folder(ListModel *store,
 
         /* insert the files */
         if (files != NULL)
-            _list_model_files_added(folder, files, store);
+            _listmodel_files_added(folder, files, store);
 
         /* connect signals to the new folder */
-        g_signal_connect(G_OBJECT(store->folder), "destroy", G_CALLBACK(_list_model_folder_destroy), store);
-        g_signal_connect(G_OBJECT(store->folder), "error", G_CALLBACK(_list_model_folder_error), store);
-        g_signal_connect(G_OBJECT(store->folder), "files-added", G_CALLBACK(_list_model_files_added), store);
-        g_signal_connect(G_OBJECT(store->folder), "files-removed", G_CALLBACK(_list_model_files_removed), store);
+        g_signal_connect(G_OBJECT(store->folder), "destroy", G_CALLBACK(_listmodel_folder_destroy), store);
+        g_signal_connect(G_OBJECT(store->folder), "error", G_CALLBACK(_listmodel_folder_error), store);
+        g_signal_connect(G_OBJECT(store->folder), "files-added", G_CALLBACK(_listmodel_files_added), store);
+        g_signal_connect(G_OBJECT(store->folder), "files-removed", G_CALLBACK(_listmodel_files_removed), store);
     }
 
     /* notify listeners that we have a new folder */
@@ -1750,14 +1686,13 @@ void listmodel_set_folder(ListModel *store,
     g_object_thaw_notify(G_OBJECT(store));
 }
 
-static gboolean _list_model_get_folders_first(ListModel *store)
+static gboolean _listmodel_get_folders_first(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->sort_folders_first;
 }
 
-void listmodel_set_folders_first(ListModel *store,
-                                         gboolean         folders_first)
+void listmodel_set_folders_first(ListModel *store, gboolean folders_first)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
 
@@ -1769,7 +1704,7 @@ void listmodel_set_folders_first(ListModel *store,
     /* apply the new setting(re-sorting the store) */
     store->sort_folders_first = folders_first;
     g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_FOLDERS_FIRST]);
-    _list_model_sort(store);
+    _listmodel_sort(store);
 
     /* emit a "changed" signal for each row, so the display is
        reloaded with the new folders first setting */
@@ -1784,8 +1719,7 @@ gboolean listmodel_get_show_hidden(ListModel *store)
     return store->show_hidden;
 }
 
-void listmodel_set_show_hidden(ListModel *store,
-                                       gboolean         show_hidden)
+void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
 {
     GtkTreePath   *path;
     GtkTreeIter    iter;
@@ -1811,7 +1745,7 @@ void listmodel_set_show_hidden(ListModel *store,
 
             /* insert file in the sorted position */
             row = g_sequence_insert_sorted(store->rows, file,
-                                            _list_model_cmp_func, store);
+                                            _listmodel_cmp_func, store);
 
             GTK_TREE_ITER_INIT(iter, store->stamp, row);
 
@@ -1870,8 +1804,7 @@ gboolean listmodel_get_file_size_binary(ListModel *store)
     return store->file_size_binary;
 }
 
-void listmodel_set_file_size_binary(ListModel *store,
-                                            gboolean        file_size_binary)
+void listmodel_set_file_size_binary(ListModel *store, gboolean file_size_binary)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
 
@@ -1885,7 +1818,7 @@ void listmodel_set_file_size_binary(ListModel *store,
         store->file_size_binary = file_size_binary;
 
         /* resort the model with the new setting */
-        _list_model_sort(store);
+        _listmodel_sort(store);
 
         /* notify listeners */
         g_object_notify_by_pspec(G_OBJECT(store), _list_model_props[PROP_FILE_SIZE_BINARY]);
@@ -1898,8 +1831,7 @@ void listmodel_set_file_size_binary(ListModel *store,
     }
 }
 
-ThunarFile* listmodel_get_file(ListModel *store,
-                                       GtkTreeIter     *iter)
+ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter)
 {
     // g_object_unref
 
@@ -1910,7 +1842,7 @@ ThunarFile* listmodel_get_file(ListModel *store,
 }
 
 // Counts the number of visible files into the store
-static gint _list_model_get_num_files(ListModel *store)
+static gint _listmodel_get_num_files(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), 0);
 
@@ -1935,8 +1867,7 @@ static gint _list_model_get_num_files(ListModel *store)
  *
  * Return value: the list of #GtkTreePath<!---->s for @files.
  **/
-GList* listmodel_get_paths_for_files(ListModel *store,
-                                             GList           *files)
+GList* listmodel_get_paths_for_files(ListModel *store, GList *files)
 {
     GList         *paths = NULL;
     GSequenceIter *row;
@@ -1979,8 +1910,7 @@ GList* listmodel_get_paths_for_files(ListModel *store,
  *
  * Return value: the list of #GtkTreePath<!---->s that match @pattern.
  **/
-GList* listmodel_get_paths_for_pattern(ListModel *store,
-                                               const gchar     *pattern)
+GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern)
 {
     GPatternSpec  *pspec;
     GList         *paths = NULL;
@@ -2018,9 +1948,9 @@ GList* listmodel_get_paths_for_pattern(ListModel *store,
     return paths;
 }
 
-static gchar* thunar_list_model_get_statusbar_text_for_files(
-                                        GList    *files,
-                                        gboolean  show_file_size_binary_format)
+static gchar* _listmodel_get_statusbar_text_for_files(
+                                        GList *files,
+                                        gboolean show_file_size_binary_format)
 {
     // g_free
 
@@ -2084,8 +2014,7 @@ static gchar* thunar_list_model_get_statusbar_text_for_files(
     return text;
 }
 
-gchar* listmodel_get_statusbar_text(ListModel *store,
-                                            GList           *selected_items)
+gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
 {
     // g_free
 
@@ -2129,7 +2058,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store,
         if (G_LIKELY(file != NULL
                       && eg_file_get_free_space(th_file_get_file(file), &size, NULL)))
         {
-            size_string = thunar_list_model_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
+            size_string = _listmodel_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
 
             /* humanize the free space */
             fspace_string = g_format_size_full(size, show_file_size_binary_format ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
@@ -2142,7 +2071,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store,
         }
         else
         {
-            text = thunar_list_model_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
+            text = _listmodel_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
         }
         g_list_free(relevant_files);
     }
@@ -2240,7 +2169,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store,
             relevant_files = g_list_append(relevant_files, g_sequence_get(iter.user_data));
         }
 
-        size_string = thunar_list_model_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
+        size_string = _listmodel_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
         text = g_strdup_printf(_("Selection: %s"), size_string);
         g_free(size_string);
         g_list_free(relevant_files);

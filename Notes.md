@@ -11,7 +11,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 128247	./view/standard-view.c
 102794	./core/th-file.c
 96577	./menu/launcher.c
-75555	./view/list-model.c
+75555	./view/listmodel.c
 72057	./window.c
 70235	./side/treeview.c
 68445	./application.c
