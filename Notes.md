@@ -1,13 +1,6 @@
-#### Formatting
-    
-dialog/progress-dlg
-dialog/progress-view
-
-widget/path-entry
-column-model
-
 #### Biggest files
 
+```
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 
 +   128008	./view/standard-view.c
@@ -20,11 +13,10 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   61154	./side/treemodel.c
 +   60480	./job/transfer-job.c
 +   51175	./dialog/permbox.c
-    44139	./widget/path-entry.c
-    44121	./job/io-jobs.c
-    43849	./dialog/propsdlg.c
-    43724	./dialog/appchooser.c
-    43595	./0Temp.c
++   44139	./widget/path-entry.c
++   44121	./job/io-jobs.c
++   43849	./dialog/propsdlg.c
++   43724	./dialog/appchooser.c
     40474	./view/detailview.c
     38645	./dialog/dialogs.c
     33719	./libext/exo-tree-view.c
@@ -77,6 +69,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
     2591	./preferences.c
     2372	./side/sidepane.c
     1985	./main.c
+```
 
 
 
