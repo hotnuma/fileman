@@ -2,6 +2,7 @@
     
 dialog/progress-dlg
 
+listmodel
 
 #### Biggest files
 

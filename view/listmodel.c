@@ -411,7 +411,7 @@ static void listmodel_init(ListModel *store)
 static void list_model_dispose(GObject *object)
 {
     /* unlink from the folder(if any) */
-    list_model_set_folder(LISTMODEL(object), NULL);
+    listmodel_set_folder(LISTMODEL(object), NULL);
 
     G_OBJECT_CLASS(listmodel_parent_class)->dispose(object);
 }
@@ -455,7 +455,7 @@ static void list_model_get_property(GObject    *object,
         break;
 
     case PROP_FOLDER:
-        g_value_set_object(value, list_model_get_folder(store));
+        g_value_set_object(value, listmodel_get_folder(store));
         break;
 
     case PROP_FOLDERS_FIRST:
@@ -467,11 +467,11 @@ static void list_model_get_property(GObject    *object,
         break;
 
     case PROP_SHOW_HIDDEN:
-        g_value_set_boolean(value, list_model_get_show_hidden(store));
+        g_value_set_boolean(value, listmodel_get_show_hidden(store));
         break;
 
     case PROP_FILE_SIZE_BINARY:
-        g_value_set_boolean(value, list_model_get_file_size_binary(store));
+        g_value_set_boolean(value, listmodel_get_file_size_binary(store));
         break;
 
     default:
@@ -504,19 +504,19 @@ static void list_model_set_property(GObject      *object,
         break;
 
     case PROP_FOLDER:
-        list_model_set_folder(store, g_value_get_object(value));
+        listmodel_set_folder(store, g_value_get_object(value));
         break;
 
     case PROP_FOLDERS_FIRST:
-        list_model_set_folders_first(store, g_value_get_boolean(value));
+        listmodel_set_folders_first(store, g_value_get_boolean(value));
         break;
 
     case PROP_SHOW_HIDDEN:
-        list_model_set_show_hidden(store, g_value_get_boolean(value));
+        listmodel_set_show_hidden(store, g_value_get_boolean(value));
         break;
 
     case PROP_FILE_SIZE_BINARY:
-        list_model_set_file_size_binary(store, g_value_get_boolean(value));
+        listmodel_set_file_size_binary(store, g_value_get_boolean(value));
         break;
 
     default:
@@ -1159,7 +1159,7 @@ static void _list_model_folder_destroy(ThunarFolder    *folder,
     thunar_return_if_fail(IS_LISTMODEL(store));
     thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
 
-    list_model_set_folder(store, NULL);
+    listmodel_set_folder(store, NULL);
 
     /* TODO: What to do when the folder is deleted? */
 }
@@ -1176,7 +1176,7 @@ static void _list_model_folder_error(ThunarFolder    *folder,
     g_signal_emit(G_OBJECT(store), _list_model_signals[ERROR], 0, error);
 
     /* reset the current folder */
-    list_model_set_folder(store, NULL);
+    listmodel_set_folder(store, NULL);
 }
 
 static void _list_model_files_added(ThunarFolder    *folder,
@@ -1556,7 +1556,7 @@ static gint _sort_by_type(const ThunarFile *a,
         return result;
 }
 
-ListModel* list_model_new()
+ListModel* listmodel_new()
 {
     return g_object_new(TYPE_LISTMODEL, NULL);
 }
@@ -1652,13 +1652,13 @@ static void _list_model_set_date_custom_style(
     }
 }
 
-ThunarFolder* list_model_get_folder(ListModel *store)
+ThunarFolder* listmodel_get_folder(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), NULL);
     return store->folder;
 }
 
-void list_model_set_folder(ListModel *store,
+void listmodel_set_folder(ListModel *store,
                                   ThunarFolder    *folder)
 {
     GtkTreePath   *path;
@@ -1756,7 +1756,7 @@ static gboolean _list_model_get_folders_first(ListModel *store)
     return store->sort_folders_first;
 }
 
-void list_model_set_folders_first(ListModel *store,
+void listmodel_set_folders_first(ListModel *store,
                                          gboolean         folders_first)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
@@ -1778,13 +1778,13 @@ void list_model_set_folders_first(ListModel *store,
                             NULL);
 }
 
-gboolean list_model_get_show_hidden(ListModel *store)
+gboolean listmodel_get_show_hidden(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->show_hidden;
 }
 
-void list_model_set_show_hidden(ListModel *store,
+void listmodel_set_show_hidden(ListModel *store,
                                        gboolean         show_hidden)
 {
     GtkTreePath   *path;
@@ -1864,13 +1864,13 @@ void list_model_set_show_hidden(ListModel *store,
     g_object_thaw_notify(G_OBJECT(store));
 }
 
-gboolean list_model_get_file_size_binary(ListModel *store)
+gboolean listmodel_get_file_size_binary(ListModel *store)
 {
     thunar_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->file_size_binary;
 }
 
-void list_model_set_file_size_binary(ListModel *store,
+void listmodel_set_file_size_binary(ListModel *store,
                                             gboolean        file_size_binary)
 {
     thunar_return_if_fail(IS_LISTMODEL(store));
@@ -1898,7 +1898,7 @@ void list_model_set_file_size_binary(ListModel *store,
     }
 }
 
-ThunarFile* list_model_get_file(ListModel *store,
+ThunarFile* listmodel_get_file(ListModel *store,
                                        GtkTreeIter     *iter)
 {
     // g_object_unref
@@ -1935,7 +1935,7 @@ static gint _list_model_get_num_files(ListModel *store)
  *
  * Return value: the list of #GtkTreePath<!---->s for @files.
  **/
-GList* list_model_get_paths_for_files(ListModel *store,
+GList* listmodel_get_paths_for_files(ListModel *store,
                                              GList           *files)
 {
     GList         *paths = NULL;
@@ -1979,7 +1979,7 @@ GList* list_model_get_paths_for_files(ListModel *store,
  *
  * Return value: the list of #GtkTreePath<!---->s that match @pattern.
  **/
-GList* list_model_get_paths_for_pattern(ListModel *store,
+GList* listmodel_get_paths_for_pattern(ListModel *store,
                                                const gchar     *pattern)
 {
     GPatternSpec  *pspec;
@@ -2084,7 +2084,7 @@ static gchar* thunar_list_model_get_statusbar_text_for_files(
     return text;
 }
 
-gchar* list_model_get_statusbar_text(ListModel *store,
+gchar* listmodel_get_statusbar_text(ListModel *store,
                                             GList           *selected_items)
 {
     // g_free
@@ -2111,7 +2111,7 @@ gchar* list_model_get_statusbar_text(ListModel *store,
 
     thunar_return_val_if_fail(IS_LISTMODEL(store), NULL);
 
-    show_file_size_binary_format = list_model_get_file_size_binary(store);
+    show_file_size_binary_format = listmodel_get_file_size_binary(store);
 
     if (selected_items == NULL) /* nothing selected */
     {
