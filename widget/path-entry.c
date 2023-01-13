@@ -566,7 +566,7 @@ static void thunar_path_entry_changed(GtkEditable *editable)
         g_object_ref(G_OBJECT(model));
         gtk_entry_completion_set_model(completion, NULL);
 
-        list_model_set_folder(THUNAR_LIST_MODEL(model), folder);
+        list_model_set_folder(LISTMODEL(model), folder);
 
         gtk_entry_completion_set_model(completion, model);
         g_object_unref(G_OBJECT(model));

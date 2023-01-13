@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_LIST_MODEL_H__
-#define __THUNAR_LIST_MODEL_H__
+#ifndef __LISTMODEL_H__
+#define __LISTMODEL_H__
 
 #include <th-folder.h>
 
@@ -26,12 +26,17 @@ G_BEGIN_DECLS
 typedef struct _ListModelClass ListModelClass;
 typedef struct _ListModel      ListModel;
 
-#define THUNAR_TYPE_LIST_MODEL            (listmodel_get_type())
-#define THUNAR_LIST_MODEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_LIST_MODEL, ListModel))
-#define THUNAR_LIST_MODEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_LIST_MODEL, ListModelClass))
-#define THUNAR_IS_LIST_MODEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_LIST_MODEL))
-#define THUNAR_IS_LIST_MODEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_LIST_MODEL))
-#define THUNAR_LIST_MODEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_LIST_MODEL, ListModelClass))
+#define TYPE_LISTMODEL (listmodel_get_type())
+#define LISTMODEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_LISTMODEL, ListModel))
+#define LISTMODEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_LISTMODEL, ListModelClass))
+#define IS_LISTMODEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_LISTMODEL))
+#define IS_LISTMODEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_LISTMODEL))
+#define LISTMODEL_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_LISTMODEL, ListModelClass))
 
 GType listmodel_get_type() G_GNUC_CONST;
 
@@ -57,6 +62,6 @@ gchar* list_model_get_statusbar_text(ListModel *store, GList *selected_items);
 
 G_END_DECLS
 
-#endif // __THUNAR_LIST_MODEL_H__
+#endif // __LISTMODEL_H__
 
 

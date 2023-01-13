@@ -2124,7 +2124,7 @@ static void _standard_view_rows_reordered(
     UNUSED(iter);
     UNUSED(new_order);
 
-    thunar_return_if_fail(THUNAR_IS_LIST_MODEL(model));
+    thunar_return_if_fail(IS_LISTMODEL(model));
     thunar_return_if_fail(IS_STANDARD_VIEW(standard_view));
     thunar_return_if_fail(standard_view->model == model);
 
@@ -2173,7 +2173,7 @@ static void _standard_view_error(ListModel    *model,
 {
     ThunarFile *file;
 
-    thunar_return_if_fail(THUNAR_IS_LIST_MODEL(model));
+    thunar_return_if_fail(IS_LISTMODEL(model));
     thunar_return_if_fail(IS_STANDARD_VIEW(standard_view));
     thunar_return_if_fail(standard_view->model == model);
 
