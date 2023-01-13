@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#include <propdlg.h>
+#include <propsdlg.h>
 
 #include <memory.h>
 #include <string.h>

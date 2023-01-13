@@ -29,7 +29,7 @@
 #include <dialogs.h>
 #include <icon-factory.h>
 #include <io-scan-directory.h>
-#include <propdlg.h>
+#include <propsdlg.h>
 #include <simple-job.h>
 #include <devmon.h>
 #include <treeview.h>
