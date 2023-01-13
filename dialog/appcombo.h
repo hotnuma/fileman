@@ -40,13 +40,11 @@ typedef struct _AppCombo      AppCombo;
 
 GType appcombo_get_type() G_GNUC_CONST;
 
-GtkWidget* thunar_chooser_button_new() G_GNUC_MALLOC;
-
-void thunar_chooser_button_set_file(AppCombo *chooser_button,
-                                    ThunarFile          *file);
+GtkWidget* appcombo_new() G_GNUC_MALLOC;
+void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file);
 
 G_END_DECLS;
 
-#endif /* !__APPCOMBO_H__ */
+#endif // __APPCOMBO_H__
 
 

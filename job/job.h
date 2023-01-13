@@ -23,9 +23,7 @@
 
 #include <gio/gio.h>
 
-//#include <libext.h>
 #include <exo-job.h>
-
 #include <enum-types.h>
 #include <th-file.h>
 

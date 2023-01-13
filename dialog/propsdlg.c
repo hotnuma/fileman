@@ -307,7 +307,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
-    dialog->openwith_chooser = thunar_chooser_button_new();
+    dialog->openwith_chooser = appcombo_new();
     gtk_label_set_mnemonic_widget(GTK_LABEL(label), dialog->openwith_chooser);
     g_object_bind_property(G_OBJECT(dialog->openwith_chooser), "visible", G_OBJECT(label), "visible", G_BINDING_SYNC_CREATE);
     gtk_widget_set_hexpand(dialog->openwith_chooser, TRUE);
@@ -784,7 +784,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     show_chooser = th_file_is_regular(file) && !th_file_is_executable(file);
     gtk_widget_set_visible(dialog->openwith_chooser, show_chooser);
     if (show_chooser)
-        thunar_chooser_button_set_file(APPCOMBO(dialog->openwith_chooser), file);
+        appcombo_set_file(APPCOMBO(dialog->openwith_chooser), file);
 
     /* update the link target */
     path = th_file_is_symlink(file) ? th_file_get_symlink_target(file) : NULL;

@@ -1,6 +1,89 @@
 
 #if 0
 
+static void thunar_column_model_notify_column_order(void *preferences,
+                                                    GParamSpec *pspec,
+                                                    ColumnModel *column_model);
+static void thunar_column_model_notify_column_widths(void *preferences,
+                                                     GParamSpec *pspec,
+                                                     ColumnModel *column_model);
+static void thunar_column_model_notify_visible_columns(void *preferences,
+                                                       GParamSpec *pspec,
+                                                       ColumnModel *column_model);
+static void thunar_column_model_notify_column_order(/*ThunarPreferences*/ void *preferences,
+                                                    GParamSpec        *pspec,
+                                                    ColumnModel *column_model)
+{
+    UNUSED(preferences);
+    UNUSED(pspec);
+    GtkTreePath *path;
+    GtkTreeIter  iter;
+    gint         n;
+
+    thunar_return_if_fail(IS_COLUMN_MODEL(column_model));
+    //thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+
+    /* load the new column order */
+    thunar_column_model_load_column_order(column_model);
+
+    /* emit "row-changed" for all rows */
+    for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
+    {
+        path = gtk_tree_path_new_from_indices(n, -1);
+        if (gtk_tree_model_get_iter(GTK_TREE_MODEL(column_model), &iter, path))
+            gtk_tree_model_row_changed(GTK_TREE_MODEL(column_model), path, &iter);
+        gtk_tree_path_free(path);
+    }
+
+    /* emit "columns-changed" */
+    g_signal_emit(G_OBJECT(column_model), column_model_signals[COLUMNS_CHANGED], 0);
+}
+
+static void thunar_column_model_notify_column_widths(void *preferences,
+                                                     GParamSpec        *pspec,
+                                                     ColumnModel *column_model)
+{
+    UNUSED(preferences);
+    UNUSED(pspec);
+    thunar_return_if_fail(IS_COLUMN_MODEL(column_model));
+    //thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+
+    /* load the new column widths */
+    thunar_column_model_load_column_widths(column_model);
+}
+
+static void thunar_column_model_notify_visible_columns(void *preferences,
+                                                       GParamSpec        *pspec,
+                                                       ColumnModel *column_model)
+{
+    UNUSED(preferences);
+    UNUSED(pspec);
+    GtkTreePath *path;
+    GtkTreeIter  iter;
+    gint         n;
+
+    thunar_return_if_fail(IS_COLUMN_MODEL(column_model));
+    //thunar_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+
+    /* load the new list of visible columns */
+    thunar_column_model_load_visible_columns(column_model);
+
+    /* emit "row-changed" for all rows */
+    for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
+    {
+        path = gtk_tree_path_new_from_indices(n, -1);
+        if (gtk_tree_model_get_iter(GTK_TREE_MODEL(column_model), &iter, path))
+            gtk_tree_model_row_changed(GTK_TREE_MODEL(column_model), path, &iter);
+        gtk_tree_path_free(path);
+    }
+
+    /* emit "columns-changed" */
+    g_signal_emit(G_OBJECT(column_model), column_model_signals[COLUMNS_CHANGED], 0);
+}
+
+
+// ----------------------------------------------------------------------------
+
 static void thunar_properties_dialog_icon_button_clicked(
                                                 GtkWidget *button,
                                                 PropertiesDialog *dialog);

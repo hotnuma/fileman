@@ -17,21 +17,21 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   44121	./job/io-jobs.c
 +   43849	./dialog/propsdlg.c
 +   43724	./dialog/appchooser.c
-    40474	./view/detailview.c
-    38645	./dialog/dialogs.c
-    33719	./libext/exo-tree-view.c
-    33578	./view/column-model.c
++   40474	./view/detailview.c
++   38645	./dialog/dialogs.c
++   33719	./libext/exo-tree-view.c
++   33578	./view/column-model.c
     30881	./widget/icon-factory.c
-    30354	./core/th-folder.c
++   30354	./core/th-folder.c
     25293	./job/job.c
-    24813	./core/th-device.c
++   24813	./core/th-device.c
     24589	./misc/browser.c
-    24507	./libext/gdkpixbuf-ext.c
++   24507	./libext/gdkpixbuf-ext.c
     24217	./dialog/progress-view.c
     22837	./libext/exo-icon.c
-    22570	./core/devmon.c
++   22570	./core/devmon.c
     22332	./widget/icon-render.c
-    21570	./core/clipman.c
++   21570	./core/clipman.c
     20594	./misc/history.c
     19810	./dialog/appcombo.c
     19073	./misc/enum-types.c
