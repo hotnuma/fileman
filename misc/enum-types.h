@@ -86,7 +86,7 @@ GType thunar_date_style_get_type() G_GNUC_CONST;
  * @THUNAR_COLUMN_FILE          : #ThunarFile object.
  * @THUNAR_COLUMN_FILE_NAME     : real file name.
  *
- * Columns exported by #ThunarListModel using the #GtkTreeModel
+ * Columns exported by #ListModel using the #GtkTreeModel
  * interface.
  **/
 typedef enum

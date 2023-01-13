@@ -136,7 +136,7 @@ struct _StandardView
 {
     GtkScrolledWindow   __parent__;
 
-    ThunarListModel     *model;
+    ListModel     *model;
 
     ThunarIconFactory   *icon_factory;
     GtkCellRenderer     *icon_renderer;

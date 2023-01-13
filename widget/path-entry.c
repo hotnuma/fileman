@@ -195,7 +195,7 @@ static void thunar_path_entry_init(ThunarPathEntry *path_entry)
 {
     GtkEntryCompletion *completion;
     GtkCellRenderer    *renderer;
-    ThunarListModel    *store;
+    ListModel    *store;
 
     path_entry->check_completion_idle_id = 0;
     path_entry->working_directory = NULL;
