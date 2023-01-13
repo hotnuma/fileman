@@ -25,7 +25,7 @@
 #include <libext.h>
 #include <browser.h>
 #include <clipman.h>
-#include <detail-view.h>
+#include <detailview.h>
 #include <dialogs.h>
 #include <gio-ext.h>
 #include <gobject-ext.h>

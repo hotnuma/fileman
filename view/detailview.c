@@ -23,7 +23,7 @@
 #include <libext.h>
 #include <exo-tree-view.h>
 #include <column-model.h>
-#include <detail-view.h>
+#include <detailview.h>
 #include <launcher.h>
 #include <gtk-ext.h>
 #include <window.h>
