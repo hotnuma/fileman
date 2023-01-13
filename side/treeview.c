@@ -32,7 +32,7 @@
 #include <job.h>
 #include <marshal.h>
 #include <menu.h>
-#include <properties-dlg.h>
+#include <propdlg.h>
 #include <shortcut-render.h>
 #include <simple-job.h>
 #include <treemodel.h>

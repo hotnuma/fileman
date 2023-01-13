@@ -29,7 +29,7 @@
 #include <dialogs.h>
 #include <icon-factory.h>
 #include <io-scan-directory.h>
-#include <properties-dlg.h>
+#include <propdlg.h>
 #include <simple-job.h>
 #include <devmon.h>
 #include <treeview.h>
@@ -2343,18 +2343,18 @@ static void _launcher_action_properties(ThunarLauncher *launcher)
 
     if (G_LIKELY(toplevel != NULL))
     {
-        dialog = thunar_properties_dialog_new(GTK_WINDOW(toplevel));
+        dialog = propsdlg_new(GTK_WINDOW(toplevel));
 
         /* check if no files are currently selected */
         if (launcher->files_to_process == NULL)
         {
             /* if we don't have any files selected, we just popup the properties dialog for the current folder. */
-            thunar_properties_dialog_set_file(THUNAR_PROPERTIES_DIALOG(dialog), launcher->current_directory);
+            propsdlg_set_file(PROPERTIES_DIALOG(dialog), launcher->current_directory);
         }
         else
         {
             /* popup the properties dialog for all file(s) */
-            thunar_properties_dialog_set_files(THUNAR_PROPERTIES_DIALOG(dialog), launcher->files_to_process);
+            propsdlg_set_files(PROPERTIES_DIALOG(dialog), launcher->files_to_process);
         }
         gtk_widget_show(dialog);
     }

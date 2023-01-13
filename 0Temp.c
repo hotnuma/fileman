@@ -1,6 +1,115 @@
 
 #if 0
 
+static void thunar_properties_dialog_icon_button_clicked(
+                                                GtkWidget *button,
+                                                PropertiesDialog *dialog);
+
+static void thunar_properties_dialog_icon_button_clicked(
+                                                GtkWidget              *button,
+                                                PropertiesDialog *dialog)
+{
+    GtkWidget   *chooser;
+    GError      *err = NULL;
+    const gchar *custom_icon;
+    gchar       *title;
+    gchar       *icon;
+    ThunarFile  *file;
+
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(GTK_IS_BUTTON(button));
+    thunar_return_if_fail(g_list_length(dialog->files) == 1);
+
+    /* make sure we still have a file */
+    if (G_UNLIKELY(dialog->files == NULL))
+        return;
+
+    file = THUNAR_FILE(dialog->files->data);
+
+    /* allocate the icon chooser */
+    title = g_strdup_printf(_("Select an Icon for \"%s\""), thunar_file_get_display_name(file));
+    chooser = exo_icon_chooser_dialog_new(title, GTK_WINDOW(dialog),
+                                           _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                           _("_OK"), GTK_RESPONSE_ACCEPT,
+                                           NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(chooser), GTK_RESPONSE_ACCEPT);
+    g_free(title);
+
+    /* use the custom_icon of the file as default */
+    custom_icon = thunar_file_get_custom_icon(file);
+    if (G_LIKELY(custom_icon != NULL && *custom_icon != '\0'))
+        exo_icon_chooser_dialog_set_icon(EXO_ICON_CHOOSER_DIALOG(chooser), custom_icon);
+
+    /* run the icon chooser dialog and make sure the dialog still has a file */
+    if (gtk_dialog_run(GTK_DIALOG(chooser)) == GTK_RESPONSE_ACCEPT && file != NULL)
+    {
+        /* determine the selected icon and use it for the file */
+        icon = exo_icon_chooser_dialog_get_icon(EXO_ICON_CHOOSER_DIALOG(chooser));
+        if (!thunar_file_set_custom_icon(file, icon, &err))
+        {
+            /* hide the icon chooser dialog first */
+            gtk_widget_hide(chooser);
+
+            /* tell the user that we failed to change the icon of the .desktop file */
+            dialog_error(GTK_WIDGET(dialog), err,
+                                       _("Failed to change icon of \"%s\""),
+                                       thunar_file_get_display_name(file));
+            g_error_free(err);
+        }
+        g_free(icon);
+    }
+
+    /* destroy the chooser */
+    gtk_widget_destroy(chooser);
+}
+
+static void thunar_properties_dialog_update_providers(PropertiesDialog *dialog)
+{
+    GtkWidget *label_widget;
+    GList     *pages = NULL;
+    GList     *lp;
+
+    GList     *providers;
+    GList     *tmp;
+
+    /* load the property page providers from the provider factory */
+    providers = thunarx_provider_factory_list_providers(dialog->provider_factory, THUNARX_TYPE_PROPERTY_PAGE_PROVIDER);
+    if (G_LIKELY(providers != NULL))
+    {
+        /* load the pages offered by the menu providers */
+        for(lp = providers; lp != NULL; lp = lp->next)
+        {
+            //g_print("load pages\n");
+
+            tmp = thunarx_property_page_provider_get_pages(lp->data, dialog->files);
+            pages = g_list_concat(pages, tmp);
+            g_object_unref(G_OBJECT(lp->data));
+        }
+        g_list_free(providers);
+    }
+
+    /* destroy any previous set pages */
+    for(lp = dialog->provider_pages; lp != NULL; lp = lp->next)
+    {
+        gtk_widget_destroy(GTK_WIDGET(lp->data));
+        g_object_unref(G_OBJECT(lp->data));
+    }
+    g_list_free(dialog->provider_pages);
+
+    /* apply the new set of pages */
+    dialog->provider_pages = pages;
+    for(lp = pages; lp != NULL; lp = lp->next)
+    {
+        label_widget = thunarx_property_page_get_label_widget(THUNARX_PROPERTY_PAGE(lp->data));
+        gtk_notebook_append_page(GTK_NOTEBOOK(dialog->notebook), GTK_WIDGET(lp->data), label_widget);
+        g_object_ref(G_OBJECT(lp->data));
+        gtk_widget_show(lp->data);
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+
 gboolean treemodel_node_has_dummy(TreeModel *model, GNode *node);
 
 gboolean treemodel_node_has_dummy(TreeModel *model,

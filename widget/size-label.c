@@ -107,7 +107,7 @@ static void thunar_size_label_class_init(ThunarSizeLabelClass *klass)
                                         E_PARAM_READWRITE));
 
     /**
-     * ThunarPropertiesDialog:file_size_binary:
+     * PropertiesDialog:file_size_binary:
      *
      * Whether the file size should be shown in binary or decimal.
      **/

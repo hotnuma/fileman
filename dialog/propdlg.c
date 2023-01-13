@@ -20,6 +20,8 @@
  */
 
 #include <config.h>
+#include <propdlg.h>
+
 #include <memory.h>
 #include <string.h>
 
@@ -41,7 +43,6 @@
 #include <marshal.h>
 #include <pango-ext.h>
 #include <permbox.h>
-#include <properties-dlg.h>
 #include <size-label.h>
 #include <utils.h>
 
@@ -62,46 +63,40 @@ enum
     LAST_SIGNAL,
 };
 
-static void thunar_properties_dialog_dispose(GObject *object);
-static void thunar_properties_dialog_finalize(GObject *object);
-static void thunar_properties_dialog_get_property(GObject *object,
+static void propsdlg_dispose(GObject *object);
+static void propsdlg_finalize(GObject *object);
+static void propsdlg_get_property(GObject *object,
                                                   guint prop_id,
                                                   GValue *value,
                                                   GParamSpec *pspec);
-static void thunar_properties_dialog_set_property(GObject *object,
+static void propsdlg_set_property(GObject *object,
                                                   guint prop_id,
                                                   const GValue *value,
                                                   GParamSpec *pspec);
-static void thunar_properties_dialog_response(GtkDialog *dialog,
+static void propsdlg_response(GtkDialog *dialog,
                                               gint response);
-static gboolean thunar_properties_dialog_reload(ThunarPropertiesDialog *dialog);
-static void thunar_properties_dialog_name_activate(GtkWidget *entry,
-                                                   ThunarPropertiesDialog *dialog);
-static gboolean thunar_properties_dialog_name_focus_out_event(
+static gboolean propsdlg_reload(PropertiesDialog *dialog);
+
+static void _propsdlg_name_activate(GtkWidget *entry,
+                                                   PropertiesDialog *dialog);
+static gboolean _propsdlg_name_focus_out_event(
                                                 GtkWidget *entry,
                                                 GdkEventFocus *event,
-                                                ThunarPropertiesDialog *dialog);
-//static void thunar_properties_dialog_icon_button_clicked(
-//                                                GtkWidget *button,
-//                                                ThunarPropertiesDialog *dialog);
-static void thunar_properties_dialog_update(ThunarPropertiesDialog *dialog);
-//static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog);
-static GList* thunar_properties_dialog_get_files(ThunarPropertiesDialog *dialog);
+                                                PropertiesDialog *dialog);
+static void _propsdlg_update(PropertiesDialog *dialog);
+static GList* _propsdlg_get_files(PropertiesDialog *dialog);
 
-struct _ThunarPropertiesDialogClass
+struct _PropertiesDialogClass
 {
     GtkDialogClass __parent__;
 
     /* signals */
-    gboolean (*reload) (ThunarPropertiesDialog *dialog);
+    gboolean (*reload) (PropertiesDialog *dialog);
 };
 
-struct _ThunarPropertiesDialog
+struct _PropertiesDialog
 {
     GtkDialog    __parent__;
-
-    //ThunarxProviderFactory *provider_factory;
-    //GList       *provider_pages;
 
     GList       *files;
     gboolean    file_size_binary;
@@ -130,77 +125,54 @@ struct _ThunarPropertiesDialog
     GtkWidget   *permissions_chooser;
 };
 
-G_DEFINE_TYPE(ThunarPropertiesDialog, thunar_properties_dialog, GTK_TYPE_DIALOG)
+G_DEFINE_TYPE(PropertiesDialog, propsdlg, GTK_TYPE_DIALOG)
 
-static void thunar_properties_dialog_class_init(ThunarPropertiesDialogClass *klass)
+static void propsdlg_class_init(PropertiesDialogClass *klass)
 {
-    GtkDialogClass *gtkdialog_class;
-    GtkBindingSet  *binding_set;
-    GObjectClass   *gobject_class;
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->dispose = propsdlg_dispose;
+    gobject_class->finalize = propsdlg_finalize;
+    gobject_class->get_property = propsdlg_get_property;
+    gobject_class->set_property = propsdlg_set_property;
 
-    gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->dispose = thunar_properties_dialog_dispose;
-    gobject_class->finalize = thunar_properties_dialog_finalize;
-    gobject_class->get_property = thunar_properties_dialog_get_property;
-    gobject_class->set_property = thunar_properties_dialog_set_property;
+    GtkDialogClass *gtkdialog_class = GTK_DIALOG_CLASS(klass);
+    gtkdialog_class->response = propsdlg_response;
 
-    gtkdialog_class = GTK_DIALOG_CLASS(klass);
-    gtkdialog_class->response = thunar_properties_dialog_response;
+    klass->reload = propsdlg_reload;
 
-    klass->reload = thunar_properties_dialog_reload;
+    g_object_class_install_property(gobject_class,
+                                    PROP_FILES,
+                                    g_param_spec_boxed(
+                                        "files",
+                                        "files",
+                                        "files",
+                                        TYPE_FILE_INFO_LIST,
+                                        E_PARAM_READWRITE));
 
-    /**
-     * ThunarPropertiesDialog:files:
-     *
-     * The list of currently selected files whose properties are displayed by
-     * this #ThunarPropertiesDialog. This property may also be %NULL
-     * in which case nothing is displayed.
-     **/
-    g_object_class_install_property(
-        gobject_class,
-        PROP_FILES,
-        g_param_spec_boxed("files",
-                           "files",
-                           "files",
-                           TYPE_FILE_INFO_LIST,
-                           E_PARAM_READWRITE));
-
-    /**
-     * ThunarPropertiesDialog:file_size_binary:
-     *
-     * Whether the file size should be shown in binary or decimal.
-     **/
     g_object_class_install_property(gobject_class,
                                     PROP_FILE_SIZE_BINARY,
-                                    g_param_spec_boolean("file-size-binary",
-                                             "FileSizeBinary",
-                                             NULL,
-                                             TRUE,
-                                             E_PARAM_READWRITE));
+                                    g_param_spec_boolean(
+                                        "file-size-binary",
+                                        "FileSizeBinary",
+                                        NULL,
+                                        TRUE,
+                                        E_PARAM_READWRITE));
 
-    /**
-     * ThunarPropertiesDialog::reload:
-     * @dialog : a #ThunarPropertiesDialog.
-     *
-     * Emitted whenever the user requests reset the reload the
-     * file properties. This is an internal signal used to bind
-     * the action to keys.
-     **/
     g_signal_new(I_("reload"),
-                  G_TYPE_FROM_CLASS(klass),
-                  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                  G_STRUCT_OFFSET(ThunarPropertiesDialogClass, reload),
-                  g_signal_accumulator_true_handled, NULL,
-                  _thunar_marshal_BOOLEAN__VOID,
-                  G_TYPE_BOOLEAN, 0);
+                 G_TYPE_FROM_CLASS(klass),
+                 G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+                 G_STRUCT_OFFSET(PropertiesDialogClass, reload),
+                 g_signal_accumulator_true_handled, NULL,
+                 _thunar_marshal_BOOLEAN__VOID,
+                 G_TYPE_BOOLEAN, 0);
 
     /* setup the key bindings for the properties dialog */
-    binding_set = gtk_binding_set_by_class(klass);
+    GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
     gtk_binding_entry_add_signal(binding_set, GDK_KEY_F5, 0, "reload", 0);
     gtk_binding_entry_add_signal(binding_set, GDK_KEY_r, GDK_CONTROL_MASK, "reload", 0);
 }
 
-static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
+static void propsdlg_init(PropertiesDialog *dialog)
 {
     GtkWidget *grid;
     GtkWidget *label;
@@ -208,8 +180,6 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
     GtkWidget *spacer;
     guint      row = 0;
     GtkWidget *image;
-
-    //dialog->provider_factory = thunarx_provider_factory_get_default();
 
     gtk_dialog_add_buttons(GTK_DIALOG(dialog),
                             _("_Help"), GTK_RESPONSE_HELP,
@@ -261,9 +231,9 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
     gtk_widget_show_all(GTK_WIDGET(dialog->name_entry));
 
     g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
-                      "activate", G_CALLBACK(thunar_properties_dialog_name_activate), dialog);
+                      "activate", G_CALLBACK(_propsdlg_name_activate), dialog);
     g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
-                      "focus-out-event", G_CALLBACK(thunar_properties_dialog_name_focus_out_event), dialog);
+                      "focus-out-event", G_CALLBACK(_propsdlg_name_focus_out_event), dialog);
 
     gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(dialog->name_entry), 1, row, 1, 1);
     g_object_bind_property(G_OBJECT(dialog->single_box), "visible", G_OBJECT(dialog->name_entry), "visible", G_BINDING_SYNC_CREATE);
@@ -276,11 +246,6 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
      */
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_grid_attach(GTK_GRID(grid), box, 0, row, 1, 1);
-
-    //exo_binding_new_with_negation(G_OBJECT(dialog->single_box),
-    //                              "visible",
-    //                              G_OBJECT(box),
-    //                              "visible");
 
     g_object_bind_property(G_OBJECT(dialog->single_box),
                            "visible",
@@ -548,42 +513,35 @@ static void thunar_properties_dialog_init(ThunarPropertiesDialog *dialog)
     gtk_widget_show(label);
 }
 
-static void thunar_properties_dialog_dispose(GObject *object)
+static void propsdlg_dispose(GObject *object)
 {
-    ThunarPropertiesDialog *dialog = THUNAR_PROPERTIES_DIALOG(object);
+    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
 
     /* reset the file displayed by the dialog */
-    thunar_properties_dialog_set_files(dialog, NULL);
+    propsdlg_set_files(dialog, NULL);
 
-    (*G_OBJECT_CLASS(thunar_properties_dialog_parent_class)->dispose)(object);
+    G_OBJECT_CLASS(propsdlg_parent_class)->dispose(object);
 }
 
-static void thunar_properties_dialog_finalize(GObject *object)
+static void propsdlg_finalize(GObject *object)
 {
-    ThunarPropertiesDialog *dialog = THUNAR_PROPERTIES_DIALOG(object);
+    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
     thunar_return_if_fail(dialog->files == NULL);
 
-    /* release the provider property pages */
-    //g_list_free_full(dialog->provider_pages, g_object_unref);
-
-    /* drop the reference on the provider factory */
-    //g_object_unref(dialog->provider_factory);
-
-    (*G_OBJECT_CLASS(thunar_properties_dialog_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(propsdlg_parent_class)->finalize(object);
 }
 
-static void thunar_properties_dialog_get_property(GObject    *object,
-                                                  guint       prop_id,
-                                                  GValue     *value,
-                                                  GParamSpec *pspec)
+static void propsdlg_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
-    ThunarPropertiesDialog *dialog = THUNAR_PROPERTIES_DIALOG(object);
 
-    switch(prop_id)
+    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
+
+    switch (prop_id)
     {
     case PROP_FILES:
-        g_value_set_boxed(value, thunar_properties_dialog_get_files(dialog));
+        g_value_set_boxed(value, _propsdlg_get_files(dialog));
         break;
 
     case PROP_FILE_SIZE_BINARY:
@@ -596,19 +554,17 @@ static void thunar_properties_dialog_get_property(GObject    *object,
     }
 }
 
-static void thunar_properties_dialog_set_property(GObject      *object,
-                                                  guint         prop_id,
-                                                  const GValue *value,
-                                                  GParamSpec   *pspec)
+static void propsdlg_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
-    ThunarPropertiesDialog *dialog = THUNAR_PROPERTIES_DIALOG(object);
+    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_FILES:
-        thunar_properties_dialog_set_files(dialog, g_value_get_boxed(value));
+        propsdlg_set_files(dialog, g_value_get_boxed(value));
         break;
 
     case PROP_FILE_SIZE_BINARY:
@@ -621,8 +577,7 @@ static void thunar_properties_dialog_set_property(GObject      *object,
     }
 }
 
-static void thunar_properties_dialog_response(GtkDialog *dialog,
-                                              gint      response)
+static void propsdlg_response(GtkDialog *dialog, gint response)
 {
     if (response == GTK_RESPONSE_CLOSE)
     {
@@ -634,13 +589,13 @@ static void thunar_properties_dialog_response(GtkDialog *dialog,
                                "working-with-files-and-folders",
                                "file_properties");
     }
-    else if (GTK_DIALOG_CLASS(thunar_properties_dialog_parent_class)->response != NULL)
+    else if (GTK_DIALOG_CLASS(propsdlg_parent_class)->response != NULL)
     {
-       (*GTK_DIALOG_CLASS(thunar_properties_dialog_parent_class)->response)(dialog, response);
+        GTK_DIALOG_CLASS(propsdlg_parent_class)->response(dialog, response);
     }
 }
 
-static gboolean thunar_properties_dialog_reload(ThunarPropertiesDialog *dialog)
+static gboolean propsdlg_reload(PropertiesDialog *dialog)
 {
     /* reload the active files */
     g_list_foreach(dialog->files,(GFunc)(void(*)(void)) th_file_reload, NULL);
@@ -648,13 +603,15 @@ static gboolean thunar_properties_dialog_reload(ThunarPropertiesDialog *dialog)
     return dialog->files != NULL;
 }
 
-static void thunar_properties_dialog_rename_error(ExoJob                 *job,
-                                                  GError                 *error,
-                                                  ThunarPropertiesDialog *dialog)
+
+// ----------------------------------------------------------------------------
+
+static void _propsdlg_rename_error(ExoJob *job, GError *error,
+                                   PropertiesDialog *dialog)
 {
     thunar_return_if_fail(EXO_IS_JOB(job));
     thunar_return_if_fail(error != NULL);
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     thunar_return_if_fail(g_list_length(dialog->files) == 1);
 
     /* reset the entry display name to the original name, so the focus
@@ -668,21 +625,17 @@ static void thunar_properties_dialog_rename_error(ExoJob                 *job,
                                th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
 }
 
-static void thunar_properties_dialog_rename_finished(
-                                                ExoJob                 *job,
-                                                ThunarPropertiesDialog *dialog)
+static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
 {
     thunar_return_if_fail(EXO_IS_JOB(job));
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     thunar_return_if_fail(g_list_length(dialog->files) == 1);
 
     g_signal_handlers_disconnect_matched(job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, dialog);
     g_object_unref(job);
 }
 
-static void thunar_properties_dialog_name_activate(
-                                                GtkWidget              *entry,
-                                                ThunarPropertiesDialog *dialog)
+static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 {
     UNUSED(entry);
     const gchar *old_name;
@@ -690,7 +643,7 @@ static void thunar_properties_dialog_name_activate(
     ThunarJob   *job;
     ThunarFile  *file;
 
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
 
     /* check if we still have a valid file and if the user is allowed to rename */
     if (G_UNLIKELY(!gtk_widget_get_sensitive(GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)))
@@ -706,127 +659,23 @@ static void thunar_properties_dialog_name_activate(
         job = io_rename_file(file, new_name);
         if (job != NULL)
         {
-            g_signal_connect(job, "error", G_CALLBACK(thunar_properties_dialog_rename_error), dialog);
-            g_signal_connect(job, "finished", G_CALLBACK(thunar_properties_dialog_rename_finished), dialog);
+            g_signal_connect(job, "error", G_CALLBACK(_propsdlg_rename_error), dialog);
+            g_signal_connect(job, "finished", G_CALLBACK(_propsdlg_rename_finished), dialog);
         }
     }
 }
 
-static gboolean thunar_properties_dialog_name_focus_out_event(
-                                                GtkWidget               *entry,
-                                                GdkEventFocus           *event,
-                                                ThunarPropertiesDialog  *dialog)
+static gboolean _propsdlg_name_focus_out_event(GtkWidget     *entry,
+                                               GdkEventFocus *event,
+                                               PropertiesDialog *dialog)
 {
     UNUSED(event);
-    thunar_properties_dialog_name_activate(entry, dialog);
+    _propsdlg_name_activate(entry, dialog);
+
     return FALSE;
 }
 
-#if 0
-static void thunar_properties_dialog_icon_button_clicked(
-                                                GtkWidget              *button,
-                                                ThunarPropertiesDialog *dialog)
-{
-    GtkWidget   *chooser;
-    GError      *err = NULL;
-    const gchar *custom_icon;
-    gchar       *title;
-    gchar       *icon;
-    ThunarFile  *file;
-
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
-    thunar_return_if_fail(GTK_IS_BUTTON(button));
-    thunar_return_if_fail(g_list_length(dialog->files) == 1);
-
-    /* make sure we still have a file */
-    if (G_UNLIKELY(dialog->files == NULL))
-        return;
-
-    file = THUNAR_FILE(dialog->files->data);
-
-    /* allocate the icon chooser */
-    title = g_strdup_printf(_("Select an Icon for \"%s\""), thunar_file_get_display_name(file));
-    chooser = exo_icon_chooser_dialog_new(title, GTK_WINDOW(dialog),
-                                           _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                           _("_OK"), GTK_RESPONSE_ACCEPT,
-                                           NULL);
-    gtk_dialog_set_default_response(GTK_DIALOG(chooser), GTK_RESPONSE_ACCEPT);
-    g_free(title);
-
-    /* use the custom_icon of the file as default */
-    custom_icon = thunar_file_get_custom_icon(file);
-    if (G_LIKELY(custom_icon != NULL && *custom_icon != '\0'))
-        exo_icon_chooser_dialog_set_icon(EXO_ICON_CHOOSER_DIALOG(chooser), custom_icon);
-
-    /* run the icon chooser dialog and make sure the dialog still has a file */
-    if (gtk_dialog_run(GTK_DIALOG(chooser)) == GTK_RESPONSE_ACCEPT && file != NULL)
-    {
-        /* determine the selected icon and use it for the file */
-        icon = exo_icon_chooser_dialog_get_icon(EXO_ICON_CHOOSER_DIALOG(chooser));
-        if (!thunar_file_set_custom_icon(file, icon, &err))
-        {
-            /* hide the icon chooser dialog first */
-            gtk_widget_hide(chooser);
-
-            /* tell the user that we failed to change the icon of the .desktop file */
-            dialog_error(GTK_WIDGET(dialog), err,
-                                       _("Failed to change icon of \"%s\""),
-                                       thunar_file_get_display_name(file));
-            g_error_free(err);
-        }
-        g_free(icon);
-    }
-
-    /* destroy the chooser */
-    gtk_widget_destroy(chooser);
-}
-
-static void thunar_properties_dialog_update_providers(ThunarPropertiesDialog *dialog)
-{
-    GtkWidget *label_widget;
-    GList     *pages = NULL;
-    GList     *lp;
-
-    GList     *providers;
-    GList     *tmp;
-
-    /* load the property page providers from the provider factory */
-    providers = thunarx_provider_factory_list_providers(dialog->provider_factory, THUNARX_TYPE_PROPERTY_PAGE_PROVIDER);
-    if (G_LIKELY(providers != NULL))
-    {
-        /* load the pages offered by the menu providers */
-        for(lp = providers; lp != NULL; lp = lp->next)
-        {
-            //g_print("load pages\n");
-
-            tmp = thunarx_property_page_provider_get_pages(lp->data, dialog->files);
-            pages = g_list_concat(pages, tmp);
-            g_object_unref(G_OBJECT(lp->data));
-        }
-        g_list_free(providers);
-    }
-
-    /* destroy any previous set pages */
-    for(lp = dialog->provider_pages; lp != NULL; lp = lp->next)
-    {
-        gtk_widget_destroy(GTK_WIDGET(lp->data));
-        g_object_unref(G_OBJECT(lp->data));
-    }
-    g_list_free(dialog->provider_pages);
-
-    /* apply the new set of pages */
-    dialog->provider_pages = pages;
-    for(lp = pages; lp != NULL; lp = lp->next)
-    {
-        label_widget = thunarx_property_page_get_label_widget(THUNARX_PROPERTY_PAGE(lp->data));
-        gtk_notebook_append_page(GTK_NOTEBOOK(dialog->notebook), GTK_WIDGET(lp->data), label_widget);
-        g_object_ref(G_OBJECT(lp->data));
-        gtk_widget_show(lp->data);
-    }
-}
-#endif
-
-static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialog)
+static void _propsdlg_update_single(PropertiesDialog *dialog)
 {
     ThunarIconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
@@ -850,7 +699,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     guint64            fs_size;
     gdouble            fs_fraction = 0.0;
 
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     thunar_return_if_fail(g_list_length(dialog->files) == 1);
     thunar_return_if_fail(THUNAR_IS_FILE(dialog->files->data));
 
@@ -1080,8 +929,7 @@ static void thunar_properties_dialog_update_single(ThunarPropertiesDialog *dialo
     g_object_unref(G_OBJECT(icon_factory));
 }
 
-static void
-thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
+static void _propsdlg_update_multiple(PropertiesDialog *dialog)
 {
     ThunarFile  *file;
     GString     *names_string;
@@ -1101,7 +949,7 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
     ThunarFile  *tmp_parent;
     gboolean     has_trashed_files = FALSE;
 
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     thunar_return_if_fail(g_list_length(dialog->files) > 1);
 
     /* update the properties dialog title */
@@ -1247,9 +1095,9 @@ thunar_properties_dialog_update_multiple(ThunarPropertiesDialog *dialog)
     }
 }
 
-static void thunar_properties_dialog_update(ThunarPropertiesDialog *dialog)
+static void _propsdlg_update(PropertiesDialog *dialog)
 {
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     thunar_return_if_fail(dialog->files != NULL);
 
     if (dialog->files->next == NULL)
@@ -1258,7 +1106,7 @@ static void thunar_properties_dialog_update(ThunarPropertiesDialog *dialog)
         gtk_widget_show(dialog->single_box);
 
         /* update the properties for a dialog showing 1 file */
-        thunar_properties_dialog_update_single(dialog);
+        _propsdlg_update_single(dialog);
     }
     else
     {
@@ -1266,61 +1114,31 @@ static void thunar_properties_dialog_update(ThunarPropertiesDialog *dialog)
         gtk_widget_hide(dialog->single_box);
 
         /* update the properties for a dialog showing multiple files */
-        thunar_properties_dialog_update_multiple(dialog);
+        _propsdlg_update_multiple(dialog);
     }
 }
 
-/**
- * thunar_properties_dialog_new:
- * @parent: transient window or NULL;
- *
- * Allocates a new #ThunarPropertiesDialog instance,
- * that is not associated with any #ThunarFile.
- *
- * Return value: the newly allocated #ThunarPropertiesDialog
- *               instance.
- **/
-GtkWidget* thunar_properties_dialog_new(GtkWindow *parent)
+GtkWidget* propsdlg_new(GtkWindow *parent)
 {
     thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), NULL);
-    return g_object_new(THUNAR_TYPE_PROPERTIES_DIALOG,
+    return g_object_new(TYPE_PROPERTIES_DIALOG,
                          "transient-for", parent,
                          "destroy-with-parent", parent != NULL,
                          NULL);
 }
 
-/**
- * thunar_properties_dialog_get_files:
- * @dialog : a #ThunarPropertiesDialog.
- *
- * Returns the #ThunarFile currently being displayed
- * by @dialog or %NULL if @dialog doesn't display
- * any file right now.
- *
- * Return value: list of #ThunarFile's displayed by @dialog
- *               or %NULL.
- **/
-static GList* thunar_properties_dialog_get_files(ThunarPropertiesDialog *dialog)
+static GList* _propsdlg_get_files(PropertiesDialog *dialog)
 {
-    thunar_return_val_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog), NULL);
+    thunar_return_val_if_fail(IS_PROPERTIES_DIALOG(dialog), NULL);
     return dialog->files;
 }
 
-/**
- * thunar_properties_dialog_set_files:
- * @dialog : a #ThunarPropertiesDialog.
- * @files  : a GList of #ThunarFile's or %NULL.
- *
- * Sets the #ThunarFile that is displayed by @dialog
- * to @files.
- **/
-void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
-                                        GList                  *files)
+void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
 {
     GList      *lp;
     ThunarFile *file;
 
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
 
     /* check if the same lists are used(or null) */
     if (G_UNLIKELY(dialog->files == files))
@@ -1335,7 +1153,7 @@ void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
         th_file_unwatch(file);
 
         /* unregister handlers */
-        g_signal_handlers_disconnect_by_func(G_OBJECT(file), thunar_properties_dialog_update, dialog);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(file), _propsdlg_update, dialog);
         g_signal_handlers_disconnect_by_func(G_OBJECT(file), gtk_widget_destroy, dialog);
 
         g_object_unref(G_OBJECT(file));
@@ -1355,7 +1173,7 @@ void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
         th_file_watch(file);
 
         /* install signal handlers */
-        g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(thunar_properties_dialog_update), dialog);
+        g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(_propsdlg_update), dialog);
         g_signal_connect_swapped(G_OBJECT(file), "destroy", G_CALLBACK(gtk_widget_destroy), dialog);
     }
 
@@ -1363,7 +1181,7 @@ void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
     if (dialog->files != NULL)
     {
         /* update the UI for the new file */
-        thunar_properties_dialog_update(dialog);
+        _propsdlg_update(dialog);
 
         /* update the provider property pages */
         //thunar_properties_dialog_update_providers(dialog);
@@ -1373,25 +1191,16 @@ void thunar_properties_dialog_set_files(ThunarPropertiesDialog *dialog,
     g_object_notify(G_OBJECT(dialog), "files");
 }
 
-/**
- * thunar_properties_dialog_set_file:
- * @dialog : a #ThunarPropertiesDialog.
- * @file   : a #ThunarFile or %NULL.
- *
- * Sets the #ThunarFile that is displayed by @dialog
- * to @file.
- **/
-void thunar_properties_dialog_set_file(ThunarPropertiesDialog *dialog,
-                                       ThunarFile             *file)
+void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
 {
     GList foo;
 
-    thunar_return_if_fail(THUNAR_IS_PROPERTIES_DIALOG(dialog));
+    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     if (file == NULL)
     {
-        thunar_properties_dialog_set_files(dialog, NULL);
+        propsdlg_set_files(dialog, NULL);
     }
     else
     {
@@ -1400,7 +1209,7 @@ void thunar_properties_dialog_set_file(ThunarPropertiesDialog *dialog,
         foo.prev = NULL;
         foo.data = file;
 
-        thunar_properties_dialog_set_files(dialog, &foo);
+        propsdlg_set_files(dialog, &foo);
     }
 }
 

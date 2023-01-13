@@ -113,7 +113,7 @@ static void thunar_transfer_job_class_init(ThunarTransferJobClass *klass)
     exojob_class->execute = thunar_transfer_job_execute;
 
     /**
-     * ThunarPropertiesDialog:file_size_binary:
+     * PropertiesDialog:file_size_binary:
      *
      * Whether the file size should be shown in binary or decimal.
      **/
@@ -126,7 +126,7 @@ static void thunar_transfer_job_class_init(ThunarTransferJobClass *klass)
                                              E_PARAM_READWRITE));
 
     /**
-     * ThunarPropertiesDialog:parallel_copy_mode:
+     * PropertiesDialog:parallel_copy_mode:
      *
      * Whether to freeze this job if another job is transfering
      * from the same device.

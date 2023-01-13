@@ -43,7 +43,7 @@
 #include <launcher.h>
 #include <marshal.h>
 #include <pango-ext.h>
-#include <properties-dlg.h>
+#include <propdlg.h>
 #include <simple-job.h>
 #include <utils.h>
 
