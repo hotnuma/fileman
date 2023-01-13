@@ -638,8 +638,8 @@ ThunarJob* io_move_files(GList *source_file_list,
     thunar_return_val_if_fail(target_file_list != NULL, NULL);
     thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
-    job = thunar_transfer_job_new(source_file_list, target_file_list,
-                                   THUNAR_TRANSFER_JOB_MOVE);
+    job = transfer_job_new(source_file_list, target_file_list,
+                                   TRANSFERJOB_MOVE);
     thunar_job_set_pausable(job, TRUE);
 
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
@@ -655,8 +655,8 @@ ThunarJob* io_copy_files(GList *source_file_list,
     thunar_return_val_if_fail(target_file_list != NULL, NULL);
     thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
-    job = thunar_transfer_job_new(source_file_list, target_file_list,
-                                   THUNAR_TRANSFER_JOB_COPY);
+    job = transfer_job_new(source_file_list, target_file_list,
+                                   TRANSFERJOB_COPY);
     thunar_job_set_pausable(job, TRUE);
 
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
@@ -934,8 +934,8 @@ ThunarJob* io_restore_files(GList *source_file_list,
     thunar_return_val_if_fail(target_file_list != NULL, NULL);
     thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
-    job = thunar_transfer_job_new(source_file_list, target_file_list,
-                                  THUNAR_TRANSFER_JOB_MOVE);
+    job = transfer_job_new(source_file_list, target_file_list,
+                                  TRANSFERJOB_MOVE);
 
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
 }

@@ -17,50 +17,49 @@
  * MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_TRANSFER_JOB_H__
-#define __THUNAR_TRANSFER_JOB_H__
+#ifndef __TRANSFERJOB_H__
+#define __TRANSFERJOB_H__
 
 #include <glib-object.h>
 #include <job.h>
 
 G_BEGIN_DECLS
 
-/**
- * ThunarTransferJobFlags:
- *
- * Flags to control the behavior of the transfer job.
- **/
-typedef enum /*< enum >*/
+typedef enum
 {
-    THUNAR_TRANSFER_JOB_COPY,
-    THUNAR_TRANSFER_JOB_LINK,
-    THUNAR_TRANSFER_JOB_MOVE,
-    THUNAR_TRANSFER_JOB_TRASH,
+    TRANSFERJOB_COPY,
+    TRANSFERJOB_LINK,
+    TRANSFERJOB_MOVE,
+    TRANSFERJOB_TRASH,
 
-} ThunarTransferJobType;
+} TransferJobType;
 
-typedef struct _ThunarTransferJobPrivate ThunarTransferJobPrivate;
-typedef struct _ThunarTransferJobClass   ThunarTransferJobClass;
-typedef struct _ThunarTransferJob        ThunarTransferJob;
+typedef struct _TransferJobPrivate TransferJobPrivate;
+typedef struct _TransferJobClass   TransferJobClass;
+typedef struct _TransferJob        TransferJob;
 
-#define THUNAR_TYPE_TRANSFER_JOB            (thunar_transfer_job_get_type ())
-#define THUNAR_TRANSFER_JOB(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_TRANSFER_JOB, ThunarTransferJob))
-#define THUNAR_TRANSFER_JOB_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_TRANSFER_JOB, ThunarTransferJobClass))
-#define THUNAR_IS_TRANSFER_JOB(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_TRANSFER_JOB))
-#define THUNAR_IS_TRANSFER_JOB_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_TRANSFER_JOB)
-#define THUNAR_TRANSFER_JOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_TRANSFER_JOB, ThunarTransferJobClass))
+#define TYPE_TRANSFERJOB (transfer_job_get_type())
+#define TRANSFERJOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TRANSFERJOB, TransferJob))
+#define TRANSFERJOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_TRANSFERJOB, TransferJobClass))
+#define IS_TRANSFERJOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_TRANSFERJOB))
+#define IS_TRANSFERJOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_TRANSFERJOB)
+#define TRANSFERJOB_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),   TYPE_TRANSFERJOB, TransferJobClass))
 
-GType thunar_transfer_job_get_type() G_GNUC_CONST;
+GType transfer_job_get_type() G_GNUC_CONST;
 
-ThunarJob* thunar_transfer_job_new(GList    *source_file_list,
-                                   GList    *target_file_list,
-                                   ThunarTransferJobType type)
-                                   G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* transfer_job_new(GList *source_file_list, GList *target_file_list,
+                            TransferJobType type)
+                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-gchar* thunar_transfer_job_get_status(ThunarTransferJob *job);
+gchar* transfer_job_get_status(TransferJob *job);
 
 G_END_DECLS
 
-#endif /* !__THUNAR_TRANSFER_JOB_H__ */
+#endif // __TRANSFERJOB_H__
 
 

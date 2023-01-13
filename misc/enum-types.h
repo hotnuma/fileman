@@ -178,25 +178,25 @@ GType       thunar_thumbnail_size_get_type() G_GNUC_CONST;
 const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
                                            G_GNUC_CONST;
 
-#define THUNAR_TYPE_PARALLEL_COPY_MODE (thunar_parallel_copy_mode_get_type ())
+#define TYPE_PARALLEL_COPY_MODE (parallel_copy_mode_get_type())
 
 /**
- * ThunarParallelCopyMode:
- * @THUNAR_PARALLEL_COPY_MODE_NEVER                   : copies will be done consecutively, one after another.
- * @THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL              : only do parallel copies when source and destination are local files.
- * @THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES : same as only local, but only if source and destination devices are the same.
- * @THUNAR_PARALLEL_COPY_MODE_ALWAYS                  : all copies will be started immediately.
+ * ParallelCopyMode:
+ * @PARALLEL_COPY_MODE_NEVER                   : copies will be done consecutively, one after another.
+ * @PARALLEL_COPY_MODE_ONLY_LOCAL              : only do parallel copies when source and destination are local files.
+ * @PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES : same as only local, but only if source and destination devices are the same.
+ * @PARALLEL_COPY_MODE_ALWAYS                  : all copies will be started immediately.
  **/
 typedef enum
 {
-    THUNAR_PARALLEL_COPY_MODE_NEVER,
-    THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL,
-    THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES,
-    THUNAR_PARALLEL_COPY_MODE_ALWAYS,
+    PARALLEL_COPY_MODE_NEVER,
+    PARALLEL_COPY_MODE_ONLY_LOCAL,
+    PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES,
+    PARALLEL_COPY_MODE_ALWAYS,
 
-} ThunarParallelCopyMode;
+} ParallelCopyMode;
 
-GType thunar_parallel_copy_mode_get_type() G_GNUC_CONST;
+GType parallel_copy_mode_get_type() G_GNUC_CONST;
 
 #define THUNAR_TYPE_RECURSIVE_PERMISSIONS (thunar_recursive_permissions_get_type ())
 

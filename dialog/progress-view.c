@@ -488,8 +488,8 @@ static void thunar_progress_view_percent(ThunarProgressView *view,
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(view->progress_bar), percent / 100.0);
 
     /* set progress text */
-    if (THUNAR_IS_TRANSFER_JOB(job))
-        text = thunar_transfer_job_get_status(THUNAR_TRANSFER_JOB(job));
+    if (IS_TRANSFERJOB(job))
+        text = transfer_job_get_status(TRANSFERJOB(job));
     else
         text = g_strdup_printf("%.2f%%", percent);
 
@@ -504,7 +504,7 @@ static void thunar_progress_view_frozen(ThunarProgressView *view,
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(view->job == THUNAR_JOB(job));
 
-    if (THUNAR_IS_TRANSFER_JOB(job))
+    if (IS_TRANSFERJOB(job))
     {
         /* update the UI */
         gtk_widget_hide(view->pause_button);
@@ -520,7 +520,7 @@ static void thunar_progress_view_unfrozen(ThunarProgressView *view,
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(view->job == THUNAR_JOB(job));
 
-    if (THUNAR_IS_TRANSFER_JOB(job))
+    if (IS_TRANSFERJOB(job))
     {
         /* update the UI */
         gtk_widget_hide(view->unpause_button);

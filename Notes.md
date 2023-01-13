@@ -1,8 +1,9 @@
 #### Formatting
     
 dialog/progress-dlg
+dialog/progress-view
 
-listmodel
+column-model
 
 #### Biggest files
 

@@ -295,7 +295,7 @@ const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
     return thumbnail_size_enum_value->value_nick;
 }
 
-GType thunar_parallel_copy_mode_get_type()
+GType parallel_copy_mode_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
@@ -303,14 +303,14 @@ GType thunar_parallel_copy_mode_get_type()
     {
         static const GEnumValue values[] =
         {
-            { THUNAR_PARALLEL_COPY_MODE_ALWAYS,                  "THUNAR_PARALLEL_COPY_MODE_ALWAYS",                  "always",                  },
-            { THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL,              "THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL",              "only-local",              },
-            { THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES, "THUNAR_PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES", "only-local-same-devices", },
-            { THUNAR_PARALLEL_COPY_MODE_NEVER,                   "THUNAR_PARALLEL_COPY_MODE_NEVER",                   "never",                   },
+            { PARALLEL_COPY_MODE_ALWAYS,                  "PARALLEL_COPY_MODE_ALWAYS",                  "always",                  },
+            { PARALLEL_COPY_MODE_ONLY_LOCAL,              "PARALLEL_COPY_MODE_ONLY_LOCAL",              "only-local",              },
+            { PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES, "PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES", "only-local-same-devices", },
+            { PARALLEL_COPY_MODE_NEVER,                   "PARALLEL_COPY_MODE_NEVER",                   "never",                   },
             { 0,                                                 NULL,                                                NULL,                      },
         };
 
-        type = g_enum_register_static(I_("ThunarParallelCopyMode"), values);
+        type = g_enum_register_static(I_("ParallelCopyMode"), values);
     }
 
     return type;
