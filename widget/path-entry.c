@@ -46,7 +46,7 @@ enum
     PROP_CURRENT_FILE,
 };
 
-static void thunar_path_entry_editable_init(GtkEditableInterface *iface);
+static void pathentry_editable_init(GtkEditableInterface *iface);
 static void thunar_path_entry_finalize(GObject *object);
 static void thunar_path_entry_get_property(GObject *object,
                                            guint prop_id,
@@ -104,6 +104,7 @@ static void thunar_path_entry_queue_check_completion(PathEntry *path_entry);
 static gboolean thunar_path_entry_check_completion_idle(gpointer user_data);
 static void thunar_path_entry_check_completion_idle_destroy(gpointer user_data);
 
+
 struct _PathEntryClass
 {
     GtkEntryClass __parent__;
@@ -135,11 +136,13 @@ static const GtkTargetEntry drag_targets[] =
 
 static GtkEditableInterface *thunar_path_entry_editable_parent_iface;
 
-G_DEFINE_TYPE_WITH_CODE(PathEntry, thunar_path_entry, GTK_TYPE_ENTRY,
+G_DEFINE_TYPE_WITH_CODE(PathEntry,
+                        pathentry,
+                        GTK_TYPE_ENTRY,
                         G_IMPLEMENT_INTERFACE(GTK_TYPE_EDITABLE,
-                                              thunar_path_entry_editable_init))
+                                              pathentry_editable_init))
 
-static void thunar_path_entry_class_init(PathEntryClass *klass)
+static void pathentry_class_init(PathEntryClass *klass)
 {
     GtkWidgetClass *gtkwidget_class;
     GtkEntryClass  *gtkentry_class;
@@ -183,7 +186,7 @@ static void thunar_path_entry_class_init(PathEntryClass *klass)
                               1, G_MAXINT, 16, E_PARAM_READABLE));
 }
 
-static void thunar_path_entry_editable_init(GtkEditableInterface *iface)
+static void pathentry_editable_init(GtkEditableInterface *iface)
 {
     thunar_path_entry_editable_parent_iface = g_type_interface_peek_parent(iface);
 
@@ -191,7 +194,7 @@ static void thunar_path_entry_editable_init(GtkEditableInterface *iface)
     iface->do_insert_text = thunar_path_entry_do_insert_text;
 }
 
-static void thunar_path_entry_init(PathEntry *path_entry)
+static void pathentry_init(PathEntry *path_entry)
 {
     GtkEntryCompletion *completion;
     GtkCellRenderer    *renderer;
@@ -271,7 +274,7 @@ static void thunar_path_entry_finalize(GObject *object)
     if (G_UNLIKELY(path_entry->check_completion_idle_id != 0))
         g_source_remove(path_entry->check_completion_idle_id);
 
-    (*G_OBJECT_CLASS(thunar_path_entry_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(pathentry_parent_class)->finalize(object);
 }
 
 static void thunar_path_entry_get_property(GObject    *object,
@@ -337,7 +340,7 @@ static gboolean thunar_path_entry_focus(GtkWidget *widget, GtkDirectionType dire
         return TRUE;
     }
     else
-        return(*GTK_WIDGET_CLASS(thunar_path_entry_parent_class)->focus)(widget, direction);
+        return GTK_WIDGET_CLASS(pathentry_parent_class)->focus(widget, direction);
 }
 
 static void thunar_path_entry_icon_press_event(GtkEntry         *entry,
@@ -415,7 +418,7 @@ static gboolean thunar_path_entry_motion_notify_event(GtkWidget *widget,
         return TRUE;
     }
 
-    return(*GTK_WIDGET_CLASS(thunar_path_entry_parent_class)->motion_notify_event)(widget, event);
+    return GTK_WIDGET_CLASS(pathentry_parent_class)->motion_notify_event(widget, event);
 }
 
 static gboolean thunar_path_entry_key_press_event(GtkWidget *widget, GdkEventKey *event)
@@ -481,7 +484,7 @@ static void thunar_path_entry_activate(GtkEntry *entry)
     }
 
     /* emit the "activate" signal */
-  (*GTK_ENTRY_CLASS(thunar_path_entry_parent_class)->activate)(entry);
+   GTK_ENTRY_CLASS(pathentry_parent_class)->activate(entry);
 }
 
 static void thunar_path_entry_changed(GtkEditable *editable)

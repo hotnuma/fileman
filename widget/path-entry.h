@@ -28,7 +28,7 @@ G_BEGIN_DECLS
 typedef struct _PathEntryClass PathEntryClass;
 typedef struct _PathEntry      PathEntry;
 
-#define TYPE_PATHENTRY (thunar_path_entry_get_type())
+#define TYPE_PATHENTRY (pathentry_get_type())
 #define PATHENTRY(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PATHENTRY, PathEntry))
 #define PATHENTRY_CLASS(klass) \
@@ -40,7 +40,7 @@ typedef struct _PathEntry      PathEntry;
 #define PATHENTRY_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_PATHENTRY, PathEntryClass))
 
-GType thunar_path_entry_get_type() G_GNUC_CONST;
+GType pathentry_get_type() G_GNUC_CONST;
 
 GtkWidget* thunar_path_entry_new();
 
