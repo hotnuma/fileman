@@ -35,7 +35,7 @@
 #include <gobject-ext.h>
 #include <icon-factory.h>
 #include <icon-render.h>
-#include <list-model.h>
+#include <listmodel.h>
 #include <utils.h>
 
 #define ICON_MARGIN (2)

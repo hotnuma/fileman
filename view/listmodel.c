@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <list-model.h>
+#include <listmodel.h>
 
 #include <application.h>
 #include <filemon.h>

@@ -63,7 +63,7 @@ HEADERS = \
     side/treeview.h \
     view/column-model.h \
     view/detail-view.h \
-    view/list-model.h \
+    view/listmodel.h \
     view/standard-view.h \
     view/view.h \
     widget/icon-factory.h \
@@ -133,7 +133,7 @@ SOURCES = \
     side/treeview.c \
     view/column-model.c \
     view/detail-view.c \
-    view/list-model.c \
+    view/listmodel.c \
     view/standard-view.c \
     view/view.c \
     widget/icon-factory.c \

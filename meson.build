@@ -92,7 +92,7 @@ app_sources = [
     'side/treeview.c',
     'view/column-model.c',
     'view/detail-view.c',
-    'view/list-model.c',
+    'view/listmodel.c',
     'view/standard-view.c',
     'view/view.c',
     'widget/icon-factory.c',
