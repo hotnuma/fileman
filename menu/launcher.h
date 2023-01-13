@@ -117,6 +117,6 @@ void        launcher_action_rename(ThunarLauncher *launcher);
 
 G_END_DECLS
 
-#endif /* !__THUNAR_LAUNCHER_H__ */
+#endif // __THUNAR_LAUNCHER_H__
 
 

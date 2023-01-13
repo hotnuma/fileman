@@ -233,7 +233,7 @@ static void thunar_location_entry_set_property(GObject      *object,
     {
     case PROP_CURRENT_DIRECTORY:
         thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
-        thunar_path_entry_set_working_directory(THUNAR_PATH_ENTRY(entry->path_entry),
+        thunar_path_entry_set_working_directory(PATHENTRY(entry->path_entry),
                 entry->current_directory);
         break;
 
@@ -315,7 +315,7 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
             /* be sure to reset the current file of the path entry */
             if (G_LIKELY(location_entry->current_directory != NULL))
             {
-                thunar_path_entry_set_current_file(THUNAR_PATH_ENTRY(location_entry->path_entry),
+                thunar_path_entry_set_current_file(PATHENTRY(location_entry->path_entry),
                                                     location_entry->current_directory);
             }
         }
@@ -368,7 +368,7 @@ static void thunar_location_entry_activate(GtkWidget           *path_entry,
 
     /* determine the current file from the path entry */
     ThunarFile *file =
-        thunar_path_entry_get_current_file(THUNAR_PATH_ENTRY(path_entry));
+        thunar_path_entry_get_current_file(PATHENTRY(path_entry));
 
     if (G_UNLIKELY(file == NULL))
         return;
@@ -403,7 +403,7 @@ static gboolean thunar_location_entry_button_press_event(
 static gboolean thunar_location_entry_reset(ThunarLocationEntry *location_entry)
 {
     /* just reset the path entry to our current directory... */
-    thunar_path_entry_set_current_file(THUNAR_PATH_ENTRY(location_entry->path_entry), location_entry->current_directory);
+    thunar_path_entry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
 
     /* ...and select the whole text again */
     gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);

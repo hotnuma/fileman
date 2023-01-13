@@ -77,15 +77,15 @@ static void thunar_path_entry_drag_data_get(GtkWidget *widget,
                                             guint timestamp);
 static void thunar_path_entry_activate(GtkEntry *entry);
 static void thunar_path_entry_changed(GtkEditable *editable);
-static void thunar_path_entry_update_icon(ThunarPathEntry *path_entry);
+static void thunar_path_entry_update_icon(PathEntry *path_entry);
 static void thunar_path_entry_do_insert_text(GtkEditable *editable,
                                              const gchar *new_text,
                                              gint new_text_length,
                                              gint *position);
-static void thunar_path_entry_clear_completion(ThunarPathEntry *path_entry);
-static void thunar_path_entry_common_prefix_append(ThunarPathEntry *path_entry,
+static void thunar_path_entry_clear_completion(PathEntry *path_entry);
+static void thunar_path_entry_common_prefix_append(PathEntry *path_entry,
                                                    gboolean highlight);
-static void thunar_path_entry_common_prefix_lookup(ThunarPathEntry *path_entry,
+static void thunar_path_entry_common_prefix_lookup(PathEntry *path_entry,
                                                    gchar **prefix_return,
                                                    ThunarFile **file_return);
 static gboolean thunar_path_entry_match_func(GtkEntryCompletion *completion,
@@ -96,20 +96,20 @@ static gboolean thunar_path_entry_match_selected(GtkEntryCompletion *completion,
                                                  GtkTreeModel *model,
                                                  GtkTreeIter *iter,
                                                  gpointer user_data);
-static gboolean thunar_path_entry_parse(ThunarPathEntry *path_entry,
+static gboolean thunar_path_entry_parse(PathEntry *path_entry,
                                         gchar **folder_part,
                                         gchar **file_part,
                                         GError **error);
-static void thunar_path_entry_queue_check_completion(ThunarPathEntry *path_entry);
+static void thunar_path_entry_queue_check_completion(PathEntry *path_entry);
 static gboolean thunar_path_entry_check_completion_idle(gpointer user_data);
 static void thunar_path_entry_check_completion_idle_destroy(gpointer user_data);
 
-struct _ThunarPathEntryClass
+struct _PathEntryClass
 {
     GtkEntryClass __parent__;
 };
 
-struct _ThunarPathEntry
+struct _PathEntry
 {
     GtkEntry    __parent__;
 
@@ -135,11 +135,11 @@ static const GtkTargetEntry drag_targets[] =
 
 static GtkEditableInterface *thunar_path_entry_editable_parent_iface;
 
-G_DEFINE_TYPE_WITH_CODE(ThunarPathEntry, thunar_path_entry, GTK_TYPE_ENTRY,
+G_DEFINE_TYPE_WITH_CODE(PathEntry, thunar_path_entry, GTK_TYPE_ENTRY,
                         G_IMPLEMENT_INTERFACE(GTK_TYPE_EDITABLE,
                                               thunar_path_entry_editable_init))
 
-static void thunar_path_entry_class_init(ThunarPathEntryClass *klass)
+static void thunar_path_entry_class_init(PathEntryClass *klass)
 {
     GtkWidgetClass *gtkwidget_class;
     GtkEntryClass  *gtkentry_class;
@@ -159,7 +159,7 @@ static void thunar_path_entry_class_init(ThunarPathEntryClass *klass)
     gtkentry_class->activate = thunar_path_entry_activate;
 
     /**
-     * ThunarPathEntry:current-file:
+     * PathEntry:current-file:
      *
      * The #ThunarFile currently displayed by the path entry or %NULL.
      **/
@@ -172,7 +172,7 @@ static void thunar_path_entry_class_init(ThunarPathEntryClass *klass)
                                              E_PARAM_READWRITE));
 
     /**
-     * ThunarPathEntry:icon-size:
+     * PathEntry:icon-size:
      *
      * The preferred size of the icon displayed in the path entry.
      **/
@@ -191,7 +191,7 @@ static void thunar_path_entry_editable_init(GtkEditableInterface *iface)
     iface->do_insert_text = thunar_path_entry_do_insert_text;
 }
 
-static void thunar_path_entry_init(ThunarPathEntry *path_entry)
+static void thunar_path_entry_init(PathEntry *path_entry)
 {
     GtkEntryCompletion *completion;
     GtkCellRenderer    *renderer;
@@ -246,7 +246,7 @@ static void thunar_path_entry_init(ThunarPathEntry *path_entry)
 
 static void thunar_path_entry_finalize(GObject *object)
 {
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(object);
+    PathEntry *path_entry = PATHENTRY(object);
 
     /* release factory */
     if (path_entry->icon_factory != NULL)
@@ -280,7 +280,7 @@ static void thunar_path_entry_get_property(GObject    *object,
                                            GParamSpec *pspec)
 {
     UNUSED(pspec);
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(object);
+    PathEntry *path_entry = PATHENTRY(object);
 
     switch(prop_id)
     {
@@ -301,7 +301,7 @@ static void thunar_path_entry_set_property(GObject      *object,
 {
     UNUSED(pspec);
 
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(object);
+    PathEntry *path_entry = PATHENTRY(object);
 
     switch(prop_id)
     {
@@ -317,7 +317,7 @@ static void thunar_path_entry_set_property(GObject      *object,
 
 static gboolean thunar_path_entry_focus(GtkWidget *widget, GtkDirectionType direction)
 {
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(widget);
+    PathEntry *path_entry = PATHENTRY(widget);
     GdkModifierType  state;
     gboolean         control_pressed;
 
@@ -347,7 +347,7 @@ static void thunar_path_entry_icon_press_event(GtkEntry         *entry,
 {
     UNUSED(userdata);
 
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(entry);
+    PathEntry *path_entry = PATHENTRY(entry);
 
     if (event->button == 1 && icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {
@@ -365,7 +365,7 @@ static void thunar_path_entry_icon_release_event(GtkEntry            *entry,
 {
     UNUSED(user_data);
 
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(entry);
+    PathEntry *path_entry = PATHENTRY(entry);
 
     if (event->button == path_entry->drag_button && icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {
@@ -377,7 +377,7 @@ static void thunar_path_entry_icon_release_event(GtkEntry            *entry,
 static gboolean thunar_path_entry_motion_notify_event(GtkWidget *widget,
                                                       GdkEventMotion *event)
 {
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(widget);
+    PathEntry *path_entry = PATHENTRY(widget);
     GdkDragContext  *context;
     GtkTargetList   *target_list;
     GdkPixbuf       *icon;
@@ -420,7 +420,7 @@ static gboolean thunar_path_entry_motion_notify_event(GtkWidget *widget,
 
 static gboolean thunar_path_entry_key_press_event(GtkWidget *widget, GdkEventKey *event)
 {
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(widget);
+    PathEntry *path_entry = PATHENTRY(widget);
 
     /* check if we have a tab key press here and control is not pressed */
     if (G_UNLIKELY(event->keyval == GDK_KEY_Tab &&(event->state & GDK_CONTROL_MASK) == 0))
@@ -452,7 +452,7 @@ static void thunar_path_entry_drag_data_get(GtkWidget        *widget,
     UNUSED(info);
     UNUSED(timestamp);
 
-    ThunarPathEntry  *path_entry = THUNAR_PATH_ENTRY(widget);
+    PathEntry  *path_entry = PATHENTRY(widget);
     GList             file_list;
     gchar           **uris;
 
@@ -472,7 +472,7 @@ static void thunar_path_entry_drag_data_get(GtkWidget        *widget,
 
 static void thunar_path_entry_activate(GtkEntry *entry)
 {
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(entry);
+    PathEntry *path_entry = PATHENTRY(entry);
 
     if (G_LIKELY(path_entry->has_completion))
     {
@@ -487,7 +487,7 @@ static void thunar_path_entry_activate(GtkEntry *entry)
 static void thunar_path_entry_changed(GtkEditable *editable)
 {
     GtkEntryCompletion *completion;
-    ThunarPathEntry    *path_entry = THUNAR_PATH_ENTRY(editable);
+    PathEntry    *path_entry = PATHENTRY(editable);
     ThunarFolder       *folder;
     GtkTreeModel       *model;
     const gchar        *text;
@@ -614,7 +614,7 @@ static void thunar_path_entry_changed(GtkEditable *editable)
 }
 
 
-static void thunar_path_entry_update_icon(ThunarPathEntry *path_entry)
+static void thunar_path_entry_update_icon(PathEntry *path_entry)
 {
     GdkPixbuf          *icon = NULL;
     GtkIconTheme       *icon_theme;
@@ -663,7 +663,7 @@ static void thunar_path_entry_do_insert_text(GtkEditable *editable,
                                              gint         new_text_length,
                                              gint        *position)
 {
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(editable);
+    PathEntry *path_entry = PATHENTRY(editable);
 
     /* let the GtkEntry class handle the insert */
   (*thunar_path_entry_editable_parent_iface->do_insert_text)(editable, new_text, new_text_length, position);
@@ -673,7 +673,7 @@ static void thunar_path_entry_do_insert_text(GtkEditable *editable,
         thunar_path_entry_queue_check_completion(path_entry);
 }
 
-static void thunar_path_entry_clear_completion(ThunarPathEntry *path_entry)
+static void thunar_path_entry_clear_completion(PathEntry *path_entry)
 {
     /* reset the completion and apply the new text */
     if (G_UNLIKELY(path_entry->has_completion))
@@ -683,7 +683,7 @@ static void thunar_path_entry_clear_completion(ThunarPathEntry *path_entry)
     }
 }
 
-static void thunar_path_entry_common_prefix_append(ThunarPathEntry *path_entry,
+static void thunar_path_entry_common_prefix_append(PathEntry *path_entry,
                                                    gboolean         highlight)
 {
     const gchar *last_slash;
@@ -775,7 +775,7 @@ static gboolean thunar_path_entry_has_prefix_casefolded(const gchar *string,
     return has_prefix;
 }
 
-static void thunar_path_entry_common_prefix_lookup(ThunarPathEntry *path_entry,
+static void thunar_path_entry_common_prefix_lookup(PathEntry *path_entry,
                                                    gchar          **prefix_return,
                                                    ThunarFile     **file_return)
 {
@@ -849,7 +849,7 @@ static gboolean thunar_path_entry_match_func(GtkEntryCompletion *completion,
     UNUSED(key);
 
     GtkTreeModel    *model;
-    ThunarPathEntry *path_entry;
+    PathEntry *path_entry;
     const gchar     *last_slash;
     ThunarFile      *file;
     gboolean         matched;
@@ -867,7 +867,7 @@ static gboolean thunar_path_entry_match_func(GtkEntryCompletion *completion,
 
     /* leave if the auto completion highlight was not cleared yet, to prevent
      * https://bugzilla.xfce.org/show_bug.cgi?id=16267. */
-    path_entry = THUNAR_PATH_ENTRY(user_data);
+    path_entry = PATHENTRY(user_data);
     if (G_UNLIKELY(path_entry->has_completion))
         return FALSE;
 
@@ -921,7 +921,7 @@ static gboolean thunar_path_entry_match_selected(GtkEntryCompletion *completion,
 {
     UNUSED(completion);
 
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(user_data);
+    PathEntry *path_entry = PATHENTRY(user_data);
     const gchar     *last_slash;
     const gchar     *text;
     ThunarFile      *file;
@@ -967,7 +967,7 @@ static gboolean thunar_path_entry_match_selected(GtkEntryCompletion *completion,
     return TRUE;
 }
 
-static gboolean thunar_path_entry_parse(ThunarPathEntry *path_entry,
+static gboolean thunar_path_entry_parse(PathEntry *path_entry,
                                         gchar          **folder_part,
                                         gchar          **file_part,
                                         GError         **error)
@@ -976,7 +976,7 @@ static gboolean thunar_path_entry_parse(ThunarPathEntry *path_entry,
     gchar       *filename;
     gchar       *path;
 
-    thunar_return_val_if_fail(THUNAR_IS_PATH_ENTRY(path_entry), FALSE);
+    thunar_return_val_if_fail(IS_PATHENTRY(path_entry), FALSE);
     thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
     thunar_return_val_if_fail(folder_part != NULL, FALSE);
     thunar_return_val_if_fail(file_part != NULL, FALSE);
@@ -1034,7 +1034,7 @@ static gboolean thunar_path_entry_parse(ThunarPathEntry *path_entry,
     return(*folder_part != NULL);
 }
 
-static void thunar_path_entry_queue_check_completion(ThunarPathEntry *path_entry)
+static void thunar_path_entry_queue_check_completion(PathEntry *path_entry)
 {
     if (G_LIKELY(path_entry->check_completion_idle_id == 0))
     {
@@ -1045,7 +1045,7 @@ static void thunar_path_entry_queue_check_completion(ThunarPathEntry *path_entry
 
 static gboolean thunar_path_entry_check_completion_idle(gpointer user_data)
 {
-    ThunarPathEntry *path_entry = THUNAR_PATH_ENTRY(user_data);
+    PathEntry *path_entry = PATHENTRY(user_data);
     const gchar     *text;
 
     THUNAR_THREADS_ENTER
@@ -1065,24 +1065,24 @@ static gboolean thunar_path_entry_check_completion_idle(gpointer user_data)
 
 static void thunar_path_entry_check_completion_idle_destroy(gpointer user_data)
 {
-    THUNAR_PATH_ENTRY(user_data)->check_completion_idle_id = 0;
+    PATHENTRY(user_data)->check_completion_idle_id = 0;
 }
 
 /**
  * thunar_path_entry_new:
  *
- * Allocates a new #ThunarPathEntry instance.
+ * Allocates a new #PathEntry instance.
  *
- * Return value: the newly allocated #ThunarPathEntry.
+ * Return value: the newly allocated #PathEntry.
  **/
 GtkWidget* thunar_path_entry_new()
 {
-    return g_object_new(THUNAR_TYPE_PATH_ENTRY, NULL);
+    return g_object_new(TYPE_PATHENTRY, NULL);
 }
 
 /**
  * thunar_path_entry_get_current_file:
- * @path_entry : a #ThunarPathEntry.
+ * @path_entry : a #PathEntry.
  *
  * Returns the #ThunarFile currently being displayed by
  * @path_entry or %NULL if @path_entry doesn't contain
@@ -1090,21 +1090,21 @@ GtkWidget* thunar_path_entry_new()
  *
  * Return value: the #ThunarFile for @path_entry or %NULL.
  **/
-ThunarFile* thunar_path_entry_get_current_file(ThunarPathEntry *path_entry)
+ThunarFile* thunar_path_entry_get_current_file(PathEntry *path_entry)
 {
-    thunar_return_val_if_fail(THUNAR_IS_PATH_ENTRY(path_entry), NULL);
+    thunar_return_val_if_fail(IS_PATHENTRY(path_entry), NULL);
     return path_entry->current_file;
 }
 
 /**
  * thunar_path_entry_set_current_file:
- * @path_entry   : a #ThunarPathEntry.
+ * @path_entry   : a #PathEntry.
  * @current_file : a #ThunarFile or %NULL.
  *
  * Sets the #ThunarFile that should be displayed by
  * @path_entry to @current_file.
  **/
-void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
+void thunar_path_entry_set_current_file(PathEntry *path_entry,
                                         ThunarFile      *current_file)
 {
     GFile    *file;
@@ -1113,7 +1113,7 @@ void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
     gchar    *tmp;
     gboolean  is_uri = FALSE;
 
-    thunar_return_if_fail(THUNAR_IS_PATH_ENTRY(path_entry));
+    thunar_return_if_fail(IS_PATHENTRY(path_entry));
     thunar_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
 
     file =(current_file != NULL) ? th_file_get_file(current_file) : NULL;
@@ -1180,16 +1180,16 @@ void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
 
 /**
  * thunar_path_entry_set_working_directory:
- * @path_entry        : a #ThunarPathEntry.
+ * @path_entry        : a #PathEntry.
  * @working_directory : a #ThunarFile or %NULL.
  *
  * Sets the #ThunarFile that should be used as the
  * working directory for @path_entry.
  **/
-void thunar_path_entry_set_working_directory(ThunarPathEntry *path_entry,
+void thunar_path_entry_set_working_directory(PathEntry *path_entry,
                                              ThunarFile      *working_directory)
 {
-    thunar_return_if_fail(THUNAR_IS_PATH_ENTRY(path_entry));
+    thunar_return_if_fail(IS_PATHENTRY(path_entry));
     thunar_return_if_fail(working_directory == NULL || THUNAR_IS_FILE(working_directory));
 
     if (G_LIKELY(path_entry->working_directory != NULL))

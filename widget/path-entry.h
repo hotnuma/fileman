@@ -18,35 +18,40 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __THUNAR_PATH_ENTRY_H__
-#define __THUNAR_PATH_ENTRY_H__
+#ifndef __PATHENTRY_H__
+#define __PATHENTRY_H__
 
 #include <th-file.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarPathEntryClass ThunarPathEntryClass;
-typedef struct _ThunarPathEntry      ThunarPathEntry;
+typedef struct _PathEntryClass PathEntryClass;
+typedef struct _PathEntry      PathEntry;
 
-#define THUNAR_TYPE_PATH_ENTRY            (thunar_path_entry_get_type())
-#define THUNAR_PATH_ENTRY(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_PATH_ENTRY, ThunarPathEntry))
-#define THUNAR_PATH_ENTRY_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_PATH_ENTRY, ThunarPathEntryClass))
-#define THUNAR_IS_PATH_ENTRY(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_PATH_ENTRY))
-#define THUNAR_IS_PATH_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_PATH_ENTRY))
-#define THUNAR_PATH_ENTRY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_PATH_ENTRY, ThunarPathEntryClass))
+#define TYPE_PATHENTRY (thunar_path_entry_get_type())
+#define PATHENTRY(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PATHENTRY, PathEntry))
+#define PATHENTRY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_PATHENTRY, PathEntryClass))
+#define IS_PATHENTRY(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_PATHENTRY))
+#define IS_PATHENTRY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_PATHENTRY))
+#define PATHENTRY_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_PATHENTRY, PathEntryClass))
 
 GType thunar_path_entry_get_type() G_GNUC_CONST;
 
 GtkWidget* thunar_path_entry_new();
 
-ThunarFile* thunar_path_entry_get_current_file(ThunarPathEntry *path_entry);
-void thunar_path_entry_set_current_file(ThunarPathEntry *path_entry,
+ThunarFile* thunar_path_entry_get_current_file(PathEntry *path_entry);
+void thunar_path_entry_set_current_file(PathEntry *path_entry,
                                         ThunarFile *current_file);
-void thunar_path_entry_set_working_directory(ThunarPathEntry *path_entry,
+void thunar_path_entry_set_working_directory(PathEntry *path_entry,
                                              ThunarFile      *directory);
 
 G_END_DECLS
 
-#endif /* !__THUNAR_PATH_ENTRY_H__ */
+#endif // __PATHENTRY_H__
 
 
