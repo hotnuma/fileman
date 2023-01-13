@@ -43,7 +43,7 @@ struct _SidePaneIface
     void     (*set_show_hidden) (SidePane *side_pane, gboolean show_hidden);
 };
 
-GType sidepane_get_type() G_GNUC_CONST;
+GType       sidepane_get_type() G_GNUC_CONST;
 
 gboolean    sidepane_get_show_hidden(SidePane *side_pane);
 void        sidepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden);

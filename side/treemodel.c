@@ -845,7 +845,7 @@ _treemodel_file_changed(FileMonitor *file_monitor,
                                 ThunarFile        *file,
                                 TreeModel   *model)
 {
-    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILEMONITOR(file_monitor));
     thunar_return_if_fail(model->file_monitor == file_monitor);
     thunar_return_if_fail(THUNAR_IS_TREE_MODEL(model));
     thunar_return_if_fail(THUNAR_IS_FILE(file));

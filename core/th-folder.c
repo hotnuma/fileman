@@ -341,7 +341,7 @@ static void _th_folder_file_changed(FileMonitor *file_monitor,
 {
     thunar_return_if_fail(THUNAR_IS_FILE(file));
     thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILEMONITOR(file_monitor));
 
     /* check if the corresponding file changed... */
     if (G_UNLIKELY(folder->corresponding_file == file))
@@ -361,7 +361,7 @@ static void _th_folder_file_destroyed(FileMonitor *file_monitor,
 
     thunar_return_if_fail(THUNAR_IS_FILE(file));
     thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILEMONITOR(file_monitor));
 
     /* check if the corresponding file was destroyed */
     if (G_UNLIKELY(folder->corresponding_file == file))

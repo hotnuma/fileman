@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __FILE_MONITOR_H__
-#define __FILE_MONITOR_H__
+#ifndef __FILEMONITOR_H__
+#define __FILEMONITOR_H__
 
 #include <th-file.h>
 
@@ -26,17 +26,17 @@ G_BEGIN_DECLS
 typedef struct _FileMonitorClass FileMonitorClass;
 typedef struct _FileMonitor      FileMonitor;
 
-#define TYPE_FILE_MONITOR (filemon_get_type())
-#define FILE_MONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_FILE_MONITOR, FileMonitor))
-#define FILE_MONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_FILE_MONITOR, FileMonitorClass))
-#define IS_FILE_MONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_FILE_MONITOR))
-#define IS_FILE_MONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_FILE_MONITOR))
-#define FILE_MONITOR_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_FILE_MONITOR, FileMonitorClass))
+#define TYPE_FILEMONITOR (filemon_get_type())
+#define FILEMONITOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_FILEMONITOR, FileMonitor))
+#define FILEMONITOR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_FILEMONITOR, FileMonitorClass))
+#define IS_FILEMONITOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_FILEMONITOR))
+#define IS_FILEMONITOR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_FILEMONITOR))
+#define FILEMONITOR_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_FILEMONITOR, FileMonitorClass))
 
 GType filemon_get_type() G_GNUC_CONST;
 
@@ -47,6 +47,6 @@ void filemon_file_destroyed(ThunarFile *file);
 
 G_END_DECLS
 
-#endif // __FILE_MONITOR_H__
+#endif // __FILEMONITOR_H__
 
 

@@ -108,7 +108,7 @@ FileMonitor* filemon_get_default()
     if (G_UNLIKELY(_filemon_default == NULL))
     {
         /* allocate the default monitor */
-        _filemon_default = g_object_new(TYPE_FILE_MONITOR, NULL);
+        _filemon_default = g_object_new(TYPE_FILEMONITOR, NULL);
         g_object_add_weak_pointer(G_OBJECT(_filemon_default),
                                   (gpointer) &_filemon_default);
     }

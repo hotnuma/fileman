@@ -18,8 +18,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __GOBJECT_EXTENSIONS_H__
-#define __GOBJECT_EXTENSIONS_H__
+#ifndef __GOBJECT_EXT_H__
+#define __GOBJECT_EXT_H__
 
 #include <glib-object.h>
 
@@ -41,6 +41,6 @@ gchar*  eg_strescape(const gchar *source);
 
 G_END_DECLS
 
-#endif // __GOBJECT_EXTENSIONS_H__
+#endif // __GOBJECT_EXT_H__
 
 

@@ -1039,7 +1039,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
     GtkTreePath   *path;
     GtkTreeIter    iter;
 
-    thunar_return_if_fail(IS_FILE_MONITOR(file_monitor));
+    thunar_return_if_fail(IS_FILEMONITOR(file_monitor));
     thunar_return_if_fail(IS_LISTMODEL(store));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 

@@ -175,7 +175,7 @@ static void _thunar_image_file_changed(FileMonitor *monitor,
                                        ThunarFile        *file,
                                        ThunarImage       *image)
 {
-    thunar_return_if_fail(IS_FILE_MONITOR(monitor));
+    thunar_return_if_fail(IS_FILEMONITOR(monitor));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
     thunar_return_if_fail(THUNAR_IS_IMAGE(image));
 
