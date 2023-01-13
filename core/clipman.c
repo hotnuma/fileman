@@ -130,7 +130,7 @@ static void clipman_class_init(ClipboardManagerClass *klass)
      *
      * This property tells whether the current clipboard content of
      * this #ClipboardManager can be pasted into a folder
-     * displayed by a #ThunarView.
+     * displayed by a #BaseView.
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_CAN_PASTE,

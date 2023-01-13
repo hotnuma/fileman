@@ -17,27 +17,27 @@
  */
 
 #include <config.h>
+#include <baseview.h>
 
 #include <libext.h>
 
-#include <baseview.h>
+static void baseview_class_init(gpointer klass);
 
-static void thunar_view_class_init(gpointer klass);
-
-GType thunar_view_get_type()
+GType baseview_get_type()
 {
     static volatile gsize type__volatile = 0;
     GType                 type;
 
     if (g_once_init_enter((gsize*) &type__volatile))
     {
-        type = g_type_register_static_simple(G_TYPE_INTERFACE,
-                                             I_("ThunarView"),
-                                             sizeof(ThunarViewIface),
-                                             (GClassInitFunc)(void(*)(void)) thunar_view_class_init,
-                                             0,
-                                             NULL,
-                                             0);
+        type = g_type_register_static_simple(
+            G_TYPE_INTERFACE,
+            I_("BaseView"),
+            sizeof(BaseViewIface),
+            (GClassInitFunc) (void(*)(void)) baseview_class_init,
+            0,
+            NULL,
+            0);
 
         g_type_interface_add_prerequisite(type, GTK_TYPE_WIDGET);
         g_type_interface_add_prerequisite(type, THUNAR_TYPE_COMPONENT);
@@ -48,12 +48,12 @@ GType thunar_view_get_type()
     return type__volatile;
 }
 
-static void thunar_view_class_init(gpointer klass)
+static void baseview_class_init(gpointer klass)
 {
     /**
-     * ThunarView:loading:
+     * BaseView:loading:
      *
-     * Indicates whether the given #ThunarView is currently loading or
+     * Indicates whether the given #BaseView is currently loading or
      * layouting its contents. Implementations should invoke
      * #g_object_notify() on this property whenever they start to load
      * the contents and then once they have finished loading.
@@ -70,10 +70,10 @@ static void thunar_view_class_init(gpointer klass)
                                                              E_PARAM_READABLE));
 
     /**
-     * ThunarView:statusbar-text:
+     * BaseView:statusbar-text:
      *
      * The text to be displayed in the status bar, which is associated
-     * with this #ThunarView instance. Implementations should invoke
+     * with this #BaseView instance. Implementations should invoke
      * #g_object_notify() on this property, whenever they have a new
      * text to be display in the status bar(e.g. the selection changed
      * or similar).
@@ -86,10 +86,10 @@ static void thunar_view_class_init(gpointer klass)
                                                             E_PARAM_READABLE));
 
     /**
-     * ThunarView:show-hidden:
+     * BaseView:show-hidden:
      *
      * Tells whether to display hidden and backup files in the
-     * #ThunarView or whether to hide them.
+     * #BaseView or whether to hide them.
      **/
     g_object_interface_install_property(klass,
                                         g_param_spec_boolean("show-hidden",
@@ -99,10 +99,10 @@ static void thunar_view_class_init(gpointer klass)
                                                              E_PARAM_READWRITE));
 
     /**
-     * ThunarView:zoom-level:
+     * BaseView:zoom-level:
      *
      * The #ThunarZoomLevel at which the items within this
-     * #ThunarView should be displayed.
+     * #BaseView should be displayed.
      **/
     g_object_interface_install_property(klass,
                                         g_param_spec_enum("zoom-level",
@@ -115,23 +115,23 @@ static void thunar_view_class_init(gpointer klass)
 
 /**
  * thunar_view_get_loading:
- * @view : a #ThunarView instance.
+ * @view : a #BaseView instance.
  *
- * Tells whether the given #ThunarView is currently loading or
+ * Tells whether the given #BaseView is currently loading or
  * layouting its contents.
  *
  * Return value: %TRUE if @view is currently being loaded, else %FALSE.
  **/
-gboolean thunar_view_get_loading(ThunarView *view)
+gboolean thunar_view_get_loading(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
-    return (*THUNAR_VIEW_GET_IFACE(view)->get_loading)(view);
+    return (*BASEVIEW_GET_IFACE(view)->get_loading)(view);
 }
 
 /**
  * thunar_view_get_statusbar_text:
- * @view : a #ThunarView instance.
+ * @view : a #BaseView instance.
  *
  * Queries the text that should be displayed in the status bar
  * associated with @view.
@@ -139,94 +139,94 @@ gboolean thunar_view_get_loading(ThunarView *view)
  * Return value: the text to be displayed in the status bar
  *               asssociated with @view.
  **/
-const gchar* thunar_view_get_statusbar_text(ThunarView *view)
+const gchar* thunar_view_get_statusbar_text(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
 
-    return (*THUNAR_VIEW_GET_IFACE(view)->get_statusbar_text)(view);
+    return (*BASEVIEW_GET_IFACE(view)->get_statusbar_text)(view);
 }
 
 /**
  * thunar_view_get_show_hidden:
- * @view : a #ThunarView instance.
+ * @view : a #BaseView instance.
  *
  * Returns %TRUE if hidden and backup files are shown
  * in @view. Else %FALSE is returned.
  *
  * Return value: whether @view displays hidden files.
  **/
-gboolean thunar_view_get_show_hidden(ThunarView *view)
+gboolean thunar_view_get_show_hidden(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
-    return (*THUNAR_VIEW_GET_IFACE(view)->get_show_hidden)(view);
+    return (*BASEVIEW_GET_IFACE(view)->get_show_hidden)(view);
 }
 
 /**
  * thunar_view_set_show_hidden:
- * @view        : a #ThunarView instance.
+ * @view        : a #BaseView instance.
  * @show_hidden : &TRUE to display hidden files, else %FALSE.
  *
  * If @show_hidden is %TRUE then @view will display hidden and
  * backup files, else those files will be hidden from the user
  * interface.
  **/
-void thunar_view_set_show_hidden(ThunarView *view, gboolean show_hidden)
+void thunar_view_set_show_hidden(BaseView *view, gboolean show_hidden)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
 
-    (*THUNAR_VIEW_GET_IFACE(view)->set_show_hidden)(view, show_hidden);
+    (*BASEVIEW_GET_IFACE(view)->set_show_hidden)(view, show_hidden);
 }
 
 /**
  * thunar_view_get_zoom_level:
- * @view : a #ThunarView instance.
+ * @view : a #BaseView instance.
  *
  * Returns the #ThunarZoomLevel currently used for the @view.
  *
  * Return value: the #ThunarZoomLevel currently used for the @view.
  **/
-ThunarZoomLevel thunar_view_get_zoom_level(ThunarView *view)
+ThunarZoomLevel thunar_view_get_zoom_level(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), THUNAR_ZOOM_LEVEL_100_PERCENT);
 
-    return (*THUNAR_VIEW_GET_IFACE(view)->get_zoom_level)(view);
+    return (*BASEVIEW_GET_IFACE(view)->get_zoom_level)(view);
 }
 
 /**
  * thunar_view_set_zoom_level:
- * @view       : a #ThunarView instance.
+ * @view       : a #BaseView instance.
  * @zoom_level : the new #ThunarZoomLevel for @view.
  *
  * Sets the zoom level used for @view to @zoom_level.
  **/
-void thunar_view_set_zoom_level(ThunarView *view, ThunarZoomLevel zoom_level)
+void thunar_view_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
     thunar_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
-    (*THUNAR_VIEW_GET_IFACE(view)->set_zoom_level)(view, zoom_level);
+    (*BASEVIEW_GET_IFACE(view)->set_zoom_level)(view, zoom_level);
 }
 
 /**
  * thunar_view_reload:
- * @view : a #ThunarView instance.
+ * @view : a #BaseView instance.
  * @reload_info : whether to reload file info for all files too
  *
  * Tells @view to reread the currently displayed folder
  * contents from the underlying media. If reload_info is
  * TRUE, it will reload information for all files too.
  **/
-void thunar_view_reload(ThunarView *view, gboolean reload_info)
+void thunar_view_reload(BaseView *view, gboolean reload_info)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
 
-    (*THUNAR_VIEW_GET_IFACE(view)->reload)(view, reload_info);
+    (*BASEVIEW_GET_IFACE(view)->reload)(view, reload_info);
 }
 
 /**
  * thunar_view_get_visible_range:
- * @view       : a #ThunarView instance.
+ * @view       : a #BaseView instance.
  * @start_file : return location for start of region, or %NULL.
  * @end_file   : return location for end of region, or %NULL.
  *
@@ -239,17 +239,17 @@ void thunar_view_reload(ThunarView *view, gboolean reload_info)
  * Return value: %TRUE if valid files were placed in @start_file
  *               and @end_file.
  **/
-gboolean thunar_view_get_visible_range(ThunarView  *view,
+gboolean thunar_view_get_visible_range(BaseView  *view,
                                        ThunarFile **start_file,
                                        ThunarFile **end_file)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
-    return(*THUNAR_VIEW_GET_IFACE(view)->get_visible_range)(view, start_file, end_file);
+    return(*BASEVIEW_GET_IFACE(view)->get_visible_range)(view, start_file, end_file);
 }
 
 /**
  * thunar_view_scroll_to_file:
- * @view        : a #ThunarView instance.
+ * @view        : a #BaseView instance.
  * @file        : the #ThunarFile to scroll to.
  * @select_file : %TRUE to also select the @file in the @view.
  * @use_align   : whether to use alignment arguments.
@@ -260,7 +260,7 @@ gboolean thunar_view_get_visible_range(ThunarView  *view,
  * loading, it'll remember to scroll to @file later when
  * the contents are loaded.
  **/
-void thunar_view_scroll_to_file(ThunarView  *view,
+void thunar_view_scroll_to_file(BaseView  *view,
                                 ThunarFile  *file,
                                 gboolean    select_file,
                                 gboolean    use_align,
@@ -272,7 +272,7 @@ void thunar_view_scroll_to_file(ThunarView  *view,
     thunar_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
     thunar_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
 
-    (*THUNAR_VIEW_GET_IFACE(view)->scroll_to_file)(view,
+    (*BASEVIEW_GET_IFACE(view)->scroll_to_file)(view,
                                                    file,
                                                    select_file,
                                                    use_align,
@@ -280,18 +280,18 @@ void thunar_view_scroll_to_file(ThunarView  *view,
                                                    col_align);
 }
 
-GList* thunar_view_get_selected_files(ThunarView *view)
+GList* thunar_view_get_selected_files(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
 
-    return (*THUNAR_VIEW_GET_IFACE(view)->get_selected_files)(view);
+    return (*BASEVIEW_GET_IFACE(view)->get_selected_files)(view);
 }
 
-void thunar_view_set_selected_files(ThunarView *view, GList *path_list)
+void thunar_view_set_selected_files(BaseView *view, GList *path_list)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
 
-    (*THUNAR_VIEW_GET_IFACE(view)->set_selected_files)(view, path_list);
+    (*BASEVIEW_GET_IFACE(view)->set_selected_files)(view, path_list);
 }
 
 
