@@ -19,8 +19,8 @@
 #ifndef __BASEVIEW_H__
 #define __BASEVIEW_H__
 
-#include <component.h>
 #include <enum-types.h>
+#include <component.h>
 #include <navigator.h>
 
 G_BEGIN_DECLS
@@ -69,32 +69,32 @@ struct _BaseViewIface
 
 GType baseview_get_type() G_GNUC_CONST;
 
-gboolean thunar_view_get_loading(BaseView *view);
-const gchar *thunar_view_get_statusbar_text(BaseView *view);
+gboolean baseview_get_loading(BaseView *view);
+const gchar* baseview_get_statusbar_text(BaseView *view);
 
-gboolean thunar_view_get_show_hidden(BaseView *view);
-void thunar_view_set_show_hidden(BaseView *view, gboolean show_hidden);
+gboolean baseview_get_show_hidden(BaseView *view);
+void baseview_set_show_hidden(BaseView *view, gboolean show_hidden);
 
-ThunarZoomLevel thunar_view_get_zoom_level(BaseView *view);
-void thunar_view_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level);
+ThunarZoomLevel baseview_get_zoom_level(BaseView *view);
+void baseview_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level);
 
-void thunar_view_reload(BaseView *view, gboolean reload_info);
+void baseview_reload(BaseView *view, gboolean reload_info);
 
-gboolean thunar_view_get_visible_range(BaseView *view,
-                                       ThunarFile **start_file,
-                                       ThunarFile **end_file);
+gboolean baseview_get_visible_range(BaseView *view,
+                                    ThunarFile **start_file,
+                                    ThunarFile **end_file);
 
-void thunar_view_scroll_to_file(BaseView *view,
-                                ThunarFile *file,
-                                gboolean select_file,
-                                gboolean use_align,
-                                gfloat row_align,
-                                gfloat col_align);
-GList* thunar_view_get_selected_files(BaseView *view);
-void thunar_view_set_selected_files(BaseView *view, GList *path_list);
+void baseview_scroll_to_file(BaseView *view,
+                             ThunarFile *file,
+                             gboolean select_file,
+                             gboolean use_align,
+                             gfloat row_align,
+                             gfloat col_align);
+GList* baseview_get_selected_files(BaseView *view);
+void baseview_set_selected_files(BaseView *view, GList *path_list);
 
 G_END_DECLS
 
-#endif /* !__BASEVIEW_H__ */
+#endif // __BASEVIEW_H__
 
 

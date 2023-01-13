@@ -26,7 +26,7 @@ static void baseview_class_init(gpointer klass);
 GType baseview_get_type()
 {
     static volatile gsize type__volatile = 0;
-    GType                 type;
+    GType type;
 
     if (g_once_init_enter((gsize*) &type__volatile))
     {
@@ -63,11 +63,12 @@ static void baseview_class_init(gpointer klass)
      * progress bar or an animated image.
      **/
     g_object_interface_install_property(klass,
-                                        g_param_spec_boolean("loading",
-                                                             "loading",
-                                                             "loading",
-                                                             FALSE,
-                                                             E_PARAM_READABLE));
+                                        g_param_spec_boolean(
+                                            "loading",
+                                            "loading",
+                                            "loading",
+                                            FALSE,
+                                            E_PARAM_READABLE));
 
     /**
      * BaseView:statusbar-text:
@@ -79,11 +80,12 @@ static void baseview_class_init(gpointer klass)
      * or similar).
      **/
     g_object_interface_install_property(klass,
-                                        g_param_spec_string("statusbar-text",
-                                                            "statusbar-text",
-                                                            "statusbar-text",
-                                                            NULL,
-                                                            E_PARAM_READABLE));
+                                        g_param_spec_string(
+                                            "statusbar-text",
+                                            "statusbar-text",
+                                            "statusbar-text",
+                                            NULL,
+                                            E_PARAM_READABLE));
 
     /**
      * BaseView:show-hidden:
@@ -92,11 +94,12 @@ static void baseview_class_init(gpointer klass)
      * #BaseView or whether to hide them.
      **/
     g_object_interface_install_property(klass,
-                                        g_param_spec_boolean("show-hidden",
-                                                             "show-hidden",
-                                                             "show-hidden",
-                                                             FALSE,
-                                                             E_PARAM_READWRITE));
+                                        g_param_spec_boolean(
+                                            "show-hidden",
+                                            "show-hidden",
+                                            "show-hidden",
+                                            FALSE,
+                                            E_PARAM_READWRITE));
 
     /**
      * BaseView:zoom-level:
@@ -105,12 +108,13 @@ static void baseview_class_init(gpointer klass)
      * #BaseView should be displayed.
      **/
     g_object_interface_install_property(klass,
-                                        g_param_spec_enum("zoom-level",
-                                                          "zoom-level",
-                                                          "zoom-level",
-                                                          THUNAR_TYPE_ZOOM_LEVEL,
-                                                          THUNAR_ZOOM_LEVEL_100_PERCENT,
-                                                          E_PARAM_READWRITE));
+                                        g_param_spec_enum(
+                                            "zoom-level",
+                                            "zoom-level",
+                                            "zoom-level",
+                                            THUNAR_TYPE_ZOOM_LEVEL,
+                                            THUNAR_ZOOM_LEVEL_100_PERCENT,
+                                            E_PARAM_READWRITE));
 }
 
 /**
@@ -122,11 +126,11 @@ static void baseview_class_init(gpointer klass)
  *
  * Return value: %TRUE if @view is currently being loaded, else %FALSE.
  **/
-gboolean thunar_view_get_loading(BaseView *view)
+gboolean baseview_get_loading(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
-    return (*BASEVIEW_GET_IFACE(view)->get_loading)(view);
+    return BASEVIEW_GET_IFACE(view)->get_loading(view);
 }
 
 /**
@@ -139,11 +143,11 @@ gboolean thunar_view_get_loading(BaseView *view)
  * Return value: the text to be displayed in the status bar
  *               asssociated with @view.
  **/
-const gchar* thunar_view_get_statusbar_text(BaseView *view)
+const gchar* baseview_get_statusbar_text(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
 
-    return (*BASEVIEW_GET_IFACE(view)->get_statusbar_text)(view);
+    return BASEVIEW_GET_IFACE(view)->get_statusbar_text(view);
 }
 
 /**
@@ -155,11 +159,11 @@ const gchar* thunar_view_get_statusbar_text(BaseView *view)
  *
  * Return value: whether @view displays hidden files.
  **/
-gboolean thunar_view_get_show_hidden(BaseView *view)
+gboolean baseview_get_show_hidden(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
-    return (*BASEVIEW_GET_IFACE(view)->get_show_hidden)(view);
+    return BASEVIEW_GET_IFACE(view)->get_show_hidden(view);
 }
 
 /**
@@ -171,11 +175,11 @@ gboolean thunar_view_get_show_hidden(BaseView *view)
  * backup files, else those files will be hidden from the user
  * interface.
  **/
-void thunar_view_set_show_hidden(BaseView *view, gboolean show_hidden)
+void baseview_set_show_hidden(BaseView *view, gboolean show_hidden)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
 
-    (*BASEVIEW_GET_IFACE(view)->set_show_hidden)(view, show_hidden);
+    BASEVIEW_GET_IFACE(view)->set_show_hidden(view, show_hidden);
 }
 
 /**
@@ -186,11 +190,11 @@ void thunar_view_set_show_hidden(BaseView *view, gboolean show_hidden)
  *
  * Return value: the #ThunarZoomLevel currently used for the @view.
  **/
-ThunarZoomLevel thunar_view_get_zoom_level(BaseView *view)
+ThunarZoomLevel baseview_get_zoom_level(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), THUNAR_ZOOM_LEVEL_100_PERCENT);
 
-    return (*BASEVIEW_GET_IFACE(view)->get_zoom_level)(view);
+    return BASEVIEW_GET_IFACE(view)->get_zoom_level(view);
 }
 
 /**
@@ -200,12 +204,12 @@ ThunarZoomLevel thunar_view_get_zoom_level(BaseView *view)
  *
  * Sets the zoom level used for @view to @zoom_level.
  **/
-void thunar_view_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
+void baseview_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
     thunar_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
-    (*BASEVIEW_GET_IFACE(view)->set_zoom_level)(view, zoom_level);
+    BASEVIEW_GET_IFACE(view)->set_zoom_level(view, zoom_level);
 }
 
 /**
@@ -217,11 +221,11 @@ void thunar_view_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
  * contents from the underlying media. If reload_info is
  * TRUE, it will reload information for all files too.
  **/
-void thunar_view_reload(BaseView *view, gboolean reload_info)
+void baseview_reload(BaseView *view, gboolean reload_info)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
 
-    (*BASEVIEW_GET_IFACE(view)->reload)(view, reload_info);
+    BASEVIEW_GET_IFACE(view)->reload(view, reload_info);
 }
 
 /**
@@ -239,12 +243,13 @@ void thunar_view_reload(BaseView *view, gboolean reload_info)
  * Return value: %TRUE if valid files were placed in @start_file
  *               and @end_file.
  **/
-gboolean thunar_view_get_visible_range(BaseView  *view,
+gboolean baseview_get_visible_range(BaseView  *view,
                                        ThunarFile **start_file,
                                        ThunarFile **end_file)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
-    return(*BASEVIEW_GET_IFACE(view)->get_visible_range)(view, start_file, end_file);
+
+    return BASEVIEW_GET_IFACE(view)->get_visible_range(view, start_file, end_file);
 }
 
 /**
@@ -260,7 +265,7 @@ gboolean thunar_view_get_visible_range(BaseView  *view,
  * loading, it'll remember to scroll to @file later when
  * the contents are loaded.
  **/
-void thunar_view_scroll_to_file(BaseView  *view,
+void baseview_scroll_to_file(BaseView  *view,
                                 ThunarFile  *file,
                                 gboolean    select_file,
                                 gboolean    use_align,
@@ -272,7 +277,7 @@ void thunar_view_scroll_to_file(BaseView  *view,
     thunar_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
     thunar_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
 
-    (*BASEVIEW_GET_IFACE(view)->scroll_to_file)(view,
+    BASEVIEW_GET_IFACE(view)->scroll_to_file(view,
                                                    file,
                                                    select_file,
                                                    use_align,
@@ -280,18 +285,18 @@ void thunar_view_scroll_to_file(BaseView  *view,
                                                    col_align);
 }
 
-GList* thunar_view_get_selected_files(BaseView *view)
+GList* baseview_get_selected_files(BaseView *view)
 {
     thunar_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
 
-    return (*BASEVIEW_GET_IFACE(view)->get_selected_files)(view);
+    return BASEVIEW_GET_IFACE(view)->get_selected_files(view);
 }
 
-void thunar_view_set_selected_files(BaseView *view, GList *path_list)
+void baseview_set_selected_files(BaseView *view, GList *path_list)
 {
     thunar_return_if_fail(THUNAR_IS_VIEW(view));
 
-    (*BASEVIEW_GET_IFACE(view)->set_selected_files)(view, path_list);
+    BASEVIEW_GET_IFACE(view)->set_selected_files(view, path_list);
 }
 
 

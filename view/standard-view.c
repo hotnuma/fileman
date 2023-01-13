@@ -620,7 +620,7 @@ static GObject* standard_view_constructor(
     StandardView *standard_view = STANDARD_VIEW(object);
 
     ThunarZoomLevel zoom_level = THUNAR_ZOOM_LEVEL_25_PERCENT;
-    thunar_view_set_zoom_level(BASEVIEW(standard_view), zoom_level);
+    baseview_set_zoom_level(BASEVIEW(standard_view), zoom_level);
 
     /* determine the real view widget(treeview or iconview) */
     GtkWidget *view = gtk_bin_get_child(GTK_BIN(object));
@@ -806,7 +806,7 @@ static void standard_view_get_property(GObject    *object,
         break;
 
     case PROP_LOADING:
-        g_value_set_boolean(value, thunar_view_get_loading(BASEVIEW(object)));
+        g_value_set_boolean(value, baseview_get_loading(BASEVIEW(object)));
         break;
 
     case PROP_DISPLAY_NAME:
@@ -826,15 +826,15 @@ static void standard_view_get_property(GObject    *object,
         break;
 
     case PROP_SHOW_HIDDEN:
-        g_value_set_boolean(value, thunar_view_get_show_hidden(BASEVIEW(object)));
+        g_value_set_boolean(value, baseview_get_show_hidden(BASEVIEW(object)));
         break;
 
     case PROP_STATUSBAR_TEXT:
-        g_value_set_static_string(value, thunar_view_get_statusbar_text(BASEVIEW(object)));
+        g_value_set_static_string(value, baseview_get_statusbar_text(BASEVIEW(object)));
         break;
 
     case PROP_ZOOM_LEVEL:
-        g_value_set_enum(value, thunar_view_get_zoom_level(BASEVIEW(object)));
+        g_value_set_enum(value, baseview_get_zoom_level(BASEVIEW(object)));
         break;
 
     default:
@@ -867,11 +867,11 @@ static void standard_view_set_property(GObject      *object,
         break;
 
     case PROP_SHOW_HIDDEN:
-        thunar_view_set_show_hidden(BASEVIEW(object), g_value_get_boolean(value));
+        baseview_set_show_hidden(BASEVIEW(object), g_value_get_boolean(value));
         break;
 
     case PROP_ZOOM_LEVEL:
-        thunar_view_set_zoom_level(BASEVIEW(object), g_value_get_enum(value));
+        baseview_set_zoom_level(BASEVIEW(object), g_value_get_enum(value));
         break;
 
     case PROP_ACCEL_GROUP:
@@ -1246,7 +1246,7 @@ static void _standard_view_scroll_position_save(StandardView *standard_view)
             /* remove from the hash table, we already scroll to 0,0 */
             g_hash_table_remove(standard_view->priv->scroll_to_files, gfile);
         }
-        else if (thunar_view_get_visible_range(BASEVIEW(standard_view), &first_file, NULL))
+        else if (baseview_get_visible_range(BASEVIEW(standard_view), &first_file, NULL))
         {
             /* add the file to our internal mapping of directories to scroll files */
             g_hash_table_replace(standard_view->priv->scroll_to_files,
@@ -1330,7 +1330,7 @@ static void standard_view_set_selected_files_component(ThunarComponent *componen
     }
 
     /* check if we're still loading */
-    if (thunar_view_get_loading(BASEVIEW(standard_view)))
+    if (baseview_get_loading(BASEVIEW(standard_view)))
     {
         /* remember a copy of the list for later */
         standard_view->priv->selected_files = eg_list_copy(selected_files);
@@ -1464,7 +1464,7 @@ static void standard_view_set_loading(StandardView *standard_view,
             standard_view->priv->scroll_to_file = NULL;
 
             /* and try again */
-            thunar_view_scroll_to_file(BASEVIEW(standard_view), file,
+            baseview_scroll_to_file(BASEVIEW(standard_view), file,
                                         standard_view->priv->scroll_to_select,
                                         standard_view->priv->scroll_to_use_align,
                                         standard_view->priv->scroll_to_row_align,
@@ -1485,7 +1485,7 @@ static void standard_view_set_loading(StandardView *standard_view,
                     file = th_file_cache_lookup(first_file);
                     if (G_LIKELY(file != NULL))
                     {
-                        thunar_view_scroll_to_file(BASEVIEW(standard_view), file, FALSE, TRUE, 0.0f, 0.0f);
+                        baseview_scroll_to_file(BASEVIEW(standard_view), file, FALSE, TRUE, 0.0f, 0.0f);
                         g_object_unref(file);
                     }
                 }
@@ -1593,7 +1593,7 @@ static void _standard_view_new_files(StandardView *standard_view,
     /* when performing dnd between 2 views, we force a reload on the source as well */
     source_view = g_object_get_data(G_OBJECT(standard_view), I_("source-view"));
     if (THUNAR_IS_VIEW(source_view))
-        thunar_view_reload(BASEVIEW(source_view), FALSE);
+        baseview_reload(BASEVIEW(source_view), FALSE);
 }
 
 static GClosure* _standard_view_new_files_closure(StandardView *standard_view,
@@ -1695,7 +1695,7 @@ static void standard_view_scroll_to_file(BaseView *view,
     }
 
     /* check if we're still loading */
-    if (thunar_view_get_loading(view))
+    if (baseview_get_loading(view))
     {
         /* remember a reference for the new file and settings */
         standard_view->priv->scroll_to_file = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
@@ -2040,7 +2040,7 @@ static gboolean _standard_view_scroll_event(
         && (scrolling_direction == GDK_SCROLL_UP
             || scrolling_direction == GDK_SCROLL_DOWN))
     {
-        thunar_view_set_zoom_level(BASEVIEW(standard_view),
+        baseview_set_zoom_level(BASEVIEW(standard_view),
                                    (scrolling_direction == GDK_SCROLL_UP)
                                     ? MIN(standard_view->priv->zoom_level + 1, THUNAR_ZOOM_N_LEVELS - 1)
                                     : MAX(standard_view->priv->zoom_level, 1) - 1);
@@ -2081,7 +2081,7 @@ static void _standard_view_scrolled(GtkAdjustment      *adjustment,
     thunar_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* ignore adjustment changes when the view is still loading */
-    if (thunar_view_get_loading(BASEVIEW(standard_view)))
+    if (baseview_get_loading(BASEVIEW(standard_view)))
         return;
 }
 
@@ -2234,7 +2234,7 @@ static void _standard_view_size_allocate(StandardView *standard_view,
     thunar_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* ignore size changes when the view is still loading */
-    if (thunar_view_get_loading(BASEVIEW(standard_view)))
+    if (baseview_get_loading(BASEVIEW(standard_view)))
         return;
 }
 

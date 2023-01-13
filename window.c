@@ -691,7 +691,7 @@ static void _window_select_files(ThunarWindow *window,
         thunar_files = g_list_append(thunar_files, th_file_get(G_FILE(lp->data), NULL));
     }
 
-    thunar_view_set_selected_files(BASEVIEW(window->view), thunar_files);
+    baseview_set_selected_files(BASEVIEW(window->view), thunar_files);
     g_list_free_full(thunar_files, g_object_unref);
 }
 
@@ -829,7 +829,7 @@ static gboolean window_reload(ThunarWindow *window,
     /* force the view to reload */
     if (G_LIKELY(window->view != NULL))
     {
-        thunar_view_reload(BASEVIEW(window->view), reload_info);
+        baseview_reload(BASEVIEW(window->view), reload_info);
         return TRUE;
     }
 
@@ -1127,7 +1127,7 @@ static GtkWidget* _window_notebook_insert(ThunarWindow  *window,
 
     /* allocate and setup a new view */
     view = g_object_new(view_type, "current-directory", directory, NULL);
-    thunar_view_set_show_hidden(BASEVIEW(view), window->show_hidden);
+    baseview_set_show_hidden(BASEVIEW(view), window->show_hidden);
     gtk_widget_show(view);
 
     /* set the history of the view if a history is provided */
@@ -1367,7 +1367,7 @@ static void _window_create_view(ThunarWindow *window,
 
     /* scroll to the previously visible file in the old view */
     if (G_UNLIKELY(file != NULL))
-        thunar_view_scroll_to_file(BASEVIEW(new_view), file, FALSE, TRUE, 0.0f, 0.0f);
+        baseview_scroll_to_file(BASEVIEW(new_view), file, FALSE, TRUE, 0.0f, 0.0f);
 
     /* restore the file selection */
     thunar_component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
@@ -1489,7 +1489,7 @@ static void _window_action_show_hidden(ThunarWindow *window)
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
     window->show_hidden = !window->show_hidden;
-    gtk_container_foreach(GTK_CONTAINER(window->notebook),(GtkCallback)(void(*)(void)) thunar_view_set_show_hidden, GINT_TO_POINTER(window->show_hidden));
+    gtk_container_foreach(GTK_CONTAINER(window->notebook),(GtkCallback)(void(*)(void)) baseview_set_show_hidden, GINT_TO_POINTER(window->show_hidden));
 
     if (G_LIKELY(window->sidepane != NULL))
         sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
@@ -1573,7 +1573,7 @@ static void _window_notify_loading(BaseView   *view,
             && window->view == GTK_WIDGET(view))
     {
         /* setup the proper cursor */
-        if (thunar_view_get_loading(view))
+        if (baseview_get_loading(view))
         {
             cursor = gdk_cursor_new_for_display(gtk_widget_get_display(GTK_WIDGET(view)), GDK_WATCH);
             gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), cursor);
@@ -1772,7 +1772,7 @@ void window_scroll_to_file(ThunarWindow *window,
 
     /* verify that we have a valid view */
     if (G_LIKELY(window->view != NULL))
-        thunar_view_scroll_to_file(BASEVIEW(window->view), file, select_file, use_align, row_align, col_align);
+        baseview_scroll_to_file(BASEVIEW(window->view), file, select_file, use_align, row_align, col_align);
 }
 
 gchar** window_get_directories(ThunarWindow *window,
