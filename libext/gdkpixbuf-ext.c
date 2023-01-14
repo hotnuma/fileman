@@ -91,7 +91,7 @@ static void _size_prepared(GdkPixbufLoader *loader, gint width, gint height,
  *
  * Since: 0.3.1.3
  **/
-GdkPixbuf* egdk_pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
+GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
 {
   GdkPixbuf *dst;
   gboolean   has_alpha;
@@ -211,7 +211,7 @@ GdkPixbuf* egdk_pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
  *
  * Since: 0.3.1.9
  **/
-GdkPixbuf* egdk_pixbuf_frame(const GdkPixbuf *source,
+GdkPixbuf* pixbuf_frame(const GdkPixbuf *source,
                              const GdkPixbuf *frame,
                              gint            left_offset,
                              gint            top_offset,
@@ -324,7 +324,7 @@ static inline void _draw_frame_column(const GdkPixbuf *frame_image,
  *
  * Since: 0.3.1.3
  **/
-GdkPixbuf* egdk_pixbuf_spotlight(const GdkPixbuf *source)
+GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
 {
   GdkPixbuf *dst;
   gboolean   has_alpha;
@@ -458,7 +458,7 @@ static inline guchar _lighten_channel(guchar cur_value)
  *
  * Since: 0.3.1.1
  **/
-GdkPixbuf* egdk_pixbuf_scale_down(GdkPixbuf *source,
+GdkPixbuf* pixbuf_scale_down(GdkPixbuf *source,
                                   gboolean  preserve_aspect_ratio,
                                   gint      dest_width,
                                   gint      dest_height)
@@ -525,7 +525,7 @@ GdkPixbuf* egdk_pixbuf_scale_down(GdkPixbuf *source,
  *
  * Since: 0.3.1.9
  **/
-GdkPixbuf* egdk_pixbuf_new_from_file_at_max_size(const gchar *filename,
+GdkPixbuf* pixbuf_new_from_file_at_max_size(const gchar *filename,
                                                  gint        max_width,
                                                  gint        max_height,
                                                  gboolean    preserve_aspect_ratio,

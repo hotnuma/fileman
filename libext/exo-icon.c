@@ -517,7 +517,7 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
   if (G_UNLIKELY (icon_area.width > cell_area->width || icon_area.height > cell_area->height))
     {
       /* scale down to fit */
-      temp = egdk_pixbuf_scale_down (icon, TRUE, cell_area->width * scale_factor, cell_area->height * scale_factor);
+      temp = pixbuf_scale_down (icon, TRUE, cell_area->width * scale_factor, cell_area->height * scale_factor);
       g_object_unref (G_OBJECT (icon));
       icon = temp;
 
@@ -547,14 +547,14 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
               color_gdk.blue = color_rgba->blue * 65535;
               color_gdk.green = color_rgba->green * 65535;
               gdk_rgba_free (color_rgba);
-              temp = egdk_pixbuf_colorize (icon, &color_gdk);
+              temp = pixbuf_colorize (icon, &color_gdk);
               g_object_unref (G_OBJECT (icon));
               icon = temp;
             }
 
           if ((flags & GTK_CELL_RENDERER_PRELIT) != 0)
             {
-              temp = egdk_pixbuf_spotlight (icon);
+              temp = pixbuf_spotlight (icon);
               g_object_unref (G_OBJECT (icon));
               icon = temp;
             }
@@ -573,7 +573,7 @@ exo_cell_renderer_icon_render (GtkCellRenderer     *renderer,
           color_gdk.blue = color_rgba->blue * 65535;
           color_gdk.green = color_rgba->green * 65535;
           gdk_rgba_free (color_rgba);
-          temp = egdk_pixbuf_colorize (icon, &color_gdk);
+          temp = pixbuf_colorize (icon, &color_gdk);
 
           g_object_unref (G_OBJECT (icon));
           icon = temp;
