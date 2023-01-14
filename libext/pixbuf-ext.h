@@ -19,8 +19,8 @@
  * MA 02110-1301 USA
  */
 
-#ifndef __PIXBUF_H__
-#define __PIXBUF_H__
+#ifndef __PIXBUF_EXT_H__
+#define __PIXBUF_EXT_H__
 
 #include <gdk/gdk.h>
 
@@ -40,6 +40,6 @@ GdkPixbuf* pixbuf_scale_down(GdkPixbuf *source,
 
 G_END_DECLS
 
-#endif // __PIXBUF_H__
+#endif // __PIXBUF_EXT_H__
 
 

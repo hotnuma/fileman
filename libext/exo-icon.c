@@ -23,7 +23,7 @@
 
 #include <gio/gio.h>
 
-#include <gdkpixbuf-ext.h>
+#include <pixbuf-ext.h>
 
 /**
  * SECTION: exo-cell-renderer-icon
