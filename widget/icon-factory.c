@@ -390,30 +390,30 @@ static inline gboolean thumbnail_needs_frame(const GdkPixbuf *thumbnail,
     return TRUE;
 }
 
-static GdkPixbuf* thunar_icon_factory_get_thumbnail_frame()
-{
-    GInputStream *stream;
-    static GdkPixbuf *frame = NULL;
+//static GdkPixbuf* thunar_icon_factory_get_thumbnail_frame()
+//{
+//    GInputStream *stream;
+//    static GdkPixbuf *frame = NULL;
 
-    if (G_LIKELY(frame != NULL))
-        return frame;
+//    if (G_LIKELY(frame != NULL))
+//        return frame;
 
-    stream = g_resources_open_stream("/org/xfce/thunar/thumbnail-frame.png", 0, NULL);
-    if (G_UNLIKELY(stream != NULL))
-    {
-        frame = gdk_pixbuf_new_from_stream(stream, NULL, NULL);
-        g_object_unref(stream);
-    }
+//    stream = g_resources_open_stream("/org/xfce/thunar/thumbnail-frame.png", 0, NULL);
+//    if (G_UNLIKELY(stream != NULL))
+//    {
+//        frame = gdk_pixbuf_new_from_stream(stream, NULL, NULL);
+//        g_object_unref(stream);
+//    }
 
-    return frame;
-}
+//    return frame;
+//}
 
 static GdkPixbuf* thunar_icon_factory_load_from_file(ThunarIconFactory *factory,
                                                      const gchar       *path,
                                                      gint               size)
 {
     GdkPixbuf *pixbuf;
-    GdkPixbuf *frame;
+    //GdkPixbuf *frame;
     GdkPixbuf *tmp;
     gboolean   needs_frame;
     gint       max_width;
@@ -432,20 +432,24 @@ static GdkPixbuf* thunar_icon_factory_load_from_file(ThunarIconFactory *factory,
         height = gdk_pixbuf_get_height(pixbuf);
 
         needs_frame = FALSE;
-        if (factory->thumbnail_draw_frames)
-        {
-            /* check if we want to add a frame to the image(we really don't
-             * want to do this for icons displayed in the details view).
-             * */
-            needs_frame =(strstr(path, G_DIR_SEPARATOR_S ".cache/thumbnails" G_DIR_SEPARATOR_S) != NULL)
-                          &&(size >= 32) && thumbnail_needs_frame(pixbuf, width, height, size);
-        }
+
+        //if (factory->thumbnail_draw_frames)
+        //{
+        //    /* check if we want to add a frame to the image(we really don't
+        //     * want to do this for icons displayed in the details view).
+        //     * */
+        //    needs_frame =
+        //        (strstr(path,
+        //        G_DIR_SEPARATOR_S ".cache/thumbnails" G_DIR_SEPARATOR_S) != NULL)
+        //        && (size >= 32)
+        //        && thumbnail_needs_frame(pixbuf, width, height, size);
+        //}
 
         /* be sure to make framed thumbnails fit into the size */
         if (G_LIKELY(needs_frame))
         {
-            max_width = size -(3 + 6);
-            max_height = size -(3 + 6);
+            max_width = size - (3 + 6);
+            max_height = size - (3 + 6);
         }
         else
         {
@@ -463,14 +467,14 @@ static GdkPixbuf* thunar_icon_factory_load_from_file(ThunarIconFactory *factory,
         }
 
         /* add a frame around thumbnail(large) images */
-        if (G_LIKELY(needs_frame))
-        {
-            /* add a frame to the thumbnail */
-            frame = thunar_icon_factory_get_thumbnail_frame();
-            tmp = pixbuf_frame(pixbuf, frame, 4, 3, 5, 6);
-            g_object_unref(G_OBJECT(pixbuf));
-            pixbuf = tmp;
-        }
+        //if (G_LIKELY(needs_frame))
+        //{
+        //    /* add a frame to the thumbnail */
+        //    frame = thunar_icon_factory_get_thumbnail_frame();
+        //    tmp = pixbuf_frame(pixbuf, frame, 4, 3, 5, 6);
+        //    g_object_unref(G_OBJECT(pixbuf));
+        //    pixbuf = tmp;
+        //}
     }
 
     return pixbuf;

@@ -1,6 +1,405 @@
 
 #if 0
 
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <mmintrin.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/* required for GdkPixbufFormat */
+#ifndef GDK_PIXBUF_ENABLE_BACKEND
+#define GDK_PIXBUF_ENABLE_BACKEND
+#endif
+
+/* _O_BINARY is required on some platforms */
+#ifndef _O_BINARY
+#define _O_BINARY 0
+#endif
+
+#define g_open(path, mode, flags)(open((path),(mode),(flags)))
+
+typedef struct
+{
+  gint     max_width;
+  gint     max_height;
+  gboolean preserve_aspect_ratio;
+
+} SizePreparedInfo;
+
+static void _size_prepared(GdkPixbufLoader *loader, gint width, gint height,
+                           SizePreparedInfo *info);
+
+/**
+ * egdk_pixbuf_new_from_file_at_max_size:
+ * @filename              : name of the file to load, in the GLib file
+ *                          name encoding.
+ * @max_width             : the maximum width of the loaded image.
+ * @max_height            : the maximum height of the loaded image.
+ * @preserve_aspect_ratio : %TRUE to preserve the image's aspect ratio
+ *                          while scaling to fit into @max_width and @max_height.
+ * @error                 : return location for errors or %NULL.
+ *
+ * Creates a new #GdkPixbuf by loading an image from the file at
+ * @filename. The file format is detected automatically. If %NULL is
+ * returned, then @error will be set. Possible errors are in the
+ * #GDK_PIXBUF_ERROR and #G_FILE_ERROR domains. If the image dimensions
+ * exceed @max_width or @max_height, the image will be scaled down to
+ * fit into the dimensions, optionally preservingthe image's aspect
+ * ratio. The image may still be larger, depending on the loader.
+ *
+ * The advantage of using this function over
+ * gdk_pixbuf_new_from_file_at_scale() is that images will never be
+ * scaled up, whichwould otherwise result in ugly images.
+ *
+ * Returns: a newly created #GdkPixbuf with a reference count or 1, or
+ *          %NULL if any of several error conditions occurred: the file
+ *          could not be opened, there was no loader for the file's format,
+ *          there was not enough memory to allocate the buffer for the
+ *          image, or the image file contained invalid data.
+ *
+ * Since: 0.3.1.9
+ **/
+GdkPixbuf* pixbuf_new_from_file_at_max_size(const gchar *filename,
+                                                 gint        max_width,
+                                                 gint        max_height,
+                                                 gboolean    preserve_aspect_ratio,
+                                                 GError      **error)
+{
+  SizePreparedInfo info;
+  GdkPixbufLoader *loader;
+  struct stat      statb;
+  GdkPixbuf       *pixbuf;
+  guchar          *buffer;
+  gchar           *display_name;
+  gint             sverrno;
+  gint             fd;
+  gint             n;
+
+  g_return_val_if_fail(error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail(filename != NULL, NULL);
+  g_return_val_if_fail(max_height > 0, NULL);
+  g_return_val_if_fail(max_width > 0, NULL);
+
+  /* try to open the file for reading */
+  fd = g_open(filename, _O_BINARY | O_RDONLY, 0000);
+  if(G_UNLIKELY(fd < 0))
+    {
+err0: /* remember the errno value */
+      sverrno = errno;
+
+err1: /* initialize the library's i18n support */
+      //_exo_i18n_init();
+
+      /* generate a useful error message */
+      display_name = g_filename_display_name(filename);
+      g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(sverrno), _("Failed to open file \"%s\": %s"), display_name, g_strerror(sverrno));
+      g_free(display_name);
+
+      if(fd >= 0)
+        {
+          close(fd);
+        }
+
+      return NULL;
+    }
+
+  /* try to stat the file */
+  if(fstat(fd, &statb) < 0)
+    goto err0;
+
+  /* verify that we have a regular file here */
+  if(!S_ISREG(statb.st_mode))
+    {
+      sverrno = EINVAL;
+      goto err1;
+    }
+
+  /* setup the size-prepared info */
+  info.max_width = max_width;
+  info.max_height = max_height;
+  info.preserve_aspect_ratio = preserve_aspect_ratio;
+
+  /* allocate a new pixbuf loader */
+  loader = gdk_pixbuf_loader_new();
+  g_signal_connect(G_OBJECT(loader), "size-prepared", G_CALLBACK(_size_prepared), &info);
+
+#ifdef HAVE_MMAP
+  /* try to mmap() the file it's not too large */
+  buffer = mmap(NULL, statb.st_size, PROT_READ, MAP_SHARED, fd, 0);
+  if(G_LIKELY(buffer != MAP_FAILED))
+    {
+      /* feed the data into the loader */
+      if(!gdk_pixbuf_loader_write(loader, buffer, statb.st_size, error))
+        {
+          /* something went wrong */
+          munmap(buffer, statb.st_size);
+          goto err2;
+        }
+
+      /* unmap the file */
+      munmap(buffer, statb.st_size);
+    }
+  else
+#endif
+    {
+      /* allocate the read buffer */
+      buffer = g_newa(guchar, 8192);
+
+      /* read the file content */
+      for(;;)
+        {
+          /* read the next chunk */
+          n = read(fd, buffer, 8192);
+          if(G_UNLIKELY(n < 0))
+            {
+              /* remember the errno value */
+              sverrno = errno;
+
+              /* initialize the library's i18n support */
+              //_exo_i18n_init();
+
+              /* generate a useful error message */
+              display_name = g_filename_display_name(filename);
+              g_set_error(error, G_FILE_ERROR, g_file_error_from_errno(sverrno), _("Failed to read file \"%s\": %s"), display_name, g_strerror(sverrno));
+              g_free(display_name);
+
+              /* close the loader and the file */
+err2:         gdk_pixbuf_loader_close(loader, NULL);
+              close(fd);
+              goto err3;
+            }
+          else if(n == 0)
+            {
+              /* file read completely */
+              break;
+            }
+
+          /* feed the data into the loader */
+          if(!gdk_pixbuf_loader_write(loader, buffer, n, error))
+            goto err2;
+        }
+    }
+
+  /* close the file */
+  close(fd);
+
+  /* finalize the loader */
+  if(!gdk_pixbuf_loader_close(loader, error))
+    {
+err3: /* we failed for some reason */
+      g_object_unref(G_OBJECT(loader));
+      return NULL;
+    }
+
+  /* check if we have a pixbuf now */
+  pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+  if(G_UNLIKELY(pixbuf == NULL))
+    {
+      /* initialize the library's i18n support */
+      //_exo_i18n_init();
+
+      /* generate a useful error message */
+      display_name = g_filename_display_name(filename);
+      g_set_error(error, GDK_PIXBUF_ERROR, GDK_PIXBUF_ERROR_FAILED,
+                   _("Failed to load image \"%s\": Unknown reason, probably a corrupt image file"),
+                   display_name);
+      g_free(display_name);
+    }
+  else
+    {
+      /* take a reference for the caller */
+      g_object_ref(G_OBJECT(pixbuf));
+    }
+
+  /* release the loader */
+  g_object_unref(G_OBJECT(loader));
+
+  return pixbuf;
+}
+
+static void _size_prepared(GdkPixbufLoader *loader, gint width, gint height,
+                           SizePreparedInfo *info)
+{
+  gboolean scalable;
+  gdouble  wratio;
+  gdouble  hratio;
+
+  /* check if the loader format is scalable */
+  scalable =((gdk_pixbuf_loader_get_format(loader)->flags & GDK_PIXBUF_FORMAT_SCALABLE) != 0);
+
+  /* check if we need to scale down(scalable formats are special) */
+  if(scalable || width > info->max_width || height > info->max_height)
+    {
+      if(G_LIKELY(info->preserve_aspect_ratio))
+        {
+          /* calculate the new dimensions */
+          wratio =(gdouble) width /(gdouble) info->max_width;
+          hratio =(gdouble) height /(gdouble) info->max_height;
+
+          if(hratio > wratio)
+            {
+              width = rint(width / hratio);
+              height = info->max_height;
+            }
+          else
+            {
+              width = info->max_width;
+              height = rint(height / wratio);
+            }
+        }
+      else
+        {
+          /* just scale down to the dimension(scalable is special) */
+          if(scalable || width > info->max_width)
+            width = info->max_width;
+          if(scalable || height > info->max_height)
+            height = info->max_height;
+        }
+    }
+
+  /* apply the new dimensions */
+  gdk_pixbuf_loader_set_size(loader, MAX(width, 1), MAX(height, 1));
+}
+
+GdkPixbuf* pixbuf_new_from_file_at_max_size(
+                                    const gchar *filename,
+                                    gint        max_width,
+                                    gint        max_height,
+                                    gboolean    preserve_aspect_ratio,
+                                    GError      **error)
+                                    G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+
+GdkPixbuf* pixbuf_frame(const GdkPixbuf *source, const GdkPixbuf *frame,
+                        gint left_offset, gint top_offset,
+                        gint right_offset, gint bottom_offset)
+                        G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+
+static inline void _draw_frame_row(const GdkPixbuf *frame_image,
+                                   gint            target_width,
+                                   gint            source_width,
+                                   gint            source_v_position,
+                                   gint            dest_v_position,
+                                   GdkPixbuf       *result_pixbuf,
+                                   gint            left_offset,
+                                   gint            height);
+
+static inline void _draw_frame_column(const GdkPixbuf *frame_image,
+                                      gint            target_height,
+                                      gint            source_height,
+                                      gint            source_h_position,
+                                      gint            dest_h_position,
+                                      GdkPixbuf       *result_pixbuf,
+                                      gint            top_offset,
+                                      gint            width);
+
+GdkPixbuf* pixbuf_frame(const GdkPixbuf *source,
+                             const GdkPixbuf *frame,
+                             gint            left_offset,
+                             gint            top_offset,
+                             gint            right_offset,
+                             gint            bottom_offset)
+{
+  // g_object_unref
+
+    GdkPixbuf *dst;
+  gint       dst_width;
+  gint       dst_height;
+  gint       frame_width;
+  gint       frame_height;
+  gint       src_width;
+  gint       src_height;
+
+  g_return_val_if_fail(GDK_IS_PIXBUF(frame), NULL);
+  g_return_val_if_fail(GDK_IS_PIXBUF(source), NULL);
+
+  src_width = gdk_pixbuf_get_width(source);
+  src_height = gdk_pixbuf_get_height(source);
+
+  frame_width = gdk_pixbuf_get_width(frame);
+  frame_height = gdk_pixbuf_get_height(frame);
+
+  dst_width = src_width + left_offset + right_offset;
+  dst_height = src_height + top_offset + bottom_offset;
+
+  /* allocate the resulting pixbuf */
+  dst = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, dst_width, dst_height);
+
+  /* fill the destination if the source has an alpha channel */
+  if(G_UNLIKELY(gdk_pixbuf_get_has_alpha(source)))
+    gdk_pixbuf_fill(dst, 0xffffffff);
+
+  /* draw the left top cornder and top row */
+  gdk_pixbuf_copy_area(frame, 0, 0, left_offset, top_offset, dst, 0, 0);
+  _draw_frame_row(frame, src_width, frame_width - left_offset - right_offset, 0, 0, dst, left_offset, top_offset);
+
+  /* draw the right top corner and left column */
+  gdk_pixbuf_copy_area(frame, frame_width - right_offset, 0, right_offset, top_offset, dst, dst_width - right_offset, 0);
+  _draw_frame_column(frame, src_height, frame_height - top_offset - bottom_offset, 0, 0, dst, top_offset, left_offset);
+
+  /* draw the bottom right corner and bottom row */
+  gdk_pixbuf_copy_area(frame, frame_width - right_offset, frame_height - bottom_offset, right_offset,
+                        bottom_offset, dst, dst_width - right_offset, dst_height - bottom_offset);
+  _draw_frame_row(frame, src_width, frame_width - left_offset - right_offset, frame_height - bottom_offset,
+                  dst_height - bottom_offset, dst, left_offset, bottom_offset);
+
+  /* draw the bottom left corner and the right column */
+  gdk_pixbuf_copy_area(frame, 0, frame_height - bottom_offset, left_offset, bottom_offset, dst, 0, dst_height - bottom_offset);
+  _draw_frame_column(frame, src_height, frame_height - top_offset - bottom_offset, frame_width - right_offset,
+                     dst_width - right_offset, dst, top_offset, right_offset);
+
+  /* copy the source pixbuf into the framed area */
+  gdk_pixbuf_copy_area(source, 0, 0, src_width, src_height, dst, left_offset, top_offset);
+
+  return dst;
+}
+
+static inline void _draw_frame_row(const GdkPixbuf *frame_image,
+                                   gint            target_width,
+                                   gint            source_width,
+                                   gint            source_v_position,
+                                   gint            dest_v_position,
+                                   GdkPixbuf       *result_pixbuf,
+                                   gint            left_offset,
+                                   gint            height)
+{
+  gint remaining_width;
+  gint slab_width;
+  gint h_offset;
+
+  for(h_offset = 0, remaining_width = target_width; remaining_width > 0; h_offset += slab_width, remaining_width -= slab_width)
+    {
+      slab_width =(remaining_width > source_width) ? source_width : remaining_width;
+      gdk_pixbuf_copy_area(frame_image, left_offset, source_v_position, slab_width, height, result_pixbuf, left_offset + h_offset, dest_v_position);
+    }
+}
+
+static inline void _draw_frame_column(const GdkPixbuf *frame_image,
+                                      gint            target_height,
+                                      gint            source_height,
+                                      gint            source_h_position,
+                                      gint            dest_h_position,
+                                      GdkPixbuf       *result_pixbuf,
+                                      gint            top_offset,
+                                      gint            width)
+{
+  gint remaining_height;
+  gint slab_height;
+  gint v_offset;
+
+  for(v_offset = 0, remaining_height = target_height; remaining_height > 0; v_offset += slab_height, remaining_height -= slab_height)
+    {
+      slab_height =(remaining_height > source_height) ? source_height : remaining_height;
+      gdk_pixbuf_copy_area(frame_image, source_h_position, top_offset, width, slab_height, result_pixbuf, dest_h_position, top_offset + v_offset);
+    }
+}
+
+
+// ----------------------------------------------------------------------------
+
 static void thunar_column_model_notify_column_order(void *preferences,
                                                     GParamSpec *pspec,
                                                     ColumnModel *column_model);
