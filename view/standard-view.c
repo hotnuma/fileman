@@ -1032,7 +1032,7 @@ static void standard_view_init(StandardView *standard_view)
                      standard_view);
 
     /* setup the icon renderer */
-    standard_view->icon_renderer = thunar_icon_renderer_new();
+    standard_view->icon_renderer = irenderer_new();
     g_object_ref_sink(G_OBJECT(standard_view->icon_renderer));
 
     g_object_bind_property(G_OBJECT(standard_view),

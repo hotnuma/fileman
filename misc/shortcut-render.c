@@ -57,18 +57,18 @@ static void thunar_shortcuts_icon_renderer_render(GtkCellRenderer *renderer,
 
 struct _ThunarShortcutsIconRendererClass
 {
-    ThunarIconRendererClass __parent__;
+    IconRendererClass __parent__;
 };
 
 struct _ThunarShortcutsIconRenderer
 {
-    ThunarIconRenderer  __parent__;
+    IconRenderer  __parent__;
 
     ThunarDevice        *device;
     GIcon               *gicon;
 };
 
-G_DEFINE_TYPE(ThunarShortcutsIconRenderer, thunar_shortcuts_icon_renderer, THUNAR_TYPE_ICON_RENDERER)
+G_DEFINE_TYPE(ThunarShortcutsIconRenderer, thunar_shortcuts_icon_renderer, TYPE_ICONRENDERER)
 
 static void thunar_shortcuts_icon_renderer_class_init(ThunarShortcutsIconRendererClass *klass)
 {
@@ -87,7 +87,7 @@ static void thunar_shortcuts_icon_renderer_class_init(ThunarShortcutsIconRendere
      * ThunarShortcutsIconRenderer:device:
      *
      * The #ThunarDevice for which to render an icon or %NULL to fallback
-     * to the default icon renderering(see #ThunarIconRenderer).
+     * to the default icon renderering(see #IconRenderer).
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_DEVICE,
@@ -98,7 +98,7 @@ static void thunar_shortcuts_icon_renderer_class_init(ThunarShortcutsIconRendere
                                                         E_PARAM_READWRITE));
 
     /**
-     * ThunarIconRenderer:gicon:
+     * IconRenderer:gicon:
      *
      * The GIcon to render, this property has preference over the the icon returned
      * by the ThunarFile property.

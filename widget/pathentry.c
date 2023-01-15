@@ -195,7 +195,7 @@ static void pathentry_init(PathEntry *path_entry)
     g_signal_connect(G_OBJECT(completion), "match-selected", G_CALLBACK(_pathentry_match_selected), path_entry);
 
     /* add the icon renderer to the entry completion */
-    renderer = g_object_new(THUNAR_TYPE_ICON_RENDERER, "size", 16, NULL);
+    renderer = g_object_new(TYPE_ICONRENDERER, "size", 16, NULL);
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(completion), renderer, FALSE);
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion), renderer, "file", THUNAR_COLUMN_FILE);
 

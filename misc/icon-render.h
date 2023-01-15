@@ -16,30 +16,35 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_ICON_RENDERER_H__
-#define __THUNAR_ICON_RENDERER_H__
+#ifndef __ICONRENDERER_H__
+#define __ICONRENDERER_H__
 
 #include <enum-types.h>
 #include <th-file.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarIconRendererClass ThunarIconRendererClass;
-typedef struct _ThunarIconRenderer      ThunarIconRenderer;
+typedef struct _IconRendererClass IconRendererClass;
+typedef struct _IconRenderer      IconRenderer;
 
-#define THUNAR_TYPE_ICON_RENDERER            (thunar_icon_renderer_get_type())
-#define THUNAR_ICON_RENDERER(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_ICON_RENDERER, ThunarIconRenderer))
-#define THUNAR_ICON_RENDERER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_ICON_RENDERER, ThunarIconRendererClass))
-#define THUNAR_IS_ICON_RENDERER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_ICON_RENDERER))
-#define THUNAR_IS_ICON_RENDERER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_ICON_RENDERER))
-#define THUNAR_ICON_RENDERER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_ICON_RENDERER, ThunarIconRendererClass))
+#define TYPE_ICONRENDERER (irenderer_get_type())
+#define ICONRENDERER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_ICONRENDERER, IconRenderer))
+#define ICONRENDERER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_ICONRENDERER, IconRendererClass))
+#define ICONRENDERER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_ICONRENDERER, IconRendererClass))
+#define IS_ICONRENDERER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_ICONRENDERER))
+#define IS_ICONRENDERER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_ICONRENDERER))
 
-struct _ThunarIconRendererClass
+struct _IconRendererClass
 {
     GtkCellRendererClass __parent__;
 };
 
-struct _ThunarIconRenderer
+struct _IconRenderer
 {
     GtkCellRenderer __parent__;
 
@@ -50,12 +55,12 @@ struct _ThunarIconRenderer
     ThunarIconSize  size;
 };
 
-GType thunar_icon_renderer_get_type() G_GNUC_CONST;
+GType irenderer_get_type() G_GNUC_CONST;
 
-GtkCellRenderer* thunar_icon_renderer_new() G_GNUC_MALLOC;
+GtkCellRenderer* irenderer_new() G_GNUC_MALLOC;
 
 G_END_DECLS
 
-#endif /* !__THUNAR_ICON_RENDERER_H__ */
+#endif // __ICONRENDERER_H__
 
 

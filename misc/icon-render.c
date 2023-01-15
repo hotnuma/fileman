@@ -37,76 +37,74 @@ enum
     PROP_SIZE,
 };
 
-static void thunar_icon_renderer_finalize(GObject *object);
-static void thunar_icon_renderer_get_property(GObject *object,
-                                              guint prop_id,
-                                              GValue *value,
-                                              GParamSpec *pspec);
-static void thunar_icon_renderer_set_property(GObject *object,
-                                              guint prop_id,
-                                              const GValue *value,
-                                              GParamSpec *pspec);
-static void thunar_icon_renderer_get_preferred_width(GtkCellRenderer *renderer,
-                                                     GtkWidget *widget,
-                                                     gint *minimum,
-                                                     gint *natural);
-static void thunar_icon_renderer_get_preferred_height(GtkCellRenderer *renderer,
-                                                      GtkWidget *widget,
-                                                      gint *minimum,
-                                                      gint *natural);
-static void thunar_icon_renderer_render(GtkCellRenderer *renderer,
-                                        cairo_t *cr,
-                                        GtkWidget *widget,
-                                        const GdkRectangle *background_area,
-                                        const GdkRectangle *cell_area,
-                                        GtkCellRendererState flags);
+static void irenderer_finalize(GObject *object);
+static void irenderer_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec);
+static void irenderer_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec);
+static void irenderer_get_preferred_width(GtkCellRenderer *renderer,
+                                          GtkWidget *widget,
+                                          gint *minimum,
+                                          gint *natural);
+static void irenderer_get_preferred_height(GtkCellRenderer *renderer,
+                                           GtkWidget *widget,
+                                           gint *minimum,
+                                           gint *natural);
+static void irenderer_render(GtkCellRenderer *renderer,
+                             cairo_t *cr,
+                             GtkWidget *widget,
+                             const GdkRectangle *background_area,
+                             const GdkRectangle *cell_area,
+                             GtkCellRendererState flags);
 
-G_DEFINE_TYPE(ThunarIconRenderer, thunar_icon_renderer, GTK_TYPE_CELL_RENDERER)
+G_DEFINE_TYPE(IconRenderer, irenderer, GTK_TYPE_CELL_RENDERER)
 
-static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
+static void irenderer_class_init(IconRendererClass *klass)
 {
     GtkCellRendererClass *gtkcell_renderer_class;
     GObjectClass         *gobject_class;
 
     gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_icon_renderer_finalize;
-    gobject_class->get_property = thunar_icon_renderer_get_property;
-    gobject_class->set_property = thunar_icon_renderer_set_property;
+    gobject_class->finalize = irenderer_finalize;
+    gobject_class->get_property = irenderer_get_property;
+    gobject_class->set_property = irenderer_set_property;
 
     gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
-    gtkcell_renderer_class->get_preferred_width = thunar_icon_renderer_get_preferred_width;
-    gtkcell_renderer_class->get_preferred_height = thunar_icon_renderer_get_preferred_height;
-    gtkcell_renderer_class->render = thunar_icon_renderer_render;
+    gtkcell_renderer_class->get_preferred_width = irenderer_get_preferred_width;
+    gtkcell_renderer_class->get_preferred_height = irenderer_get_preferred_height;
+    gtkcell_renderer_class->render = irenderer_render;
 
     /**
-     * ThunarIconRenderer:drop-file:
+     * IconRenderer:drop-file:
      *
      * The file which should be rendered in the drop
      * accept state.
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_DROP_FILE,
-                                    g_param_spec_object("drop-file",
-                                                        "drop-file",
-                                                        "drop-file",
-                                                        THUNAR_TYPE_FILE,
-                                                        E_PARAM_READWRITE));
+                                    g_param_spec_object(
+                                        "drop-file",
+                                        "drop-file",
+                                        "drop-file",
+                                        THUNAR_TYPE_FILE,
+                                        E_PARAM_READWRITE));
 
     /**
-     * ThunarIconRenderer:file:
+     * IconRenderer:file:
      *
      * The file whose icon to render.
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_FILE,
-                                    g_param_spec_object("file",
-                                                        "file",
-                                                        "file",
-                                                        THUNAR_TYPE_FILE,
-                                                        E_PARAM_READWRITE));
+                                    g_param_spec_object(
+                                        "file",
+                                        "file",
+                                        "file",
+                                        THUNAR_TYPE_FILE,
+                                        E_PARAM_READWRITE));
 
     /**
-     * ThunarIconRenderer:emblems:
+     * IconRenderer:emblems:
      *
      * Specifies whether to render emblems in addition to the file icons.
      **/
@@ -120,7 +118,7 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                         G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
 
     /**
-     * ThunarIconRenderer:follow-state:
+     * IconRenderer:follow-state:
      *
      * Specifies whether the icon renderer should render icons
      * based on the selection state of the items. This is necessary
@@ -129,17 +127,18 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_FOLLOW_STATE,
-                                    g_param_spec_boolean("follow-state",
-                                                         "follow-state",
-                                                         "follow-state",
-                                                         FALSE,
-                                                         E_PARAM_READWRITE));
+                                    g_param_spec_boolean(
+                                        "follow-state",
+                                        "follow-state",
+                                        "follow-state",
+                                        FALSE,
+                                        E_PARAM_READWRITE));
 
     /**
-     * ThunarIconRenderer:size:
+     * IconRenderer:size:
      *
      * The size at which icons should be rendered by this
-     * #ThunarIconRenderer instance.
+     * #IconRenderer instance.
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_SIZE,
@@ -152,15 +151,15 @@ static void thunar_icon_renderer_class_init(ThunarIconRendererClass *klass)
                                         G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
 }
 
-static void thunar_icon_renderer_init(ThunarIconRenderer *icon_renderer)
+static void irenderer_init(IconRenderer *icon_renderer)
 {
     /* use 1px padding */
     gtk_cell_renderer_set_padding(GTK_CELL_RENDERER(icon_renderer), 1, 1);
 }
 
-static void thunar_icon_renderer_finalize(GObject *object)
+static void irenderer_finalize(GObject *object)
 {
-    ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER(object);
+    IconRenderer *icon_renderer = ICONRENDERER(object);
 
     /* free the icon data */
     if (G_UNLIKELY(icon_renderer->drop_file != NULL))
@@ -168,17 +167,15 @@ static void thunar_icon_renderer_finalize(GObject *object)
     if (G_LIKELY(icon_renderer->file != NULL))
         g_object_unref(G_OBJECT(icon_renderer->file));
 
-    (*G_OBJECT_CLASS(thunar_icon_renderer_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(irenderer_parent_class)->finalize(object);
 }
 
-static void thunar_icon_renderer_get_property(GObject    *object,
-                                              guint       prop_id,
-                                              GValue     *value,
-                                              GParamSpec *pspec)
+static void irenderer_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
-    ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER(object);
+    IconRenderer *icon_renderer = ICONRENDERER(object);
 
     switch (prop_id)
     {
@@ -208,14 +205,12 @@ static void thunar_icon_renderer_get_property(GObject    *object,
     }
 }
 
-static void thunar_icon_renderer_set_property(GObject      *object,
-                                              guint         prop_id,
-                                              const GValue *value,
-                                              GParamSpec   *pspec)
+static void irenderer_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
-    ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER(object);
+    IconRenderer *icon_renderer = ICONRENDERER(object);
 
     switch (prop_id)
     {
@@ -249,14 +244,14 @@ static void thunar_icon_renderer_set_property(GObject      *object,
     }
 }
 
-static void thunar_icon_renderer_get_preferred_width(GtkCellRenderer *renderer,
-                                                     GtkWidget       *widget,
-                                                     gint            *minimum,
-                                                     gint            *natural)
+static void irenderer_get_preferred_width(GtkCellRenderer *renderer,
+                                          GtkWidget       *widget,
+                                          gint            *minimum,
+                                          gint            *natural)
 {
     UNUSED(widget);
 
-    ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER(renderer);
+    IconRenderer *icon_renderer = ICONRENDERER(renderer);
     int xpad;
 
     gtk_cell_renderer_get_padding(renderer, &xpad, NULL);
@@ -265,14 +260,14 @@ static void thunar_icon_renderer_get_preferred_width(GtkCellRenderer *renderer,
     if (G_LIKELY(natural)) *natural =(gint) xpad * 2 + icon_renderer->size;
 }
 
-static void thunar_icon_renderer_get_preferred_height(GtkCellRenderer *renderer,
-                                                      GtkWidget       *widget,
-                                                      gint            *minimum,
-                                                      gint            *natural)
+static void irenderer_get_preferred_height(GtkCellRenderer *renderer,
+                                           GtkWidget       *widget,
+                                           gint            *minimum,
+                                           gint            *natural)
 {
     UNUSED(widget);
 
-    ThunarIconRenderer *icon_renderer = THUNAR_ICON_RENDERER(renderer);
+    IconRenderer *icon_renderer = ICONRENDERER(renderer);
     int ypad;
 
     gtk_cell_renderer_get_padding(renderer, NULL, &ypad);
@@ -281,7 +276,7 @@ static void thunar_icon_renderer_get_preferred_height(GtkCellRenderer *renderer,
     if (G_LIKELY(natural)) *natural =(gint) ypad * 2 + icon_renderer->size;
 }
 
-static void thunar_icon_renderer_color_insensitive(cairo_t *cr, GtkWidget *widget)
+static void _irenderer_color_insensitive(cairo_t *cr, GtkWidget *widget)
 {
     cairo_pattern_t *source;
     GdkRGBA          *color;
@@ -301,11 +296,11 @@ static void thunar_icon_renderer_color_insensitive(cairo_t *cr, GtkWidget *widge
     cairo_restore(cr);
 }
 
-static void thunar_icon_renderer_color_selected(cairo_t *cr, GtkWidget *widget)
+static void _irenderer_color_selected(cairo_t *cr, GtkWidget *widget)
 {
     cairo_pattern_t *source;
-    GtkStateFlags    state;
-    GdkRGBA          *color;
+    GtkStateFlags   state;
+    GdkRGBA         *color;
     GtkStyleContext *context = gtk_widget_get_style_context(widget);
 
     cairo_save(cr);
@@ -323,7 +318,7 @@ static void thunar_icon_renderer_color_selected(cairo_t *cr, GtkWidget *widget)
     cairo_restore(cr);
 }
 
-static void thunar_icon_renderer_color_lighten(cairo_t *cr, GtkWidget *widget)
+static void _irenderer_color_lighten(cairo_t *cr, GtkWidget *widget)
 {
     UNUSED(widget);
 
@@ -341,18 +336,18 @@ static void thunar_icon_renderer_color_lighten(cairo_t *cr, GtkWidget *widget)
     cairo_restore(cr);
 }
 
-static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
-                                        cairo_t              *cr,
-                                        GtkWidget            *widget,
-                                        const GdkRectangle   *background_area,
-                                        const GdkRectangle   *cell_area,
-                                        GtkCellRendererState flags)
+static void irenderer_render(GtkCellRenderer      *renderer,
+                             cairo_t              *cr,
+                             GtkWidget            *widget,
+                             const GdkRectangle   *background_area,
+                             const GdkRectangle   *cell_area,
+                             GtkCellRendererState flags)
 {
     UNUSED(background_area);
 
     ClipboardManager *clipboard;
     ThunarFileIconState     icon_state;
-    ThunarIconRenderer     *icon_renderer = THUNAR_ICON_RENDERER(renderer);
+    IconRenderer     *icon_renderer = ICONRENDERER(renderer);
     IconFactory      *icon_factory;
     GtkIconTheme           *icon_theme;
     GdkRectangle            icon_area;
@@ -363,14 +358,6 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
     gboolean                color_selected;
     gboolean                color_lighten;
     gboolean                is_expanded;
-
-    //GdkRectangle            emblem_area;
-    //GdkPixbuf              *emblem;
-    //GList                  *emblems;
-    //GList                  *lp;
-    //gint                    max_emblems;
-    //gint                    position;
-    //gint                    emblem_size;
 
     if (G_UNLIKELY(icon_renderer->file == NULL))
         return;
@@ -422,8 +409,8 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
     icon_area.y = cell_area->y +(cell_area->height - icon_area.height) / 2;
 
     /* bools for cairo transformations */
-    color_selected =(flags & GTK_CELL_RENDERER_SELECTED) != 0 && icon_renderer->follow_state;
-    color_lighten =(flags & GTK_CELL_RENDERER_PRELIT) != 0 && icon_renderer->follow_state;
+    color_selected = (flags & GTK_CELL_RENDERER_SELECTED) != 0 && icon_renderer->follow_state;
+    color_lighten = (flags & GTK_CELL_RENDERER_PRELIT) != 0 && icon_renderer->follow_state;
 
     /* check whether the icon is affected by the expose event */
     if (gdk_rectangle_intersect(&clip_area, &icon_area, NULL))
@@ -444,6 +431,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
         {
             alpha = 1.00;
         }
+
         g_object_unref(G_OBJECT(clipboard));
 
         /* render the invalid parts of the icon */
@@ -452,140 +440,27 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
 
         /* check if we should render an insensitive icon */
         if (G_UNLIKELY(gtk_widget_get_state_flags(widget) == GTK_STATE_FLAG_INSENSITIVE || !gtk_cell_renderer_get_sensitive(renderer)))
-            thunar_icon_renderer_color_insensitive(cr,widget);
+            _irenderer_color_insensitive(cr,widget);
 
         /* paint the lighten mask */
         if (color_lighten)
-            thunar_icon_renderer_color_lighten(cr, widget);
+            _irenderer_color_lighten(cr, widget);
 
         /* paint the selected mask */
         if (color_selected)
-            thunar_icon_renderer_color_selected(cr, widget);
+            _irenderer_color_selected(cr, widget);
     }
 
     /* release the file's icon */
     g_object_unref(G_OBJECT(icon));
 
-#if 0
-    /* check if we should render emblems as well */
-    if (G_LIKELY(icon_renderer->emblems))
-    {
-        /* display the primary emblem as well(if any) */
-        emblems = thunar_file_get_emblem_names(icon_renderer->file);
-        if (G_UNLIKELY(emblems != NULL))
-        {
-            /* render up to four emblems for sizes from 48 onwards, else up to 2 emblems */
-            max_emblems =(icon_renderer->size < 48) ? 2 : 4;
-
-            /* render the emblems */
-            for(lp = emblems, position = 0; lp != NULL && position < max_emblems; lp = lp->next)
-            {
-                /* calculate the emblem size */
-                emblem_size = MIN((2 * icon_renderer->size) / 3, 32);
-
-                /* check if we have the emblem in the icon theme */
-                emblem = thunar_icon_factory_load_icon(icon_factory, lp->data, emblem_size, FALSE);
-                if (G_UNLIKELY(emblem == NULL))
-                    continue;
-
-                /* determine the dimensions of the emblem */
-                emblem_area.width = gdk_pixbuf_get_width(emblem);
-                emblem_area.height = gdk_pixbuf_get_height(emblem);
-
-                /* shrink insane emblems */
-                if (G_UNLIKELY(MAX(emblem_area.width, emblem_area.height) > emblem_size))
-                {
-                    /* scale down the emblem */
-                    temp = egdk_pixbuf_scale_ratio(emblem, emblem_size);
-                    g_object_unref(G_OBJECT(emblem));
-                    emblem = temp;
-
-                    /* determine the size again */
-                    emblem_area.width = gdk_pixbuf_get_width(emblem);
-                    emblem_area.height = gdk_pixbuf_get_height(emblem);
-                }
-
-                /* determine a good position for the emblem, depending on the position index */
-                switch(position)
-                {
-                case 0: /* right/bottom */
-                    emblem_area.x = MIN(icon_area.x + icon_area.width - emblem_area.width / 2,
-                                         cell_area->x + cell_area->width - emblem_area.width);
-                    emblem_area.y = MIN(icon_area.y + icon_area.height - emblem_area.height / 2,
-                                         cell_area->y + cell_area->height -emblem_area.height);
-                    break;
-
-                case 1: /* left/bottom */
-                    emblem_area.x = MAX(icon_area.x - emblem_area.width / 2,
-                                         cell_area->x);
-                    emblem_area.y = MIN(icon_area.y + icon_area.height - emblem_area.height / 2,
-                                         cell_area->y + cell_area->height -emblem_area.height);
-                    break;
-
-                case 2: /* left/top */
-                    emblem_area.x = MAX(icon_area.x - emblem_area.width / 2,
-                                         cell_area->x);
-                    emblem_area.y = MAX(icon_area.y - emblem_area.height / 2,
-                                         cell_area->y);
-                    break;
-
-                case 3: /* right/top */
-                    emblem_area.x = MIN(icon_area.x + icon_area.width - emblem_area.width / 2,
-                                         cell_area->x + cell_area->width - emblem_area.width);
-                    emblem_area.y = MAX(icon_area.y - emblem_area.height / 2,
-                                         cell_area->y);
-                    break;
-
-                default:
-                    thunar_assert_not_reached();
-                }
-
-                /* render the emblem */
-                if (gdk_rectangle_intersect(&clip_area, &emblem_area, NULL))
-                {
-                    /* render the invalid parts of the icon */
-                    thunar_gdk_cairo_set_source_pixbuf(cr, emblem, emblem_area.x, emblem_area.y);
-                    cairo_paint(cr);
-
-                    /* paint the lighten mask */
-                    if (color_lighten)
-                        thunar_icon_renderer_color_lighten(cr, widget);
-
-                    /* paint the selected mask */
-                    if (color_selected)
-                        thunar_icon_renderer_color_selected(cr, widget);
-                }
-
-                /* release the emblem */
-                g_object_unref(G_OBJECT(emblem));
-
-                /* advance the position index */
-                ++position;
-            }
-
-            /* release the emblem name list */
-            g_list_free(emblems);
-        }
-    }
-#endif
-
     /* release our reference on the icon factory */
     g_object_unref(G_OBJECT(icon_factory));
 }
 
-/**
- * thunar_icon_renderer_new:
- *
- * Creates a new #ThunarIconRenderer. Adjust rendering
- * parameters using object properties. Object properties can be
- * set globally with #g_object_set. Also, with #GtkTreeViewColumn,
- * you can bind a property to a value in a #GtkTreeModel.
- *
- * Return value: the newly allocated #ThunarIconRenderer.
- **/
-GtkCellRenderer* thunar_icon_renderer_new()
+GtkCellRenderer* irenderer_new()
 {
-    return g_object_new(THUNAR_TYPE_ICON_RENDERER, NULL);
+    return g_object_new(TYPE_ICONRENDERER, NULL);
 }
 
 

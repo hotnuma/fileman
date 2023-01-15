@@ -59,6 +59,7 @@ HEADERS = \
     misc/icon-factory.h \
     misc/icon-render.h \
     misc/navigator.h \
+    misc/shortcut-render.h \
     side/sidepane.h \
     side/treemodel.h \
     side/treepane.h \
@@ -72,7 +73,6 @@ HEADERS = \
     widget/location-bar.h \
     widget/location-entry.h \
     widget/pathentry.h \
-    widget/shortcut-render.h \
     widget/size-label.h \
     application.h \
     config.h \
@@ -129,6 +129,7 @@ SOURCES = \
     misc/icon-factory.c \
     misc/icon-render.c \
     misc/navigator.c \
+    misc/shortcut-render.c \
     side/sidepane.c \
     side/treemodel.c \
     side/treepane.c \
@@ -142,7 +143,6 @@ SOURCES = \
     widget/location-bar.c \
     widget/location-entry.c \
     widget/pathentry.c \
-    widget/shortcut-render.c \
     widget/size-label.c \
     application.c \
     main.c \
