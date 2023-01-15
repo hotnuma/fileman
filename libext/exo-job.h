@@ -24,12 +24,17 @@
 
 G_BEGIN_DECLS
 
-#define EXO_TYPE_JOB            (exo_job_get_type ())
-#define EXO_JOB(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), EXO_TYPE_JOB, ExoJob))
-#define EXO_JOB_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), EXO_TYPE_JOB, ExoJobClass))
-#define EXO_IS_JOB(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EXO_TYPE_JOB))
-#define EXO_IS_JOB_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EXO_TYPE_JOB)
-#define EXO_JOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), EXO_TYPE_JOB, ExoJobClass))
+#define EXO_TYPE_JOB (exo_job_get_type())
+#define EXO_JOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  EXO_TYPE_JOB, ExoJob))
+#define EXO_JOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   EXO_TYPE_JOB, ExoJobClass))
+#define EXO_IS_JOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  EXO_TYPE_JOB))
+#define EXO_IS_JOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   EXO_TYPE_JOB)
+#define EXO_JOB_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   EXO_TYPE_JOB, ExoJobClass))
 
 typedef struct _ExoJobPrivate ExoJobPrivate;
 typedef struct _ExoJobClass   ExoJobClass;
@@ -37,20 +42,16 @@ typedef struct _ExoJob        ExoJob;
 
 struct _ExoJobClass
 {
-  GObjectClass __parent__;
+    GObjectClass __parent__;
 
-  /* virtual methods */
-  gboolean   (*execute)      (ExoJob      *job,
-                              GError     **error);
+    /* virtual methods */
+    gboolean    (*execute)(ExoJob *job, GError **error);
 
-  /* signals */
-  void       (*error)        (ExoJob      *job,
-                              GError      *error);
-  void       (*finished)     (ExoJob      *job);
-  void       (*info_message) (ExoJob      *job,
-                              const gchar *message);
-  void       (*percent)      (ExoJob      *job,
-                              gdouble      percent);
+    /* signals */
+    void        (*error)(ExoJob *job, GError *error);
+    void        (*finished)(ExoJob *job);
+    void        (*info_message)(ExoJob *job, const gchar *message);
+    void        (*percent)(ExoJob *job, gdouble percent);
 };
 
 /**
@@ -61,33 +62,26 @@ struct _ExoJobClass
  **/
 struct _ExoJob
 {
-  GObject __parent__;
+    GObject __parent__;
 
-  /*< private >*/
-  ExoJobPrivate *priv;
+    ExoJobPrivate *priv;
 };
 
-GType           exo_job_get_type               (void) G_GNUC_CONST;
+GType           exo_job_get_type() G_GNUC_CONST;
 
-ExoJob         *exo_job_launch                 (ExoJob        *job);
-void            exo_job_cancel                 (ExoJob        *job);
-gboolean        exo_job_is_cancelled           (const ExoJob  *job);
-GCancellable   *exo_job_get_cancellable        (const ExoJob  *job);
-gboolean        exo_job_set_error_if_cancelled (ExoJob        *job,
-                                                GError       **error);
-void            exo_job_emit                   (ExoJob        *job,
-                                                guint          signal_id,
-                                                GQuark         signal_detail,
-                                                ...);
-void            exo_job_info_message           (ExoJob        *job,
-                                                const gchar   *format,
-                                                ...);
-void            exo_job_percent                (ExoJob        *job,
-                                                gdouble        percent);
-gboolean        exo_job_send_to_mainloop       (ExoJob        *job,
-                                                GSourceFunc    func,
-                                                gpointer       user_data,
-                                                GDestroyNotify destroy_notify);
+ExoJob*         exo_job_launch(ExoJob *job);
+void            exo_job_cancel(ExoJob *job);
+gboolean        exo_job_is_cancelled(const ExoJob *job);
+GCancellable*   exo_job_get_cancellable(const ExoJob *job);
+gboolean        exo_job_set_error_if_cancelled (ExoJob *job, GError **error);
+void            exo_job_emit(ExoJob *job, guint signal_id,
+                             GQuark signal_detail, ...);
+void            exo_job_info_message(ExoJob *job, const gchar *format, ...);
+void            exo_job_percent(ExoJob *job, gdouble percent);
+gboolean        exo_job_send_to_mainloop(ExoJob *job,
+                                         GSourceFunc func,
+                                         gpointer user_data,
+                                         GDestroyNotify destroy_notify);
 
 G_END_DECLS
 

@@ -33,8 +33,6 @@ app_includes = [
     'widget',
 ]
 
-#dependency('thunarx-3'),
-
 app_deps = [
     dependency('gtk+-3.0'),
     dependency('tinyc'),

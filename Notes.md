@@ -37,7 +37,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
     19073	./misc/enum-types.c
 +   18633	./libext/utils.c
 +   18560	./libext/gio-ext.c
-    18018	./libext/exo-job.c
++   18018	./libext/exo-job.c
     16890	./widget/location-entry.c
     16491	./widget/size-label.c
 +   14503	./menu/menu.c

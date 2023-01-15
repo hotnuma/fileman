@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __THUNAR_UTIL_H__
-#define __THUNAR_UTIL_H__
+#ifndef __UTILS_H__
+#define __UTILS_H__
 
 #include <enum-types.h>
 
@@ -71,6 +71,6 @@ void util_setup_display_cb(gpointer data);
 
 G_END_DECLS
 
-#endif // __THUNAR_UTIL_H__
+#endif // __UTILS_H__
 
 
