@@ -373,7 +373,7 @@ static void thunar_location_entry_activate(GtkWidget           *path_entry,
     if (G_UNLIKELY(file == NULL))
         return;
 
-    thunar_browser_poke_file(THUNAR_BROWSER(location_entry),
+    browser_poke_file(THUNAR_BROWSER(location_entry),
                               file,
                               path_entry,
                               thunar_location_entry_poke_file_finish,

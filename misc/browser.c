@@ -17,53 +17,51 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#include <glib-object.h>
-
 #include <browser.h>
+
 #include <th-file.h>
 #include <utils.h>
 #include <gtk-ext.h>
 
+#include <glib-object.h>
+
 typedef struct _PokeFileData   PokeFileData;
 typedef struct _PokeDeviceData PokeDeviceData;
 
-static void thunar_browser_poke_file_internal(ThunarBrowser    *browser,
-                                              GFile            *location,
-                                              ThunarFile       *source,
-                                              ThunarFile       *file,
-                                              gpointer         widget,
-                                              ThunarBrowserPokeFileFunc func,
-                                              ThunarBrowserPokeLocationFunc location_func,
-                                              gpointer         user_data);
+static void _browser_poke_file_internal(ThunarBrowser    *browser,
+                                        GFile            *location,
+                                        ThunarFile       *source,
+                                        ThunarFile       *file,
+                                        gpointer         widget,
+                                        ThunarBrowserPokeFileFunc func,
+                                        ThunarBrowserPokeLocationFunc location_func,
+                                        gpointer         user_data);
 
 struct _PokeFileData
 {
-    GFile                        *location;
-    ThunarBrowser                *browser;
-    ThunarFile                   *source;
-    ThunarFile                   *file;
-    ThunarBrowserPokeFileFunc     func;
-    ThunarBrowserPokeLocationFunc location_func;
-    gpointer                      user_data;
+    GFile                           *location;
+    ThunarBrowser                   *browser;
+    ThunarFile                      *source;
+    ThunarFile                      *file;
+    ThunarBrowserPokeFileFunc       func;
+    ThunarBrowserPokeLocationFunc   location_func;
+    gpointer                        user_data;
 };
 
 struct _PokeDeviceData
 {
-    ThunarBrowser              *browser;
-    ThunarDevice               *device;
-    ThunarFile                 *mount_point;
+    ThunarBrowser               *browser;
+    ThunarDevice                *device;
+    ThunarFile                  *mount_point;
     ThunarBrowserPokeDeviceFunc func;
     gpointer                    user_data;
 };
 
-GType thunar_browser_get_type()
+GType browser_get_type()
 {
     static volatile gsize type__volatile = 0;
-    GType                 type;
+    GType type;
 
     if (g_once_init_enter((gsize*) &type__volatile))
     {
@@ -83,14 +81,14 @@ GType thunar_browser_get_type()
     return type__volatile;
 }
 
-static PokeFileData* thunar_browser_poke_file_data_new(
-                                            ThunarBrowser                *browser,
-                                            GFile                        *location,
-                                            ThunarFile                   *source,
-                                            ThunarFile                   *file,
-                                            ThunarBrowserPokeFileFunc     func,
-                                            ThunarBrowserPokeLocationFunc location_func,
-                                            gpointer                      user_data)
+static PokeFileData* _browser_poke_file_data_new(
+                                    ThunarBrowser                *browser,
+                                    GFile                        *location,
+                                    ThunarFile                   *source,
+                                    ThunarFile                   *file,
+                                    ThunarBrowserPokeFileFunc     func,
+                                    ThunarBrowserPokeLocationFunc location_func,
+                                    gpointer                      user_data)
 {
     PokeFileData *poke_data;
 
@@ -116,7 +114,7 @@ static PokeFileData* thunar_browser_poke_file_data_new(
     return poke_data;
 }
 
-static void thunar_browser_poke_file_data_free(PokeFileData *poke_data)
+static void _browser_poke_file_data_free(PokeFileData *poke_data)
 {
     thunar_return_if_fail(poke_data != NULL);
     thunar_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
@@ -133,11 +131,11 @@ static void thunar_browser_poke_file_data_free(PokeFileData *poke_data)
     g_slice_free(PokeFileData, poke_data);
 }
 
-static PokeDeviceData* thunar_browser_poke_device_data_new(
-                                                ThunarBrowser              *browser,
-                                                ThunarDevice               *device,
-                                                ThunarBrowserPokeDeviceFunc func,
-                                                gpointer                    user_data)
+static PokeDeviceData* _browser_poke_device_data_new(
+                                        ThunarBrowser               *browser,
+                                        ThunarDevice                *device,
+                                        ThunarBrowserPokeDeviceFunc func,
+                                        gpointer                    user_data)
 {
     PokeDeviceData *poke_data;
 
@@ -153,7 +151,7 @@ static PokeDeviceData* thunar_browser_poke_device_data_new(
     return poke_data;
 }
 
-static void thunar_browser_poke_device_data_free(PokeDeviceData *poke_data)
+static void _browser_poke_device_data_free(PokeDeviceData *poke_data)
 {
     thunar_return_if_fail(poke_data != NULL);
     thunar_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
@@ -165,10 +163,10 @@ static void thunar_browser_poke_device_data_free(PokeDeviceData *poke_data)
     g_slice_free(PokeDeviceData, poke_data);
 }
 
-static void thunar_browser_poke_mountable_file_finish(GFile *location,
-        ThunarFile *file,
-        GError     *error,
-        gpointer    user_data)
+static void _browser_poke_mountable_file_finish(GFile *location,
+                                                ThunarFile *file,
+                                                GError     *error,
+                                                gpointer    user_data)
 {
     PokeFileData *poke_data = user_data;
 
@@ -180,26 +178,26 @@ static void thunar_browser_poke_mountable_file_finish(GFile *location,
 
     if (poke_data->location_func != NULL)
     {
-       (poke_data->location_func)(poke_data->browser,
-                                    poke_data->location,
-                                    poke_data->source,
-                                    file,
-                                    error,
-                                    poke_data->user_data);
+        (poke_data->location_func)(poke_data->browser,
+                                   poke_data->location,
+                                   poke_data->source,
+                                   file,
+                                   error,
+                                   poke_data->user_data);
     }
 
     if (poke_data->func != NULL)
     {
-       (poke_data->func)(poke_data->browser, poke_data->source, file, error,
-                           poke_data->user_data);
+        (poke_data->func)(poke_data->browser, poke_data->source, file, error,
+                          poke_data->user_data);
     }
 
-    thunar_browser_poke_file_data_free(poke_data);
+    _browser_poke_file_data_free(poke_data);
 }
 
-static void thunar_browser_poke_mountable_finish(GObject      *object,
-                                                 GAsyncResult *result,
-                                                 gpointer      user_data)
+static void _browser_poke_mountable_finish(GObject      *object,
+                                           GAsyncResult *result,
+                                           gpointer      user_data)
 {
     PokeFileData *poke_data = user_data;
     GError       *error = NULL;
@@ -229,7 +227,7 @@ static void thunar_browser_poke_mountable_finish(GObject      *object,
         /* resolve the ThunarFile for the target location asynchronously
          * and defer cleaning up the poke data until that has finished */
         th_file_get_async(location, NULL,
-                               thunar_browser_poke_mountable_file_finish,
+                               _browser_poke_mountable_file_finish,
                                poke_data);
 
         g_object_unref(location);
@@ -252,15 +250,14 @@ static void thunar_browser_poke_mountable_finish(GObject      *object,
                                poke_data->user_data);
         }
 
-        thunar_browser_poke_file_data_free(poke_data);
+        _browser_poke_file_data_free(poke_data);
     }
 
     g_clear_error(&error);
 }
 
-static void thunar_browser_poke_file_finish(GObject      *object,
-                                            GAsyncResult *result,
-                                            gpointer      user_data)
+static void _browser_poke_file_finish(GObject *object, GAsyncResult *result,
+                                      gpointer user_data)
 {
     PokeFileData *poke_data = user_data;
     GError       *error = NULL;
@@ -287,21 +284,21 @@ static void thunar_browser_poke_file_finish(GObject      *object,
     {
         if (error == NULL)
         {
-           (poke_data->location_func)(poke_data->browser,
-                                        poke_data->location,
-                                        poke_data->source,
-                                        poke_data->file,
-                                        NULL,
-                                        poke_data->user_data);
+            (poke_data->location_func)(poke_data->browser,
+                                       poke_data->location,
+                                       poke_data->source,
+                                       poke_data->file,
+                                       NULL,
+                                       poke_data->user_data);
         }
         else
         {
-           (poke_data->location_func)(poke_data->browser,
-                                        poke_data->location,
-                                        poke_data->source,
-                                        NULL,
-                                        error,
-                                        poke_data->user_data);
+            (poke_data->location_func)(poke_data->browser,
+                                       poke_data->location,
+                                       poke_data->source,
+                                       NULL,
+                                       error,
+                                       poke_data->user_data);
         }
     }
 
@@ -309,25 +306,31 @@ static void thunar_browser_poke_file_finish(GObject      *object,
     {
         if (error == NULL)
         {
-           (poke_data->func)(poke_data->browser, poke_data->source, poke_data->file,
-                               NULL, poke_data->user_data);
+            (poke_data->func)(poke_data->browser,
+                              poke_data->source,
+                              poke_data->file,
+                              NULL,
+                              poke_data->user_data);
         }
         else
         {
-           (poke_data->func)(poke_data->browser, poke_data->source, NULL, error,
-                               poke_data->user_data);
+            (poke_data->func)(poke_data->browser,
+                              poke_data->source,
+                              NULL,
+                              error,
+                              poke_data->user_data);
         }
     }
 
     g_clear_error(&error);
 
-    thunar_browser_poke_file_data_free(poke_data);
+    _browser_poke_file_data_free(poke_data);
 }
 
-static void thunar_browser_poke_shortcut_file_finish(GFile *location,
-                                                     ThunarFile *file,
-                                                     GError *error,
-                                                     gpointer user_data)
+static void _browser_poke_shortcut_file_finish(GFile *location,
+                                               ThunarFile *file,
+                                               GError *error,
+                                               gpointer user_data)
 {
     PokeFileData *poke_data = user_data;
 
@@ -338,7 +341,7 @@ static void thunar_browser_poke_shortcut_file_finish(GFile *location,
 
     if (error == NULL)
     {
-        thunar_browser_poke_file_internal(poke_data->browser,
+        _browser_poke_file_internal(poke_data->browser,
                                            poke_data->location,
                                            poke_data->source,
                                            file,
@@ -366,18 +369,18 @@ static void thunar_browser_poke_shortcut_file_finish(GFile *location,
         }
     }
 
-    thunar_browser_poke_file_data_free(poke_data);
+    _browser_poke_file_data_free(poke_data);
 }
 
-static void thunar_browser_poke_file_internal(
-                                            ThunarBrowser                *browser,
-                                            GFile                        *location,
-                                            ThunarFile                   *source,
-                                            ThunarFile                   *file,
-                                            gpointer                      widget,
-                                            ThunarBrowserPokeFileFunc     func,
-                                            ThunarBrowserPokeLocationFunc location_func,
-                                            gpointer                      user_data)
+static void _browser_poke_file_internal(
+                                ThunarBrowser                *browser,
+                                GFile                        *location,
+                                ThunarFile                   *source,
+                                ThunarFile                   *file,
+                                gpointer                      widget,
+                                ThunarBrowserPokeFileFunc     func,
+                                ThunarBrowserPokeLocationFunc location_func,
+                                gpointer                      user_data)
 {
     GMountOperation *mount_operation;
     PokeFileData    *poke_data;
@@ -392,11 +395,11 @@ static void thunar_browser_poke_file_internal(
     {
         target = th_file_get_target_location(file);
 
-        poke_data = thunar_browser_poke_file_data_new(browser, location, source,
+        poke_data = _browser_poke_file_data_new(browser, location, source,
                     file, func, location_func, user_data);
 
         th_file_get_async(target, NULL,
-                               thunar_browser_poke_shortcut_file_finish,
+                               _browser_poke_shortcut_file_finish,
                                poke_data);
 
         g_object_unref(target);
@@ -407,25 +410,25 @@ static void thunar_browser_poke_file_internal(
         {
             target = th_file_get_target_location(file);
 
-            poke_data = thunar_browser_poke_file_data_new(browser, location, source,
+            poke_data = _browser_poke_file_data_new(browser, location, source,
                         file, func, location_func, user_data);
 
             th_file_get_async(target, NULL,
-                                   thunar_browser_poke_mountable_file_finish,
+                                   _browser_poke_mountable_file_finish,
                                    poke_data);
 
             g_object_unref(target);
         }
         else
         {
-            poke_data = thunar_browser_poke_file_data_new(browser, location, source,
+            poke_data = _browser_poke_file_data_new(browser, location, source,
                         file, func, location_func, user_data);
 
             mount_operation = thunar_gtk_mount_operation_new(widget);
 
             g_file_mount_mountable(th_file_get_file(file),
                                     G_MOUNT_MOUNT_NONE, mount_operation, NULL,
-                                    thunar_browser_poke_mountable_finish,
+                                    _browser_poke_mountable_finish,
                                     poke_data);
 
             g_object_unref(mount_operation);
@@ -433,14 +436,14 @@ static void thunar_browser_poke_file_internal(
     }
     else if (!th_file_is_mounted(file))
     {
-        poke_data = thunar_browser_poke_file_data_new(browser, location, source,
+        poke_data = _browser_poke_file_data_new(browser, location, source,
                     file, func, location_func, user_data);
 
         mount_operation = thunar_gtk_mount_operation_new(widget);
 
         g_file_mount_enclosing_volume(th_file_get_file(file),
                                        G_MOUNT_MOUNT_NONE, mount_operation, NULL,
-                                       thunar_browser_poke_file_finish,
+                                       _browser_poke_file_finish,
                                        poke_data);
 
         g_object_unref(mount_operation);
@@ -478,23 +481,23 @@ static void thunar_browser_poke_file_internal(
  * @user data. The #GError parameter to @func is set if, and only if there
  * was an error.
  **/
-void thunar_browser_poke_file(ThunarBrowser            *browser,
-                              ThunarFile               *file,
-                              gpointer                  widget,
-                              ThunarBrowserPokeFileFunc func,
-                              gpointer                  user_data)
+void browser_poke_file(ThunarBrowser             *browser,
+                       ThunarFile                *file,
+                       gpointer                  widget,
+                       ThunarBrowserPokeFileFunc func,
+                       gpointer                  user_data)
 {
     thunar_return_if_fail(THUNAR_IS_BROWSER(browser));
     thunar_return_if_fail(THUNAR_IS_FILE(file));
 
-    thunar_browser_poke_file_internal(browser, th_file_get_file(file), file, file, widget,
+    _browser_poke_file_internal(browser, th_file_get_file(file), file, file, widget,
                                        func, NULL, user_data);
 }
 
-static void thunar_browser_poke_device_file_finish(GFile      *location,
-                                                   ThunarFile *file,
-                                                   GError     *error,
-                                                   gpointer    user_data)
+static void _browser_poke_device_file_finish(GFile      *location,
+                                             ThunarFile *file,
+                                             GError     *error,
+                                             gpointer    user_data)
 {
     PokeDeviceData *poke_data = user_data;
 
@@ -509,12 +512,12 @@ static void thunar_browser_poke_device_file_finish(GFile      *location,
                            poke_data->user_data, FALSE);
     }
 
-    thunar_browser_poke_device_data_free(poke_data);
+    _browser_poke_device_data_free(poke_data);
 }
 
-static void thunar_browser_poke_device_finish(ThunarDevice *device,
-                                              const GError *error,
-                                              gpointer      user_data)
+static void _browser_poke_device_finish(ThunarDevice *device,
+                                        const GError *error,
+                                        gpointer      user_data)
 {
     PokeDeviceData *poke_data = user_data;
     GFile          *mount_point = NULL;
@@ -539,7 +542,7 @@ static void thunar_browser_poke_device_finish(ThunarDevice *device,
         /* resolve the ThunarFile for the mount point asynchronously
          * and defer cleaning up the poke data until that has finished */
         th_file_get_async(mount_point, NULL,
-                               thunar_browser_poke_device_file_finish,
+                               _browser_poke_device_file_finish,
                                poke_data);
 
         g_object_unref(mount_point);
@@ -553,7 +556,7 @@ static void thunar_browser_poke_device_finish(ThunarDevice *device,
                           (GError *) error, poke_data->user_data, cancelled);
     }
 
-    thunar_browser_poke_device_data_free(poke_data);
+    _browser_poke_device_data_free(poke_data);
 }
 
 /**
@@ -573,11 +576,11 @@ static void thunar_browser_poke_device_finish(ThunarDevice *device,
  * the @device failed. The #GError passed to @func will be set if, and only if
  * mounting failed.
  **/
-void thunar_browser_poke_device(ThunarBrowser   *browser,
-                                ThunarDevice    *device,
-                                gpointer        widget,
-                                ThunarBrowserPokeDeviceFunc func,
-                                gpointer        user_data)
+void browser_poke_device(ThunarBrowser   *browser,
+                         ThunarDevice    *device,
+                         gpointer        widget,
+                         ThunarBrowserPokeDeviceFunc func,
+                         gpointer        user_data)
 {
     GMountOperation *mount_operation;
     PokeDeviceData  *poke_data;
@@ -590,34 +593,34 @@ void thunar_browser_poke_device(ThunarBrowser   *browser,
     {
         mount_point = th_device_get_root(device);
 
-        poke_data = thunar_browser_poke_device_data_new(browser, device, func, user_data);
+        poke_data = _browser_poke_device_data_new(browser, device, func, user_data);
 
         th_file_get_async(mount_point, NULL,
-                               thunar_browser_poke_device_file_finish,
+                               _browser_poke_device_file_finish,
                                poke_data);
 
         g_object_unref(mount_point);
     }
     else
     {
-        poke_data = thunar_browser_poke_device_data_new(browser, device, func, user_data);
+        poke_data = _browser_poke_device_data_new(browser, device, func, user_data);
 
         mount_operation = thunar_gtk_mount_operation_new(widget);
 
         th_device_mount(device,
                              mount_operation,
                              NULL,
-                             thunar_browser_poke_device_finish,
+                             _browser_poke_device_finish,
                              poke_data);
 
         g_object_unref(mount_operation);
     }
 }
 
-static void thunar_browser_poke_location_file_finish(GFile      *location,
-                                                     ThunarFile *file,
-                                                     GError     *error,
-                                                     gpointer    user_data)
+static void _browser_poke_location_file_finish(GFile      *location,
+                                               ThunarFile *file,
+                                               GError     *error,
+                                               gpointer    user_data)
 {
     PokeFileData *poke_data = user_data;
 
@@ -628,25 +631,29 @@ static void thunar_browser_poke_location_file_finish(GFile      *location,
 
     if (error == NULL)
     {
-        thunar_browser_poke_file_internal(poke_data->browser,
-                                           location,
-                                           file,
-                                           file,
-                                           NULL,
-                                           poke_data->func,
-                                           poke_data->location_func,
-                                           poke_data->user_data);
+        _browser_poke_file_internal(poke_data->browser,
+                                    location,
+                                    file,
+                                    file,
+                                    NULL,
+                                    poke_data->func,
+                                    poke_data->location_func,
+                                    poke_data->user_data);
     }
     else
     {
         if (poke_data->location_func != NULL)
         {
-           (poke_data->location_func)(poke_data->browser, location, NULL, NULL, error,
-                                        poke_data->user_data);
+            (poke_data->location_func)(poke_data->browser,
+                                       location,
+                                       NULL,
+                                       NULL,
+                                       error,
+                                       poke_data->user_data);
         }
     }
 
-    thunar_browser_poke_file_data_free(poke_data);
+    _browser_poke_file_data_free(poke_data);
 }
 
 /**
@@ -663,23 +670,29 @@ static void thunar_browser_poke_location_file_finish(GFile      *location,
  * thunar_file_get_async(). It then performs the same steps as
  * thunar_browser_poke_file().
  **/
-void thunar_browser_poke_location(ThunarBrowser                *browser,
-                                  GFile                        *location,
-                                  gpointer                      widget,
-                                  ThunarBrowserPokeLocationFunc func,
-                                  gpointer                      user_data)
+void browser_poke_location(ThunarBrowser                 *browser,
+                           GFile                         *location,
+                           gpointer                      widget,
+                           ThunarBrowserPokeLocationFunc func,
+                           gpointer                      user_data)
 {
     UNUSED(widget);
 
     thunar_return_if_fail(THUNAR_IS_BROWSER(browser));
     thunar_return_if_fail(G_IS_FILE(location));
 
-    PokeFileData *poke_data = thunar_browser_poke_file_data_new(browser, location, NULL, NULL,
-                NULL, func, user_data);
+    PokeFileData *poke_data = _browser_poke_file_data_new(browser,
+                                                          location,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          func,
+                                                          user_data);
 
-    th_file_get_async(location, NULL,
-                           thunar_browser_poke_location_file_finish,
-                           poke_data);
+    th_file_get_async(location,
+                      NULL,
+                      _browser_poke_location_file_finish,
+                      poke_data);
 }
 
 

@@ -25,7 +25,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   30354	./core/th-folder.c
 +   25293	./job/job.c
 +   24813	./core/th-device.c
-    24589	./misc/browser.c
++   24589	./misc/browser.c
 +   24507	./libext/pixbuf-ext.c
     24217	./dialog/progress-view.c
 +   22837	./libext/exo-icon.c

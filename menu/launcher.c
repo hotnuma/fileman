@@ -1247,7 +1247,7 @@ static void _launcher_poke_files_finish(ThunarBrowser *browser,
         /* we need to continue this until all files have been resolved */
         // We will only poke one file at a time, in order to dont use all available CPU's
         // TODO: Check if that could cause slowness
-        thunar_browser_poke_file(browser,
+        browser_poke_file(browser,
                                  poke_data->files_to_poke->data,
                                  (THUNAR_LAUNCHER(browser))->widget,
                                  _launcher_poke_files_finish,
@@ -1276,7 +1276,7 @@ static void _launcher_poke(
 
     if (launcher->device_to_process != NULL)
     {
-        thunar_browser_poke_device(THUNAR_BROWSER(launcher),
+        browser_poke_device(THUNAR_BROWSER(launcher),
                                    launcher->device_to_process,
                                    launcher->widget,
                                    _launcher_poke_device_finish,
@@ -1287,7 +1287,7 @@ static void _launcher_poke(
         // We will only poke one file at a time,
         // in order to dont use all available CPU's
         // TODO: Check if that could cause slowness
-        thunar_browser_poke_file(THUNAR_BROWSER(launcher),
+        browser_poke_file(THUNAR_BROWSER(launcher),
                                  poke_data->files_to_poke->data,
                                  launcher->widget,
                                  _launcher_poke_files_finish,

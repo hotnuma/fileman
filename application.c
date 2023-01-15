@@ -1225,7 +1225,7 @@ static void _application_process_files(Application *application)
 
     /* resolve the file and/or mount its enclosing volume
      * before handling it in the callback */
-    thunar_browser_poke_file(THUNAR_BROWSER(application),
+    browser_poke_file(THUNAR_BROWSER(application),
                               file,
                               screen,
                               _application_process_files_finish,
