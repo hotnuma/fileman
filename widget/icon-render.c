@@ -353,7 +353,7 @@ static void thunar_icon_renderer_render(GtkCellRenderer      *renderer,
     ClipboardManager *clipboard;
     ThunarFileIconState     icon_state;
     ThunarIconRenderer     *icon_renderer = THUNAR_ICON_RENDERER(renderer);
-    ThunarIconFactory      *icon_factory;
+    IconFactory      *icon_factory;
     GtkIconTheme           *icon_theme;
     GdkRectangle            icon_area;
     GdkRectangle            clip_area;

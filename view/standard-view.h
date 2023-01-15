@@ -138,7 +138,7 @@ struct _StandardView
 
     ListModel     *model;
 
-    ThunarIconFactory   *icon_factory;
+    IconFactory   *icon_factory;
     GtkCellRenderer     *icon_renderer;
     GtkCellRenderer     *name_renderer;
 

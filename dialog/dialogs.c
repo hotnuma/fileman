@@ -290,7 +290,7 @@ ThunarJob* dialog_rename_file(gpointer parent, ThunarFile *file)
     thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
-    ThunarIconFactory *icon_factory;
+    IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
     const gchar       *filename;
     const gchar       *text;
@@ -690,7 +690,7 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
 ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file,
                                          ThunarFile *dst_file)
 {
-    ThunarIconFactory *icon_factory;
+    IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
     GtkWidget         *dialog;
     GtkWidget         *grid;

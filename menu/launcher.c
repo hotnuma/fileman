@@ -2407,7 +2407,7 @@ static gboolean _launcher_create_document_submenu_templates(
                                             GtkWidget   *create_file_submenu,
                                             GList       *files)
 {
-    ThunarIconFactory *icon_factory;
+    IconFactory *icon_factory;
     ThunarFile        *file;
     GdkPixbuf         *icon;
     GtkWidget         *parent_menu;

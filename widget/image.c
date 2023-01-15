@@ -149,7 +149,7 @@ static void thunar_image_set_property(GObject      *object,
 
 static void thunar_image_update(ThunarImage *image)
 {
-    ThunarIconFactory *icon_factory;
+    IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
     GdkPixbuf         *icon;
     GdkScreen         *screen;

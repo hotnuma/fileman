@@ -677,7 +677,7 @@ static gboolean _propsdlg_name_focus_out_event(GtkWidget     *entry,
 
 static void _propsdlg_update_single(PropertiesDialog *dialog)
 {
-    ThunarIconFactory *icon_factory;
+    IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
     const gchar       *content_type;
     const gchar       *name;

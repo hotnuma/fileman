@@ -456,7 +456,7 @@ void thunar_history_show_menu(ThunarHistory         *history,
                               ThunarHistoryMenuType  type,
                               GtkWidget             *parent)
 {
-    ThunarIconFactory *icon_factory;
+    IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
     GCallback          handler;
     GtkWidget         *image;

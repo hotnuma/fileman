@@ -107,7 +107,7 @@ struct _PathEntry
 {
     GtkEntry    __parent__;
 
-    ThunarIconFactory *icon_factory;
+    IconFactory *icon_factory;
     ThunarFile  *current_folder;
     ThunarFile  *current_file;
     GFile       *working_directory;

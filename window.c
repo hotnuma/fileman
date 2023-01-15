@@ -186,55 +186,51 @@ struct _ThunarWindow
 {
     GtkWindow __parent__;
 
-    /* support for custom preferences actions */
-    //ThunarxProviderFactory *provider_factory;
-    GList                  *thunarx_preferences_providers;
-
     ClipboardManager *clipboard;
 
-    ThunarIconFactory      *icon_factory;
+    IconFactory     *icon_factory;
 
     /* to be able to change folder on "device-pre-unmount" if required */
-    DeviceMonitor    *device_monitor;
+    DeviceMonitor   *device_monitor;
 
-    GtkWidget              *grid;
-    GtkWidget              *paned;
-    GtkWidget              *sidepane;
-    GtkWidget              *view_box;
-    GtkWidget              *notebook;
-    GtkWidget              *view;
-    GtkWidget              *statusbar;
+    GtkWidget       *grid;
+    GtkWidget       *paned;
+    GtkWidget       *sidepane;
+    GtkWidget       *view_box;
+    GtkWidget       *notebook;
+    GtkWidget       *view;
+    GtkWidget       *statusbar;
 
-    GSList                 *view_bindings;
+    GSList          *view_bindings;
 
     /* we need to maintain pointers to be able to toggle sensitivity */
-    GtkWidget              *toolbar;
-    GtkWidget              *toolbar_item_back;
-    GtkWidget              *toolbar_item_forward;
-    GtkWidget              *toolbar_item_parent;
-    GtkWidget              *location_bar;
+    GtkWidget       *toolbar;
+    GtkWidget       *toolbar_item_back;
+    GtkWidget       *toolbar_item_forward;
+    GtkWidget       *toolbar_item_parent;
+    GtkWidget       *location_bar;
 
-    gulong                  signal_handler_id_history_changed;
+    gulong          signal_handler_id_history_changed;
 
-    ThunarLauncher         *launcher;
+    ThunarLauncher  *launcher;
 
-    ThunarFile             *current_directory;
-    GtkAccelGroup          *accel_group;
+    ThunarFile      *current_directory;
+    GtkAccelGroup   *accel_group;
 
     /* zoom-level support */
-    ThunarZoomLevel         zoom_level;
-    gboolean                show_hidden;
+    ThunarZoomLevel zoom_level;
+    gboolean        show_hidden;
 
     /* support to remember window geometry */
-    guint                   save_geometry_timer_id;
+    guint           save_geometry_timer_id;
 
     /* support to toggle side pane using F9,
      * see the toggle_sidepane() function.
      */
-    GType                   toggle_sidepane_type;
+    GType           toggle_sidepane_type;
 
     /* Takes care to select a file after e.g. rename/create */
-    GClosure               *select_files_closure;
+    GClosure        *select_files_closure;
 };
 
 static XfceGtkActionEntry _window_actions[] =
@@ -326,18 +322,13 @@ G_DEFINE_TYPE_WITH_CODE(ThunarWindow,
 
 static void window_class_init(ThunarWindowClass *klass)
 {
-    GtkWidgetClass *gtkwidget_class;
-    GtkBindingSet  *binding_set;
-    GObjectClass   *gobject_class;
-    guint           i;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = window_dispose;
     gobject_class->finalize = window_finalize;
     gobject_class->get_property = window_get_property;
     gobject_class->set_property = window_set_property;
 
-    gtkwidget_class = GTK_WIDGET_CLASS(klass);
+    GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
     gtkwidget_class->realize = window_realize;
     gtkwidget_class->unrealize = window_unrealize;
 
@@ -462,14 +453,18 @@ static void window_class_init(ThunarWindowClass *klass)
                       G_TYPE_BOOLEAN, 1,
                       G_TYPE_INT);
 
-    /* setup the key bindings for the windows */
-    binding_set = gtk_binding_set_by_class(klass);
+    GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
 
     /* setup the key bindings for Alt+N */
-    for (i = 0; i < 10; i++)
+    for (guint i = 0; i < 10; ++i)
     {
-        gtk_binding_entry_add_signal(binding_set, GDK_KEY_0 + i, GDK_MOD1_MASK,
-                                      "tab-change", 1, G_TYPE_UINT, i - 1);
+        gtk_binding_entry_add_signal(binding_set,
+                                     GDK_KEY_0 + i,
+                                     GDK_MOD1_MASK,
+                                     "tab-change",
+                                     1,
+                                     G_TYPE_UINT,
+                                     i - 1);
     }
 }
 
@@ -480,10 +475,6 @@ static void window_init(ThunarWindow *window)
     GtkStyleContext *context;
 
     Preferences *prefs = get_preferences();
-
-    /* grab a reference on the provider factory and load the providers*/
-//    window->provider_factory = thunarx_provider_factory_get_default();
-//    window->thunarx_preferences_providers = thunarx_provider_factory_list_providers(window->provider_factory, THUNARX_TYPE_PREFERENCES_PROVIDER);
 
     window->accel_group = gtk_accel_group_new();
     xfce_gtk_accel_map_add_entries(_window_actions, G_N_ELEMENTS(_window_actions));

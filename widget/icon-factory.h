@@ -16,37 +16,39 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_ICON_FACTORY_H__
-#define __THUNAR_ICON_FACTORY_H__
+#ifndef __ICONFACTORY_H__
+#define __ICONFACTORY_H__
 
 #include <th-file.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarIconFactoryClass ThunarIconFactoryClass;
-typedef struct _ThunarIconFactory      ThunarIconFactory;
+typedef struct _IconFactoryClass IconFactoryClass;
+typedef struct _IconFactory      IconFactory;
 
-#define THUNAR_TYPE_ICON_FACTORY            (thunar_icon_factory_get_type())
-#define THUNAR_ICON_FACTORY(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_ICON_FACTORY, ThunarIconFactory))
-#define THUNAR_ICON_FACTORY_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_ICON_FACTORY, ThunarIconFactoryClass))
-#define THUNAR_IS_ICON_FACTORY(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_ICON_FACTORY))
-#define THUNAR_IS_ICON_FACTORY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_ICON_FACTORY))
-#define THUNAR_ICON_FACTORY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_ICON_FACTORY, ThunarIconFactoryClass))
+#define TYPE_ICONFACTORY (ifactory_get_type())
+#define ICONFACTORY(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_ICONFACTORY, IconFactory))
+#define ICONFACTORY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_ICONFACTORY, IconFactoryClass))
+#define IS_ICONFACTORY(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_ICONFACTORY))
+#define IS_ICONFACTORY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_ICONFACTORY))
+#define ICONFACTORY_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_ICONFACTORY, IconFactoryClass))
 
-GType thunar_icon_factory_get_type() G_GNUC_CONST;
+GType ifactory_get_type() G_GNUC_CONST;
 
-ThunarIconFactory* thunar_icon_factory_get_default();
-ThunarIconFactory* thunar_icon_factory_get_for_icon_theme(GtkIconTheme *icon_theme);
+IconFactory* thunar_icon_factory_get_default();
+IconFactory* thunar_icon_factory_get_for_icon_theme(GtkIconTheme *icon_theme);
 
-//gboolean thunar_icon_factory_get_show_thumbnail(const ThunarIconFactory *factory,
-//                                                const ThunarFile *file);
-
-GdkPixbuf* thunar_icon_factory_load_icon(ThunarIconFactory *factory,
+GdkPixbuf* thunar_icon_factory_load_icon(IconFactory *factory,
                                          const gchar *name,
                                          gint size,
                                          gboolean wants_default);
 
-GdkPixbuf* thunar_icon_factory_load_file_icon(ThunarIconFactory *factory,
+GdkPixbuf* thunar_icon_factory_load_file_icon(IconFactory *factory,
                                               ThunarFile *file,
                                               ThunarFileIconState icon_state,
                                               gint icon_size);
@@ -55,6 +57,6 @@ void thunar_icon_factory_clear_pixmap_cache(ThunarFile *file);
 
 G_END_DECLS
 
-#endif /* !__THUNAR_ICON_FACTORY_H__ */
+#endif // __ICONFACTORY_H__
 
 
