@@ -502,7 +502,7 @@ static void window_init(ThunarWindow *window)
     g_signal_connect(window->device_monitor, "device-removed", G_CALLBACK(_window_device_changed), window);
     g_signal_connect(window->device_monitor, "device-changed", G_CALLBACK(_window_device_changed), window);
 
-    window->icon_factory = thunar_icon_factory_get_default();
+    window->icon_factory = ifactory_get_default();
 
     /* Catch key events before accelerators get processed */
     g_signal_connect(window, "key-press-event", G_CALLBACK(_window_propagate_key_event), NULL);

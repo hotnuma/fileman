@@ -40,20 +40,18 @@ typedef struct _IconFactory      IconFactory;
 
 GType ifactory_get_type() G_GNUC_CONST;
 
-IconFactory* thunar_icon_factory_get_default();
-IconFactory* thunar_icon_factory_get_for_icon_theme(GtkIconTheme *icon_theme);
+IconFactory* ifactory_get_default();
+IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme);
 
-GdkPixbuf* thunar_icon_factory_load_icon(IconFactory *factory,
-                                         const gchar *name,
-                                         gint size,
-                                         gboolean wants_default);
+GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
+                              gint size, gboolean wants_default);
 
-GdkPixbuf* thunar_icon_factory_load_file_icon(IconFactory *factory,
-                                              ThunarFile *file,
-                                              ThunarFileIconState icon_state,
-                                              gint icon_size);
+GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
+                                   ThunarFile *file,
+                                   ThunarFileIconState icon_state,
+                                   gint icon_size);
 
-void thunar_icon_factory_clear_pixmap_cache(ThunarFile *file);
+void ifactory_clear_pixmap_cache(ThunarFile *file);
 
 G_END_DECLS
 

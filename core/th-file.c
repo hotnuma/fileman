@@ -2940,7 +2940,7 @@ gboolean th_file_reload(ThunarFile *file)
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     /* clear file pxmap cache */
-    thunar_icon_factory_clear_pixmap_cache(file);
+    ifactory_clear_pixmap_cache(file);
 
     if (!_th_file_load(file, NULL, NULL))
     {

@@ -2425,7 +2425,7 @@ static gboolean _launcher_create_document_submenu_templates(
         return FALSE;
 
     /* get the icon factory */
-    icon_factory = thunar_icon_factory_get_default();
+    icon_factory = ifactory_get_default();
 
     /* sort items so that directories come before files and ancestors come
      * before descendants */
@@ -2441,7 +2441,7 @@ static gboolean _launcher_create_document_submenu_templates(
             parent_menu = create_file_submenu;
 
         /* determine the icon for this file/directory */
-        icon = thunar_icon_factory_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 16);
+        icon = ifactory_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 16);
 
         /* allocate an image based on the icon */
         image = gtk_image_new_from_pixbuf(icon);
