@@ -103,19 +103,15 @@ G_DEFINE_TYPE(AppChooserDialog, appchooser, GTK_TYPE_DIALOG)
 
 static void appchooser_class_init(AppChooserDialogClass *klass)
 {
-    GtkDialogClass *gtkdialog_class;
-    GtkWidgetClass *gtkwidget_class;
-    GObjectClass   *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = appchooser_dispose;
     gobject_class->get_property = appchooser_get_property;
     gobject_class->set_property = appchooser_set_property;
 
-    gtkwidget_class = GTK_WIDGET_CLASS(klass);
+    GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
     gtkwidget_class->realize = appchooser_realize;
 
-    gtkdialog_class = GTK_DIALOG_CLASS(klass);
+    GtkDialogClass *gtkdialog_class = GTK_DIALOG_CLASS(klass);
     gtkdialog_class->response = appchooser_response;
 
     g_object_class_install_property(gobject_class,
@@ -139,26 +135,22 @@ static void appchooser_class_init(AppChooserDialogClass *klass)
 
 static void appchooser_init(AppChooserDialog *dialog)
 {
-    GtkTreeViewColumn *column;
-    GtkTreeSelection  *selection;
-    GtkCellRenderer   *renderer;
-    GtkWidget         *header;
-    GtkWidget         *hbox;
-    GtkWidget         *vbox;
-    GtkWidget         *box;
-    GtkWidget         *swin;
-
     /* setup basic window properties */
-    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     gtk_window_set_title(GTK_WINDOW(dialog), _("Open With"));
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
 
     /* create the main widget box */
-    vbox = g_object_new(GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "border-width", 6, "spacing", 12, NULL);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), vbox, TRUE, TRUE, 0);
+    GtkWidget *vbox = g_object_new(GTK_TYPE_BOX,
+                                   "orientation", GTK_ORIENTATION_VERTICAL,
+                                   "border-width", 6,
+                                   "spacing", 12,
+                                   NULL);
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+                       vbox, TRUE, TRUE, 0);
     gtk_widget_show(vbox);
 
     /* create the header box */
-    header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+    GtkWidget *header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_box_pack_start(GTK_BOX(vbox), header, FALSE, FALSE, 0);
     gtk_widget_show(header);
 
@@ -176,12 +168,12 @@ static void appchooser_init(AppChooserDialog *dialog)
     gtk_widget_show(dialog->header_label);
 
     /* create the view box */
-    box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_box_pack_start(GTK_BOX(vbox), box, TRUE, TRUE, 0);
     gtk_widget_show(box);
 
     /* create the scrolled window for the tree view */
-    swin = gtk_scrolled_window_new(NULL, NULL);
+    GtkWidget *swin = gtk_scrolled_window_new(NULL, NULL);
     gtk_widget_set_size_request(swin, -1, 270);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swin), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swin), GTK_SHADOW_IN);
@@ -197,24 +189,26 @@ static void appchooser_init(AppChooserDialog *dialog)
     gtk_widget_show(dialog->tree_view);
 
     /* append the tree view column */
-    column = g_object_new(GTK_TYPE_TREE_VIEW_COLUMN, "expand", TRUE, NULL);
-    renderer = g_object_new(EXO_TYPE_CELL_RENDERER_ICON,
-                            "follow-state",
-                            FALSE,
-                            "size",
-                            24,
-                            NULL);
+    GtkTreeViewColumn *column = g_object_new(GTK_TYPE_TREE_VIEW_COLUMN,
+                                             "expand", TRUE,
+                                             NULL);
+
+    GtkCellRenderer *renderer = g_object_new(EXO_TYPE_CELL_RENDERER_ICON,
+                                             "follow-state", FALSE,
+                                             "size", 24,
+                                             NULL);
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_attributes(column, renderer,
-                                         "gicon", APPCHOOSER_COLUMN_ICON,
-                                         NULL);
+                                        "gicon", APPCHOOSER_COLUMN_ICON,
+                                        NULL);
+
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, TRUE);
     gtk_tree_view_column_set_attributes(column, renderer,
-                                         "style", APPCHOOSER_COLUMN_STYLE,
-                                         "text", APPCHOOSER_COLUMN_NAME,
-                                         "weight", APPCHOOSER_COLUMN_WEIGHT,
-                                         NULL);
+                                        "style", APPCHOOSER_COLUMN_STYLE,
+                                        "text", APPCHOOSER_COLUMN_NAME,
+                                        "weight", APPCHOOSER_COLUMN_WEIGHT,
+                                        NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(dialog->tree_view), column);
 
     /* don't show the expanders */
@@ -239,7 +233,7 @@ static void appchooser_init(AppChooserDialog *dialog)
     gtk_widget_show(dialog->custom_expander);
 
     /* create the "Custom command" box */
-    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
+    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
     gtk_container_add(GTK_CONTAINER(dialog->custom_expander), hbox);
     gtk_widget_show(hbox);
 
@@ -277,9 +271,14 @@ static void appchooser_init(AppChooserDialog *dialog)
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
 
     /* update the "Ok"/"Open" button and the custom entry whenever the tree selection changes */
+    GtkTreeSelection *selection;
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
-    gtk_tree_selection_set_select_function(selection, _appchooser_selection_func, dialog, NULL);
-    g_signal_connect(G_OBJECT(selection), "changed", G_CALLBACK(_appchooser_selection_changed), dialog);
+    gtk_tree_selection_set_select_function(selection,
+                                           _appchooser_selection_func,
+                                           dialog,
+                                           NULL);
+    g_signal_connect(G_OBJECT(selection), "changed",
+                     G_CALLBACK(_appchooser_selection_changed), dialog);
 }
 
 static void appchooser_dispose(GObject *object)

@@ -43,105 +43,109 @@ static inline guchar _lighten_channel(guchar cur_value);
  **/
 GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
 {
-  GdkPixbuf *dst;
-  gboolean   has_alpha;
-  gint       dst_row_stride;
-  gint       src_row_stride;
-  gint       width;
-  gint       height;
-  gint       i;
+    GdkPixbuf *dst;
+    gboolean   has_alpha;
+    gint       dst_row_stride;
+    gint       src_row_stride;
+    gint       width;
+    gint       height;
+    gint       i;
 
-  /* determine source parameters */
-  width = gdk_pixbuf_get_width(source);
-  height = gdk_pixbuf_get_height(source);
-  has_alpha = gdk_pixbuf_get_has_alpha(source);
+    /* determine source parameters */
+    width = gdk_pixbuf_get_width(source);
+    height = gdk_pixbuf_get_height(source);
+    has_alpha = gdk_pixbuf_get_has_alpha(source);
 
-  /* allocate the destination pixbuf */
-  dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source), has_alpha, gdk_pixbuf_get_bits_per_sample(source), width, height);
+    /* allocate the destination pixbuf */
+    dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source),
+                         has_alpha,
+                         gdk_pixbuf_get_bits_per_sample(source),
+                         width,
+                         height);
 
-  /* determine row strides on src/dst */
-  dst_row_stride = gdk_pixbuf_get_rowstride(dst);
-  src_row_stride = gdk_pixbuf_get_rowstride(source);
+    /* determine row strides on src/dst */
+    dst_row_stride = gdk_pixbuf_get_rowstride(dst);
+    src_row_stride = gdk_pixbuf_get_rowstride(source);
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
-  /* check if there's a good reason to use MMX */
-  if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
+    /* check if there's a good reason to use MMX */
+    if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
     {
-      __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
-      __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
-      __m64  alpha_mask = _mm_set_pi8(0xff, 0, 0, 0, 0xff, 0, 0, 0);
-      __m64  color_factor = _mm_set_pi16(0, color->blue, color->green, color->red);
-      __m64  zero = _mm_setzero_si64();
-      __m64  src, alpha, hi, lo;
+        __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
+        __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
+        __m64  alpha_mask = _mm_set_pi8(0xff, 0, 0, 0, 0xff, 0, 0, 0);
+        __m64  color_factor = _mm_set_pi16(0, color->blue, color->green, color->red);
+        __m64  zero = _mm_setzero_si64();
+        __m64  src, alpha, hi, lo;
 
-      /* divide color components by 256 */
-      color_factor = _mm_srli_pi16(color_factor, 8);
+        /* divide color components by 256 */
+        color_factor = _mm_srli_pi16(color_factor, 8);
 
-      for(i =(width * height) >> 1; i > 0; --i)
+        for(i =(width * height) >> 1; i > 0; --i)
         {
-          /* read the source pixel */
-          src = *pixsrc;
+            /* read the source pixel */
+            src = *pixsrc;
 
-          /* remember the two alpha values */
-          alpha = _mm_and_si64(alpha_mask, src);
+            /* remember the two alpha values */
+            alpha = _mm_and_si64(alpha_mask, src);
 
-          /* extract the hi pixel */
-          hi = _mm_unpackhi_pi8(src, zero);
-          hi = _mm_mullo_pi16(hi, color_factor);
+            /* extract the hi pixel */
+            hi = _mm_unpackhi_pi8(src, zero);
+            hi = _mm_mullo_pi16(hi, color_factor);
 
-          /* extract the lo pixel */
-          lo = _mm_unpacklo_pi8(src, zero);
-          lo = _mm_mullo_pi16(lo, color_factor);
+            /* extract the lo pixel */
+            lo = _mm_unpacklo_pi8(src, zero);
+            lo = _mm_mullo_pi16(lo, color_factor);
 
-          /* prefetch the next two pixels */
-          __builtin_prefetch(++pixsrc, 0, 1);
+            /* prefetch the next two pixels */
+            __builtin_prefetch(++pixsrc, 0, 1);
 
-          /* divide by 256 */
-          hi = _mm_srli_pi16(hi, 8);
-          lo = _mm_srli_pi16(lo, 8);
+            /* divide by 256 */
+            hi = _mm_srli_pi16(hi, 8);
+            lo = _mm_srli_pi16(lo, 8);
 
-          /* combine the 2 pixels again */
-          src = _mm_packs_pu16(lo, hi);
+            /* combine the 2 pixels again */
+            src = _mm_packs_pu16(lo, hi);
 
-          /* write back the calculated color together with the alpha */
-          *pixdst = _mm_or_si64(alpha, src);
+            /* write back the calculated color together with the alpha */
+            *pixdst = _mm_or_si64(alpha, src);
 
-          /* advance the dest pointer */
-          ++pixdst;
+            /* advance the dest pointer */
+            ++pixdst;
         }
 
-      _mm_empty();
+        _mm_empty();
     }
-  else
+    else
 #endif
     {
-      guchar *dst_pixels = gdk_pixbuf_get_pixels(dst);
-      guchar *src_pixels = gdk_pixbuf_get_pixels(source);
-      guchar *pixdst;
-      guchar *pixsrc;
-      gint    red_value = color->red / 255.0;
-      gint    green_value = color->green / 255.0;
-      gint    blue_value = color->blue / 255.0;
-      gint    j;
+        guchar *dst_pixels = gdk_pixbuf_get_pixels(dst);
+        guchar *src_pixels = gdk_pixbuf_get_pixels(source);
+        guchar *pixdst;
+        guchar *pixsrc;
+        gint    red_value = color->red / 255.0;
+        gint    green_value = color->green / 255.0;
+        gint    blue_value = color->blue / 255.0;
+        gint    j;
 
-      for(i = height; --i >= 0; )
+        for(i = height; --i >= 0; )
         {
-          pixdst = dst_pixels + i * dst_row_stride;
-          pixsrc = src_pixels + i * src_row_stride;
+            pixdst = dst_pixels + i * dst_row_stride;
+            pixsrc = src_pixels + i * src_row_stride;
 
-          for(j = width; j > 0; --j)
+            for(j = width; j > 0; --j)
             {
-              *pixdst++ =(*pixsrc++ * red_value) >> 8;
-              *pixdst++ =(*pixsrc++ * green_value) >> 8;
-              *pixdst++ =(*pixsrc++ * blue_value) >> 8;
+                *pixdst++ =(*pixsrc++ * red_value) >> 8;
+                *pixdst++ =(*pixsrc++ * green_value) >> 8;
+                *pixdst++ =(*pixsrc++ * blue_value) >> 8;
 
-              if(has_alpha)
-                *pixdst++ = *pixsrc++;
+                if(has_alpha)
+                    *pixdst++ = *pixsrc++;
             }
         }
     }
 
-  return dst;
+    return dst;
 }
 
 /**
@@ -160,113 +164,113 @@ GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
  **/
 GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
 {
-  GdkPixbuf *dst;
-  gboolean   has_alpha;
-  gint       dst_row_stride;
-  gint       src_row_stride;
-  gint       width;
-  gint       height;
-  gint       i;
+    GdkPixbuf *dst;
+    gboolean   has_alpha;
+    gint       dst_row_stride;
+    gint       src_row_stride;
+    gint       width;
+    gint       height;
+    gint       i;
 
-  /* determine source parameters */
-  width = gdk_pixbuf_get_width(source);
-  height = gdk_pixbuf_get_height(source);
-  has_alpha = gdk_pixbuf_get_has_alpha(source);
+    /* determine source parameters */
+    width = gdk_pixbuf_get_width(source);
+    height = gdk_pixbuf_get_height(source);
+    has_alpha = gdk_pixbuf_get_has_alpha(source);
 
-  /* allocate the destination pixbuf */
-  dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source), has_alpha, gdk_pixbuf_get_bits_per_sample(source), width, height);
+    /* allocate the destination pixbuf */
+    dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source), has_alpha, gdk_pixbuf_get_bits_per_sample(source), width, height);
 
-  /* determine src/dst row strides */
-  dst_row_stride = gdk_pixbuf_get_rowstride(dst);
-  src_row_stride = gdk_pixbuf_get_rowstride(source);
+    /* determine src/dst row strides */
+    dst_row_stride = gdk_pixbuf_get_rowstride(dst);
+    src_row_stride = gdk_pixbuf_get_rowstride(source);
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
-  /* check if there's a good reason to use MMX */
-  if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
+    /* check if there's a good reason to use MMX */
+    if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
     {
-      __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
-      __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
-      __m64  alpha_mask = _mm_set_pi8(0xff, 0, 0, 0, 0xff, 0, 0, 0);
-      __m64  twentyfour = _mm_set_pi8(0, 24, 24, 24, 0, 24, 24, 24);
-      __m64  zero = _mm_setzero_si64();
+        __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
+        __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
+        __m64  alpha_mask = _mm_set_pi8(0xff, 0, 0, 0, 0xff, 0, 0, 0);
+        __m64  twentyfour = _mm_set_pi8(0, 24, 24, 24, 0, 24, 24, 24);
+        __m64  zero = _mm_setzero_si64();
 
-      for(i =(width * height) >> 1; i > 0; --i)
+        for(i =(width * height) >> 1; i > 0; --i)
         {
-          /* read the source pixel */
-          __m64 src = *pixsrc;
+            /* read the source pixel */
+            __m64 src = *pixsrc;
 
-          /* remember the two alpha values */
-          __m64 alpha = _mm_and_si64(alpha_mask, src);
+            /* remember the two alpha values */
+            __m64 alpha = _mm_and_si64(alpha_mask, src);
 
-          /* extract the hi pixel */
-          __m64 hi = _mm_unpackhi_pi8(src, zero);
+            /* extract the hi pixel */
+            __m64 hi = _mm_unpackhi_pi8(src, zero);
 
-          /* extract the lo pixel */
-          __m64 lo = _mm_unpacklo_pi8(src, zero);
+            /* extract the lo pixel */
+            __m64 lo = _mm_unpacklo_pi8(src, zero);
 
-          /* add(x >> 3) to x */
-          hi = _mm_adds_pu16(hi, _mm_srli_pi16(hi, 3));
-          lo = _mm_adds_pu16(lo, _mm_srli_pi16(lo, 3));
+            /* add(x >> 3) to x */
+            hi = _mm_adds_pu16(hi, _mm_srli_pi16(hi, 3));
+            lo = _mm_adds_pu16(lo, _mm_srli_pi16(lo, 3));
 
-          /* prefetch next value */
-          __builtin_prefetch(++pixsrc, 0, 1);
+            /* prefetch next value */
+            __builtin_prefetch(++pixsrc, 0, 1);
 
-          /* combine the two pixels again */
-          src = _mm_packs_pu16(lo, hi);
+            /* combine the two pixels again */
+            src = _mm_packs_pu16(lo, hi);
 
-          /* add 24(with saturation) */
-          src = _mm_adds_pu8(src, twentyfour);
+            /* add 24(with saturation) */
+            src = _mm_adds_pu8(src, twentyfour);
 
-          /* drop the alpha channel from the temp color */
-          src = _mm_andnot_si64(alpha_mask, src);
+            /* drop the alpha channel from the temp color */
+            src = _mm_andnot_si64(alpha_mask, src);
 
-          /* write back the calculated color */
-          *pixdst = _mm_or_si64(alpha, src);
+            /* write back the calculated color */
+            *pixdst = _mm_or_si64(alpha, src);
 
-          /* advance the dest pointer */
-          ++pixdst;
+            /* advance the dest pointer */
+            ++pixdst;
         }
 
-      _mm_empty();
+        _mm_empty();
     }
-  else
+    else
 #endif
     {
-      guchar *dst_pixels = gdk_pixbuf_get_pixels(dst);
-      guchar *src_pixels = gdk_pixbuf_get_pixels(source);
-      guchar *pixdst;
-      guchar *pixsrc;
-      gint    j;
+        guchar *dst_pixels = gdk_pixbuf_get_pixels(dst);
+        guchar *src_pixels = gdk_pixbuf_get_pixels(source);
+        guchar *pixdst;
+        guchar *pixsrc;
+        gint    j;
 
-      for(i = height; --i >= 0; )
+        for(i = height; --i >= 0; )
         {
-          pixdst = dst_pixels + i * dst_row_stride;
-          pixsrc = src_pixels + i * src_row_stride;
+            pixdst = dst_pixels + i * dst_row_stride;
+            pixsrc = src_pixels + i * src_row_stride;
 
-          for(j = width; j > 0; --j)
+            for(j = width; j > 0; --j)
             {
-              *pixdst++ = _lighten_channel(*pixsrc++);
-              *pixdst++ = _lighten_channel(*pixsrc++);
-              *pixdst++ = _lighten_channel(*pixsrc++);
+                *pixdst++ = _lighten_channel(*pixsrc++);
+                *pixdst++ = _lighten_channel(*pixsrc++);
+                *pixdst++ = _lighten_channel(*pixsrc++);
 
-              if(G_LIKELY(has_alpha))
-                *pixdst++ = *pixsrc++;
+                if(G_LIKELY(has_alpha))
+                    *pixdst++ = *pixsrc++;
             }
         }
     }
 
-  return dst;
+    return dst;
 }
 
 static inline guchar _lighten_channel(guchar cur_value)
 {
-  gint new_value = cur_value;
+    gint new_value = cur_value;
 
-  new_value += 24 +(new_value >> 3);
-  if(G_UNLIKELY(new_value > 255))
-    new_value = 255;
+    new_value += 24 +(new_value >> 3);
+    if(G_UNLIKELY(new_value > 255))
+        new_value = 255;
 
-  return(guchar) new_value;
+    return(guchar) new_value;
 }
 
 /**
@@ -293,40 +297,40 @@ static inline guchar _lighten_channel(guchar cur_value)
  * Since: 0.3.1.1
  **/
 GdkPixbuf* pixbuf_scale_down(GdkPixbuf *source,
-                                  gboolean  preserve_aspect_ratio,
-                                  gint      dest_width,
-                                  gint      dest_height)
+                             gboolean  preserve_aspect_ratio,
+                             gint      dest_width,
+                             gint      dest_height)
 {
-  gdouble wratio;
-  gdouble hratio;
-  gint    source_width;
-  gint    source_height;
+    gdouble wratio;
+    gdouble hratio;
+    gint    source_width;
+    gint    source_height;
 
-  g_return_val_if_fail(GDK_IS_PIXBUF(source), NULL);
-  g_return_val_if_fail(dest_width > 0, NULL);
-  g_return_val_if_fail(dest_height > 0, NULL);
+    g_return_val_if_fail(GDK_IS_PIXBUF(source), NULL);
+    g_return_val_if_fail(dest_width > 0, NULL);
+    g_return_val_if_fail(dest_height > 0, NULL);
 
-  source_width = gdk_pixbuf_get_width(source);
-  source_height = gdk_pixbuf_get_height(source);
+    source_width = gdk_pixbuf_get_width(source);
+    source_height = gdk_pixbuf_get_height(source);
 
-  /* check if we need to scale */
-  if(G_UNLIKELY(source_width <= dest_width && source_height <= dest_height))
-    return GDK_PIXBUF(g_object_ref(G_OBJECT(source)));
+    /* check if we need to scale */
+    if(G_UNLIKELY(source_width <= dest_width && source_height <= dest_height))
+        return GDK_PIXBUF(g_object_ref(G_OBJECT(source)));
 
-  /* check if aspect ratio should be preserved */
-  if (G_LIKELY(preserve_aspect_ratio))
+    /* check if aspect ratio should be preserved */
+    if (G_LIKELY(preserve_aspect_ratio))
     {
-      /* calculate the new dimensions */
-      wratio =(gdouble) source_width  /(gdouble) dest_width;
-      hratio =(gdouble) source_height /(gdouble) dest_height;
+        /* calculate the new dimensions */
+        wratio =(gdouble) source_width  /(gdouble) dest_width;
+        hratio =(gdouble) source_height /(gdouble) dest_height;
 
-      if(hratio > wratio)
-        dest_width  = rint(source_width / hratio);
-      else
-        dest_height = rint(source_height / wratio);
+        if(hratio > wratio)
+            dest_width  = rint(source_width / hratio);
+        else
+            dest_height = rint(source_height / wratio);
     }
 
-  return gdk_pixbuf_scale_simple(source, MAX(dest_width, 1), MAX(dest_height, 1), GDK_INTERP_BILINEAR);
+    return gdk_pixbuf_scale_simple(source, MAX(dest_width, 1), MAX(dest_height, 1), GDK_INTERP_BILINEAR);
 }
 
 
