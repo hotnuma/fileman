@@ -1450,7 +1450,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         return item;
 
     case LAUNCHER_ACTION_CUT:
-        focused_widget = thunar_gtk_get_focused_widget();
+        focused_widget = egtk_get_focused_widget();
         if (focused_widget && GTK_IS_EDITABLE(focused_widget))
         {
             item = xfce_gtk_image_menu_item_new_from_icon_name(
@@ -1458,7 +1458,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                        N_("Cut the selection"),
                        action_entry->accel_path, G_CALLBACK(gtk_editable_cut_clipboard),
                        G_OBJECT(focused_widget), action_entry->menu_item_icon_name, menu);
-            gtk_widget_set_sensitive(item, thunar_gtk_editable_can_cut(GTK_EDITABLE(focused_widget)));
+            gtk_widget_set_sensitive(item, egtk_editable_can_cut(GTK_EDITABLE(focused_widget)));
         }
         else
         {
@@ -1474,7 +1474,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         return item;
 
     case LAUNCHER_ACTION_COPY:
-        focused_widget = thunar_gtk_get_focused_widget();
+        focused_widget = egtk_get_focused_widget();
         if (focused_widget && GTK_IS_EDITABLE(focused_widget))
         {
             item = xfce_gtk_image_menu_item_new_from_icon_name(
@@ -1482,7 +1482,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                        N_("Copy the selection"),
                        action_entry->accel_path,G_CALLBACK(gtk_editable_copy_clipboard),
                        G_OBJECT(focused_widget), action_entry->menu_item_icon_name, menu);
-            gtk_widget_set_sensitive(item, thunar_gtk_editable_can_copy(GTK_EDITABLE(focused_widget)));
+            gtk_widget_set_sensitive(item, egtk_editable_can_copy(GTK_EDITABLE(focused_widget)));
         }
         else
         {
@@ -1508,7 +1508,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case LAUNCHER_ACTION_PASTE:
 
-        focused_widget = thunar_gtk_get_focused_widget();
+        focused_widget = egtk_get_focused_widget();
 
         if (focused_widget && GTK_IS_EDITABLE(focused_widget))
         {
@@ -1517,7 +1517,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                        N_("Paste the clipboard"),
                        action_entry->accel_path,G_CALLBACK(gtk_editable_paste_clipboard),
                        G_OBJECT(focused_widget), action_entry->menu_item_icon_name, menu);
-            gtk_widget_set_sensitive(item, thunar_gtk_editable_can_paste(GTK_EDITABLE(focused_widget)));
+            gtk_widget_set_sensitive(item, egtk_editable_can_paste(GTK_EDITABLE(focused_widget)));
         }
         else
         {
@@ -2270,7 +2270,7 @@ void launcher_action_eject(ThunarLauncher *launcher)
     {
         /* prepare a mount operation */
         GMountOperation *mount_operation;
-        mount_operation = thunar_gtk_mount_operation_new(GTK_WIDGET(launcher->widget));
+        mount_operation = eg_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         /* eject */
         th_device_eject(launcher->device_to_process,
@@ -2316,7 +2316,7 @@ void launcher_action_unmount(ThunarLauncher *launcher)
     if (G_LIKELY(launcher->device_to_process != NULL))
     {
         /* prepare a mount operation */
-        mount_operation = thunar_gtk_mount_operation_new(GTK_WIDGET(launcher->widget));
+        mount_operation = eg_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         /* eject */
         th_device_unmount(launcher->device_to_process,

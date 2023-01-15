@@ -16,33 +16,30 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_GTK_EXTENSIONS_H__
-#define __THUNAR_GTK_EXTENSIONS_H__
+#ifndef __GTK_EXTENSIONS_H__
+#define __GTK_EXTENSIONS_H__
 
 #include <gtk/gtk.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
+GMountOperation* eg_mount_operation_new(gpointer parent);
 
-void             thunar_gtk_label_set_a11y_relation           (GtkLabel           *label,
-        GtkWidget          *widget);
-void             thunar_gtk_menu_clean                        (GtkMenu            *menu);
-void             thunar_gtk_menu_run                          (GtkMenu            *menu);
+GtkWidget*  egtk_get_focused_widget();
+void    egtk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
+                                G_GNUC_PRINTF (2, 3);
 
-void             thunar_gtk_menu_run_at_event                 (GtkMenu            *menu,
-        GdkEvent           *event);
-void thunar_gtk_widget_set_tooltip (GtkWidget *widget,
-                                    const gchar *format, ...) G_GNUC_PRINTF (2, 3);
-GMountOperation *thunar_gtk_mount_operation_new               (gpointer            parent);
+void    egtk_label_set_a11y_relation(GtkLabel *label, GtkWidget *widget);
 
-GtkWidget       *thunar_gtk_get_focused_widget                (void);
+void    egtk_menu_run(GtkMenu *menu);
+void    egtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event);
 
-gboolean         thunar_gtk_editable_can_cut                  (GtkEditable        *editable);
-gboolean         thunar_gtk_editable_can_copy                 (GtkEditable        *editable);
-gboolean         thunar_gtk_editable_can_paste                (GtkEditable        *editable);
+gboolean    egtk_editable_can_cut(GtkEditable *editable);
+gboolean    egtk_editable_can_copy(GtkEditable *editable);
+gboolean    egtk_editable_can_paste(GtkEditable *editable);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_GTK_EXTENSIONS_H__ */
+#endif // __GTK_EXTENSIONS_H__
 
 

@@ -380,7 +380,7 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
     {
         /* setup a useful tooltip for the button */
         description = g_content_type_get_description(content_type);
-        thunar_gtk_widget_set_tooltip(GTK_WIDGET(chooser_button),
+        egtk_widget_set_tooltip(GTK_WIDGET(chooser_button),
                                        _("The selected application is used to open "
                                          "this and other files of type \"%s\"."),
                                        description);

@@ -960,7 +960,7 @@ static void _treeview_context_menu(TreeView *view,
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
     window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window),
                                                       GTK_MENU(context_menu));
-    thunar_gtk_menu_run(GTK_MENU(context_menu));
+    egtk_menu_run(GTK_MENU(context_menu));
 
     if (G_UNLIKELY(device != NULL))
         g_object_unref(G_OBJECT(device));

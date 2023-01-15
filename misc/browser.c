@@ -424,7 +424,7 @@ static void _browser_poke_file_internal(
             poke_data = _browser_poke_file_data_new(browser, location, source,
                         file, func, location_func, user_data);
 
-            mount_operation = thunar_gtk_mount_operation_new(widget);
+            mount_operation = eg_mount_operation_new(widget);
 
             g_file_mount_mountable(th_file_get_file(file),
                                     G_MOUNT_MOUNT_NONE, mount_operation, NULL,
@@ -439,7 +439,7 @@ static void _browser_poke_file_internal(
         poke_data = _browser_poke_file_data_new(browser, location, source,
                     file, func, location_func, user_data);
 
-        mount_operation = thunar_gtk_mount_operation_new(widget);
+        mount_operation = eg_mount_operation_new(widget);
 
         g_file_mount_enclosing_volume(th_file_get_file(file),
                                        G_MOUNT_MOUNT_NONE, mount_operation, NULL,
@@ -605,7 +605,7 @@ void browser_poke_device(ThunarBrowser   *browser,
     {
         poke_data = _browser_poke_device_data_new(browser, device, func, user_data);
 
-        mount_operation = thunar_gtk_mount_operation_new(widget);
+        mount_operation = eg_mount_operation_new(widget);
 
         th_device_mount(device,
                              mount_operation,

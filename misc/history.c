@@ -537,7 +537,7 @@ void history_show_menu(ThunarHistory         *history,
     g_object_unref(G_OBJECT(icon_factory));
 
     /* run the menu(takes over the floating of menu) */
-    thunar_gtk_menu_run(GTK_MENU(menu));
+    egtk_menu_run(GTK_MENU(menu));
 }
 
 ThunarHistory* history_copy(ThunarHistory *history)

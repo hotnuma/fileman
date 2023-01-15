@@ -1815,13 +1815,13 @@ void standard_view_context_menu(StandardView *standard_view)
     /* if there is a drag_timer_event(long press), we use it */
     if (standard_view->priv->drag_timer_event != NULL)
     {
-        thunar_gtk_menu_run_at_event(GTK_MENU(context_menu), standard_view->priv->drag_timer_event);
+        egtk_menu_run_at_event(GTK_MENU(context_menu), standard_view->priv->drag_timer_event);
         gdk_event_free(standard_view->priv->drag_timer_event);
         standard_view->priv->drag_timer_event = NULL;
     }
     else
     {
-        thunar_gtk_menu_run(GTK_MENU(context_menu));
+        egtk_menu_run(GTK_MENU(context_menu));
     }
 
     g_list_free_full(selected_items,(GDestroyNotify) gtk_tree_path_free);

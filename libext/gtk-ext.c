@@ -22,7 +22,6 @@
 #include <libext.h>
 #include <utils.h>
 #include <stdarg.h>
-
 #include <libxfce4ui/libxfce4ui.h>
 
 /**
@@ -34,7 +33,7 @@
  * accessiblity tools will identify @label as descriptive item for the specified
  * @widget.
  **/
-void thunar_gtk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
+void egtk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
 {
     AtkRelationSet *relations;
     AtkRelation    *relation;
@@ -51,109 +50,20 @@ void thunar_gtk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
 }
 
 /**
- * thunar_gtk_menu_thunarx_menu_item_new:
- * @thunarx_menu_item   : a #ThunarxMenuItem
- * @menu_to_append_item : #GtkMenuShell on which the item should be appended, or NULL
- *
- * method to create a #GtkMenuItem from a #ThunarxMenuItem and append it to the passed #GtkMenuShell
- * This method will as well add all sub-items in case the passed #ThunarxMenuItem is a submenu
- *
- * Return value:(transfer full): The new #GtkImageMenuItem.
- **/
-#if 0
-//GtkWidget       *thunar_gtk_menu_thunarx_menu_item_new        (GObject            *thunarx_menu_item,
-//        GtkMenuShell       *menu_to_append_item);
-
-GtkWidget* thunar_gtk_menu_thunarx_menu_item_new(GObject      *thunarx_menu_item,
-                                                 GtkMenuShell *menu_to_append_item)
-{
-    gchar        *name, *label_text, *tooltip_text, *icon_name, *accel_path;
-    gboolean      sensitive;
-    GtkWidget    *gtk_menu_item;
-    ThunarxMenu  *thunarx_menu;
-    GList        *children;
-    GList        *lp;
-    GtkWidget    *submenu;
-    GtkWidget    *image;
-    GIcon        *icon;
-
-    g_return_val_if_fail(THUNARX_IS_MENU_ITEM(thunarx_menu_item), NULL);
-
-    g_object_get(G_OBJECT(thunarx_menu_item),
-                  "name", &name,
-                  "label", &label_text,
-                  "tooltip", &tooltip_text,
-                  "icon", &icon_name,
-                  "sensitive", &sensitive,
-                  "menu", &thunarx_menu,
-                  NULL);
-
-    accel_path = g_strconcat("<Actions>/ThunarActions/", name, NULL);
-    icon = g_icon_new_for_string(icon_name, NULL);
-    image = gtk_image_new_from_gicon(icon,GTK_ICON_SIZE_MENU);
-    gtk_menu_item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, accel_path,
-                    G_CALLBACK(thunarx_menu_item_activate),
-                    G_OBJECT(thunarx_menu_item), image, menu_to_append_item);
-
-    /* recursively add submenu items if any */
-    if (gtk_menu_item != NULL && thunarx_menu != NULL)
-    {
-        children = thunarx_menu_get_items(thunarx_menu);
-        submenu = gtk_menu_new();
-        for(lp = children; lp != NULL; lp = lp->next)
-            thunar_gtk_menu_thunarx_menu_item_new(lp->data, GTK_MENU_SHELL(submenu));
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(gtk_menu_item), submenu);
-        thunarx_menu_item_list_free(children);
-    }
-    g_free(name);
-    g_free(accel_path);
-    g_free(label_text);
-    g_free(tooltip_text);
-    g_free(icon_name);
-    g_object_unref(icon);
-
-    return gtk_menu_item;
-}
-#endif
-
-/**
- * thunar_gtk_menu_clean:
- * @menu : a #GtkMenu.
- *
- * Walks through the menu and all submenus and removes them,
- * so that the result will be a clean #GtkMenu without any items
- **/
-void thunar_gtk_menu_clean(GtkMenu *menu)
-{
-    GList     *children, *lp;
-    GtkWidget *submenu;
-
-    children = gtk_container_get_children(GTK_CONTAINER(menu));
-    for(lp = children; lp != NULL; lp = lp->next)
-    {
-        submenu = gtk_menu_item_get_submenu(lp->data);
-        if (submenu != NULL)
-            gtk_widget_destroy(submenu);
-        gtk_container_remove(GTK_CONTAINER(menu), lp->data);
-    }
-    g_list_free(children);
-}
-
-/**
  * thunar_gtk_menu_run:
  * @menu : a #GtkMenu.
  *
  * Conveniance wrapper for thunar_gtk_menu_run_at_event_pointer, to run a menu for the current event
  **/
-void thunar_gtk_menu_run(GtkMenu *menu)
+void egtk_menu_run(GtkMenu *menu)
 {
     GdkEvent *event = gtk_get_current_event();
-    thunar_gtk_menu_run_at_event(menu, event);
+    egtk_menu_run_at_event(menu, event);
     gdk_event_free(event);
 }
 
 #if GTK_CHECK_VERSION(3, 24, 8)
-static void moved_to_rect_cb(GdkWindow          *window,
+static void _moved_to_rect_cb(GdkWindow          *window,
                              const GdkRectangle *flipped_rect,
                              const GdkRectangle *final_rect,
                              gboolean            flipped_x,
@@ -164,12 +74,12 @@ static void moved_to_rect_cb(GdkWindow          *window,
     g_signal_stop_emission_by_name(window, "moved-to-rect");
 }
 
-static void popup_menu_realized(GtkWidget *menu, gpointer   user_data)
+static void _popup_menu_realized(GtkWidget *menu, gpointer   user_data)
 {
     UNUSED(user_data);
     GdkWindow *toplevel = gtk_widget_get_window(gtk_widget_get_toplevel(menu));
-    g_signal_handlers_disconnect_by_func(toplevel, moved_to_rect_cb, menu);
-    g_signal_connect(toplevel, "moved-to-rect", G_CALLBACK(moved_to_rect_cb), menu);
+    g_signal_handlers_disconnect_by_func(toplevel, _moved_to_rect_cb, menu);
+    g_signal_connect(toplevel, "moved-to-rect", G_CALLBACK(_moved_to_rect_cb), menu);
 }
 #endif
 
@@ -186,7 +96,7 @@ static void popup_menu_realized(GtkWidget *menu, gpointer   user_data)
  * not need to take care of destroying the menu later.
  *
  **/
-void thunar_gtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
+void egtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 {
     GMainLoop *loop;
     gulong     signal_id;
@@ -202,7 +112,8 @@ void thunar_gtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 
 #if GTK_CHECK_VERSION(3, 24, 8)
     /* Workaround for incorrect popup menus size */
-    g_signal_connect(G_OBJECT(menu), "realize", G_CALLBACK(popup_menu_realized), NULL);
+    g_signal_connect(G_OBJECT(menu), "realize",
+                     G_CALLBACK(_popup_menu_realized), NULL);
     gtk_widget_realize(GTK_WIDGET(menu));
 #endif
 
@@ -220,7 +131,7 @@ void thunar_gtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 }
 
 /**
- * thunar_gtk_widget_set_tooltip:
+ * egtk_widget_set_tooltip:
  * @widget : a #GtkWidget for which to set the tooltip.
  * @format : a printf(3)-style format string.
  * @...    : additional arguments for @format.
@@ -228,7 +139,7 @@ void thunar_gtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
  * Sets the tooltip for the @widget to a string generated
  * from the @format and the additional arguments in @...<!--->.
  **/
-void thunar_gtk_widget_set_tooltip(GtkWidget   *widget, const gchar *format, ...)
+void egtk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
 {
     va_list  var_args;
     gchar   *tooltip;
@@ -252,7 +163,7 @@ void thunar_gtk_widget_set_tooltip(GtkWidget   *widget, const gchar *format, ...
  * thunar_gtk_get_focused_widget:
  * Return value:(transfer none): currently focused widget or NULL, if there is none.
  **/
-GtkWidget* thunar_gtk_get_focused_widget()
+GtkWidget* egtk_get_focused_widget()
 {
     GtkApplication *app;
     GtkWindow      *window;
@@ -271,7 +182,7 @@ GtkWidget* thunar_gtk_get_focused_widget()
  *
  * Create a mount operation with some defaults.
  **/
-GMountOperation* thunar_gtk_mount_operation_new(gpointer parent)
+GMountOperation* eg_mount_operation_new(gpointer parent)
 {
     GMountOperation *operation;
     GdkScreen       *screen;
@@ -293,10 +204,10 @@ GMountOperation* thunar_gtk_mount_operation_new(gpointer parent)
  * Return value: TRUE if it's possible to cut text off of a GtkEditable.
  *               FALSE, otherwise.
  **/
-gboolean thunar_gtk_editable_can_cut(GtkEditable *editable)
+gboolean egtk_editable_can_cut(GtkEditable *editable)
 {
     return gtk_editable_get_editable(editable) &&
-           thunar_gtk_editable_can_copy(editable);
+           egtk_editable_can_copy(editable);
 }
 
 /**
@@ -305,7 +216,7 @@ gboolean thunar_gtk_editable_can_cut(GtkEditable *editable)
  * Return value: TRUE if it's possible to copy text from a GtkEditable.
  *               FALSE, otherwise.
  **/
-gboolean thunar_gtk_editable_can_copy(GtkEditable *editable)
+gboolean egtk_editable_can_copy(GtkEditable *editable)
 {
     return gtk_editable_get_selection_bounds(editable, NULL,NULL);
 }
@@ -316,7 +227,7 @@ gboolean thunar_gtk_editable_can_copy(GtkEditable *editable)
  * Return value: TRUE if it's possible to paste text to a GtkEditable.
  *               FALSE, otherwise.
  **/
-gboolean thunar_gtk_editable_can_paste(GtkEditable *editable)
+gboolean egtk_editable_can_paste(GtkEditable *editable)
 {
     return gtk_editable_get_editable(editable);
 }
