@@ -87,7 +87,7 @@ app_sources = [
     'misc/icon-factory.c',
     'misc/icon-render.c',
     'misc/navigator.c',
-    'misc/shortcut-render.c',
+    'misc/srender.c',
     'side/sidepane.c',
     'side/treemodel.c',
     'side/treepane.c',

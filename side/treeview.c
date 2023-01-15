@@ -33,7 +33,7 @@
 #include <marshal.h>
 #include <menu.h>
 #include <propsdlg.h>
-#include <shortcut-render.h>
+#include <srender.h>
 #include <simple-job.h>
 #include <treemodel.h>
 #include <utils.h>

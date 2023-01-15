@@ -59,7 +59,7 @@ HEADERS = \
     misc/icon-factory.h \
     misc/icon-render.h \
     misc/navigator.h \
-    misc/shortcut-render.h \
+    misc/srender.h \
     side/sidepane.h \
     side/treemodel.h \
     side/treepane.h \
@@ -129,7 +129,7 @@ SOURCES = \
     misc/icon-factory.c \
     misc/icon-render.c \
     misc/navigator.c \
-    misc/shortcut-render.c \
+    misc/srender.c \
     side/sidepane.c \
     side/treemodel.c \
     side/treepane.c \

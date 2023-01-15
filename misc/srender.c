@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <shortcut-render.h>
+#include <srender.h>
 
 #include <libext.h>
 #include <pixbuf-ext.h>
