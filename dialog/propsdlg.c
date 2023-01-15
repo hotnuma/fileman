@@ -209,11 +209,12 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_grid_attach(GTK_GRID(grid), dialog->single_box, 0, row, 1, 1);
 
     dialog->icon_button = gtk_button_new();
-    //g_signal_connect(G_OBJECT(dialog->icon_button), "clicked", G_CALLBACK(thunar_properties_dialog_icon_button_clicked), dialog);
+    //g_signal_connect(G_OBJECT(dialog->icon_button), "clicked",
+    //G_CALLBACK(thunar_properties_dialog_icon_button_clicked), dialog);
     gtk_box_pack_start(GTK_BOX(dialog->single_box), dialog->icon_button, FALSE, TRUE, 0);
     gtk_widget_show(dialog->icon_button);
 
-    dialog->icon_image = thunar_image_new();
+    dialog->icon_image = th_image_new();
     gtk_box_pack_start(GTK_BOX(dialog->single_box), dialog->icon_image, FALSE, TRUE, 0);
     gtk_widget_show(dialog->icon_image);
 
@@ -231,9 +232,11 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_widget_show_all(GTK_WIDGET(dialog->name_entry));
 
     g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
-                      "activate", G_CALLBACK(_propsdlg_name_activate), dialog);
+                     "activate",
+                     G_CALLBACK(_propsdlg_name_activate), dialog);
     g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
-                      "focus-out-event", G_CALLBACK(_propsdlg_name_focus_out_event), dialog);
+                     "focus-out-event",
+                     G_CALLBACK(_propsdlg_name_focus_out_event), dialog);
 
     gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(dialog->name_entry), 1, row, 1, 1);
     g_object_bind_property(G_OBJECT(dialog->single_box), "visible", G_OBJECT(dialog->name_entry), "visible", G_BINDING_SYNC_CREATE);
@@ -719,7 +722,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     g_free(str);
 
     /* update the preview image */
-    thunar_image_set_file(THUNAR_IMAGE(dialog->icon_image), file);
+    th_image_set_file(THUNAR_IMAGE(dialog->icon_image), file);
 
     /* check if the icon may be changed(only for writable .desktop files) */
     g_object_ref(G_OBJECT(dialog->icon_image));
