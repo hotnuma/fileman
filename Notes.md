@@ -32,7 +32,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   22570	./core/devmon.c
 +   22332	./widget/icon-render.c
 +   21570	./core/clipman.c
-    20594	./misc/history.c
++   20594	./misc/history.c
 +   19810	./dialog/appcombo.c
     19073	./misc/enum-types.c
     18633	./libext/utils.c

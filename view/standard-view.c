@@ -1271,7 +1271,7 @@ static void _standard_view_restore_selection_from_history(StandardView *standard
     selected_files.next = NULL;
 
     /* determine the next file in the history */
-    selected_file = thunar_history_peek_forward(standard_view->priv->history);
+    selected_file = history_peek_forward(standard_view->priv->history);
     if (selected_file != NULL)
     {
         /* mark the file from history for selection if it is inside the new
@@ -1285,7 +1285,7 @@ static void _standard_view_restore_selection_from_history(StandardView *standard
     /* do the same with the previous file in the history */
     if (selected_files.data == NULL)
     {
-        selected_file = thunar_history_peek_back(standard_view->priv->history);
+        selected_file = history_peek_back(standard_view->priv->history);
         if (selected_file != NULL)
         {
             /* mark the file from history for selection if it is inside the

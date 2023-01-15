@@ -1042,10 +1042,10 @@ static void _window_history_changed(ThunarWindow *window)
         return;
 
     if (window->toolbar_item_back != NULL)
-        gtk_widget_set_sensitive(window->toolbar_item_back, thunar_history_has_back(history));
+        gtk_widget_set_sensitive(window->toolbar_item_back, history_has_back(history));
 
     if (window->toolbar_item_forward != NULL)
-        gtk_widget_set_sensitive(window->toolbar_item_forward, thunar_history_has_forward(history));
+        gtk_widget_set_sensitive(window->toolbar_item_forward, history_has_forward(history));
 }
 
 static void _window_notebook_page_added(GtkWidget    *notebook,
@@ -1408,7 +1408,7 @@ static void _window_action_back(ThunarWindow *window)
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
     history = standard_view_get_history(STANDARD_VIEW(window->view));
-    thunar_history_action_back(history);
+    history_action_back(history);
 }
 
 static void _window_action_forward(ThunarWindow *window)
@@ -1418,7 +1418,7 @@ static void _window_action_forward(ThunarWindow *window)
     thunar_return_if_fail(THUNAR_IS_WINDOW(window));
 
     history = standard_view_get_history(STANDARD_VIEW(window->view));
-    thunar_history_action_forward(history);
+    history_action_forward(history);
 }
 
 static void _window_action_open_home(ThunarWindow *window)
@@ -1939,9 +1939,9 @@ static gboolean _window_history_clicked(GtkWidget      *button,
         history = standard_view_get_history(STANDARD_VIEW(window->view));
 
         if (button == window->toolbar_item_back)
-            thunar_history_show_menu(history, THUNAR_HISTORY_MENU_BACK, button);
+            history_show_menu(history, THUNAR_HISTORY_MENU_BACK, button);
         else if (button == window->toolbar_item_forward)
-            thunar_history_show_menu(history, THUNAR_HISTORY_MENU_FORWARD, button);
+            history_show_menu(history, THUNAR_HISTORY_MENU_FORWARD, button);
         else
             g_warning("This button is not able to spawn a history menu");
     }

@@ -21,17 +21,22 @@
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarHistoryClass ThunarHistoryClass;
 typedef struct _ThunarHistory      ThunarHistory;
 
-#define THUNAR_TYPE_HISTORY             (thunar_history_get_type ())
-#define THUNAR_HISTORY(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_HISTORY, ThunarHistory))
-#define THUNAR_HISTORY_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_HISTORY, ThunarHistoryClass))
-#define THUNAR_IS_HISTORY(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_HISTORY))
-#define THUNAR_IS_HISTORY_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_HISTORY))
-#define THUNAR_HISTORY_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_HISTORY, ThunarHistoryClass))
+#define THUNAR_TYPE_HISTORY (history_get_type ())
+#define THUNAR_HISTORY(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_HISTORY, ThunarHistory))
+#define THUNAR_HISTORY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_HISTORY, ThunarHistoryClass))
+#define THUNAR_IS_HISTORY(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_HISTORY))
+#define THUNAR_IS_HISTORY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_HISTORY))
+#define THUNAR_HISTORY_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_HISTORY, ThunarHistoryClass))
 
 typedef enum
 {
@@ -45,24 +50,24 @@ struct _ThunarHistoryClass
     GObjectClass __parent__;
 
     /* external signals */
-    void (*history_changed) (ThunarHistory *history, const gchar   *initial_text);
+    void (*history_changed) (ThunarHistory *history, const gchar *initial_text);
 };
 
-GType           thunar_history_get_type() G_GNUC_CONST;
+GType           history_get_type() G_GNUC_CONST;
 
-ThunarHistory*  thunar_history_copy(ThunarHistory *history);
-gboolean        thunar_history_has_back(ThunarHistory *history);
-gboolean        thunar_history_has_forward(ThunarHistory *history);
-ThunarFile*     thunar_history_peek_back(ThunarHistory *history);
-ThunarFile*     thunar_history_peek_forward(ThunarHistory *history);
-void            thunar_history_action_back(ThunarHistory *history);
-void            thunar_history_action_forward(ThunarHistory *history);
-void            thunar_history_show_menu(ThunarHistory  *history,
-                                         ThunarHistoryMenuType  type,
-                                         GtkWidget      *parent);
+ThunarHistory*  history_copy(ThunarHistory *history);
+gboolean        history_has_back(ThunarHistory *history);
+gboolean        history_has_forward(ThunarHistory *history);
+ThunarFile*     history_peek_back(ThunarHistory *history);
+ThunarFile*     history_peek_forward(ThunarHistory *history);
+void            history_action_back(ThunarHistory *history);
+void            history_action_forward(ThunarHistory *history);
+void            history_show_menu(ThunarHistory  *history,
+                                  ThunarHistoryMenuType  type,
+                                  GtkWidget      *parent);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_HISTORY_H__ */
+#endif // __THUNAR_HISTORY_H__
 
 
