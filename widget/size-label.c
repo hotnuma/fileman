@@ -48,7 +48,7 @@ static void _szlabel_files_changed(SizeLabel *size_label);
 static void _szlabel_error(ExoJob *job, const GError *error,
                            SizeLabel *size_label);
 static void _szlabel_finished(ExoJob *job, SizeLabel *size_label);
-static void _szlabel_status_update(ThunarDeepCountJob *job,
+static void _szlabel_status_update(DeepCountJob *job,
                                    guint64 total_size,
                                    guint file_count,
                                    guint directory_count,
@@ -66,7 +66,7 @@ struct _SizeLabel
 {
     GtkHBox             __parent__;
 
-    ThunarDeepCountJob  *job;
+    DeepCountJob  *job;
 
     GList               *files;
     gboolean            file_size_binary;
@@ -258,7 +258,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
             || th_file_is_directory(THUNAR_FILE(size_label->files->data)))
     {
         /* schedule a new job to determine the total size of the directory(not following symlinks) */
-        size_label->job = thunar_deep_count_job_new(size_label->files, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS);
+        size_label->job = dcjob_new(size_label->files, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS);
         g_signal_connect(size_label->job, "error", G_CALLBACK(_szlabel_error), size_label);
         g_signal_connect(size_label->job, "finished", G_CALLBACK(_szlabel_finished), size_label);
         g_signal_connect(size_label->job, "status-update", G_CALLBACK(_szlabel_status_update), size_label);
@@ -296,7 +296,7 @@ static void _szlabel_error(ExoJob *job, const GError *error,
 {
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(IS_SIZELABEL(size_label));
-    thunar_return_if_fail(size_label->job == THUNAR_DEEP_COUNT_JOB(job));
+    thunar_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
 
     /* setup the error text as label */
     gtk_label_set_text(GTK_LABEL(size_label->label), error->message);
@@ -306,7 +306,7 @@ static void _szlabel_finished(ExoJob *job, SizeLabel *size_label)
 {
     thunar_return_if_fail(THUNAR_IS_JOB(job));
     thunar_return_if_fail(IS_SIZELABEL(size_label));
-    thunar_return_if_fail(size_label->job == THUNAR_DEEP_COUNT_JOB(job));
+    thunar_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
 
     /* stop and hide the spinner */
     gtk_spinner_stop(GTK_SPINNER(size_label->spinner));
@@ -318,7 +318,7 @@ static void _szlabel_finished(ExoJob *job, SizeLabel *size_label)
     size_label->job = NULL;
 }
 
-static void _szlabel_status_update(ThunarDeepCountJob *job,
+static void _szlabel_status_update(DeepCountJob *job,
                                    guint64             total_size,
                                    guint               file_count,
                                    guint               directory_count,
@@ -330,7 +330,7 @@ static void _szlabel_status_update(ThunarDeepCountJob *job,
     guint              n;
     gchar             *unreable_text;
 
-    thunar_return_if_fail(THUNAR_IS_DEEP_COUNT_JOB(job));
+    thunar_return_if_fail(IS_DEEPCOUNT_JOB(job));
     thunar_return_if_fail(IS_SIZELABEL(size_label));
     thunar_return_if_fail(size_label->job == job);
 

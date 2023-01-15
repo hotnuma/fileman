@@ -18,18 +18,16 @@
  * MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#include <deep-count-job.h>
+
+#include <job.h>
+#include <marshal.h>
+#include <utils.h>
 
 #include <glib.h>
 #include <glib-object.h>
 #include <gio/gio.h>
-
-#include <deep-count-job.h>
-#include <job.h>
-#include <marshal.h>
-#include <utils.h>
 
 /* Signal identifiers */
 enum
@@ -38,15 +36,15 @@ enum
     LAST_SIGNAL,
 };
 
-#define DEEP_COUNT_FILEINFO_NAMESPACE \
+#define DEEPCOUNT_FILEINFO_NAMESPACE \
     G_FILE_ATTRIBUTE_STANDARD_TYPE "," \
     G_FILE_ATTRIBUTE_STANDARD_SIZE "," \
     G_FILE_ATTRIBUTE_ID_FILESYSTEM
 
-static void thunar_deep_count_job_finalize(GObject *object);
-static gboolean thunar_deep_count_job_execute(ExoJob *job, GError **error);
+static void dcjob_finalize(GObject *object);
+static gboolean dcjob_execute(ExoJob *job, GError **error);
 
-struct _ThunarDeepCountJobClass
+struct _DeepCountJobClass
 {
     ThunarJobClass __parent__;
 
@@ -58,7 +56,7 @@ struct _ThunarDeepCountJobClass
                            guint    unreadable_directory_count);
 };
 
-struct _ThunarDeepCountJob
+struct _DeepCountJob
 {
     ThunarJob __parent__;
 
@@ -77,21 +75,21 @@ struct _ThunarDeepCountJob
 
 static guint deep_count_signals[LAST_SIGNAL];
 
-G_DEFINE_TYPE(ThunarDeepCountJob, thunar_deep_count_job, THUNAR_TYPE_JOB)
+G_DEFINE_TYPE(DeepCountJob, dcjob, THUNAR_TYPE_JOB)
 
-static void thunar_deep_count_job_class_init(ThunarDeepCountJobClass *klass)
+static void dcjob_class_init(DeepCountJobClass *klass)
 {
     ExoJobClass  *job_class;
     GObjectClass *gobject_class;
 
     gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_deep_count_job_finalize;
+    gobject_class->finalize = dcjob_finalize;
 
     job_class = EXO_JOB_CLASS(klass);
-    job_class->execute = thunar_deep_count_job_execute;
+    job_class->execute = dcjob_execute;
 
     /**
-     * ThunarDeepCountJob::status-update:
+     * DeepCountJob::status-update:
      * @job                        : a #ThunarJob.
      * @total_size                 : the total size in bytes.
      * @file_count                 : the number of files.
@@ -105,7 +103,7 @@ static void thunar_deep_count_job_class_init(ThunarDeepCountJobClass *klass)
         g_signal_new("status-update",
                       G_TYPE_FROM_CLASS(klass),
                       G_SIGNAL_NO_HOOKS,
-                      G_STRUCT_OFFSET(ThunarDeepCountJobClass, status_update),
+                      G_STRUCT_OFFSET(DeepCountJobClass, status_update),
                       NULL, NULL,
                       _thunar_marshal_VOID__UINT64_UINT_UINT_UINT,
                       G_TYPE_NONE, 4,
@@ -115,23 +113,23 @@ static void thunar_deep_count_job_class_init(ThunarDeepCountJobClass *klass)
                       G_TYPE_UINT);
 }
 
-static void thunar_deep_count_job_init(ThunarDeepCountJob *job)
+static void dcjob_init(DeepCountJob *job)
 {
     job->query_flags = G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS;
 }
 
-static void thunar_deep_count_job_finalize(GObject *object)
+static void dcjob_finalize(GObject *object)
 {
-    ThunarDeepCountJob *job = THUNAR_DEEP_COUNT_JOB(object);
+    DeepCountJob *job = DEEPCOUNT_JOB(object);
 
     g_list_free_full(job->files, g_object_unref);
 
-   (*G_OBJECT_CLASS(thunar_deep_count_job_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(dcjob_parent_class)->finalize(object);
 }
 
-static void thunar_deep_count_job_status_update(ThunarDeepCountJob *job)
+static void _dcjob_status_update(DeepCountJob *job)
 {
-    thunar_return_if_fail(THUNAR_IS_DEEP_COUNT_JOB(job));
+    thunar_return_if_fail(IS_DEEPCOUNT_JOB(job));
 
     exo_job_emit(EXO_JOB(job),
                   deep_count_signals[STATUS_UPDATE],
@@ -142,13 +140,13 @@ static void thunar_deep_count_job_status_update(ThunarDeepCountJob *job)
                   job->unreadable_directory_count);
 }
 
-static gboolean thunar_deep_count_job_process(ExoJob       *job,
+static gboolean _dcjob_process(ExoJob       *job,
                                               GFile        *file,
                                               GFileInfo    *file_info,
                                               const gchar  *toplevel_fs_id,
                                               GError      **error)
 {
-    ThunarDeepCountJob *count_job = THUNAR_DEEP_COUNT_JOB(job);
+    DeepCountJob *count_job = DEEPCOUNT_JOB(job);
     GFileEnumerator    *enumerator;
     GFileInfo          *child_info;
     GFileInfo          *info;
@@ -176,7 +174,7 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
     {
         /* query size and type of the current file */
         info = g_file_query_info(file,
-                                  DEEP_COUNT_FILEINFO_NAMESPACE,
+                                  DEEPCOUNT_FILEINFO_NAMESPACE,
                                   count_job->query_flags,
                                   exo_job_get_cancellable(job),
                                   error);
@@ -218,7 +216,7 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
     {
         /* try to read from the directory */
         enumerator = g_file_enumerate_children(file,
-                                                DEEP_COUNT_FILEINFO_NAMESPACE ","
+                                                DEEPCOUNT_FILEINFO_NAMESPACE ","
                                                 G_FILE_ATTRIBUTE_STANDARD_NAME,
                                                 count_job->query_flags,
                                                 exo_job_get_cancellable(job),
@@ -265,7 +263,7 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
                         child = g_file_resolve_relative_path(file, g_file_info_get_name(child_info));
 
                         /* recurse unless the job was cancelled before */
-                        thunar_deep_count_job_process(job, child, child_info, toplevel_fs_id, error);
+                        _dcjob_process(job, child, child_info, toplevel_fs_id, error);
 
                         /* free resources */
                         g_object_unref(child);
@@ -286,7 +284,7 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
         if (real_time >= count_job->last_time)
         {
             if (count_job->last_time != 0)
-                thunar_deep_count_job_status_update(count_job);
+                _dcjob_status_update(count_job);
             count_job->last_time = real_time +(G_USEC_PER_SEC / 4);
         }
     }
@@ -307,9 +305,9 @@ static gboolean thunar_deep_count_job_process(ExoJob       *job,
     return !exo_job_is_cancelled(job) && success;
 }
 
-static gboolean thunar_deep_count_job_execute(ExoJob *job, GError **error)
+static gboolean dcjob_execute(ExoJob *job, GError **error)
 {
-    ThunarDeepCountJob *count_job = THUNAR_DEEP_COUNT_JOB(job);
+    DeepCountJob *count_job = DEEPCOUNT_JOB(job);
     gboolean            success = TRUE;
     GError             *err = NULL;
     GList              *lp;
@@ -333,7 +331,7 @@ static gboolean thunar_deep_count_job_execute(ExoJob *job, GError **error)
     for(lp = count_job->files; lp != NULL; lp = lp->next)
     {
         gfile = th_file_get_file(THUNAR_FILE(lp->data));
-        success = thunar_deep_count_job_process(job, gfile, NULL, NULL, &err);
+        success = _dcjob_process(job, gfile, NULL, NULL, &err);
         if (G_UNLIKELY(!success))
             break;
     }
@@ -358,19 +356,19 @@ static gboolean thunar_deep_count_job_execute(ExoJob *job, GError **error)
     else if (!exo_job_is_cancelled(job))
     {
         /* emit final status update at the very end of the computation */
-        thunar_deep_count_job_status_update(count_job);
+        _dcjob_status_update(count_job);
     }
 
     return success;
 }
 
-ThunarDeepCountJob* thunar_deep_count_job_new(GList *files, GFileQueryInfoFlags flags)
+DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
 {
-    ThunarDeepCountJob *job;
+    DeepCountJob *job;
 
     thunar_return_val_if_fail(files != NULL, NULL);
 
-    job = g_object_new(THUNAR_TYPE_DEEP_COUNT_JOB, NULL);
+    job = g_object_new(TYPE_DEEPCOUNT_JOB, NULL);
     job->files = g_list_copy(files);
     job->query_flags = flags;
 

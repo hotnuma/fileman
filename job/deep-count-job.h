@@ -17,33 +17,37 @@
  * MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_DEEP_COUNT_JOB_H__
-#define __THUNAR_DEEP_COUNT_JOB_H__
+#ifndef __DEEPCOUNT_JOB_H__
+#define __DEEPCOUNT_JOB_H__
 
 #include <job.h>
 #include <gio/gio.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarDeepCountJobPrivate ThunarDeepCountJobPrivate;
-typedef struct _ThunarDeepCountJobClass   ThunarDeepCountJobClass;
-typedef struct _ThunarDeepCountJob        ThunarDeepCountJob;
+typedef struct _DeepCountJobPrivate DeepCountJobPrivate;
+typedef struct _DeepCountJobClass   DeepCountJobClass;
+typedef struct _DeepCountJob        DeepCountJob;
 
-#define THUNAR_TYPE_DEEP_COUNT_JOB            (thunar_deep_count_job_get_type ())
-#define THUNAR_DEEP_COUNT_JOB(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_DEEP_COUNT_JOB, ThunarDeepCountJob))
-#define THUNAR_DEEP_COUNT_JOB_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_DEEP_COUNT_JOB, ThunarDeepCountJobClass))
-#define THUNAR_IS_DEEP_COUNT_JOB(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_DEEP_COUNT_JOB))
-#define THUNAR_IS_DEEP_COUNT_JOB_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_DEEP_COUNT_JOB)
-#define THUNAR_DEEP_COUNT_JOB_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_DEEP_COUNT_JOB, ThunarDeepCountJobClass))
+#define TYPE_DEEPCOUNT_JOB (dcjob_get_type())
+#define DEEPCOUNT_JOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_DEEPCOUNT_JOB, DeepCountJob))
+#define DEEPCOUNT_JOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_DEEPCOUNT_JOB, DeepCountJobClass))
+#define IS_DEEPCOUNT_JOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_DEEPCOUNT_JOB))
+#define IS_DEEPCOUNT_JOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_DEEPCOUNT_JOB)
+#define DEEPCOUNT_JOB_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_DEEPCOUNT_JOB, DeepCountJobClass))
 
-GType thunar_deep_count_job_get_type() G_GNUC_CONST;
+GType dcjob_get_type() G_GNUC_CONST;
 
-ThunarDeepCountJob* thunar_deep_count_job_new(GList *files,
-                                              GFileQueryInfoFlags flags)
-                                              G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
+                        G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 
-#endif // __THUNAR_DEEP_COUNT_JOB_H__
+#endif // __DEEPCOUNT_JOB_H__
 
 
