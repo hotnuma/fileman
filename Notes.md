@@ -44,7 +44,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   14312	./core/user.c
     13752	./dialog/progress-dlg.c
     12321	./job/deep-count-job.c
-    10992	./widget/shortcut-render.c
++   10992	./widget/shortcut-render.c
     10711	./widget/location-bar.c
 +   10567	./dialog/appmodel.c
     10313	./libext/gtk-ext.c

@@ -305,7 +305,7 @@ static void treeview_init(TreeView *view)
     gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
 
     /* allocate the special icon renderer */
-    view->icon_renderer = thunar_shortcuts_icon_renderer_new();
+    view->icon_renderer = srenderer_new();
     gtk_tree_view_column_pack_start(column, view->icon_renderer, FALSE);
     gtk_tree_view_column_set_attributes(column, view->icon_renderer,
                                         "file", TREEMODEL_COLUMN_FILE,

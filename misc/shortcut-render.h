@@ -16,29 +16,34 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_SHORTCUTS_ICON_RENDERER_H__
-#define __THUNAR_SHORTCUTS_ICON_RENDERER_H__
+#ifndef __SHORTCUT_RENDERER_H__
+#define __SHORTCUT_RENDERER_H__
 
 #include <icon-render.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarShortcutsIconRendererClass ThunarShortcutsIconRendererClass;
-typedef struct _ThunarShortcutsIconRenderer      ThunarShortcutsIconRenderer;
+typedef struct _ShortcutRendererClass ShortcutRendererClass;
+typedef struct _ShortcutRenderer      ShortcutRenderer;
 
-#define THUNAR_TYPE_SHORTCUTS_ICON_RENDERER            (thunar_shortcuts_icon_renderer_get_type())
-#define THUNAR_SHORTCUTS_ICON_RENDERER(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_SHORTCUTS_ICON_RENDERER, ThunarShortcutsIconRenderer))
-#define THUNAR_SHORTCUTS_ICON_RENDERER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_SHORTCUTS_ICON_RENDERER, ThunarShortcutsIconRendererClass))
-#define THUNAR_IS_SHORTCUTS_ICON_RENDERER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_SHORTCUTS_ICON_RENDERER))
-#define THUNAR_IS_SHORTCUTS_ICON_RENDERER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_SHORTCUTS_ICON_RENDERER))
-#define THUNAR_SHORTCUTS_ICON_RENDERER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_SHORTCUTS_ICON_RENDERER, ThunarShortcutsIconRendererClass))
+#define TYPE_SHORTCUT_RENDERER (srenderer_get_type())
+#define SHORTCUT_RENDERER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_SHORTCUT_RENDERER, ShortcutRenderer))
+#define SHORTCUT_RENDERER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_SHORTCUT_RENDERER, ShortcutRendererClass))
+#define IS_SHORTCUT_RENDERER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_SHORTCUT_RENDERER))
+#define IS_SHORTCUT_RENDERER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_SHORTCUT_RENDERER))
+#define SHORTCUT_RENDERER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_SHORTCUT_RENDERER, ShortcutRendererClass))
 
-GType thunar_shortcuts_icon_renderer_get_type() G_GNUC_CONST;
+GType srenderer_get_type() G_GNUC_CONST;
 
-GtkCellRenderer* thunar_shortcuts_icon_renderer_new() G_GNUC_MALLOC;
+GtkCellRenderer* srenderer_new() G_GNUC_MALLOC;
 
 G_END_DECLS
 
-#endif /* !__THUNAR_SHORTCUTS_ICON_RENDERER_H__ */
+#endif // __SHORTCUT_RENDERER_H__
 
 

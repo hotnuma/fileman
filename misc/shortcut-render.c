@@ -31,7 +31,6 @@
 #include <shortcut-render.h>
 #include <th-device.h>
 
-/* Property identifiers */
 enum
 {
     PROP_0,
@@ -39,63 +38,57 @@ enum
     PROP_GICON,
 };
 
-static void thunar_shortcuts_icon_renderer_finalize(GObject *object);
-static void thunar_shortcuts_icon_renderer_get_property(GObject *object,
-                                                        guint prop_id,
-                                                        GValue *value,
-                                                        GParamSpec *pspec);
-static void thunar_shortcuts_icon_renderer_set_property(GObject *object,
-                                                        guint prop_id,
-                                                        const GValue *value,
-                                                        GParamSpec *pspec);
-static void thunar_shortcuts_icon_renderer_render(GtkCellRenderer *renderer,
-                                                  cairo_t *cr,
-                                                  GtkWidget *widget,
-                                                  const GdkRectangle *background_area,
-                                                  const GdkRectangle *cell_area,
-                                                  GtkCellRendererState flags);
+static void srenderer_finalize(GObject *object);
+static void srenderer_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec);
+static void srenderer_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec);
+static void srenderer_render(GtkCellRenderer *renderer,
+                             cairo_t *cr,
+                             GtkWidget *widget,
+                             const GdkRectangle *background_area,
+                             const GdkRectangle *cell_area,
+                             GtkCellRendererState flags);
 
-struct _ThunarShortcutsIconRendererClass
+struct _ShortcutRendererClass
 {
     IconRendererClass __parent__;
 };
 
-struct _ThunarShortcutsIconRenderer
+struct _ShortcutRenderer
 {
-    IconRenderer  __parent__;
+    IconRenderer    __parent__;
 
-    ThunarDevice        *device;
-    GIcon               *gicon;
+    ThunarDevice    *device;
+    GIcon           *gicon;
 };
 
-G_DEFINE_TYPE(ThunarShortcutsIconRenderer, thunar_shortcuts_icon_renderer, TYPE_ICONRENDERER)
+G_DEFINE_TYPE(ShortcutRenderer, srenderer, TYPE_ICONRENDERER)
 
-static void thunar_shortcuts_icon_renderer_class_init(ThunarShortcutsIconRendererClass *klass)
+static void srenderer_class_init(ShortcutRendererClass *klass)
 {
-    GtkCellRendererClass *gtkcell_renderer_class;
-    GObjectClass         *gobject_class;
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->finalize = srenderer_finalize;
+    gobject_class->get_property = srenderer_get_property;
+    gobject_class->set_property = srenderer_set_property;
 
-    gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_shortcuts_icon_renderer_finalize;
-    gobject_class->get_property = thunar_shortcuts_icon_renderer_get_property;
-    gobject_class->set_property = thunar_shortcuts_icon_renderer_set_property;
-
-    gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
-    gtkcell_renderer_class->render = thunar_shortcuts_icon_renderer_render;
+    GtkCellRendererClass *gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
+    gtkcell_renderer_class->render = srenderer_render;
 
     /**
-     * ThunarShortcutsIconRenderer:device:
+     * ShortcutRenderer:device:
      *
      * The #ThunarDevice for which to render an icon or %NULL to fallback
      * to the default icon renderering(see #IconRenderer).
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_DEVICE,
-                                    g_param_spec_object("device",
-                                                        "device",
-                                                        "device",
-                                                        THUNAR_TYPE_DEVICE,
-                                                        E_PARAM_READWRITE));
+                                    g_param_spec_object(
+                                        "device",
+                                        "device",
+                                        "device",
+                                        THUNAR_TYPE_DEVICE,
+                                        E_PARAM_READWRITE));
 
     /**
      * IconRenderer:gicon:
@@ -105,22 +98,25 @@ static void thunar_shortcuts_icon_renderer_class_init(ThunarShortcutsIconRendere
      **/
     g_object_class_install_property(gobject_class,
                                     PROP_GICON,
-                                    g_param_spec_object("gicon",
-                                                        "gicon",
-                                                        "gicon",
-                                                        G_TYPE_ICON,
-                                                        E_PARAM_READWRITE));
+                                    g_param_spec_object(
+                                        "gicon",
+                                        "gicon",
+                                        "gicon",
+                                        G_TYPE_ICON,
+                                        E_PARAM_READWRITE));
 }
 
-static void thunar_shortcuts_icon_renderer_init(ThunarShortcutsIconRenderer *shortcuts_icon_renderer)
+static void srenderer_init(ShortcutRenderer *shortcuts_icon_renderer)
 {
     /* no padding please */
-    gtk_cell_renderer_set_padding(GTK_CELL_RENDERER(shortcuts_icon_renderer), 0, 0);
+    gtk_cell_renderer_set_padding(GTK_CELL_RENDERER(shortcuts_icon_renderer),
+                                  0,
+                                  0);
 }
 
-static void thunar_shortcuts_icon_renderer_finalize(GObject *object)
+static void srenderer_finalize(GObject *object)
 {
-    ThunarShortcutsIconRenderer *renderer = THUNAR_SHORTCUTS_ICON_RENDERER(object);
+    ShortcutRenderer *renderer = SHORTCUT_RENDERER(object);
 
     if (G_UNLIKELY(renderer->device != NULL))
         g_object_unref(renderer->device);
@@ -128,19 +124,17 @@ static void thunar_shortcuts_icon_renderer_finalize(GObject *object)
     if (G_UNLIKELY(renderer->gicon != NULL))
         g_object_unref(renderer->gicon);
 
-    (*G_OBJECT_CLASS(thunar_shortcuts_icon_renderer_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(srenderer_parent_class)->finalize(object);
 }
 
-static void thunar_shortcuts_icon_renderer_get_property(GObject    *object,
-                                                        guint       prop_id,
-                                                        GValue     *value,
-                                                        GParamSpec *pspec)
+static void srenderer_get_property(GObject *object, guint prop_id,
+                                   GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
-    ThunarShortcutsIconRenderer *renderer = THUNAR_SHORTCUTS_ICON_RENDERER(object);
+    ShortcutRenderer *renderer = SHORTCUT_RENDERER(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_DEVICE:
         g_value_set_object(value, renderer->device);
@@ -156,14 +150,12 @@ static void thunar_shortcuts_icon_renderer_get_property(GObject    *object,
     }
 }
 
-static void thunar_shortcuts_icon_renderer_set_property(GObject      *object,
-                                                        guint         prop_id,
-                                                        const GValue *value,
-                                                        GParamSpec   *pspec)
+static void srenderer_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
-    ThunarShortcutsIconRenderer *renderer = THUNAR_SHORTCUTS_ICON_RENDERER(object);
+    ShortcutRenderer *renderer = SHORTCUT_RENDERER(object);
 
     switch (prop_id)
     {
@@ -185,14 +177,14 @@ static void thunar_shortcuts_icon_renderer_set_property(GObject      *object,
     }
 }
 
-static void thunar_shortcuts_icon_renderer_render(GtkCellRenderer     *renderer,
-                                                  cairo_t             *cr,
-                                                  GtkWidget           *widget,
-                                                  const GdkRectangle  *background_area,
-                                                  const GdkRectangle  *cell_area,
-                                                  GtkCellRendererState flags)
+static void srenderer_render(GtkCellRenderer     *renderer,
+                             cairo_t             *cr,
+                             GtkWidget           *widget,
+                             const GdkRectangle  *background_area,
+                             const GdkRectangle  *cell_area,
+                             GtkCellRendererState flags)
 {
-    ThunarShortcutsIconRenderer *shortcuts_icon_renderer = THUNAR_SHORTCUTS_ICON_RENDERER(renderer);
+    ShortcutRenderer *shortcuts_icon_renderer = SHORTCUT_RENDERER(renderer);
     GtkIconTheme                *icon_theme;
     GdkRectangle                 icon_area;
     GdkRectangle                 clip_area;
@@ -275,21 +267,19 @@ static void thunar_shortcuts_icon_renderer_render(GtkCellRenderer     *renderer,
     else
     {
         /* fallback to the default icon renderering */
-       (*GTK_CELL_RENDERER_CLASS(thunar_shortcuts_icon_renderer_parent_class)->render)(renderer, cr, widget, background_area,
-                cell_area, flags);
+        GTK_CELL_RENDERER_CLASS(srenderer_parent_class)->render(
+                                                            renderer,
+                                                            cr,
+                                                            widget,
+                                                            background_area,
+                                                            cell_area,
+                                                            flags);
     }
 }
 
-/**
- * thunar_shortcuts_icon_renderer_new:
- *
- * Allocates a new #ThunarShortcutsIconRenderer instance.
- *
- * Return value: the newly allocated #ThunarShortcutsIconRenderer.
- **/
-GtkCellRenderer* thunar_shortcuts_icon_renderer_new()
+GtkCellRenderer* srenderer_new()
 {
-    return g_object_new(THUNAR_TYPE_SHORTCUTS_ICON_RENDERER, NULL);
+    return g_object_new(TYPE_SHORTCUT_RENDERER, NULL);
 }
 
 
