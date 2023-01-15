@@ -49,9 +49,8 @@
  *
  * Return value: pointer in @str or NULL.
  **/
-static inline gchar* thunar_util_strrchr_offset(const gchar *str,
-                                                 const gchar *offset,
-                                                 gchar        c)
+static inline gchar* _util_strrchr_offset(const gchar *str, const gchar *offset,
+                                          gchar c)
 {
     const gchar *p;
 
@@ -75,7 +74,7 @@ static inline gchar* thunar_util_strrchr_offset(const gchar *str,
  * Return value: pointer to the extension in @filename
  *               or NULL.
 **/
-gchar* thunar_util_str_get_extension(const gchar *filename)
+gchar* util_str_get_extension(const gchar *filename)
 {
     static const gchar *compressed[] = { "gz", "bz2", "lzma", "lrz", "rpm", "lzo", "xz", "z" };
     gchar              *dot;
@@ -101,7 +100,7 @@ gchar* thunar_util_str_get_extension(const gchar *filename)
         if (strcasecmp(ext, compressed[i]) == 0)
         {
             /* look for a possible container part(tar, psd, epsf) */
-            dot2 = thunar_util_strrchr_offset(filename, dot - 1, '.');
+            dot2 = _util_strrchr_offset(filename, dot - 1, '.');
             if (dot2 != NULL
                     && dot2 != filename)
             {
@@ -122,7 +121,7 @@ gchar* thunar_util_str_get_extension(const gchar *filename)
     {
         for(i = 0, is_in = TRUE; is_in && i < 3; i++)
         {
-            dot2 = thunar_util_strrchr_offset(filename, dot - 1, '.');
+            dot2 = _util_strrchr_offset(filename, dot - 1, '.');
             /* the extension before .in could be long. check that it's at least 2 chars */
             len = dot - dot2 - 1;
             if (dot2 == NULL
@@ -140,9 +139,9 @@ gchar* thunar_util_str_get_extension(const gchar *filename)
     return dot;
 }
 
-void thunar_util_load_bookmarks(GFile               *bookmarks_file,
-                                 ThunarBookmarksFunc  foreach_func,
-                                 gpointer             user_data)
+void util_load_bookmarks(GFile               *bookmarks_file,
+                         ThunarBookmarksFunc foreach_func,
+                         gpointer            user_data)
 {
     gchar       *bookmarks_path;
     gchar        line[1024];
@@ -222,9 +221,8 @@ void thunar_util_load_bookmarks(GFile               *bookmarks_file,
  *
  * Return value: the expanded @filename or %NULL on error.
  **/
-gchar* thunar_util_expand_filename(const gchar  *filename,
-                                    GFile        *working_directory,
-                                    GError      **error)
+gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
+                            GError **error)
 {
     struct passwd *passwd;
     const gchar   *replacement;
@@ -348,9 +346,9 @@ gchar* thunar_util_expand_filename(const gchar  *filename,
  * Return value: a human readable date representation of @file_time
  *               according to the @date_format.
  **/
-gchar* thunar_util_humanize_file_time(guint64          file_time,
-                                       ThunarDateStyle  date_style,
-                                       const gchar     *date_custom_style)
+gchar* util_humanize_file_time(guint64          file_time,
+                               ThunarDateStyle  date_style,
+                               const gchar     *date_custom_style)
 {
     const gchar *date_format;
     struct tm    tfile;
@@ -462,8 +460,7 @@ gchar* thunar_util_humanize_file_time(guint64          file_time,
  *
  * Return value: the #GdkScreen for the @parent.
  **/
-GdkScreen* thunar_util_parse_parent(gpointer    parent,
-                                     GtkWindow **window_return)
+GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
 {
     GdkScreen *screen;
     GtkWidget *window = NULL;
@@ -520,7 +517,7 @@ GdkScreen* thunar_util_parse_parent(gpointer    parent,
  * Return value: the time value matching the @date_string or
  *               %0 if the @date_string could not be parsed.
  **/
-time_t thunar_util_time_from_rfc3339(const gchar *date_string)
+time_t util_time_from_rfc3339(const gchar *date_string)
 {
     struct tm tm;
 
@@ -571,7 +568,7 @@ time_t thunar_util_time_from_rfc3339(const gchar *date_string)
     return mktime(&tm);
 }
 
-gchar* thunar_util_change_working_directory(const gchar *new_directory)
+gchar* util_change_working_directory(const gchar *new_directory)
 {
     gchar *old_directory;
 
@@ -591,7 +588,7 @@ gchar* thunar_util_change_working_directory(const gchar *new_directory)
     return old_directory;
 }
 
-void thunar_setup_display_cb(gpointer data)
+void util_setup_display_cb(gpointer data)
 {
     g_setenv("DISPLAY",(char *) data, TRUE);
 }

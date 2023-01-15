@@ -965,7 +965,7 @@ static gboolean _pathentry_parse(PathEntry *path_entry,
     thunar_return_val_if_fail(file_part != NULL, FALSE);
 
     /* expand the filename */
-    filename = thunar_util_expand_filename(gtk_entry_get_text(GTK_ENTRY(path_entry)),
+    filename = util_expand_filename(gtk_entry_get_text(GTK_ENTRY(path_entry)),
                                             path_entry->working_directory,
                                             error);
     if (G_UNLIKELY(filename == NULL))

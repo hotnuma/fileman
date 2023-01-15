@@ -539,7 +539,7 @@ gboolean eg_app_info_launch(GAppInfo      *info,
         if (new_path != NULL)
         {
             /* switch to the desired working directory, remember that of Thunar itself */
-            old_path = thunar_util_change_working_directory(new_path);
+            old_path = util_change_working_directory(new_path);
 
             /* forget about the new working directory path */
             g_free(new_path);
@@ -600,7 +600,7 @@ gboolean eg_app_info_launch(GAppInfo      *info,
     if (old_path != NULL)
     {
         /* switch to Thunar's original working directory */
-        new_path = thunar_util_change_working_directory(old_path);
+        new_path = util_change_working_directory(old_path);
 
         /* clean up */
         g_free(new_path);

@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = fileman
 CONFIG = c11 link_pkgconfig
-DEFINES = HAVE_CONFIG_H
+DEFINES = HAVE_CONFIG_H _XOPEN_SOURCE
 
 PKGCONFIG = \
     gtk+-3.0 \

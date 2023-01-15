@@ -1192,7 +1192,7 @@ gboolean th_file_execute(ThunarFile  *file,
         }
 
         /* execute the command */
-        result = xfce_spawn_on_screen(thunar_util_parse_parent(parent, NULL),
+        result = xfce_spawn_on_screen(util_parse_parent(parent, NULL),
                                        directory, argv, NULL, G_SPAWN_SEARCH_PATH,
                                        snotify, stimestamp, icon_name, error);
     }
@@ -1215,7 +1215,7 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent, const gchar *startup_
     thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), FALSE);
 
     GdkScreen           *screen;
-    screen = thunar_util_parse_parent(parent, NULL);
+    screen = util_parse_parent(parent, NULL);
 
     /* check if we have a folder here */
     if (th_file_is_directory(file))
@@ -1552,7 +1552,7 @@ gchar* th_file_get_date_string(const ThunarFile  *file,
                                    ThunarDateStyle    date_style,
                                    const gchar       *date_custom_style)
 {
-    return thunar_util_humanize_file_time(th_file_get_date(file, date_type), date_style, date_custom_style);
+    return util_humanize_file_time(th_file_get_date(file, date_type), date_style, date_custom_style);
 }
 
 /**
@@ -2333,10 +2333,10 @@ gchar* th_file_get_deletion_date(const ThunarFile   *file,
         return NULL;
 
     /* try to parse the DeletionDate(RFC 3339 string) */
-    deletion_time = thunar_util_time_from_rfc3339(date);
+    deletion_time = util_time_from_rfc3339(date);
 
     /* humanize the time value */
-    return thunar_util_humanize_file_time(deletion_time, date_style, date_custom_style);
+    return util_humanize_file_time(deletion_time, date_style, date_custom_style);
 }
 
 /**

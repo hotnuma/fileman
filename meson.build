@@ -14,6 +14,7 @@ c_args = [
     '-O2',
     '-DHAVE_CONFIG_H',
     '-D_GNU_SOURCE',
+    '-D_XOPEN_SOURCE',
     '-DG_UDEV_API_IS_SUBJECT_TO_CHANGE',
     '-DSN_API_NOT_YET_FROZEN',
 ]

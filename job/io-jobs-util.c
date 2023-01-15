@@ -92,7 +92,7 @@ GFile* thunar_io_jobs_util_next_duplicate_file(ThunarJob *job,
     {
         /* get file extension if file is not a directory */
         if (g_file_info_get_file_type(info) != G_FILE_TYPE_DIRECTORY)
-            dot = thunar_util_str_get_extension(old_display_name);
+            dot = util_str_get_extension(old_display_name);
 
         if (dot != NULL)
         {
@@ -195,7 +195,7 @@ GFile* thunar_io_jobs_util_next_renamed_file(ThunarJob *job,
     old_display_name = g_file_info_get_display_name(info);
     /* get file extension if file is not a directory */
     if (g_file_info_get_file_type(info) != G_FILE_TYPE_DIRECTORY)
-        dot = thunar_util_str_get_extension(old_display_name);
+        dot = util_str_get_extension(old_display_name);
 
     if (dot != NULL)
     {

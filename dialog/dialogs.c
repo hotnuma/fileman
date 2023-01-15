@@ -54,7 +54,7 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
     thunar_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
 
     /* parse the parent window and screen */
-    screen = thunar_util_parse_parent(parent, &window);
+    screen = util_parse_parent(parent, &window);
 
     /* secondary text */
     secondary = g_string_new(NULL);
@@ -146,7 +146,7 @@ gchar* dialog_create(gpointer parent, const gchar *content_type, const gchar *fi
 
     /* parse the parent window and screen */
     GtkWindow *window;
-    GdkScreen *screen = thunar_util_parse_parent(parent, &window);
+    GdkScreen *screen = util_parse_parent(parent, &window);
 
     /* create a new dialog window */
     GtkWidget *dialog = gtk_dialog_new_with_buttons(title,
@@ -311,7 +311,7 @@ ThunarJob* dialog_rename_file(gpointer parent, ThunarFile *file)
     XfceFilenameInput *filename_input;
 
     /* parse the parent window and screen */
-    screen = thunar_util_parse_parent(parent, &window);
+    screen = util_parse_parent(parent, &window);
 
     /* get the filename of the file */
     filename = th_file_get_display_name(file);
@@ -452,7 +452,7 @@ static void _dialog_select_filename(GtkWidget  *entry,
     filename = th_file_get_display_name(file);
 
     /* check if the filename contains an extension */
-    ext = thunar_util_str_get_extension(filename);
+    ext = util_str_get_extension(filename);
     if (G_UNLIKELY(ext == NULL))
         return;
 
@@ -484,7 +484,7 @@ void dialog_error(gpointer parent, const GError *error, const gchar  *format, ..
         return;
 
     /* parse the parent pointer */
-    screen = thunar_util_parse_parent(parent, &window);
+    screen = util_parse_parent(parent, &window);
 
     /* determine the primary error text */
     va_start(args, format);

@@ -749,7 +749,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
         gtk_widget_grab_focus(GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)));
 
         /* select the pre-dot part of the name */
-        str = thunar_util_str_get_extension(name);
+        str = util_str_get_extension(name);
         if (G_LIKELY(str != NULL))
         {
             /* calculate the offset */

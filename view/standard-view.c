@@ -2960,7 +2960,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                             /* try to run exo-desktop-item-edit */
                             succeed = g_spawn_async(working_directory, argv, NULL,
                                                      G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
-                                                     thunar_setup_display_cb, display, &pid, &error);
+                                                     util_setup_display_cb, display, &pid, &error);
 
                             if (G_UNLIKELY(!succeed))
                             {

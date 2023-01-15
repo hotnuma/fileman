@@ -720,7 +720,7 @@ static void _application_launch(Application *application,
     thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* parse the parent pointer */
-    screen = thunar_util_parse_parent(parent, NULL);
+    screen = util_parse_parent(parent, NULL);
 
     /* try to allocate a new job for the operation */
     job =(*launcher)(source_file_list, target_file_list);
@@ -876,7 +876,7 @@ static gboolean _application_volman_idle(gpointer user_data)
                 display = g_strdup(gdk_display_get_name(gdk_screen_get_display(screen)));
 
             /* try to spawn the volman on the active screen */
-            if (g_spawn_async(NULL, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH, thunar_setup_display_cb, display, &pid, &err))
+            if (g_spawn_async(NULL, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH, util_setup_display_cb, display, &pid, &err))
             {
                 /* add a child watch for the volman handler */
                 application->volman_watch_id = g_child_watch_add_full(G_PRIORITY_LOW, pid, _application_volman_watch,
@@ -1528,7 +1528,7 @@ void application_unlink_files(Application *application,
     {
         /* parse the parent pointer */
         GtkWindow *window;
-        GdkScreen *screen = thunar_util_parse_parent(parent, &window);
+        GdkScreen *screen = util_parse_parent(parent, &window);
 
         gchar     *message;
 
@@ -1706,7 +1706,7 @@ void application_empty_trash(Application *application,
     thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* parse the parent pointer */
-    screen = thunar_util_parse_parent(parent, &window);
+    screen = util_parse_parent(parent, &window);
 
     /* ask the user to confirm the operation */
     dialog = gtk_message_dialog_new(window,
