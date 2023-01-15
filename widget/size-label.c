@@ -24,7 +24,7 @@
 #include <limits.h>
 #include <locale.h>
 #include <libext.h>
-#include <deep-count-job.h>
+#include <dcount-job.h>
 #include <gtk-ext.h>
 
 /* Property identifiers */

@@ -31,7 +31,7 @@ HEADERS = \
     dialog/progress-dlg.h \
     dialog/progress-view.h \
     dialog/propsdlg.h \
-    job/deep-count-job.h \
+    job/dcount-job.h \
     job/io-jobs-util.h \
     job/io-jobs.h \
     job/io-scan-directory.h \
@@ -101,7 +101,7 @@ SOURCES = \
     dialog/progress-dlg.c \
     dialog/progress-view.c \
     dialog/propsdlg.c \
-    job/deep-count-job.c \
+    job/dcount-job.c \
     job/io-jobs-util.c \
     job/io-jobs.c \
     job/io-scan-directory.c \
