@@ -326,7 +326,7 @@ static void thunar_progress_view_pause_job(ThunarProgressView *view)
     if (view->job != NULL)
     {
         /* pause the job */
-        thunar_job_pause(view->job);
+        job_pause(view->job);
 
         /* update the UI */
         gtk_widget_hide(view->pause_button);
@@ -342,10 +342,10 @@ static void thunar_progress_view_unpause_job(ThunarProgressView *view)
 
     if (view->job != NULL)
     {
-        if (thunar_job_is_paused(view->job))
-            thunar_job_resume(view->job);
-        if (thunar_job_is_frozen(view->job))
-            thunar_job_unfreeze(view->job);
+        if (job_is_paused(view->job))
+            job_resume(view->job);
+        if (job_is_frozen(view->job))
+            job_unfreeze(view->job);
         /* update the UI */
         gtk_widget_hide(view->unpause_button);
         gtk_widget_show(view->pause_button);
@@ -601,7 +601,7 @@ static void thunar_progress_view_set_job(ThunarProgressView *view,
         g_signal_connect_swapped(job, "percent", G_CALLBACK(thunar_progress_view_percent), view);
         g_signal_connect_swapped(job, "frozen", G_CALLBACK(thunar_progress_view_frozen), view);
         g_signal_connect_swapped(job, "unfrozen", G_CALLBACK(thunar_progress_view_unfrozen), view);
-        if (thunar_job_is_pausable(job))
+        if (job_is_pausable(job))
         {
             gtk_widget_show(view->pause_button);
         }

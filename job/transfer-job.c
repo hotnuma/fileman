@@ -207,7 +207,7 @@ static void _transfer_job_check_pause(TransferJob *job)
 {
     thunar_return_if_fail(IS_TRANSFERJOB(job));
 
-    while (thunar_job_is_paused(THUNAR_JOB(job))
+    while (job_is_paused(THUNAR_JOB(job))
            && !exo_job_is_cancelled(EXO_JOB(job)))
     {
         g_usleep(500 * 1000); /* 500ms pause */
@@ -572,7 +572,7 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
             else if (rename_confirmed)
                 response = THUNAR_JOB_RESPONSE_RENAME;
             else
-                response = thunar_job_ask_replace(THUNAR_JOB(job), source_file,
+                response = job_ask_replace(THUNAR_JOB(job), source_file,
                                                    dest_file, &err);
 
             if (err != NULL)
@@ -722,7 +722,7 @@ retry_remove:
                                         &err))
                     {
                         /* ask the user to retry */
-                        response = thunar_job_ask_skip(THUNAR_JOB(job), "%s",
+                        response = job_ask_skip(THUNAR_JOB(job), "%s",
                                                         err->message);
 
                         /* reset the error */
@@ -743,7 +743,7 @@ retry_remove:
             if (err->domain != G_IO_ERROR || err->code != G_IO_ERROR_NO_SPACE)
             {
                 /* ask the user to skip this node and all subnodes */
-                response = thunar_job_ask_skip(THUNAR_JOB(job), "%s", err->message);
+                response = job_ask_skip(THUNAR_JOB(job), "%s", err->message);
 
                 /* reset the error */
                 g_clear_error(&err);
@@ -831,7 +831,7 @@ static gboolean _transfer_job_verify_destination(TransferJob *transfer_job,
         {
             size_string = g_format_size_full(transfer_job->total_size - free_space,
                                               transfer_job->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
-            succeed = thunar_job_ask_no_size(THUNAR_JOB(transfer_job),
+            succeed = job_ask_no_size(THUNAR_JOB(transfer_job),
                                               _("Error while copying to \"%s\": %s more space is "
                                                 "required to copy to the destination"),
                                               dest_name, size_string);
@@ -893,7 +893,7 @@ static gboolean _transfer_job_prepare_untrash_file(ExoJob    *job,
         g_free(base_name);
 
         /* ask the user whether he wants to create the parent folder because its gone */
-        response = thunar_job_ask_create(THUNAR_JOB(job),
+        response = job_ask_create(THUNAR_JOB(job),
                                           _("The folder \"%s\" does not exist anymore but is "
                                             "required to restore the file \"%s\" from the "
                                             "trash"),
@@ -1004,7 +1004,7 @@ static gboolean _transfer_job_move_file(ExoJob         *job,
     if (!move_successful &&(*error)->code == G_IO_ERROR_EXISTS)
     {
         g_clear_error(error);
-        response = thunar_job_ask_replace(THUNAR_JOB(job), node->source_file, tp->data, NULL);
+        response = job_ask_replace(THUNAR_JOB(job), node->source_file, tp->data, NULL);
 
         /* if the user chose to overwrite then try to do so */
         if (response == THUNAR_JOB_RESPONSE_REPLACE)
@@ -1086,7 +1086,7 @@ static GList* _transfer_job_filter_running_jobs(GList *jobs, ThunarJob *own_job)
         job = ljobs->data;
         if (job == own_job)
             continue;
-        if (!exo_job_is_cancelled(EXO_JOB(job)) && !thunar_job_is_paused(job) && !thunar_job_is_frozen(job))
+        if (!exo_job_is_cancelled(EXO_JOB(job)) && !job_is_paused(job) && !job_is_frozen(job))
         {
             run_jobs = g_list_append(run_jobs, job);
         }
@@ -1335,7 +1335,7 @@ static void _transfer_job_freeze_optional(TransferJob *transfer_job)
     been_frozen = FALSE; /* this boolean can only take the TRUE value once. */
     while(TRUE)
     {
-        GList *jobs = thunar_job_ask_jobs(THUNAR_JOB(transfer_job));
+        GList *jobs = job_ask_jobs(THUNAR_JOB(transfer_job));
         GList *other_jobs = _transfer_job_filter_running_jobs(jobs, THUNAR_JOB(transfer_job));
         g_list_free(g_steal_pointer(&jobs));
         if
@@ -1355,20 +1355,20 @@ static void _transfer_job_freeze_optional(TransferJob *transfer_job)
         }
         if (exo_job_is_cancelled(EXO_JOB(transfer_job)))
             break;
-        if (!thunar_job_is_frozen(THUNAR_JOB(transfer_job)))
+        if (!job_is_frozen(THUNAR_JOB(transfer_job)))
         {
             if (been_frozen)
                 break; /* cannot re-freeze. It means that the user force to unfreeze */
             else
             {
                 been_frozen = TRUE; /* first time here. The job needs to change to frozen state */
-                thunar_job_freeze(THUNAR_JOB(transfer_job));
+                job_freeze(THUNAR_JOB(transfer_job));
             }
         }
         g_usleep(500 * 1000); /* pause for 500ms */
     }
-    if (thunar_job_is_frozen(THUNAR_JOB(transfer_job)))
-        thunar_job_unfreeze(THUNAR_JOB(transfer_job));
+    if (job_is_frozen(THUNAR_JOB(transfer_job)))
+        job_unfreeze(THUNAR_JOB(transfer_job));
 }
 
 static gboolean transfer_job_execute(ExoJob *job, GError **error)
@@ -1481,7 +1481,7 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
     }
     else
     {
-        thunar_job_new_files(THUNAR_JOB(job), new_files_list);
+        job_new_files(THUNAR_JOB(job), new_files_list);
         eg_list_free(new_files_list);
         return TRUE;
     }

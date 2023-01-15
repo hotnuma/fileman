@@ -106,7 +106,7 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
     if (G_LIKELY(file_list != NULL))
     {
         /* emit the "files-ready" signal */
-        if (!thunar_job_files_ready(THUNAR_JOB(job), file_list))
+        if (!job_files_ready(THUNAR_JOB(job), file_list))
         {
             /* none of the handlers took over the file list, so it's up to us
              * to destroy it */
@@ -155,7 +155,7 @@ static gboolean _io_mkdir(ThunarJob *job, GArray *param_values, GError **error)
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
 
     /* we know the total list of files to process */
-    thunar_job_set_total_files(THUNAR_JOB(job), file_list);
+    job_set_total_files(THUNAR_JOB(job), file_list);
 
     for (lp = file_list;
             err == NULL && lp != NULL && !exo_job_is_cancelled(EXO_JOB(job));
@@ -164,7 +164,7 @@ static gboolean _io_mkdir(ThunarJob *job, GArray *param_values, GError **error)
         g_assert(G_IS_FILE(lp->data));
 
         /* update progress information */
-        thunar_job_processing_file(THUNAR_JOB(job), lp, n_processed);
+        job_processing_file(THUNAR_JOB(job), lp, n_processed);
 
 again:
         /* try to create the directory */
@@ -204,7 +204,7 @@ again:
                 }
 
                 /* ask the user whether he wants to overwrite the existing file */
-                response = thunar_job_ask_overwrite(THUNAR_JOB(job),
+                response = job_ask_overwrite(THUNAR_JOB(job),
                                                      _("The file \"%s\" already exists"),
                                                      display_name);
 
@@ -227,7 +227,7 @@ again:
                 g_free(base_name);
 
                 /* ask the user whether to skip/retry this path(cancels the job if not) */
-                response = thunar_job_ask_skip(THUNAR_JOB(job),
+                response = job_ask_skip(THUNAR_JOB(job),
                                                 _("Failed to create directory \"%s\": %s"),
                                                 display_name, err->message);
                 g_free(display_name);
@@ -254,7 +254,7 @@ again:
         return FALSE;
 
     /* emit the "new-files" signal with the given file list */
-    thunar_job_new_files(THUNAR_JOB(job), file_list);
+    job_new_files(THUNAR_JOB(job), file_list);
 
     return TRUE;
 }
@@ -317,7 +317,7 @@ static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
     template_file = g_value_get_object(&g_array_index(param_values, GValue, 1));
 
     /* we know the total amount of files to be processed */
-    thunar_job_set_total_files(THUNAR_JOB(job), file_list);
+    job_set_total_files(THUNAR_JOB(job), file_list);
 
     /* check if we need to open the template */
     if (template_file != NULL)
@@ -339,7 +339,7 @@ static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
         g_assert(G_IS_FILE(lp->data));
 
         /* update progress information */
-        thunar_job_processing_file(THUNAR_JOB(job), lp, n_processed);
+        job_processing_file(THUNAR_JOB(job), lp, n_processed);
 
 again:
         /* try to create the file */
@@ -384,7 +384,7 @@ again:
                 }
 
                 /* ask the user whether he wants to overwrite the existing file */
-                response = thunar_job_ask_overwrite(THUNAR_JOB(job),
+                response = job_ask_overwrite(THUNAR_JOB(job),
                                                      _("The file \"%s\" already exists"),
                                                      display_name);
 
@@ -407,7 +407,7 @@ again:
                 g_free(base_name);
 
                 /* ask the user whether to skip/retry this path(cancels the job if not) */
-                response = thunar_job_ask_skip(THUNAR_JOB(job),
+                response = job_ask_skip(THUNAR_JOB(job),
                                                 _("Failed to create empty file \"%s\": %s"),
                                                 display_name, err->message);
                 g_free(display_name);
@@ -450,7 +450,7 @@ again:
         return FALSE;
 
     /* emit the "new-files" signal with the given file list */
-    thunar_job_new_files(THUNAR_JOB(job), file_list);
+    job_new_files(THUNAR_JOB(job), file_list);
 
     return TRUE;
 }
@@ -500,7 +500,7 @@ static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
     }
 
     /* we know the total list of files to process */
-    thunar_job_set_total_files(THUNAR_JOB(job), file_list);
+    job_set_total_files(THUNAR_JOB(job), file_list);
 
     /* remove all the files */
     for (lp = file_list;
@@ -514,7 +514,7 @@ static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
             continue;
 
         /* update progress information */
-        thunar_job_processing_file(THUNAR_JOB(job), lp, n_processed);
+        job_processing_file(THUNAR_JOB(job), lp, n_processed);
 
 again:
         /* try to delete the file */
@@ -554,7 +554,7 @@ again:
             }
 
             /* ask the user whether he wants to skip this file */
-            response = thunar_job_ask_skip(THUNAR_JOB(job),
+            response = job_ask_skip(THUNAR_JOB(job),
                                             _("Could not delete file \"%s\": %s"),
                                             display_name, err->message);
             g_free(display_name);
@@ -628,7 +628,7 @@ ThunarJob* io_move_files(GList *source_file_list, GList *target_file_list)
 
     job = transfer_job_new(source_file_list, target_file_list,
                                    TRANSFERJOB_MOVE);
-    thunar_job_set_pausable(job, TRUE);
+    job_set_pausable(job, TRUE);
 
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
 }
@@ -644,7 +644,7 @@ ThunarJob* io_copy_files(GList *source_file_list, GList *target_file_list)
 
     job = transfer_job_new(source_file_list, target_file_list,
                                    TRANSFERJOB_COPY);
-    thunar_job_set_pausable(job, TRUE);
+    job_set_pausable(job, TRUE);
 
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
 }
@@ -681,7 +681,7 @@ static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
     target_file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 1));
 
     /* we know the total list of paths to process */
-    thunar_job_set_total_files(THUNAR_JOB(job), source_file_list);
+    job_set_total_files(THUNAR_JOB(job), source_file_list);
 
     /* process all files */
     for (sp = source_file_list, tp = target_file_list;
@@ -692,7 +692,7 @@ static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
         thunar_assert(G_IS_FILE(tp->data));
 
         /* update progress information */
-        thunar_job_processing_file(THUNAR_JOB(job), sp, n_processed);
+        job_processing_file(THUNAR_JOB(job), sp, n_processed);
 
         /* try to create the symbolic link */
         real_target_file = _io_link_file(job, sp->data, tp->data, &err);
@@ -719,7 +719,7 @@ static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
     }
     else
     {
-        thunar_job_new_files(THUNAR_JOB(job), new_files_list);
+        job_new_files(THUNAR_JOB(job), new_files_list);
         eg_list_free(new_files_list);
         return TRUE;
     }
@@ -813,7 +813,7 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
         if (err->domain == G_IO_ERROR && err->code == G_IO_ERROR_EXISTS)
         {
             /* ask the user whether to replace the target file */
-            response = thunar_job_ask_overwrite(job, "%s", err->message);
+            response = job_ask_overwrite(job, "%s", err->message);
 
             /* reset the error */
             g_clear_error(&err);
@@ -881,7 +881,7 @@ static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error)
 
         if (err != NULL)
         {
-            response = thunar_job_ask_delete(job, "%s", err->message);
+            response = job_ask_delete(job, "%s", err->message);
 
             g_clear_error(&err);
 
@@ -1042,13 +1042,13 @@ static gboolean _io_chown(ThunarJob *job, GArray *param_values, GError **error)
     }
 
     /* we know the total list of files to process */
-    thunar_job_set_total_files(THUNAR_JOB(job), file_list);
+    job_set_total_files(THUNAR_JOB(job), file_list);
 
     /* change the ownership of all files */
     for (lp = file_list; lp != NULL && err == NULL; lp = lp->next, n_processed++)
     {
         /* update progress information */
-        thunar_job_processing_file(THUNAR_JOB(job), lp, n_processed);
+        job_processing_file(THUNAR_JOB(job), lp, n_processed);
 
         /* try to query information about the file */
         info = g_file_query_info(lp->data,
@@ -1088,7 +1088,7 @@ retry_chown:
                       : _("Failed to change the group of \"%s\": %s");
 
             /* ask the user whether to skip/retry this file */
-            response = thunar_job_ask_skip(THUNAR_JOB(job), message,
+            response = job_ask_skip(THUNAR_JOB(job), message,
                                             g_file_info_get_display_name(info),
                                             err->message);
 
@@ -1182,13 +1182,13 @@ static gboolean _io_chmod(ThunarJob *job, GArray *param_values, GError **error)
     }
 
     /* we know the total list of files to process */
-    thunar_job_set_total_files(THUNAR_JOB(job), file_list);
+    job_set_total_files(THUNAR_JOB(job), file_list);
 
     /* change the ownership of all files */
     for (lp = file_list; lp != NULL && err == NULL; lp = lp->next, n_processed++)
     {
         /* update progress information */
-        thunar_job_processing_file(THUNAR_JOB(job), lp, n_processed);
+        job_processing_file(THUNAR_JOB(job), lp, n_processed);
 
         /* try to query information about the file */
         info = g_file_query_info(lp->data,
@@ -1236,7 +1236,7 @@ retry_chown:
         if (err != NULL && !exo_job_is_cancelled(EXO_JOB(job)))
         {
             /* ask the user whether to skip/retry this file */
-            response = thunar_job_ask_skip(job,
+            response = job_ask_skip(job,
                                             _("Failed to change the permissions of \"%s\": %s"),
                                             g_file_info_get_display_name(info),
                                             err->message);
