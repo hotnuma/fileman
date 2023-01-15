@@ -24,7 +24,7 @@
 #include <enum-types.h>
 #include <gio-ext.h>
 #include <io-scan-directory.h>
-#include <io-jobs-util.h>
+#include <job-utils.h>
 #include <job.h>
 #include <simple-job.h>
 #include <transfer-job.h>

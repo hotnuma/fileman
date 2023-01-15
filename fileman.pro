@@ -32,9 +32,9 @@ HEADERS = \
     dialog/progress-view.h \
     dialog/propsdlg.h \
     job/dcount-job.h \
-    job/io-jobs-util.h \
     job/io-jobs.h \
     job/io-scan-directory.h \
+    job/job-utils.h \
     job/job.h \
     job/simple-job.h \
     job/transfer-job.h \
@@ -102,9 +102,9 @@ SOURCES = \
     dialog/progress-view.c \
     dialog/propsdlg.c \
     job/dcount-job.c \
-    job/io-jobs-util.c \
     job/io-jobs.c \
     job/io-scan-directory.c \
+    job/job-utils.c \
     job/job.c \
     job/simple-job.c \
     job/transfer-job.c \

@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <io-jobs-util.h>
+#include <job-utils.h>
 #include <gio-ext.h>
 #include <job.h>
 #include <utils.h>
