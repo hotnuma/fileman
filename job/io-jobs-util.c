@@ -17,16 +17,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#include <gio/gio.h>
-
-#include <gio-ext.h>
 #include <io-jobs-util.h>
+#include <gio-ext.h>
 #include <job.h>
 #include <utils.h>
+
+#include <gio/gio.h>
 
 /**
  * thunar_io_jobs_util_next_duplicate_file:
@@ -49,11 +46,11 @@
  * Return value: the #GFile referencing the @n<!---->th copy or link
  *               of @file or %NULL on error/cancellation.
  **/
-GFile* thunar_io_jobs_util_next_duplicate_file(ThunarJob *job,
-                                               GFile     *file,
-                                               gboolean   copy,
-                                               guint      n,
-                                               GError   **error)
+GFile* job_util_next_duplicate_file(ThunarJob *job,
+                                    GFile     *file,
+                                    gboolean  copy,
+                                    guint     n,
+                                    GError    **error)
 {
     GFileInfo   *info;
     GError      *err = NULL;
@@ -152,11 +149,11 @@ GFile* thunar_io_jobs_util_next_duplicate_file(ThunarJob *job,
  * Return value: the #GFile referencing the @n<!---->th copy/move
  *               of @tgt_file or %NULL on error/cancellation.
  **/
-GFile* thunar_io_jobs_util_next_renamed_file(ThunarJob *job,
-                                             GFile     *src_file,
-                                             GFile     *tgt_file,
-                                             guint      n,
-                                             GError   **error)
+GFile* job_util_next_renamed_file(ThunarJob *job,
+                                  GFile     *src_file,
+                                  GFile     *tgt_file,
+                                  guint     n,
+                                  GError    **error)
 {
     GFileInfo   *info;
     GError      *err = NULL;

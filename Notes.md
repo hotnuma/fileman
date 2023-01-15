@@ -47,7 +47,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   10992	./widget/shortcut-render.c
     10711	./widget/location-bar.c
 +   10567	./dialog/appmodel.c
-    10313	./libext/gtk-ext.c
++   10313	./libext/gtk-ext.c
 +   10060	./view/baseview.c
 +   9765	./core/dnd.c
 +   9569	./libext/libext.c

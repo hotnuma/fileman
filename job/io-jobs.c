@@ -778,7 +778,7 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
         {
             for (n = 1; err == NULL; ++n)
             {
-                GFile *duplicate_file = thunar_io_jobs_util_next_duplicate_file(job,
+                GFile *duplicate_file = job_util_next_duplicate_file(job,
                                         source_file,
                                         FALSE, n,
                                         &err);

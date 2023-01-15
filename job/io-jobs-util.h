@@ -17,29 +17,29 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __THUNAR_IO_JOBS_UTIL_H__
-#define __THUNAR_IO_JOBS_UTIL_H__
+#ifndef __JOB_UTILS_H__
+#define __JOB_UTILS_H__
 
 #include <job.h>
 
 G_BEGIN_DECLS
 
-GFile* thunar_io_jobs_util_next_duplicate_file(ThunarJob *job,
-                                               GFile    *file,
-                                               gboolean copy,
-                                               guint    n,
-                                               GError   **error)
-                                               G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+GFile* job_util_next_duplicate_file(ThunarJob *job,
+                                    GFile     *file,
+                                    gboolean  copy,
+                                    guint     n,
+                                    GError    **error)
+                                    G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-GFile* thunar_io_jobs_util_next_renamed_file(ThunarJob *job,
-                                             GFile     *src_file,
-                                             GFile     *tgt_file,
-                                             guint      n,
-                                             GError   **error)
-                                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+GFile* job_util_next_renamed_file(ThunarJob *job,
+                                  GFile     *src_file,
+                                  GFile     *tgt_file,
+                                  guint     n,
+                                  GError    **error)
+                                  G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 
-#endif /* !__THUNAR_IO_JOBS_UITL_H__ */
+#endif // __JOB_UTILS_H__
 
 

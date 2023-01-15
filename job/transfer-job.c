@@ -530,7 +530,7 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
         {
             for(n = 1; err == NULL; ++n)
             {
-                GFile *duplicate_file = thunar_io_jobs_util_next_duplicate_file(THUNAR_JOB(job),
+                GFile *duplicate_file = job_util_next_duplicate_file(THUNAR_JOB(job),
                                         source_file,
                                         TRUE, n,
                                         &err);
@@ -587,7 +587,7 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
             else if (response == THUNAR_JOB_RESPONSE_RENAME)
             {
                 GFile *renamed_file;
-                renamed_file = thunar_io_jobs_util_next_renamed_file(THUNAR_JOB(job),
+                renamed_file = job_util_next_renamed_file(THUNAR_JOB(job),
                                source_file,
                                dest_file,
                                ++n_rename, &err);
@@ -956,7 +956,7 @@ static gboolean _transfer_job_move_file_with_rename(ExoJob         *job,
     while(TRUE)
     {
         g_clear_error(error);
-        renamed_file = thunar_io_jobs_util_next_renamed_file(THUNAR_JOB(job),
+        renamed_file = job_util_next_renamed_file(THUNAR_JOB(job),
                        node->source_file,
                        tp->data,
                        n_rename++, error);
