@@ -39,7 +39,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   18560	./libext/gio-ext.c
 +   18018	./libext/exo-job.c
     16890	./widget/location-entry.c
-    16491	./widget/size-label.c
++   16491	./widget/size-label.c
 +   14503	./menu/menu.c
 +   14312	./core/user.c
     13752	./dialog/progress-dlg.c

@@ -438,7 +438,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
-    label = thunar_size_label_new();
+    label = szlabel_new();
     g_object_bind_property(G_OBJECT(dialog), "files", G_OBJECT(label), "files", G_BINDING_SYNC_CREATE);
     gtk_widget_set_hexpand(label, TRUE);
     gtk_grid_attach(GTK_GRID(grid), label, 1, row, 1, 1);

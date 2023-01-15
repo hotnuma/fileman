@@ -16,29 +16,34 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_SIZE_LABEL_H__
-#define __THUNAR_SIZE_LABEL_H__
+#ifndef __SIZELABEL_H__
+#define __SIZELABEL_H__
 
 #include <th-file.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarSizeLabelClass ThunarSizeLabelClass;
-typedef struct _ThunarSizeLabel      ThunarSizeLabel;
+typedef struct _SizeLabelClass SizeLabelClass;
+typedef struct _SizeLabel      SizeLabel;
 
-#define THUNAR_TYPE_SIZE_LABEL            (thunar_size_label_get_type())
-#define THUNAR_SIZE_LABEL(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_SIZE_LABEL, ThunarSizeLabel))
-#define THUNAR_SIZE_LABEL_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_SIZE_LABEL, ThunarSizeLabelClass))
-#define THUNAR_IS_SIZE_LABEL(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_SIZE_LABEL))
-#define THUNAR_IS_SIZE_LABEL_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_SIZE_LABEL))
-#define THUNAR_SIZE_LABEL_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_SIZE_LABEL, ThunarSizeLabelClass))
+#define TYPE_SIZELABEL (szlabel_get_type())
+#define SIZELABEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_SIZELABEL, SizeLabel))
+#define SIZELABEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_SIZELABEL, SizeLabelClass))
+#define IS_SIZELABEL(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_SIZELABEL))
+#define IS_SIZELABEL_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_SIZELABEL))
+#define SIZELABEL_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_SIZELABEL, SizeLabelClass))
 
-GType thunar_size_label_get_type() G_GNUC_CONST;
+GType szlabel_get_type() G_GNUC_CONST;
 
-GtkWidget* thunar_size_label_new() G_GNUC_MALLOC;
+GtkWidget* szlabel_new() G_GNUC_MALLOC;
 
 G_END_DECLS
 
-#endif /* !__THUNAR_SIZE_LABEL_H__ */
+#endif // __SIZELABEL_H__
 
 
