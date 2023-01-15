@@ -219,7 +219,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_widget_show(dialog->icon_image);
 
     label = gtk_label_new_with_mnemonic(_("_Name:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_box_pack_end(GTK_BOX(dialog->single_box), label, TRUE, TRUE, 0);
     gtk_widget_show(label);
@@ -262,7 +262,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_widget_show(image);
 
     label = gtk_label_new(_("Names:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_box_pack_end(GTK_BOX(box), label, TRUE, TRUE, 0);
     gtk_widget_show(label);
@@ -283,7 +283,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
        Second box(kind, open with, link target)
      */
     label = gtk_label_new(_("Kind:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -305,7 +305,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
     label = gtk_label_new_with_mnemonic(_("_Open With:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -320,7 +320,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
     label = gtk_label_new(_("Link Target:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -339,7 +339,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
      * properties dialog width will be messed up.
      */
     label = gtk_label_new(_("Original Path:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -354,7 +354,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
     label = gtk_label_new(_("Location:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -380,7 +380,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
        Third box(deleted, modified, accessed)
      */
     label = gtk_label_new(_("Deleted:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -395,7 +395,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
     label = gtk_label_new(_("Modified:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -410,7 +410,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
     label = gtk_label_new(_("Accessed:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -436,7 +436,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
        Fourth box(size, volume, free space)
      */
     label = gtk_label_new(_("Size:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -450,7 +450,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
     label = gtk_label_new(_("Volume:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
@@ -475,7 +475,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
     label = gtk_label_new(_("Usage:"));
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
     gtk_label_set_yalign(GTK_LABEL(label), 0.0f);
     gtk_grid_attach(GTK_GRID(grid), label, 0, row, 1, 1);

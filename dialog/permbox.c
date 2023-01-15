@@ -192,7 +192,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new(_("Owner:"));
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_grid_attach(GTK_GRID(chooser->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
@@ -211,7 +211,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new_with_mnemonic(_("_Access:"));
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_grid_attach(GTK_GRID(chooser->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
@@ -244,7 +244,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new_with_mnemonic(_("Gro_up:"));
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_grid_attach(GTK_GRID(chooser->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
@@ -264,7 +264,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new_with_mnemonic(_("Acc_ess:"));
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_grid_attach(GTK_GRID(chooser->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
@@ -290,7 +290,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new(_("Others"));
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_grid_attach(GTK_GRID(chooser->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
@@ -298,7 +298,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new_with_mnemonic(_("Acce_ss:"));
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_grid_attach(GTK_GRID(chooser->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
@@ -324,7 +324,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new(_("Program:"));
     gtk_label_set_xalign(GTK_LABEL(label), 1.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_bold());
     gtk_grid_attach(GTK_GRID(chooser->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
@@ -350,7 +350,7 @@ static void permbox_init(PermissionBox *chooser)
 
     label = gtk_label_new(_("Allowing untrusted programs to run presents a security risk to your system."));
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_small_italic());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_small_italic());
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 0);
     gtk_widget_show(label);
@@ -366,7 +366,7 @@ static void permbox_init(PermissionBox *chooser)
 
     chooser->fixperm_label = gtk_label_new(_("The folder permissions are inconsistent, you may not be able to work with files in this folder."));
     gtk_label_set_xalign(GTK_LABEL(chooser->fixperm_label), 0.0f);
-    gtk_label_set_attributes(GTK_LABEL(chooser->fixperm_label), thunar_pango_attr_list_small_italic());
+    gtk_label_set_attributes(GTK_LABEL(chooser->fixperm_label), e_pango_attr_list_small_italic());
     gtk_label_set_line_wrap(GTK_LABEL(chooser->fixperm_label), TRUE);
     g_object_bind_property(G_OBJECT(chooser->fixperm_label), "visible", G_OBJECT(hbox), "visible", G_BINDING_SYNC_CREATE);
     gtk_box_pack_start(GTK_BOX(hbox), chooser->fixperm_label, TRUE, TRUE, 0);
@@ -519,7 +519,7 @@ static gboolean _permbox_ask_recursive(PermissionBox *chooser)
 
         label = gtk_label_new(_("Apply recursively?"));
         gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
-        gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_big_bold());
+        gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_big_bold());
         gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
         gtk_widget_show(label);
 

@@ -16,20 +16,15 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-
 #include <pango-ext.h>
 
-static PangoAttrList* _thunar_pango_attr_list_wrap(PangoAttribute *attribute, ...)
-                                                   G_GNUC_MALLOC;
+#include <stdarg.h>
 
-static PangoAttrList* _thunar_pango_attr_list_wrap(PangoAttribute *attribute, ...)
+static PangoAttrList* _e_pango_attr_list_wrap(PangoAttribute *attribute, ...)
+                                              G_GNUC_MALLOC;
+
+static PangoAttrList* _e_pango_attr_list_wrap(PangoAttribute *attribute, ...)
 {
     PangoAttrList *attr_list;
     va_list        args;
@@ -39,7 +34,7 @@ static PangoAttrList* _thunar_pango_attr_list_wrap(PangoAttribute *attribute, ..
 
     /* add all specified attributes */
     va_start(args, attribute);
-    while(attribute != NULL)
+    while (attribute != NULL)
     {
         attribute->start_index = 0;
         attribute->end_index = -1;
@@ -60,11 +55,11 @@ static PangoAttrList* _thunar_pango_attr_list_wrap(PangoAttribute *attribute, ..
  *
  * Return value: a #PangoAttrList for rendering big text.
  **/
-PangoAttrList* thunar_pango_attr_list_big()
+PangoAttrList* e_pango_attr_list_big()
 {
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), NULL);
     return attr_list;
 }
 
@@ -77,11 +72,11 @@ PangoAttrList* thunar_pango_attr_list_big()
  *
  * Return value: a #PangoAttrList for rendering big bold text.
  **/
-PangoAttrList* thunar_pango_attr_list_big_bold()
+PangoAttrList* e_pango_attr_list_big_bold()
 {
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
     return attr_list;
 }
 
@@ -94,16 +89,16 @@ PangoAttrList* thunar_pango_attr_list_big_bold()
  *
  * Return value: a #PangoAttrList for rendering bold text.
  **/
-PangoAttrList* thunar_pango_attr_list_bold()
+PangoAttrList* e_pango_attr_list_bold()
 {
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
     return attr_list;
 }
 
 /**
- * thunar_pango_attr_disable_hyphens:
+ * e_pango_attr_disable_hyphens:
  *
  * Returns a #PangoAttrList for not inserting hyphens at intra-word line breaks.
  * The returned list is owned by the callee and must
@@ -113,12 +108,12 @@ PangoAttrList* thunar_pango_attr_list_bold()
  *               breaks.
  **/
 #if PANGO_VERSION_CHECK(1, 44, 0)
-PangoAttrList* thunar_pango_attr_disable_hyphens()
+PangoAttrList* e_pango_attr_disable_hyphens()
 {
     static PangoAttrList *attr_list = NULL;
 
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_insert_hyphens_new(FALSE), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_insert_hyphens_new(FALSE), NULL);
 
     return attr_list;
 }
@@ -133,11 +128,11 @@ PangoAttrList* thunar_pango_attr_disable_hyphens()
  *
  * Return value: a #PangoAttrList for rendering italic text.
  **/
-PangoAttrList* thunar_pango_attr_list_italic()
+PangoAttrList* e_pango_attr_list_italic()
 {
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
     return attr_list;
 }
 
@@ -150,11 +145,11 @@ PangoAttrList* thunar_pango_attr_list_italic()
  *
  * Return value: a #PangoAttrList for rendering small italic text.
  **/
-PangoAttrList* thunar_pango_attr_list_small_italic()
+PangoAttrList* e_pango_attr_list_small_italic()
 {
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
     return attr_list;
 }
 
@@ -167,11 +162,11 @@ PangoAttrList* thunar_pango_attr_list_small_italic()
  *
  * Return value: a #PangoAttrList for rendering small text.
  **/
-PangoAttrList* thunar_pango_attr_list_small()
+PangoAttrList* e_pango_attr_list_small()
 {
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), NULL);
     return attr_list;
 }
 
@@ -184,11 +179,11 @@ PangoAttrList* thunar_pango_attr_list_small()
  *
  * Return value: a #PangoAttrList for underlining text using a single line.
  **/
-PangoAttrList* thunar_pango_attr_list_underline_single()
+PangoAttrList* e_pango_attr_list_underline_single()
 {
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _thunar_pango_attr_list_wrap(pango_attr_underline_new(PANGO_UNDERLINE_SINGLE), NULL);
+        attr_list = _e_pango_attr_list_wrap(pango_attr_underline_new(PANGO_UNDERLINE_SINGLE), NULL);
     return attr_list;
 }
 

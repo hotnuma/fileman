@@ -16,26 +16,26 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_PANGO_EXTENSIONS_H__
-#define __THUNAR_PANGO_EXTENSIONS_H__
+#ifndef __PANGO_EXTENSIONS_H__
+#define __PANGO_EXTENSIONS_H__
 
 #include <pango/pango.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-PangoAttrList *thunar_pango_attr_list_big               (void) G_GNUC_CONST;
-PangoAttrList *thunar_pango_attr_list_big_bold          (void) G_GNUC_CONST;
-PangoAttrList *thunar_pango_attr_list_bold              (void) G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_big() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_big_bold() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_bold() G_GNUC_CONST;
 #if PANGO_VERSION_CHECK (1, 44, 0)
-PangoAttrList *thunar_pango_attr_disable_hyphens        (void) G_GNUC_CONST;
+PangoAttrList* e_pango_attr_disable_hyphens() G_GNUC_CONST;
 #endif
-PangoAttrList *thunar_pango_attr_list_italic            (void) G_GNUC_CONST;
-PangoAttrList *thunar_pango_attr_list_small_italic      (void) G_GNUC_CONST;
-PangoAttrList *thunar_pango_attr_list_small             (void) G_GNUC_CONST;
-PangoAttrList *thunar_pango_attr_list_underline_single  (void) G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_italic() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_small_italic() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_small() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_underline_single() G_GNUC_CONST;
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_PANGO_EXTENSIONS_H__ */
+#endif // __PANGO_EXTENSIONS_H__
 
 

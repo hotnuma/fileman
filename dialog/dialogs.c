@@ -803,7 +803,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
 
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_big());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_big());
     gtk_widget_set_hexpand(label, TRUE);
     gtk_label_set_selectable(GTK_LABEL(label), TRUE);
     gtk_grid_attach(GTK_GRID(grid), label, 1, 0, 2, 1);

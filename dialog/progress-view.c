@@ -185,7 +185,7 @@ static void thunar_progress_view_init(ThunarProgressView *view)
     gtk_widget_show(vbox2);
 
     label = g_object_new(GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
-    gtk_label_set_attributes(GTK_LABEL(label), thunar_pango_attr_list_big_bold());
+    gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_big_bold());
     gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_MIDDLE);
     gtk_box_pack_start(GTK_BOX(vbox2), label, TRUE, TRUE, 0);
     gtk_widget_show(label);
@@ -209,7 +209,7 @@ static void thunar_progress_view_init(ThunarProgressView *view)
 
     view->progress_label = g_object_new(GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
     gtk_label_set_ellipsize(GTK_LABEL(view->progress_label), PANGO_ELLIPSIZE_END);
-    gtk_label_set_attributes(GTK_LABEL(view->progress_label), thunar_pango_attr_list_small());
+    gtk_label_set_attributes(GTK_LABEL(view->progress_label), e_pango_attr_list_small());
     gtk_box_pack_start(GTK_BOX(vbox3), view->progress_label, FALSE, TRUE, 0);
     gtk_widget_show(view->progress_label);
 

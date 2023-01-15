@@ -561,9 +561,9 @@ static void treemodel_get_value(GtkTreeModel *tree_model,
     case TREEMODEL_COLUMN_ATTR:
         g_value_init(value, PANGO_TYPE_ATTR_LIST);
         if (G_UNLIKELY(node->parent == model->root))
-            g_value_set_boxed(value, thunar_pango_attr_list_bold());
+            g_value_set_boxed(value, e_pango_attr_list_bold());
         else if (G_UNLIKELY(item == NULL))
-            g_value_set_boxed(value, thunar_pango_attr_list_italic());
+            g_value_set_boxed(value, e_pango_attr_list_italic());
         break;
 
     case TREEMODEL_COLUMN_DEVICE:
