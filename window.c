@@ -1361,7 +1361,7 @@ static void _window_create_view(ThunarWindow *window,
         baseview_scroll_to_file(BASEVIEW(new_view), file, FALSE, TRUE, 0.0f, 0.0f);
 
     /* restore the file selection */
-    thunar_component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
+    component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
     eg_list_free(selected_files);
 
     /* release the file references */

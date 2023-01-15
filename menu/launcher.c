@@ -584,7 +584,7 @@ static void launcher_get_property(GObject *object, guint prop_id, GValue *value,
         break;
 
     case PROP_SELECTED_FILES:
-        g_value_set_boxed(value, thunar_component_get_selected_files(THUNAR_COMPONENT(object)));
+        g_value_set_boxed(value, component_get_selected_files(THUNAR_COMPONENT(object)));
         break;
 
     default:
@@ -610,7 +610,7 @@ static void launcher_set_property(GObject      *object,
         break;
 
     case PROP_SELECTED_FILES:
-        thunar_component_set_selected_files(THUNAR_COMPONENT(object),
+        component_set_selected_files(THUNAR_COMPONENT(object),
                                             g_value_get_boxed(value));
         break;
 

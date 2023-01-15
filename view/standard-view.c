@@ -822,7 +822,7 @@ static void standard_view_get_property(GObject    *object,
         break;
 
     case PROP_SELECTED_FILES:
-        g_value_set_boxed(value, thunar_component_get_selected_files(THUNAR_COMPONENT(object)));
+        g_value_set_boxed(value, component_get_selected_files(THUNAR_COMPONENT(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -863,7 +863,7 @@ static void standard_view_set_property(GObject      *object,
         break;
 
     case PROP_SELECTED_FILES:
-        thunar_component_set_selected_files(THUNAR_COMPONENT(object), g_value_get_boxed(value));
+        component_set_selected_files(THUNAR_COMPONENT(object), g_value_get_boxed(value));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -1300,7 +1300,7 @@ static void _standard_view_restore_selection_from_history(StandardView *standard
      * new current directory */
     if (selected_files.data != NULL)
     {
-        thunar_component_set_selected_files(THUNAR_COMPONENT(standard_view), &selected_files);
+        component_set_selected_files(THUNAR_COMPONENT(standard_view), &selected_files);
         g_object_unref(G_OBJECT(selected_files.data));
     }
 }
@@ -1514,7 +1514,7 @@ static void standard_view_set_loading(StandardView *standard_view,
         standard_view->priv->selected_files = NULL;
 
         /* and try setting the selected files again */
-        thunar_component_set_selected_files(THUNAR_COMPONENT(standard_view), selected_files);
+        component_set_selected_files(THUNAR_COMPONENT(standard_view), selected_files);
 
         /* cleanup */
         eg_list_free(selected_files);
@@ -1572,7 +1572,7 @@ static void _standard_view_new_files(StandardView *standard_view,
         if (G_LIKELY(file_list != NULL))
         {
             /* select the files */
-            thunar_component_set_selected_files(THUNAR_COMPONENT(standard_view), file_list);
+            component_set_selected_files(THUNAR_COMPONENT(standard_view), file_list);
 
             /* release the file list */
             g_list_free_full(file_list, g_object_unref);
@@ -1990,7 +1990,7 @@ static void _standard_view_sort_column_changed(
     thunar_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* keep the currently selected files selected after the change */
-    thunar_component_restore_selection(THUNAR_COMPONENT(standard_view));
+    component_restore_selection(THUNAR_COMPONENT(standard_view));
 
     GtkSortType      sort_order;
     gint             sort_column;
@@ -2156,7 +2156,7 @@ static gboolean _standard_view_restore_selection_idle(StandardView *standard_vie
     g_object_set(G_OBJECT(vadjustment), "lower", v, "upper", v, NULL);
 
     /* restore the selection */
-    thunar_component_restore_selection(THUNAR_COMPONENT(standard_view));
+    component_restore_selection(THUNAR_COMPONENT(standard_view));
     standard_view->priv->restore_selection_idle_id = 0;
 
     /* unfreeze the scroll position */

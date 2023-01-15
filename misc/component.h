@@ -21,15 +21,18 @@
 
 #include <navigator.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarComponentIface ThunarComponentIface;
 typedef struct _ThunarComponent      ThunarComponent;
 
-#define THUNAR_TYPE_COMPONENT           (thunar_component_get_type())
-#define THUNAR_COMPONENT(obj)           (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_COMPONENT, ThunarComponent))
-#define THUNAR_IS_COMPONENT(obj)        (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_COMPONENT))
-#define THUNAR_COMPONENT_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE((obj), THUNAR_TYPE_COMPONENT, ThunarComponentIface))
+#define THUNAR_TYPE_COMPONENT (component_get_type())
+#define THUNAR_COMPONENT(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_COMPONENT, ThunarComponent))
+#define THUNAR_IS_COMPONENT(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_COMPONENT))
+#define THUNAR_COMPONENT_GET_IFACE(obj) \
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj), THUNAR_TYPE_COMPONENT, ThunarComponentIface))
 
 struct _ThunarComponentIface
 {
@@ -41,16 +44,16 @@ struct _ThunarComponentIface
 
 };
 
-GType   thunar_component_get_type() G_GNUC_CONST;
+GType   component_get_type() G_GNUC_CONST;
 
-GList*  thunar_component_get_selected_files(ThunarComponent *component);
-void    thunar_component_set_selected_files(ThunarComponent *component,
-                                            GList           *selected_files);
+GList*  component_get_selected_files(ThunarComponent *component);
+void    component_set_selected_files(ThunarComponent *component,
+                                     GList           *selected_files);
 
-void    thunar_component_restore_selection(ThunarComponent *component);
+void    component_restore_selection(ThunarComponent *component);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_COMPONENT_H__ */
+#endif // __THUNAR_COMPONENT_H__
 
 

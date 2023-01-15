@@ -141,7 +141,7 @@ static void treepane_dispose(GObject *object)
     TreePane *tree_pane = TREEPANE(object);
 
     navigator_set_current_directory(THUNAR_NAVIGATOR(tree_pane), NULL);
-    thunar_component_set_selected_files(THUNAR_COMPONENT(tree_pane), NULL);
+    component_set_selected_files(THUNAR_COMPONENT(tree_pane), NULL);
 
     G_OBJECT_CLASS(treepane_parent_class)->dispose(object);
 }
@@ -160,7 +160,7 @@ static void treepane_get_property(GObject    *object,
 
     case PROP_SELECTED_FILES:
         g_value_set_boxed(value,
-                          thunar_component_get_selected_files(THUNAR_COMPONENT(object)));
+                          component_get_selected_files(THUNAR_COMPONENT(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -187,7 +187,7 @@ static void treepane_set_property(GObject      *object,
         break;
 
     case PROP_SELECTED_FILES:
-        thunar_component_set_selected_files(THUNAR_COMPONENT(object),
+        component_set_selected_files(THUNAR_COMPONENT(object),
                                             g_value_get_boxed(value));
         break;
 

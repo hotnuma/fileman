@@ -62,7 +62,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   5449	./core/fileinfo.c
 +   5019	./libext/gdk-ext.c
 +   4783	./core/filemon.c
-    4712	./misc/component.c
++   4712	./misc/component.c
 +   4708	./libext/gobject-ext.c
 +   4597	./widget/statusbar.c
 +   2591	./preferences.c
