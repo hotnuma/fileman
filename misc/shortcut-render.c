@@ -18,18 +18,17 @@
  */
 
 #include <config.h>
-
-#include <gio/gio.h>
+#include <shortcut-render.h>
 
 #include <libext.h>
 #include <pixbuf-ext.h>
-
 #include <gio-ext.h>
 #include <gobject-ext.h>
 #include <gdk-ext.h>
 #include <icon-factory.h>
-#include <shortcut-render.h>
 #include <th-device.h>
+
+#include <gio/gio.h>
 
 enum
 {
@@ -38,12 +37,12 @@ enum
     PROP_GICON,
 };
 
-static void srenderer_finalize(GObject *object);
-static void srenderer_get_property(GObject *object, guint prop_id,
+static void srender_finalize(GObject *object);
+static void srender_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec);
-static void srenderer_set_property(GObject *object, guint prop_id,
+static void srender_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);
-static void srenderer_render(GtkCellRenderer *renderer,
+static void srender_render(GtkCellRenderer *renderer,
                              cairo_t *cr,
                              GtkWidget *widget,
                              const GdkRectangle *background_area,
@@ -63,17 +62,17 @@ struct _ShortcutRenderer
     GIcon           *gicon;
 };
 
-G_DEFINE_TYPE(ShortcutRenderer, srenderer, TYPE_ICONRENDERER)
+G_DEFINE_TYPE(ShortcutRenderer, srender, TYPE_ICONRENDERER)
 
-static void srenderer_class_init(ShortcutRendererClass *klass)
+static void srender_class_init(ShortcutRendererClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = srenderer_finalize;
-    gobject_class->get_property = srenderer_get_property;
-    gobject_class->set_property = srenderer_set_property;
+    gobject_class->finalize = srender_finalize;
+    gobject_class->get_property = srender_get_property;
+    gobject_class->set_property = srender_set_property;
 
     GtkCellRendererClass *gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
-    gtkcell_renderer_class->render = srenderer_render;
+    gtkcell_renderer_class->render = srender_render;
 
     /**
      * ShortcutRenderer:device:
@@ -106,7 +105,7 @@ static void srenderer_class_init(ShortcutRendererClass *klass)
                                         E_PARAM_READWRITE));
 }
 
-static void srenderer_init(ShortcutRenderer *shortcuts_icon_renderer)
+static void srender_init(ShortcutRenderer *shortcuts_icon_renderer)
 {
     /* no padding please */
     gtk_cell_renderer_set_padding(GTK_CELL_RENDERER(shortcuts_icon_renderer),
@@ -114,7 +113,7 @@ static void srenderer_init(ShortcutRenderer *shortcuts_icon_renderer)
                                   0);
 }
 
-static void srenderer_finalize(GObject *object)
+static void srender_finalize(GObject *object)
 {
     ShortcutRenderer *renderer = SHORTCUT_RENDERER(object);
 
@@ -124,11 +123,11 @@ static void srenderer_finalize(GObject *object)
     if (G_UNLIKELY(renderer->gicon != NULL))
         g_object_unref(renderer->gicon);
 
-    G_OBJECT_CLASS(srenderer_parent_class)->finalize(object);
+    G_OBJECT_CLASS(srender_parent_class)->finalize(object);
 }
 
-static void srenderer_get_property(GObject *object, guint prop_id,
-                                   GValue *value, GParamSpec *pspec)
+static void srender_get_property(GObject *object, guint prop_id,
+                                 GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
@@ -150,8 +149,8 @@ static void srenderer_get_property(GObject *object, guint prop_id,
     }
 }
 
-static void srenderer_set_property(GObject *object, guint prop_id,
-                                   const GValue *value, GParamSpec *pspec)
+static void srender_set_property(GObject *object, guint prop_id,
+                                 const GValue *value, GParamSpec *pspec)
 {
     UNUSED(pspec);
 
@@ -177,12 +176,12 @@ static void srenderer_set_property(GObject *object, guint prop_id,
     }
 }
 
-static void srenderer_render(GtkCellRenderer     *renderer,
-                             cairo_t             *cr,
-                             GtkWidget           *widget,
-                             const GdkRectangle  *background_area,
-                             const GdkRectangle  *cell_area,
-                             GtkCellRendererState flags)
+static void srender_render(GtkCellRenderer      *renderer,
+                           cairo_t              *cr,
+                           GtkWidget            *widget,
+                           const GdkRectangle   *background_area,
+                           const GdkRectangle   *cell_area,
+                           GtkCellRendererState flags)
 {
     ShortcutRenderer *shortcuts_icon_renderer = SHORTCUT_RENDERER(renderer);
     GtkIconTheme                *icon_theme;
@@ -267,7 +266,7 @@ static void srenderer_render(GtkCellRenderer     *renderer,
     else
     {
         /* fallback to the default icon renderering */
-        GTK_CELL_RENDERER_CLASS(srenderer_parent_class)->render(
+        GTK_CELL_RENDERER_CLASS(srender_parent_class)->render(
                                                             renderer,
                                                             cr,
                                                             widget,
@@ -277,7 +276,7 @@ static void srenderer_render(GtkCellRenderer     *renderer,
     }
 }
 
-GtkCellRenderer* srenderer_new()
+GtkCellRenderer* srender_new()
 {
     return g_object_new(TYPE_SHORTCUT_RENDERER, NULL);
 }

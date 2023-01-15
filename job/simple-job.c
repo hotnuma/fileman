@@ -18,77 +18,64 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
-
-#ifdef HAVE_MEMORY_H
-#include <memory.h>
-#endif
-#ifdef HAVE_STDARG_H
-#include <stdarg.h>
-#endif
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
-#include <gobject/gvaluecollector.h>
-
-#include <job.h>
 #include <simple-job.h>
 
-static void thunar_simple_job_finalize(GObject *object);
-static gboolean thunar_simple_job_execute(ExoJob *job, GError **error);
+#include <job.h>
 
-struct _ThunarSimpleJobClass
+#include <memory.h>
+#include <stdarg.h>
+#include <string.h>
+#include <gobject/gvaluecollector.h>
+
+static void simple_job_finalize(GObject *object);
+static gboolean simple_job_execute(ExoJob *job, GError **error);
+
+struct _SimpleJobClass
 {
     ThunarJobClass __parent__;
 };
 
-struct _ThunarSimpleJob
+struct _SimpleJob
 {
-    ThunarJob           __parent__;
+    ThunarJob       __parent__;
 
-    ThunarSimpleJobFunc func;
-    GArray              *param_values;
+    SimpleJobFunc   func;
+    GArray          *param_values;
 };
 
-G_DEFINE_TYPE(ThunarSimpleJob, thunar_simple_job, THUNAR_TYPE_JOB)
+G_DEFINE_TYPE(SimpleJob, simple_job, THUNAR_TYPE_JOB)
 
-static void thunar_simple_job_class_init(ThunarSimpleJobClass *klass)
+static void simple_job_class_init(SimpleJobClass *klass)
 {
-    GObjectClass *gobject_class;
-    ExoJobClass  *exojob_class;
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->finalize = simple_job_finalize;
 
-    gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_simple_job_finalize;
-
-    exojob_class = EXO_JOB_CLASS(klass);
-    exojob_class->execute = thunar_simple_job_execute;
+    ExoJobClass *exojob_class = EXO_JOB_CLASS(klass);
+    exojob_class->execute = simple_job_execute;
 }
 
-static void thunar_simple_job_init(ThunarSimpleJob *simple_job)
+static void simple_job_init(SimpleJob *simple_job)
 {
     UNUSED(simple_job);
 }
 
-static void thunar_simple_job_finalize(GObject *object)
+static void simple_job_finalize(GObject *object)
 {
-    ThunarSimpleJob *simple_job = THUNAR_SIMPLE_JOB(object);
-    guint            i;
+    SimpleJob *simple_job = THUNAR_SIMPLE_JOB(object);
 
     /* release the param values */
-    for(i = 0; i < simple_job->param_values->len; i++)
+    for (guint i = 0; i < simple_job->param_values->len; ++i)
         g_value_unset(&g_array_index(simple_job->param_values, GValue, i));
+
     g_array_free(simple_job->param_values, TRUE);
 
-    (*G_OBJECT_CLASS(thunar_simple_job_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(simple_job_parent_class)->finalize(object);
 }
 
-static gboolean thunar_simple_job_execute(ExoJob *job,
-                                          GError **error)
+static gboolean simple_job_execute(ExoJob *job, GError **error)
 {
-    ThunarSimpleJob *simple_job = THUNAR_SIMPLE_JOB(job);
+    SimpleJob *simple_job = THUNAR_SIMPLE_JOB(job);
     gboolean         success = TRUE;
     GError          *err = NULL;
 
@@ -122,12 +109,12 @@ static gboolean thunar_simple_job_execute(ExoJob *job,
 
 /**
  * thunar_simple_job_launch:
- * @func           : the #ThunarSimpleJobFunc to execute the job.
+ * @func           : the #SimpleJobFunc to execute the job.
  * @n_param_values : the number of parameters to pass to the @func.
  * @...            : a list of #GType and parameter pairs(exactly
  *                   @n_param_values pairs) that are passed to @func.
  *
- * Allocates a new #ThunarSimpleJob, which executes the specified
+ * Allocates a new #SimpleJob, which executes the specified
  * @func with the specified parameters.
  *
  * For example the listdir @func expects a #ThunarPath for the
@@ -144,18 +131,16 @@ static gboolean thunar_simple_job_execute(ExoJob *job,
  *
  * Return value: the launched #ThunarJob.
  **/
-ThunarJob* thunar_simple_job_launch(ThunarSimpleJobFunc func,
-                                    guint               n_param_values,
-                                    ...)
+ThunarJob* simple_job_launch(SimpleJobFunc func, guint n_param_values, ...)
 {
-    ThunarSimpleJob *simple_job;
+    SimpleJob *simple_job;
     va_list          var_args;
     GValue           value = { 0, };
     gchar           *error_message;
     guint            n;
 
     /* allocate and initialize the simple job */
-    simple_job = g_object_new(THUNAR_TYPE_SIMPLE_JOB, NULL);
+    simple_job = g_object_new(TYPE_SIMPLEJOB, NULL);
     simple_job->func = func;
     simple_job->param_values = g_array_sized_new(FALSE, TRUE, sizeof(GValue), n_param_values);
 
@@ -188,7 +173,7 @@ ThunarJob* thunar_simple_job_launch(ThunarSimpleJobFunc func,
     return THUNAR_JOB(exo_job_launch(EXO_JOB(simple_job)));
 }
 
-GArray* thunar_simple_job_get_param_values(ThunarSimpleJob *job)
+GArray* simple_job_get_param_values(SimpleJob *job)
 {
     thunar_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), NULL);
     return job->param_values;

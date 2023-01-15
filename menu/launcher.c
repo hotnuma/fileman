@@ -2115,7 +2115,7 @@ static void _launcher_rename_error(ExoJob    *job,
     thunar_return_if_fail(EXO_IS_JOB(job));
     thunar_return_if_fail(error != NULL);
 
-    param_values = thunar_simple_job_get_param_values(THUNAR_SIMPLE_JOB(job));
+    param_values = simple_job_get_param_values(THUNAR_SIMPLE_JOB(job));
     file = g_value_get_object(&g_array_index(param_values, GValue, 0));
 
     dialog_error(GTK_WIDGET(widget), error,

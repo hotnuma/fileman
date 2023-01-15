@@ -62,7 +62,7 @@ ThunarJob* io_list_directory(GFile *directory)
 {
     thunar_return_val_if_fail(G_IS_FILE(directory), NULL);
 
-    return thunar_simple_job_launch(_io_ls, 1, G_TYPE_FILE, directory);
+    return simple_job_launch(_io_ls, 1, G_TYPE_FILE, directory);
 }
 
 static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
@@ -130,7 +130,7 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
 
 ThunarJob* io_make_directories(GList *file_list)
 {
-    return thunar_simple_job_launch(_io_mkdir,
+    return simple_job_launch(_io_mkdir,
                                     1,
                                     THUNAR_TYPE_G_FILE_LIST,
                                     file_list);
@@ -286,7 +286,7 @@ static gboolean _io_delete_file(GFile *file, GCancellable *cancellable,
 
 ThunarJob* io_create_files(GList *file_list, GFile *template_file)
 {
-    return thunar_simple_job_launch(_io_create, 2,
+    return simple_job_launch(_io_create, 2,
                                     THUNAR_TYPE_G_FILE_LIST,
                                     file_list,
                                     G_TYPE_FILE,
@@ -458,7 +458,7 @@ again:
 
 ThunarJob* io_unlink_files(GList *file_list)
 {
-    return thunar_simple_job_launch(_io_unlink, 1,
+    return simple_job_launch(_io_unlink, 1,
                                     THUNAR_TYPE_G_FILE_LIST, file_list);
 }
 
@@ -656,7 +656,7 @@ ThunarJob* io_link_files(GList *source_file_list, GList *target_file_list)
     thunar_return_val_if_fail(target_file_list != NULL, NULL);
     thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
-    return thunar_simple_job_launch(_io_link, 2,
+    return simple_job_launch(_io_link, 2,
                                      THUNAR_TYPE_G_FILE_LIST, source_file_list,
                                      THUNAR_TYPE_G_FILE_LIST, target_file_list);
 }
@@ -851,7 +851,7 @@ ThunarJob* io_trash_files(GList *file_list)
 {
     thunar_return_val_if_fail(file_list != NULL, NULL);
 
-    return thunar_simple_job_launch(_io_trash, 1,
+    return simple_job_launch(_io_trash, 1,
                                     THUNAR_TYPE_G_FILE_LIST, file_list);
 }
 
@@ -925,7 +925,7 @@ ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
     thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     thunar_return_val_if_fail(g_utf8_validate(display_name, -1, NULL), NULL);
 
-    return thunar_simple_job_launch(_io_rename,
+    return simple_job_launch(_io_rename,
                                     2,
                                     THUNAR_TYPE_FILE, file,
                                     G_TYPE_STRING,
@@ -997,7 +997,7 @@ ThunarJob* io_change_group(GList *files, guint32 gid, gboolean recursive)
     /* files are released when the list if destroyed */
     g_list_foreach(files, (GFunc)(void(*)(void)) g_object_ref, NULL);
 
-    return thunar_simple_job_launch(_io_chown, 4,
+    return simple_job_launch(_io_chown, 4,
                                     THUNAR_TYPE_G_FILE_LIST, files,
                                     G_TYPE_INT, -1,
                                     G_TYPE_INT, (gint) gid,
@@ -1130,7 +1130,7 @@ ThunarJob* io_change_mode(GList          *files,
     /* files are released when the list if destroyed */
     g_list_foreach(files, (GFunc)(void(*)(void)) g_object_ref, NULL);
 
-    return thunar_simple_job_launch(_io_chmod, 6,
+    return simple_job_launch(_io_chmod, 6,
                                     THUNAR_TYPE_G_FILE_LIST, files,
                                     THUNAR_TYPE_FILE_MODE, dir_mask,
                                     THUNAR_TYPE_FILE_MODE, dir_mode,
