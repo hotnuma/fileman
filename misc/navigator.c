@@ -17,10 +17,9 @@
  */
 
 #include <config.h>
+#include <navigator.h>
 
 #include <libext.h>
-
-#include <navigator.h>
 
 enum
 {
@@ -28,24 +27,24 @@ enum
     LAST_SIGNAL,
 };
 
-static void thunar_navigator_base_init(gpointer klass);
-static void thunar_navigator_class_init(gpointer klass);
+static void navigator_base_init(gpointer klass);
+static void navigator_class_init(gpointer klass);
 
-static guint navigator_signals[LAST_SIGNAL];
+static guint _navigator_signals[LAST_SIGNAL];
 
-GType thunar_navigator_get_type()
+GType navigator_get_type()
 {
     static volatile gsize type__volatile = 0;
-    GType                 type;
+    GType type;
 
     if (g_once_init_enter((gsize*) &type__volatile))
     {
         static const GTypeInfo info =
         {
             sizeof(ThunarNavigatorIface),
-           (GBaseInitFunc) thunar_navigator_base_init,
+            (GBaseInitFunc) navigator_base_init,
             NULL,
-           (GClassInitFunc)(void(*)(void)) thunar_navigator_class_init,
+            (GClassInitFunc)(void(*)(void)) navigator_class_init,
             NULL,
             NULL,
             0,
@@ -54,7 +53,10 @@ GType thunar_navigator_get_type()
             NULL
         };
 
-        type = g_type_register_static(G_TYPE_INTERFACE, I_("ThunarNavigator"), &info, 0);
+        type = g_type_register_static(G_TYPE_INTERFACE,
+                                      I_("ThunarNavigator"),
+                                      &info,
+                                      0);
         g_type_interface_add_prerequisite(type, G_TYPE_OBJECT);
 
         g_once_init_leave(&type__volatile, type);
@@ -63,7 +65,7 @@ GType thunar_navigator_get_type()
     return type__volatile;
 }
 
-static void thunar_navigator_base_init(gpointer klass)
+static void navigator_base_init(gpointer klass)
 {
     static gboolean initialized = FALSE;
 
@@ -88,20 +90,20 @@ static void thunar_navigator_base_init(gpointer klass)
          * the #thunar_navigator_set_current_directory() method
          * or the "current-directory" property.
          **/
-        navigator_signals[CHANGE_DIRECTORY] =
+        _navigator_signals[CHANGE_DIRECTORY] =
             g_signal_new(I_("change-directory"),
-                          G_TYPE_FROM_INTERFACE(klass),
-                          G_SIGNAL_RUN_LAST,
-                          G_STRUCT_OFFSET(ThunarNavigatorIface, change_directory),
-                          NULL, NULL,
-                          g_cclosure_marshal_VOID__OBJECT,
-                          G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
+                         G_TYPE_FROM_INTERFACE(klass),
+                         G_SIGNAL_RUN_LAST,
+                         G_STRUCT_OFFSET(ThunarNavigatorIface, change_directory),
+                         NULL, NULL,
+                         g_cclosure_marshal_VOID__OBJECT,
+                         G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
 
         initialized = TRUE;
     }
 }
 
-static void thunar_navigator_class_init(gpointer klass)
+static void navigator_class_init(gpointer klass)
 {
     /**
      * ThunarNavigator:current-directory:
@@ -120,11 +122,12 @@ static void thunar_navigator_class_init(gpointer klass)
      * "current-directory" property afterwards.
      **/
     g_object_interface_install_property(klass,
-                                         g_param_spec_object("current-directory",
-                                                 "current-directory",
-                                                 "current-directory",
-                                                 THUNAR_TYPE_FILE,
-                                                 E_PARAM_READWRITE));
+                                        g_param_spec_object(
+                                            "current-directory",
+                                            "current-directory",
+                                            "current-directory",
+                                            THUNAR_TYPE_FILE,
+                                            E_PARAM_READWRITE));
 }
 
 /**
@@ -137,7 +140,7 @@ static void thunar_navigator_class_init(gpointer klass)
  *
  * Return value: the current directory of @navigator or %NULL.
  **/
-ThunarFile* thunar_navigator_get_current_directory(ThunarNavigator *navigator)
+ThunarFile* navigator_get_current_directory(ThunarNavigator *navigator)
 {
     thunar_return_val_if_fail(THUNAR_IS_NAVIGATOR(navigator), NULL);
 
@@ -152,8 +155,8 @@ ThunarFile* thunar_navigator_get_current_directory(ThunarNavigator *navigator)
  * Sets a new current directory that should be displayed by
  * the @navigator.
  **/
-void thunar_navigator_set_current_directory(ThunarNavigator *navigator,
-                                            ThunarFile      *current_directory)
+void navigator_set_current_directory(ThunarNavigator *navigator,
+                                     ThunarFile      *current_directory)
 {
     thunar_return_if_fail(THUNAR_IS_NAVIGATOR(navigator));
     thunar_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
@@ -178,14 +181,14 @@ void thunar_navigator_set_current_directory(ThunarNavigator *navigator,
  * It should never ever be called from outside a #ThunarNavigator
  * implementation, as that may led to unexpected results!
  **/
-void thunar_navigator_change_directory(ThunarNavigator *navigator,
-                                       ThunarFile      *directory)
+void navigator_change_directory(ThunarNavigator *navigator,
+                                ThunarFile      *directory)
 {
     thunar_return_if_fail(THUNAR_IS_NAVIGATOR(navigator));
     thunar_return_if_fail(THUNAR_IS_FILE(directory));
     thunar_return_if_fail(th_file_is_directory(directory));
 
-    g_signal_emit(G_OBJECT(navigator), navigator_signals[CHANGE_DIRECTORY], 0, directory);
+    g_signal_emit(G_OBJECT(navigator), _navigator_signals[CHANGE_DIRECTORY], 0, directory);
 }
 
 

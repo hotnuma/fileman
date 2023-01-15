@@ -196,7 +196,7 @@ static void thunar_location_entry_init(ThunarLocationEntry *location_entry)
 static void thunar_location_entry_finalize(GObject *object)
 {
     /* disconnect from the current directory */
-    thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), NULL);
+    navigator_set_current_directory(THUNAR_NAVIGATOR(object), NULL);
 
    (*G_OBJECT_CLASS(thunar_location_entry_parent_class)->finalize)(object);
 }
@@ -211,7 +211,7 @@ thunar_location_entry_get_property(GObject    *object,
     switch(prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
 
     default:
@@ -232,7 +232,7 @@ static void thunar_location_entry_set_property(GObject      *object,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
         pathentry_set_working_directory(PATHENTRY(entry->path_entry),
                 entry->current_directory);
         break;
@@ -305,7 +305,7 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
         if (th_file_is_directory(file))
         {
             /* open the new directory */
-            thunar_navigator_change_directory(THUNAR_NAVIGATOR(location_entry), file);
+            navigator_change_directory(THUNAR_NAVIGATOR(location_entry), file);
         }
         else
         {

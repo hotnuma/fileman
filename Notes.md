@@ -52,8 +52,8 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   9765	./core/dnd.c
 +   9569	./libext/libext.c
 +   9029	./side/treepane.c
-    7837	./job/io-jobs-util.c
-    6857	./misc/navigator.c
++   7837	./job/job-utils.c
++   6857	./misc/navigator.c
 +   6654	./misc/app-notify.c
     6286	./widget/image.c
     5994	./libext/pango-ext.c

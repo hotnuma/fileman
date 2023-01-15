@@ -144,7 +144,7 @@ static void history_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(history)));
+        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(history)));
         break;
 
     default:
@@ -162,7 +162,7 @@ static void history_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(history), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(history), g_value_get_object(value));
         break;
 
     default:
@@ -334,7 +334,7 @@ static void _history_go_back(ThunarHistory *history, GFile *goto_file)
 
     /* tell the other modules to change the current directory */
     if (G_LIKELY(history->current_directory != NULL))
-        thunar_navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
+        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
 }
 
 static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
@@ -402,7 +402,7 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
 
     /* tell the other modules to change the current directory */
     if (G_LIKELY(history->current_directory != NULL))
-        thunar_navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
+        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
 }
 
 void history_action_back(ThunarHistory *history)

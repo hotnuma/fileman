@@ -802,7 +802,7 @@ static void standard_view_get_property(GObject    *object,
     {
 
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
 
     case PROP_LOADING:
@@ -810,13 +810,13 @@ static void standard_view_get_property(GObject    *object,
         break;
 
     case PROP_DISPLAY_NAME:
-        current_directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object));
+        current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(object));
         if (current_directory != NULL)
             g_value_set_static_string(value, th_file_get_display_name(current_directory));
         break;
 
     case PROP_TOOLTIP_TEXT:
-        current_directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object));
+        current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(object));
         if (current_directory != NULL)
             g_value_take_string(value, g_file_get_parse_name(th_file_get_file(current_directory)));
         break;
@@ -855,7 +855,7 @@ static void standard_view_set_property(GObject      *object,
     {
 
     case PROP_CURRENT_DIRECTORY:
-        thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
         break;
 
     case PROP_LOADING:
@@ -1012,7 +1012,7 @@ static void standard_view_init(StandardView *standard_view)
     standard_view->priv->history = g_object_new(THUNAR_TYPE_HISTORY, NULL);
     g_signal_connect_swapped(G_OBJECT(standard_view->priv->history),
                              "change-directory",
-                             G_CALLBACK(thunar_navigator_change_directory),
+                             G_CALLBACK(navigator_change_directory),
                              standard_view);
 
     /* setup the list model */
@@ -1166,7 +1166,7 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
     gtk_adjustment_set_value(gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(standard_view)), 0.0);
 
     /* store the directory in the history */
-    thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(standard_view->priv->history), current_directory);
+    navigator_set_current_directory(THUNAR_NAVIGATOR(standard_view->priv->history), current_directory);
 
     /* We drop the model from the view as a simple optimization to speed up
      * the process of disconnecting the model data from the view.
@@ -1476,7 +1476,7 @@ static void standard_view_set_loading(StandardView *standard_view,
         else
         {
             /* look for a first visible file in the hash table */
-            current_directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
+            current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
             if (G_LIKELY(current_directory != NULL))
             {
                 first_file = g_hash_table_lookup(standard_view->priv->scroll_to_files, th_file_get_file(current_directory));
@@ -1971,7 +1971,7 @@ void standard_view_set_history(StandardView *standard_view,
     standard_view->priv->history = history;
 
     /* connect callback */
-    g_signal_connect_swapped(G_OBJECT(history), "change-directory", G_CALLBACK(thunar_navigator_change_directory), standard_view);
+    g_signal_connect_swapped(G_OBJECT(history), "change-directory", G_CALLBACK(navigator_change_directory), standard_view);
 }
 
 ThunarHistory* standard_view_get_history(StandardView *standard_view)
@@ -2178,7 +2178,7 @@ static void _standard_view_error(ListModel    *model,
     thunar_return_if_fail(standard_view->model == model);
 
     /* determine the ThunarFile for the current directory */
-    file = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
+    file = navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
     if (G_UNLIKELY(file == NULL))
         return;
 
@@ -3068,7 +3068,7 @@ static ThunarFile* _standard_view_get_drop_file(
     if (G_UNLIKELY(path == NULL))
     {
         /* determine the current directory */
-        file = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
+        file = navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
         if (G_LIKELY(file != NULL))
             g_object_ref(G_OBJECT(file));
     }

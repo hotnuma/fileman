@@ -140,7 +140,7 @@ static void thunar_location_bar_finalize(GObject *object)
         g_object_unref(bar->locationEntry);
 
     /* release from the current_directory */
-    thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(bar), NULL);
+    navigator_set_current_directory(THUNAR_NAVIGATOR(bar), NULL);
 
    (*G_OBJECT_CLASS(thunar_location_bar_parent_class)->finalize)(object);
 }
@@ -159,7 +159,7 @@ static void thunar_location_bar_get_property(GObject              *object,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
 
     default:
@@ -176,7 +176,7 @@ static void thunar_location_bar_set_property(GObject              *object,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
         break;
 
     default:
@@ -202,7 +202,7 @@ static void thunar_location_bar_set_current_directory(ThunarNavigator *navigator
     if (current_directory) g_object_ref(current_directory);
 
     if ((child = gtk_bin_get_child(GTK_BIN(bar))) && THUNAR_IS_NAVIGATOR(child))
-        thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(child), current_directory);
+        navigator_set_current_directory(THUNAR_NAVIGATOR(child), current_directory);
 
     g_object_notify(G_OBJECT(bar), "current-directory");
 }
@@ -229,12 +229,12 @@ static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar    *bar,
             bar->locationEntry = gtk_widget_new(THUNAR_TYPE_LOCATION_ENTRY, "current-directory", NULL, NULL);
             g_object_ref(bar->locationEntry);
             g_signal_connect_swapped(bar->locationEntry, "reload-requested", G_CALLBACK(thunar_location_bar_reload_requested), bar);
-            g_signal_connect_swapped(bar->locationEntry, "change-directory", G_CALLBACK(thunar_navigator_change_directory), THUNAR_NAVIGATOR(bar));
+            g_signal_connect_swapped(bar->locationEntry, "change-directory", G_CALLBACK(navigator_change_directory), THUNAR_NAVIGATOR(bar));
         }
         installedWidget = bar->locationEntry;
     }
 
-    thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(installedWidget), bar->current_directory);
+    navigator_set_current_directory(THUNAR_NAVIGATOR(installedWidget), bar->current_directory);
 
     if ((child = gtk_bin_get_child(GTK_BIN(bar))))
         gtk_container_remove(GTK_CONTAINER(bar), child);

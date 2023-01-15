@@ -977,7 +977,7 @@ static void _window_notebook_switch_page(GtkWidget   *notebook,
     g_slist_free_full(view_bindings, g_object_unref);
 
     /* update the directory of the current window */
-    current_directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(page));
+    current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(page));
     window_set_current_directory(window, current_directory);
 
     /* add stock bindings */
@@ -1193,7 +1193,7 @@ void window_update_directories(ThunarWindow *window,
             continue;
 
         /* get the directory of the view */
-        directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+        directory = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
         if (! THUNAR_IS_FILE(directory))
             continue;
 
@@ -1201,9 +1201,9 @@ void window_update_directories(ThunarWindow *window,
         if (directory == old_directory)
         {
             if (n == active_page)
-                thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), new_directory);
+                navigator_change_directory(THUNAR_NAVIGATOR(view), new_directory);
             else
-                thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(view), new_directory);
+                navigator_set_current_directory(THUNAR_NAVIGATOR(view), new_directory);
         }
     }
 }
@@ -1790,7 +1790,7 @@ gchar** window_get_directories(ThunarWindow *window,
         thunar_return_val_if_fail(THUNAR_IS_NAVIGATOR(view), FALSE);
 
         /* get the directory of the view */
-        directory = thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+        directory = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
         thunar_return_val_if_fail(THUNAR_IS_FILE(directory), FALSE);
 
         /* add to array */

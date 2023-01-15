@@ -21,15 +21,18 @@
 
 #include <th-file.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _ThunarNavigatorIface ThunarNavigatorIface;
 typedef struct _ThunarNavigator      ThunarNavigator;
 
-#define THUNAR_TYPE_NAVIGATOR           (thunar_navigator_get_type ())
-#define THUNAR_NAVIGATOR(obj)           (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_NAVIGATOR, ThunarNavigator))
-#define THUNAR_IS_NAVIGATOR(obj)        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_NAVIGATOR))
-#define THUNAR_NAVIGATOR_GET_IFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), THUNAR_TYPE_NAVIGATOR, ThunarNavigatorIface))
+#define THUNAR_TYPE_NAVIGATOR (navigator_get_type())
+#define THUNAR_NAVIGATOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj),     THUNAR_TYPE_NAVIGATOR, ThunarNavigator))
+#define THUNAR_IS_NAVIGATOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj),     THUNAR_TYPE_NAVIGATOR))
+#define THUNAR_NAVIGATOR_GET_IFACE(obj) \
+    (G_TYPE_INSTANCE_GET_INTERFACE ((obj),  THUNAR_TYPE_NAVIGATOR, ThunarNavigatorIface))
 
 struct _ThunarNavigatorIface
 {
@@ -45,17 +48,17 @@ struct _ThunarNavigatorIface
                                           ThunarFile      *directory);
 };
 
-GType       thunar_navigator_get_type() G_GNUC_CONST;
+GType       navigator_get_type() G_GNUC_CONST;
 
-ThunarFile* thunar_navigator_get_current_directory(ThunarNavigator *navigator);
-void        thunar_navigator_set_current_directory(ThunarNavigator *navigator,
-                                                   ThunarFile      *current_directory);
+ThunarFile* navigator_get_current_directory(ThunarNavigator *navigator);
+void        navigator_set_current_directory(ThunarNavigator *navigator,
+                                            ThunarFile      *current_directory);
 
-void        thunar_navigator_change_directory(ThunarNavigator *navigator,
-                                              ThunarFile      *directory);
+void        navigator_change_directory(ThunarNavigator *navigator,
+                                       ThunarFile      *directory);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif /* !__THUNAR_NAVIGATOR_H__ */
+#endif // __THUNAR_NAVIGATOR_H__
 
 

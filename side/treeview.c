@@ -369,7 +369,7 @@ static void treeview_finalize(GObject *object)
         gtk_tree_path_free(view->select_path);
 
     /* reset the current-directory property */
-    thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(view), NULL);
+    navigator_set_current_directory(THUNAR_NAVIGATOR(view), NULL);
 
     /* free the tree model */
     g_object_unref(G_OBJECT(view->model));
@@ -419,7 +419,7 @@ static void treeview_get_property(GObject   *object,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -440,7 +440,7 @@ static void treeview_set_property(GObject       *object,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -1013,7 +1013,7 @@ static void _treeview_open_selection(TreeView *view)
     if (G_LIKELY(file != NULL))
     {
         /* open that folder in the main view */
-        thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+        navigator_change_directory(THUNAR_NAVIGATOR(view), file);
         g_object_unref(file);
     }
 }
@@ -1254,7 +1254,7 @@ static void _treeview_select_files(TreeView *view,
     if (G_LIKELY(file != NULL))
     {
         if (G_LIKELY(th_file_is_directory(file)))
-            thunar_navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+            navigator_change_directory(THUNAR_NAVIGATOR(view), file);
 
         g_object_unref(file);
     }

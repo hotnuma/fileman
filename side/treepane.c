@@ -131,7 +131,7 @@ static void treepane_init(TreePane *tree_pane)
 
     g_object_bind_property(G_OBJECT(tree_pane), "show-hidden", G_OBJECT(tree_pane->view), "show-hidden", G_BINDING_SYNC_CREATE);
     g_object_bind_property(G_OBJECT(tree_pane), "current-directory", G_OBJECT(tree_pane->view), "current-directory", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped(G_OBJECT(tree_pane->view), "change-directory", G_CALLBACK(thunar_navigator_change_directory), tree_pane);
+    g_signal_connect_swapped(G_OBJECT(tree_pane->view), "change-directory", G_CALLBACK(navigator_change_directory), tree_pane);
     gtk_container_add(GTK_CONTAINER(tree_pane), tree_pane->view);
     gtk_widget_show(tree_pane->view);
 }
@@ -140,7 +140,7 @@ static void treepane_dispose(GObject *object)
 {
     TreePane *tree_pane = TREEPANE(object);
 
-    thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(tree_pane), NULL);
+    navigator_set_current_directory(THUNAR_NAVIGATOR(tree_pane), NULL);
     thunar_component_set_selected_files(THUNAR_COMPONENT(tree_pane), NULL);
 
     G_OBJECT_CLASS(treepane_parent_class)->dispose(object);
@@ -155,7 +155,7 @@ static void treepane_get_property(GObject    *object,
     {
     case PROP_CURRENT_DIRECTORY:
         g_value_set_object(value,
-                           thunar_navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+                           navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
 
     case PROP_SELECTED_FILES:
@@ -182,7 +182,7 @@ static void treepane_set_property(GObject      *object,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        thunar_navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
                                                g_value_get_object(value));
         break;
 
