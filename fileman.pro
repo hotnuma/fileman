@@ -57,6 +57,7 @@ HEADERS = \
     misc/enum-types.h \
     misc/history.h \
     misc/icon-factory.h \
+    misc/icon-render.h \
     misc/navigator.h \
     side/sidepane.h \
     side/treemodel.h \
@@ -67,7 +68,6 @@ HEADERS = \
     view/detailview.h \
     view/listmodel.h \
     view/standard-view.h \
-    widget/icon-render.h \
     widget/image.h \
     widget/location-bar.h \
     widget/location-entry.h \
@@ -127,6 +127,7 @@ SOURCES = \
     misc/enum-types.c \
     misc/history.c \
     misc/icon-factory.c \
+    misc/icon-render.c \
     misc/navigator.c \
     side/sidepane.c \
     side/treemodel.c \
@@ -137,7 +138,6 @@ SOURCES = \
     view/detailview.c \
     view/listmodel.c \
     view/standard-view.c \
-    widget/icon-render.c \
     widget/image.c \
     widget/location-bar.c \
     widget/location-entry.c \

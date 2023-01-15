@@ -21,7 +21,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -15
 +   38645	./dialog/dialogs.c
 +   33719	./libext/exo-tree-view.c
 +   33578	./view/column-model.c
-    30881	./widget/icon-factory.c
++   30881	./misc/icon-factory.c
 +   30354	./core/th-folder.c
     25293	./job/job.c
 +   24813	./core/th-device.c
