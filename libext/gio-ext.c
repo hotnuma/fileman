@@ -508,10 +508,10 @@ GList* eg_file_list_get_parents(GList *file_list)
 }
 
 gboolean eg_app_info_launch(GAppInfo      *info,
-                                  GFile         *working_directory,
-                                  GList         *path_list,
-                                  GAppLaunchContext *context,
-                                  GError        **error)
+                            GFile         *working_directory,
+                            GList         *path_list,
+                            GAppLaunchContext *context,
+                            GError        **error)
 {
     ThunarFile   *file;
     GAppInfo     *default_app_info;
@@ -612,7 +612,6 @@ gboolean eg_app_info_launch(GAppInfo      *info,
 
 gboolean eg_app_info_should_show(GAppInfo *info)
 {
-#ifdef HAVE_GIO_UNIX
     thunar_return_val_if_fail(G_IS_APP_INFO(info), FALSE);
 
     if (G_IS_DESKTOP_APP_INFO(info))
@@ -624,12 +623,6 @@ gboolean eg_app_info_should_show(GAppInfo *info)
     }
 
     return TRUE;
-
-#else
-    /* we cannot exclude custom actions, so show everything */
-    return TRUE;
-#endif
-
 }
 
 

@@ -731,8 +731,8 @@ static void standard_view_finalize(GObject *object)
     StandardView *standard_view = STANDARD_VIEW(object);
 
     /* some safety checks */
-    thunar_assert(standard_view->loading_binding == NULL);
-    thunar_assert(standard_view->icon_factory == NULL);
+    eg_assert(standard_view->loading_binding == NULL);
+    eg_assert(standard_view->icon_factory == NULL);
 
     /* disconnect accelerators */
     _standard_view_disconnect_accelerators(standard_view);

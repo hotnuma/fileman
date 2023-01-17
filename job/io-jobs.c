@@ -83,7 +83,7 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
     directory = g_value_get_object(&g_array_index(param_values, GValue, 0));
 
     /* make sure the object is valid */
-    thunar_assert(G_IS_FILE(directory));
+    eg_assert(G_IS_FILE(directory));
 
     /* collect directory contents(non-recursively) */
     file_list = io_scan_directory(job, directory,
@@ -115,7 +115,7 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
     }
 
     /* there should be no errors here */
-    thunar_assert(err == NULL);
+    eg_assert(err == NULL);
 
     /* propagate cancellation error */
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
@@ -688,8 +688,8 @@ static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
             err == NULL && sp != NULL && tp != NULL;
             sp = sp->next, tp = tp->next, n_processed++)
     {
-        thunar_assert(G_IS_FILE(sp->data));
-        thunar_assert(G_IS_FILE(tp->data));
+        eg_assert(G_IS_FILE(sp->data));
+        eg_assert(G_IS_FILE(tp->data));
 
         /* update progress information */
         job_processing_file(THUNAR_JOB(job), sp, n_processed);
@@ -837,7 +837,7 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
         }
     }
 
-    thunar_assert(err != NULL);
+    eg_assert(err != NULL);
 
     /* free the source path */
     g_free(source_path);
@@ -874,7 +874,7 @@ static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error)
 
     for (lp = file_list; err == NULL && lp != NULL; lp = lp->next)
     {
-        thunar_assert(G_IS_FILE(lp->data));
+        eg_assert(G_IS_FILE(lp->data));
 
         /* trash the file or folder */
         g_file_trash(lp->data, exo_job_get_cancellable(EXO_JOB(job)), &err);
@@ -1027,7 +1027,7 @@ static gboolean _io_chown(ThunarJob *job, GArray *param_values, GError **error)
     gid = g_value_get_int(&g_array_index(param_values, GValue, 2));
     recursive = g_value_get_boolean(&g_array_index(param_values, GValue, 3));
 
-    thunar_assert((uid >= 0 || gid >= 0) && !(uid >= 0 && gid >= 0));
+    eg_assert((uid >= 0 || gid >= 0) && !(uid >= 0 && gid >= 0));
 
     /* collect the files for the chown operation */
     if (recursive)

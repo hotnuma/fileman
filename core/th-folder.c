@@ -319,7 +319,7 @@ static void th_folder_set_property(GObject *object, guint prop_id,
         break;
 
     case PROP_LOADING:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
         break;
 
     default:

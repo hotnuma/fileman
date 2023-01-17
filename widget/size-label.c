@@ -392,7 +392,7 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     /* disconnect from the previous files */
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
-        thunar_assert(THUNAR_IS_FILE(lp->data));
+        eg_assert(THUNAR_IS_FILE(lp->data));
 
         g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _szlabel_files_changed, size_label);
         g_object_unref(G_OBJECT(lp->data));
@@ -404,7 +404,7 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     /* connect to the new file */
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
-        thunar_assert(THUNAR_IS_FILE(lp->data));
+        eg_assert(THUNAR_IS_FILE(lp->data));
 
         g_object_ref(G_OBJECT(lp->data));
         g_signal_connect_swapped(G_OBJECT(lp->data), "changed", G_CALLBACK(_szlabel_files_changed), size_label);

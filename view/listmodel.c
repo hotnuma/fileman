@@ -547,7 +547,7 @@ static GType listmodel_get_column_type(GtkTreeModel *model, gint idx)
         return G_TYPE_STRING;
     }
 
-    thunar_assert_not_reached();
+    eg_assert_not_reached();
 
     return G_TYPE_INVALID;
 }
@@ -709,7 +709,7 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
         break;
 
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
         break;
     }
 }
@@ -838,7 +838,7 @@ static gboolean listmodel_get_sort_column_id(GtkTreeSortable *sortable,
     else if (store->sort_func == _sort_by_group)
         *sort_column_id = THUNAR_COLUMN_GROUP;
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     if (order != NULL)
     {
@@ -903,7 +903,7 @@ static void listmodel_set_sort_column_id(GtkTreeSortable *sortable,
         break;
 
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
     }
 
     /* new sort sign */
@@ -1053,7 +1053,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
             /* generate the iterator for this row */
             GTK_TREE_ITER_INIT(iter, store->stamp, row);
 
-            thunar_assert(pos_before == g_sequence_iter_get_position(row));
+            eg_assert(pos_before == g_sequence_iter_get_position(row));
 
             /* check if the sorting changed */
             g_sequence_sort_changed(row, _listmodel_cmp_func, store);
@@ -1237,7 +1237,7 @@ static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
         if (!found)
         {
             /* file is hidden */
-            thunar_assert(g_slist_find(store->hidden, lp->data) != NULL);
+            eg_assert(g_slist_find(store->hidden, lp->data) != NULL);
             store->hidden = g_slist_remove(store->hidden, lp->data);
             g_object_unref(G_OBJECT(lp->data));
         }
@@ -1647,7 +1647,7 @@ void listmodel_set_folder(ListModel *store,
     }
 
     /* ... just to be sure! */
-    thunar_assert(g_sequence_get_length(store->rows) == 0);
+    eg_assert(g_sequence_get_length(store->rows) == 0);
 
 #ifndef NDEBUG
     /* new stamp since the model changed */
@@ -1759,7 +1759,7 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
     }
     else
     {
-        thunar_assert(store->hidden == NULL);
+        eg_assert(store->hidden == NULL);
 
         /* remove all hidden files */
         row = g_sequence_get_begin_iter(store->rows);
@@ -1787,7 +1787,7 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
             }
 
             row = next;
-            thunar_assert(end == g_sequence_get_end_iter(store->rows));
+            eg_assert(end == g_sequence_get_end_iter(store->rows));
         }
     }
 
@@ -1884,7 +1884,7 @@ GList* listmodel_get_paths_for_files(ListModel *store, GList *files)
     {
         if (g_list_find(files, g_sequence_get(row)) != NULL)
         {
-            thunar_assert(i == g_sequence_iter_get_position(row));
+            eg_assert(i == g_sequence_iter_get_position(row));
             paths = g_list_prepend(paths, gtk_tree_path_new_from_indices(i, -1));
         }
 
@@ -1934,7 +1934,7 @@ GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern)
         file = g_sequence_get(row);
         if (g_pattern_match_string(pspec, th_file_get_display_name(file)))
         {
-            thunar_assert(i == g_sequence_iter_get_position(row));
+            eg_assert(i == g_sequence_iter_get_position(row));
             paths = g_list_prepend(paths, gtk_tree_path_new_from_indices(i, -1));
         }
 

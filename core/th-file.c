@@ -711,7 +711,7 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
 
     /* determine the basename */
     file->basename = g_file_get_basename(file->gfile);
-    thunar_assert(file->basename != NULL);
+    eg_assert(file->basename != NULL);
 
     /* problematic files with content type reading */
     if (strcmp(file->basename, "kmsg") == 0 && g_file_is_native(file->gfile))
@@ -1527,7 +1527,7 @@ guint64 th_file_get_date(const ThunarFile  *file,
         attribute = G_FILE_ATTRIBUTE_TIME_MODIFIED;
         break;
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
     }
 
     return g_file_info_get_attribute_uint64(file->info, attribute);
@@ -1793,7 +1793,7 @@ const gchar* th_file_get_content_type(ThunarFile *file)
             goto bailout;
 
         /* make sure this is not loaded in the general info */
-        thunar_assert(file->info == NULL
+        eg_assert(file->info == NULL
                         || !g_file_info_has_attribute(file->info, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE));
 
         if (G_UNLIKELY(file->kind == G_FILE_TYPE_DIRECTORY))
@@ -2917,7 +2917,7 @@ void th_file_unwatch(ThunarFile *file)
     }
     else
     {
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
     }
 }
 

@@ -467,7 +467,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
         break;
 
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
     }
 
     /* cleanup */

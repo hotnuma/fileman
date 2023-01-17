@@ -972,7 +972,7 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     /* collect data of the selected files */
     for(lp = dialog->files; lp != NULL; lp = lp->next)
     {
-        thunar_assert(THUNAR_IS_FILE(lp->data));
+        eg_assert(THUNAR_IS_FILE(lp->data));
         file = THUNAR_FILE(lp->data);
 
         /* append the name */
@@ -1169,7 +1169,7 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
     /* connect to the new files */
     for(lp = dialog->files; lp != NULL; lp = lp->next)
     {
-        thunar_assert(THUNAR_IS_FILE(lp->data));
+        eg_assert(THUNAR_IS_FILE(lp->data));
         file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
 
         /* watch the file for changes */

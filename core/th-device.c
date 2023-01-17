@@ -183,7 +183,7 @@ static void th_device_set_property(GObject *object, guint prop_id,
     {
     case PROP_DEVICE:
         device->device = g_value_dup_object(value);
-        thunar_assert(G_IS_VOLUME(device->device) || G_IS_MOUNT(device->device));
+        eg_assert(G_IS_VOLUME(device->device) || G_IS_MOUNT(device->device));
         break;
 
     case PROP_HIDDEN:
@@ -227,7 +227,7 @@ gchar* th_device_get_name(const ThunarDevice *device)
         return display_name;
     }
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return NULL;
 }
@@ -241,7 +241,7 @@ GIcon* th_device_get_icon(const ThunarDevice *device)
     else if (G_IS_MOUNT(device->device))
         return g_mount_get_icon(device->device);
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return NULL;
 }
@@ -273,7 +273,7 @@ gchar* th_device_get_identifier(const ThunarDevice *device)
             ident = g_mount_get_name(device->device);
     }
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return ident;
 }
@@ -289,7 +289,7 @@ gchar* th_device_get_identifier_unix(const ThunarDevice *device)
     else if (G_IS_MOUNT(device->device))
         return NULL;
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return ident;
 }
@@ -333,7 +333,7 @@ gboolean th_device_can_eject(const ThunarDevice *device)
         can_eject = g_mount_can_eject(device->device) || g_mount_can_unmount(device->device);
     }
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return can_eject;
 }
@@ -365,7 +365,7 @@ gboolean th_device_can_mount(const ThunarDevice *device)
         can_mount = FALSE;
     }
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return can_mount;
 }
@@ -398,7 +398,7 @@ gboolean th_device_can_unmount(const ThunarDevice *device)
         can_unmount = g_mount_can_unmount(device->device);
     }
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return can_unmount;
 }
@@ -426,7 +426,7 @@ gboolean th_device_is_mounted(const ThunarDevice *device)
         is_mounted = TRUE;
     }
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return is_mounted;
 }
@@ -455,7 +455,7 @@ GFile* th_device_get_root(const ThunarDevice *device)
         root = g_mount_get_root(device->device);
     }
     else
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
 
     return root;
 }

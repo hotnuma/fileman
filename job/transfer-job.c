@@ -610,7 +610,7 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
         }
     }
 
-    thunar_assert(err != NULL);
+    eg_assert(err != NULL);
 
     g_propagate_error(error, err);
     return NULL;
@@ -1552,7 +1552,7 @@ ThunarJob* transfer_job_new(GList *source_node_list, GList *target_file_list,
     }
 
     /* make sure we didn't mess things up */
-    thunar_assert(g_list_length(job->source_node_list) == g_list_length(job->target_file_list));
+    eg_assert(g_list_length(job->source_node_list) == g_list_length(job->target_file_list));
 
     return THUNAR_JOB(job);
 }

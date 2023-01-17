@@ -44,13 +44,13 @@ G_BEGIN_DECLS;
 
 /* support macros for debugging */
 #ifdef NDEBUG
-#define thunar_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
-#define thunar_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
+#define eg_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
+#define eg_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
 #define thunar_return_if_fail(expr)          G_STMT_START{ (void)0; }G_STMT_END
 #define thunar_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
 #else
-#define thunar_assert(expr)                  g_assert (expr)
-#define thunar_assert_not_reached()          g_assert_not_reached ()
+#define eg_assert(expr)                  g_assert (expr)
+#define eg_assert_not_reached()          g_assert_not_reached ()
 #define thunar_return_if_fail(expr)          g_return_if_fail (expr)
 #define thunar_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
 #endif

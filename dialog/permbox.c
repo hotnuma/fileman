@@ -615,7 +615,7 @@ static GList* thunar_permissions_chooser_get_file_list(PermissionBox *chooser)
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
         gfile = th_file_get_file(THUNAR_FILE(lp->data));
-        thunar_assert(G_IS_FILE(gfile));
+        eg_assert(G_IS_FILE(gfile));
         file_list = g_list_prepend(file_list, g_object_ref(G_OBJECT(gfile)));
     }
 
@@ -1268,7 +1268,7 @@ void _permbox_set_files(PermissionBox *chooser, GList *files)
     /* disconnect from the previous files */
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
-        thunar_assert(THUNAR_IS_FILE(lp->data));
+        eg_assert(THUNAR_IS_FILE(lp->data));
         g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _permbox_file_changed, chooser);
         g_object_unref(G_OBJECT(lp->data));
     }
@@ -1281,7 +1281,7 @@ void _permbox_set_files(PermissionBox *chooser, GList *files)
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
         /* take a reference on the file */
-        thunar_assert(THUNAR_IS_FILE(lp->data));
+        eg_assert(THUNAR_IS_FILE(lp->data));
         g_object_ref(G_OBJECT(lp->data));
 
         /* stay informed about changes */

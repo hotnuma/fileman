@@ -198,7 +198,7 @@ static GType column_model_get_column_type(GtkTreeModel *tree_model, gint idx)
         return G_TYPE_BOOLEAN;
     }
 
-    thunar_assert_not_reached();
+    eg_assert_not_reached();
     return G_TYPE_INVALID;
 }
 
@@ -268,7 +268,7 @@ static void column_model_get_value(GtkTreeModel *tree_model,
         break;
 
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
         break;
     }
 }

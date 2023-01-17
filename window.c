@@ -1331,7 +1331,7 @@ static void _window_create_view(ThunarWindow *window,
 
     thunar_return_if_fail(view_type != G_TYPE_NONE);
 
-    thunar_assert(view == NULL);
+    eg_assert(view == NULL);
 
     if (view != NULL)
         return;
@@ -1342,7 +1342,7 @@ static void _window_create_view(ThunarWindow *window,
     if (current_directory == NULL && window->current_directory != NULL)
         current_directory = g_object_ref(window->current_directory);
 
-    thunar_assert(current_directory != NULL);
+    eg_assert(current_directory != NULL);
 
     page_num = -1;
 

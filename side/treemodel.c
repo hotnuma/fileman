@@ -426,7 +426,7 @@ static GType treemodel_get_column_type(GtkTreeModel *tree_model,
         return THUNAR_TYPE_DEVICE;
 
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
         return G_TYPE_INVALID;
     }
 }
@@ -572,7 +572,7 @@ static void treemodel_get_value(GtkTreeModel *tree_model,
         break;
 
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
         break;
     }
 }
@@ -879,8 +879,8 @@ static void _treemodel_device_changed(DeviceMonitor *device_monitor,
     }
 
     /* verify that we actually found the item */
-    thunar_assert(item != NULL);
-    thunar_assert(item->device == device);
+    eg_assert(item != NULL);
+    eg_assert(item->device == device);
 
     /* check if the volume is mounted and we don't have a file yet */
     if (th_device_is_mounted(device) && item->file == NULL)
@@ -1023,8 +1023,8 @@ static void _treemodel_device_removed(DeviceMonitor *device_monitor,
             break;
 
     /* something is broken if we don't have an item here */
-    thunar_assert(node != NULL);
-    thunar_assert(TREEMODEL_ITEM(node->data)->device == device);
+    eg_assert(node != NULL);
+    eg_assert(TREEMODEL_ITEM(node->data)->device == device);
 
     /* drop the node from the model */
     g_node_traverse(node, G_POST_ORDER, G_TRAVERSE_ALL, -1, _treemodel_node_traverse_remove, model);

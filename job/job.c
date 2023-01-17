@@ -560,7 +560,7 @@ ThunarJobResponse job_ask_skip(ThunarJob *job, const gchar *format, ...)
         break;
 
     default:
-        thunar_assert_not_reached();
+        eg_assert_not_reached();
     }
 
     return response;
