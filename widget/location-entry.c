@@ -389,7 +389,7 @@ static gboolean thunar_location_entry_button_press_event(
 {
     UNUSED(path_entry);
 
-    thunar_return_val_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry), FALSE);
 
     /* check if the context menu was triggered */
     if (event->type == GDK_BUTTON_PRESS && event->button == 3)

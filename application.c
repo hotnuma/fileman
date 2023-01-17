@@ -365,7 +365,7 @@ static gboolean _application_accel_map_save(gpointer user_data)
 {
     Application *application = APPLICATION(user_data);
 
-    thunar_return_val_if_fail(IS_APPLICATION(application), FALSE);
+    eg_return_val_if_fail(IS_APPLICATION(application), FALSE);
 
     application->accel_map_save_id = 0;
 
@@ -990,7 +990,7 @@ Application* application_get()
  **/
 gboolean application_get_daemon(Application *application)
 {
-    thunar_return_val_if_fail(IS_APPLICATION(application), FALSE);
+    eg_return_val_if_fail(IS_APPLICATION(application), FALSE);
     return application->daemon;
 }
 
@@ -1079,9 +1079,9 @@ GtkWidget* application_open_window(Application *application,
     GtkWidget *window;
     gchar     *role;
 
-    thunar_return_val_if_fail(IS_APPLICATION(application), NULL);
-    thunar_return_val_if_fail(directory == NULL || THUNAR_IS_FILE(directory), NULL);
-    thunar_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), NULL);
+    eg_return_val_if_fail(IS_APPLICATION(application), NULL);
+    eg_return_val_if_fail(directory == NULL || THUNAR_IS_FILE(directory), NULL);
+    eg_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), NULL);
 
     if (G_UNLIKELY(screen == NULL))
         screen = gdk_screen_get_default();
@@ -1118,7 +1118,7 @@ GtkWidget* application_open_window(Application *application,
 static GtkWidget* _application_get_progress_dialog(
                                             Application *application)
 {
-    thunar_return_val_if_fail(IS_APPLICATION(application), NULL);
+    eg_return_val_if_fail(IS_APPLICATION(application), NULL);
 
     if (application->progress_dialog == NULL)
     {
@@ -1264,12 +1264,12 @@ gboolean application_process_filenames(Application *application,
     GList      *lp;
     gint        n;
 
-    thunar_return_val_if_fail(IS_APPLICATION(application), FALSE);
-    thunar_return_val_if_fail(working_directory != NULL, FALSE);
-    thunar_return_val_if_fail(filenames != NULL, FALSE);
-    thunar_return_val_if_fail(*filenames != NULL, FALSE);
-    thunar_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(IS_APPLICATION(application), FALSE);
+    eg_return_val_if_fail(working_directory != NULL, FALSE);
+    eg_return_val_if_fail(filenames != NULL, FALSE);
+    eg_return_val_if_fail(*filenames != NULL, FALSE);
+    eg_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* try to process all filenames and convert them to the appropriate file objects */
     for(n = 0; filenames[n] != NULL; ++n)
@@ -1611,7 +1611,7 @@ void application_trash(Application *application,
 
 static ThunarJob* creat_stub(GList *template_file, GList *target_path_list)
 {
-    thunar_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
+    eg_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
 
     return io_create_files(target_path_list, template_file->data);
 }

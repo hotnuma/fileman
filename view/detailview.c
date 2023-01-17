@@ -396,7 +396,7 @@ static GList* detailview_get_selected_items(StandardView *standard_view)
 {
     GtkTreeSelection *selection;
 
-    thunar_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
+    eg_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     return gtk_tree_selection_get_selected_rows(selection, NULL);
@@ -521,7 +521,7 @@ static GtkTreePath* detailview_get_path_at_pos(StandardView *standard_view,
 {
     GtkTreePath *path;
 
-    thunar_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
+    eg_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
     if (gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), x, y, &path, NULL))
         return path;
@@ -533,7 +533,7 @@ static gboolean detailview_get_visible_range(StandardView *standard_view,
                                              GtkTreePath   **start_path,
                                              GtkTreePath   **end_path)
 {
-    thunar_return_val_if_fail(IS_DETAILVIEW(standard_view), FALSE);
+    eg_return_val_if_fail(IS_DETAILVIEW(standard_view), FALSE);
 
     return gtk_tree_view_get_visible_range(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), start_path, end_path);
 }
@@ -794,7 +794,7 @@ static gboolean _detailview_select_cursor_row(GtkTreeView       *tree_view,
     ThunarLauncher *launcher;
     GtkWidget      *window;
 
-    thunar_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
+    eg_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
 
     g_signal_stop_emission_by_name(tree_view,"select-cursor-row");
 
@@ -851,7 +851,7 @@ static void _detailview_columns_changed(ColumnModel *column_model,
 static gboolean _detailview_zoom_level_changed_reload_fixed_columns(gpointer data)
 {
     DetailView *details_view = data;
-    thunar_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
+    eg_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
 
     _detailview_set_fixed_columns(details_view, TRUE);
     details_view->idle_id = 0;
@@ -959,7 +959,7 @@ static void detailview_append_menu_items(StandardView  *standard_view,
  **/
 static gboolean _detailview_get_fixed_columns(DetailView *details_view)
 {
-    thunar_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
+    eg_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
     return details_view->fixed_columns;
 }
 

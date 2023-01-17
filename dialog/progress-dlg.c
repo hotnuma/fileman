@@ -144,7 +144,7 @@ static void thunar_progress_dialog_shown(ThunarProgressDialog *dialog)
 
 static gboolean thunar_progress_dialog_closed(ThunarProgressDialog *dialog)
 {
-    thunar_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
 
     /* remember the position of the dialog */
     gtk_window_get_position(GTK_WINDOW(dialog), &dialog->x, &dialog->y);
@@ -160,8 +160,8 @@ static gboolean thunar_progress_dialog_toggled(ThunarProgressDialog *dialog,
                                                GdkEventButton       *event,
                                                GtkStatusIcon        *status_icon)
 {
-    thunar_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
-    thunar_return_val_if_fail(GTK_IS_STATUS_ICON(status_icon), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
+    eg_return_val_if_fail(GTK_IS_STATUS_ICON(status_icon), FALSE);
 
     /* check if the window is visible and has the focus */
     if (gtk_widget_get_visible(GTK_WIDGET(dialog))
@@ -306,7 +306,7 @@ GList* thunar_progress_dialog_list_jobs(ThunarProgressDialog *dialog)
     ThunarProgressView *view;
     ThunarJob          *job;
 
-    thunar_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), NULL);
+    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), NULL);
 
     for(l = dialog->views; l != NULL; l = l->next)
     {
@@ -395,7 +395,7 @@ void thunar_progress_dialog_add_job(ThunarProgressDialog *dialog,
 
 gboolean thunar_progress_dialog_has_jobs(ThunarProgressDialog *dialog)
 {
-    thunar_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
 
     return dialog->views != NULL;
 }

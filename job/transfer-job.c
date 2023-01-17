@@ -276,9 +276,9 @@ static gboolean _transfer_job_collect_node(TransferJob *job, TransferNode *node,
     GList              *file_list;
     GList              *lp;
 
-    thunar_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
-    thunar_return_val_if_fail(node != NULL && G_IS_FILE(node->source_file), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
+    eg_return_val_if_fail(node != NULL && G_IS_FILE(node->source_file), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return FALSE;
@@ -350,10 +350,10 @@ static gboolean _transfer_job_copy_file_real(TransferJob    *job,
     gboolean  target_exists;
     GError   *err = NULL;
 
-    thunar_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
-    thunar_return_val_if_fail(G_IS_FILE(source_file), FALSE);
-    thunar_return_val_if_fail(G_IS_FILE(target_file), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(source_file), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(target_file), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* reset the file progress */
     job->file_progress = 0;
@@ -499,10 +499,10 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
     gint              n;
     gint              n_rename = 0;
 
-    thunar_return_val_if_fail(IS_TRANSFERJOB(job), NULL);
-    thunar_return_val_if_fail(G_IS_FILE(source_file), NULL);
-    thunar_return_val_if_fail(G_IS_FILE(target_file), NULL);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    eg_return_val_if_fail(IS_TRANSFERJOB(job), NULL);
+    eg_return_val_if_fail(G_IS_FILE(source_file), NULL);
+    eg_return_val_if_fail(G_IS_FILE(target_file), NULL);
+    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     /* abort on cancellation */
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
@@ -781,7 +781,7 @@ static gboolean _transfer_job_verify_destination(TransferJob *transfer_job,
     gboolean           succeed = TRUE;
     gchar             *size_string;
 
-    thunar_return_val_if_fail(IS_TRANSFERJOB(transfer_job), FALSE);
+    eg_return_val_if_fail(IS_TRANSFERJOB(transfer_job), FALSE);
 
     /* no target file list */
     if (transfer_job->target_file_list == NULL)
@@ -1079,7 +1079,7 @@ static GList* _transfer_job_filter_running_jobs(GList *jobs, ThunarJob *own_job)
     ThunarJob *job;
     GList     *run_jobs = NULL;
 
-    thunar_return_val_if_fail(IS_TRANSFERJOB(own_job), NULL);
+    eg_return_val_if_fail(IS_TRANSFERJOB(own_job), NULL);
 
     for(GList *ljobs = jobs; ljobs != NULL; ljobs = ljobs->next)
     {
@@ -1139,7 +1139,7 @@ static gboolean _transfer_job_is_file_on_local_device(GFile *file)
     GFile    *target_parent;
     GMount   *file_mount;
 
-    thunar_return_val_if_fail(file != NULL, TRUE);
+    eg_return_val_if_fail(file != NULL, TRUE);
 
     if (g_file_has_uri_scheme(file, "file") == FALSE)
         return FALSE;
@@ -1383,8 +1383,8 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
     GList                *tnext;
     GList                *tp;
 
-    thunar_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     if (exo_job_set_error_if_cancelled(job, error))
         return FALSE;
@@ -1520,9 +1520,9 @@ ThunarJob* transfer_job_new(GList *source_node_list, GList *target_file_list,
     GList              *sp;
     GList              *tp;
 
-    thunar_return_val_if_fail(source_node_list != NULL, NULL);
-    thunar_return_val_if_fail(target_file_list != NULL, NULL);
-    thunar_return_val_if_fail(g_list_length(source_node_list) == g_list_length(target_file_list), NULL);
+    eg_return_val_if_fail(source_node_list != NULL, NULL);
+    eg_return_val_if_fail(target_file_list != NULL, NULL);
+    eg_return_val_if_fail(g_list_length(source_node_list) == g_list_length(target_file_list), NULL);
 
     job = g_object_new(TYPE_TRANSFERJOB, NULL);
     job->type = type;
@@ -1565,7 +1565,7 @@ gchar* transfer_job_get_status(TransferJob *job)
     GString           *status;
     gulong             remaining_time;
 
-    thunar_return_val_if_fail(IS_TRANSFERJOB(job), NULL);
+    eg_return_val_if_fail(IS_TRANSFERJOB(job), NULL);
 
     status = g_string_sized_new(100);
 

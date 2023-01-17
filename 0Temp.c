@@ -691,7 +691,7 @@ gboolean treemodel_node_has_dummy(TreeModel *model, GNode *node);
 gboolean treemodel_node_has_dummy(TreeModel *model,
                                           GNode           *node)
 {
-    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
+    eg_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
     return G_NODE_HAS_DUMMY(node);
 }
 
@@ -760,8 +760,8 @@ GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
     GSList      *displays;
     GSList      *dp;
 
-    thunar_return_val_if_fail(display_name != NULL, NULL);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    eg_return_val_if_fail(display_name != NULL, NULL);
+    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     /* check if the default screen should be opened */
     if (G_UNLIKELY(*display_name == '\0'))
@@ -985,10 +985,10 @@ gboolean eg_file_write_key_file(GFile         *file,
     gsize     length;
     gboolean  result = TRUE;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(key_file != NULL, FALSE);
-    thunar_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(key_file != NULL, FALSE);
+    eg_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* write the key file into the contents buffer */
     contents = g_key_file_to_data(key_file, &length, NULL);
@@ -1046,7 +1046,7 @@ VOID:UINT,BOXED
 
 GtkWidget* menu_get_launcher(ThunarMenu *menu)
 {
-    thunar_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
+    eg_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
 
     return GTK_WIDGET(menu->launcher);
 }
@@ -1068,13 +1068,13 @@ gboolean    th_file_is_desktop(const ThunarFile *file);
 
 gchar* th_file_get_size_string(const ThunarFile *file)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     return g_format_size(th_file_get_size(file));
 }
 
 gboolean th_file_is_home(const ThunarFile *file)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return thunar_g_file_is_home(file->gfile);
 }
 
@@ -1084,9 +1084,9 @@ gboolean th_file_set_custom_icon(ThunarFile  *file,
 {
     GKeyFile *key_file;
 
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(custom_icon != NULL, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(custom_icon != NULL, FALSE);
 
     key_file = thunar_g_file_query_key_file(file->gfile, NULL, error);
 
@@ -1127,8 +1127,8 @@ GIcon* th_file_get_preview_icon(const ThunarFile *file)
 {
     GObject *icon;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(G_IS_FILE_INFO(file->info), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(G_IS_FILE_INFO(file->info), NULL);
 
     icon = g_file_info_get_attribute_object(file->info, G_FILE_ATTRIBUTE_PREVIEW_ICON);
     if (G_LIKELY(icon != NULL))
@@ -1142,8 +1142,8 @@ GFilesystemPreviewType th_file_get_preview_type(const ThunarFile *file)
     GFilesystemPreviewType  preview;
     GFileInfo               *info;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
-    thunar_return_val_if_fail(G_IS_FILE(file->gfile), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
+    eg_return_val_if_fail(G_IS_FILE(file->gfile), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
 
     info = g_file_query_filesystem_info(file->gfile, G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW, NULL, NULL);
     if (G_LIKELY(info != NULL))
@@ -1314,7 +1314,7 @@ static void thunar_file_set_emblem_names_ready(GObject      *source_object,
 
 static gboolean thunar_file_is_readable(const ThunarFile *file)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     if (file->info == NULL)
         return FALSE;
@@ -1332,7 +1332,7 @@ GList* thunar_file_get_emblem_names(ThunarFile *file)
     gchar   **emblem_names;
     GList    *emblems = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* leave if there is no info */
     if (file->info == NULL)
@@ -1433,7 +1433,7 @@ const gchar* thunar_file_get_metadata_setting(ThunarFile  *file,
     gchar       *attr_name;
     const gchar *attr_value;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     if (file->info == NULL)
         return NULL;
@@ -1528,7 +1528,7 @@ const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
     gchar     *filename;
     gchar     *uri;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* if the thumbstate is known to be not there, return null */
     if (thunar_file_get_thumb_state(file) == THUNAR_FILE_THUMB_STATE_NONE)
@@ -1585,7 +1585,7 @@ const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
 
 gboolean thunar_file_has_directory_specific_settings(ThunarFile *file)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     if (file->info == NULL)
         return FALSE;
@@ -1679,8 +1679,8 @@ gboolean launcher_append_custom_actions(ThunarLauncher *launcher,
     GList                  *lp_provider;
     GList                  *lp_item;
 
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
-    thunar_return_val_if_fail(GTK_IS_MENU(menu), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
+    eg_return_val_if_fail(GTK_IS_MENU(menu), FALSE);
 
     /* determine the toplevel window we belong to */
     window = gtk_widget_get_toplevel(launcher->widget);

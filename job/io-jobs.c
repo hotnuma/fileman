@@ -60,7 +60,7 @@ static gboolean _io_chmod(ThunarJob *job, GArray *param_values, GError **error);
 
 ThunarJob* io_list_directory(GFile *directory)
 {
-    thunar_return_val_if_fail(G_IS_FILE(directory), NULL);
+    eg_return_val_if_fail(G_IS_FILE(directory), NULL);
 
     return simple_job_launch(_io_ls, 1, G_TYPE_FILE, directory);
 }
@@ -71,10 +71,10 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
     GFile  *directory;
     GList  *file_list = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 1, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 1, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return FALSE;
@@ -147,10 +147,10 @@ static gboolean _io_mkdir(ThunarJob *job, GArray *param_values, GError **error)
     gchar            *display_name;
     guint             n_processed = 0;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 1, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 1, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
 
@@ -307,10 +307,10 @@ static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
     GFile             *template_file;
     GFileInputStream  *template_stream = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 2, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 2, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* get the file list */
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
@@ -473,10 +473,10 @@ static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
     gchar                *display_name;
     guint                 n_processed = 0;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 1, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 1, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* get the file list */
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
@@ -622,9 +622,9 @@ ThunarJob* io_move_files(GList *source_file_list, GList *target_file_list)
 {
     ThunarJob *job;
 
-    thunar_return_val_if_fail(source_file_list != NULL, NULL);
-    thunar_return_val_if_fail(target_file_list != NULL, NULL);
-    thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
+    eg_return_val_if_fail(source_file_list != NULL, NULL);
+    eg_return_val_if_fail(target_file_list != NULL, NULL);
+    eg_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
     job = transfer_job_new(source_file_list, target_file_list,
                                    TRANSFERJOB_MOVE);
@@ -638,9 +638,9 @@ ThunarJob* io_copy_files(GList *source_file_list, GList *target_file_list)
 {
     ThunarJob *job;
 
-    thunar_return_val_if_fail(source_file_list != NULL, NULL);
-    thunar_return_val_if_fail(target_file_list != NULL, NULL);
-    thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
+    eg_return_val_if_fail(source_file_list != NULL, NULL);
+    eg_return_val_if_fail(target_file_list != NULL, NULL);
+    eg_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
     job = transfer_job_new(source_file_list, target_file_list,
                                    TRANSFERJOB_COPY);
@@ -652,9 +652,9 @@ ThunarJob* io_copy_files(GList *source_file_list, GList *target_file_list)
 
 ThunarJob* io_link_files(GList *source_file_list, GList *target_file_list)
 {
-    thunar_return_val_if_fail(source_file_list != NULL, NULL);
-    thunar_return_val_if_fail(target_file_list != NULL, NULL);
-    thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
+    eg_return_val_if_fail(source_file_list != NULL, NULL);
+    eg_return_val_if_fail(target_file_list != NULL, NULL);
+    eg_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
     return simple_job_launch(_io_link, 2,
                                      THUNAR_TYPE_G_FILE_LIST, source_file_list,
@@ -672,10 +672,10 @@ static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
     GList                *tp;
     guint                 n_processed = 0;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 2, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 2, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     source_file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
     target_file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 1));
@@ -735,10 +735,10 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
     gchar            *source_path;
     gint              n;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
-    thunar_return_val_if_fail(G_IS_FILE(source_file), NULL);
-    thunar_return_val_if_fail(G_IS_FILE(target_file), NULL);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
+    eg_return_val_if_fail(G_IS_FILE(source_file), NULL);
+    eg_return_val_if_fail(G_IS_FILE(target_file), NULL);
+    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     /* abort on cancellation */
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
@@ -849,7 +849,7 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
 
 ThunarJob* io_trash_files(GList *file_list)
 {
-    thunar_return_val_if_fail(file_list != NULL, NULL);
+    eg_return_val_if_fail(file_list != NULL, NULL);
 
     return simple_job_launch(_io_trash, 1,
                                     THUNAR_TYPE_G_FILE_LIST, file_list);
@@ -862,10 +862,10 @@ static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error)
     GList                *file_list;
     GList                *lp;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 1, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 1, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
 
@@ -909,9 +909,9 @@ ThunarJob* io_restore_files(GList *source_file_list, GList *target_file_list)
 {
     ThunarJob *job;
 
-    thunar_return_val_if_fail(source_file_list != NULL, NULL);
-    thunar_return_val_if_fail(target_file_list != NULL, NULL);
-    thunar_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
+    eg_return_val_if_fail(source_file_list != NULL, NULL);
+    eg_return_val_if_fail(target_file_list != NULL, NULL);
+    eg_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
     job = transfer_job_new(source_file_list, target_file_list,
                                   TRANSFERJOB_MOVE);
@@ -922,8 +922,8 @@ ThunarJob* io_restore_files(GList *source_file_list, GList *target_file_list)
 
 ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(g_utf8_validate(display_name, -1, NULL), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(g_utf8_validate(display_name, -1, NULL), NULL);
 
     return simple_job_launch(_io_rename,
                                     2,
@@ -934,12 +934,12 @@ ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
 
 static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error)
 {
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 2, FALSE);
-    thunar_return_val_if_fail(G_VALUE_HOLDS(&g_array_index(param_values, GValue, 0), THUNAR_TYPE_FILE), FALSE);
-    thunar_return_val_if_fail(G_VALUE_HOLDS_STRING(&g_array_index(param_values, GValue, 1)), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 2, FALSE);
+    eg_return_val_if_fail(G_VALUE_HOLDS(&g_array_index(param_values, GValue, 0), THUNAR_TYPE_FILE), FALSE);
+    eg_return_val_if_fail(G_VALUE_HOLDS_STRING(&g_array_index(param_values, GValue, 1)), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     GError *err = NULL;
 
@@ -979,7 +979,7 @@ static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error)
 
 static gboolean _io_rename_notify(ThunarFile *file)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     /* tell the associated folder that the file was renamed */
     fileinfo_renamed(FILEINFO(file));
@@ -992,7 +992,7 @@ static gboolean _io_rename_notify(ThunarFile *file)
 
 ThunarJob* io_change_group(GList *files, guint32 gid, gboolean recursive)
 {
-    thunar_return_val_if_fail(files != NULL, NULL);
+    eg_return_val_if_fail(files != NULL, NULL);
 
     /* files are released when the list if destroyed */
     g_list_foreach(files, (GFunc)(void(*)(void)) g_object_ref, NULL);
@@ -1017,10 +1017,10 @@ static gboolean _io_chown(ThunarJob *job, GArray *param_values, GError **error)
     gint              gid;
     guint             n_processed = 0;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 4, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 4, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
     uid = g_value_get_int(&g_array_index(param_values, GValue, 1));
@@ -1125,7 +1125,7 @@ ThunarJob* io_change_mode(GList          *files,
                           ThunarFileMode file_mode,
                           gboolean       recursive)
 {
-    thunar_return_val_if_fail(files != NULL, NULL);
+    eg_return_val_if_fail(files != NULL, NULL);
 
     /* files are released when the list if destroyed */
     g_list_foreach(files, (GFunc)(void(*)(void)) g_object_ref, NULL);
@@ -1157,10 +1157,10 @@ static gboolean _io_chmod(ThunarJob *job, GArray *param_values, GError **error)
     ThunarFileMode    old_mode;
     ThunarFileMode    new_mode;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(param_values != NULL, FALSE);
-    thunar_return_val_if_fail(param_values->len == 6, FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(param_values != NULL, FALSE);
+    eg_return_val_if_fail(param_values->len == 6, FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
     dir_mask = g_value_get_flags(&g_array_index(param_values, GValue, 1));

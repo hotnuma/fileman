@@ -246,7 +246,7 @@ static ThunarJobResponse job_real_ask(ThunarJob   *job,
                                              const gchar *message,
                                              ThunarJobResponse choices)
 {
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     ThunarJobResponse response;
 
     g_signal_emit(job, _job_signals[ASK], 0, message, choices, &response);
@@ -258,9 +258,9 @@ static ThunarJobResponse job_real_ask_replace(ThunarJob  *job,
                                                      ThunarFile *source_file,
                                                      ThunarFile *target_file)
 {
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(source_file), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(target_file), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(source_file), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(target_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     ThunarJobResponse response;
     gchar *message = g_strdup_printf(
@@ -294,8 +294,8 @@ static ThunarJobResponse _job_ask_valist(ThunarJob        *job,
     gchar            *text;
     gchar            *message;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(g_utf8_validate(format, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(g_utf8_validate(format, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* generate the dialog message */
     text = g_strdup_vprintf(format, var_args);
@@ -320,8 +320,8 @@ ThunarJobResponse job_ask_overwrite(ThunarJob *job, const gchar *format, ...)
     ThunarJobResponse response;
     va_list           var_args;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
 
     /* check if the user already cancelled the job */
     if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
@@ -372,8 +372,8 @@ ThunarJobResponse job_ask_delete(ThunarJob *job, const gchar *format, ...)
     ThunarJobResponse response;
     va_list           var_args;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
 
     /* check if the user already cancelled the job */
     if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
@@ -424,7 +424,7 @@ ThunarJobResponse job_ask_create(ThunarJob *job, const gchar *format, ...)
     ThunarJobResponse response;
     va_list           var_args;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
 
     if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
         return THUNAR_JOB_RESPONSE_CANCEL;
@@ -464,9 +464,9 @@ ThunarJobResponse job_ask_replace(ThunarJob *job, GFile *source_path,
     ThunarFile       *source_file;
     ThunarFile       *target_file;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(G_IS_FILE(source_path), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(G_IS_FILE(target_path), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(G_IS_FILE(source_path), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(G_IS_FILE(target_path), THUNAR_JOB_RESPONSE_CANCEL);
 
     if (G_UNLIKELY(exo_job_set_error_if_cancelled(EXO_JOB(job), error)))
         return THUNAR_JOB_RESPONSE_CANCEL;
@@ -523,8 +523,8 @@ ThunarJobResponse job_ask_skip(ThunarJob *job, const gchar *format, ...)
     ThunarJobResponse response;
     va_list           var_args;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
 
     /* check if the user already cancelled the job */
     if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
@@ -571,8 +571,8 @@ gboolean job_ask_no_size(ThunarJob *job, const gchar *format, ...)
     ThunarJobResponse response;
     va_list           var_args;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
 
     /* check if the user already cancelled the job */
     if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
@@ -593,7 +593,7 @@ gboolean job_files_ready(ThunarJob *job, GList *file_list)
 {
     gboolean handled = FALSE;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
 
     exo_job_emit(EXO_JOB(job), _job_signals[FILES_READY], 0, file_list, &handled);
     return handled;
@@ -628,7 +628,7 @@ GList* job_ask_jobs(ThunarJob *job)
 {
     GList* jobs = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
 
     g_signal_emit(EXO_JOB(job), _job_signals[ASK_JOBS], 0, &jobs);
     return jobs;
@@ -652,7 +652,7 @@ void job_set_pausable(ThunarJob *job, gboolean   pausable)
 
 gboolean job_is_pausable(ThunarJob *job)
 {
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     return job->priv->pausable;
 }
 
@@ -684,13 +684,13 @@ void job_unfreeze(ThunarJob *job)
 
 gboolean job_is_paused(ThunarJob *job)
 {
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     return job->priv->paused;
 }
 
 gboolean job_is_frozen(ThunarJob *job)
 {
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     return job->priv->frozen;
 }
 

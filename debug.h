@@ -47,12 +47,12 @@ G_BEGIN_DECLS;
 #define eg_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
 #define eg_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
 #define eg_return_if_fail(expr)          G_STMT_START{ (void)0; }G_STMT_END
-#define thunar_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
+#define eg_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
 #else
 #define eg_assert(expr)                  g_assert (expr)
 #define eg_assert_not_reached()          g_assert_not_reached ()
 #define eg_return_if_fail(expr)          g_return_if_fail (expr)
-#define thunar_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
+#define eg_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
 #endif
 
 /* avoid trivial g_value_get_*() function calls */

@@ -60,7 +60,7 @@ static void sidepane_class_init(gpointer klass)
 
 gboolean sidepane_get_show_hidden(SidePane *side_pane)
 {
-    thunar_return_val_if_fail(IS_SIDEPANE(side_pane), FALSE);
+    eg_return_val_if_fail(IS_SIDEPANE(side_pane), FALSE);
 
     return SIDEPANE_GET_IFACE(side_pane)->get_show_hidden(side_pane);
 }

@@ -242,7 +242,7 @@ static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
  **/
 ClipboardManager* clipman_get_for_display(GdkDisplay *display)
 {
-    thunar_return_val_if_fail(GDK_IS_DISPLAY(display), NULL);
+    eg_return_val_if_fail(GDK_IS_DISPLAY(display), NULL);
 
     /* generate the quark on-demand */
     if (G_UNLIKELY(_clipman_quark == 0))
@@ -340,15 +340,15 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
 
 gboolean clipman_get_can_paste(ClipboardManager *manager)
 {
-    thunar_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
+    eg_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
 
     return manager->can_paste;
 }
 
 gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *file)
 {
-    thunar_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     return (manager->files_cutted && g_list_find(manager->files, file) != NULL);
 }

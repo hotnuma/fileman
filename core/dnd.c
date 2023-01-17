@@ -60,8 +60,8 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
                                               "stock_folder-move",
                                               NULL};
 
-    thunar_return_val_if_fail(th_file_is_directory(folder), 0);
-    thunar_return_val_if_fail(GTK_IS_WIDGET(widget), 0);
+    eg_return_val_if_fail(th_file_is_directory(folder), 0);
+    eg_return_val_if_fail(GTK_IS_WIDGET(widget), 0);
 
     GdkDragAction           dnd_action = 0;
     ThunarFile             *file;
@@ -205,9 +205,9 @@ static void _dnd_action_selected(GtkWidget *item, GdkDragAction *dnd_action_retu
 gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
                      GdkDragAction action, GClosure *new_files_closure)
 {
-    thunar_return_val_if_fail(GTK_IS_WIDGET(widget), FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
+    eg_return_val_if_fail(GTK_IS_WIDGET(widget), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
 
     /* query a reference on the application object */
     Application *application;

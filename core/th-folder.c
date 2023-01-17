@@ -598,13 +598,13 @@ static void _th_folder_monitor(GFileMonitor     *monitor,
 ThunarFolder* th_folder_get_for_file(ThunarFile *file)
 {
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* make sure the file is loaded */
     if (!th_file_check_loaded(file))
         return NULL;
 
-    thunar_return_val_if_fail(th_file_is_directory(file), NULL);
+    eg_return_val_if_fail(th_file_is_directory(file), NULL);
 
     /* load if the file is not a folder */
     if (!th_file_is_directory(file))
@@ -649,7 +649,7 @@ ThunarFolder* th_folder_get_for_file(ThunarFile *file)
  **/
 ThunarFile* th_folder_get_corresponding_file(const ThunarFolder *folder)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
 
     return folder->corresponding_file;
 }
@@ -665,7 +665,7 @@ ThunarFile* th_folder_get_corresponding_file(const ThunarFolder *folder)
  **/
 GList* th_folder_get_files(const ThunarFolder *folder)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FOLDER(folder), NULL);
 
     return folder->files;
 }
@@ -681,7 +681,7 @@ GList* th_folder_get_files(const ThunarFolder *folder)
  **/
 gboolean th_folder_get_loading(const ThunarFolder *folder)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
     return(folder->job != NULL);
 }
 
@@ -695,7 +695,7 @@ gboolean th_folder_get_loading(const ThunarFolder *folder)
  **/
 gboolean th_folder_has_folder_monitor(const ThunarFolder *folder)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
     return(folder->monitor != NULL);
 }
 
@@ -865,8 +865,8 @@ static gboolean _th_folder_files_ready(ThunarJob    *job,
                                           GList        *files,
                                           ThunarFolder *folder)
 {
-    thunar_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
 
     /* merge the list with the existing list of new files */
     folder->new_files = g_list_concat(folder->new_files, files);
@@ -893,7 +893,7 @@ static gboolean _th_folder_content_type_loader_idle(gpointer data)
     ThunarFolder *folder;
     GList        *lp;
 
-    thunar_return_val_if_fail(THUNAR_IS_FOLDER(data), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FOLDER(data), FALSE);
 
     folder = THUNAR_FOLDER(data);
 

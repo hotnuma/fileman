@@ -92,7 +92,7 @@ static PokeFileData* _browser_poke_file_data_new(
 {
     PokeFileData *poke_data;
 
-    thunar_return_val_if_fail(THUNAR_IS_BROWSER(browser), NULL);
+    eg_return_val_if_fail(THUNAR_IS_BROWSER(browser), NULL);
 
     poke_data = g_slice_new0(PokeFileData);
     poke_data->browser = g_object_ref(browser);
@@ -139,8 +139,8 @@ static PokeDeviceData* _browser_poke_device_data_new(
 {
     PokeDeviceData *poke_data;
 
-    thunar_return_val_if_fail(THUNAR_IS_BROWSER(browser), NULL);
-    thunar_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
+    eg_return_val_if_fail(THUNAR_IS_BROWSER(browser), NULL);
+    eg_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
 
     poke_data = g_slice_new0(PokeDeviceData);
     poke_data->browser = g_object_ref(browser);

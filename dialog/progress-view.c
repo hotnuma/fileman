@@ -389,10 +389,10 @@ static ThunarJobResponse thunar_progress_view_ask(ThunarProgressView *view,
 {
     GtkWidget *window;
 
-    thunar_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(g_utf8_validate(message, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(g_utf8_validate(message, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
 
     /* be sure to display the corresponding dialog prior to opening the question view */
     g_signal_emit_by_name(view, "need-attention");
@@ -412,11 +412,11 @@ static ThunarJobResponse thunar_progress_view_ask_replace(ThunarProgressView *vi
 {
     GtkWidget *window;
 
-    thunar_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* be sure to display the corresponding dialog prior to opening the question view */
     g_signal_emit_by_name(view, "need-attention");
@@ -539,7 +539,7 @@ static void thunar_progress_view_unfrozen(ThunarProgressView *view,
  **/
 GtkWidget* thunar_progress_view_new_with_job(ThunarJob *job)
 {
-    thunar_return_val_if_fail(job == NULL || THUNAR_IS_JOB(job), NULL);
+    eg_return_val_if_fail(job == NULL || THUNAR_IS_JOB(job), NULL);
     return g_object_new(THUNAR_TYPE_PROGRESS_VIEW, "job", job, NULL);
 }
 
@@ -557,7 +557,7 @@ GtkWidget* thunar_progress_view_new_with_job(ThunarJob *job)
  **/
 ThunarJob* thunar_progress_view_get_job(ThunarProgressView *view)
 {
-    thunar_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), NULL);
+    eg_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), NULL);
     return view->job;
 }
 

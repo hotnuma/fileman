@@ -628,7 +628,7 @@ DeviceMonitor* devmon_get()
 
 GList* devmon_get_devices(DeviceMonitor *monitor)
 {
-    thunar_return_val_if_fail(IS_DEVICE_MONITOR(monitor), NULL);
+    eg_return_val_if_fail(IS_DEVICE_MONITOR(monitor), NULL);
 
     GList *list = NULL;
 

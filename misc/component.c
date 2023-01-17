@@ -88,7 +88,7 @@ static void component_class_init(gpointer klass)
  **/
 GList* component_get_selected_files(ThunarComponent *component)
 {
-    thunar_return_val_if_fail(THUNAR_IS_COMPONENT(component), NULL);
+    eg_return_val_if_fail(THUNAR_IS_COMPONENT(component), NULL);
 
     return THUNAR_COMPONENT_GET_IFACE(component)->get_selected_files(component);
 }

@@ -181,7 +181,7 @@ static GFile* _history_get_gfile(ThunarFile *file)
     GFile       *gfile;
     const gchar *display_name;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     gfile = th_file_get_file(file);
 
@@ -545,7 +545,7 @@ ThunarHistory* history_copy(ThunarHistory *history)
     ThunarHistory *copy;
     GSList        *lp;
 
-    thunar_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
+    eg_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
 
     if (G_UNLIKELY(history == NULL))
         return NULL;
@@ -574,7 +574,7 @@ ThunarHistory* history_copy(ThunarHistory *history)
  **/
 gboolean history_has_back(ThunarHistory *history)
 {
-    thunar_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
 
     return history->back_list != NULL;
 }
@@ -588,7 +588,7 @@ gboolean history_has_back(ThunarHistory *history)
  **/
 gboolean history_has_forward(ThunarHistory *history)
 {
-    thunar_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
 
     return history->forward_list != NULL;
 }
@@ -607,7 +607,7 @@ ThunarFile* history_peek_back(ThunarHistory *history)
 {
     ThunarFile *result = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
+    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
 
     /* pick the first(conceptually the last) file in the back list, if there are any */
     if (history->back_list != NULL)
@@ -631,7 +631,7 @@ ThunarFile* history_peek_forward(ThunarHistory *history)
 {
     ThunarFile *result = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
+    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
 
     /* pick the first file in the forward list, if there are any */
     if (history->forward_list != NULL)

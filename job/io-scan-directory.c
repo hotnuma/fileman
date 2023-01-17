@@ -48,8 +48,8 @@ GList* io_scan_directory(ThunarJob           *job,
     gboolean         is_mounted;
     GCancellable    *cancellable = NULL;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    eg_return_val_if_fail(G_IS_FILE(file), NULL);
+    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     /* abort if the job was cancelled */
     if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), error))

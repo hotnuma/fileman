@@ -50,8 +50,8 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
     GFileInfo      *info;
     GError         *err = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
 
     /* parse the parent window and screen */
     screen = util_parse_parent(parent, &window);
@@ -141,7 +141,7 @@ gchar* dialog_create(gpointer parent, const gchar *content_type, const gchar *fi
 {
     // The caller must free the returned string.
 
-    thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+    eg_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
                               || GTK_IS_WIDGET(parent), NULL);
 
     /* parse the parent window and screen */
@@ -287,8 +287,8 @@ gboolean dialog_folder_trash(GtkWindow *window)
 
 ThunarJob* dialog_rename_file(gpointer parent, ThunarFile *file)
 {
-    thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
@@ -539,8 +539,8 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
     gint         n;
     gboolean     has_cancel = FALSE;
 
-    thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(g_utf8_validate(question, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(g_utf8_validate(question, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* try to separate the question into primary and secondary parts */
     separator = strstr(question, ": ");
@@ -711,9 +711,9 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gchar             *text;
     gint               response;
 
-    thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* setup the confirmation dialog */
     dialog = gtk_dialog_new();

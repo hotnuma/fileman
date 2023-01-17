@@ -142,7 +142,7 @@ static void navigator_class_init(gpointer klass)
  **/
 ThunarFile* navigator_get_current_directory(ThunarNavigator *navigator)
 {
-    thunar_return_val_if_fail(THUNAR_IS_NAVIGATOR(navigator), NULL);
+    eg_return_val_if_fail(THUNAR_IS_NAVIGATOR(navigator), NULL);
 
     return THUNAR_NAVIGATOR_GET_IFACE(navigator)->get_current_directory(navigator);
 }

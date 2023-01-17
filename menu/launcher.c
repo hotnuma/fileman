@@ -757,7 +757,7 @@ static void launcher_set_selected_files(ThunarComponent *component,
 
 GtkWidget* launcher_get_widget(ThunarLauncher *launcher)
 {
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
     return launcher->widget;
 }
 
@@ -1346,11 +1346,11 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                                      LauncherAction action,
                                      gboolean        force)
 {
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
 
     const XfceGtkActionEntry *action_entry = get_action_entry(action);
 
-    thunar_return_val_if_fail(action_entry != NULL, NULL);
+    eg_return_val_if_fail(action_entry != NULL, NULL);
 
     GtkWidget                *item = NULL;
     GtkWidget                *submenu;
@@ -1690,7 +1690,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
 static bool _launcher_can_extract(ThunarLauncher *launcher)
 {
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), false);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), false);
 
     //DPRINT("can extract\n");
 
@@ -2418,7 +2418,7 @@ static gboolean _launcher_create_document_submenu_templates(
     GList             *dirs = NULL;
     GList             *items = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
 
     /* do nothing if there is no menu */
     if (create_file_submenu == NULL)
@@ -2493,7 +2493,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
     GtkWidget       *submenu;
     GtkWidget       *item;
 
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
 
     home_dir = eg_file_new_for_home();
     path = g_get_user_special_dir(G_USER_DIRECTORY_TEMPLATES);
@@ -2553,7 +2553,7 @@ static GtkWidget* _launcher_build_application_submenu(
     gchar     *label_text;
     gchar     *tooltip_text;
 
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
 
     submenu = gtk_menu_new();
 
@@ -2594,7 +2594,7 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
     GtkWidget *menu_item;
     GtkWidget *submenu;
 
-    thunar_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
 
     /* Usually it is not required to open the current directory */
     if (launcher->files_are_selected == FALSE && !force)

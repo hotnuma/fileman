@@ -1123,7 +1123,7 @@ static void _propsdlg_update(PropertiesDialog *dialog)
 
 GtkWidget* propsdlg_new(GtkWindow *parent)
 {
-    thunar_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), NULL);
+    eg_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), NULL);
     return g_object_new(TYPE_PROPERTIES_DIALOG,
                          "transient-for", parent,
                          "destroy-with-parent", parent != NULL,
@@ -1132,7 +1132,7 @@ GtkWidget* propsdlg_new(GtkWindow *parent)
 
 static GList* _propsdlg_get_files(PropertiesDialog *dialog)
 {
-    thunar_return_val_if_fail(IS_PROPERTIES_DIALOG(dialog), NULL);
+    eg_return_val_if_fail(IS_PROPERTIES_DIALOG(dialog), NULL);
     return dialog->files;
 }
 

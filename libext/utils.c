@@ -465,7 +465,7 @@ GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
     GdkScreen *screen;
     GtkWidget *window = NULL;
 
-    thunar_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
+    eg_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
 
     /* determine the proper parent */
     if (parent == NULL)
@@ -572,7 +572,7 @@ gchar* util_change_working_directory(const gchar *new_directory)
 {
     gchar *old_directory;
 
-    thunar_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
+    eg_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
 
     /* try to determine the current working directory */
     old_directory = g_get_current_dir();

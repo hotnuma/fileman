@@ -195,7 +195,7 @@ static void menu_set_property(GObject *object, guint prop_id, const GValue *valu
 
 gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections)
 {
-    thunar_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
 
     gboolean force = (menu->type == MENU_TYPE_WINDOW
                       || menu->type == MENU_TYPE_CONTEXT_TREE_VIEW);

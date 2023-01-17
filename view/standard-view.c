@@ -1096,7 +1096,7 @@ static void standard_view_init(StandardView *standard_view)
 static ThunarFile* standard_view_get_current_directory(ThunarNavigator *navigator)
 {
     StandardView *standard_view = STANDARD_VIEW(navigator);
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
     return standard_view->priv->current_directory;
 }
 
@@ -1598,7 +1598,7 @@ static void _standard_view_new_files(StandardView *standard_view,
 static GClosure* _standard_view_new_files_closure(StandardView *standard_view,
                                        GtkWidget          *source_view)
 {
-    thunar_return_val_if_fail(source_view == NULL || THUNAR_IS_VIEW(source_view), NULL);
+    eg_return_val_if_fail(source_view == NULL || THUNAR_IS_VIEW(source_view), NULL);
 
     /* drop any previous "new-files" closure */
     if (G_UNLIKELY(standard_view->priv->new_files_closure != NULL))
@@ -1736,7 +1736,7 @@ static const gchar* standard_view_get_statusbar_text(BaseView *view)
     StandardView *standard_view = STANDARD_VIEW(view);
     GList              *items;
 
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
 
     /* generate the statusbar text on-demand */
     if (standard_view->priv->statusbar_text == NULL)
@@ -2016,7 +2016,7 @@ static gboolean _standard_view_scroll_event(
     UNUSED(view);
     GdkScrollDirection scrolling_direction;
 
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     if (event->direction != GDK_SCROLL_SMOOTH)
         scrolling_direction = event->direction;
@@ -2056,7 +2056,7 @@ static gboolean _standard_view_key_press_event(
                                             StandardView *standard_view)
 {
     UNUSED(view);
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     /* need to catch "/" and "~" first, as the views would otherwise start interactive search */
     if ((event->keyval == GDK_KEY_slash || event->keyval == GDK_KEY_asciitilde || event->keyval == GDK_KEY_dead_tilde) && !(event->state &(~GDK_SHIFT_MASK & gtk_accelerator_get_default_mod_mask())))
@@ -2143,7 +2143,7 @@ static gboolean _standard_view_restore_selection_idle(StandardView *standard_vie
     GtkAdjustment *vadjustment;
     gdouble        h, v, hl, hu, vl, vu;
 
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     /* save the current scroll position and limits */
     hadjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(standard_view));
@@ -2191,7 +2191,7 @@ static gboolean _standard_view_update_statusbar_text_idle(gpointer data)
 {
     StandardView *standard_view = STANDARD_VIEW(data);
 
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     THUNAR_THREADS_ENTER
 
@@ -2298,7 +2298,7 @@ static ThunarFile* _standard_view_get_fallback_directory(
     GFile      *path;
     GFile      *tmp;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
 
     /* determine the path of the directory */
     path = g_object_ref(th_file_get_file(directory));
@@ -2359,8 +2359,8 @@ static gboolean _standard_view_button_release_event(
 {
     UNUSED(view);
     UNUSED(event);
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
-    thunar_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    eg_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
     /* cancel the pending drag timer */
     g_source_remove(standard_view->priv->drag_timer_id);
@@ -2379,8 +2379,8 @@ static gboolean _standard_view_motion_notify_event(
 {
     GtkTargetList  *target_list;
 
-    thunar_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
-    thunar_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
+    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    eg_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
     /* check if we passed the DnD threshold */
     if (gtk_drag_check_threshold(view, standard_view->priv->drag_x, standard_view->priv->drag_y, event->x, event->y))

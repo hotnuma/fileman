@@ -441,7 +441,7 @@ static gboolean treemodel_get_iter(GtkTreeModel *tree_model,
     gint             depth;
     gint             n;
 
-    thunar_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
+    eg_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
 
     /* determine the path depth */
     depth = gtk_tree_path_get_depth(path);
@@ -474,8 +474,8 @@ static GtkTreePath* treemodel_get_path(GtkTreeModel *tree_model,
     GNode           *node;
     gint             n;
 
-    thunar_return_val_if_fail(iter->user_data != NULL, NULL);
-    thunar_return_val_if_fail(iter->stamp == model->stamp, NULL);
+    eg_return_val_if_fail(iter->user_data != NULL, NULL);
+    eg_return_val_if_fail(iter->stamp == model->stamp, NULL);
 
     /* determine the node for the iterator */
     node = iter->user_data;
@@ -580,8 +580,8 @@ static void treemodel_get_value(GtkTreeModel *tree_model,
 static gboolean treemodel_iter_next(GtkTreeModel *tree_model,
                                             GtkTreeIter  *iter)
 {
-    thunar_return_val_if_fail(iter->stamp == TREEMODEL(tree_model)->stamp, FALSE);
-    thunar_return_val_if_fail(iter->user_data != NULL, FALSE);
+    eg_return_val_if_fail(iter->stamp == TREEMODEL(tree_model)->stamp, FALSE);
+    eg_return_val_if_fail(iter->user_data != NULL, FALSE);
 
     /* check if we have any further nodes in this row */
     if (g_node_next_sibling(iter->user_data) != NULL)
@@ -600,8 +600,8 @@ static gboolean treemodel_iter_children(GtkTreeModel *tree_model,
     TreeModel *model = TREEMODEL(tree_model);
     GNode           *children;
 
-    thunar_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
-    thunar_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
+    eg_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
+    eg_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
 
     if (G_LIKELY(parent != NULL))
         children = g_node_first_child(parent->user_data);
@@ -620,8 +620,8 @@ static gboolean treemodel_iter_children(GtkTreeModel *tree_model,
 static gboolean treemodel_iter_has_child(GtkTreeModel *tree_model,
                                                  GtkTreeIter  *iter)
 {
-    thunar_return_val_if_fail(iter->stamp == TREEMODEL(tree_model)->stamp, FALSE);
-    thunar_return_val_if_fail(iter->user_data != NULL, FALSE);
+    eg_return_val_if_fail(iter->stamp == TREEMODEL(tree_model)->stamp, FALSE);
+    eg_return_val_if_fail(iter->user_data != NULL, FALSE);
 
     return(g_node_first_child(iter->user_data) != NULL);
 }
@@ -631,8 +631,8 @@ static gint treemodel_iter_n_children(GtkTreeModel *tree_model,
 {
     TreeModel *model = TREEMODEL(tree_model);
 
-    thunar_return_val_if_fail(iter == NULL || iter->user_data != NULL, 0);
-    thunar_return_val_if_fail(iter == NULL || iter->stamp == model->stamp, 0);
+    eg_return_val_if_fail(iter == NULL || iter->user_data != NULL, 0);
+    eg_return_val_if_fail(iter == NULL || iter->stamp == model->stamp, 0);
 
     return g_node_n_children((iter == NULL) ? model->root : iter->user_data);
 }
@@ -645,8 +645,8 @@ static gboolean treemodel_iter_nth_child(GtkTreeModel *tree_model,
     TreeModel *model = TREEMODEL(tree_model);
     GNode           *child;
 
-    thunar_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
-    thunar_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
+    eg_return_val_if_fail(parent == NULL || parent->user_data != NULL, FALSE);
+    eg_return_val_if_fail(parent == NULL || parent->stamp == model->stamp, FALSE);
 
     child = g_node_nth_child((parent != NULL) ? parent->user_data : model->root, n);
     if (G_LIKELY(child != NULL))
@@ -665,9 +665,9 @@ static gboolean treemodel_iter_parent(GtkTreeModel *tree_model,
     TreeModel *model = TREEMODEL(tree_model);
     GNode           *parent;
 
-    thunar_return_val_if_fail(iter != NULL, FALSE);
-    thunar_return_val_if_fail(child->user_data != NULL, FALSE);
-    thunar_return_val_if_fail(child->stamp == model->stamp, FALSE);
+    eg_return_val_if_fail(iter != NULL, FALSE);
+    eg_return_val_if_fail(child->user_data != NULL, FALSE);
+    eg_return_val_if_fail(child->stamp == model->stamp, FALSE);
 
     /* check if we have a parent for iter */
     parent = G_NODE(child->user_data)->parent;
@@ -745,7 +745,7 @@ static gint _treemodel_cmp_array(gconstpointer a,
                                         gconstpointer b,
                                         gpointer      user_data)
 {
-    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(user_data), 0);
+    eg_return_val_if_fail(THUNAR_IS_TREE_MODEL(user_data), 0);
 
     /* just sort by name(case-sensitive) */
     return th_file_compare_by_name(TREEMODEL_ITEM(((const SortTuple *) a)->node->data)->file,
@@ -1271,7 +1271,7 @@ static gboolean _treemodel_item_load_idle(gpointer user_data)
     GNode               *node;
 #endif
 
-    thunar_return_val_if_fail(item->folder == NULL, FALSE);
+    eg_return_val_if_fail(item->folder == NULL, FALSE);
 
 #ifndef NDEBUG
     /* find the node in the tree */
@@ -1280,7 +1280,7 @@ static gboolean _treemodel_item_load_idle(gpointer user_data)
     /* debug check to make sure the node is empty or contains a dummy node.
      * if this is not true, the node already contains sub folders which means
      * something went wrong. */
-    thunar_return_val_if_fail(node->children == NULL || G_NODE_HAS_DUMMY(node), FALSE);
+    eg_return_val_if_fail(node->children == NULL || G_NODE_HAS_DUMMY(node), FALSE);
 #endif
 
     THUNAR_THREADS_ENTER
@@ -1462,7 +1462,7 @@ static gboolean _treemodel_node_traverse_remove(GNode   *node,
     GtkTreeIter      iter;
     GtkTreePath     *path;
 
-    thunar_return_val_if_fail(node->children == NULL, FALSE);
+    eg_return_val_if_fail(node->children == NULL, FALSE);
 
     /* determine the iterator for the node */
     GTK_TREE_ITER_INIT(iter, model->stamp, node);
@@ -1520,8 +1520,8 @@ static gboolean _treemodel_node_traverse_visible(GNode    *node,
     TreeModelItem *parent, *child;
     ThunarFile          *file;
 
-    thunar_return_val_if_fail(model->visible_func != NULL, FALSE);
-    thunar_return_val_if_fail(item == NULL || item->file == NULL || THUNAR_IS_FILE(item->file), FALSE);
+    eg_return_val_if_fail(model->visible_func != NULL, FALSE);
+    eg_return_val_if_fail(item == NULL || item->file == NULL || THUNAR_IS_FILE(item->file), FALSE);
 
     if (G_LIKELY(item != NULL && item->file != NULL))
     {
@@ -1560,7 +1560,7 @@ static gboolean _treemodel_node_traverse_visible(GNode    *node,
                 lnext = lp->next;
                 file = THUNAR_FILE(lp->data);
 
-                thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+                eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
                 if (model->visible_func(model, file, model->visible_data))
                 {
@@ -1609,7 +1609,7 @@ static gboolean _treemodel_node_traverse_visible(GNode    *node,
  **/
 static gboolean _treemodel_get_case_sensitive(TreeModel *model)
 {
-    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
     return model->sort_case_sensitive;
 }
 

@@ -167,16 +167,16 @@ AppChooserModel* appmodel_new(const gchar *content_type)
 
 const gchar* appmodel_get_content_type(AppChooserModel *model)
 {
-    thunar_return_val_if_fail(IS_APPCHOOSER_MODEL(model), NULL);
+    eg_return_val_if_fail(IS_APPCHOOSER_MODEL(model), NULL);
 
     return model->content_type;
 }
 
 gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **error)
 {
-    thunar_return_val_if_fail(IS_APPCHOOSER_MODEL(model), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    thunar_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), iter), FALSE);
+    eg_return_val_if_fail(IS_APPCHOOSER_MODEL(model), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), iter), FALSE);
 
     GAppInfo *app_info;
     gboolean succeed;

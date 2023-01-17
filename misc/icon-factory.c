@@ -323,7 +323,7 @@ static gboolean _ifactory_sweep_timer(gpointer user_data)
 {
     IconFactory *factory = ICONFACTORY(user_data);
 
-    thunar_return_val_if_fail(IS_ICONFACTORY(factory), FALSE);
+    eg_return_val_if_fail(IS_ICONFACTORY(factory), FALSE);
 
     THUNAR_THREADS_ENTER
 
@@ -355,7 +355,7 @@ static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
     gint       width;
     gint       height;
 
-    thunar_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
 
     /* try to load the image from the file */
     pixbuf = gdk_pixbuf_new_from_file(path, NULL);
@@ -422,9 +422,9 @@ static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory, const gchar *name,
     GtkIconInfo   *icon_info;
     GdkPixbuf     *pixbuf = NULL;
 
-    thunar_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
-    thunar_return_val_if_fail(name != NULL && *name != '\0', NULL);
-    thunar_return_val_if_fail(size > 0, NULL);
+    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    eg_return_val_if_fail(name != NULL && *name != '\0', NULL);
+    eg_return_val_if_fail(size > 0, NULL);
 
     /* prepare the lookup key */
     lookup_key.name =(gchar *) name;
@@ -582,7 +582,7 @@ IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme)
 {
     IconFactory *factory;
 
-    thunar_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
+    eg_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
     /* generate the quark on-demand */
     if (G_UNLIKELY(_ifactory_quark == 0))
@@ -627,8 +627,8 @@ IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme)
 GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
                               gint size, gboolean wants_default)
 {
-    thunar_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
-    thunar_return_val_if_fail(size > 0, NULL);
+    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    eg_return_val_if_fail(size > 0, NULL);
 
     /* cannot happen unless there's no XSETTINGS manager
      * for the default screen, but just in case...
@@ -663,9 +663,9 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
                                    ThunarFileIconState icon_state,
                                    gint        icon_size)
 {
-    thunar_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(icon_size > 0, NULL);
+    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(icon_size > 0, NULL);
 
 
     /* check if we have a stored icon on the file and it is still valid */
@@ -881,8 +881,8 @@ gboolean thunar_icon_factory_get_show_thumbnail(const IconFactory *factory,
 {
     GFilesystemPreviewType preview;
 
-    thunar_return_val_if_fail(IS_ICONFACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
-    thunar_return_val_if_fail(file == NULL || THUNAR_IS_FILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
+    eg_return_val_if_fail(IS_ICONFACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
+    eg_return_val_if_fail(file == NULL || THUNAR_IS_FILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
 
     if (file == NULL
             || factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_NEVER)

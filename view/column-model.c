@@ -208,8 +208,8 @@ static gboolean column_model_get_iter(GtkTreeModel *tree_model, GtkTreeIter *ite
     ColumnModel *column_model = COLUMN_MODEL(tree_model);
     ThunarColumn       column;
 
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
-    thunar_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
+    eg_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
 
     /* check if the path is valid */
     column = gtk_tree_path_get_indices(path)[0];
@@ -225,8 +225,8 @@ static gboolean column_model_get_iter(GtkTreeModel *tree_model, GtkTreeIter *ite
 static GtkTreePath* column_model_get_path(GtkTreeModel *tree_model,
                                           GtkTreeIter *iter)
 {
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(tree_model), NULL);
-    thunar_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, NULL);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(tree_model), NULL);
+    eg_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, NULL);
 
     /* generate the path for the iterator */
     return gtk_tree_path_new_from_indices(GPOINTER_TO_INT(iter->user_data), -1);
@@ -278,8 +278,8 @@ static gboolean column_model_iter_next(GtkTreeModel *tree_model,
 {
     ThunarColumn column;
 
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(tree_model), FALSE);
-    thunar_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, FALSE);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(tree_model), FALSE);
+    eg_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, FALSE);
 
     /* move the iterator to the next column */
     column = GPOINTER_TO_INT(iter->user_data) + 1;
@@ -295,7 +295,7 @@ static gboolean column_model_iter_children(GtkTreeModel *tree_model,
 {
     ColumnModel *column_model = COLUMN_MODEL(tree_model);
 
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
 
     if (G_LIKELY(parent == NULL))
     {
@@ -317,7 +317,7 @@ static gboolean column_model_iter_has_child(GtkTreeModel *tree_model,
 static gint column_model_iter_n_children(GtkTreeModel *tree_model,
                                          GtkTreeIter *iter)
 {
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(tree_model), 0);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(tree_model), 0);
 
     return (iter == NULL) ? THUNAR_N_VISIBLE_COLUMNS : 0;
 }
@@ -329,7 +329,7 @@ static gboolean column_model_iter_nth_child(GtkTreeModel *tree_model,
 {
     ColumnModel *column_model = COLUMN_MODEL(tree_model);
 
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
 
     if (G_LIKELY(parent == NULL && n < THUNAR_N_VISIBLE_COLUMNS))
     {
@@ -654,8 +654,8 @@ void column_model_exchange(ColumnModel *column_model, GtkTreeIter *iter1,
 ThunarColumn column_model_get_column_for_iter(ColumnModel *column_model,
                                               GtkTreeIter *iter)
 {
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), -1);
-    thunar_return_val_if_fail(iter->stamp == column_model->stamp, -1);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), -1);
+    eg_return_val_if_fail(iter->stamp == column_model->stamp, -1);
 
     return column_model->order[GPOINTER_TO_INT(iter->user_data)];
 }
@@ -671,7 +671,7 @@ ThunarColumn column_model_get_column_for_iter(ColumnModel *column_model,
  **/
 const ThunarColumn* column_model_get_column_order(ColumnModel *column_model)
 {
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), NULL);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), NULL);
 
     return column_model->order;
 }
@@ -693,8 +693,8 @@ const gchar* column_model_get_column_name(ColumnModel  *column_model,
     GEnumClass  *klass;
     guint        n;
 
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), NULL);
-    thunar_return_val_if_fail(column < THUNAR_N_VISIBLE_COLUMNS, NULL);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), NULL);
+    eg_return_val_if_fail(column < THUNAR_N_VISIBLE_COLUMNS, NULL);
 
     /* determine the column name from the ThunarColumn enum type */
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
@@ -719,8 +719,8 @@ const gchar* column_model_get_column_name(ColumnModel  *column_model,
 gboolean column_model_get_column_visible(ColumnModel  *column_model,
                                          ThunarColumn column)
 {
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
-    thunar_return_val_if_fail(column < THUNAR_N_VISIBLE_COLUMNS, FALSE);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
+    eg_return_val_if_fail(column < THUNAR_N_VISIBLE_COLUMNS, FALSE);
 
     return column_model->visible[column];
 }
@@ -793,8 +793,8 @@ void column_model_set_column_visible(ColumnModel  *column_model,
 gint column_model_get_column_width(ColumnModel  *column_model,
                                    ThunarColumn column)
 {
-    thunar_return_val_if_fail(IS_COLUMN_MODEL(column_model), -1);
-    thunar_return_val_if_fail(column < THUNAR_N_VISIBLE_COLUMNS, -1);
+    eg_return_val_if_fail(IS_COLUMN_MODEL(column_model), -1);
+    eg_return_val_if_fail(column < THUNAR_N_VISIBLE_COLUMNS, -1);
 
     return column_model->width[column];
 }

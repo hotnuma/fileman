@@ -62,7 +62,7 @@ gboolean eg_file_is_root(GFile *file)
 
 gboolean eg_file_is_trashed(GFile *file)
 {
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
     return g_file_has_uri_scheme(file, "trash");
 }
 
@@ -71,7 +71,7 @@ gboolean eg_file_is_home(GFile *file)
     GFile   *home;
     gboolean is_home = FALSE;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
 
     home = eg_file_new_for_home();
     is_home = g_file_equal(home, file);
@@ -85,7 +85,7 @@ gboolean eg_file_is_trash(GFile *file)
     char *uri;
     gboolean is_trash = FALSE;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
 
     uri = g_file_get_uri(file);
     is_trash = g_strcmp0(uri, "trash:///") == 0;
@@ -99,7 +99,7 @@ gboolean eg_file_is_computer(GFile *file)
     char *uri;
     gboolean is_computer = FALSE;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
 
     uri = g_file_get_uri(file);
     is_computer = g_strcmp0(uri, "computer:///") == 0;
@@ -113,7 +113,7 @@ gboolean eg_file_is_network(GFile *file)
     char *uri;
     gboolean is_network = FALSE;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
 
     uri = g_file_get_uri(file);
     is_network = g_strcmp0(uri, "network:///") == 0;
@@ -130,9 +130,9 @@ GKeyFile* eg_file_query_key_file(GFile        *file,
     gchar    *contents = NULL;
     gsize     length;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), NULL);
-    thunar_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), NULL);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    eg_return_val_if_fail(G_IS_FILE(file), NULL);
+    eg_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), NULL);
+    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     /* try to load the entire file into memory */
     if (!g_file_load_contents(file, cancellable, &contents, &length, NULL, error))
@@ -163,7 +163,7 @@ gchar* eg_file_get_location(GFile *file)
 {
     gchar *location;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), NULL);
+    eg_return_val_if_fail(G_IS_FILE(file), NULL);
 
     location = g_file_get_path(file);
     if (location == NULL)
@@ -177,7 +177,7 @@ gchar* eg_file_get_display_name(GFile *file)
     gchar *base_name;
     gchar *display_name;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), NULL);
+    eg_return_val_if_fail(G_IS_FILE(file), NULL);
 
     base_name = g_file_get_basename(file);
     if (G_LIKELY(base_name != NULL))
@@ -215,7 +215,7 @@ gchar* eg_file_get_display_name_remote(GFile *mount_point)
     const gchar  skip_chars[] = ":@";
     guint        n;
 
-    thunar_return_val_if_fail(G_IS_FILE(mount_point), NULL);
+    eg_return_val_if_fail(G_IS_FILE(mount_point), NULL);
 
     /* not intended for local mounts */
     if (!g_file_is_native(mount_point))
@@ -282,7 +282,7 @@ gchar* eg_file_get_display_name_remote(GFile *mount_point)
 gboolean eg_vfs_is_uri_scheme_supported(const gchar *scheme)
 {
 
-    thunar_return_val_if_fail(scheme != NULL && *scheme != '\0', FALSE);
+    eg_return_val_if_fail(scheme != NULL && *scheme != '\0', FALSE);
 
     GVfs *gvfs = g_vfs_get_default();
     const gchar *const *supported_schemes = g_vfs_get_supported_uri_schemes(gvfs);
@@ -320,7 +320,7 @@ gboolean eg_file_get_free_space(GFile   *file,
     GFileInfo *filesystem_info;
     gboolean   success = FALSE;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
 
     filesystem_info = g_file_query_filesystem_info(file,
                       FILESYSTEM_INFO_NAMESPACE,
@@ -354,7 +354,7 @@ gchar* eg_file_get_free_space_string(GFile *file, gboolean file_size_binary)
     guint64            fs_size;
     gchar             *fs_string = NULL;
 
-    thunar_return_val_if_fail(G_IS_FILE(file), NULL);
+    eg_return_val_if_fail(G_IS_FILE(file), NULL);
 
     if (eg_file_get_free_space(file, &fs_free, &fs_size)
             && fs_size > 0)
@@ -523,11 +523,11 @@ gboolean eg_app_info_launch(GAppInfo      *info,
     gchar        *old_path = NULL;
     gboolean      skip_app_info_update;
 
-    thunar_return_val_if_fail(G_IS_APP_INFO(info), FALSE);
-    thunar_return_val_if_fail(working_directory == NULL || G_IS_FILE(working_directory), FALSE);
-    thunar_return_val_if_fail(path_list != NULL, FALSE);
-    thunar_return_val_if_fail(G_IS_APP_LAUNCH_CONTEXT(context), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(G_IS_APP_INFO(info), FALSE);
+    eg_return_val_if_fail(working_directory == NULL || G_IS_FILE(working_directory), FALSE);
+    eg_return_val_if_fail(path_list != NULL, FALSE);
+    eg_return_val_if_fail(G_IS_APP_LAUNCH_CONTEXT(context), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     skip_app_info_update =(g_object_get_data(G_OBJECT(info), "skip-app-info-update") != NULL);
 
@@ -612,7 +612,7 @@ gboolean eg_app_info_launch(GAppInfo      *info,
 
 gboolean eg_app_info_should_show(GAppInfo *info)
 {
-    thunar_return_val_if_fail(G_IS_APP_INFO(info), FALSE);
+    eg_return_val_if_fail(G_IS_APP_INFO(info), FALSE);
 
     if (G_IS_DESKTOP_APP_INFO(info))
     {

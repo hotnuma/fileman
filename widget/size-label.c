@@ -207,8 +207,8 @@ static gboolean _szlabel_button_press_event(GtkWidget       *ebox,
                                             GdkEventButton  *event,
                                             SizeLabel *size_label)
 {
-    thunar_return_val_if_fail(GTK_IS_EVENT_BOX(ebox), FALSE);
-    thunar_return_val_if_fail(IS_SIZELABEL(size_label), FALSE);
+    eg_return_val_if_fail(GTK_IS_EVENT_BOX(ebox), FALSE);
+    eg_return_val_if_fail(IS_SIZELABEL(size_label), FALSE);
 
     /* left button press on the spinner cancels the calculation */
     if (G_LIKELY(event->button == 1))
@@ -371,7 +371,7 @@ static void _szlabel_status_update(DeepCountJob *job,
  **/
 static GList* _szlabel_get_files(SizeLabel *size_label)
 {
-    thunar_return_val_if_fail(IS_SIZELABEL(size_label), NULL);
+    eg_return_val_if_fail(IS_SIZELABEL(size_label), NULL);
     return size_label->files;
 }
 

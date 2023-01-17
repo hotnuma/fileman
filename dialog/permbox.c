@@ -583,7 +583,7 @@ static gboolean thunar_permissions_chooser_is_fixable_directory(ThunarFile *file
 {
     ThunarFileMode mode;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     if (!th_file_is_directory(file)
             || !th_file_is_chmodable(file))
@@ -671,8 +671,8 @@ static gboolean _permbox_change_mode(PermissionBox *chooser,
     gint       response;
     GList     *file_list;
 
-    thunar_return_val_if_fail(IS_PERMISSIONBOX(chooser), FALSE);
-    thunar_return_val_if_fail(chooser->files != NULL, FALSE);
+    eg_return_val_if_fail(IS_PERMISSIONBOX(chooser), FALSE);
+    eg_return_val_if_fail(chooser->files != NULL, FALSE);
 
     /* check if we should operate recursively */
     if (thunar_permissions_chooser_has_directory(chooser))
@@ -1107,10 +1107,10 @@ static ThunarJobResponse _permbox_job_ask(PermissionBox *chooser,
 {
     GtkWidget *toplevel;
 
-    thunar_return_val_if_fail(IS_PERMISSIONBOX(chooser), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(g_utf8_validate(message, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    thunar_return_val_if_fail(chooser->job == job, THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(IS_PERMISSIONBOX(chooser), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(g_utf8_validate(message, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    eg_return_val_if_fail(chooser->job == job, THUNAR_JOB_RESPONSE_CANCEL);
 
     /* be sure to display the progress bar prior to opening the question dialog */
     gtk_widget_show_now(chooser->job_progress);
@@ -1244,7 +1244,7 @@ static gboolean _permbox_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
  **/
 GList* _permbox_get_files(PermissionBox *chooser)
 {
-    thunar_return_val_if_fail(IS_PERMISSIONBOX(chooser), NULL);
+    eg_return_val_if_fail(IS_PERMISSIONBOX(chooser), NULL);
     return chooser->files;
 }
 

@@ -562,7 +562,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
 
 static gboolean _treeview_get_show_hidden(TreeView *view)
 {
-    thunar_return_val_if_fail(IS_TREEVIEW(view), FALSE);
+    eg_return_val_if_fail(IS_TREEVIEW(view), FALSE);
 
     return view->show_hidden;
 }
@@ -1103,7 +1103,7 @@ static void treeview_row_collapsed(GtkTreeView *tree_view,
 
 gboolean treeview_delete_selected_files(TreeView *view)
 {
-    thunar_return_val_if_fail(IS_TREEVIEW(view), FALSE);
+    eg_return_val_if_fail(IS_TREEVIEW(view), FALSE);
 
     if (!eg_vfs_is_uri_scheme_supported("trash"))
         return TRUE;
@@ -1267,9 +1267,9 @@ static gboolean _treeview_visible_func(TreeModel *model,
     TreeView *view;
     gboolean        visible = TRUE;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
-    thunar_return_val_if_fail(IS_TREEVIEW(user_data), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
+    eg_return_val_if_fail(IS_TREEVIEW(user_data), FALSE);
 
     /* if show_hidden is TRUE, nothing is filtered */
     view = TREEVIEW(user_data);
@@ -1489,7 +1489,7 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(
     GFile        *root;
     GFile        *best_match;
 
-    thunar_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* get active toplevel path and check if we can use it */
     gtk_tree_view_get_cursor(GTK_TREE_VIEW(view), &path, NULL);

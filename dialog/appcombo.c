@@ -294,8 +294,8 @@ static void _appcombo_popup(AppCombo *chooser_button)
 
 static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b)
 {
-    thunar_return_val_if_fail(G_IS_APP_INFO(a), -1);
-    thunar_return_val_if_fail(G_IS_APP_INFO(b), -1);
+    eg_return_val_if_fail(G_IS_APP_INFO(a), -1);
+    eg_return_val_if_fail(G_IS_APP_INFO(b), -1);
 
     return g_utf8_collate(g_app_info_get_name(G_APP_INFO(a)),
                            g_app_info_get_name(G_APP_INFO(b)));

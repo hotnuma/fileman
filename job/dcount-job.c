@@ -156,10 +156,10 @@ static gboolean _dcjob_process(ExoJob       *job,
     const gchar        *fs_id;
     gboolean            toplevel_file =(toplevel_fs_id == NULL);
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(G_IS_FILE(file), FALSE);
-    thunar_return_val_if_fail(file_info == NULL || G_IS_FILE_INFO(file_info), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
+    eg_return_val_if_fail(file_info == NULL || G_IS_FILE_INFO(file_info), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* abort if job was already cancelled */
     if (exo_job_is_cancelled(job))
@@ -313,8 +313,8 @@ static gboolean dcjob_execute(ExoJob *job, GError **error)
     GList              *lp;
     GFile              *gfile;
 
-    thunar_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    thunar_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* don't start the job if it was already cancelled */
     if (exo_job_set_error_if_cancelled(job, error))
@@ -366,7 +366,7 @@ DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
 {
     DeepCountJob *job;
 
-    thunar_return_val_if_fail(files != NULL, NULL);
+    eg_return_val_if_fail(files != NULL, NULL);
 
     job = g_object_new(TYPE_DEEPCOUNT_JOB, NULL);
     job->files = g_list_copy(files);

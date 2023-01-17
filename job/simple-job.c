@@ -79,8 +79,8 @@ static gboolean simple_job_execute(ExoJob *job, GError **error)
     gboolean         success = TRUE;
     GError          *err = NULL;
 
-    thunar_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), FALSE);
-    thunar_return_val_if_fail(simple_job->func != NULL, FALSE);
+    eg_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), FALSE);
+    eg_return_val_if_fail(simple_job->func != NULL, FALSE);
 
     /* try to execute the job using the supplied function */
     success =(*simple_job->func)(THUNAR_JOB(job), simple_job->param_values, &err);
@@ -175,7 +175,7 @@ ThunarJob* simple_job_launch(SimpleJobFunc func, guint n_param_values, ...)
 
 GArray* simple_job_get_param_values(SimpleJob *job)
 {
-    thunar_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), NULL);
+    eg_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), NULL);
     return job->param_values;
 }
 

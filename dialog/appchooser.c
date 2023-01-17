@@ -517,7 +517,7 @@ static gboolean _appchooser_selection_func(GtkTreeSelection *selection,
 
 static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
 {
-    thunar_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
 
     GtkTreeSelection *selection;
     GtkTreeModel     *model;
@@ -827,9 +827,9 @@ static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
     GtkTreeSelection *selection;
     GtkTreePath      *path;
 
-    thunar_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
-    thunar_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    thunar_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    eg_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    eg_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
 
     /* check if we should popup the context menu */
     if (G_LIKELY(event->button == 3 && event->type == GDK_BUTTON_PRESS))
@@ -912,9 +912,9 @@ static void _appchooser_expand(AppChooserDialog *dialog)
 static gboolean _appchooser_popup_menu(GtkWidget *tree_view,
                                        AppChooserDialog *dialog)
 {
-    thunar_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
-    thunar_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    thunar_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    eg_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    eg_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
 
     /* popup the context menu */
     return _appchooser_context_menu(dialog);
@@ -996,7 +996,7 @@ static void _appchooser_selection_changed(GtkTreeSelection *selection,
 
 static ThunarFile* _appchooser_get_file(AppChooserDialog *dialog)
 {
-    thunar_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), NULL);
+    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), NULL);
 
     return dialog->file;
 }
@@ -1052,7 +1052,7 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
 
 static gboolean _appchooser_get_open(AppChooserDialog *dialog)
 {
-    thunar_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
 
     return dialog->open;
 }
