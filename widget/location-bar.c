@@ -134,7 +134,7 @@ static void thunar_location_bar_finalize(GObject *object)
 {
     ThunarLocationBar *bar = THUNAR_LOCATION_BAR(object);
 
-    thunar_return_if_fail(THUNAR_IS_LOCATION_BAR(bar));
+    eg_return_if_fail(THUNAR_IS_LOCATION_BAR(bar));
 
     if (bar->locationEntry)
         g_object_unref(bar->locationEntry);
@@ -273,7 +273,7 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
 
     child = gtk_bin_get_child(GTK_BIN(bar));
 
-    thunar_return_if_fail(child != NULL && GTK_IS_WIDGET(child));
+    eg_return_if_fail(child != NULL && GTK_IS_WIDGET(child));
 
     if (THUNAR_IS_LOCATION_ENTRY(child))
     {

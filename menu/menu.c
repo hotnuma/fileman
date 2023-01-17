@@ -382,7 +382,7 @@ gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections)
 
 void menu_hide_accel_labels(ThunarMenu *menu)
 {
-    thunar_return_if_fail(THUNAR_IS_MENU(menu));
+    eg_return_if_fail(THUNAR_IS_MENU(menu));
 
     GList *children = gtk_container_get_children(GTK_CONTAINER(menu));
 

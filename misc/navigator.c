@@ -158,8 +158,8 @@ ThunarFile* navigator_get_current_directory(ThunarNavigator *navigator)
 void navigator_set_current_directory(ThunarNavigator *navigator,
                                      ThunarFile      *current_directory)
 {
-    thunar_return_if_fail(THUNAR_IS_NAVIGATOR(navigator));
-    thunar_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
+    eg_return_if_fail(THUNAR_IS_NAVIGATOR(navigator));
+    eg_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
 
     THUNAR_NAVIGATOR_GET_IFACE(navigator)->set_current_directory(navigator, current_directory);
 }
@@ -184,9 +184,9 @@ void navigator_set_current_directory(ThunarNavigator *navigator,
 void navigator_change_directory(ThunarNavigator *navigator,
                                 ThunarFile      *directory)
 {
-    thunar_return_if_fail(THUNAR_IS_NAVIGATOR(navigator));
-    thunar_return_if_fail(THUNAR_IS_FILE(directory));
-    thunar_return_if_fail(th_file_is_directory(directory));
+    eg_return_if_fail(THUNAR_IS_NAVIGATOR(navigator));
+    eg_return_if_fail(THUNAR_IS_FILE(directory));
+    eg_return_if_fail(th_file_is_directory(directory));
 
     g_signal_emit(G_OBJECT(navigator), _navigator_signals[CHANGE_DIRECTORY], 0, directory);
 }

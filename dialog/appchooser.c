@@ -564,7 +564,7 @@ static void _appchooser_update_accept(AppChooserDialog *dialog)
     gboolean          sensitive = FALSE;
     GValue            value = { 0, };
 
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     if (gtk_expander_get_expanded(GTK_EXPANDER(dialog->custom_expander)))
     {
@@ -595,8 +595,8 @@ static void _appchooser_update_header(AppChooserDialog *dialog)
     gchar       *description;
     gchar       *text;
 
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
-    thunar_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
 
     /* check if we have a valid file set */
     if (G_UNLIKELY(dialog->file == NULL))
@@ -648,7 +648,7 @@ static void _appchooser_action_remove(AppChooserDialog *dialog)
     GError           *error = NULL;
     gint              response;
 
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     /* determine the selected row */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
@@ -854,8 +854,8 @@ static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
 static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec,
                                         AppChooserDialog *dialog)
 {
-    thunar_return_if_fail(GTK_IS_EXPANDER(expander));
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(GTK_IS_EXPANDER(expander));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     UNUSED(pspec);
 
@@ -876,7 +876,7 @@ static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec
 
 static void _appchooser_expand(AppChooserDialog *dialog)
 {
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     GtkTreeModel *model;
     GtkTreePath  *path;
@@ -931,8 +931,8 @@ static void _appchooser_row_activated(GtkTreeView         *treeview,
     GtkTreeIter   iter;
     GValue        value = { 0, };
 
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
-    thunar_return_if_fail(GTK_IS_TREE_VIEW(treeview));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(GTK_IS_TREE_VIEW(treeview));
 
     /* determine the current chooser model */
     model = gtk_tree_view_get_model(treeview);
@@ -1005,8 +1005,8 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
 {
     AppChooserModel *model;
 
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
-    thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     /* disconnect from the previous file */
     if (G_LIKELY(dialog->file != NULL))
@@ -1059,7 +1059,7 @@ static gboolean _appchooser_get_open(AppChooserDialog *dialog)
 
 static void _appchooser_set_open(AppChooserDialog *dialog, gboolean open)
 {
-    thunar_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     /* apply the new state */
     dialog->open = open;
@@ -1089,10 +1089,10 @@ static void _appchooser_set_open(AppChooserDialog *dialog, gboolean open)
  **/
 void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open)
 {
-    thunar_return_if_fail(parent == NULL
+    eg_return_if_fail(parent == NULL
                           || GDK_IS_SCREEN(parent)
                           || GTK_IS_WIDGET(parent));
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     GdkScreen         *screen;
     GtkWidget         *window = NULL;

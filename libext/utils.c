@@ -151,9 +151,9 @@ void util_load_bookmarks(GFile               *bookmarks_file,
     gint         row_num = 1;
     GFile       *file;
 
-    thunar_return_if_fail(G_IS_FILE(bookmarks_file));
-    thunar_return_if_fail(g_file_is_native(bookmarks_file));
-    thunar_return_if_fail(foreach_func != NULL);
+    eg_return_if_fail(G_IS_FILE(bookmarks_file));
+    eg_return_if_fail(g_file_is_native(bookmarks_file));
+    eg_return_if_fail(foreach_func != NULL);
 
     /* determine the path to the GTK+ bookmarks file */
     bookmarks_path = g_file_get_path(bookmarks_file);

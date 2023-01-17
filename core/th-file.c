@@ -516,7 +516,7 @@ static GFile* th_file_info_get_location(FileInfo *file_info)
 
 static void th_file_info_changed(FileInfo *file_info)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE(file_info));
+    eg_return_if_fail(THUNAR_IS_FILE(file_info));
 
     ThunarFile *file = THUNAR_FILE(file_info);
 
@@ -626,7 +626,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
 
 static void _th_file_info_clear(ThunarFile *file)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     /* release the current file info */
     if (file->info != NULL)
@@ -678,8 +678,8 @@ static void _th_file_info_clear(ThunarFile *file)
 
 static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
-    thunar_return_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info));
 
     const gchar *target_uri;
     GKeyFile    *key_file;
@@ -861,8 +861,8 @@ ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
 void th_file_get_async(GFile *location, GCancellable *cancellable,
                        ThunarFileGetFunc func, gpointer user_data)
 {
-    thunar_return_if_fail(G_IS_FILE(location));
-    thunar_return_if_fail(func != NULL);
+    eg_return_if_fail(G_IS_FILE(location));
+    eg_return_if_fail(func != NULL);
 
     /* check if we already have a cached version of that file */
     ThunarFile *file = th_file_cache_lookup(location);
@@ -899,8 +899,8 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
 {
     GFile *location = G_FILE(object);
 
-    thunar_return_if_fail(G_IS_FILE(location));
-    thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
+    eg_return_if_fail(G_IS_FILE(location));
+    eg_return_if_fail(G_IS_ASYNC_RESULT(result));
 
 
     /* finish querying the file information */
@@ -2666,7 +2666,7 @@ void th_file_watch(ThunarFile *file)
     ThunarFileWatch *file_watch;
     GError          *error = NULL;
 
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     file_watch = g_object_get_qdata(G_OBJECT(file), _file_watch_quark);
     if (file_watch == NULL)
@@ -2696,7 +2696,7 @@ void th_file_watch(ThunarFile *file)
     else if (G_LIKELY(!file->no_file_watch))
     {
         /* increase watch count */
-        thunar_return_if_fail(G_IS_FILE_MONITOR(file_watch->monitor));
+        eg_return_if_fail(G_IS_FILE_MONITOR(file_watch->monitor));
         file_watch->watch_count++;
     }
 }
@@ -2723,9 +2723,9 @@ static void _th_file_monitor(GFileMonitor *monitor,
     ThunarFile *file = THUNAR_FILE(user_data);
     ThunarFile *other_file;
 
-    thunar_return_if_fail(G_IS_FILE_MONITOR(monitor));
-    thunar_return_if_fail(G_IS_FILE(event_path));
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(G_IS_FILE_MONITOR(monitor));
+    eg_return_if_fail(G_IS_FILE(event_path));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     if (g_file_equal(event_path, file->gfile))
     {
@@ -2843,7 +2843,7 @@ static void _th_file_watch_reconnect(ThunarFile *file)
 
 static void _th_file_monitor_update(GFile *path, GFileMonitorEvent event_type)
 {
-    thunar_return_if_fail(G_IS_FILE(path));
+    eg_return_if_fail(G_IS_FILE(path));
 
     ThunarFile *file = th_file_cache_lookup(path);
 
@@ -2871,7 +2871,7 @@ static void _th_file_reload_parent(ThunarFile *file)
 {
     ThunarFile *parent = NULL;
 
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     if (th_file_has_parent(file))
     {
@@ -2901,7 +2901,7 @@ void th_file_unwatch(ThunarFile *file)
 {
     ThunarFileWatch *file_watch;
 
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     if (G_UNLIKELY(file->no_file_watch))
     {
@@ -2966,7 +2966,7 @@ gboolean th_file_reload(ThunarFile *file)
  **/
 void th_file_reload_idle_unref(ThunarFile *file)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
                     (GSourceFunc) th_file_reload,
@@ -2986,7 +2986,7 @@ void th_file_reload_idle_unref(ThunarFile *file)
  **/
 void th_file_destroy(ThunarFile *file)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     if (!FLAG_IS_SET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION))
     {

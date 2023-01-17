@@ -105,7 +105,7 @@ GList* component_get_selected_files(ThunarComponent *component)
 void component_set_selected_files(ThunarComponent *component,
                                          GList    *selected_files)
 {
-    thunar_return_if_fail(THUNAR_IS_COMPONENT(component));
+    eg_return_if_fail(THUNAR_IS_COMPONENT(component));
 
     THUNAR_COMPONENT_GET_IFACE(component)->set_selected_files(component,
                                                               selected_files);
@@ -120,7 +120,7 @@ void component_set_selected_files(ThunarComponent *component,
  **/
 void component_restore_selection(ThunarComponent *component)
 {
-    thunar_return_if_fail(THUNAR_IS_COMPONENT(component));
+    eg_return_if_fail(THUNAR_IS_COMPONENT(component));
 
     GList *selected_files;
     selected_files = eg_list_copy(component_get_selected_files(component));

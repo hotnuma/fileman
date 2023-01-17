@@ -205,7 +205,7 @@ static void transfer_job_set_property(GObject *object, guint prop_id,
 
 static void _transfer_job_check_pause(TransferJob *job)
 {
-    thunar_return_if_fail(IS_TRANSFERJOB(job));
+    eg_return_if_fail(IS_TRANSFERJOB(job));
 
     while (job_is_paused(THUNAR_JOB(job))
            && !exo_job_is_cancelled(EXO_JOB(job)))
@@ -226,7 +226,7 @@ static void _transfer_job_progress(goffset current_num_bytes,
     gint64             expired_time;
     guint64            transfer_rate;
 
-    thunar_return_if_fail(IS_TRANSFERJOB(job));
+    eg_return_if_fail(IS_TRANSFERJOB(job));
 
     _transfer_job_check_pause(job);
 
@@ -629,11 +629,11 @@ static void _transfer_job_copy_node(TransferJob  *job,
     GFile                *real_target_file = NULL;
     gchar                *base_name;
 
-    thunar_return_if_fail(IS_TRANSFERJOB(job));
-    thunar_return_if_fail(node != NULL && G_IS_FILE(node->source_file));
-    thunar_return_if_fail(target_file == NULL || node->next == NULL);
-    thunar_return_if_fail((target_file == NULL && target_parent_file != NULL) ||(target_file != NULL && target_parent_file == NULL));
-    thunar_return_if_fail(error == NULL || *error == NULL);
+    eg_return_if_fail(IS_TRANSFERJOB(job));
+    eg_return_if_fail(node != NULL && G_IS_FILE(node->source_file));
+    eg_return_if_fail(target_file == NULL || node->next == NULL);
+    eg_return_if_fail((target_file == NULL && target_parent_file != NULL) ||(target_file != NULL && target_parent_file == NULL));
+    eg_return_if_fail(error == NULL || *error == NULL);
 
     /* The caller can either provide a target_file or a target_parent_file, but not both. The toplevel
      * transfer_nodes(for which next is NULL) should be called with target_file, to get proper behavior
@@ -1315,7 +1315,7 @@ static void _transfer_job_freeze_optional(TransferJob *transfer_job)
     gboolean            should_freeze_on_any_other_job;
     gboolean            been_frozen;
 
-    thunar_return_if_fail(IS_TRANSFERJOB(transfer_job));
+    eg_return_if_fail(IS_TRANSFERJOB(transfer_job));
 
     /* no source node list nor target file list */
     if (transfer_job->source_node_list == NULL || transfer_job->target_file_list == NULL)

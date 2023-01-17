@@ -482,10 +482,10 @@ void th_device_mount(ThunarDevice         *device,
 {
     ThunarDeviceOperation *op;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
-    thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
-    thunar_return_if_fail(callback != NULL);
+    eg_return_if_fail(THUNAR_IS_DEVICE(device));
+    eg_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
+    eg_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
+    eg_return_if_fail(callback != NULL);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -523,8 +523,8 @@ static void _th_device_operation_finish(GObject *object, GAsyncResult *result,
     ThunarDeviceOperation *op = user_data;
     GError                *error = NULL;
 
-    thunar_return_if_fail(G_IS_OBJECT(object));
-    thunar_return_if_fail(G_IS_ASYNC_RESULT(result));
+    eg_return_if_fail(G_IS_OBJECT(object));
+    eg_return_if_fail(G_IS_ASYNC_RESULT(result));
 
     /* remove notification */
     app_notify_finish(op->device);
@@ -568,10 +568,10 @@ void th_device_unmount(ThunarDevice         *device,
     ThunarDeviceOperation *op;
     GMount                *mount;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
-    thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
-    thunar_return_if_fail(callback != NULL);
+    eg_return_if_fail(THUNAR_IS_DEVICE(device));
+    eg_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
+    eg_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
+    eg_return_if_fail(callback != NULL);
 
     /* get the mount from the volume or use existing mount */
     if (G_IS_VOLUME(device->device))
@@ -640,10 +640,10 @@ void th_device_eject(ThunarDevice         *device,
     GVolume               *volume;
     GDrive                *drive;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
-    thunar_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
-    thunar_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
-    thunar_return_if_fail(callback != NULL);
+    eg_return_if_fail(THUNAR_IS_DEVICE(device));
+    eg_return_if_fail(G_IS_MOUNT_OPERATION(mount_operation));
+    eg_return_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable));
+    eg_return_if_fail(callback != NULL);
 
     if (G_IS_VOLUME(device->device))
     {
@@ -780,7 +780,7 @@ void th_device_reload_file(ThunarDevice *device)
     ThunarFile *file;
     GFile      *mount_point;
 
-    thunar_return_if_fail(THUNAR_IS_DEVICE(device));
+    eg_return_if_fail(THUNAR_IS_DEVICE(device));
 
     mount_point = th_device_get_root(device);
 

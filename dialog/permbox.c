@@ -629,8 +629,8 @@ static void _permbox_change_group(PermissionBox *chooser, guint32 gid)
     gint       response;
     GList     *file_list;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(chooser->files != NULL);
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(chooser->files != NULL);
 
     /* check if we should operate recursively */
     if (thunar_permissions_chooser_has_directory(chooser))
@@ -715,8 +715,8 @@ static void _permbox_access_changed(PermissionBox *chooser, GtkWidget *combo)
     GtkTreeModel   *model;
     GtkTreeIter     iter;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(GTK_IS_COMBO_BOX(combo));
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(GTK_IS_COMBO_BOX(combo));
 
     /* leave if the active mode is varying */
     active_mode = gtk_combo_box_get_active(GTK_COMBO_BOX(combo));
@@ -798,7 +798,7 @@ static void _permbox_file_changed(PermissionBox *chooser)
     gint               file_modes[3];
     GtkListStore      *access_store;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
 
     /* compare multiple files */
     for(lp = chooser->files; lp != NULL; lp = lp->next)
@@ -987,9 +987,9 @@ static void _permbox_group_changed(PermissionBox *chooser, GtkWidget *combo)
     GtkTreeIter   iter;
     guint32       gid;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(chooser->group_combo == combo);
-    thunar_return_if_fail(GTK_IS_COMBO_BOX(combo));
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(chooser->group_combo == combo);
+    eg_return_if_fail(GTK_IS_COMBO_BOX(combo));
 
     /* verify that we have a valid file */
     if (G_UNLIKELY(chooser->files == NULL))
@@ -1013,9 +1013,9 @@ static void _permbox_program_toggled(PermissionBox *chooser, GtkWidget *button)
 {
     ThunarFileMode mode;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(chooser->program_button == button);
-    thunar_return_if_fail(GTK_IS_TOGGLE_BUTTON(button));
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(chooser->program_button == button);
+    eg_return_if_fail(GTK_IS_TOGGLE_BUTTON(button));
 
     /* verify that we have a valid file */
     if (G_UNLIKELY(chooser->files == NULL))
@@ -1038,10 +1038,10 @@ static void _permbox_fixperm_clicked(PermissionBox *chooser, GtkWidget *button)
     GList         *lp;
     GList          file_list;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(chooser->fixperm_button == button);
-    thunar_return_if_fail(GTK_IS_BUTTON(button));
-    thunar_return_if_fail(thunar_permissions_chooser_has_fixable_directory(chooser));
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(chooser->fixperm_button == button);
+    eg_return_if_fail(GTK_IS_BUTTON(button));
+    eg_return_if_fail(thunar_permissions_chooser_has_fixable_directory(chooser));
 
     /* verify that we have a valid file */
     if (G_UNLIKELY(chooser->files == NULL))
@@ -1126,7 +1126,7 @@ static ThunarJobResponse _permbox_job_ask(PermissionBox *chooser,
 
 static void _permbox_job_cancel(PermissionBox *chooser)
 {
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
 
     /* verify that we have a job to cancel */
     if (G_UNLIKELY(chooser->job == NULL))
@@ -1153,10 +1153,10 @@ static void _permbox_job_error(PermissionBox *chooser,
 {
     GtkWidget *toplevel;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(error != NULL && error->message != NULL);
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(chooser->job == job);
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(error != NULL && error->message != NULL);
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(chooser->job == job);
 
     /* be sure to display the progress bar prior to opening the error dialog */
     gtk_widget_show_now(chooser->job_progress);
@@ -1172,9 +1172,9 @@ static void _permbox_job_error(PermissionBox *chooser,
 
 static void _permbox_job_finished(PermissionBox *chooser, ThunarJob *job)
 {
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(chooser->job == job);
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(chooser->job == job);
 
     /* we can just use job_cancel(), since the job is already done */
     _permbox_job_cancel(chooser);
@@ -1184,9 +1184,9 @@ static void _permbox_job_percent(PermissionBox *chooser,
                                                    gdouble                   percent,
                                                    ThunarJob                *job)
 {
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(chooser->job == job);
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(chooser->job == job);
 
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(chooser->job_progress), percent / 100.0);
     gtk_widget_show(chooser->job_progress);
@@ -1196,9 +1196,9 @@ static void _permbox_job_start(PermissionBox *chooser,
                                                  ThunarJob                *job,
                                                  gboolean                  recursive)
 {
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(chooser->job == NULL);
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(chooser->job == NULL);
 
     /* take a reference to the job and connect signals */
     chooser->job = g_object_ref(job);
@@ -1259,7 +1259,7 @@ void _permbox_set_files(PermissionBox *chooser, GList *files)
 {
     GList *lp;
 
-    thunar_return_if_fail(IS_PERMISSIONBOX(chooser));
+    eg_return_if_fail(IS_PERMISSIONBOX(chooser));
 
     /* check if we already use that file */
     if (G_UNLIKELY(chooser->files == files))

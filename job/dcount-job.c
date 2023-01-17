@@ -129,7 +129,7 @@ static void dcjob_finalize(GObject *object)
 
 static void _dcjob_status_update(DeepCountJob *job)
 {
-    thunar_return_if_fail(IS_DEEPCOUNT_JOB(job));
+    eg_return_if_fail(IS_DEEPCOUNT_JOB(job));
 
     exo_job_emit(EXO_JOB(job),
                   deep_count_signals[STATUS_UPDATE],

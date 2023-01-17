@@ -126,7 +126,7 @@ static void thunar_progress_dialog_finalize(GObject *object)
 
 static void thunar_progress_dialog_shown(ThunarProgressDialog *dialog)
 {
-    thunar_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
 
     /* show the status icon */
     if (dialog->status_icon == NULL)
@@ -192,8 +192,8 @@ static gboolean thunar_progress_dialog_toggled(ThunarProgressDialog *dialog,
 static void thunar_progress_dialog_view_needs_attention(ThunarProgressDialog *dialog,
                                                         ThunarProgressView   *view)
 {
-    thunar_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    thunar_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    eg_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
 
     /* TODO scroll to the view */
 
@@ -206,8 +206,8 @@ static void thunar_progress_dialog_job_finished(ThunarProgressDialog *dialog,
 {
     guint n_views;
 
-    thunar_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    thunar_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    eg_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
 
     /* remove the view from the list */
     dialog->views = g_list_remove(dialog->views, view);
@@ -261,8 +261,8 @@ static void thunar_progress_dialog_update_status_icon(ThunarProgressDialog *dial
     gchar *tooltip_text;
     guint  n_views;
 
-    thunar_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    thunar_return_if_fail(GTK_IS_STATUS_ICON(dialog->status_icon));
+    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    eg_return_if_fail(GTK_IS_STATUS_ICON(dialog->status_icon));
 
     /* determine the number of views now being active */
     n_views = g_list_length(dialog->views);
@@ -328,9 +328,9 @@ void thunar_progress_dialog_add_job(ThunarProgressDialog *dialog,
     GtkWidget *viewport;
     GtkWidget *view;
 
-    thunar_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(g_utf8_validate(title, -1, NULL));
+    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(g_utf8_validate(title, -1, NULL));
 
     view = thunar_progress_view_new_with_job(job);
     thunar_progress_view_set_icon_name(THUNAR_PROGRESS_VIEW(view), icon_name);

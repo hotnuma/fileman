@@ -281,9 +281,9 @@ static void _clipman_owner_changed(GtkClipboard        *clipboard,
                                    GdkEventOwnerChange *event,
                                    ClipboardManager    *manager)
 {
-    thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
-    thunar_return_if_fail(manager->clipboard == clipboard);
+    eg_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(manager->clipboard == clipboard);
 
     UNUSED(event);
 
@@ -305,9 +305,9 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
 {
     ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
 
-    thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
-    thunar_return_if_fail(manager->clipboard == clipboard);
+    eg_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(manager->clipboard == clipboard);
 
     /* reset the "can-paste" state */
     manager->can_paste = FALSE;
@@ -355,14 +355,14 @@ gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *fi
 
 void clipman_copy_files(ClipboardManager *manager, GList *files)
 {
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
 
     _clipman_transfer_files(manager, TRUE, files);
 }
 
 void clipman_cut_files(ClipboardManager *manager, GList *files)
 {
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
 
     _clipman_transfer_files(manager, FALSE, files);
 }
@@ -410,8 +410,8 @@ static void _clipman_transfer_files(ClipboardManager *manager,
 
 static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager)
 {
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
-    thunar_return_if_fail(g_list_find(manager->files, file) != NULL);
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(g_list_find(manager->files, file) != NULL);
 
     /* remove the file from our list */
     manager->files = g_list_remove(manager->files, file);
@@ -429,9 +429,9 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
                                   gpointer         user_data)
 {
     ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
-    thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
-    thunar_return_if_fail(manager->clipboard == clipboard);
+    eg_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(manager->clipboard == clipboard);
 
     /* determine the path list from the file list */
     GList *file_list = th_file_list_to_thunar_g_file_list(manager->files);
@@ -506,9 +506,9 @@ static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data)
 {
     ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
 
-    thunar_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
-    thunar_return_if_fail(manager->clipboard == clipboard);
+    eg_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(manager->clipboard == clipboard);
 
     /* release the pending files */
     for (GList *lp = manager->files; lp != NULL; lp = lp->next)
@@ -526,8 +526,8 @@ static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data)
 void clipman_paste_files(ClipboardManager *manager, GFile *target_file,
                          GtkWidget *widget, GClosure *new_files_closure)
 {
-    thunar_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
-    thunar_return_if_fail(widget == NULL || GTK_IS_WIDGET(widget));
+    eg_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    eg_return_if_fail(widget == NULL || GTK_IS_WIDGET(widget));
 
     /* prepare the paste request */
     ClipboardPasteRequest *request = g_slice_new0(ClipboardPasteRequest);

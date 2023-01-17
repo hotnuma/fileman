@@ -339,9 +339,9 @@ static void _th_folder_file_changed(FileMonitor *file_monitor,
                                     ThunarFile        *file,
                                     ThunarFolder      *folder)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
-    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(IS_FILEMONITOR(file_monitor));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
+    eg_return_if_fail(IS_FILEMONITOR(file_monitor));
 
     /* check if the corresponding file changed... */
     if (G_UNLIKELY(folder->corresponding_file == file))
@@ -359,9 +359,9 @@ static void _th_folder_file_destroyed(FileMonitor *file_monitor,
     GList    *lp;
     gboolean  restart = FALSE;
 
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
-    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(IS_FILEMONITOR(file_monitor));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
+    eg_return_if_fail(IS_FILEMONITOR(file_monitor));
 
     /* check if the corresponding file was destroyed */
     if (G_UNLIKELY(folder->corresponding_file == file))
@@ -463,11 +463,11 @@ static void _th_folder_monitor(GFileMonitor     *monitor,
     GList         list;
     gboolean      restart = FALSE;
 
-    thunar_return_if_fail(G_IS_FILE_MONITOR(monitor));
-    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(folder->monitor == monitor);
-    thunar_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
-    thunar_return_if_fail(G_IS_FILE(event_file));
+    eg_return_if_fail(G_IS_FILE_MONITOR(monitor));
+    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
+    eg_return_if_fail(folder->monitor == monitor);
+    eg_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
+    eg_return_if_fail(G_IS_FILE(event_file));
 
     /* check on which file the event occurred */
     if (!g_file_equal(event_file, th_file_get_file(folder->corresponding_file)))
@@ -709,7 +709,7 @@ gboolean th_folder_has_folder_monitor(const ThunarFolder *folder)
  **/
 void th_folder_load(ThunarFolder *folder, gboolean reload_info)
 {
-    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
+    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
 
     /* reload file info too? */
     folder->reload_info = reload_info;
@@ -744,8 +744,8 @@ void th_folder_load(ThunarFolder *folder, gboolean reload_info)
 
 static void _th_folder_error(ExoJob *job, GError *error, ThunarFolder *folder)
 {
-    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
 
     /* tell the consumer about the problem */
     g_signal_emit(G_OBJECT(folder), _th_folder_signals[ERROR], 0, error);
@@ -753,10 +753,10 @@ static void _th_folder_error(ExoJob *job, GError *error, ThunarFolder *folder)
 
 static void _th_folder_finished(ExoJob *job, ThunarFolder *folder)
 {
-    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
-    thunar_return_if_fail(folder->content_type_idle_id == 0);
+    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
+    eg_return_if_fail(folder->content_type_idle_id == 0);
 
     ThunarFile *file;
     GList      *files;
@@ -877,8 +877,8 @@ static gboolean _th_folder_files_ready(ThunarJob    *job,
 
 static void _th_folder_content_type_loader(ThunarFolder *folder)
 {
-    thunar_return_if_fail(THUNAR_IS_FOLDER(folder));
-    thunar_return_if_fail(folder->content_type_idle_id == 0);
+    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
+    eg_return_if_fail(folder->content_type_idle_id == 0);
 
     /* set the pointer to the start of the list */
     folder->content_type_ptr = folder->files;
@@ -917,7 +917,7 @@ static gboolean _th_folder_content_type_loader_idle(gpointer data)
 
 static void _th_folder_content_type_loader_idle_destroyed(gpointer data)
 {
-    thunar_return_if_fail(THUNAR_IS_FOLDER(data));
+    eg_return_if_fail(THUNAR_IS_FOLDER(data));
 
     THUNAR_FOLDER(data)->content_type_idle_id = 0;
 }

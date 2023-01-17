@@ -240,9 +240,9 @@ static void column_model_get_value(GtkTreeModel *tree_model,
     ColumnModel *column_model = COLUMN_MODEL(tree_model);
     ThunarColumn       column;
 
-    thunar_return_if_fail(IS_COLUMN_MODEL(column_model));
-    thunar_return_if_fail(idx < COLUMN_MODEL_N_COLUMNS);
-    thunar_return_if_fail(iter->stamp == column_model->stamp);
+    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
+    eg_return_if_fail(idx < COLUMN_MODEL_N_COLUMNS);
+    eg_return_if_fail(iter->stamp == column_model->stamp);
 
     /* determine the column from the iterator */
     column = GPOINTER_TO_INT(iter->user_data);
@@ -612,9 +612,9 @@ void column_model_exchange(ColumnModel *column_model, GtkTreeIter *iter1,
     gint         new_order[THUNAR_N_VISIBLE_COLUMNS];
     gint         n;
 
-    thunar_return_if_fail(IS_COLUMN_MODEL(column_model));
-    thunar_return_if_fail(iter1->stamp == column_model->stamp);
-    thunar_return_if_fail(iter2->stamp == column_model->stamp);
+    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
+    eg_return_if_fail(iter1->stamp == column_model->stamp);
+    eg_return_if_fail(iter2->stamp == column_model->stamp);
 
     /* swap the columns */
     column = column_model->order[GPOINTER_TO_INT(iter1->user_data)];
@@ -742,8 +742,8 @@ void column_model_set_column_visible(ColumnModel  *column_model,
     GtkTreeIter  iter;
     gint         n;
 
-    thunar_return_if_fail(IS_COLUMN_MODEL(column_model));
-    thunar_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
+    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
+    eg_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
 
     /* cannot change the visibility of the name column */
     if (G_UNLIKELY(column == THUNAR_COLUMN_NAME))
@@ -812,9 +812,9 @@ void column_model_set_column_width(ColumnModel  *column_model,
                                    ThunarColumn column,
                                    gint         width)
 {
-    thunar_return_if_fail(IS_COLUMN_MODEL(column_model));
-    thunar_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
-    thunar_return_if_fail(width >= 0);
+    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
+    eg_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
+    eg_return_if_fail(width >= 0);
 
     /* check if we have a new width */
     if (G_LIKELY(column_model->width[column] != width))

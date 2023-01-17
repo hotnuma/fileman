@@ -604,7 +604,7 @@ void job_new_files(ThunarJob   *job, const GList *file_list)
     ThunarFile  *file;
     const GList *lp;
 
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
 
     /* check if we have any files */
     if (G_LIKELY(file_list != NULL))
@@ -636,9 +636,9 @@ GList* job_ask_jobs(ThunarJob *job)
 
 void job_set_total_files(ThunarJob *job, GList *total_files)
 {
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(job->priv->total_files == NULL);
-    thunar_return_if_fail(total_files != NULL);
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(job->priv->total_files == NULL);
+    eg_return_if_fail(total_files != NULL);
 
     job->priv->total_files = total_files;
     job->priv->n_total_files = g_list_length(total_files);
@@ -646,7 +646,7 @@ void job_set_total_files(ThunarJob *job, GList *total_files)
 
 void job_set_pausable(ThunarJob *job, gboolean   pausable)
 {
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
     job->priv->pausable = pausable;
 }
 
@@ -658,26 +658,26 @@ gboolean job_is_pausable(ThunarJob *job)
 
 void job_pause(ThunarJob *job)
 {
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
     job->priv->paused = TRUE;
 }
 
 void job_resume(ThunarJob *job)
 {
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
     job->priv->paused = FALSE;
 }
 
 void job_freeze(ThunarJob *job)
 {
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
     job->priv->frozen = TRUE;
     g_signal_emit(EXO_JOB(job), _job_signals[FROZEN], 0);
 }
 
 void job_unfreeze(ThunarJob *job)
 {
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(THUNAR_IS_JOB(job));
     job->priv->frozen = FALSE;
     g_signal_emit(EXO_JOB(job), _job_signals[UNFROZEN], 0);
 }
@@ -701,8 +701,8 @@ void job_processing_file(ThunarJob *job,
     gchar *base_name;
     gchar *display_name;
 
-    thunar_return_if_fail(THUNAR_IS_JOB(job));
-    thunar_return_if_fail(current_file != NULL);
+    eg_return_if_fail(THUNAR_IS_JOB(job));
+    eg_return_if_fail(current_file != NULL);
 
     /* emit only if n_processed is a multiple of 8 */
     if ((n_processed % 8) != 0)

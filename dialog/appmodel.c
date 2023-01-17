@@ -217,8 +217,8 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
 
 static void _appmodel_load(AppChooserModel *model)
 {
-    thunar_return_if_fail(IS_APPCHOOSER_MODEL(model));
-    thunar_return_if_fail(model->content_type != NULL);
+    eg_return_if_fail(IS_APPCHOOSER_MODEL(model));
+    eg_return_if_fail(model->content_type != NULL);
 
     gtk_tree_store_clear(GTK_TREE_STORE(model));
 
@@ -274,9 +274,9 @@ static gint _compare_app_infos(gconstpointer a, gconstpointer b)
 static void _appmodel_append(AppChooserModel *model, const gchar *title,
                              const gchar *icon_name, GList *app_infos)
 {
-    thunar_return_if_fail(IS_APPCHOOSER_MODEL(model));
-    thunar_return_if_fail(title != NULL);
-    thunar_return_if_fail(icon_name != NULL);
+    eg_return_if_fail(IS_APPCHOOSER_MODEL(model));
+    eg_return_if_fail(title != NULL);
+    eg_return_if_fail(icon_name != NULL);
 
     GIcon *icon = g_themed_icon_new(icon_name);
 

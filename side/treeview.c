@@ -570,8 +570,8 @@ static gboolean _treeview_get_show_hidden(TreeView *view)
 static void _treeview_set_show_hidden(TreeView *view,
                                              gboolean        show_hidden)
 {
-    thunar_return_if_fail(IS_TREEVIEW(view));
-    thunar_return_if_fail(THUNAR_IS_TREE_MODEL(view->model));
+    eg_return_if_fail(IS_TREEVIEW(view));
+    eg_return_if_fail(THUNAR_IS_TREE_MODEL(view->model));
 
     /* normalize the value */
     show_hidden = !!show_hidden;
@@ -1006,7 +1006,7 @@ static void _treeview_open_selection(TreeView *view)
 {
     ThunarFile *file;
 
-    thunar_return_if_fail(IS_TREEVIEW(view));
+    eg_return_if_fail(IS_TREEVIEW(view));
 
     /* determine the selected file */
     file = _treeview_get_selected_file(view);
@@ -1142,7 +1142,7 @@ gboolean treeview_delete_selected_files(TreeView *view)
 static void _treeview_action_unlink_selected_folder(TreeView *view,
                                                            gboolean permanently)
 {
-    thunar_return_if_fail(IS_TREEVIEW(view));
+    eg_return_if_fail(IS_TREEVIEW(view));
 
     /* determine the selected file */
 
@@ -1243,7 +1243,7 @@ static void _treeview_select_files(TreeView *view,
 {
     ThunarFile *file = NULL;
 
-    thunar_return_if_fail(IS_TREEVIEW(view));
+    eg_return_if_fail(IS_TREEVIEW(view));
 
     /* check if we have exactly one new path */
     if (G_UNLIKELY(files_to_selected == NULL || files_to_selected->next != NULL))

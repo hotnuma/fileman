@@ -177,7 +177,7 @@ gboolean baseview_get_show_hidden(BaseView *view)
  **/
 void baseview_set_show_hidden(BaseView *view, gboolean show_hidden)
 {
-    thunar_return_if_fail(THUNAR_IS_VIEW(view));
+    eg_return_if_fail(THUNAR_IS_VIEW(view));
 
     BASEVIEW_GET_IFACE(view)->set_show_hidden(view, show_hidden);
 }
@@ -206,8 +206,8 @@ ThunarZoomLevel baseview_get_zoom_level(BaseView *view)
  **/
 void baseview_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
 {
-    thunar_return_if_fail(THUNAR_IS_VIEW(view));
-    thunar_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
+    eg_return_if_fail(THUNAR_IS_VIEW(view));
+    eg_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
     BASEVIEW_GET_IFACE(view)->set_zoom_level(view, zoom_level);
 }
@@ -223,7 +223,7 @@ void baseview_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
  **/
 void baseview_reload(BaseView *view, gboolean reload_info)
 {
-    thunar_return_if_fail(THUNAR_IS_VIEW(view));
+    eg_return_if_fail(THUNAR_IS_VIEW(view));
 
     BASEVIEW_GET_IFACE(view)->reload(view, reload_info);
 }
@@ -272,10 +272,10 @@ void baseview_scroll_to_file(BaseView  *view,
                                 gfloat      row_align,
                                 gfloat      col_align)
 {
-    thunar_return_if_fail(THUNAR_IS_VIEW(view));
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
-    thunar_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
-    thunar_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
+    eg_return_if_fail(THUNAR_IS_VIEW(view));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
+    eg_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
 
     BASEVIEW_GET_IFACE(view)->scroll_to_file(view,
                                                    file,
@@ -294,7 +294,7 @@ GList* baseview_get_selected_files(BaseView *view)
 
 void baseview_set_selected_files(BaseView *view, GList *path_list)
 {
-    thunar_return_if_fail(THUNAR_IS_VIEW(view));
+    eg_return_if_fail(THUNAR_IS_VIEW(view));
 
     BASEVIEW_GET_IFACE(view)->set_selected_files(view, path_list);
 }

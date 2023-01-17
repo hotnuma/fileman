@@ -529,7 +529,7 @@ static void propsdlg_dispose(GObject *object)
 static void propsdlg_finalize(GObject *object)
 {
     PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
-    thunar_return_if_fail(dialog->files == NULL);
+    eg_return_if_fail(dialog->files == NULL);
 
     G_OBJECT_CLASS(propsdlg_parent_class)->finalize(object);
 }
@@ -612,10 +612,10 @@ static gboolean propsdlg_reload(PropertiesDialog *dialog)
 static void _propsdlg_rename_error(ExoJob *job, GError *error,
                                    PropertiesDialog *dialog)
 {
-    thunar_return_if_fail(EXO_IS_JOB(job));
-    thunar_return_if_fail(error != NULL);
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
-    thunar_return_if_fail(g_list_length(dialog->files) == 1);
+    eg_return_if_fail(EXO_IS_JOB(job));
+    eg_return_if_fail(error != NULL);
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(g_list_length(dialog->files) == 1);
 
     /* reset the entry display name to the original name, so the focus
        out event does not trigger the rename again by calling
@@ -630,9 +630,9 @@ static void _propsdlg_rename_error(ExoJob *job, GError *error,
 
 static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
 {
-    thunar_return_if_fail(EXO_IS_JOB(job));
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
-    thunar_return_if_fail(g_list_length(dialog->files) == 1);
+    eg_return_if_fail(EXO_IS_JOB(job));
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(g_list_length(dialog->files) == 1);
 
     g_signal_handlers_disconnect_matched(job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, dialog);
     g_object_unref(job);
@@ -646,7 +646,7 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
     ThunarJob   *job;
     ThunarFile  *file;
 
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
 
     /* check if we still have a valid file and if the user is allowed to rename */
     if (G_UNLIKELY(!gtk_widget_get_sensitive(GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)))
@@ -702,9 +702,9 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     guint64            fs_size;
     gdouble            fs_fraction = 0.0;
 
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
-    thunar_return_if_fail(g_list_length(dialog->files) == 1);
-    thunar_return_if_fail(THUNAR_IS_FILE(dialog->files->data));
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(g_list_length(dialog->files) == 1);
+    eg_return_if_fail(THUNAR_IS_FILE(dialog->files->data));
 
     /* whether the dialog shows a single file or a group of files */
     file = THUNAR_FILE(dialog->files->data);
@@ -952,8 +952,8 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     ThunarFile  *tmp_parent;
     gboolean     has_trashed_files = FALSE;
 
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
-    thunar_return_if_fail(g_list_length(dialog->files) > 1);
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(g_list_length(dialog->files) > 1);
 
     /* update the properties dialog title */
     gtk_window_set_title(GTK_WINDOW(dialog), _("Properties"));
@@ -1100,8 +1100,8 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
 
 static void _propsdlg_update(PropertiesDialog *dialog)
 {
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
-    thunar_return_if_fail(dialog->files != NULL);
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(dialog->files != NULL);
 
     if (dialog->files->next == NULL)
     {
@@ -1141,7 +1141,7 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
     GList      *lp;
     ThunarFile *file;
 
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
 
     /* check if the same lists are used(or null) */
     if (G_UNLIKELY(dialog->files == files))
@@ -1198,8 +1198,8 @@ void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
 {
     GList foo;
 
-    thunar_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
-    thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    eg_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     if (file == NULL)
     {

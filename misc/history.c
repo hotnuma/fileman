@@ -274,8 +274,8 @@ static void _history_go_back(ThunarHistory *history, GFile *goto_file)
     GSList     *lnext;
     ThunarFile *directory;
 
-    thunar_return_if_fail(THUNAR_IS_HISTORY(history));
-    thunar_return_if_fail(G_IS_FILE(goto_file));
+    eg_return_if_fail(THUNAR_IS_HISTORY(history));
+    eg_return_if_fail(G_IS_FILE(goto_file));
 
     /* check if the directory still exists */
     directory = th_file_get(goto_file, NULL);
@@ -344,8 +344,8 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
     GSList     *lp;
     ThunarFile *directory;
 
-    thunar_return_if_fail(THUNAR_IS_HISTORY(history));
-    thunar_return_if_fail(G_IS_FILE(goto_file));
+    eg_return_if_fail(THUNAR_IS_HISTORY(history));
+    eg_return_if_fail(G_IS_FILE(goto_file));
 
     /* check if the directory still exists */
     directory = th_file_get(goto_file, NULL);
@@ -407,7 +407,7 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
 
 void history_action_back(ThunarHistory *history)
 {
-    thunar_return_if_fail(THUNAR_IS_HISTORY(history));
+    eg_return_if_fail(THUNAR_IS_HISTORY(history));
 
     /* go back one step */
     if (history->back_list != NULL)
@@ -418,8 +418,8 @@ static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
 {
     GFile *file;
 
-    thunar_return_if_fail(GTK_IS_MENU_ITEM(item));
-    thunar_return_if_fail(THUNAR_IS_HISTORY(history));
+    eg_return_if_fail(GTK_IS_MENU_ITEM(item));
+    eg_return_if_fail(THUNAR_IS_HISTORY(history));
 
     file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
     if (G_LIKELY(file != NULL))
@@ -428,7 +428,7 @@ static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
 
 void history_action_forward(ThunarHistory *history)
 {
-    thunar_return_if_fail(THUNAR_IS_HISTORY(history));
+    eg_return_if_fail(THUNAR_IS_HISTORY(history));
 
     /* go forward one step */
     if (history->forward_list != NULL)
@@ -439,8 +439,8 @@ static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history)
 {
     GFile *file;
 
-    thunar_return_if_fail(GTK_IS_MENU_ITEM(item));
-    thunar_return_if_fail(THUNAR_IS_HISTORY(history));
+    eg_return_if_fail(GTK_IS_MENU_ITEM(item));
+    eg_return_if_fail(THUNAR_IS_HISTORY(history));
 
     file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
     if (G_LIKELY(file != NULL))
@@ -464,8 +464,8 @@ void history_show_menu(ThunarHistory         *history,
     const gchar       *icon_name;
     gchar             *parse_name;
 
-    thunar_return_if_fail(GTK_IS_WIDGET(parent));
-    thunar_return_if_fail(THUNAR_IS_HISTORY(history));
+    eg_return_if_fail(GTK_IS_WIDGET(parent));
+    eg_return_if_fail(THUNAR_IS_HISTORY(history));
 
     menu = gtk_menu_new();
 

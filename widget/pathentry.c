@@ -1072,8 +1072,8 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
     gchar    *tmp;
     gboolean  is_uri = FALSE;
 
-    thunar_return_if_fail(IS_PATHENTRY(path_entry));
-    thunar_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
+    eg_return_if_fail(IS_PATHENTRY(path_entry));
+    eg_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
 
     file =(current_file != NULL) ? th_file_get_file(current_file) : NULL;
     if (G_UNLIKELY(file == NULL))
@@ -1140,8 +1140,8 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
 void pathentry_set_working_directory(PathEntry *path_entry,
                                      ThunarFile *working_directory)
 {
-    thunar_return_if_fail(IS_PATHENTRY(path_entry));
-    thunar_return_if_fail(working_directory == NULL || THUNAR_IS_FILE(working_directory));
+    eg_return_if_fail(IS_PATHENTRY(path_entry));
+    eg_return_if_fail(working_directory == NULL || THUNAR_IS_FILE(working_directory));
 
     if (G_LIKELY(path_entry->working_directory != NULL))
         g_object_unref(path_entry->working_directory);

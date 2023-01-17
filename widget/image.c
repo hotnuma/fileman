@@ -143,7 +143,7 @@ static void _th_image_update(ThunarImage *image)
     GdkPixbuf         *icon;
     GdkScreen         *screen;
 
-    thunar_return_if_fail(THUNAR_IS_IMAGE(image));
+    eg_return_if_fail(THUNAR_IS_IMAGE(image));
 
     if (THUNAR_IS_FILE(image->priv->file))
     {
@@ -163,9 +163,9 @@ static void _th_image_update(ThunarImage *image)
 static void _th_image_file_changed(FileMonitor *monitor, ThunarFile *file,
                                    ThunarImage *image)
 {
-    thunar_return_if_fail(IS_FILEMONITOR(monitor));
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
-    thunar_return_if_fail(THUNAR_IS_IMAGE(image));
+    eg_return_if_fail(IS_FILEMONITOR(monitor));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_IMAGE(image));
 
     if (file == image->priv->file)
         _th_image_update(image);
@@ -178,7 +178,7 @@ GtkWidget* th_image_new()
 
 void th_image_set_file(ThunarImage *image, ThunarFile *file)
 {
-    thunar_return_if_fail(THUNAR_IS_IMAGE(image));
+    eg_return_if_fail(THUNAR_IS_IMAGE(image));
 
     if (image->priv->file != NULL)
     {

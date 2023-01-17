@@ -477,7 +477,7 @@ void dialog_error(gpointer parent, const GError *error, const gchar  *format, ..
     GList     *children;
     GList     *lp;
 
-    thunar_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* do not display error dialog for already handled errors */
     if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
@@ -913,7 +913,7 @@ static void _dialog_job_ask_replace_callback(GtkWidget *button,
 {
     gint response;
 
-    thunar_return_if_fail(GTK_IS_DIALOG(user_data));
+    eg_return_if_fail(GTK_IS_DIALOG(user_data));
 
     response = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "response-id"));
     gtk_dialog_response(GTK_DIALOG(user_data), response);
@@ -926,8 +926,8 @@ void dialog_job_error(GtkWindow *parent, GError *error)
     GString     *secondary = g_string_sized_new(256);
     GString     *primary = g_string_sized_new(256);
 
-    thunar_return_if_fail(parent == NULL || GTK_IS_WINDOW(parent));
-    thunar_return_if_fail(error != NULL && error->message != NULL);
+    eg_return_if_fail(parent == NULL || GTK_IS_WINDOW(parent));
+    eg_return_if_fail(error != NULL && error->message != NULL);
 
     /* try to separate the message into primary and secondary parts */
     separator = strstr(error->message, ": ");

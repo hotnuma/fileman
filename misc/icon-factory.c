@@ -203,7 +203,7 @@ static void ifactory_dispose(GObject *object)
 {
     IconFactory *factory = ICONFACTORY(object);
 
-    thunar_return_if_fail(IS_ICONFACTORY(factory));
+    eg_return_if_fail(IS_ICONFACTORY(factory));
 
     if (G_UNLIKELY(factory->sweep_timer_id != 0))
         g_source_remove(factory->sweep_timer_id);
@@ -215,7 +215,7 @@ static void ifactory_finalize(GObject *object)
 {
     IconFactory *factory = ICONFACTORY(object);
 
-    thunar_return_if_fail(IS_ICONFACTORY(factory));
+    eg_return_if_fail(IS_ICONFACTORY(factory));
 
     /* clear the icon cache hash table */
     g_hash_table_destroy(factory->icon_cache);
@@ -800,7 +800,7 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
  **/
 void ifactory_clear_pixmap_cache(ThunarFile *file)
 {
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     /* unset the data */
     if (_ifactory_store_quark != 0)

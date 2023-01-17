@@ -232,8 +232,8 @@ static void _appcombo_changed(GtkComboBox *combo_box)
     GAppInfo            *app_info;
     GError              *error = NULL;
 
-    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
-    thunar_return_if_fail(GTK_IS_LIST_STORE(chooser_button->store));
+    eg_return_if_fail(IS_APPCOMBO(chooser_button));
+    eg_return_if_fail(GTK_IS_LIST_STORE(chooser_button->store));
 
     /* verify that we still have a valid file */
     if (G_UNLIKELY(chooser_button->file == NULL))
@@ -280,7 +280,7 @@ static void _appcombo_changed(GtkComboBox *combo_box)
 
 static void _appcombo_popup(AppCombo *chooser_button)
 {
-    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
+    eg_return_if_fail(IS_APPCOMBO(chooser_button));
 
     if (!chooser_button->has_default_application)
     {
@@ -323,7 +323,7 @@ static void _appcombo_chooser_dialog(AppCombo *chooser_button)
     GtkWidget *toplevel;
     GtkWidget *dialog;
 
-    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
+    eg_return_if_fail(IS_APPCOMBO(chooser_button));
 
     /* determine the toplevel window for the chooser */
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser_button));
@@ -359,9 +359,9 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
     gchar       *description;
     guint        i = 0;
 
-    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
-    thunar_return_if_fail(chooser_button->file == file);
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(IS_APPCOMBO(chooser_button));
+    eg_return_if_fail(chooser_button->file == file);
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     /* clear the store */
     gtk_list_store_clear(chooser_button->store);
@@ -467,8 +467,8 @@ GtkWidget* appcombo_new()
 
 void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
 {
-    thunar_return_if_fail(IS_APPCOMBO(chooser_button));
-    thunar_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    eg_return_if_fail(IS_APPCOMBO(chooser_button));
+    eg_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     /* check if we already use that file */
     if (G_UNLIKELY(chooser_button->file == file))

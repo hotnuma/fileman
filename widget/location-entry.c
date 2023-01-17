@@ -295,8 +295,8 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
 {
     GError *error = NULL;
 
-    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
 
     /* check if the file is mounted */
     if (th_file_is_mounted(file))
@@ -341,8 +341,8 @@ static void thunar_location_entry_poke_file_finish(ThunarBrowser *browser,
                                                    GError        *error,
                                                    gpointer       ignored)
 {
-    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(browser));
-    thunar_return_if_fail(THUNAR_IS_FILE(file));
+    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(browser));
+    eg_return_if_fail(THUNAR_IS_FILE(file));
     UNUSED(ignored);
 
     if (error != NULL)
@@ -363,8 +363,8 @@ static void thunar_location_entry_activate(GtkWidget           *path_entry,
                                            ThunarLocationEntry *location_entry)
 {
 
-    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
-    thunar_return_if_fail(location_entry->path_entry == path_entry);
+    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    eg_return_if_fail(location_entry->path_entry == path_entry);
 
     /* determine the current file from the path entry */
     ThunarFile *file =
@@ -421,7 +421,7 @@ static void thunar_location_entry_reload(GtkEntry            *entry,
     UNUSED(entry);
     UNUSED(event);
 
-    thunar_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
 
     if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
     {
