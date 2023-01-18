@@ -228,10 +228,9 @@ static void _appmodel_load(AppChooserModel *model)
 
     /* append them as recommended */
     recommended = g_list_sort(recommended, _sort_app_infos);
-    _appmodel_append(model,
-                          _("Recommended Applications"),
-                          "preferences-desktop-default-applications",
-                          recommended);
+    _appmodel_append(model, _("Recommended Applications"),
+                            "preferences-desktop-default-applications",
+                            recommended);
 
     GList *other = NULL;
 
@@ -249,10 +248,9 @@ static void _appmodel_load(AppChooserModel *model)
     /* append the other applications */
     other = g_list_sort(other, _sort_app_infos);
 
-    _appmodel_append(model,
-                          _("Other Applications"),
-                          "preferences-desktop-default-applications",
-                          other);
+    _appmodel_append(model, _("Other Applications"),
+                            "preferences-desktop-default-applications",
+                            other);
 
     g_list_free_full(recommended, g_object_unref);
     g_list_free_full(all, g_object_unref);
