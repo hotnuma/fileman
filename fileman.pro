@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = fileman
-CONFIG = c11 link_pkgconfig
+CONFIG = c99 link_pkgconfig
 DEFINES = HAVE_CONFIG_H _XOPEN_SOURCE
 
 PKGCONFIG = \
