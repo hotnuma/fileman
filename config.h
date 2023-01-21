@@ -19,7 +19,9 @@
 #define PATH_BSHELL "/bin/sh"
 
 //https://stackoverflow.com/questions/7090998/
+#ifndef UNUSED
 #define UNUSED(x) (void)(x)
+#endif
 
 // Deprecated: xfce 4.18
 #define I_(string) (g_intern_static_string ((string)))
