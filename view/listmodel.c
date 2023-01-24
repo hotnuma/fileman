@@ -2056,7 +2056,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
 
         /* check if we can determine the amount of free space for the volume */
         if (G_LIKELY(file != NULL
-                      && eg_file_get_free_space(th_file_get_file(file), &size, NULL)))
+                      && e_file_get_free_space(th_file_get_file(file), &size, NULL)))
         {
             size_string = _listmodel_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
 

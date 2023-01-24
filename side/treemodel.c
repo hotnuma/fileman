@@ -263,7 +263,7 @@ static void treemodel_init(TreeModel *model)
 
     /* append the computer icon if browsing the computer is supported */
     bool show_computer = false;
-    if (show_computer && eg_vfs_is_uri_scheme_supported("computer"))
+    if (show_computer && e_vfs_is_uri_scheme_supported("computer"))
     {
         system_paths = g_list_append(system_paths,
                                      g_file_new_for_uri("computer://"));
@@ -271,18 +271,18 @@ static void treemodel_init(TreeModel *model)
 
     /* add the home folder to the system paths */
     GFile               *home;
-    home = eg_file_new_for_home();
+    home = e_file_new_for_home();
     system_paths = g_list_append(system_paths, g_object_ref(home));
 
     /* append the trash icon if the trash is supported */
-    if (eg_vfs_is_uri_scheme_supported("trash"))
-        system_paths = g_list_append(system_paths, eg_file_new_for_trash());
+    if (e_vfs_is_uri_scheme_supported("trash"))
+        system_paths = g_list_append(system_paths, e_file_new_for_trash());
 
     /* append the root file system */
-    system_paths = g_list_append(system_paths, eg_file_new_for_root());
+    system_paths = g_list_append(system_paths, e_file_new_for_root());
 
     /* append the network icon if browsing the network is supported */
-    if (eg_vfs_is_uri_scheme_supported("network"))
+    if (e_vfs_is_uri_scheme_supported("network"))
         system_paths = g_list_append(system_paths, g_file_new_for_uri("network://"));
 
     /* append the system defined nodes('Computer', 'Home', 'Trash', 'File System', 'Network') */

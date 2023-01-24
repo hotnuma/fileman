@@ -123,9 +123,9 @@ void component_restore_selection(ThunarComponent *component)
     eg_return_if_fail(THUNAR_IS_COMPONENT(component));
 
     GList *selected_files;
-    selected_files = eg_list_copy(component_get_selected_files(component));
+    selected_files = e_list_copy(component_get_selected_files(component));
     component_set_selected_files(component, selected_files);
-    eg_list_free(selected_files);
+    e_list_free(selected_files);
 }
 
 

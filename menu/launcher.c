@@ -553,7 +553,7 @@ static void launcher_dispose(GObject *object)
     launcher_set_widget(THUNAR_LAUNCHER(launcher), NULL);
 
     /* disconnect from the currently selected files */
-    eg_list_free(launcher->files_to_process);
+    e_list_free(launcher->files_to_process);
     launcher->files_to_process = NULL;
 
     /* unref parent, if any */
@@ -678,7 +678,7 @@ static void launcher_set_selected_files(ThunarComponent *component,
 
     /* disconnect from the previous files to process */
     if (launcher->files_to_process != NULL)
-        eg_list_free(launcher->files_to_process);
+        e_list_free(launcher->files_to_process);
 
     launcher->files_to_process = NULL;
 
@@ -707,7 +707,7 @@ static void launcher_set_selected_files(ThunarComponent *component,
 
     /* if nothing is selected, the current directory is the folder to use for all menus */
     if (launcher->files_are_selected)
-        launcher->files_to_process = eg_list_copy(selected_files);
+        launcher->files_to_process = e_list_copy(selected_files);
     else
         launcher->files_to_process = g_list_append(launcher->files_to_process,
                                                    launcher->current_directory);
@@ -894,7 +894,7 @@ static void _launcher_open_files(ThunarLauncher *launcher,
     applications = g_hash_table_new_full(_launcher_g_app_info_hash,
                                          (GEqualFunc) g_app_info_equal,
                                          (GDestroyNotify) g_object_unref,
-                                         (GDestroyNotify) eg_list_free);
+                                         (GDestroyNotify) e_list_free);
 
     for (lp = files; lp != NULL; lp = lp->next)
     {
@@ -922,11 +922,11 @@ static void _launcher_open_files(ThunarLauncher *launcher,
             if (G_LIKELY(file_list != NULL))
             {
                 /* take a copy of the list as the old one will be dropped by the insert */
-                file_list = eg_list_copy(file_list);
+                file_list = e_list_copy(file_list);
             }
 
             /* append our new URI to the list */
-            file_list = eg_list_append_ref(file_list, th_file_get_file(lp->data));
+            file_list = e_list_append_ref(file_list, th_file_get_file(lp->data));
 
             /*(re)insert the URI list for the application */
             g_hash_table_insert(applications, app_info, file_list);
@@ -972,7 +972,7 @@ static void _launcher_open_paths(GAppInfo       *app_info,
         working_directory = th_file_get_file(launcher->current_directory);
 
     /* try to execute the application with the given URIs */
-    if (!eg_app_info_launch(app_info, working_directory, path_list, G_APP_LAUNCH_CONTEXT(context), &error))
+    if (!e_app_info_launch(app_info, working_directory, path_list, G_APP_LAUNCH_CONTEXT(context), &error))
     {
         /* figure out the appropriate error message */
         n = g_list_length(path_list);
@@ -1071,7 +1071,7 @@ static LauncherPokeData* _launcher_poke_data_new(
 {
     LauncherPokeData *data = g_slice_new0(LauncherPokeData);
 
-    data->files_to_poke = eg_list_copy(files_to_poke);
+    data->files_to_poke = e_list_copy(files_to_poke);
     data->files_poked = NULL;
     data->application_to_use = application_to_use;
 
@@ -1088,8 +1088,8 @@ static void _launcher_poke_data_free(LauncherPokeData *data)
 {
     eg_return_if_fail(data != NULL);
 
-    eg_list_free(data->files_to_poke);
-    eg_list_free(data->files_poked);
+    e_list_free(data->files_to_poke);
+    e_list_free(data->files_poked);
 
     if (data->application_to_use != NULL)
         g_object_unref(data->application_to_use);
@@ -1335,7 +1335,7 @@ static gboolean _launcher_show_trash(ThunarLauncher *launcher)
     return !th_file_is_writable(launcher->parent_folder)
             || (!th_file_is_trashed(launcher->parent_folder)
             && launcher->files_to_process_trashable
-            && eg_vfs_is_uri_scheme_supported("trash"));
+            && e_vfs_is_uri_scheme_supported("trash"));
 }
 
 
@@ -1450,7 +1450,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         return item;
 
     case LAUNCHER_ACTION_CUT:
-        focused_widget = egtk_get_focused_widget();
+        focused_widget = etk_get_focused_widget();
         if (focused_widget && GTK_IS_EDITABLE(focused_widget))
         {
             item = xfce_gtk_image_menu_item_new_from_icon_name(
@@ -1458,7 +1458,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                        N_("Cut the selection"),
                        action_entry->accel_path, G_CALLBACK(gtk_editable_cut_clipboard),
                        G_OBJECT(focused_widget), action_entry->menu_item_icon_name, menu);
-            gtk_widget_set_sensitive(item, egtk_editable_can_cut(GTK_EDITABLE(focused_widget)));
+            gtk_widget_set_sensitive(item, etk_editable_can_cut(GTK_EDITABLE(focused_widget)));
         }
         else
         {
@@ -1474,7 +1474,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         return item;
 
     case LAUNCHER_ACTION_COPY:
-        focused_widget = egtk_get_focused_widget();
+        focused_widget = etk_get_focused_widget();
         if (focused_widget && GTK_IS_EDITABLE(focused_widget))
         {
             item = xfce_gtk_image_menu_item_new_from_icon_name(
@@ -1482,7 +1482,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                        N_("Copy the selection"),
                        action_entry->accel_path,G_CALLBACK(gtk_editable_copy_clipboard),
                        G_OBJECT(focused_widget), action_entry->menu_item_icon_name, menu);
-            gtk_widget_set_sensitive(item, egtk_editable_can_copy(GTK_EDITABLE(focused_widget)));
+            gtk_widget_set_sensitive(item, etk_editable_can_copy(GTK_EDITABLE(focused_widget)));
         }
         else
         {
@@ -1508,7 +1508,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case LAUNCHER_ACTION_PASTE:
 
-        focused_widget = egtk_get_focused_widget();
+        focused_widget = etk_get_focused_widget();
 
         if (focused_widget && GTK_IS_EDITABLE(focused_widget))
         {
@@ -1517,7 +1517,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                        N_("Paste the clipboard"),
                        action_entry->accel_path,G_CALLBACK(gtk_editable_paste_clipboard),
                        G_OBJECT(focused_widget), action_entry->menu_item_icon_name, menu);
-            gtk_widget_set_sensitive(item, egtk_editable_can_paste(GTK_EDITABLE(focused_widget)));
+            gtk_widget_set_sensitive(item, etk_editable_can_paste(GTK_EDITABLE(focused_widget)));
         }
         else
         {
@@ -1930,7 +1930,7 @@ static void _launcher_action_trash_delete(ThunarLauncher *launcher)
 {
     eg_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    if (!eg_vfs_is_uri_scheme_supported("trash"))
+    if (!e_vfs_is_uri_scheme_supported("trash"))
         return;
 
     GdkModifierType event_state;
@@ -2064,7 +2064,7 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
         g_object_unref(G_OBJECT(application));
 
         /* clean up */
-        eg_list_free(files_to_process);
+        e_list_free(files_to_process);
     }
 }
 
@@ -2270,7 +2270,7 @@ void launcher_action_eject(ThunarLauncher *launcher)
     {
         /* prepare a mount operation */
         GMountOperation *mount_operation;
-        mount_operation = eg_mount_operation_new(GTK_WIDGET(launcher->widget));
+        mount_operation = e_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         /* eject */
         th_device_eject(launcher->device_to_process,
@@ -2316,7 +2316,7 @@ void launcher_action_unmount(ThunarLauncher *launcher)
     if (G_LIKELY(launcher->device_to_process != NULL))
     {
         /* prepare a mount operation */
-        mount_operation = eg_mount_operation_new(GTK_WIDGET(launcher->widget));
+        mount_operation = e_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         /* eject */
         th_device_unmount(launcher->device_to_process,
@@ -2495,7 +2495,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
 
     eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
 
-    home_dir = eg_file_new_for_home();
+    home_dir = e_file_new_for_home();
     path = g_get_user_special_dir(G_USER_DIRECTORY_TEMPLATES);
 
     if (G_LIKELY(path != NULL))
@@ -2528,7 +2528,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
     else
     {
         _launcher_create_document_submenu_templates(launcher, submenu, files);
-        eg_list_free(files);
+        e_list_free(files);
     }
 
     xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(submenu));

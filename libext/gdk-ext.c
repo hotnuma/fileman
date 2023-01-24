@@ -39,7 +39,7 @@ static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf);
  * on the pixbuf, which is efficient within Thunar because we also share
  * the pixbufs using the icon cache.
  **/
-void egdk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
+void edk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
                                   gdouble pixbuf_x, gdouble pixbuf_y)
 {
     cairo_surface_t *surface;

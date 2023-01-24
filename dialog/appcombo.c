@@ -380,7 +380,7 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
     {
         /* setup a useful tooltip for the button */
         description = g_content_type_get_description(content_type);
-        egtk_widget_set_tooltip(GTK_WIDGET(chooser_button),
+        etk_widget_set_tooltip(GTK_WIDGET(chooser_button),
                                        _("The selected application is used to open "
                                          "this and other files of type \"%s\"."),
                                        description);
@@ -397,7 +397,7 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
             /* add all possible applications */
             for(lp = app_infos, i = 0; lp != NULL; lp = lp->next, ++i)
             {
-                if (eg_app_info_should_show(lp->data))
+                if (e_app_info_should_show(lp->data))
                 {
                     /* insert the item into the store */
                     gtk_list_store_insert_with_values(chooser_button->store, &iter, i,

@@ -878,9 +878,9 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     /* update the free space(only for folders) */
     if (th_file_is_directory(file))
     {
-        fs_string = eg_file_get_free_space_string(th_file_get_file(file),
+        fs_string = e_file_get_free_space_string(th_file_get_file(file),
                     dialog->file_size_binary);
-        if (eg_file_get_free_space(th_file_get_file(file), &fs_free, &fs_size)
+        if (e_file_get_free_space(th_file_get_file(file), &fs_free, &fs_size)
                 && fs_size > 0)
         {
             /* free disk space fraction */

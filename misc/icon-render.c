@@ -435,7 +435,7 @@ static void irenderer_render(GtkCellRenderer      *renderer,
         g_object_unref(G_OBJECT(clipboard));
 
         /* render the invalid parts of the icon */
-        egdk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
+        edk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
         cairo_paint_with_alpha(cr, alpha);
 
         /* check if we should render an insensitive icon */

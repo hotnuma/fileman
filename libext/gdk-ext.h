@@ -24,8 +24,8 @@
 
 G_BEGIN_DECLS
 
-void egdk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
-                                  gdouble pixbuf_x, gdouble pixbuf_y);
+void edk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
+                                 gdouble pixbuf_x, gdouble pixbuf_y);
 
 G_END_DECLS
 

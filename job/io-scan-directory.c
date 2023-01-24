@@ -61,7 +61,7 @@ GList* io_scan_directory(ThunarJob           *job,
      * https://bugzilla.xfce.org/show_bug.cgi?id=7147
      * for more information */
 
-    if (unlinking && eg_file_is_trashed(file) && !eg_file_is_root(file))
+    if (unlinking && e_file_is_trashed(file) && !e_file_is_root(file))
     {
         return NULL;
     }
@@ -129,13 +129,13 @@ GList* io_scan_directory(ThunarJob           *job,
         {
             /* Prepend the ThunarFile */
             thunar_file = th_file_get_with_info(child_file, info, !is_mounted);
-            files = eg_list_prepend_ref(files, thunar_file);
+            files = e_list_prepend_ref(files, thunar_file);
             g_object_unref(G_OBJECT(thunar_file));
         }
         else
         {
             /* Prepend the GFile */
-            files = eg_list_prepend_ref(files, child_file);
+            files = e_list_prepend_ref(files, child_file);
         }
 
         /* if the child is a directory and we need to recurse ... just do so */
@@ -161,13 +161,13 @@ GList* io_scan_directory(ThunarJob           *job,
     if (G_UNLIKELY(err != NULL))
     {
         g_propagate_error(error, err);
-        eg_list_free(files);
+        e_list_free(files);
         return NULL;
     }
     else if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
     {
         g_propagate_error(error, err);
-        eg_list_free(files);
+        e_list_free(files);
         return NULL;
     }
 

@@ -28,24 +28,24 @@
 #include <th-file.h>
 #include <utils.h>
 
-GFile* eg_file_new_for_home()
+GFile* e_file_new_for_home()
 {
     return g_file_new_for_path(g_get_home_dir());
 }
 
-GFile* eg_file_new_for_root()
+GFile* e_file_new_for_root()
 {
     return g_file_new_for_uri("file:///");
 }
 
-GFile* eg_file_new_for_trash()
+GFile* e_file_new_for_trash()
 {
     return g_file_new_for_uri("trash:///");
 }
 
 
 
-gboolean eg_file_is_root(GFile *file)
+gboolean e_file_is_root(GFile *file)
 {
     GFile   *parent;
     gboolean is_root = TRUE;
@@ -60,27 +60,27 @@ gboolean eg_file_is_root(GFile *file)
     return is_root;
 }
 
-gboolean eg_file_is_trashed(GFile *file)
+gboolean e_file_is_trashed(GFile *file)
 {
     eg_return_val_if_fail(G_IS_FILE(file), FALSE);
     return g_file_has_uri_scheme(file, "trash");
 }
 
-gboolean eg_file_is_home(GFile *file)
+gboolean e_file_is_home(GFile *file)
 {
     GFile   *home;
     gboolean is_home = FALSE;
 
     eg_return_val_if_fail(G_IS_FILE(file), FALSE);
 
-    home = eg_file_new_for_home();
+    home = e_file_new_for_home();
     is_home = g_file_equal(home, file);
     g_object_unref(home);
 
     return is_home;
 }
 
-gboolean eg_file_is_trash(GFile *file)
+gboolean e_file_is_trash(GFile *file)
 {
     char *uri;
     gboolean is_trash = FALSE;
@@ -94,7 +94,7 @@ gboolean eg_file_is_trash(GFile *file)
     return is_trash;
 }
 
-gboolean eg_file_is_computer(GFile *file)
+gboolean e_file_is_computer(GFile *file)
 {
     char *uri;
     gboolean is_computer = FALSE;
@@ -108,7 +108,7 @@ gboolean eg_file_is_computer(GFile *file)
     return is_computer;
 }
 
-gboolean eg_file_is_network(GFile *file)
+gboolean e_file_is_network(GFile *file)
 {
     char *uri;
     gboolean is_network = FALSE;
@@ -122,7 +122,7 @@ gboolean eg_file_is_network(GFile *file)
     return is_network;
 }
 
-GKeyFile* eg_file_query_key_file(GFile        *file,
+GKeyFile* e_file_query_key_file(GFile        *file,
                                        GCancellable *cancellable,
                                        GError       **error)
 {
@@ -159,7 +159,7 @@ GKeyFile* eg_file_query_key_file(GFile        *file,
     }
 }
 
-gchar* eg_file_get_location(GFile *file)
+gchar* e_file_get_location(GFile *file)
 {
     gchar *location;
 
@@ -172,7 +172,7 @@ gchar* eg_file_get_location(GFile *file)
     return location;
 }
 
-gchar* eg_file_get_display_name(GFile *file)
+gchar* e_file_get_display_name(GFile *file)
 {
     gchar *base_name;
     gchar *display_name;
@@ -184,7 +184,7 @@ gchar* eg_file_get_display_name(GFile *file)
     {
         if (strcmp(base_name, "/") == 0)
             display_name = g_strdup(_("File System"));
-        else if (eg_file_is_trash(file))
+        else if (e_file_is_trash(file))
             display_name = g_strdup(_("Trash"));
         else if (g_utf8_validate(base_name, -1, NULL))
             display_name = g_strdup(base_name);
@@ -201,7 +201,7 @@ gchar* eg_file_get_display_name(GFile *file)
     return display_name;
 }
 
-gchar* eg_file_get_display_name_remote(GFile *mount_point)
+gchar* e_file_get_display_name_remote(GFile *mount_point)
 {
     gchar       *scheme;
     gchar       *parse_name;
@@ -274,12 +274,12 @@ gchar* eg_file_get_display_name_remote(GFile *mount_point)
 
     /* never return null */
     if (display_name == NULL)
-        display_name = eg_file_get_display_name(mount_point);
+        display_name = e_file_get_display_name(mount_point);
 
     return display_name;
 }
 
-gboolean eg_vfs_is_uri_scheme_supported(const gchar *scheme)
+gboolean e_vfs_is_uri_scheme_supported(const gchar *scheme)
 {
 
     eg_return_val_if_fail(scheme != NULL && *scheme != '\0', FALSE);
@@ -313,7 +313,7 @@ gboolean eg_vfs_is_uri_scheme_supported(const gchar *scheme)
  *
  * Return value: %TRUE if successfull, else %FALSE.
  **/
-gboolean eg_file_get_free_space(GFile   *file,
+gboolean e_file_get_free_space(GFile   *file,
                                       guint64 *fs_free_return,
                                       guint64 *fs_size_return)
 {
@@ -346,7 +346,7 @@ gboolean eg_file_get_free_space(GFile   *file,
     return success;
 }
 
-gchar* eg_file_get_free_space_string(GFile *file, gboolean file_size_binary)
+gchar* e_file_get_free_space_string(GFile *file, gboolean file_size_binary)
 {
     gchar             *fs_free_str;
     gchar             *fs_size_str;
@@ -356,7 +356,7 @@ gchar* eg_file_get_free_space_string(GFile *file, gboolean file_size_binary)
 
     eg_return_val_if_fail(G_IS_FILE(file), NULL);
 
-    if (eg_file_get_free_space(file, &fs_free, &fs_size)
+    if (e_file_get_free_space(file, &fs_free, &fs_size)
             && fs_size > 0)
     {
         fs_free_str = g_format_size_full(fs_free, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
@@ -379,19 +379,19 @@ GType thunar_g_file_list_get_type()
     if (G_UNLIKELY(type == G_TYPE_INVALID))
     {
         type = g_boxed_type_register_static(I_("ThunarGFileList"),
-                                            (GBoxedCopyFunc) eg_list_copy,
-                                            (GBoxedFreeFunc) eg_list_free);
+                                            (GBoxedCopyFunc) e_list_copy,
+                                            (GBoxedFreeFunc) e_list_free);
     }
 
     return type;
 }
 
-GList* eg_list_copy(GList *list)
+GList* e_list_copy(GList *list)
 {
     return g_list_copy_deep(list, (GCopyFunc)(void(*)(void)) g_object_ref, NULL);
 }
 
-void eg_list_free(GList *list)
+void e_list_free(GList *list)
 {
     g_list_free_full(list, g_object_unref);
 }
@@ -411,7 +411,7 @@ void eg_list_free(GList *list)
  *
  * Return value: the list of #GFile<!---->s or %NULL.
  **/
-GList* eg_file_list_new_from_string(const gchar *string)
+GList* e_file_list_new_from_string(const gchar *string)
 {
     GList  *list = NULL;
     gchar **uris;
@@ -436,7 +436,7 @@ GList* eg_file_list_new_from_string(const gchar *string)
  *
  * Return value: and array of uris.
  **/
-gchar** eg_file_list_to_stringv(GList *list)
+gchar** e_file_list_to_stringv(GList *list)
 {
     gchar **uris;
     guint   n;
@@ -473,7 +473,7 @@ gchar** eg_file_list_to_stringv(GList *list)
  *
  * Return value: A list of #GFile<!---->s of all parent folders. Free the returned list with calling g_object_unref() on each element
  **/
-GList* eg_file_list_get_parents(GList *file_list)
+GList* e_file_list_get_parents(GList *file_list)
 {
     GList    *lp_file_list;
     GList    *lp_parent_folder_list;
@@ -507,7 +507,7 @@ GList* eg_file_list_get_parents(GList *file_list)
     return parent_folder_list;
 }
 
-gboolean eg_app_info_launch(GAppInfo      *info,
+gboolean e_app_info_launch(GAppInfo      *info,
                             GFile         *working_directory,
                             GList         *path_list,
                             GAppLaunchContext *context,
@@ -610,7 +610,7 @@ gboolean eg_app_info_launch(GAppInfo      *info,
     return result;
 }
 
-gboolean eg_app_info_should_show(GAppInfo *info)
+gboolean e_app_info_should_show(GAppInfo *info)
 {
     eg_return_val_if_fail(G_IS_APP_INFO(info), FALSE);
 

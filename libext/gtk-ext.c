@@ -33,7 +33,7 @@
  * accessiblity tools will identify @label as descriptive item for the specified
  * @widget.
  **/
-void egtk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
+void etk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
 {
     AtkRelationSet *relations;
     AtkRelation    *relation;
@@ -55,10 +55,10 @@ void egtk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
  *
  * Conveniance wrapper for thunar_gtk_menu_run_at_event_pointer, to run a menu for the current event
  **/
-void egtk_menu_run(GtkMenu *menu)
+void etk_menu_run(GtkMenu *menu)
 {
     GdkEvent *event = gtk_get_current_event();
-    egtk_menu_run_at_event(menu, event);
+    etk_menu_run_at_event(menu, event);
     gdk_event_free(event);
 }
 
@@ -96,7 +96,7 @@ static void _popup_menu_realized(GtkWidget *menu, gpointer   user_data)
  * not need to take care of destroying the menu later.
  *
  **/
-void egtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
+void etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 {
     GMainLoop *loop;
     gulong     signal_id;
@@ -131,7 +131,7 @@ void egtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 }
 
 /**
- * egtk_widget_set_tooltip:
+ * etk_widget_set_tooltip:
  * @widget : a #GtkWidget for which to set the tooltip.
  * @format : a printf(3)-style format string.
  * @...    : additional arguments for @format.
@@ -139,7 +139,7 @@ void egtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
  * Sets the tooltip for the @widget to a string generated
  * from the @format and the additional arguments in @...<!--->.
  **/
-void egtk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
+void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
 {
     va_list  var_args;
     gchar   *tooltip;
@@ -163,7 +163,7 @@ void egtk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
  * thunar_gtk_get_focused_widget:
  * Return value:(transfer none): currently focused widget or NULL, if there is none.
  **/
-GtkWidget* egtk_get_focused_widget()
+GtkWidget* etk_get_focused_widget()
 {
     GtkApplication *app;
     GtkWindow      *window;
@@ -182,7 +182,7 @@ GtkWidget* egtk_get_focused_widget()
  *
  * Create a mount operation with some defaults.
  **/
-GMountOperation* eg_mount_operation_new(gpointer parent)
+GMountOperation* e_mount_operation_new(gpointer parent)
 {
     GMountOperation *operation;
     GdkScreen       *screen;
@@ -204,10 +204,10 @@ GMountOperation* eg_mount_operation_new(gpointer parent)
  * Return value: TRUE if it's possible to cut text off of a GtkEditable.
  *               FALSE, otherwise.
  **/
-gboolean egtk_editable_can_cut(GtkEditable *editable)
+gboolean etk_editable_can_cut(GtkEditable *editable)
 {
     return gtk_editable_get_editable(editable) &&
-           egtk_editable_can_copy(editable);
+           etk_editable_can_copy(editable);
 }
 
 /**
@@ -216,7 +216,7 @@ gboolean egtk_editable_can_cut(GtkEditable *editable)
  * Return value: TRUE if it's possible to copy text from a GtkEditable.
  *               FALSE, otherwise.
  **/
-gboolean egtk_editable_can_copy(GtkEditable *editable)
+gboolean etk_editable_can_copy(GtkEditable *editable)
 {
     return gtk_editable_get_selection_bounds(editable, NULL,NULL);
 }
@@ -227,7 +227,7 @@ gboolean egtk_editable_can_copy(GtkEditable *editable)
  * Return value: TRUE if it's possible to paste text to a GtkEditable.
  *               FALSE, otherwise.
  **/
-gboolean egtk_editable_can_paste(GtkEditable *editable)
+gboolean etk_editable_can_paste(GtkEditable *editable)
 {
     return gtk_editable_get_editable(editable);
 }

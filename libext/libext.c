@@ -1,13 +1,15 @@
 #include <config.h>
 #include <libext.h>
 
+#include <gtk/gtk.h>
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
 
-// noop -----------------------------------------------------------------------
+
+// noop ------------------------------------------------------------------------
 
 void e_noop()
 {
@@ -23,7 +25,8 @@ gboolean e_noop_true()
   return true;
 }
 
-// string functions -----------------------------------------------------------
+
+// string functions ------------------------------------------------------------
 
 gboolean e_str_looks_like_an_uri(const gchar *str)
 {
@@ -237,16 +240,8 @@ gchar* e_strdup_strftime(const gchar *format, const struct tm *tm)
   return result;
 }
 
-// XFCE Utils -----------------------------------------------------------------
 
-void eg_string_append_quoted(GString *string, const gchar *unquoted)
-{
-  gchar *quoted;
-
-  quoted = g_shell_quote (unquoted);
-  g_string_append (string, quoted);
-  g_free (quoted);
-}
+// Desktop Entry ---------------------------------------------------------------
 
 gchar* e_expand_desktop_entry_field_codes(const gchar *command,
                                           GSList      *uri_list,
@@ -285,7 +280,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
                   file = g_file_new_for_uri (li->data);
                   filename = g_file_get_path (file);
                   if (G_LIKELY (filename != NULL))
-                    eg_string_append_quoted (string, filename);
+                    e_string_append_quoted (string, filename);
 
                   g_object_unref (file);
                   g_free (filename);
@@ -301,7 +296,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
             case 'U':
               for (li = uri_list; li != NULL; li = li->next)
                 {
-                  eg_string_append_quoted (string, li->data);
+                  e_string_append_quoted (string, li->data);
 
                   if (*p == 'u')
                     break;
@@ -314,18 +309,18 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
               if (icon != NULL && *icon != '\0')
                 {
                   g_string_append (string, "--icon ");
-                  eg_string_append_quoted (string, icon);
+                  e_string_append_quoted (string, icon);
                 }
               break;
 
             case 'c':
               if (name != NULL && *name != '\0')
-                eg_string_append_quoted (string, name);
+                e_string_append_quoted (string, name);
               break;
 
             case 'k':
               if (uri != NULL && *uri != '\0')
-                eg_string_append_quoted (string, uri);
+                e_string_append_quoted (string, uri);
               break;
 
             case '%':
@@ -342,6 +337,16 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
   return g_string_free (string, FALSE);
 }
 
-// ---------------------------------
+
+// GString ---------------------------------------------------------------------
+
+void e_string_append_quoted(GString *string, const gchar *unquoted)
+{
+  gchar *quoted;
+
+  quoted = g_shell_quote (unquoted);
+  g_string_append (string, quoted);
+  g_free (quoted);
+}
 
 

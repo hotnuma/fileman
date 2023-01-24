@@ -217,7 +217,7 @@ gchar* th_device_get_name(const ThunarDevice *device)
         mount_point = th_device_get_root(device);
         if (mount_point != NULL)
         {
-            display_name = eg_file_get_display_name_remote(mount_point);
+            display_name = e_file_get_display_name_remote(mount_point);
             g_object_unref(mount_point);
         }
 

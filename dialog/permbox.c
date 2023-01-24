@@ -204,7 +204,7 @@ static void permbox_init(PermissionBox *chooser)
     chooser->user_label = gtk_label_new(_("Unknown"));
     gtk_label_set_xalign(GTK_LABEL(chooser->user_label), 0.0f);
     gtk_box_pack_start(GTK_BOX(hbox), chooser->user_label, TRUE, TRUE, 0);
-    egtk_label_set_a11y_relation(GTK_LABEL(label), chooser->user_label);
+    etk_label_set_a11y_relation(GTK_LABEL(label), chooser->user_label);
     gtk_widget_show(chooser->user_label);
 
     row += 1;
@@ -230,7 +230,7 @@ static void permbox_init(PermissionBox *chooser)
     g_signal_connect_swapped(G_OBJECT(chooser->access_combos[2]), "changed", G_CALLBACK(_permbox_access_changed), chooser);
     gtk_widget_set_hexpand(chooser->access_combos[2], TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->access_combos[2], 1, row, 1, 1);
-    egtk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[2]);
+    etk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[2]);
     gtk_widget_show(chooser->access_combos[2]);
 
     row += 1;
@@ -257,7 +257,7 @@ static void permbox_init(PermissionBox *chooser)
     g_signal_connect_swapped(G_OBJECT(chooser->group_combo), "changed", G_CALLBACK(_permbox_group_changed), chooser);
     gtk_widget_set_hexpand(chooser->group_combo, TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->group_combo, 1, row, 1, 1);
-    egtk_label_set_a11y_relation(GTK_LABEL(label), chooser->group_combo);
+    etk_label_set_a11y_relation(GTK_LABEL(label), chooser->group_combo);
     gtk_widget_show(chooser->group_combo);
 
     row += 1;
@@ -276,7 +276,7 @@ static void permbox_init(PermissionBox *chooser)
     g_signal_connect_swapped(G_OBJECT(chooser->access_combos[1]), "changed", G_CALLBACK(_permbox_access_changed), chooser);
     gtk_widget_set_hexpand(chooser->access_combos[1], TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->access_combos[1], 1, row, 1, 1);
-    egtk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[1]);
+    etk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[1]);
     gtk_widget_show(chooser->access_combos[1]);
 
     row += 1;
@@ -310,7 +310,7 @@ static void permbox_init(PermissionBox *chooser)
     g_signal_connect_swapped(G_OBJECT(chooser->access_combos[0]), "changed", G_CALLBACK(_permbox_access_changed), chooser);
     gtk_widget_set_hexpand(chooser->access_combos[0], TRUE);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->access_combos[0], 1, row, 1, 1);
-    egtk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[0]);
+    etk_label_set_a11y_relation(GTK_LABEL(label), chooser->access_combos[0]);
     gtk_widget_show(chooser->access_combos[0]);
 
     row += 1;
@@ -333,7 +333,7 @@ static void permbox_init(PermissionBox *chooser)
     g_object_bind_property(G_OBJECT(chooser), "mutable", G_OBJECT(chooser->program_button), "sensitive", G_BINDING_SYNC_CREATE);
     g_signal_connect_swapped(G_OBJECT(chooser->program_button), "toggled", G_CALLBACK(_permbox_program_toggled), chooser);
     gtk_grid_attach(GTK_GRID(chooser->grid), chooser->program_button, 1, row, 1, 1);
-    egtk_label_set_a11y_relation(GTK_LABEL(label), chooser->program_button);
+    etk_label_set_a11y_relation(GTK_LABEL(label), chooser->program_button);
     gtk_widget_show(chooser->program_button);
 
     row += 1;

@@ -23,6 +23,8 @@
 
 #include <enum-types.h>
 
+#include <gtk/gtk.h>
+
 #define THUNAR_THREADS_ENTER \
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
     gdk_threads_enter(); \

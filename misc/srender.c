@@ -255,7 +255,7 @@ static void srender_render(GtkCellRenderer      *renderer,
             if (gdk_rectangle_intersect(&clip_area, &icon_area, NULL))
             {
                 /* render the invalid parts of the icon */
-                egdk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
+                edk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
                 cairo_paint_with_alpha(cr, alpha);
             }
 

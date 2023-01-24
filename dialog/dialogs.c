@@ -209,7 +209,7 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
                               gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK));
 
     gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(filename_input), 1, 1, 1, 1);
-    egtk_label_set_a11y_relation(GTK_LABEL(label),
+    etk_label_set_a11y_relation(GTK_LABEL(label),
                                         GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
     gtk_widget_show_all( GTK_WIDGET(filename_input));
 
@@ -335,7 +335,7 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
                               gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK));
 
     gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(filename_input), 1, 1, 1, 1);
-    egtk_label_set_a11y_relation(GTK_LABEL(label),
+    etk_label_set_a11y_relation(GTK_LABEL(label),
                                         GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
     gtk_widget_show_all( GTK_WIDGET(filename_input));
 

@@ -296,7 +296,7 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
         /* insert the program items */
         for (GList *lp = app_infos; lp != NULL; lp = lp->next)
         {
-            if (!eg_app_info_should_show(lp->data))
+            if (!e_app_info_should_show(lp->data))
                 continue;
 
             /* append the tree row with the program data */

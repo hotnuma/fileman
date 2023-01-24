@@ -1319,7 +1319,7 @@ static void _window_create_view(ThunarWindow *window, GtkWidget *view,
 
     /* restore the file selection */
     component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
-    eg_list_free(selected_files);
+    e_list_free(selected_files);
 
     /* release the file references */
     if (G_UNLIKELY(file != NULL))
@@ -1389,7 +1389,7 @@ static void _window_action_open_home(ThunarWindow *window)
     eg_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* determine the path to the home directory */
-    home = eg_file_new_for_home();
+    home = e_file_new_for_home();
 
     /* determine the file for the home directory */
     home_file = th_file_get(home, &error);
@@ -1682,7 +1682,7 @@ void window_set_current_directory(ThunarWindow *window,
         }
 
         _window_history_changed(window);
-        gtk_widget_set_sensitive(window->toolbar_item_parent, !eg_file_is_root(th_file_get_file(current_directory)));
+        gtk_widget_set_sensitive(window->toolbar_item_parent, !e_file_is_root(th_file_get_file(current_directory)));
     }
 
     /* tell everybody that we have a new "current-directory",

@@ -547,7 +547,7 @@ static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
     gtk_widget_show(item);
 
     /* run the menu(takes over the floating of menu) */
-    egtk_menu_run(GTK_MENU(menu));
+    etk_menu_run(GTK_MENU(menu));
 
     /* clean up */
     g_object_unref(app_info);
@@ -621,13 +621,13 @@ static void _appchooser_update_header(AppChooserDialog *dialog)
         g_free(text);
 
         /* update the "Browse..." tooltip */
-        egtk_widget_set_tooltip(dialog->custom_button,
+        etk_widget_set_tooltip(dialog->custom_button,
                                        _("Browse the file system to select an "
                                          "application to open files of type \"%s\"."),
                                        description);
 
         /* update the "Use as default for this kind of file" tooltip */
-        egtk_widget_set_tooltip(dialog->default_button,
+        etk_widget_set_tooltip(dialog->default_button,
                                        _("Change the default application for files "
                                          "of type \"%s\" to the selected application."),
                                        description);
@@ -811,7 +811,7 @@ static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dial
     if (gtk_dialog_run(GTK_DIALOG(chooser)) == GTK_RESPONSE_ACCEPT)
     {
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
-        filename_escaped = eg_strescape(filename);
+        filename_escaped = e_strescape(filename);
         gtk_entry_set_text(GTK_ENTRY(dialog->custom_entry), filename_escaped);
         g_free(filename_escaped);
         g_free(filename);

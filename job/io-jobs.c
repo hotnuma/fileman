@@ -110,7 +110,7 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
         {
             /* none of the handlers took over the file list, so it's up to us
              * to destroy it */
-            eg_list_free(file_list);
+            e_list_free(file_list);
         }
     }
 
@@ -495,7 +495,7 @@ static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
         else
             g_propagate_error(error, err);
 
-        eg_list_free(file_list);
+        e_list_free(file_list);
         return FALSE;
     }
 
@@ -510,7 +510,7 @@ static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
         g_assert(G_IS_FILE(lp->data));
 
         /* skip root folders which cannot be deleted anyway */
-        if (eg_file_is_root(lp->data))
+        if (e_file_is_root(lp->data))
             continue;
 
         /* update progress information */
@@ -569,7 +569,7 @@ again:
     }
 
     /* release the file list */
-    eg_list_free(file_list);
+    e_list_free(file_list);
 
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return FALSE;
@@ -596,7 +596,7 @@ static GList* _io_collect_nofollow(ThunarJob *job, GList *base_file_list,
                           TRUE, unlinking, FALSE, &err);
 
         /* prepend the new files to the existing list */
-        file_list = eg_list_prepend_ref(file_list, lp->data);
+        file_list = e_list_prepend_ref(file_list, lp->data);
         file_list = g_list_concat(child_file_list, file_list);
     }
 
@@ -609,7 +609,7 @@ static GList* _io_collect_nofollow(ThunarJob *job, GList *base_file_list,
             g_propagate_error(error, err);
 
         /* release the collected files */
-        eg_list_free(file_list);
+        e_list_free(file_list);
 
         return NULL;
     }
@@ -701,7 +701,7 @@ static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
             /* queue the file for the folder update unless it was skipped */
             if (sp->data != real_target_file)
             {
-                new_files_list = eg_list_prepend_ref(new_files_list,
+                new_files_list = e_list_prepend_ref(new_files_list,
                                  real_target_file);
 
             }
@@ -713,14 +713,14 @@ static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
 
     if (err != NULL)
     {
-        eg_list_free(new_files_list);
+        e_list_free(new_files_list);
         g_propagate_error(error, err);
         return FALSE;
     }
     else
     {
         job_new_files(THUNAR_JOB(job), new_files_list);
-        eg_list_free(new_files_list);
+        e_list_free(new_files_list);
         return TRUE;
     }
 }
@@ -1033,7 +1033,7 @@ static gboolean _io_chown(ThunarJob *job, GArray *param_values, GError **error)
     if (recursive)
         file_list = _io_collect_nofollow(job, file_list, FALSE, &err);
     else
-        file_list = eg_list_copy(file_list);
+        file_list = e_list_copy(file_list);
 
     if (err != NULL)
     {
@@ -1105,7 +1105,7 @@ retry_chown:
     }
 
     /* release the file list */
-    eg_list_free(file_list);
+    e_list_free(file_list);
 
     if (err != NULL)
     {
@@ -1173,7 +1173,7 @@ static gboolean _io_chmod(ThunarJob *job, GArray *param_values, GError **error)
     if (recursive)
         file_list = _io_collect_nofollow(job, file_list, FALSE, &err);
     else
-        file_list = eg_list_copy(file_list);
+        file_list = e_list_copy(file_list);
 
     if (err != NULL)
     {
@@ -1254,7 +1254,7 @@ retry_chown:
     }
 
     /* release the file list */
-    eg_list_free(file_list);
+    e_list_free(file_list);
 
     if (err != NULL)
     {

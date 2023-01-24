@@ -417,7 +417,7 @@ static void application_shutdown(GApplication *gapp)
     prefs_cleanup();
 
     /* unqueue all files waiting to be processed */
-    eg_list_free(application->files_to_launch);
+    e_list_free(application->files_to_launch);
 
     /* save the current accel map */
     if (G_UNLIKELY(application->accel_map_save_id != 0))
@@ -627,7 +627,7 @@ static void _application_collect_and_launch(
     for (lp = g_list_last(source_file_list); err == NULL && lp != NULL; lp = lp->prev)
     {
         /* verify that we're not trying to collect a root node */
-        if (G_UNLIKELY(eg_file_is_root(lp->data)))
+        if (G_UNLIKELY(e_file_is_root(lp->data)))
         {
             /* tell the user that we cannot perform the requested operation */
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s", g_strerror(EINVAL));
@@ -639,7 +639,7 @@ static void _application_collect_and_launch(
             g_free(base_name);
 
             /* add to the target file list */
-            target_file_list = eg_list_prepend_ref(target_file_list, file);
+            target_file_list = e_list_prepend_ref(target_file_list, file);
             g_object_unref(file);
         }
     }
@@ -661,7 +661,7 @@ static void _application_collect_and_launch(
     }
 
     /* release the target path list */
-    eg_list_free(target_file_list);
+    e_list_free(target_file_list);
 }
 
 static void _application_launch_finished(ThunarJob  *job,
@@ -726,9 +726,9 @@ static void _application_launch(Application *application,
     job =(*launcher)(source_file_list, target_file_list);
 
     if (update_source_folders)
-        parent_folder_list = g_list_concat(parent_folder_list, eg_file_list_get_parents(source_file_list));
+        parent_folder_list = g_list_concat(parent_folder_list, e_file_list_get_parents(source_file_list));
     if (update_target_folders)
-        parent_folder_list = g_list_concat(parent_folder_list, eg_file_list_get_parents(target_file_list));
+        parent_folder_list = g_list_concat(parent_folder_list, e_file_list_get_parents(target_file_list));
 
     /* connect a callback to instantly refresh the parent folders after the operation finished */
     g_signal_connect(G_OBJECT(job), "finished",
@@ -1169,7 +1169,7 @@ static void _application_process_files_finish(ThunarBrowser  *browser,
         }
 
         /* stop processing files */
-        eg_list_free(application->files_to_launch);
+        e_list_free(application->files_to_launch);
         application->files_to_launch = NULL;
     }
     else
@@ -1303,7 +1303,7 @@ gboolean application_process_filenames(Application *application,
                          _("Failed to open \"%s\": %s"), filenames[n], derror->message);
             g_error_free(derror);
 
-            eg_list_free(file_list);
+            e_list_free(file_list);
 
             return FALSE;
         }
@@ -1451,7 +1451,7 @@ void application_move_into(Application *application,
     eg_return_if_fail(target_file != NULL);
 
     /* launch the appropriate operation depending on the target file */
-    if (eg_file_is_trashed(target_file))
+    if (e_file_is_trashed(target_file))
     {
         application_trash(application, parent, source_file_list);
     }
@@ -1510,7 +1510,7 @@ void application_unlink_files(Application *application,
     for (lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
     {
         /* prepend the path to the path list */
-        path_list = eg_list_prepend_ref(path_list, th_file_get_file(lp->data));
+        path_list = e_list_prepend_ref(path_list, th_file_get_file(lp->data));
 
         /* permanently delete if at least one of the file is not a local
          * file(e.g. resides in the trash) or cannot be trashed */
@@ -1587,7 +1587,7 @@ void application_unlink_files(Application *application,
     }
 
     /* release the path list */
-    eg_list_free(path_list);
+    e_list_free(path_list);
 }
 
 static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
@@ -1735,7 +1735,7 @@ void application_empty_trash(Application *application,
         /* fake a path list with only the trash root(the root
          * folder itself will never be unlinked, so this is safe)
          */
-        file_list.data = eg_file_new_for_trash();
+        file_list.data = e_file_new_for_trash();
         file_list.next = NULL;
         file_list.prev = NULL;
 
@@ -1792,8 +1792,8 @@ void application_restore_files(Application *application,
         /* TODO we might have to distinguish between URIs and paths here */
         target_path = g_file_new_for_commandline_arg(original_uri);
 
-        source_path_list = eg_list_append_ref(source_path_list, th_file_get_file(lp->data));
-        target_path_list = eg_list_append_ref(target_path_list, target_path);
+        source_path_list = e_list_append_ref(source_path_list, th_file_get_file(lp->data));
+        target_path_list = e_list_append_ref(target_path_list, target_path);
 
         g_object_unref(target_path);
     }
@@ -1814,8 +1814,8 @@ void application_restore_files(Application *application,
     }
 
     /* free path lists */
-    eg_list_free(source_path_list);
-    eg_list_free(target_path_list);
+    e_list_free(source_path_list);
+    e_list_free(target_path_list);
 }
 
 

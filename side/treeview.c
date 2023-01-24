@@ -350,7 +350,7 @@ static void treeview_finalize(GObject *object)
     TreeView *view = TREEVIEW(object);
 
     /* release drop path list(if drag_leave wasn't called) */
-    eg_list_free(view->drop_file_list);
+    e_list_free(view->drop_file_list);
 
     /* be sure to cancel the cursor idle source */
     if (G_UNLIKELY(view->cursor_idle_id != 0))
@@ -902,9 +902,9 @@ static void _treeview_context_menu(TreeView *view,
 
         g_list_free(files);
 
-        if (eg_file_is_trash(th_file_get_file(file))
-            || eg_file_is_computer(th_file_get_file(file))
-            || eg_file_is_network(th_file_get_file(file)))
+        if (e_file_is_trash(th_file_get_file(file))
+            || e_file_is_computer(th_file_get_file(file))
+            || e_file_is_network(th_file_get_file(file)))
         {
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN, TRUE);
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN_IN_WINDOW, TRUE);
@@ -960,7 +960,7 @@ static void _treeview_context_menu(TreeView *view,
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
     window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window),
                                                       GTK_MENU(context_menu));
-    egtk_menu_run(GTK_MENU(context_menu));
+    etk_menu_run(GTK_MENU(context_menu));
 
     if (G_UNLIKELY(device != NULL))
         g_object_unref(G_OBJECT(device));
@@ -1105,7 +1105,7 @@ gboolean treeview_delete_selected_files(TreeView *view)
 {
     eg_return_val_if_fail(IS_TREEVIEW(view), FALSE);
 
-    if (!eg_vfs_is_uri_scheme_supported("trash"))
+    if (!e_vfs_is_uri_scheme_supported("trash"))
         return TRUE;
 
     /* Check if there is a user defined accelerator for the delete action,
@@ -1526,8 +1526,8 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(
         return NULL;
 
     /* get GFiles for special toplevel items */
-    home = eg_file_new_for_home();
-    root = eg_file_new_for_root();
+    home = e_file_new_for_home();
+    root = e_file_new_for_root();
 
     /* we prefer certain toplevel items to others */
     if (th_file_is_gfile_ancestor(file, home))
@@ -1619,7 +1619,7 @@ static void treeview_drag_data_received(GtkWidget        *widget,
     {
         /* extract the URI list from the selection data(if valid) */
         if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0)
-            view->drop_file_list = eg_file_list_new_from_string((const gchar *) gtk_selection_data_get_data(selection_data));
+            view->drop_file_list = e_file_list_new_from_string((const gchar *) gtk_selection_data_get_data(selection_data));
 
         /* reset the state */
         view->drop_data_ready = TRUE;
@@ -1758,7 +1758,7 @@ static void treeview_drag_leave(GtkWidget      *widget,
     /* reset the "drop data ready" status and free the URI list */
     if (G_LIKELY(view->drop_data_ready))
     {
-        eg_list_free(view->drop_file_list);
+        e_list_free(view->drop_file_list);
         view->drop_data_ready = FALSE;
         view->drop_file_list = NULL;
     }

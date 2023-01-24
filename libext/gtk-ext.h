@@ -23,20 +23,20 @@
 
 G_BEGIN_DECLS
 
-GMountOperation* eg_mount_operation_new(gpointer parent);
+GMountOperation* e_mount_operation_new(gpointer parent);
 
-GtkWidget*  egtk_get_focused_widget();
-void    egtk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
-                                G_GNUC_PRINTF (2, 3);
+GtkWidget*  etk_get_focused_widget();
+void        etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
+                                   G_GNUC_PRINTF (2, 3);
 
-void    egtk_label_set_a11y_relation(GtkLabel *label, GtkWidget *widget);
+void        etk_label_set_a11y_relation(GtkLabel *label, GtkWidget *widget);
 
-void    egtk_menu_run(GtkMenu *menu);
-void    egtk_menu_run_at_event(GtkMenu *menu, GdkEvent *event);
+void        etk_menu_run(GtkMenu *menu);
+void        etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event);
 
-gboolean    egtk_editable_can_cut(GtkEditable *editable);
-gboolean    egtk_editable_can_copy(GtkEditable *editable);
-gboolean    egtk_editable_can_paste(GtkEditable *editable);
+gboolean    etk_editable_can_cut(GtkEditable *editable);
+gboolean    etk_editable_can_copy(GtkEditable *editable);
+gboolean    etk_editable_can_paste(GtkEditable *editable);
 
 G_END_DECLS
 

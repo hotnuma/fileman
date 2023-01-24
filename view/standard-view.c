@@ -742,13 +742,13 @@ static void standard_view_finalize(GObject *object)
         g_object_unref(G_OBJECT(standard_view->priv->scroll_to_file));
 
     /* release the selected_files list(if any) */
-    eg_list_free(standard_view->priv->selected_files);
+    e_list_free(standard_view->priv->selected_files);
 
     /* release the drag path list(just in case the drag-end wasn't fired before) */
-    eg_list_free(standard_view->priv->drag_g_file_list);
+    e_list_free(standard_view->priv->drag_g_file_list);
 
     /* release the drop path list(just in case the drag-leave wasn't fired before) */
-    eg_list_free(standard_view->priv->drop_file_list);
+    e_list_free(standard_view->priv->drop_file_list);
 
     /* release the history */
     g_object_unref(standard_view->priv->history);
@@ -768,7 +768,7 @@ static void standard_view_finalize(GObject *object)
     }
 
     /* drop any remaining "new-files" paths */
-    eg_list_free(standard_view->priv->new_files_path_list);
+    e_list_free(standard_view->priv->new_files_path_list);
 
     /* disconnect from the list model */
     g_signal_handlers_disconnect_matched(G_OBJECT(standard_view->model), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, standard_view);
@@ -1324,7 +1324,7 @@ static void standard_view_set_selected_files_component(ThunarComponent *componen
     /* release the previous selected files list(if any) */
     if (G_UNLIKELY(standard_view->priv->selected_files != NULL))
     {
-        eg_list_free(standard_view->priv->selected_files);
+        e_list_free(standard_view->priv->selected_files);
         standard_view->priv->selected_files = NULL;
     }
 
@@ -1332,7 +1332,7 @@ static void standard_view_set_selected_files_component(ThunarComponent *componen
     if (baseview_get_loading(BASEVIEW(standard_view)))
     {
         /* remember a copy of the list for later */
-        standard_view->priv->selected_files = eg_list_copy(selected_files);
+        standard_view->priv->selected_files = e_list_copy(selected_files);
     }
     else
     {
@@ -1503,7 +1503,7 @@ static void standard_view_set_loading(StandardView *standard_view,
         _standard_view_new_files(standard_view, new_files_path_list);
 
         /* cleanup */
-        eg_list_free(new_files_path_list);
+        e_list_free(new_files_path_list);
     }
 
     /* check if we're done loading */
@@ -1517,7 +1517,7 @@ static void standard_view_set_loading(StandardView *standard_view,
         component_set_selected_files(THUNAR_COMPONENT(standard_view), selected_files);
 
         /* cleanup */
-        eg_list_free(selected_files);
+        e_list_free(selected_files);
     }
 
     /* notify listeners */
@@ -1542,7 +1542,7 @@ static void _standard_view_new_files(StandardView *standard_view,
     /* release the previous "new-files" paths(if any) */
     if (G_UNLIKELY(standard_view->priv->new_files_path_list != NULL))
     {
-        eg_list_free(standard_view->priv->new_files_path_list);
+        e_list_free(standard_view->priv->new_files_path_list);
         standard_view->priv->new_files_path_list = NULL;
     }
 
@@ -1550,7 +1550,7 @@ static void _standard_view_new_files(StandardView *standard_view,
     if (G_UNLIKELY(standard_view->loading))
     {
         /* schedule the "new-files" paths for later processing */
-        standard_view->priv->new_files_path_list = eg_list_copy(path_list);
+        standard_view->priv->new_files_path_list = e_list_copy(path_list);
     }
     else if (G_LIKELY(path_list != NULL))
     {
@@ -1585,7 +1585,7 @@ static void _standard_view_new_files(StandardView *standard_view,
             /* thunar files are not created yet, try again later because we know
              * some of them belong in this directory, so eventually they
              * will get a ThunarFile */
-            standard_view->priv->new_files_path_list = eg_list_copy(path_list);
+            standard_view->priv->new_files_path_list = e_list_copy(path_list);
         }
     }
 
@@ -1814,13 +1814,13 @@ void standard_view_context_menu(StandardView *standard_view)
     /* if there is a drag_timer_event(long press), we use it */
     if (standard_view->priv->drag_timer_event != NULL)
     {
-        egtk_menu_run_at_event(GTK_MENU(context_menu), standard_view->priv->drag_timer_event);
+        etk_menu_run_at_event(GTK_MENU(context_menu), standard_view->priv->drag_timer_event);
         gdk_event_free(standard_view->priv->drag_timer_event);
         standard_view->priv->drag_timer_event = NULL;
     }
     else
     {
-        egtk_menu_run(GTK_MENU(context_menu));
+        etk_menu_run(GTK_MENU(context_menu));
     }
 
     g_list_free_full(selected_items,(GDestroyNotify) gtk_tree_path_free);
@@ -1933,7 +1933,7 @@ void standard_view_selection_changed(StandardView *standard_view)
     }
 
     /* release the previously selected files */
-    eg_list_free(standard_view->priv->selected_files);
+    e_list_free(standard_view->priv->selected_files);
 
     /* determine the new list of selected files(replacing GtkTreePath's with ThunarFile's) */
     selected_files =(*STANDARD_VIEW_GET_CLASS(standard_view)->get_selected_items)(standard_view);
@@ -2341,7 +2341,7 @@ static ThunarFile* _standard_view_get_fallback_directory(
     if (new_directory == NULL)
     {
         /* fall-back to the home directory */
-        path = eg_file_new_for_home();
+        path = e_file_new_for_home();
         new_directory = th_file_get(path, &error);
         g_object_unref(path);
     }
@@ -2541,7 +2541,7 @@ static void _standard_view_drag_begin(GtkWidget *view, GdkDragContext *context,
     gint        size;
 
     /* release the drag path list(just in case the drag-end wasn't fired before) */
-    eg_list_free(standard_view->priv->drag_g_file_list);
+    e_list_free(standard_view->priv->drag_g_file_list);
 
     /* query the list of selected URIs */
     standard_view->priv->drag_g_file_list = th_file_list_to_thunar_g_file_list(standard_view->priv->selected_files);
@@ -2579,7 +2579,7 @@ static void _standard_view_drag_data_get(GtkWidget          *view,
     /* set the URI list for the drag selection */
     if (standard_view->priv->drag_g_file_list != NULL)
     {
-        uris = eg_file_list_to_stringv(standard_view->priv->drag_g_file_list);
+        uris = e_file_list_to_stringv(standard_view->priv->drag_g_file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
     }
@@ -2607,7 +2607,7 @@ static void _standard_view_drag_end(GtkWidget          *view,
         g_source_remove(standard_view->priv->drag_scroll_timer_id);
 
     /* release the list of dragged URIs */
-    eg_list_free(standard_view->priv->drag_g_file_list);
+    e_list_free(standard_view->priv->drag_g_file_list);
     standard_view->priv->drag_g_file_list = NULL;
 }
 
@@ -2640,7 +2640,7 @@ static void _standard_view_drag_leave(GtkWidget          *widget,
     /* reset the "drop data ready" status and free the URI list */
     if (G_LIKELY(standard_view->priv->drop_data_ready))
     {
-        eg_list_free(standard_view->priv->drop_file_list);
+        e_list_free(standard_view->priv->drop_file_list);
         standard_view->priv->drop_file_list = NULL;
         standard_view->priv->drop_data_ready = FALSE;
     }
@@ -2860,7 +2860,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
     {
         /* extract the URI list from the selection data(if valid) */
         if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0)
-            standard_view->priv->drop_file_list = eg_file_list_new_from_string((gchar *) gtk_selection_data_get_data(selection_data));
+            standard_view->priv->drop_file_list = e_file_list_new_from_string((gchar *) gtk_selection_data_get_data(selection_data));
 
         /* reset the state */
         standard_view->priv->drop_data_ready = TRUE;

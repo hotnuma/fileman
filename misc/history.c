@@ -510,11 +510,11 @@ void history_show_menu(ThunarHistory         *history,
         if (image == NULL)
         {
             /* some custom likely alternatives */
-            if (eg_file_is_home(lp->data))
+            if (e_file_is_home(lp->data))
                 icon_name = "user-home";
             else if (!g_file_has_uri_scheme(lp->data, "file"))
                 icon_name = "folder-remote";
-            else if (eg_file_is_root(lp->data))
+            else if (e_file_is_root(lp->data))
                 icon_name = "drive-harddisk";
             else
                 icon_name = "folder";
@@ -537,7 +537,7 @@ void history_show_menu(ThunarHistory         *history,
     g_object_unref(G_OBJECT(icon_factory));
 
     /* run the menu(takes over the floating of menu) */
-    egtk_menu_run(GTK_MENU(menu));
+    etk_menu_run(GTK_MENU(menu));
 }
 
 ThunarHistory* history_copy(ThunarHistory *history)

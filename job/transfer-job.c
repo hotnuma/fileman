@@ -160,7 +160,7 @@ static void transfer_job_finalize(GObject *object)
     if (job->target_device_fs_id != NULL)
         g_free(job->target_device_fs_id);
 
-    eg_list_free(job->target_file_list);
+    e_list_free(job->target_file_list);
 
     G_OBJECT_CLASS(transfer_job_parent_class)->finalize(object);
 }
@@ -323,7 +323,7 @@ static gboolean _transfer_job_collect_node(TransferJob *job, TransferNode *node,
         }
 
         /* release the child files */
-        eg_list_free(file_list);
+        e_list_free(file_list);
     }
 
     /* release file info */
@@ -707,7 +707,7 @@ retry_copy:
                 if (G_LIKELY(target_file_list_return != NULL))
                 {
                     *target_file_list_return =
-                        eg_list_prepend_ref(*target_file_list_return,
+                        e_list_prepend_ref(*target_file_list_return,
                                                     real_target_file);
                 }
 
@@ -1041,7 +1041,7 @@ static gboolean _transfer_job_move_file(ExoJob         *job,
         if (move_successful)
         {
             /* add the target file to the new files list */
-            *new_files_list_p = eg_list_prepend_ref(*new_files_list_p, tp->data);
+            *new_files_list_p = e_list_prepend_ref(*new_files_list_p, tp->data);
         }
 
         /* release source and target files */
@@ -1415,7 +1415,7 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
 
         /* check if we are moving a file out of the trash */
         if (transfer_job->type == TRANSFERJOB_MOVE
-                && eg_file_is_trashed(node->source_file))
+                && e_file_is_trashed(node->source_file))
         {
             if (!_transfer_job_prepare_untrash_file(job, info, tp->data, &err))
                 break;
@@ -1482,7 +1482,7 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
     else
     {
         job_new_files(THUNAR_JOB(job), new_files_list);
-        eg_list_free(new_files_list);
+        e_list_free(new_files_list);
         return TRUE;
     }
 }
@@ -1533,7 +1533,7 @@ ThunarJob* transfer_job_new(GList *source_node_list, GList *target_file_list,
             sp = sp->next, tp = tp->next)
     {
         /* make sure we don't transfer root directories. this should be prevented in the GUI */
-        if (G_UNLIKELY(eg_file_is_root(sp->data) || eg_file_is_root(tp->data)))
+        if (G_UNLIKELY(e_file_is_root(sp->data) || e_file_is_root(tp->data)))
             continue;
 
         /* only process non-equal pairs unless we're copying */
@@ -1547,7 +1547,7 @@ ThunarJob* transfer_job_new(GList *source_node_list, GList *target_file_list,
             job->source_node_list = g_list_append(job->source_node_list, node);
 
             /* append target file */
-            job->target_file_list = eg_list_append_ref(job->target_file_list, tp->data);
+            job->target_file_list = e_list_append_ref(job->target_file_list, tp->data);
         }
     }
 
