@@ -28,26 +28,6 @@ gboolean e_noop_true()
 
 // string functions ------------------------------------------------------------
 
-gboolean e_str_looks_like_an_uri(const gchar *str)
-{
-  const gchar *s = str;
-
-  if (G_UNLIKELY (str == NULL))
-    return FALSE;
-
-  /* <scheme> starts with an alpha character */
-  if (g_ascii_isalpha (*s))
-    {
-      /* <scheme> continues with (alpha | digit | "+" | "-" | ".")* */
-      for (++s; g_ascii_isalnum (*s) || *s == '+' || *s == '-' || *s == '.'; ++s);
-
-      /* <scheme> must be followed by ":" */
-      return (*s == ':' && *(s+1) != '\0');
-    }
-
-  return FALSE;
-}
-
 gchar* e_str_replace (const gchar *str, const gchar *pattern, const gchar *replacement)
 {
   const gchar *s, *p;

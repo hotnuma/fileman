@@ -63,7 +63,7 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
                                          "this program, click Cancel."),
                             th_file_get_display_name(file));
     g_string_append(secondary, "\n\n");
-    if (e_str_looks_like_an_uri(command))
+    if (g_uri_is_valid(command, G_URI_FLAGS_NONE, NULL))
         g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
     else
         g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);

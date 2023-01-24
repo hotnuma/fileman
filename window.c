@@ -1765,7 +1765,7 @@ gboolean window_set_directories(ThunarWindow *window, gchar **uris,
     for (guint n = 0; uris[n] != NULL; ++n)
     {
         /* check if the string looks like an uri */
-        if (!e_str_looks_like_an_uri(uris[n]))
+        if (!g_uri_is_valid(uris[n], G_URI_FLAGS_NONE, NULL))
             continue;
 
         /* get the file for the uri */

@@ -3,6 +3,31 @@
 
 gboolean util_looks_like_an_uri(const gchar *string) G_GNUC_WARN_UNUSED_RESULT;
 
+// deprecated replaced with g_uri_is_valid
+gboolean    e_str_looks_like_an_uri(const gchar *str);
+
+gboolean e_str_looks_like_an_uri(const gchar *str)
+{
+  const gchar *s = str;
+
+  if (G_UNLIKELY (str == NULL))
+    return FALSE;
+
+  /* <scheme> starts with an alpha character */
+  if (g_ascii_isalpha (*s))
+    {
+      /* <scheme> continues with (alpha | digit | "+" | "-" | ".")* */
+      for (++s; g_ascii_isalnum (*s) || *s == '+' || *s == '-' || *s == '.'; ++s);
+
+      /* <scheme> must be followed by ":" */
+      return (*s == ':' && *(s+1) != '\0');
+    }
+
+  return FALSE;
+}
+
+
+//------------------------------------------------------------------------------
 
 /**
  * thunar_gtk_menu_clean:

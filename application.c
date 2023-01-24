@@ -1275,7 +1275,8 @@ gboolean application_process_filenames(Application *application,
     for(n = 0; filenames[n] != NULL; ++n)
     {
         /* check if the filename is an absolute path or looks like an URI */
-        if (g_path_is_absolute(filenames[n]) || e_str_looks_like_an_uri(filenames[n]))
+        if (g_path_is_absolute(filenames[n])
+            || g_uri_is_valid(filenames[n], G_URI_FLAGS_NONE, NULL))
         {
             /* determine the file for the filename directly */
             file = th_file_get_for_uri(filenames[n], &derror);
