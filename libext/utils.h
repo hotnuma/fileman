@@ -48,8 +48,6 @@ void util_load_bookmarks(GFile *bookmarks_file,
                          ThunarBookmarksFunc foreach_func,
                          gpointer user_data);
 
-gboolean util_looks_like_an_uri(const gchar *string) G_GNUC_WARN_UNUSED_RESULT;
-
 gchar* util_expand_filename(const gchar *filename,
                             GFile *working_directory,
                             GError **error)

@@ -7,7 +7,9 @@ void        e_noop();
 gpointer    e_noop_null() G_GNUC_PURE;
 gboolean    e_noop_true() G_GNUC_PURE;
 
+// deprecated replaced with g_uri_is_valid
 gboolean    e_str_looks_like_an_uri(const gchar *str);
+
 gchar*      e_str_replace(const gchar *str, const gchar *pattern,
                           const gchar *replacement);
 gchar*      e_strdup_strftime(const gchar *format, const struct tm *tm);

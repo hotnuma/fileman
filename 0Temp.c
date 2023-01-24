@@ -1,6 +1,9 @@
 
 #if 0
 
+gboolean util_looks_like_an_uri(const gchar *string) G_GNUC_WARN_UNUSED_RESULT;
+
+
 /**
  * thunar_gtk_menu_clean:
  * @menu : a #GtkMenu.
@@ -9,9 +12,9 @@
  * so that the result will be a clean #GtkMenu without any items
  **/
 
-void egtk_menu_clean(GtkMenu *menu);
+void etk_menu_clean(GtkMenu *menu);
 
-void egtk_menu_clean(GtkMenu *menu)
+void etk_menu_clean(GtkMenu *menu)
 {
     GList     *children, *lp;
     GtkWidget *submenu;
