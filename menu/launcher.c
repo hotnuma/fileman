@@ -1757,7 +1757,7 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
         return;
 
     /* ask the user to enter a name for the new folder */
-    gchar *name = dialog_create(launcher->widget,
+    gchar *name = dialog_file_create(launcher->widget,
                                 "inode/directory",
                                 _("New Folder"),
                                 _("Create New Folder"));
@@ -1810,20 +1810,20 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
                                  th_file_get_display_name(template_file));
 
         /* ask the user to enter a name for the new document */
-        name = dialog_create(launcher->widget,
-                                           th_file_get_content_type(THUNAR_FILE(template_file)),
-                                           th_file_get_display_name(template_file),
-                                           title);
+        name = dialog_file_create(launcher->widget,
+                             th_file_get_content_type(THUNAR_FILE(template_file)),
+                             th_file_get_display_name(template_file),
+                             title);
         /* cleanup */
         g_free(title);
     }
     else
     {
         /* ask the user to enter a name for the new empty file */
-        name = dialog_create(launcher->widget,
-                                          "text/plain",
-                                          _("New Empty File"),
-                                          _("New Empty File..."));
+        name = dialog_file_create(launcher->widget,
+                             "text/plain",
+                             _("New Empty File"),
+                             _("New Empty File..."));
     }
 
     if (G_LIKELY(name != NULL))
@@ -2143,7 +2143,7 @@ void launcher_action_rename(ThunarLauncher *launcher)
     if (g_list_length(launcher->files_to_process) == 1)
     {
         /* run the rename dialog */
-        ThunarJob *job = dialog_rename_file(
+        ThunarJob *job = dialog_file_rename(
                             GTK_WINDOW(window),
                             THUNAR_FILE(launcher->files_to_process->data));
 

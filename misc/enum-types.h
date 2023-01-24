@@ -284,6 +284,7 @@ typedef enum /*< flags >*/
     THUNAR_JOB_RESPONSE_RENAME_ALL  = 1 << 12,
 
 } ThunarJobResponse;
+
 #define THUNAR_JOB_RESPONSE_MAX_INT 12
 
 GType thunar_job_response_get_type() G_GNUC_CONST;
