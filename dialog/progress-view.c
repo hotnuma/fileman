@@ -19,7 +19,7 @@
 
 #include <config.h>
 
-#include <libext.h>
+#include <exo.h>
 
 #include <dialogs.h>
 #include <gobject-ext.h>

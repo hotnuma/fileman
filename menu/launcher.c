@@ -36,7 +36,7 @@
 #include <utils.h>
 #include <window.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <gio-ext.h>
 #include <gobject-ext.h>
 #include <gtk-ext.h>

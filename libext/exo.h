@@ -1,5 +1,5 @@
-#ifndef LIBEXT_H
-#define LIBEXT_H
+#ifndef EXO_H
+#define EXO_H
 
 #include <glib.h>
 
@@ -23,6 +23,6 @@ gchar*      e_expand_desktop_entry_field_codes(const gchar *command,
 
 void        e_string_append_quoted(GString *string, const gchar *unquoted);
 
-#endif // LIBEXT_H
+#endif // EXO_H
 
 

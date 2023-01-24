@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libext.h>
+#include <exo.h>
 
 #include <dialogs.h>
 #include <enum-types.h>

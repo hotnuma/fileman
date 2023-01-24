@@ -24,7 +24,7 @@
 #include <application.h>
 #include <dialogs.h>
 #include <gobject-ext.h>
-#include <libext.h>
+#include <exo.h>
 
 #include <string.h>
 #include <memory.h>

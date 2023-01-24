@@ -20,7 +20,7 @@
 #include <config.h>
 #include <devmon.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <marshal.h>
 
 #include <gio/gio.h>

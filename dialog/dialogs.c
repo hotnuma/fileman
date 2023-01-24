@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include <libxfce4ui/libxfce4ui.h>
-#include <libext.h>
+#include <exo.h>
 
 #include <dialogs.h>
 #include <gtk-ext.h>

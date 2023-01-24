@@ -29,7 +29,7 @@
 #include <gdk/gdkx.h>
 #endif
 
-#include <libext.h>
+#include <exo.h>
 #include <application.h>
 #include <menu.h>
 #include <dialogs.h>

@@ -21,7 +21,7 @@
 #include <config.h>
 #include <treeview.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <application.h>
 #include <clipman.h>
 #include <th-device.h>

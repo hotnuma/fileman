@@ -25,7 +25,7 @@
 #include <filemon.h>
 #include <gobject-ext.h>
 #include <user.h>
-#include <libext.h>
+#include <exo.h>
 
 #include <memory.h>
 #include <string.h>

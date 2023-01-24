@@ -41,11 +41,11 @@ HEADERS = \
     libext/exo-icon.h \
     libext/exo-job.h \
     libext/exo-tree-view.h \
+    libext/exo.h \
     libext/gdk-ext.h \
     libext/gio-ext.h \
     libext/gobject-ext.h \
     libext/gtk-ext.h \
-    libext/libext.h \
     libext/pango-ext.h \
     libext/pixbuf-ext.h \
     libext/utils.h \
@@ -111,11 +111,11 @@ SOURCES = \
     libext/exo-icon.c \
     libext/exo-job.c \
     libext/exo-tree-view.c \
+    libext/exo.c \
     libext/gdk-ext.c \
     libext/gio-ext.c \
     libext/gobject-ext.c \
     libext/gtk-ext.c \
-    libext/libext.c \
     libext/pango-ext.c \
     libext/pixbuf-ext.c \
     libext/utils.c \

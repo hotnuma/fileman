@@ -20,7 +20,7 @@
 #include <config.h>
 #include <srender.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <pixbuf-ext.h>
 #include <gio-ext.h>
 #include <gobject-ext.h>

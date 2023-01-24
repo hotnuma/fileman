@@ -22,7 +22,7 @@
 #include <config.h>
 #include <application.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <libxfce4ui/libxfce4ui.h>
 #include <browser.h>
 #include <dialogs.h>

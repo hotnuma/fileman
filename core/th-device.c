@@ -18,7 +18,7 @@
 
 #include <config.h>
 
-#include <libext.h>
+#include <exo.h>
 
 #include <th-device.h>
 #include <devmon.h>

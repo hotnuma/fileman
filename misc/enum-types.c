@@ -21,7 +21,7 @@
 #include <config.h>
 #endif
 
-#include <libext.h>
+#include <exo.h>
 
 #include <enum-types.h>
 

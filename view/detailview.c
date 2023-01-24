@@ -19,7 +19,7 @@
 #include <config.h>
 #include <detailview.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <exo-tree-view.h>
 #include <column-model.h>
 #include <launcher.h>

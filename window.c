@@ -22,7 +22,7 @@
 #include <window.h>
 
 #include <application.h>
-#include <libext.h>
+#include <exo.h>
 #include <browser.h>
 #include <clipman.h>
 #include <detailview.h>

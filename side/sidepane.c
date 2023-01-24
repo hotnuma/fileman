@@ -19,7 +19,7 @@
 #include <config.h>
 #include <sidepane.h>
 
-#include <libext.h>
+#include <exo.h>
 
 static void sidepane_class_init(gpointer klass);
 

@@ -30,7 +30,7 @@
 
 #include <gdk/gdkkeysyms.h>
 
-#include <libext.h>
+#include <exo.h>
 
 #include <gobject-ext.h>
 #include <icon-factory.h>

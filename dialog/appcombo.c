@@ -28,7 +28,7 @@
 #include <gtk-ext.h>
 #include <pango-ext.h>
 #include <icon-factory.h>
-#include <libext.h>
+#include <exo.h>
 
 /* Property identifiers */
 enum

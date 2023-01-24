@@ -21,7 +21,7 @@
 #include <config.h>
 #include <icon-factory.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <pixbuf-ext.h>
 #include <gobject-ext.h>
 #include <utils.h>

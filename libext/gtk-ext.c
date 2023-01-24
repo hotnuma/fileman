@@ -19,7 +19,7 @@
 #include <config.h>
 #include <gtk-ext.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <utils.h>
 #include <stdarg.h>
 #include <libxfce4ui/libxfce4ui.h>

@@ -24,7 +24,7 @@
 #include <gio/gunixmounts.h>
 #include <gio/gdesktopappinfo.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <th-file.h>
 #include <utils.h>
 

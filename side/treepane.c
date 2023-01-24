@@ -19,7 +19,7 @@
 #include <config.h>
 #include <treepane.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <treeview.h>
 
 /* Property identifiers */

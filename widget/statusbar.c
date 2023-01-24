@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <libext.h>
+#include <exo.h>
 
 #include <gobject-ext.h>
 #include <statusbar.h>

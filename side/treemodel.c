@@ -20,7 +20,7 @@
 #include <config.h>
 #include <treemodel.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <filemon.h>
 #include <th-folder.h>
 #include <gio-ext.h>

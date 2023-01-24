@@ -20,7 +20,7 @@
 #include <config.h>
 #include <io-scan-directory.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <fileinfo.h>
 #include <gio-ext.h>
 #include <job.h>

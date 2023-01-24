@@ -21,7 +21,7 @@
 #include <config.h>
 #include <transfer-job.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <application.h>
 #include <gio-ext.h>
 #include <io-scan-directory.h>

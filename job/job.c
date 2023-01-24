@@ -20,7 +20,7 @@
 #include <config.h>
 #include <job.h>
 
-#include <libext.h>
+#include <exo.h>
 #include <enum-types.h>
 #include <marshal.h>
 

@@ -1,5 +1,5 @@
 #include <config.h>
-#include <libext.h>
+#include <exo.h>
 
 #include <gtk/gtk.h>
 #include <math.h>

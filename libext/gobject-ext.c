@@ -32,7 +32,7 @@
 #include <string.h>
 #endif
 
-#include <libext.h>
+#include <exo.h>
 
 #include <gobject-ext.h>
 

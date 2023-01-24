@@ -19,7 +19,7 @@
 #include <config.h>
 #include <navigator.h>
 
-#include <libext.h>
+#include <exo.h>
 
 enum
 {

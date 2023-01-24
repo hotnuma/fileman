@@ -23,7 +23,7 @@
 
 #include <limits.h>
 #include <locale.h>
-#include <libext.h>
+#include <exo.h>
 #include <dcount-job.h>
 #include <gtk-ext.h>
 
