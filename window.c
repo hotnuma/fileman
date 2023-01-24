@@ -847,7 +847,7 @@ static void window_realize(GtkWidget *widget)
      */
     window->clipboard = clipman_get_for_display(gtk_widget_get_display(widget));
     g_signal_connect_swapped(G_OBJECT(window->clipboard), "changed",
-                              G_CALLBACK(gtk_widget_queue_draw), widget);
+                             G_CALLBACK(gtk_widget_queue_draw), widget);
 }
 
 static void window_unrealize(GtkWidget *widget)

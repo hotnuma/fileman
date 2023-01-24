@@ -41,6 +41,8 @@ typedef struct _ThunarWindow      ThunarWindow;
 #define THUNAR_WINDOW_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   THUNAR_TYPE_WINDOW, ThunarWindowClass))
 
+GType window_get_type() G_GNUC_CONST;
+
 // Action Entrys provided by this widget
 
 typedef enum
@@ -57,8 +59,6 @@ typedef enum
     APP_WINDOW_ACTION_DEBUG,
 
 } AppWindowAction;
-
-GType window_get_type() G_GNUC_CONST;
 
 ThunarFile* window_get_current_directory(ThunarWindow *window);
 void window_set_current_directory(ThunarWindow *window,

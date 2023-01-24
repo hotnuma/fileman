@@ -1749,10 +1749,6 @@ static void _launcher_action_open_with_other(ThunarLauncher *launcher)
 
 static void _launcher_action_create_folder(ThunarLauncher *launcher)
 {
-    Application *application;
-    GList              path_list;
-    gchar             *name;
-
     eg_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     //DPRINT("_launcher_action_create_folder\n");
@@ -1761,30 +1757,34 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
         return;
 
     /* ask the user to enter a name for the new folder */
-    name = dialog_create(launcher->widget,
-                                       "inode/directory",
-                                       _("New Folder"),
-                                       _("Create New Folder"));
-    if (G_LIKELY(name != NULL))
-    {
-        /* fake the path list */
-        if (IS_TREEVIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
-            path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->single_folder), name);
-        else
-            path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->current_directory), name);
-        path_list.next = path_list.prev = NULL;
+    gchar *name = dialog_create(launcher->widget,
+                                "inode/directory",
+                                _("New Folder"),
+                                _("Create New Folder"));
 
-        /* launch the operation */
-        application = application_get();
-        application_mkdir(application, launcher->widget, &path_list, launcher->select_files_closure);
-        g_object_unref(G_OBJECT(application));
+    if (G_UNLIKELY(name == NULL))
+        return;
 
-        /* release the path */
-        g_object_unref(path_list.data);
+    GList path_list;
 
-        /* release the file name */
-        g_free(name);
-    }
+    /* fake the path list */
+    if (IS_TREEVIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
+        path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->single_folder), name);
+    else
+        path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->current_directory), name);
+
+    path_list.next = path_list.prev = NULL;
+
+    /* launch the operation */
+    Application *application = application_get();
+    application_mkdir(application, launcher->widget, &path_list, launcher->select_files_closure);
+    g_object_unref(G_OBJECT(application));
+
+    /* release the path */
+    g_object_unref(path_list.data);
+
+    /* release the file name */
+    g_free(name);
 }
 
 static void _launcher_action_create_document(ThunarLauncher   *launcher,
