@@ -731,8 +731,8 @@ static void standard_view_finalize(GObject *object)
     StandardView *standard_view = STANDARD_VIEW(object);
 
     /* some safety checks */
-    eg_assert(standard_view->loading_binding == NULL);
-    eg_assert(standard_view->icon_factory == NULL);
+    e_assert(standard_view->loading_binding == NULL);
+    e_assert(standard_view->icon_factory == NULL);
 
     /* disconnect accelerators */
     _standard_view_disconnect_accelerators(standard_view);
@@ -952,7 +952,7 @@ static gboolean standard_view_draw(GtkWidget *widget, cairo_t *cr)
 
 static void _standard_view_connect_accelerators(StandardView *standard_view)
 {
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     if (standard_view->accel_group == NULL)
         return;
@@ -969,7 +969,7 @@ static void _standard_view_connect_accelerators(StandardView *standard_view)
 
 static void _standard_view_disconnect_accelerators(StandardView *standard_view)
 {
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     if (standard_view->accel_group == NULL)
         return;
@@ -1096,7 +1096,7 @@ static void standard_view_init(StandardView *standard_view)
 static ThunarFile* standard_view_get_current_directory(ThunarNavigator *navigator)
 {
     StandardView *standard_view = STANDARD_VIEW(navigator);
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
     return standard_view->priv->current_directory;
 }
 
@@ -1106,8 +1106,8 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
     StandardView *standard_view = STANDARD_VIEW(navigator);
     ThunarFolder       *folder;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
 
     /* get the current directory */
     if (standard_view->priv->current_directory == current_directory)
@@ -1229,7 +1229,7 @@ static void _standard_view_scroll_position_save(StandardView *standard_view)
     GtkAdjustment *hadjustment;
     GFile         *gfile;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* store the previous directory in the scroll hash table */
     if (standard_view->priv->current_directory != NULL)
@@ -1261,8 +1261,8 @@ static void _standard_view_restore_selection_from_history(StandardView *standard
     GList       selected_files;
     ThunarFile *selected_file;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(THUNAR_IS_FILE(standard_view->priv->current_directory));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(THUNAR_IS_FILE(standard_view->priv->current_directory));
 
     /* reset the selected files list */
     selected_files.data = NULL;
@@ -1537,7 +1537,7 @@ static void _standard_view_new_files(StandardView *standard_view,
     GFile     *parent_file;
     gboolean   belongs_here;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* release the previous "new-files" paths(if any) */
     if (G_UNLIKELY(standard_view->priv->new_files_path_list != NULL))
@@ -1598,7 +1598,7 @@ static void _standard_view_new_files(StandardView *standard_view,
 static GClosure* _standard_view_new_files_closure(StandardView *standard_view,
                                        GtkWidget          *source_view)
 {
-    eg_return_val_if_fail(source_view == NULL || THUNAR_IS_VIEW(source_view), NULL);
+    e_return_val_if_fail(source_view == NULL || THUNAR_IS_VIEW(source_view), NULL);
 
     /* drop any previous "new-files" closure */
     if (G_UNLIKELY(standard_view->priv->new_files_closure != NULL))
@@ -1736,7 +1736,7 @@ static const gchar* standard_view_get_statusbar_text(BaseView *view)
     StandardView *standard_view = STANDARD_VIEW(view);
     GList              *items;
 
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
 
     /* generate the statusbar text on-demand */
     if (standard_view->priv->statusbar_text == NULL)
@@ -1769,7 +1769,7 @@ void standard_view_context_menu(StandardView *standard_view)
     //static int count;
     //DPRINT("%d : thunar_standard_view_context_menu\n", ++count);
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* grab an additional reference on the view */
     g_object_ref(G_OBJECT(standard_view));
@@ -1833,7 +1833,7 @@ static void _standard_view_append_menu_items(StandardView *standard_view,
                                              GtkMenu            *menu,
                                              GtkAccelGroup      *accel_group)
 {
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     STANDARD_VIEW_GET_CLASS(standard_view)->append_menu_items(standard_view, menu,
                                                                      accel_group);
@@ -1854,8 +1854,8 @@ void standard_view_queue_popup(StandardView *standard_view,
     GtkWidget   *view;
     gint        delay;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(event != NULL);
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(event != NULL);
 
     /* check if we have already scheduled a drag timer */
     if (G_LIKELY(standard_view->priv->drag_timer_id == 0))
@@ -1922,7 +1922,7 @@ void standard_view_selection_changed(StandardView *standard_view)
     GtkTreeIter iter;
     GList      *lp, *selected_files;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* drop any existing "new-files" closure */
     if (G_UNLIKELY(standard_view->priv->new_files_closure != NULL))
@@ -1962,8 +1962,8 @@ void standard_view_selection_changed(StandardView *standard_view)
 void standard_view_set_history(StandardView *standard_view,
                                ThunarHistory      *history)
 {
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(history == NULL || THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(history == NULL || THUNAR_IS_HISTORY(history));
 
     /* set the new history */
     g_object_unref(standard_view->priv->history);
@@ -1986,8 +1986,8 @@ static void _standard_view_sort_column_changed(
                                             StandardView *standard_view)
 {
 
-    eg_return_if_fail(GTK_IS_TREE_SORTABLE(tree_sortable));
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(GTK_IS_TREE_SORTABLE(tree_sortable));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* keep the currently selected files selected after the change */
     component_restore_selection(THUNAR_COMPONENT(standard_view));
@@ -2016,7 +2016,7 @@ static gboolean _standard_view_scroll_event(
     UNUSED(view);
     GdkScrollDirection scrolling_direction;
 
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     if (event->direction != GDK_SCROLL_SMOOTH)
         scrolling_direction = event->direction;
@@ -2056,7 +2056,7 @@ static gboolean _standard_view_key_press_event(
                                             StandardView *standard_view)
 {
     UNUSED(view);
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     /* need to catch "/" and "~" first, as the views would otherwise start interactive search */
     if ((event->keyval == GDK_KEY_slash || event->keyval == GDK_KEY_asciitilde || event->keyval == GDK_KEY_dead_tilde) && !(event->state &(~GDK_SHIFT_MASK & gtk_accelerator_get_default_mod_mask())))
@@ -2076,8 +2076,8 @@ static gboolean _standard_view_key_press_event(
 static void _standard_view_scrolled(GtkAdjustment      *adjustment,
                                           StandardView *standard_view)
 {
-    eg_return_if_fail(GTK_IS_ADJUSTMENT(adjustment));
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(GTK_IS_ADJUSTMENT(adjustment));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* ignore adjustment changes when the view is still loading */
     if (baseview_get_loading(BASEVIEW(standard_view)))
@@ -2094,8 +2094,8 @@ static void _standard_view_select_after_row_deleted(
 {
     UNUSED(model);
 
-    eg_return_if_fail(path != NULL);
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(path != NULL);
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
    (*STANDARD_VIEW_GET_CLASS(standard_view)->set_cursor)(standard_view, path, FALSE);
 }
@@ -2123,9 +2123,9 @@ static void _standard_view_rows_reordered(
     UNUSED(iter);
     UNUSED(new_order);
 
-    eg_return_if_fail(IS_LISTMODEL(model));
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(standard_view->model == model);
+    e_return_if_fail(IS_LISTMODEL(model));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(standard_view->model == model);
 
     /* the order of the paths might have changed, but the selection
      * stayed the same, so restore the selection of the proper files
@@ -2143,7 +2143,7 @@ static gboolean _standard_view_restore_selection_idle(StandardView *standard_vie
     GtkAdjustment *vadjustment;
     gdouble        h, v, hl, hu, vl, vu;
 
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     /* save the current scroll position and limits */
     hadjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(standard_view));
@@ -2172,9 +2172,9 @@ static void _standard_view_error(ListModel    *model,
 {
     ThunarFile *file;
 
-    eg_return_if_fail(IS_LISTMODEL(model));
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(standard_view->model == model);
+    e_return_if_fail(IS_LISTMODEL(model));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(standard_view->model == model);
 
     /* determine the ThunarFile for the current directory */
     file = navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
@@ -2191,7 +2191,7 @@ static gboolean _standard_view_update_statusbar_text_idle(gpointer data)
 {
     StandardView *standard_view = STANDARD_VIEW(data);
 
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     THUNAR_THREADS_ENTER
 
@@ -2230,7 +2230,7 @@ static void _standard_view_size_allocate(StandardView *standard_view,
 {
     UNUSED(allocation);
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* ignore size changes when the view is still loading */
     if (baseview_get_loading(BASEVIEW(standard_view)))
@@ -2243,9 +2243,9 @@ static void _standard_view_size_allocate(StandardView *standard_view,
 static void _standard_view_current_directory_destroy(ThunarFile *current_directory,
                                                StandardView *standard_view)
 {
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(THUNAR_IS_FILE(current_directory));
-    eg_return_if_fail(standard_view->priv->current_directory == current_directory);
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(standard_view->priv->current_directory == current_directory);
 
     GError     *error = NULL;
 
@@ -2275,9 +2275,9 @@ static void _standard_view_current_directory_destroy(ThunarFile *current_directo
 static void _standard_view_current_directory_changed(ThunarFile *current_directory,
                                                StandardView *standard_view)
 {
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
-    eg_return_if_fail(THUNAR_IS_FILE(current_directory));
-    eg_return_if_fail(standard_view->priv->current_directory == current_directory);
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(standard_view->priv->current_directory == current_directory);
 
     /* update tab label and tooltip */
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_DISPLAY_NAME]);
@@ -2298,7 +2298,7 @@ static ThunarFile* _standard_view_get_fallback_directory(
     GFile      *path;
     GFile      *tmp;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
 
     /* determine the path of the directory */
     path = g_object_ref(th_file_get_file(directory));
@@ -2359,8 +2359,8 @@ static gboolean _standard_view_button_release_event(
 {
     UNUSED(view);
     UNUSED(event);
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
-    eg_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    e_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
     /* cancel the pending drag timer */
     g_source_remove(standard_view->priv->drag_timer_id);
@@ -2379,8 +2379,8 @@ static gboolean _standard_view_motion_notify_event(
 {
     GtkTargetList  *target_list;
 
-    eg_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
-    eg_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
+    e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
+    e_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
     /* check if we passed the DnD threshold */
     if (gtk_drag_check_threshold(view, standard_view->priv->drag_x, standard_view->priv->drag_y, event->x, event->y))
@@ -2413,7 +2413,7 @@ static void _standard_view_select_all_files(BaseView *view)
 {
     StandardView *standard_view = STANDARD_VIEW(view);
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* grab the focus to the view */
     gtk_widget_grab_focus(GTK_WIDGET(standard_view));
@@ -2438,7 +2438,7 @@ static void _standard_view_select_by_pattern(BaseView *view)
     const gchar        *pattern;
     gchar              *pattern_extended = NULL;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
     dialog = gtk_dialog_new_with_buttons(_("Select by Pattern"),
@@ -2520,7 +2520,7 @@ static void _standard_view_selection_invert(BaseView *view)
 {
     StandardView *standard_view = STANDARD_VIEW(view);
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* grab the focus to the view */
     gtk_widget_grab_focus(GTK_WIDGET(standard_view));

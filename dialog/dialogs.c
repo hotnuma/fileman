@@ -50,8 +50,8 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
     GFileInfo      *info;
     GError         *err = NULL;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    eg_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
 
     /* parse the parent window and screen */
     screen = util_parse_parent(parent, &window);
@@ -141,7 +141,7 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
 {
     // The caller must free the returned string.
 
-    eg_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
                               || GTK_IS_WIDGET(parent), NULL);
 
     /* parse the parent window and screen */
@@ -250,8 +250,8 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
 
 ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
 {
-    eg_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
@@ -477,7 +477,7 @@ void dialog_error(gpointer parent, const GError *error, const gchar  *format, ..
     GList     *children;
     GList     *lp;
 
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* do not display error dialog for already handled errors */
     if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
@@ -539,8 +539,8 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
     gint         n;
     gboolean     has_cancel = FALSE;
 
-    eg_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    eg_return_val_if_fail(g_utf8_validate(question, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(g_utf8_validate(question, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* try to separate the question into primary and secondary parts */
     separator = strstr(question, ": ");
@@ -711,9 +711,9 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gchar             *text;
     gint               response;
 
-    eg_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    eg_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
-    eg_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     /* setup the confirmation dialog */
     dialog = gtk_dialog_new();
@@ -913,7 +913,7 @@ static void _dialog_job_ask_replace_callback(GtkWidget *button,
 {
     gint response;
 
-    eg_return_if_fail(GTK_IS_DIALOG(user_data));
+    e_return_if_fail(GTK_IS_DIALOG(user_data));
 
     response = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "response-id"));
     gtk_dialog_response(GTK_DIALOG(user_data), response);
@@ -926,8 +926,8 @@ void dialog_job_error(GtkWindow *parent, GError *error)
     GString     *secondary = g_string_sized_new(256);
     GString     *primary = g_string_sized_new(256);
 
-    eg_return_if_fail(parent == NULL || GTK_IS_WINDOW(parent));
-    eg_return_if_fail(error != NULL && error->message != NULL);
+    e_return_if_fail(parent == NULL || GTK_IS_WINDOW(parent));
+    e_return_if_fail(error != NULL && error->message != NULL);
 
     /* try to separate the message into primary and secondary parts */
     separator = strstr(error->message, ": ");

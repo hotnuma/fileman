@@ -126,7 +126,7 @@ static void thunar_progress_dialog_finalize(GObject *object)
 
 static void thunar_progress_dialog_shown(ThunarProgressDialog *dialog)
 {
-    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
 
     /* show the status icon */
     if (dialog->status_icon == NULL)
@@ -144,7 +144,7 @@ static void thunar_progress_dialog_shown(ThunarProgressDialog *dialog)
 
 static gboolean thunar_progress_dialog_closed(ThunarProgressDialog *dialog)
 {
-    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
+    e_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
 
     /* remember the position of the dialog */
     gtk_window_get_position(GTK_WINDOW(dialog), &dialog->x, &dialog->y);
@@ -160,8 +160,8 @@ static gboolean thunar_progress_dialog_toggled(ThunarProgressDialog *dialog,
                                                GdkEventButton       *event,
                                                GtkStatusIcon        *status_icon)
 {
-    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
-    eg_return_val_if_fail(GTK_IS_STATUS_ICON(status_icon), FALSE);
+    e_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
+    e_return_val_if_fail(GTK_IS_STATUS_ICON(status_icon), FALSE);
 
     /* check if the window is visible and has the focus */
     if (gtk_widget_get_visible(GTK_WIDGET(dialog))
@@ -192,8 +192,8 @@ static gboolean thunar_progress_dialog_toggled(ThunarProgressDialog *dialog,
 static void thunar_progress_dialog_view_needs_attention(ThunarProgressDialog *dialog,
                                                         ThunarProgressView   *view)
 {
-    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    eg_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
 
     /* TODO scroll to the view */
 
@@ -206,8 +206,8 @@ static void thunar_progress_dialog_job_finished(ThunarProgressDialog *dialog,
 {
     guint n_views;
 
-    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    eg_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
 
     /* remove the view from the list */
     dialog->views = g_list_remove(dialog->views, view);
@@ -261,8 +261,8 @@ static void thunar_progress_dialog_update_status_icon(ThunarProgressDialog *dial
     gchar *tooltip_text;
     guint  n_views;
 
-    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    eg_return_if_fail(GTK_IS_STATUS_ICON(dialog->status_icon));
+    e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    e_return_if_fail(GTK_IS_STATUS_ICON(dialog->status_icon));
 
     /* determine the number of views now being active */
     n_views = g_list_length(dialog->views);
@@ -306,7 +306,7 @@ GList* thunar_progress_dialog_list_jobs(ThunarProgressDialog *dialog)
     ThunarProgressView *view;
     ThunarJob          *job;
 
-    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), NULL);
+    e_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), NULL);
 
     for(l = dialog->views; l != NULL; l = l->next)
     {
@@ -328,9 +328,9 @@ void thunar_progress_dialog_add_job(ThunarProgressDialog *dialog,
     GtkWidget *viewport;
     GtkWidget *view;
 
-    eg_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
-    eg_return_if_fail(THUNAR_IS_JOB(job));
-    eg_return_if_fail(g_utf8_validate(title, -1, NULL));
+    e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
+    e_return_if_fail(THUNAR_IS_JOB(job));
+    e_return_if_fail(g_utf8_validate(title, -1, NULL));
 
     view = thunar_progress_view_new_with_job(job);
     thunar_progress_view_set_icon_name(THUNAR_PROGRESS_VIEW(view), icon_name);
@@ -395,7 +395,7 @@ void thunar_progress_dialog_add_job(ThunarProgressDialog *dialog,
 
 gboolean thunar_progress_dialog_has_jobs(ThunarProgressDialog *dialog)
 {
-    eg_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
+    e_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
 
     return dialog->views != NULL;
 }

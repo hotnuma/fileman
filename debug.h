@@ -30,29 +30,17 @@ G_BEGIN_DECLS;
 #define DPRINT(fmt, ...) do {} while (0)
 #endif
 
-#ifdef NDEBUG
-#define _exo_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
-#define _exo_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
-#define _exo_return_if_fail(expr)          G_STMT_START{ (void)0; }G_STMT_END
-#define _exo_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
-#else
-#define _exo_assert(expr)                  g_assert (expr)
-#define _exo_assert_not_reached()          g_assert_not_reached ()
-#define _exo_return_if_fail(expr)          g_return_if_fail (expr)
-#define _exo_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
-#endif
-
 /* support macros for debugging */
 #ifdef NDEBUG
-#define eg_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
-#define eg_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
-#define eg_return_if_fail(expr)          G_STMT_START{ (void)0; }G_STMT_END
-#define eg_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
+#define e_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
+#define e_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
+#define e_return_if_fail(expr)          G_STMT_START{ (void)0; }G_STMT_END
+#define e_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
 #else
-#define eg_assert(expr)                  g_assert (expr)
-#define eg_assert_not_reached()          g_assert_not_reached ()
-#define eg_return_if_fail(expr)          g_return_if_fail (expr)
-#define eg_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
+#define e_assert(expr)                  g_assert (expr)
+#define e_assert_not_reached()          g_assert_not_reached ()
+#define e_return_if_fail(expr)          g_return_if_fail (expr)
+#define e_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
 #endif
 
 /* avoid trivial g_value_get_*() function calls */

@@ -347,7 +347,7 @@ static void application_startup(GApplication *gapp)
 
 static void _application_accel_map_changed(Application *application)
 {
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(IS_APPLICATION(application));
 
     /* stop pending save */
     if (application->accel_map_save_id != 0)
@@ -365,7 +365,7 @@ static gboolean _application_accel_map_save(gpointer user_data)
 {
     Application *application = APPLICATION(user_data);
 
-    eg_return_val_if_fail(IS_APPLICATION(application), FALSE);
+    e_return_val_if_fail(IS_APPLICATION(application), FALSE);
 
     application->accel_map_save_id = 0;
 
@@ -671,7 +671,7 @@ static void _application_launch_finished(ThunarJob  *job,
     ThunarFile   *file;
     ThunarFolder *folder;
 
-    eg_return_if_fail(THUNAR_IS_JOB(job));
+    e_return_if_fail(THUNAR_IS_JOB(job));
 
     for(lp = containing_folders; lp != NULL; lp = lp->next)
     {
@@ -717,7 +717,7 @@ static void _application_launch(Application *application,
     GList     *parent_folder_list = NULL;
     gboolean   has_jobs;
 
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* parse the parent pointer */
     screen = util_parse_parent(parent, NULL);
@@ -780,11 +780,11 @@ static void _application_uevent(GUdevClient       *client,
                                       GUdevDevice       *device,
                                       Application *application)
 {
-    eg_return_if_fail(G_UDEV_IS_CLIENT(client));
-    eg_return_if_fail(action != NULL && *action != '\0');
-    eg_return_if_fail(G_UDEV_IS_DEVICE(device));
-    eg_return_if_fail(IS_APPLICATION(application));
-    eg_return_if_fail(client == application->udev_client);
+    e_return_if_fail(G_UDEV_IS_CLIENT(client));
+    e_return_if_fail(action != NULL && *action != '\0');
+    e_return_if_fail(G_UDEV_IS_DEVICE(device));
+    e_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(client == application->udev_client);
 
     /* determine the sysfs path of the device */
     const gchar *sysfs_path = g_udev_device_get_sysfs_path(device);
@@ -990,7 +990,7 @@ Application* application_get()
  **/
 gboolean application_get_daemon(Application *application)
 {
-    eg_return_val_if_fail(IS_APPLICATION(application), FALSE);
+    e_return_val_if_fail(IS_APPLICATION(application), FALSE);
     return application->daemon;
 }
 
@@ -1004,7 +1004,7 @@ gboolean application_get_daemon(Application *application)
 void application_set_daemon(Application *application,
                                    gboolean           daemonize)
 {
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(IS_APPLICATION(application));
 
     if (application->daemon != daemonize)
     {
@@ -1036,8 +1036,8 @@ void application_take_window(Application *application,
 {
     GtkWindowGroup *group;
 
-    eg_return_if_fail(GTK_IS_WINDOW(window));
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(GTK_IS_WINDOW(window));
+    e_return_if_fail(IS_APPLICATION(application));
 
     /* only windows without a parent get a new window group */
     if (gtk_window_get_transient_for(window) == NULL && !gtk_window_has_group(window))
@@ -1079,9 +1079,9 @@ GtkWidget* application_open_window(Application *application,
     GtkWidget *window;
     gchar     *role;
 
-    eg_return_val_if_fail(IS_APPLICATION(application), NULL);
-    eg_return_val_if_fail(directory == NULL || THUNAR_IS_FILE(directory), NULL);
-    eg_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), NULL);
+    e_return_val_if_fail(IS_APPLICATION(application), NULL);
+    e_return_val_if_fail(directory == NULL || THUNAR_IS_FILE(directory), NULL);
+    e_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), NULL);
 
     if (G_UNLIKELY(screen == NULL))
         screen = gdk_screen_get_default();
@@ -1118,7 +1118,7 @@ GtkWidget* application_open_window(Application *application,
 static GtkWidget* _application_get_progress_dialog(
                                             Application *application)
 {
-    eg_return_val_if_fail(IS_APPLICATION(application), NULL);
+    e_return_val_if_fail(IS_APPLICATION(application), NULL);
 
     if (application->progress_dialog == NULL)
     {
@@ -1146,9 +1146,9 @@ static void _application_process_files_finish(ThunarBrowser  *browser,
     GdkScreen *screen;
     const gchar *startup_id;
 
-    eg_return_if_fail(THUNAR_IS_BROWSER(browser));
-    eg_return_if_fail(THUNAR_IS_FILE(file));
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(THUNAR_IS_BROWSER(browser));
+    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_APPLICATION(application));
 
     /* determine and reset the screen of the file */
     screen = g_object_get_qdata(G_OBJECT(file), _app_screen_quark);
@@ -1203,7 +1203,7 @@ static void _application_process_files_finish(ThunarBrowser  *browser,
 
 static void _application_process_files(Application *application)
 {
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(IS_APPLICATION(application));
 
     //DPRINT("application_process_files\n");
 
@@ -1264,12 +1264,12 @@ gboolean application_process_filenames(Application *application,
     GList      *lp;
     gint        n;
 
-    eg_return_val_if_fail(IS_APPLICATION(application), FALSE);
-    eg_return_val_if_fail(working_directory != NULL, FALSE);
-    eg_return_val_if_fail(filenames != NULL, FALSE);
-    eg_return_val_if_fail(*filenames != NULL, FALSE);
-    eg_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), FALSE);
-    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    e_return_val_if_fail(IS_APPLICATION(application), FALSE);
+    e_return_val_if_fail(working_directory != NULL, FALSE);
+    e_return_val_if_fail(filenames != NULL, FALSE);
+    e_return_val_if_fail(*filenames != NULL, FALSE);
+    e_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* try to process all filenames and convert them to the appropriate file objects */
     for(n = 0; filenames[n] != NULL; ++n)
@@ -1359,9 +1359,9 @@ void application_copy_into(Application *application,
     gchar *display_name;
     gchar *title;
 
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
-    eg_return_if_fail(G_IS_FILE(target_file));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(G_IS_FILE(target_file));
 
     /* generate a title for the progress dialog */
     display_name = th_file_cached_display_name(target_file);
@@ -1403,9 +1403,9 @@ void application_link_into(Application *application,
     gchar *display_name;
     gchar *title;
 
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
-    eg_return_if_fail(G_IS_FILE(target_file));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(G_IS_FILE(target_file));
 
     /* generate a title for the progress dialog */
     display_name = th_file_cached_display_name(target_file);
@@ -1447,9 +1447,9 @@ void application_move_into(Application *application,
     gchar *display_name;
     gchar *title;
 
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
-    eg_return_if_fail(target_file != NULL);
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(target_file != NULL);
 
     /* launch the appropriate operation depending on the target file */
     if (e_file_is_trashed(target_file))
@@ -1500,8 +1500,8 @@ void application_unlink_files(Application *application,
                                      GList             *file_list,
                                      gboolean           permanently)
 {
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
 
     GList     *lp;
     guint      n_path_list = 0;
@@ -1601,9 +1601,9 @@ void application_trash(Application *application,
                               gpointer  parent,
                               GList     *file_list)
 {
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
-    eg_return_if_fail(file_list != NULL);
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(file_list != NULL);
 
     _application_launch(application, parent, "user-trash-full",
                                _("Moving files into the trash..."), trash_stub,
@@ -1612,7 +1612,7 @@ void application_trash(Application *application,
 
 static ThunarJob* creat_stub(GList *template_file, GList *target_path_list)
 {
-    eg_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
+    e_return_val_if_fail(template_file->data == NULL || G_IS_FILE(template_file->data), NULL);
 
     return io_create_files(target_path_list, template_file->data);
 }
@@ -1638,8 +1638,8 @@ void application_creat(Application *application,
 {
     GList template_list;
 
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
 
     template_list.next = template_list.prev = NULL;
     template_list.data = template_file;
@@ -1674,8 +1674,8 @@ void application_mkdir(Application *application,
                               GList             *file_list,
                               GClosure          *new_files_closure)
 {
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
 
     /* launch the operation */
     _application_launch(application, parent, "folder-new",
@@ -1703,8 +1703,8 @@ void application_empty_trash(Application *application,
     GList      file_list;
     gint       response;
 
-    eg_return_if_fail(IS_APPLICATION(application));
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     /* parse the parent pointer */
     screen = util_parse_parent(parent, &window);
@@ -1775,8 +1775,8 @@ void application_restore_files(Application *application,
     GList       *target_path_list = NULL;
     GList       *lp;
 
-    eg_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(IS_APPLICATION(application));
 
     for(lp = trash_file_list; lp != NULL; lp = lp->next)
     {

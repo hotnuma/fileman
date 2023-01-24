@@ -167,16 +167,16 @@ AppChooserModel* appmodel_new(const gchar *content_type)
 
 const gchar* appmodel_get_content_type(AppChooserModel *model)
 {
-    eg_return_val_if_fail(IS_APPCHOOSER_MODEL(model), NULL);
+    e_return_val_if_fail(IS_APPCHOOSER_MODEL(model), NULL);
 
     return model->content_type;
 }
 
 gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **error)
 {
-    eg_return_val_if_fail(IS_APPCHOOSER_MODEL(model), FALSE);
-    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    eg_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), iter), FALSE);
+    e_return_val_if_fail(IS_APPCHOOSER_MODEL(model), FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    e_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), iter), FALSE);
 
     GAppInfo *app_info;
     gboolean succeed;
@@ -217,8 +217,8 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
 
 static void _appmodel_load(AppChooserModel *model)
 {
-    eg_return_if_fail(IS_APPCHOOSER_MODEL(model));
-    eg_return_if_fail(model->content_type != NULL);
+    e_return_if_fail(IS_APPCHOOSER_MODEL(model));
+    e_return_if_fail(model->content_type != NULL);
 
     gtk_tree_store_clear(GTK_TREE_STORE(model));
 
@@ -272,9 +272,9 @@ static gint _compare_app_infos(gconstpointer a, gconstpointer b)
 static void _appmodel_append(AppChooserModel *model, const gchar *title,
                              const gchar *icon_name, GList *app_infos)
 {
-    eg_return_if_fail(IS_APPCHOOSER_MODEL(model));
-    eg_return_if_fail(title != NULL);
-    eg_return_if_fail(icon_name != NULL);
+    e_return_if_fail(IS_APPCHOOSER_MODEL(model));
+    e_return_if_fail(title != NULL);
+    e_return_if_fail(icon_name != NULL);
 
     GIcon *icon = g_themed_icon_new(icon_name);
 

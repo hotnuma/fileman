@@ -60,14 +60,14 @@ static void sidepane_class_init(gpointer klass)
 
 gboolean sidepane_get_show_hidden(SidePane *side_pane)
 {
-    eg_return_val_if_fail(IS_SIDEPANE(side_pane), FALSE);
+    e_return_val_if_fail(IS_SIDEPANE(side_pane), FALSE);
 
     return SIDEPANE_GET_IFACE(side_pane)->get_show_hidden(side_pane);
 }
 
 void sidepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden)
 {
-    eg_return_if_fail(IS_SIDEPANE(side_pane));
+    e_return_if_fail(IS_SIDEPANE(side_pane));
 
     SIDEPANE_GET_IFACE(side_pane)->set_show_hidden(side_pane, show_hidden);
 }

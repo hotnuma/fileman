@@ -131,7 +131,7 @@ FileMonitor* filemon_get_default()
  **/
 void filemon_file_changed(ThunarFile *file)
 {
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     if (G_LIKELY(_filemon_default != NULL))
         g_signal_emit(G_OBJECT(_filemon_default), _filemon_signals[FILE_CHANGED], 0, file);
@@ -147,7 +147,7 @@ void filemon_file_changed(ThunarFile *file)
  **/
 void filemon_file_destroyed(ThunarFile *file)
 {
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     if (G_LIKELY(_filemon_default != NULL))
         g_signal_emit(G_OBJECT(_filemon_default), _filemon_signals[FILE_DESTROYED], 0, file);

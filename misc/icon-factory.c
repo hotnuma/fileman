@@ -203,7 +203,7 @@ static void ifactory_dispose(GObject *object)
 {
     IconFactory *factory = ICONFACTORY(object);
 
-    eg_return_if_fail(IS_ICONFACTORY(factory));
+    e_return_if_fail(IS_ICONFACTORY(factory));
 
     if (G_UNLIKELY(factory->sweep_timer_id != 0))
         g_source_remove(factory->sweep_timer_id);
@@ -215,7 +215,7 @@ static void ifactory_finalize(GObject *object)
 {
     IconFactory *factory = ICONFACTORY(object);
 
-    eg_return_if_fail(IS_ICONFACTORY(factory));
+    e_return_if_fail(IS_ICONFACTORY(factory));
 
     /* clear the icon cache hash table */
     g_hash_table_destroy(factory->icon_cache);
@@ -323,7 +323,7 @@ static gboolean _ifactory_sweep_timer(gpointer user_data)
 {
     IconFactory *factory = ICONFACTORY(user_data);
 
-    eg_return_val_if_fail(IS_ICONFACTORY(factory), FALSE);
+    e_return_val_if_fail(IS_ICONFACTORY(factory), FALSE);
 
     THUNAR_THREADS_ENTER
 
@@ -355,7 +355,7 @@ static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
     gint       width;
     gint       height;
 
-    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
 
     /* try to load the image from the file */
     pixbuf = gdk_pixbuf_new_from_file(path, NULL);
@@ -422,9 +422,9 @@ static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory, const gchar *name,
     GtkIconInfo   *icon_info;
     GdkPixbuf     *pixbuf = NULL;
 
-    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
-    eg_return_val_if_fail(name != NULL && *name != '\0', NULL);
-    eg_return_val_if_fail(size > 0, NULL);
+    e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    e_return_val_if_fail(name != NULL && *name != '\0', NULL);
+    e_return_val_if_fail(size > 0, NULL);
 
     /* prepare the lookup key */
     lookup_key.name =(gchar *) name;
@@ -582,7 +582,7 @@ IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme)
 {
     IconFactory *factory;
 
-    eg_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
+    e_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
     /* generate the quark on-demand */
     if (G_UNLIKELY(_ifactory_quark == 0))
@@ -627,8 +627,8 @@ IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme)
 GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
                               gint size, gboolean wants_default)
 {
-    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
-    eg_return_val_if_fail(size > 0, NULL);
+    e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    e_return_val_if_fail(size > 0, NULL);
 
     /* cannot happen unless there's no XSETTINGS manager
      * for the default screen, but just in case...
@@ -663,9 +663,9 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
                                    ThunarFileIconState icon_state,
                                    gint        icon_size)
 {
-    eg_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    eg_return_val_if_fail(icon_size > 0, NULL);
+    e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(icon_size > 0, NULL);
 
 
     /* check if we have a stored icon on the file and it is still valid */
@@ -800,7 +800,7 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
  **/
 void ifactory_clear_pixmap_cache(ThunarFile *file)
 {
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     /* unset the data */
     if (_ifactory_store_quark != 0)
@@ -881,8 +881,8 @@ gboolean thunar_icon_factory_get_show_thumbnail(const IconFactory *factory,
 {
     GFilesystemPreviewType preview;
 
-    eg_return_val_if_fail(IS_ICONFACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
-    eg_return_val_if_fail(file == NULL || THUNAR_IS_FILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
+    e_return_val_if_fail(IS_ICONFACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
+    e_return_val_if_fail(file == NULL || THUNAR_IS_FILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
 
     if (file == NULL
             || factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_NEVER)

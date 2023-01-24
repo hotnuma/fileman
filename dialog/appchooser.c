@@ -517,7 +517,7 @@ static gboolean _appchooser_selection_func(GtkTreeSelection *selection,
 
 static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
 {
-    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    e_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
 
     GtkTreeSelection *selection;
     GtkTreeModel     *model;
@@ -564,7 +564,7 @@ static void _appchooser_update_accept(AppChooserDialog *dialog)
     gboolean          sensitive = FALSE;
     GValue            value = { 0, };
 
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     if (gtk_expander_get_expanded(GTK_EXPANDER(dialog->custom_expander)))
     {
@@ -595,8 +595,8 @@ static void _appchooser_update_header(AppChooserDialog *dialog)
     gchar       *description;
     gchar       *text;
 
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
-    eg_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
 
     /* check if we have a valid file set */
     if (G_UNLIKELY(dialog->file == NULL))
@@ -648,7 +648,7 @@ static void _appchooser_action_remove(AppChooserDialog *dialog)
     GError           *error = NULL;
     gint              response;
 
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     /* determine the selected row */
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
@@ -827,9 +827,9 @@ static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
     GtkTreeSelection *selection;
     GtkTreePath      *path;
 
-    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
-    eg_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    eg_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+    e_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    e_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    e_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
 
     /* check if we should popup the context menu */
     if (G_LIKELY(event->button == 3 && event->type == GDK_BUTTON_PRESS))
@@ -854,8 +854,8 @@ static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
 static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec,
                                         AppChooserDialog *dialog)
 {
-    eg_return_if_fail(GTK_IS_EXPANDER(expander));
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(GTK_IS_EXPANDER(expander));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     UNUSED(pspec);
 
@@ -876,7 +876,7 @@ static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec
 
 static void _appchooser_expand(AppChooserDialog *dialog)
 {
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     GtkTreeModel *model;
     GtkTreePath  *path;
@@ -912,9 +912,9 @@ static void _appchooser_expand(AppChooserDialog *dialog)
 static gboolean _appchooser_popup_menu(GtkWidget *tree_view,
                                        AppChooserDialog *dialog)
 {
-    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
-    eg_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    eg_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+    e_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    e_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    e_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
 
     /* popup the context menu */
     return _appchooser_context_menu(dialog);
@@ -931,8 +931,8 @@ static void _appchooser_row_activated(GtkTreeView         *treeview,
     GtkTreeIter   iter;
     GValue        value = { 0, };
 
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
-    eg_return_if_fail(GTK_IS_TREE_VIEW(treeview));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(GTK_IS_TREE_VIEW(treeview));
 
     /* determine the current chooser model */
     model = gtk_tree_view_get_model(treeview);
@@ -996,7 +996,7 @@ static void _appchooser_selection_changed(GtkTreeSelection *selection,
 
 static ThunarFile* _appchooser_get_file(AppChooserDialog *dialog)
 {
-    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), NULL);
+    e_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), NULL);
 
     return dialog->file;
 }
@@ -1005,8 +1005,8 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
 {
     AppChooserModel *model;
 
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
-    eg_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     /* disconnect from the previous file */
     if (G_LIKELY(dialog->file != NULL))
@@ -1052,14 +1052,14 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
 
 static gboolean _appchooser_get_open(AppChooserDialog *dialog)
 {
-    eg_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
+    e_return_val_if_fail(IS_APPCHOOSER_DIALOG(dialog), FALSE);
 
     return dialog->open;
 }
 
 static void _appchooser_set_open(AppChooserDialog *dialog, gboolean open)
 {
-    eg_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
+    e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
     /* apply the new state */
     dialog->open = open;
@@ -1089,10 +1089,10 @@ static void _appchooser_set_open(AppChooserDialog *dialog, gboolean open)
  **/
 void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open)
 {
-    eg_return_if_fail(parent == NULL
+    e_return_if_fail(parent == NULL
                           || GDK_IS_SCREEN(parent)
                           || GTK_IS_WIDGET(parent));
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     GdkScreen         *screen;
     GtkWidget         *window = NULL;

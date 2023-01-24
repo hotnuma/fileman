@@ -126,8 +126,8 @@ static void thunar_statusbar_set_property(GObject      *object,
  **/
 static void _thunar_statusbar_set_text(ThunarStatusbar *statusbar, const gchar *text)
 {
-    eg_return_if_fail(THUNAR_IS_STATUSBAR(statusbar));
-    eg_return_if_fail(text != NULL);
+    e_return_if_fail(THUNAR_IS_STATUSBAR(statusbar));
+    e_return_if_fail(text != NULL);
 
     gtk_statusbar_pop(GTK_STATUSBAR(statusbar), statusbar->context_id);
     gtk_statusbar_push(GTK_STATUSBAR(statusbar), statusbar->context_id, text);

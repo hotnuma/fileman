@@ -195,7 +195,7 @@ static void menu_set_property(GObject *object, guint prop_id, const GValue *valu
 
 gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections)
 {
-    eg_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
+    e_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
 
     gboolean force = (menu->type == MENU_TYPE_WINDOW
                       || menu->type == MENU_TYPE_CONTEXT_TREE_VIEW);
@@ -382,7 +382,7 @@ gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections)
 
 void menu_hide_accel_labels(ThunarMenu *menu)
 {
-    eg_return_if_fail(THUNAR_IS_MENU(menu));
+    e_return_if_fail(THUNAR_IS_MENU(menu));
 
     GList *children = gtk_container_get_children(GTK_CONTAINER(menu));
 

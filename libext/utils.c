@@ -151,9 +151,9 @@ void util_load_bookmarks(GFile               *bookmarks_file,
     gint         row_num = 1;
     GFile       *file;
 
-    eg_return_if_fail(G_IS_FILE(bookmarks_file));
-    eg_return_if_fail(g_file_is_native(bookmarks_file));
-    eg_return_if_fail(foreach_func != NULL);
+    e_return_if_fail(G_IS_FILE(bookmarks_file));
+    e_return_if_fail(g_file_is_native(bookmarks_file));
+    e_return_if_fail(foreach_func != NULL);
 
     /* determine the path to the GTK+ bookmarks file */
     bookmarks_path = g_file_get_path(bookmarks_file);
@@ -465,7 +465,7 @@ GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
     GdkScreen *screen;
     GtkWidget *window = NULL;
 
-    eg_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
+    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
 
     /* determine the proper parent */
     if (parent == NULL)
@@ -572,7 +572,7 @@ gchar* util_change_working_directory(const gchar *new_directory)
 {
     gchar *old_directory;
 
-    eg_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
+    e_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
 
     /* try to determine the current working directory */
     old_directory = g_get_current_dir();

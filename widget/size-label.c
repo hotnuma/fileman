@@ -207,8 +207,8 @@ static gboolean _szlabel_button_press_event(GtkWidget       *ebox,
                                             GdkEventButton  *event,
                                             SizeLabel *size_label)
 {
-    eg_return_val_if_fail(GTK_IS_EVENT_BOX(ebox), FALSE);
-    eg_return_val_if_fail(IS_SIZELABEL(size_label), FALSE);
+    e_return_val_if_fail(GTK_IS_EVENT_BOX(ebox), FALSE);
+    e_return_val_if_fail(IS_SIZELABEL(size_label), FALSE);
 
     /* left button press on the spinner cancels the calculation */
     if (G_LIKELY(event->button == 1))
@@ -240,9 +240,9 @@ static gboolean _szlabel_button_press_event(GtkWidget       *ebox,
 
 static void _szlabel_files_changed(SizeLabel *size_label)
 {
-    eg_return_if_fail(IS_SIZELABEL(size_label));
-    eg_return_if_fail(size_label->files != NULL);
-    eg_return_if_fail(THUNAR_IS_FILE(size_label->files->data));
+    e_return_if_fail(IS_SIZELABEL(size_label));
+    e_return_if_fail(size_label->files != NULL);
+    e_return_if_fail(THUNAR_IS_FILE(size_label->files->data));
 
     /* cancel the pending job(if any) */
     if (G_UNLIKELY(size_label->job != NULL))
@@ -294,9 +294,9 @@ static void _szlabel_files_changed(SizeLabel *size_label)
 static void _szlabel_error(ExoJob *job, const GError *error,
                            SizeLabel *size_label)
 {
-    eg_return_if_fail(THUNAR_IS_JOB(job));
-    eg_return_if_fail(IS_SIZELABEL(size_label));
-    eg_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
+    e_return_if_fail(THUNAR_IS_JOB(job));
+    e_return_if_fail(IS_SIZELABEL(size_label));
+    e_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
 
     /* setup the error text as label */
     gtk_label_set_text(GTK_LABEL(size_label->label), error->message);
@@ -304,9 +304,9 @@ static void _szlabel_error(ExoJob *job, const GError *error,
 
 static void _szlabel_finished(ExoJob *job, SizeLabel *size_label)
 {
-    eg_return_if_fail(THUNAR_IS_JOB(job));
-    eg_return_if_fail(IS_SIZELABEL(size_label));
-    eg_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
+    e_return_if_fail(THUNAR_IS_JOB(job));
+    e_return_if_fail(IS_SIZELABEL(size_label));
+    e_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
 
     /* stop and hide the spinner */
     gtk_spinner_stop(GTK_SPINNER(size_label->spinner));
@@ -330,9 +330,9 @@ static void _szlabel_status_update(DeepCountJob *job,
     guint              n;
     gchar             *unreable_text;
 
-    eg_return_if_fail(IS_DEEPCOUNT_JOB(job));
-    eg_return_if_fail(IS_SIZELABEL(size_label));
-    eg_return_if_fail(size_label->job == job);
+    e_return_if_fail(IS_DEEPCOUNT_JOB(job));
+    e_return_if_fail(IS_SIZELABEL(size_label));
+    e_return_if_fail(size_label->job == job);
 
     /* determine the total number of items */
     n = file_count + directory_count + unreadable_directory_count;
@@ -371,7 +371,7 @@ static void _szlabel_status_update(DeepCountJob *job,
  **/
 static GList* _szlabel_get_files(SizeLabel *size_label)
 {
-    eg_return_val_if_fail(IS_SIZELABEL(size_label), NULL);
+    e_return_val_if_fail(IS_SIZELABEL(size_label), NULL);
     return size_label->files;
 }
 
@@ -386,13 +386,13 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
 {
     GList *lp;
 
-    eg_return_if_fail(IS_SIZELABEL(size_label));
-    eg_return_if_fail(files == NULL || THUNAR_IS_FILE(files->data));
+    e_return_if_fail(IS_SIZELABEL(size_label));
+    e_return_if_fail(files == NULL || THUNAR_IS_FILE(files->data));
 
     /* disconnect from the previous files */
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
-        eg_assert(THUNAR_IS_FILE(lp->data));
+        e_assert(THUNAR_IS_FILE(lp->data));
 
         g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _szlabel_files_changed, size_label);
         g_object_unref(G_OBJECT(lp->data));
@@ -404,7 +404,7 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     /* connect to the new file */
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
-        eg_assert(THUNAR_IS_FILE(lp->data));
+        e_assert(THUNAR_IS_FILE(lp->data));
 
         g_object_ref(G_OBJECT(lp->data));
         g_signal_connect_swapped(G_OBJECT(lp->data), "changed", G_CALLBACK(_szlabel_files_changed), size_label);

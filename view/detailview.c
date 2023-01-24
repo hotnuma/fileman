@@ -396,7 +396,7 @@ static GList* detailview_get_selected_items(StandardView *standard_view)
 {
     GtkTreeSelection *selection;
 
-    eg_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
+    e_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     return gtk_tree_selection_get_selected_rows(selection, NULL);
@@ -406,7 +406,7 @@ static void detailview_select_all(StandardView *standard_view)
 {
     GtkTreeSelection *selection;
 
-    eg_return_if_fail(IS_DETAILVIEW(standard_view));
+    e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_select_all(selection);
@@ -416,7 +416,7 @@ static void detailview_unselect_all(StandardView *standard_view)
 {
     GtkTreeSelection *selection;
 
-    eg_return_if_fail(IS_DETAILVIEW(standard_view));
+    e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_unselect_all(selection);
@@ -441,7 +441,7 @@ static void detailview_selection_invert(StandardView *standard_view)
     GList            *lp;
     GtkTreePath      *path;
 
-    eg_return_if_fail(IS_DETAILVIEW(standard_view));
+    e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
 
@@ -472,7 +472,7 @@ static void detailview_select_path(StandardView *standard_view, GtkTreePath *pat
 {
     GtkTreeSelection *selection;
 
-    eg_return_if_fail(IS_DETAILVIEW(standard_view));
+    e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_select_path(selection, path);
@@ -484,7 +484,7 @@ static void detailview_set_cursor(StandardView *standard_view, GtkTreePath *path
     GtkCellRendererMode mode;
     GtkTreeViewColumn  *column;
 
-    eg_return_if_fail(IS_DETAILVIEW(standard_view));
+    e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     /* make sure the name renderer is editable */
     g_object_get( G_OBJECT(standard_view->name_renderer), "mode", &mode, NULL);
@@ -508,7 +508,7 @@ static void detailview_scroll_to_path(StandardView *standard_view,
 {
     GtkTreeViewColumn *column;
 
-    eg_return_if_fail(IS_DETAILVIEW(standard_view));
+    e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     /* tell the tree view to scroll to the given row */
     column = gtk_tree_view_get_column(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), 0);
@@ -521,7 +521,7 @@ static GtkTreePath* detailview_get_path_at_pos(StandardView *standard_view,
 {
     GtkTreePath *path;
 
-    eg_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
+    e_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
     if (gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), x, y, &path, NULL))
         return path;
@@ -533,7 +533,7 @@ static gboolean detailview_get_visible_range(StandardView *standard_view,
                                              GtkTreePath   **start_path,
                                              GtkTreePath   **end_path)
 {
-    eg_return_val_if_fail(IS_DETAILVIEW(standard_view), FALSE);
+    e_return_val_if_fail(IS_DETAILVIEW(standard_view), FALSE);
 
     return gtk_tree_view_get_visible_range(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), start_path, end_path);
 }
@@ -541,7 +541,7 @@ static gboolean detailview_get_visible_range(StandardView *standard_view,
 static void detailview_highlight_path(StandardView *standard_view,
                                       GtkTreePath        *path)
 {
-    eg_return_if_fail(IS_DETAILVIEW(standard_view));
+    e_return_if_fail(IS_DETAILVIEW(standard_view));
     gtk_tree_view_set_drag_dest_row(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), path, GTK_TREE_VIEW_DROP_INTO_OR_AFTER);
 }
 
@@ -564,8 +564,8 @@ static void _detailview_notify_width(GtkTreeViewColumn *tree_view_column,
     UNUSED(pspec);
     ThunarColumn column;
 
-    eg_return_if_fail(GTK_IS_TREE_VIEW_COLUMN(tree_view_column));
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(GTK_IS_TREE_VIEW_COLUMN(tree_view_column));
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
     /* lookup the column no for the given tree view column */
     for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
@@ -758,7 +758,7 @@ static void _detailview_row_activated(GtkTreeView       *tree_view,
     ThunarLauncher   *launcher;
     GtkWidget        *window;
 
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
     /* be sure to have only the clicked item selected */
     if (details_view->button_pressed)
@@ -794,7 +794,7 @@ static gboolean _detailview_select_cursor_row(GtkTreeView       *tree_view,
     ThunarLauncher *launcher;
     GtkWidget      *window;
 
-    eg_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
+    e_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
 
     g_signal_stop_emission_by_name(tree_view,"select-cursor-row");
 
@@ -814,7 +814,7 @@ static void _detailview_row_changed(GtkTreeView       *tree_view,
     UNUSED(path);
     UNUSED(column);
 
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
     gtk_widget_queue_draw(GTK_WIDGET(details_view));
 }
@@ -825,9 +825,9 @@ static void _detailview_columns_changed(ColumnModel *column_model,
     const ThunarColumn *column_order;
     ThunarColumn        column;
 
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
-    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
-    eg_return_if_fail(details_view->column_model == column_model);
+    e_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(IS_COLUMN_MODEL(column_model));
+    e_return_if_fail(details_view->column_model == column_model);
 
     /* determine the new column order */
     column_order = column_model_get_column_order(column_model);
@@ -851,7 +851,7 @@ static void _detailview_columns_changed(ColumnModel *column_model,
 static gboolean _detailview_zoom_level_changed_reload_fixed_columns(gpointer data)
 {
     DetailView *details_view = data;
-    eg_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
+    e_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
 
     _detailview_set_fixed_columns(details_view, TRUE);
     details_view->idle_id = 0;
@@ -863,7 +863,7 @@ static void _detailview_zoom_level_changed(DetailView *details_view)
     ThunarColumn column;
     gboolean     fixed_columns_used = FALSE;
 
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
     if (details_view->fixed_columns == TRUE)
         fixed_columns_used = TRUE;
@@ -899,7 +899,7 @@ static void detailview_connect_accelerators(StandardView  *standard_view,
 {
     DetailView *details_view = DETAILVIEW(standard_view);
 
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
     xfce_gtk_accel_map_add_entries(_detailview_actions, G_N_ELEMENTS(_detailview_actions));
     xfce_gtk_accel_group_connect_action_entries(accel_group,
@@ -941,7 +941,7 @@ static void detailview_append_menu_items(StandardView  *standard_view,
     UNUSED(accel_group);
     DetailView *details_view = DETAILVIEW(standard_view);
 
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
     xfce_gtk_menu_item_new_from_action_entry(
                 get_action_entry(DETAILVIEW_ACTION_CONFIGURE_COLUMNS),
@@ -959,7 +959,7 @@ static void detailview_append_menu_items(StandardView  *standard_view,
  **/
 static gboolean _detailview_get_fixed_columns(DetailView *details_view)
 {
-    eg_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
+    e_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
     return details_view->fixed_columns;
 }
 
@@ -976,7 +976,7 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
     ThunarColumn column;
     gint         width;
 
-    eg_return_if_fail(IS_DETAILVIEW(details_view));
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
     /* normalize the value */
     fixed_columns = !!fixed_columns;

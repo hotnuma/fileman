@@ -642,7 +642,7 @@ static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
  **/
 static void _window_select_files(ThunarWindow *window, GList *files_to_selected)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* If possible, reload the current directory to make sure new files got added to the view */
     ThunarFolder *thunar_folder = th_folder_get_for_file(window->current_directory);
@@ -786,7 +786,7 @@ static void window_set_property(GObject *object, guint prop_id,
 
 static gboolean window_reload(ThunarWindow *window, gboolean reload_info)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
 
     /* force the view to reload */
     if (G_LIKELY(window->view != NULL))
@@ -806,7 +806,7 @@ static gboolean window_reload(ThunarWindow *window, gboolean reload_info)
  **/
 gboolean window_has_shortcut_sidepane(ThunarWindow *window)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
 
     return FALSE;
 }
@@ -819,14 +819,14 @@ gboolean window_has_shortcut_sidepane(ThunarWindow *window)
  **/
 GtkWidget* window_get_sidepane(ThunarWindow *window)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
     return GTK_WIDGET(window->sidepane);
 }
 
 static gboolean window_tab_change(ThunarWindow *window,
                                          gint          nth)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
 
     /* Alt+0 is 10th tab */
     gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook),
@@ -882,8 +882,8 @@ static void _window_binding_create(ThunarWindow *window,
 {
     GBinding *binding;
 
-    eg_return_if_fail(G_IS_OBJECT(src_object));
-    eg_return_if_fail(G_IS_OBJECT(dst_object));
+    e_return_if_fail(G_IS_OBJECT(src_object));
+    e_return_if_fail(G_IS_OBJECT(dst_object));
 
     binding = g_object_bind_property(G_OBJECT(src_object), src_prop,
                                       G_OBJECT(dst_object), dst_prop,
@@ -899,10 +899,10 @@ static void _window_binding_create(ThunarWindow *window,
 static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
                                          guint page_num, ThunarWindow *window)
 {
-    eg_return_if_fail(window->notebook == notebook);
-    eg_return_if_fail(GTK_IS_NOTEBOOK(notebook));
-    eg_return_if_fail(THUNAR_IS_VIEW(page));
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(window->notebook == notebook);
+    e_return_if_fail(GTK_IS_NOTEBOOK(notebook));
+    e_return_if_fail(THUNAR_IS_VIEW(page));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     UNUSED(page_num);
 
@@ -997,7 +997,7 @@ static void _window_history_changed(ThunarWindow *window)
 {
     ThunarHistory *history;
 
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     if (window->view == NULL)
         return;
@@ -1017,10 +1017,10 @@ static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
                                         guint page_num, ThunarWindow *window)
 {
     UNUSED(page_num);
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(GTK_IS_NOTEBOOK(notebook));
-    eg_return_if_fail(THUNAR_IS_VIEW(page));
-    eg_return_if_fail(window->notebook == notebook);
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(GTK_IS_NOTEBOOK(notebook));
+    e_return_if_fail(THUNAR_IS_VIEW(page));
+    e_return_if_fail(window->notebook == notebook);
 
     //DPRINT("enter : window_notebook_page_added\n");
 
@@ -1037,10 +1037,10 @@ static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
 static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
                                           guint page_num, ThunarWindow *window)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(GTK_IS_NOTEBOOK(notebook));
-    eg_return_if_fail(THUNAR_IS_VIEW(page));
-    eg_return_if_fail(window->notebook == notebook);
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(GTK_IS_NOTEBOOK(notebook));
+    e_return_if_fail(THUNAR_IS_VIEW(page));
+    e_return_if_fail(window->notebook == notebook);
 
     UNUSED(page_num);
 
@@ -1066,10 +1066,10 @@ static GtkWidget* _window_notebook_insert(ThunarWindow  *window,
                                           gint          position,
                                           ThunarHistory *history)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
-    eg_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
-    eg_return_val_if_fail(view_type != G_TYPE_NONE, NULL);
-    eg_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
+    e_return_val_if_fail(view_type != G_TYPE_NONE, NULL);
+    e_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
 
     //DPRINT("enter : window_notebook_insert\n");
 
@@ -1131,9 +1131,9 @@ static GtkWidget* _window_notebook_insert(ThunarWindow  *window,
 void window_update_directories(ThunarWindow *window, ThunarFile *old_directory,
                                ThunarFile *new_directory)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(THUNAR_IS_FILE(old_directory));
-    eg_return_if_fail(THUNAR_IS_FILE(new_directory));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_FILE(old_directory));
+    e_return_if_fail(THUNAR_IS_FILE(new_directory));
 
     GtkWidget  *view;
     ThunarFile *directory;
@@ -1202,8 +1202,8 @@ static void _window_handle_reload_request(ThunarWindow *window)
 
 static void _window_install_sidepane(ThunarWindow *window, GType type)
 {
-    eg_return_if_fail(type == G_TYPE_NONE || g_type_is_a(type, TYPE_SIDEPANE));
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(type == G_TYPE_NONE || g_type_is_a(type, TYPE_SIDEPANE));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     GtkStyleContext *context;
 
@@ -1240,7 +1240,7 @@ static void _window_install_sidepane(ThunarWindow *window, GType type)
 static void _window_start_open_location(ThunarWindow *window,
                                         const gchar *initial_text)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* temporary show the location toolbar, even if it is normally hidden */
     gtk_widget_show(window->toolbar);
@@ -1264,7 +1264,7 @@ static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item)
 
 static void _window_action_reload(ThunarWindow *window, GtkWidget *menu_item)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     UNUSED(menu_item);
     gboolean result;
@@ -1280,8 +1280,8 @@ static void _window_action_reload(ThunarWindow *window, GtkWidget *menu_item)
 static void _window_create_view(ThunarWindow *window, GtkWidget *view,
                                 GType view_type)
 {
-    eg_return_if_fail(view_type != G_TYPE_NONE);
-    eg_assert(view == NULL);
+    e_return_if_fail(view_type != G_TYPE_NONE);
+    e_assert(view == NULL);
 
     ThunarFile     *file = NULL;
     ThunarFile     *current_directory = NULL;
@@ -1299,7 +1299,7 @@ static void _window_create_view(ThunarWindow *window, GtkWidget *view,
     if (current_directory == NULL && window->current_directory != NULL)
         current_directory = g_object_ref(window->current_directory);
 
-    eg_assert(current_directory != NULL);
+    e_assert(current_directory != NULL);
 
     page_num = -1;
 
@@ -1364,7 +1364,7 @@ static void _window_action_back(ThunarWindow *window)
 {
     ThunarHistory *history;
 
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     history = standard_view_get_history(STANDARD_VIEW(window->view));
     history_action_back(history);
@@ -1374,7 +1374,7 @@ static void _window_action_forward(ThunarWindow *window)
 {
     ThunarHistory *history;
 
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     history = standard_view_get_history(STANDARD_VIEW(window->view));
     history_action_forward(history);
@@ -1386,7 +1386,7 @@ static void _window_action_open_home(ThunarWindow *window)
     ThunarFile    *home_file;
     GError        *error = NULL;
 
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* determine the path to the home directory */
     home = e_file_new_for_home();
@@ -1413,7 +1413,7 @@ static void _window_action_open_home(ThunarWindow *window)
 static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_event,
                                             gpointer user_data)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), GDK_EVENT_PROPAGATE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), GDK_EVENT_PROPAGATE);
 
     UNUSED(user_data);
 
@@ -1433,7 +1433,7 @@ static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_eve
 
 static void _window_action_show_hidden(ThunarWindow *window)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     window->show_hidden = !window->show_hidden;
     gtk_container_foreach(GTK_CONTAINER(window->notebook),(GtkCallback)(void(*)(void)) baseview_set_show_hidden, GINT_TO_POINTER(window->show_hidden));
@@ -1445,9 +1445,9 @@ static void _window_action_show_hidden(ThunarWindow *window)
 static void _window_current_directory_changed(ThunarFile *current_directory,
                                               ThunarWindow *window)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(THUNAR_IS_FILE(current_directory));
-    eg_return_if_fail(window->current_directory == current_directory);
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(window->current_directory == current_directory);
 
     gboolean      show_full_path = false;
     gchar        *parse_name = NULL;
@@ -1471,7 +1471,7 @@ static void _window_menu_item_selected(ThunarWindow *window, GtkWidget *menu_ite
     gchar *tooltip;
     gint   id;
 
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* we can only display tooltips if we have a statusbar */
     if (G_LIKELY(window->statusbar != NULL))
@@ -1490,7 +1490,7 @@ static void _window_menu_item_selected(ThunarWindow *window, GtkWidget *menu_ite
 static void _window_menu_item_deselected(ThunarWindow *window,
                                          GtkWidget *menu_item)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     UNUSED(menu_item);
     gint id;
@@ -1507,8 +1507,8 @@ static void _window_menu_item_deselected(ThunarWindow *window,
 static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
                                    ThunarWindow *window)
 {
-    eg_return_if_fail(THUNAR_IS_VIEW(view));
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     UNUSED(pspec);
 
@@ -1536,11 +1536,11 @@ static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
                                        GFile         *root_file,
                                        ThunarWindow  *window)
 {
-    eg_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
-    eg_return_if_fail(window->device_monitor == device_monitor);
-    eg_return_if_fail(THUNAR_IS_DEVICE(device));
-    eg_return_if_fail(G_IS_FILE(root_file));
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
+    e_return_if_fail(window->device_monitor == device_monitor);
+    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(G_IS_FILE(root_file));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     /* nothing to do if we don't have a current directory */
     if (G_UNLIKELY(window->current_directory == NULL))
@@ -1561,10 +1561,10 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
 {
     GFile *root_file;
 
-    eg_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
-    eg_return_if_fail(window->device_monitor == device_monitor);
-    eg_return_if_fail(THUNAR_IS_DEVICE(device));
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
+    e_return_if_fail(window->device_monitor == device_monitor);
+    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     if (th_device_is_mounted(device))
         return;
@@ -1579,7 +1579,7 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
 
 static gboolean _window_save_paned(ThunarWindow *window)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
 
     Preferences *prefs = get_preferences();
     prefs->separator_position = gtk_paned_get_position(GTK_PANED(window->paned));
@@ -1597,8 +1597,8 @@ static gboolean _window_save_paned(ThunarWindow *window)
  **/
 void _window_set_zoom_level(ThunarWindow *window, ThunarZoomLevel zoom_level)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
     /* check if we have a new zoom level */
     if (G_LIKELY(window->zoom_level != zoom_level))
@@ -1623,7 +1623,7 @@ void _window_set_zoom_level(ThunarWindow *window, ThunarZoomLevel zoom_level)
  **/
 ThunarFile* window_get_current_directory(ThunarWindow *window)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
     return window->current_directory;
 }
 
@@ -1637,8 +1637,8 @@ void window_set_current_directory(ThunarWindow *window,
 {
 //  DPRINT("enter : window_set_current_directory\n");
 
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
 
     /* check if we already display the requested directory */
     if (G_UNLIKELY(window->current_directory == current_directory))
@@ -1711,8 +1711,8 @@ void window_scroll_to_file(ThunarWindow *window,
                            gfloat        row_align,
                            gfloat        col_align)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     /* verify that we have a valid view */
     if (G_LIKELY(window->view != NULL))
@@ -1727,7 +1727,7 @@ gchar** window_get_directories(ThunarWindow *window, gint *active_page)
     GtkWidget   *view;
     ThunarFile  *directory;
 
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
 
     n_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook));
     if (G_UNLIKELY(n_pages == 0))
@@ -1739,11 +1739,11 @@ gchar** window_get_directories(ThunarWindow *window, gint *active_page)
     {
         /* get the view */
         view = gtk_notebook_get_nth_page(GTK_NOTEBOOK(window->notebook), n);
-        eg_return_val_if_fail(THUNAR_IS_NAVIGATOR(view), FALSE);
+        e_return_val_if_fail(THUNAR_IS_NAVIGATOR(view), FALSE);
 
         /* get the directory of the view */
         directory = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
-        eg_return_val_if_fail(THUNAR_IS_FILE(directory), FALSE);
+        e_return_val_if_fail(THUNAR_IS_FILE(directory), FALSE);
 
         /* add to array */
         uris[n] = th_file_dup_uri(directory);
@@ -1759,8 +1759,8 @@ gchar** window_get_directories(ThunarWindow *window, gint *active_page)
 gboolean window_set_directories(ThunarWindow *window, gchar **uris,
                                 gint active_page)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
-    eg_return_val_if_fail(uris != NULL, FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(uris != NULL, FALSE);
 
     for (guint n = 0; uris[n] != NULL; ++n)
     {
@@ -1802,7 +1802,7 @@ const XfceGtkActionEntry* window_get_action_entry(ThunarWindow *window,
 
 ThunarLauncher* window_get_launcher(ThunarWindow *window)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
 
     return window->launcher;
 }
@@ -1837,8 +1837,8 @@ static void _window_redirect_menu_tooltips_to_statusbar_recursive(
 void window_redirect_menu_tooltips_to_statusbar(ThunarWindow *window,
                                                 GtkMenu *menu)
 {
-    eg_return_if_fail(THUNAR_IS_WINDOW(window));
-    eg_return_if_fail(GTK_IS_MENU(menu));
+    e_return_if_fail(THUNAR_IS_WINDOW(window));
+    e_return_if_fail(GTK_IS_MENU(menu));
 
     gtk_container_foreach(GTK_CONTAINER(menu),(GtkCallback)(void(*)(void)) _window_redirect_menu_tooltips_to_statusbar_recursive, window);
 }
@@ -1851,7 +1851,7 @@ static gboolean _window_button_press_event(GtkWidget      *view,
 
     const XfceGtkActionEntry* action_entry;
 
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), FALSE);
 
     if (event->type == GDK_BUTTON_PRESS)
     {
@@ -1879,7 +1879,7 @@ static gboolean _window_history_clicked(GtkWidget      *button,
     ThunarHistory *history;
     ThunarWindow  *window;
 
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(data), FALSE);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(data), FALSE);
 
     window = THUNAR_WINDOW(data);
 
@@ -1900,7 +1900,7 @@ static gboolean _window_history_clicked(GtkWidget      *button,
 
 GtkWidget* window_get_focused_tree_view(ThunarWindow *window)
 {
-    eg_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(THUNAR_IS_WINDOW(window), NULL);
 
     GtkWidget *tree_view = GTK_WIDGET(treepane_get_view(
                                      TREEPANE(window->sidepane)));

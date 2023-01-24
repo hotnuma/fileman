@@ -541,8 +541,8 @@ static void thunar_column_model_notify_column_order(/*ThunarPreferences*/ void *
     GtkTreeIter  iter;
     gint         n;
 
-    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
-    //eg_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+    e_return_if_fail(IS_COLUMN_MODEL(column_model));
+    //e_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
 
     /* load the new column order */
     thunar_column_model_load_column_order(column_model);
@@ -566,8 +566,8 @@ static void thunar_column_model_notify_column_widths(void *preferences,
 {
     UNUSED(preferences);
     UNUSED(pspec);
-    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
-    //eg_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+    e_return_if_fail(IS_COLUMN_MODEL(column_model));
+    //e_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
 
     /* load the new column widths */
     thunar_column_model_load_column_widths(column_model);
@@ -583,8 +583,8 @@ static void thunar_column_model_notify_visible_columns(void *preferences,
     GtkTreeIter  iter;
     gint         n;
 
-    eg_return_if_fail(IS_COLUMN_MODEL(column_model));
-    //eg_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
+    e_return_if_fail(IS_COLUMN_MODEL(column_model));
+    //e_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
 
     /* load the new list of visible columns */
     thunar_column_model_load_visible_columns(column_model);
@@ -620,9 +620,9 @@ static void thunar_properties_dialog_icon_button_clicked(
     gchar       *icon;
     ThunarFile  *file;
 
-    eg_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
-    eg_return_if_fail(GTK_IS_BUTTON(button));
-    eg_return_if_fail(g_list_length(dialog->files) == 1);
+    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(GTK_IS_BUTTON(button));
+    e_return_if_fail(g_list_length(dialog->files) == 1);
 
     /* make sure we still have a file */
     if (G_UNLIKELY(dialog->files == NULL))
@@ -719,7 +719,7 @@ gboolean treemodel_node_has_dummy(TreeModel *model, GNode *node);
 gboolean treemodel_node_has_dummy(TreeModel *model,
                                           GNode           *node)
 {
-    eg_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
+    e_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), TRUE);
     return G_NODE_HAS_DUMMY(node);
 }
 
@@ -788,8 +788,8 @@ GdkScreen* thunar_gdk_screen_open(const gchar *display_name,
     GSList      *displays;
     GSList      *dp;
 
-    eg_return_val_if_fail(display_name != NULL, NULL);
-    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    e_return_val_if_fail(display_name != NULL, NULL);
+    e_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     /* check if the default screen should be opened */
     if (G_UNLIKELY(*display_name == '\0'))
@@ -1013,10 +1013,10 @@ gboolean eg_file_write_key_file(GFile         *file,
     gsize     length;
     gboolean  result = TRUE;
 
-    eg_return_val_if_fail(G_IS_FILE(file), FALSE);
-    eg_return_val_if_fail(key_file != NULL, FALSE);
-    eg_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
-    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    e_return_val_if_fail(G_IS_FILE(file), FALSE);
+    e_return_val_if_fail(key_file != NULL, FALSE);
+    e_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     /* write the key file into the contents buffer */
     contents = g_key_file_to_data(key_file, &length, NULL);
@@ -1074,7 +1074,7 @@ VOID:UINT,BOXED
 
 GtkWidget* menu_get_launcher(ThunarMenu *menu)
 {
-    eg_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
+    e_return_val_if_fail(THUNAR_IS_MENU(menu), NULL);
 
     return GTK_WIDGET(menu->launcher);
 }
@@ -1096,13 +1096,13 @@ gboolean    th_file_is_desktop(const ThunarFile *file);
 
 gchar* th_file_get_size_string(const ThunarFile *file)
 {
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
     return g_format_size(th_file_get_size(file));
 }
 
 gboolean th_file_is_home(const ThunarFile *file)
 {
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     return thunar_g_file_is_home(file->gfile);
 }
 
@@ -1112,9 +1112,9 @@ gboolean th_file_set_custom_icon(ThunarFile  *file,
 {
     GKeyFile *key_file;
 
-    eg_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    eg_return_val_if_fail(custom_icon != NULL, FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(custom_icon != NULL, FALSE);
 
     key_file = thunar_g_file_query_key_file(file->gfile, NULL, error);
 
@@ -1155,8 +1155,8 @@ GIcon* th_file_get_preview_icon(const ThunarFile *file)
 {
     GObject *icon;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    eg_return_val_if_fail(G_IS_FILE_INFO(file->info), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(G_IS_FILE_INFO(file->info), NULL);
 
     icon = g_file_info_get_attribute_object(file->info, G_FILE_ATTRIBUTE_PREVIEW_ICON);
     if (G_LIKELY(icon != NULL))
@@ -1170,8 +1170,8 @@ GFilesystemPreviewType th_file_get_preview_type(const ThunarFile *file)
     GFilesystemPreviewType  preview;
     GFileInfo               *info;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
-    eg_return_val_if_fail(G_IS_FILE(file->gfile), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
+    e_return_val_if_fail(G_IS_FILE(file->gfile), G_FILESYSTEM_PREVIEW_TYPE_NEVER);
 
     info = g_file_query_filesystem_info(file->gfile, G_FILE_ATTRIBUTE_FILESYSTEM_USE_PREVIEW, NULL, NULL);
     if (G_LIKELY(info != NULL))
@@ -1190,7 +1190,7 @@ GFilesystemPreviewType th_file_get_preview_type(const ThunarFile *file)
 
 void th_file_reload_idle(ThunarFile *file)
 {
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     g_idle_add((GSourceFunc) th_file_reload, file);
 }
@@ -1203,7 +1203,7 @@ void        thunar_file_set_thumb_state(ThunarFile *file,
 void thunar_file_set_thumb_state(ThunarFile *file,
                                  ThunarFileThumbState state)
 {
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     /* check if the state changes */
     if (thunar_file_get_thumb_state(file) == state)
@@ -1342,7 +1342,7 @@ static void thunar_file_set_emblem_names_ready(GObject      *source_object,
 
 static gboolean thunar_file_is_readable(const ThunarFile *file)
 {
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     if (file->info == NULL)
         return FALSE;
@@ -1360,7 +1360,7 @@ GList* thunar_file_get_emblem_names(ThunarFile *file)
     gchar   **emblem_names;
     GList    *emblems = NULL;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* leave if there is no info */
     if (file->info == NULL)
@@ -1413,8 +1413,8 @@ void thunar_file_set_emblem_names(ThunarFile *file,
     gint        n;
     GFileInfo  *info;
 
-    eg_return_if_fail(THUNAR_IS_FILE(file));
-    eg_return_if_fail(G_IS_FILE_INFO(file->info));
+    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(G_IS_FILE_INFO(file->info));
 
     /* allocate a zero-terminated array for the emblem names */
     emblems = g_new0(gchar *, g_list_length(emblem_names) + 1);
@@ -1461,7 +1461,7 @@ const gchar* thunar_file_get_metadata_setting(ThunarFile  *file,
     gchar       *attr_name;
     const gchar *attr_value;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     if (file->info == NULL)
         return NULL;
@@ -1504,8 +1504,8 @@ void thunar_file_set_metadata_setting(ThunarFile  *file,
     GFileInfo *info;
     gchar     *attr_name;
 
-    eg_return_if_fail(THUNAR_IS_FILE(file));
-    eg_return_if_fail(G_IS_FILE_INFO(file->info));
+    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(G_IS_FILE_INFO(file->info));
 
     /* convert the setting name to an attribute name */
     attr_name = g_strdup_printf("metadata::thunar-%s", setting_name);
@@ -1530,7 +1530,7 @@ void thunar_file_set_metadata_setting(ThunarFile  *file,
 
 void thunar_file_clear_directory_specific_settings(ThunarFile *file)
 {
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     if (file->info == NULL)
         return;
@@ -1556,7 +1556,7 @@ const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
     gchar     *filename;
     gchar     *uri;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     /* if the thumbstate is known to be not there, return null */
     if (thunar_file_get_thumb_state(file) == THUNAR_FILE_THUMB_STATE_NONE)
@@ -1613,7 +1613,7 @@ const gchar* thunar_file_get_thumbnail_path(ThunarFile *file,
 
 gboolean thunar_file_has_directory_specific_settings(ThunarFile *file)
 {
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     if (file->info == NULL)
         return FALSE;
@@ -1653,7 +1653,7 @@ void standard_view_open_on_middle_click(StandardView *standard_view,
     GtkWidget      *window;
     ThunarLauncher *launcher;
 
-    eg_return_if_fail(IS_STANDARD_VIEW(standard_view));
+    e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
     /* determine the file for the path */
     gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, tree_path);
@@ -1681,8 +1681,8 @@ static void thunar_file_move_thumbnail_cache_file(GFile *old_file,
     Application *application;
     ThunarThumbnailCache *thumbnail_cache;
 
-    eg_return_if_fail(G_IS_FILE(old_file));
-    eg_return_if_fail(G_IS_FILE(new_file));
+    e_return_if_fail(G_IS_FILE(old_file));
+    e_return_if_fail(G_IS_FILE(new_file));
 
     application = thunar_application_get();
     thumbnail_cache = thunar_application_get_thumbnail_cache(application);
@@ -1707,8 +1707,8 @@ gboolean launcher_append_custom_actions(ThunarLauncher *launcher,
     GList                  *lp_provider;
     GList                  *lp_item;
 
-    eg_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
-    eg_return_val_if_fail(GTK_IS_MENU(menu), FALSE);
+    e_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
+    e_return_val_if_fail(GTK_IS_MENU(menu), FALSE);
 
     /* determine the toplevel window we belong to */
     window = gtk_widget_get_toplevel(launcher->widget);

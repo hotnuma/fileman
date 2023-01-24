@@ -128,7 +128,7 @@ static void baseview_class_init(gpointer klass)
  **/
 gboolean baseview_get_loading(BaseView *view)
 {
-    eg_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
+    e_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
     return BASEVIEW_GET_IFACE(view)->get_loading(view);
 }
@@ -145,7 +145,7 @@ gboolean baseview_get_loading(BaseView *view)
  **/
 const gchar* baseview_get_statusbar_text(BaseView *view)
 {
-    eg_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
+    e_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
 
     return BASEVIEW_GET_IFACE(view)->get_statusbar_text(view);
 }
@@ -161,7 +161,7 @@ const gchar* baseview_get_statusbar_text(BaseView *view)
  **/
 gboolean baseview_get_show_hidden(BaseView *view)
 {
-    eg_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
+    e_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
     return BASEVIEW_GET_IFACE(view)->get_show_hidden(view);
 }
@@ -177,7 +177,7 @@ gboolean baseview_get_show_hidden(BaseView *view)
  **/
 void baseview_set_show_hidden(BaseView *view, gboolean show_hidden)
 {
-    eg_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(THUNAR_IS_VIEW(view));
 
     BASEVIEW_GET_IFACE(view)->set_show_hidden(view, show_hidden);
 }
@@ -192,7 +192,7 @@ void baseview_set_show_hidden(BaseView *view, gboolean show_hidden)
  **/
 ThunarZoomLevel baseview_get_zoom_level(BaseView *view)
 {
-    eg_return_val_if_fail(THUNAR_IS_VIEW(view), THUNAR_ZOOM_LEVEL_100_PERCENT);
+    e_return_val_if_fail(THUNAR_IS_VIEW(view), THUNAR_ZOOM_LEVEL_100_PERCENT);
 
     return BASEVIEW_GET_IFACE(view)->get_zoom_level(view);
 }
@@ -206,8 +206,8 @@ ThunarZoomLevel baseview_get_zoom_level(BaseView *view)
  **/
 void baseview_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
 {
-    eg_return_if_fail(THUNAR_IS_VIEW(view));
-    eg_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
+    e_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
     BASEVIEW_GET_IFACE(view)->set_zoom_level(view, zoom_level);
 }
@@ -223,7 +223,7 @@ void baseview_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level)
  **/
 void baseview_reload(BaseView *view, gboolean reload_info)
 {
-    eg_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(THUNAR_IS_VIEW(view));
 
     BASEVIEW_GET_IFACE(view)->reload(view, reload_info);
 }
@@ -247,7 +247,7 @@ gboolean baseview_get_visible_range(BaseView  *view,
                                        ThunarFile **start_file,
                                        ThunarFile **end_file)
 {
-    eg_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
+    e_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
     return BASEVIEW_GET_IFACE(view)->get_visible_range(view, start_file, end_file);
 }
@@ -272,10 +272,10 @@ void baseview_scroll_to_file(BaseView  *view,
                                 gfloat      row_align,
                                 gfloat      col_align)
 {
-    eg_return_if_fail(THUNAR_IS_VIEW(view));
-    eg_return_if_fail(THUNAR_IS_FILE(file));
-    eg_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
-    eg_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
+    e_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
+    e_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
 
     BASEVIEW_GET_IFACE(view)->scroll_to_file(view,
                                                    file,
@@ -287,14 +287,14 @@ void baseview_scroll_to_file(BaseView  *view,
 
 GList* baseview_get_selected_files(BaseView *view)
 {
-    eg_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
+    e_return_val_if_fail(THUNAR_IS_VIEW(view), NULL);
 
     return BASEVIEW_GET_IFACE(view)->get_selected_files(view);
 }
 
 void baseview_set_selected_files(BaseView *view, GList *path_list)
 {
-    eg_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(THUNAR_IS_VIEW(view));
 
     BASEVIEW_GET_IFACE(view)->set_selected_files(view, path_list);
 }

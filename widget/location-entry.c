@@ -295,8 +295,8 @@ static void thunar_location_entry_open_or_launch(ThunarLocationEntry *location_e
 {
     GError *error = NULL;
 
-    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     /* check if the file is mounted */
     if (th_file_is_mounted(file))
@@ -341,8 +341,8 @@ static void thunar_location_entry_poke_file_finish(ThunarBrowser *browser,
                                                    GError        *error,
                                                    gpointer       ignored)
 {
-    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(browser));
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_LOCATION_ENTRY(browser));
+    e_return_if_fail(THUNAR_IS_FILE(file));
     UNUSED(ignored);
 
     if (error != NULL)
@@ -363,8 +363,8 @@ static void thunar_location_entry_activate(GtkWidget           *path_entry,
                                            ThunarLocationEntry *location_entry)
 {
 
-    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
-    eg_return_if_fail(location_entry->path_entry == path_entry);
+    e_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    e_return_if_fail(location_entry->path_entry == path_entry);
 
     /* determine the current file from the path entry */
     ThunarFile *file =
@@ -389,7 +389,7 @@ static gboolean thunar_location_entry_button_press_event(
 {
     UNUSED(path_entry);
 
-    eg_return_val_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry), FALSE);
+    e_return_val_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry), FALSE);
 
     /* check if the context menu was triggered */
     if (event->type == GDK_BUTTON_PRESS && event->button == 3)
@@ -421,7 +421,7 @@ static void thunar_location_entry_reload(GtkEntry            *entry,
     UNUSED(entry);
     UNUSED(event);
 
-    eg_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
+    e_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
 
     if (icon_pos == GTK_ENTRY_ICON_SECONDARY)
     {

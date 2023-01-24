@@ -547,7 +547,7 @@ static GType listmodel_get_column_type(GtkTreeModel *model, gint idx)
         return G_TYPE_STRING;
     }
 
-    eg_assert_not_reached();
+    e_assert_not_reached();
 
     return G_TYPE_INVALID;
 }
@@ -559,8 +559,8 @@ static gboolean listmodel_get_iter(GtkTreeModel *model, GtkTreeIter *iter,
     GSequenceIter   *row;
     gint             offset;
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
-    eg_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
 
     /* determine the row for the path */
     offset = gtk_tree_path_get_indices(path)[0];
@@ -580,8 +580,8 @@ static GtkTreePath* listmodel_get_path(GtkTreeModel *model, GtkTreeIter *iter)
     ListModel *store = LISTMODEL(model);
     gint             idx;
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), NULL);
-    eg_return_val_if_fail(iter->stamp == store->stamp, NULL);
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    e_return_val_if_fail(iter->stamp == store->stamp, NULL);
 
     idx = g_sequence_iter_get_position(iter->user_data);
     if (G_LIKELY(idx >= 0))
@@ -601,11 +601,11 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
     ThunarFile  *file;
     gchar       *str;
 
-    eg_return_if_fail(IS_LISTMODEL(model));
-    eg_return_if_fail(iter->stamp ==(LISTMODEL(model))->stamp);
+    e_return_if_fail(IS_LISTMODEL(model));
+    e_return_if_fail(iter->stamp ==(LISTMODEL(model))->stamp);
 
     file = g_sequence_get(iter->user_data);
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     switch(column)
     {
@@ -709,15 +709,15 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
         break;
 
     default:
-        eg_assert_not_reached();
+        e_assert_not_reached();
         break;
     }
 }
 
 static gboolean listmodel_iter_next(GtkTreeModel *model, GtkTreeIter *iter)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(model), FALSE);
-    eg_return_val_if_fail(iter->stamp ==(LISTMODEL(model))->stamp, FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(model), FALSE);
+    e_return_val_if_fail(iter->stamp ==(LISTMODEL(model))->stamp, FALSE);
 
     iter->user_data = g_sequence_iter_next(iter->user_data);
     return !g_sequence_iter_is_end(iter->user_data);
@@ -728,7 +728,7 @@ static gboolean listmodel_iter_children(GtkTreeModel *model, GtkTreeIter *iter,
 {
     ListModel *store = LISTMODEL(model);
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
 
     if (G_LIKELY(parent == NULL
                   && g_sequence_get_length(store->rows) > 0))
@@ -751,7 +751,7 @@ static gint listmodel_iter_n_children(GtkTreeModel *model, GtkTreeIter *iter)
 {
     ListModel *store = LISTMODEL(model);
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), 0);
+    e_return_val_if_fail(IS_LISTMODEL(store), 0);
 
     return(iter == NULL) ? g_sequence_get_length(store->rows) : 0;
 }
@@ -764,7 +764,7 @@ static gboolean listmodel_iter_nth_child(GtkTreeModel *model,
     ListModel *store = LISTMODEL(model);
     GSequenceIter   *row;
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
 
     if (G_LIKELY(parent == NULL))
     {
@@ -815,7 +815,7 @@ static gboolean listmodel_get_sort_column_id(GtkTreeSortable *sortable,
 {
     ListModel *store = LISTMODEL(sortable);
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
 
     if (store->sort_func == _sort_by_mime_type)
         *sort_column_id = THUNAR_COLUMN_MIME_TYPE;
@@ -838,7 +838,7 @@ static gboolean listmodel_get_sort_column_id(GtkTreeSortable *sortable,
     else if (store->sort_func == _sort_by_group)
         *sort_column_id = THUNAR_COLUMN_GROUP;
     else
-        eg_assert_not_reached();
+        e_assert_not_reached();
 
     if (order != NULL)
     {
@@ -857,7 +857,7 @@ static void listmodel_set_sort_column_id(GtkTreeSortable *sortable,
 {
     ListModel *store = LISTMODEL(sortable);
 
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     switch(sort_column_id)
     {
@@ -903,7 +903,7 @@ static void listmodel_set_sort_column_id(GtkTreeSortable *sortable,
         break;
 
     default:
-        eg_assert_not_reached();
+        e_assert_not_reached();
     }
 
     /* new sort sign */
@@ -957,8 +957,8 @@ static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
     gboolean         isdir_a;
     gboolean         isdir_b;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(a), 0);
-    eg_return_val_if_fail(THUNAR_IS_FILE(b), 0);
+    e_return_val_if_fail(THUNAR_IS_FILE(a), 0);
+    e_return_val_if_fail(THUNAR_IS_FILE(b), 0);
 
     if (G_LIKELY(store->sort_folders_first))
     {
@@ -980,7 +980,7 @@ static void _listmodel_sort(ListModel *store)
     gint            length;
     GSequenceIter  *row;
 
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     length = g_sequence_get_length(store->rows);
     if (G_UNLIKELY(length <= 1))
@@ -1039,9 +1039,9 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
     GtkTreePath   *path;
     GtkTreeIter    iter;
 
-    eg_return_if_fail(IS_FILEMONITOR(file_monitor));
-    eg_return_if_fail(IS_LISTMODEL(store));
-    eg_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_FILEMONITOR(file_monitor));
+    e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
     row = g_sequence_get_begin_iter(store->rows);
     end = g_sequence_get_end_iter(store->rows);
@@ -1053,7 +1053,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
             /* generate the iterator for this row */
             GTK_TREE_ITER_INIT(iter, store->stamp, row);
 
-            eg_assert(pos_before == g_sequence_iter_get_position(row));
+            e_assert(pos_before == g_sequence_iter_get_position(row));
 
             /* check if the sorting changed */
             g_sequence_sort_changed(row, _listmodel_cmp_func, store);
@@ -1106,8 +1106,8 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
 
 static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store)
 {
-    eg_return_if_fail(IS_LISTMODEL(store));
-    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(THUNAR_IS_FOLDER(folder));
 
     listmodel_set_folder(store, NULL);
 
@@ -1117,9 +1117,9 @@ static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store)
 static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
                                     ListModel *store)
 {
-    eg_return_if_fail(IS_LISTMODEL(store));
-    eg_return_if_fail(THUNAR_IS_FOLDER(folder));
-    eg_return_if_fail(error != NULL);
+    e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(error != NULL);
 
     /* forward the error signal */
     g_signal_emit(G_OBJECT(store), _list_model_signals[ERROR], 0, error);
@@ -1157,7 +1157,7 @@ static void _listmodel_files_added(ThunarFolder *folder, GList *files,
     {
         /* take a reference on that file */
         file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
-        eg_return_if_fail(THUNAR_IS_FILE(file));
+        e_return_if_fail(THUNAR_IS_FILE(file));
 
         /* check if the file should be hidden */
         if (!store->show_hidden && th_file_is_hidden(file))
@@ -1237,7 +1237,7 @@ static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
         if (!found)
         {
             /* file is hidden */
-            eg_assert(g_slist_find(store->hidden, lp->data) != NULL);
+            e_assert(g_slist_find(store->hidden, lp->data) != NULL);
             store->hidden = g_slist_remove(store->hidden, lp->data);
             g_object_unref(G_OBJECT(lp->data));
         }
@@ -1501,14 +1501,14 @@ ListModel* listmodel_new()
 
 static gboolean _listmodel_get_case_sensitive(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->sort_case_sensitive;
 }
 
 static void _listmodel_set_case_sensitive(ListModel *store,
                                           gboolean case_sensitive)
 {
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     /* normalize the setting */
     case_sensitive = !!case_sensitive;
@@ -1535,13 +1535,13 @@ static void _listmodel_set_case_sensitive(ListModel *store,
 
 static ThunarDateStyle _listmodel_get_date_style(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), THUNAR_DATE_STYLE_SIMPLE);
+    e_return_val_if_fail(IS_LISTMODEL(store), THUNAR_DATE_STYLE_SIMPLE);
     return store->date_style;
 }
 
 static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_style)
 {
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     /* check if we have a new setting */
     if (store->date_style != date_style)
@@ -1562,7 +1562,7 @@ static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_sty
 
 static const char* _listmodel_get_date_custom_style(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
 
     return store->date_custom_style;
 }
@@ -1570,7 +1570,7 @@ static const char* _listmodel_get_date_custom_style(ListModel *store)
 static void _listmodel_set_date_custom_style(ListModel *store,
                                              const char *date_custom_style)
 {
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     /* check if we have a new setting */
     if (g_strcmp0(store->date_custom_style, date_custom_style) != 0)
@@ -1590,7 +1590,7 @@ static void _listmodel_set_date_custom_style(ListModel *store,
 
 ThunarFolder* listmodel_get_folder(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
     return store->folder;
 }
 
@@ -1604,8 +1604,8 @@ void listmodel_set_folder(ListModel *store,
     GSequenceIter *end;
     GSequenceIter *next;
 
-    eg_return_if_fail(IS_LISTMODEL(store));
-    eg_return_if_fail(folder == NULL || THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(folder == NULL || THUNAR_IS_FOLDER(folder));
 
     /* check if we're not already using that folder */
     if (G_UNLIKELY(store->folder == folder))
@@ -1647,7 +1647,7 @@ void listmodel_set_folder(ListModel *store,
     }
 
     /* ... just to be sure! */
-    eg_assert(g_sequence_get_length(store->rows) == 0);
+    e_assert(g_sequence_get_length(store->rows) == 0);
 
 #ifndef NDEBUG
     /* new stamp since the model changed */
@@ -1688,13 +1688,13 @@ void listmodel_set_folder(ListModel *store,
 
 static gboolean _listmodel_get_folders_first(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->sort_folders_first;
 }
 
 void listmodel_set_folders_first(ListModel *store, gboolean folders_first)
 {
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     /* check if the new setting differs */
     if ((store->sort_folders_first && folders_first)
@@ -1715,7 +1715,7 @@ void listmodel_set_folders_first(ListModel *store, gboolean folders_first)
 
 gboolean listmodel_get_show_hidden(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->show_hidden;
 }
 
@@ -1729,7 +1729,7 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
     GSequenceIter *next;
     GSequenceIter *end;
 
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     /* check if the settings differ */
     if (store->show_hidden == show_hidden)
@@ -1759,7 +1759,7 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
     }
     else
     {
-        eg_assert(store->hidden == NULL);
+        e_assert(store->hidden == NULL);
 
         /* remove all hidden files */
         row = g_sequence_get_begin_iter(store->rows);
@@ -1787,7 +1787,7 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
             }
 
             row = next;
-            eg_assert(end == g_sequence_get_end_iter(store->rows));
+            e_assert(end == g_sequence_get_end_iter(store->rows));
         }
     }
 
@@ -1800,13 +1800,13 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
 
 gboolean listmodel_get_file_size_binary(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
     return store->file_size_binary;
 }
 
 void listmodel_set_file_size_binary(ListModel *store, gboolean file_size_binary)
 {
-    eg_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(IS_LISTMODEL(store));
 
     /* normalize the setting */
     file_size_binary = !!file_size_binary;
@@ -1835,8 +1835,8 @@ ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter)
 {
     // g_object_unref
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), NULL);
-    eg_return_val_if_fail(iter->stamp == store->stamp, NULL);
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    e_return_val_if_fail(iter->stamp == store->stamp, NULL);
 
     return g_object_ref(g_sequence_get(iter->user_data));
 }
@@ -1844,7 +1844,7 @@ ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter)
 // Counts the number of visible files into the store
 static gint _listmodel_get_num_files(ListModel *store)
 {
-    eg_return_val_if_fail(IS_LISTMODEL(store), 0);
+    e_return_val_if_fail(IS_LISTMODEL(store), 0);
 
     return g_sequence_get_length(store->rows);
 }
@@ -1874,7 +1874,7 @@ GList* listmodel_get_paths_for_files(ListModel *store, GList *files)
     GSequenceIter *end;
     gint           i = 0;
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
 
     row = g_sequence_get_begin_iter(store->rows);
     end = g_sequence_get_end_iter(store->rows);
@@ -1884,7 +1884,7 @@ GList* listmodel_get_paths_for_files(ListModel *store, GList *files)
     {
         if (g_list_find(files, g_sequence_get(row)) != NULL)
         {
-            eg_assert(i == g_sequence_iter_get_position(row));
+            e_assert(i == g_sequence_iter_get_position(row));
             paths = g_list_prepend(paths, gtk_tree_path_new_from_indices(i, -1));
         }
 
@@ -1919,8 +1919,8 @@ GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern)
     ThunarFile    *file;
     gint           i = 0;
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), NULL);
-    eg_return_val_if_fail(g_utf8_validate(pattern, -1, NULL), NULL);
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    e_return_val_if_fail(g_utf8_validate(pattern, -1, NULL), NULL);
 
     /* compile the pattern */
     pspec = g_pattern_spec_new(pattern);
@@ -1934,7 +1934,7 @@ GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern)
         file = g_sequence_get(row);
         if (g_pattern_match_string(pspec, th_file_get_display_name(file)))
         {
-            eg_assert(i == g_sequence_iter_get_position(row));
+            e_assert(i == g_sequence_iter_get_position(row));
             paths = g_list_prepend(paths, gtk_tree_path_new_from_indices(i, -1));
         }
 
@@ -2038,7 +2038,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
     gboolean           show_file_size_binary_format;
     GList             *relevant_files = NULL;
 
-    eg_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
 
     show_file_size_binary_format = listmodel_get_file_size_binary(store);
 

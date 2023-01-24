@@ -61,11 +61,11 @@ GFile* job_util_next_duplicate_file(ThunarJob *job,
     gchar       *file_basename;
     gchar       *dot = NULL;
 
-    eg_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
-    eg_return_val_if_fail(G_IS_FILE(file), NULL);
-    eg_return_val_if_fail(0 < n, NULL);
-    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
-    eg_return_val_if_fail(!e_file_is_root(file), NULL);
+    e_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
+    e_return_val_if_fail(G_IS_FILE(file), NULL);
+    e_return_val_if_fail(0 < n, NULL);
+    e_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    e_return_val_if_fail(!e_file_is_root(file), NULL);
 
     /* abort on cancellation */
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
@@ -164,13 +164,13 @@ GFile* job_util_next_renamed_file(ThunarJob *job,
     gchar       *file_basename;
     gchar       *dot = NULL;
 
-    eg_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
-    eg_return_val_if_fail(G_IS_FILE(src_file), NULL);
-    eg_return_val_if_fail(G_IS_FILE(tgt_file), NULL);
-    eg_return_val_if_fail(0 < n, NULL);
-    eg_return_val_if_fail(error == NULL || *error == NULL, NULL);
-    eg_return_val_if_fail(!e_file_is_root(src_file), NULL);
-    eg_return_val_if_fail(!e_file_is_root(tgt_file), NULL);
+    e_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
+    e_return_val_if_fail(G_IS_FILE(src_file), NULL);
+    e_return_val_if_fail(G_IS_FILE(tgt_file), NULL);
+    e_return_val_if_fail(0 < n, NULL);
+    e_return_val_if_fail(error == NULL || *error == NULL, NULL);
+    e_return_val_if_fail(!e_file_is_root(src_file), NULL);
+    e_return_val_if_fail(!e_file_is_root(tgt_file), NULL);
 
     /* abort on cancellation */
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))

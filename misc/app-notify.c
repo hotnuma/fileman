@@ -130,7 +130,7 @@ void app_notify_unmount(ThunarDevice *device)
     const gchar *summary;
     gchar       *message;
 
-    eg_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(THUNAR_IS_DEVICE(device));
 
     if (!_app_notify_init())
         return;
@@ -165,7 +165,7 @@ void app_notify_eject(ThunarDevice *device)
     const gchar *summary;
     gchar       *message;
 
-    eg_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(THUNAR_IS_DEVICE(device));
 
     if (!_app_notify_init())
         return;
@@ -197,7 +197,7 @@ void app_notify_finish(ThunarDevice *device)
 {
     NotifyNotification *notification;
 
-    eg_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(THUNAR_IS_DEVICE(device));
 
     notification = g_object_get_data(G_OBJECT(device), I_("thunar-notification"));
     if (notification != NULL)

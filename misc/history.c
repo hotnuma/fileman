@@ -181,7 +181,7 @@ static GFile* _history_get_gfile(ThunarFile *file)
     GFile       *gfile;
     const gchar *display_name;
 
-    eg_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
     gfile = th_file_get_file(file);
 
@@ -274,8 +274,8 @@ static void _history_go_back(ThunarHistory *history, GFile *goto_file)
     GSList     *lnext;
     ThunarFile *directory;
 
-    eg_return_if_fail(THUNAR_IS_HISTORY(history));
-    eg_return_if_fail(G_IS_FILE(goto_file));
+    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(G_IS_FILE(goto_file));
 
     /* check if the directory still exists */
     directory = th_file_get(goto_file, NULL);
@@ -344,8 +344,8 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
     GSList     *lp;
     ThunarFile *directory;
 
-    eg_return_if_fail(THUNAR_IS_HISTORY(history));
-    eg_return_if_fail(G_IS_FILE(goto_file));
+    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(G_IS_FILE(goto_file));
 
     /* check if the directory still exists */
     directory = th_file_get(goto_file, NULL);
@@ -407,7 +407,7 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
 
 void history_action_back(ThunarHistory *history)
 {
-    eg_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(THUNAR_IS_HISTORY(history));
 
     /* go back one step */
     if (history->back_list != NULL)
@@ -418,8 +418,8 @@ static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
 {
     GFile *file;
 
-    eg_return_if_fail(GTK_IS_MENU_ITEM(item));
-    eg_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(GTK_IS_MENU_ITEM(item));
+    e_return_if_fail(THUNAR_IS_HISTORY(history));
 
     file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
     if (G_LIKELY(file != NULL))
@@ -428,7 +428,7 @@ static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
 
 void history_action_forward(ThunarHistory *history)
 {
-    eg_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(THUNAR_IS_HISTORY(history));
 
     /* go forward one step */
     if (history->forward_list != NULL)
@@ -439,8 +439,8 @@ static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history)
 {
     GFile *file;
 
-    eg_return_if_fail(GTK_IS_MENU_ITEM(item));
-    eg_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(GTK_IS_MENU_ITEM(item));
+    e_return_if_fail(THUNAR_IS_HISTORY(history));
 
     file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
     if (G_LIKELY(file != NULL))
@@ -464,8 +464,8 @@ void history_show_menu(ThunarHistory         *history,
     const gchar       *icon_name;
     gchar             *parse_name;
 
-    eg_return_if_fail(GTK_IS_WIDGET(parent));
-    eg_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(GTK_IS_WIDGET(parent));
+    e_return_if_fail(THUNAR_IS_HISTORY(history));
 
     menu = gtk_menu_new();
 
@@ -545,7 +545,7 @@ ThunarHistory* history_copy(ThunarHistory *history)
     ThunarHistory *copy;
     GSList        *lp;
 
-    eg_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
 
     if (G_UNLIKELY(history == NULL))
         return NULL;
@@ -574,7 +574,7 @@ ThunarHistory* history_copy(ThunarHistory *history)
  **/
 gboolean history_has_back(ThunarHistory *history)
 {
-    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
+    e_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
 
     return history->back_list != NULL;
 }
@@ -588,7 +588,7 @@ gboolean history_has_back(ThunarHistory *history)
  **/
 gboolean history_has_forward(ThunarHistory *history)
 {
-    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
+    e_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
 
     return history->forward_list != NULL;
 }
@@ -607,7 +607,7 @@ ThunarFile* history_peek_back(ThunarHistory *history)
 {
     ThunarFile *result = NULL;
 
-    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
 
     /* pick the first(conceptually the last) file in the back list, if there are any */
     if (history->back_list != NULL)
@@ -631,7 +631,7 @@ ThunarFile* history_peek_forward(ThunarHistory *history)
 {
     ThunarFile *result = NULL;
 
-    eg_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
 
     /* pick the first file in the forward list, if there are any */
     if (history->forward_list != NULL)

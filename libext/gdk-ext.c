@@ -79,7 +79,7 @@ static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf)
     guchar          *p, *q;
     guchar          *end;
 
-    eg_return_val_if_fail(GDK_IS_PIXBUF(pixbuf), NULL);
+    e_return_val_if_fail(GDK_IS_PIXBUF(pixbuf), NULL);
 
     /* get pixbuf information */
     width = gdk_pixbuf_get_width(pixbuf);
