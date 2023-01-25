@@ -47,10 +47,6 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
 static gint _compare_app_infos(gconstpointer a, gconstpointer b);
 static gint _sort_app_infos(gconstpointer a, gconstpointer b);
 
-static GdkPixbuf* _window_append_line(GtkWidget *widget, GAppInfo *info);
-static GdkPixbuf* _pixbuf_from_gicon(GtkWidget *widget, GIcon *gicon);
-static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget);
-
 
 // Allocation -----------------------------------------------------------------
 
@@ -328,77 +324,6 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
                            APPCHOOSER_COLUMN_WEIGHT, PANGO_WEIGHT_NORMAL,
                            -1);
     }
-}
-
-static GdkPixbuf* _window_append_line(GtkWidget *widget, GAppInfo *info)
-{
-    GdkPixbuf *pix = NULL;
-
-    GIcon *gicon = g_app_info_get_icon(info);
-    if (!gicon)
-    {
-        g_print("%s : gicon = null\n", g_app_info_get_id(info));
-
-        pix = _pixbuf_get_default(widget);
-    }
-    else
-    {
-        pix = _pixbuf_from_gicon(widget, gicon);
-
-        if (!pix)
-        {
-            g_print("%s : icon_info = null\n", g_app_info_get_id(info));
-
-            pix = _pixbuf_get_default(widget);
-        }
-    }
-
-    return pix;
-}
-
-static GdkPixbuf* _pixbuf_from_gicon(GtkWidget *widget, GIcon *gicon)
-{
-    if (!gicon)
-        return NULL;
-
-    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
-                                                gtk_widget_get_screen(widget));
-
-    gint scale_factor = gtk_widget_get_scale_factor(widget);
-    gint requested_icon_size = 24 * scale_factor;
-
-    c_autounref GtkIconInfo *icon_info =
-                        gtk_icon_theme_lookup_by_gicon(icon_theme,
-                                                       gicon,
-                                                       requested_icon_size,
-                                                       GTK_ICON_LOOKUP_USE_BUILTIN
-                                                       | GTK_ICON_LOOKUP_FORCE_SIZE);
-
-    if (G_UNLIKELY(icon_info == NULL))
-        return NULL;
-
-    return gtk_icon_info_load_icon(icon_info, NULL);
-}
-
-static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget)
-{
-    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
-                                                gtk_widget_get_screen(widget));
-
-    gint scale_factor = gtk_widget_get_scale_factor(widget);
-    gint requested_icon_size = 24 * scale_factor;
-
-    c_autounref GtkIconInfo *icon_info =
-        gtk_icon_theme_lookup_icon(icon_theme,
-                                   "application-x-executable",
-                                   requested_icon_size,
-                                   GTK_ICON_LOOKUP_USE_BUILTIN
-                                   | GTK_ICON_LOOKUP_FORCE_SIZE);
-
-    if (G_UNLIKELY(icon_info == NULL))
-        return NULL;
-
-    return gtk_icon_info_load_icon(icon_info, NULL);
 }
 
 
