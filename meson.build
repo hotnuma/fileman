@@ -66,7 +66,6 @@ app_sources = [
     'job/job.c',
     'job/simple-job.c',
     'job/transfer-job.c',
-    'libext/exo-icon.c',
     'libext/exo-job.c',
     'libext/exo-tree-view.c',
     'libext/exo.c',

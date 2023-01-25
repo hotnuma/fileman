@@ -38,7 +38,6 @@ HEADERS = \
     job/job.h \
     job/simple-job.h \
     job/transfer-job.h \
-    libext/exo-icon.h \
     libext/exo-job.h \
     libext/exo-tree-view.h \
     libext/exo.h \
@@ -108,7 +107,6 @@ SOURCES = \
     job/job.c \
     job/simple-job.c \
     job/transfer-job.c \
-    libext/exo-icon.c \
     libext/exo-job.c \
     libext/exo-tree-view.c \
     libext/exo.c \

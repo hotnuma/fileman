@@ -23,7 +23,6 @@
 #include <application.h>
 #include <dialogs.h>
 #include <appmodel.h>
-#include <exo-icon.h>
 #include <icon-factory.h>
 #include <gobject-ext.h>
 #include <gtk-ext.h>
@@ -193,13 +192,21 @@ static void appchooser_init(AppChooserDialog *dialog)
                                              "expand", TRUE,
                                              NULL);
 
-    GtkCellRenderer *renderer = g_object_new(EXO_TYPE_CELL_RENDERER_ICON,
-                                             "follow-state", FALSE,
-                                             "size", 24,
-                                             NULL);
+    //GtkCellRenderer *renderer = g_object_new(EXO_TYPE_CELL_RENDERER_ICON,
+    //                                         "follow-state", FALSE,
+    //                                         "size", 24,
+    //                                         NULL);
+    //gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    //gtk_tree_view_column_set_attributes(column, renderer,
+    //                                    "gicon", APPCHOOSER_COLUMN_ICON,
+    //                                    NULL);
+
+    GtkCellRenderer *renderer;
+
+    renderer = gtk_cell_renderer_pixbuf_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_set_attributes(column, renderer,
-                                        "gicon", APPCHOOSER_COLUMN_ICON,
+                                        "pixbuf", APPCHOOSER_COLUMN_ICON,
                                         NULL);
 
     renderer = gtk_cell_renderer_text_new();

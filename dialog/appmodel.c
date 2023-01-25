@@ -41,12 +41,15 @@ static void appmodel_set_property(GObject *object, guint prop_id,
 
 // Public ---------------------------------------------------------------------
 
-static void _appmodel_load(AppChooserModel *model);
+void appmodel_load(AppChooserModel *model, GtkWidget *widget);
 static void _appmodel_append(AppChooserModel *model, const gchar *title,
                              const gchar *icon_name, GList *app_infos);
 static gint _compare_app_infos(gconstpointer a, gconstpointer b);
 static gint _sort_app_infos(gconstpointer a, gconstpointer b);
 
+static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget, const gchar *id);
+static GdkPixbuf* _pixbuf_from_gicon(GtkWidget *widget, GIcon *gicon,
+                                     const gchar *id);
 
 // Allocation -----------------------------------------------------------------
 
@@ -105,7 +108,7 @@ static void appmodel_constructed(GObject *object)
     AppChooserModel *model = APPCHOOSER_MODEL(object);
 
     /* start to load the applications installed on the system */
-    _appmodel_load(model);
+    appmodel_load(model, NULL);
 }
 
 static void appmodel_finalize(GObject *object)
@@ -216,10 +219,12 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
     return succeed;
 }
 
-static void _appmodel_load(AppChooserModel *model)
+void appmodel_load(AppChooserModel *model, GtkWidget *widget)
 {
     e_return_if_fail(IS_APPCHOOSER_MODEL(model));
     e_return_if_fail(model->content_type != NULL);
+
+    UNUSED(widget);
 
     gtk_tree_store_clear(GTK_TREE_STORE(model));
 
@@ -229,9 +234,10 @@ static void _appmodel_load(AppChooserModel *model)
 
     /* append them as recommended */
     recommended = g_list_sort(recommended, _sort_app_infos);
-    _appmodel_append(model, _("Recommended Applications"),
-                            "preferences-desktop-default-applications",
-                            recommended);
+    _appmodel_append(model,
+                     _("Recommended Applications"),
+                     "preferences-desktop-default-applications",
+                     recommended);
 
     GList *other = NULL;
 
@@ -249,9 +255,10 @@ static void _appmodel_load(AppChooserModel *model)
     /* append the other applications */
     other = g_list_sort(other, _sort_app_infos);
 
-    _appmodel_append(model, _("Other Applications"),
-                            "preferences-desktop-default-applications",
-                            other);
+    _appmodel_append(model,
+                     _("Other Applications"),
+                     "preferences-desktop-default-applications",
+                     other);
 
     g_list_free_full(recommended, g_object_unref);
     g_list_free_full(all, g_object_unref);
@@ -277,17 +284,18 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
     e_return_if_fail(title != NULL);
     e_return_if_fail(icon_name != NULL);
 
-    GIcon *icon = g_themed_icon_new(icon_name);
+    c_autounref GIcon *icon = g_themed_icon_new(icon_name);
+    GdkPixbuf *pix = _pixbuf_from_gicon(NULL, icon, "cat");
 
     GtkTreeIter parent_iter;
     gtk_tree_store_append(GTK_TREE_STORE(model), &parent_iter, NULL);
     gtk_tree_store_set(GTK_TREE_STORE(model), &parent_iter,
                        APPCHOOSER_COLUMN_NAME, title,
-                       APPCHOOSER_COLUMN_ICON, icon,
+                       APPCHOOSER_COLUMN_ICON, pix,
                        APPCHOOSER_COLUMN_WEIGHT, PANGO_WEIGHT_BOLD,
                        -1);
 
-    g_object_unref(icon);
+    g_object_unref(pix);
 
     gboolean    inserted_infos = FALSE;
     GtkTreeIter child_iter;
@@ -300,15 +308,21 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
             if (!e_app_info_should_show(lp->data))
                 continue;
 
+            pix = _pixbuf_from_gicon(NULL,
+                                     g_app_info_get_icon(lp->data),
+                                     g_app_info_get_id(lp->data));
+
             /* append the tree row with the program data */
             gtk_tree_store_append(GTK_TREE_STORE(model), &child_iter, &parent_iter);
             gtk_tree_store_set(
                     GTK_TREE_STORE(model), &child_iter,
                     APPCHOOSER_COLUMN_NAME, g_app_info_get_name(lp->data),
-                    APPCHOOSER_COLUMN_ICON, g_app_info_get_icon(lp->data),
+                    APPCHOOSER_COLUMN_ICON, pix,
                     APPCHOOSER_COLUMN_APPLICATION, lp->data,
                     APPCHOOSER_COLUMN_WEIGHT, PANGO_WEIGHT_NORMAL,
                     -1);
+
+            g_object_unref(pix);
 
             inserted_infos = TRUE;
         }
@@ -324,6 +338,82 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
                            APPCHOOSER_COLUMN_WEIGHT, PANGO_WEIGHT_NORMAL,
                            -1);
     }
+}
+
+static GdkPixbuf* _pixbuf_from_gicon(GtkWidget *widget, GIcon *gicon,
+                                     const gchar *id)
+{
+    if (!gicon)
+    {
+        //g_print("_pixbuf_from_gicon : %s : gicon = null\n", id);
+
+        return _pixbuf_get_default(widget, id);
+    }
+
+    GtkIconTheme *icon_theme;
+    gint requested_icon_size = 24;
+
+    if (!widget)
+    {
+        icon_theme = gtk_icon_theme_get_default();
+    }
+    else
+    {
+        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
+        gint scale_factor = gtk_widget_get_scale_factor(widget);
+        requested_icon_size = 24 * scale_factor;
+    }
+
+    c_autounref GtkIconInfo *icon_info =
+        gtk_icon_theme_lookup_by_gicon(icon_theme,
+                                       gicon,
+                                       requested_icon_size,
+                                       GTK_ICON_LOOKUP_USE_BUILTIN
+                                       | GTK_ICON_LOOKUP_FORCE_SIZE);
+
+    if (G_UNLIKELY(icon_info == NULL))
+    {
+        //g_print("_pixbuf_from_gicon : %s : icon_info = null\n", id);
+
+        return _pixbuf_get_default(widget, id);
+    }
+
+    return gtk_icon_info_load_icon(icon_info, NULL);
+}
+
+static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget, const gchar *id)
+{
+    UNUSED(id);
+
+    GtkIconTheme *icon_theme;
+    gint requested_icon_size = 24;
+
+    if (!widget)
+    {
+        icon_theme = gtk_icon_theme_get_default();
+    }
+    else
+    {
+        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
+        gint scale_factor = gtk_widget_get_scale_factor(widget);
+        requested_icon_size = 24 * scale_factor;
+    }
+
+    c_autounref GtkIconInfo *icon_info =
+        gtk_icon_theme_lookup_icon(icon_theme,
+                                   "application-x-executable",
+                                   requested_icon_size,
+                                   GTK_ICON_LOOKUP_USE_BUILTIN
+                                   | GTK_ICON_LOOKUP_FORCE_SIZE);
+
+    if (G_UNLIKELY(icon_info == NULL))
+    {
+        //g_print("_pixbuf_get_default : %s : icon_info = null\n", id);
+
+        return NULL;
+    }
+
+    return gtk_icon_info_load_icon(icon_info, NULL);
 }
 
 

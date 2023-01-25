@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <glib-object.h>
+#include <libmacros.h>
 #include <stdbool.h>
 #include <debug.h>
 
@@ -11,20 +13,15 @@
 #endif
 
 #define APP_NAME "fileman"
+#define APP_DISPLAY_NAME "Fileman"
 #define PACKAGE_NAME APP_NAME
 #define PACKAGE_STRING APP_NAME
-#define APP_DISPLAY_NAME "Fileman"
 
 #define BINDIR "/usr/bin"
 #define PATH_BSHELL "/bin/sh"
 
-//https://stackoverflow.com/questions/7090998/
-#ifndef UNUSED
-#define UNUSED(x) (void)(x)
-#endif
-
 // Deprecated: xfce 4.18
-#define I_(string) (g_intern_static_string ((string)))
+#define I_(string) (g_intern_static_string((string)))
 
 #define E_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
 #define E_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)
