@@ -2,14 +2,14 @@ TEMPLATE = app
 TARGET = fileman
 CONFIG = c99 link_pkgconfig
 DEFINES = HAVE_CONFIG_H _XOPEN_SOURCE
+PKGCONFIG =
 
-PKGCONFIG = \
-    gtk+-3.0 \
-    tinyc \
-    gudev-1.0 \
-    libnotify \
-    libxfce4ui-2 \
-    thunarx-3 \
+PKGCONFIG += gtk+-3.0
+PKGCONFIG += tinyc
+PKGCONFIG += libnotify
+PKGCONFIG += libxfce4ui-2
+
+#PKGCONFIG += gudev-1.0
 
 INCLUDEPATH = core dialog job libext menu misc side view widget
 
@@ -73,12 +73,12 @@ HEADERS = \
     widget/location-entry.h \
     widget/pathentry.h \
     widget/size-label.h \
+    widget/statusbar.h \
     application.h \
     config.h \
     debug.h \
     marshal.h \
     preferences.h \
-    widget/statusbar.h \
     window.h
 
 SOURCES = \
@@ -142,19 +142,19 @@ SOURCES = \
     widget/location-entry.c \
     widget/pathentry.c \
     widget/size-label.c \
+    widget/statusbar.c \
     application.c \
     main.c \
     marshal.c \
     preferences.c \
-    widget/statusbar.c \
     window.c
 
 DISTFILES = \
-    Notes.md \
     deps_search.txt \
     install.sh \
     marshal.list \
     meson.build \
+    Notes.md \
     Readme.md \
 
 

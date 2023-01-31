@@ -52,7 +52,7 @@ void prefs_file_read()
 
     CStringAuto *temp = cstr_new_size(32);
     cinisection_value(section, temp, "ExtractFilter", "*.7z,*.zip");
-    cstrlist_split(_prefs.extractflt, temp, ",", false, true);
+    cstrlist_split(_prefs.extractflt, c_str(temp), ",", false, true);
 }
 
 void prefs_write()

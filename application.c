@@ -301,9 +301,7 @@ static void application_startup(GApplication *gapp)
 
 #ifdef HAVE_GUDEV
     static const gchar *subsystems[] = { "block", "input", "usb", NULL };
-#endif
 
-#ifdef HAVE_GUDEV
     /* establish connection with udev */
     application->udev_client = g_udev_client_new(subsystems);
 
@@ -939,7 +937,7 @@ static void _application_volman_watch_destroy(gpointer user_data)
     APPLICATION(user_data)->volman_watch_id = 0;
 }
 
-#endif /* HAVE_GUDEV */
+#endif // HAVE_GUDEV
 
 static gboolean _application_show_dialogs(gpointer user_data)
 {
