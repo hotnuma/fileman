@@ -12,6 +12,11 @@
 #include <glib/gi18n.h>
 #endif
 
+// https://stackoverflow.com/questions/7090998/
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
+
 #define APP_NAME "fileman"
 #define APP_DISPLAY_NAME "Fileman"
 #define PACKAGE_NAME APP_NAME
