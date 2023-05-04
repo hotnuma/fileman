@@ -19,15 +19,12 @@
 
 #include <config.h>
 #include <app_notify.h>
-
 #include <libnotify/notify.h>
 
 static gboolean _app_notify_initted = FALSE;
 
-static gboolean _app_notify_init()
+gboolean app_notify_init()
 {
-    gchar *spec_version = NULL;
-
     if (!_app_notify_initted && notify_init(PACKAGE_NAME))
     {
         /* we do this to work around bugs in libnotify < 0.6.0. Older
@@ -35,6 +32,8 @@ static gboolean _app_notify_init()
          * displayed before. These versions also segfault when the
          * ret_spec_version parameter of notify_get_server_info is
          * NULL... */
+
+        gchar *spec_version = NULL;
         notify_get_server_info(NULL, NULL, NULL, &spec_version);
         g_free(spec_version);
 
@@ -44,19 +43,25 @@ static gboolean _app_notify_init()
     return _app_notify_initted;
 }
 
+void app_notify_uninit()
+{
+    if (_app_notify_initted && notify_is_initted())
+        notify_uninit();
+}
+
 static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
                              const gchar  *message)
 {
-    NotifyNotification *notification;
-    GIcon              *icon;
-    gchar              *icon_name = NULL;
-    GFile              *icon_file;
-    const gchar* const *icon_names;
-
     /* get suitable icon for the device */
-    icon = th_device_get_icon(device);
+    GIcon *icon = th_device_get_icon(device);
+
+    gchar *icon_name = NULL;
+
     if (icon != NULL)
     {
+        const gchar* const *icon_names;
+        GFile *icon_file;
+
         if (G_IS_THEMED_ICON(icon))
         {
             icon_names = g_themed_icon_get_names(G_THEMED_ICON(icon));
@@ -69,11 +74,14 @@ static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
             if (icon_file != NULL)
                 icon_name = g_file_get_path(icon_file);
         }
+
         g_object_unref(icon);
     }
 
     if (icon_name == NULL)
         icon_name = g_strdup("drive-removable-media");
+
+    NotifyNotification *notification;
 
     /* create notification */
 #ifdef NOTIFY_CHECK_VERSION
@@ -99,20 +107,23 @@ static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
 
 static gboolean _app_notify_device_readonly(ThunarDevice *device)
 {
-    GFile     *mount_point;
-    gboolean   readonly = TRUE;
-    GFileInfo *info;
+    gboolean readonly = TRUE;
 
-    mount_point = th_device_get_root(device);
+    GFile *mount_point = th_device_get_root(device);
     if (mount_point != NULL)
     {
+        GFileInfo *info;
         info = g_file_query_info(mount_point, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
                                  G_FILE_QUERY_INFO_NONE, NULL, NULL);
 
         if (info != NULL)
         {
             if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
-                readonly = !g_file_info_get_attribute_boolean(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
+            {
+                readonly = !g_file_info_get_attribute_boolean(
+                                            info,
+                                            G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
+            }
 
             g_object_unref(info);
         }
@@ -125,16 +136,15 @@ static gboolean _app_notify_device_readonly(ThunarDevice *device)
 
 void app_notify_unmount(ThunarDevice *device)
 {
-    gchar       *name;
-    const gchar *summary;
-    gchar       *message;
-
     e_return_if_fail(THUNAR_IS_DEVICE(device));
 
-    if (!_app_notify_init())
+    if (!app_notify_init())
         return;
 
-    name = th_device_get_name(device);
+    gchar *name = th_device_get_name(device);
+
+    const gchar *summary;
+    gchar *message;
 
     if (_app_notify_device_readonly(device))
     {
@@ -160,16 +170,15 @@ void app_notify_unmount(ThunarDevice *device)
 
 void app_notify_eject(ThunarDevice *device)
 {
-    gchar       *name;
-    const gchar *summary;
-    gchar       *message;
-
     e_return_if_fail(THUNAR_IS_DEVICE(device));
 
-    if (!_app_notify_init())
+    if (!app_notify_init())
         return;
 
-    name = th_device_get_name(device);
+    gchar *name = th_device_get_name(device);
+
+    const gchar *summary;
+    gchar *message;
 
     if (_app_notify_device_readonly(device))
     {
@@ -194,11 +203,11 @@ void app_notify_eject(ThunarDevice *device)
 
 void app_notify_finish(ThunarDevice *device)
 {
-    NotifyNotification *notification;
-
     e_return_if_fail(THUNAR_IS_DEVICE(device));
 
+    NotifyNotification *notification;
     notification = g_object_get_data(G_OBJECT(device), I_("thunar-notification"));
+
     if (notification != NULL)
     {
         notify_notification_set_urgency(notification, NOTIFY_URGENCY_NORMAL);
@@ -207,12 +216,6 @@ void app_notify_finish(ThunarDevice *device)
 
         g_object_set_data(G_OBJECT(device), I_("thunar-notification"), NULL);
     }
-}
-
-void app_notify_uninit()
-{
-    if (_app_notify_initted && notify_is_initted())
-        notify_uninit();
 }
 
 

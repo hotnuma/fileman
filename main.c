@@ -20,19 +20,15 @@
 
 #include <config.h>
 #include <application.h>
-
 #include <app_notify.h>
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <glib/gstdio.h>
-#include <gio/gdesktopappinfo.h>
 
 int main(int argc, char **argv)
 {
     //xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
 
     g_set_application_name(_("Fileman"));
+
+    app_notify_init();
 
     #ifdef G_ENABLE_DEBUG
     g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);

@@ -24,10 +24,12 @@
 
 G_BEGIN_DECLS
 
+gboolean app_notify_init();
+void app_notify_uninit();
+
 void app_notify_unmount(ThunarDevice *device);
 void app_notify_eject(ThunarDevice *device);
 void app_notify_finish(ThunarDevice *device);
-void app_notify_uninit();
 
 G_END_DECLS
 
