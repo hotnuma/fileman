@@ -36,10 +36,6 @@ G_BEGIN_DECLS
 #define G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec) G_STMT_START{ (void)0; }G_STMT_END
 #endif
 
-#ifdef NEED_TRANSFUNCS
-void    e_initialize_transformations();
-#endif
-
 gchar*  e_strescape(const gchar *source);
 
 G_END_DECLS
