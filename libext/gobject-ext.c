@@ -36,6 +36,8 @@
 
 #include <gobject-ext.h>
 
+#ifdef NEED_TRANSFUNCS
+
 static void transform_string_to_boolean(const GValue *src, GValue *dst);
 static void transform_string_to_enum(const GValue *src, GValue *dst);
 static void transform_string_to_int(const GValue *src, GValue *dst);
@@ -97,6 +99,8 @@ void e_initialize_transformations()
     /* register a transformation function string->enum unconditionally */
     g_value_register_transform_func(G_TYPE_STRING, G_TYPE_ENUM, transform_string_to_enum);
 }
+#endif
+
 
 /**
  * thunar_g_strescape

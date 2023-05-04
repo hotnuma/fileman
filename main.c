@@ -48,7 +48,9 @@ int main(int argc, char **argv)
 #endif
 
     /* register additional transformation functions */
+#ifdef NEED_TRANSFUNCS
     e_initialize_transformations();
+#endif
 
     /* acquire a reference on the global application */
     Application *application = application_get();
