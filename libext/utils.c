@@ -46,7 +46,7 @@
  *
  * Return value: (transfer full): The new string. Has to be freed with g_free after usage.
  **/
-gchar* e_strescape(const gchar *source)
+gchar* util_strescape(const gchar *source)
 {
     gchar*       g_escaped;
     gchar*       result;
@@ -186,73 +186,6 @@ gchar* util_str_get_extension(const gchar *filename)
     }
 
     return dot;
-}
-
-void util_load_bookmarks(GFile               *bookmarks_file,
-                         ThunarBookmarksFunc foreach_func,
-                         gpointer            user_data)
-{
-    gchar       *bookmarks_path;
-    gchar        line[1024];
-    const gchar *name;
-    gchar       *space;
-    FILE        *fp;
-    gint         row_num = 1;
-    GFile       *file;
-
-    e_return_if_fail(G_IS_FILE(bookmarks_file));
-    e_return_if_fail(g_file_is_native(bookmarks_file));
-    e_return_if_fail(foreach_func != NULL);
-
-    /* determine the path to the GTK+ bookmarks file */
-    bookmarks_path = g_file_get_path(bookmarks_file);
-
-    /* append the GTK+ bookmarks(if any) */
-    fp = fopen(bookmarks_path, "r");
-    g_free(bookmarks_path);
-
-    if (G_UNLIKELY(fp == NULL))
-    {
-        bookmarks_path = g_build_filename(g_get_home_dir(), ".gtk-bookmarks", NULL);
-        fp = fopen(bookmarks_path, "r");
-        g_free(bookmarks_path);
-    }
-
-    if (G_LIKELY(fp != NULL))
-    {
-        while(fgets(line, sizeof(line), fp) != NULL)
-        {
-            /* remove trailing spaces */
-            g_strchomp(line);
-
-            /* skip over empty lines */
-            if (*line == '\0' || *line == ' ')
-                continue;
-
-            /* check if there is a custom name in the line */
-            name = NULL;
-            space = strchr(line, ' ');
-            if (space != NULL)
-            {
-                /* break line */
-                *space++ = '\0';
-
-                /* get the custom name */
-                if (G_LIKELY(*space != '\0'))
-                    name = space;
-            }
-
-            file = g_file_new_for_uri(line);
-
-            /* callback */
-            foreach_func(file, name, row_num++, user_data);
-
-            g_object_unref(G_OBJECT(file));
-        }
-
-        fclose(fp);
-    }
-
 }
 
 /**
@@ -637,9 +570,10 @@ gchar* util_change_working_directory(const gchar *new_directory)
     return old_directory;
 }
 
+// g_spaw_async exo-desktop-item-edit
 void util_setup_display_cb(gpointer data)
 {
-    g_setenv("DISPLAY",(char *) data, TRUE);
+    g_setenv("DISPLAY", (char*) data, TRUE);
 }
 
 

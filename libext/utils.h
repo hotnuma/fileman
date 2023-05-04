@@ -37,38 +37,30 @@ G_GNUC_END_IGNORE_DEPRECATIONS
 
 G_BEGIN_DECLS
 
-typedef void (*ThunarBookmarksFunc) (GFile       *file,
-                                     const gchar *name,
-                                     gint        row_num,
-                                     gpointer    user_data);
-
-gchar*  e_strescape(const gchar *source);
+gchar*  util_strescape(const gchar *source);
 
 gchar* util_str_get_extension(const gchar *name) G_GNUC_WARN_UNUSED_RESULT;
-
-void util_load_bookmarks(GFile *bookmarks_file,
-                         ThunarBookmarksFunc foreach_func,
-                         gpointer user_data);
 
 gchar* util_expand_filename(const gchar *filename,
                             GFile *working_directory,
                             GError **error)
                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
+time_t util_time_from_rfc3339(const gchar *date_string)
+                              G_GNUC_WARN_UNUSED_RESULT;
+
 gchar* util_humanize_file_time(guint64 file_time,
                                ThunarDateStyle date_style,
                                const gchar *date_custom_style)
                                G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
-                             G_GNUC_WARN_UNUSED_RESULT;
-
-time_t util_time_from_rfc3339(const gchar *date_string)
-                              G_GNUC_WARN_UNUSED_RESULT;
-
 gchar* util_change_working_directory(const gchar *new_directory)
                                      G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
+GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
+                             G_GNUC_WARN_UNUSED_RESULT;
+
+// g_spaw_async exo-desktop-item-edit
 void util_setup_display_cb(gpointer data);
 
 G_END_DECLS
