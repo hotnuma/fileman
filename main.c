@@ -29,10 +29,6 @@
 #include <glib/gstdio.h>
 #include <gio/gdesktopappinfo.h>
 
-#ifdef ENABLE_LIBSM
-#include <thunar-session-client.h>
-#endif
-
 int main(int argc, char **argv)
 {
     /* setup translation domain */

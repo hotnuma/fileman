@@ -44,10 +44,6 @@
 #include <gudev/gudev.h>
 #endif
 
-#ifdef ENABLE_LIBSM
-#include <thunar-session-client.h>
-#endif
-
 #ifdef ENABLE_DBUS
 #include <thunar-dbus-service.h>
 #endif
@@ -62,9 +58,6 @@
 static const GOptionEntry _option_entries[] =
 {
     {"daemon", 0, 0, G_OPTION_ARG_NONE, NULL, N_("Run in daemon mode"), NULL},
-#ifdef ENABLE_LIBSM
-    {"sm-client-id", 0, G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_STRING, &opt_sm_client_id, NULL, NULL},
-#endif
     {"quit", 'q', 0, G_OPTION_ARG_NONE, NULL, N_("Quit a running Thunar instance"), NULL},
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, NULL, NULL, NULL},
     {NULL, 0, 0, 0, NULL, NULL, NULL},
@@ -180,10 +173,6 @@ struct _Application
     GSList              *volman_udis;
     guint               volman_idle_id;
     guint               volman_watch_id;
-#endif
-
-#ifdef ENABLE_LIBSM
-    ThunarSessionClient *session_client;
 #endif
 
 #ifdef ENABLE_DBUS
@@ -317,11 +306,6 @@ static void application_startup(GApplication *gapp)
 
     G_APPLICATION_CLASS(application_parent_class)->startup(gapp);
 
-    /* connect to the session manager */
-#ifdef ENABLE_LIBSM
-    application->session_client = thunar_session_client_new(opt_sm_client_id);
-#endif
-
 #if 0
     /* check if we have a saved accel map */
     gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
@@ -446,11 +430,6 @@ static void application_shutdown(GApplication *gapp)
     /* drop any running "show dialogs" timer */
     if (G_UNLIKELY(application->show_dialogs_timer_id != 0))
         g_source_remove(application->show_dialogs_timer_id);
-
-    /* disconnect from the session manager */
-#ifdef ENABLE_LIBSM
-    g_object_unref(G_OBJECT(application->session_client));
-#endif
 
 #ifdef ENABLE_DBUS
     /* remove the dbus service */
