@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <dcount-job.h>
+#include <dcount_job.h>
 
 #include <job.h>
 #include <marshal.h>

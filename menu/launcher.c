@@ -28,17 +28,17 @@
 #include <clipman.h>
 #include <dialogs.h>
 #include <icon_factory.h>
-#include <io-scan-directory.h>
+#include <io_scan_directory.h>
 #include <propsdlg.h>
-#include <simple-job.h>
+#include <simple_job.h>
 #include <devmon.h>
 #include <treeview.h>
 #include <utils.h>
 #include <window.h>
 
 #include <exo.h>
-#include <gio-ext.h>
-#include <gtk-ext.h>
+#include <gio_ext.h>
+#include <gtk_ext.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <cstring.h>

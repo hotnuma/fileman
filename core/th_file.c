@@ -26,7 +26,7 @@
 #include <application.h>
 #include <appchooser.h>
 #include <filemon.h>
-#include <gio-ext.h>
+#include <gio_ext.h>
 #include <user.h>
 #include <utils.h>
 #include <dialogs.h>

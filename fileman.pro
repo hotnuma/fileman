@@ -28,24 +28,24 @@ HEADERS = \
     dialog/appmodel.h \
     dialog/dialogs.h \
     dialog/permbox.h \
-    dialog/progress-dlg.h \
-    dialog/progress-view.h \
+    dialog/progress_dlg.h \
+    dialog/progress_view.h \
     dialog/propsdlg.h \
-    job/dcount-job.h \
-    job/io-jobs.h \
-    job/io-scan-directory.h \
-    job/job-utils.h \
+    job/dcount_job.h \
+    job/io_jobs.h \
+    job/io_scan_directory.h \
     job/job.h \
-    job/simple-job.h \
-    job/transfer-job.h \
-    libext/exo-job.h \
-    libext/exo-tree-view.h \
+    job/job_utils.h \
+    job/simple_job.h \
+    job/transfer_job.h \
     libext/exo.h \
-    libext/gdk-ext.h \
-    libext/gio-ext.h \
-    libext/gtk-ext.h \
-    libext/pango-ext.h \
-    libext/pixbuf-ext.h \
+    libext/exo_job.h \
+    libext/exo_tree_view.h \
+    libext/gdk_ext.h \
+    libext/gio_ext.h \
+    libext/gtk_ext.h \
+    libext/pango_ext.h \
+    libext/pixbuf_ext.h \
     libext/utils.h \
     menu/launcher.h \
     menu/menu.h \
@@ -63,15 +63,15 @@ HEADERS = \
     side/treepane.h \
     side/treeview.h \
     view/baseview.h \
-    view/column-model.h \
+    view/column_model.h \
     view/detailview.h \
     view/listmodel.h \
-    view/standard-view.h \
+    view/standard_view.h \
     widget/image.h \
-    widget/location-bar.h \
-    widget/location-entry.h \
+    widget/location_bar.h \
+    widget/location_entry.h \
     widget/pathentry.h \
-    widget/size-label.h \
+    widget/size_label.h \
     widget/statusbar.h \
     application.h \
     config.h \
@@ -96,24 +96,24 @@ SOURCES = \
     dialog/appmodel.c \
     dialog/dialogs.c \
     dialog/permbox.c \
-    dialog/progress-dlg.c \
-    dialog/progress-view.c \
+    dialog/progress_dlg.c \
+    dialog/progress_view.c \
     dialog/propsdlg.c \
-    job/dcount-job.c \
-    job/io-jobs.c \
-    job/io-scan-directory.c \
-    job/job-utils.c \
+    job/dcount_job.c \
+    job/io_jobs.c \
+    job/io_scan_directory.c \
     job/job.c \
-    job/simple-job.c \
-    job/transfer-job.c \
-    libext/exo-job.c \
-    libext/exo-tree-view.c \
+    job/job_utils.c \
+    job/simple_job.c \
+    job/transfer_job.c \
     libext/exo.c \
-    libext/gdk-ext.c \
-    libext/gio-ext.c \
-    libext/gtk-ext.c \
-    libext/pango-ext.c \
-    libext/pixbuf-ext.c \
+    libext/exo_job.c \
+    libext/exo_tree_view.c \
+    libext/gdk_ext.c \
+    libext/gio_ext.c \
+    libext/gtk_ext.c \
+    libext/pango_ext.c \
+    libext/pixbuf_ext.c \
     libext/utils.c \
     menu/launcher.c \
     menu/menu.c \
@@ -131,15 +131,15 @@ SOURCES = \
     side/treepane.c \
     side/treeview.c \
     view/baseview.c \
-    view/column-model.c \
+    view/column_model.c \
     view/detailview.c \
     view/listmodel.c \
-    view/standard-view.c \
+    view/standard_view.c \
     widget/image.c \
-    widget/location-bar.c \
-    widget/location-entry.c \
+    widget/location_bar.c \
+    widget/location_entry.c \
     widget/pathentry.c \
-    widget/size-label.c \
+    widget/size_label.c \
     widget/statusbar.c \
     application.c \
     main.c \

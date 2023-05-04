@@ -18,11 +18,11 @@
  */
 
 #include <config.h>
-#include <io-scan-directory.h>
+#include <io_scan_directory.h>
 
 #include <exo.h>
 #include <fileinfo.h>
-#include <gio-ext.h>
+#include <gio_ext.h>
 #include <job.h>
 
 #include <gio/gio.h>

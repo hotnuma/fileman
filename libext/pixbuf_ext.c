@@ -21,7 +21,7 @@
 
 #include <config.h>
 
-#include <pixbuf-ext.h>
+#include <pixbuf_ext.h>
 #include <math.h>
 
 static inline guchar _lighten_channel(guchar cur_value);

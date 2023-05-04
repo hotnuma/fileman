@@ -20,10 +20,10 @@
 #include <detailview.h>
 
 #include <exo.h>
-#include <exo-tree-view.h>
-#include <column-model.h>
+#include <exo_tree_view.h>
+#include <column_model.h>
 #include <launcher.h>
-#include <gtk-ext.h>
+#include <gtk_ext.h>
 #include <window.h>
 
 #include <gdk/gdkkeysyms.h>

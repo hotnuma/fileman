@@ -18,8 +18,8 @@
  */
 
 #include <config.h>
-#include <job-utils.h>
-#include <gio-ext.h>
+#include <job_utils.h>
+#include <gio_ext.h>
 #include <job.h>
 #include <utils.h>
 

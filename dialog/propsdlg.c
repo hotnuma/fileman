@@ -33,16 +33,16 @@
 #include <application.h>
 #include <appcombo.h>
 #include <dialogs.h>
-#include <gio-ext.h>
-#include <gtk-ext.h>
+#include <gio_ext.h>
+#include <gtk_ext.h>
 #include <icon_factory.h>
 #include <image.h>
-#include <io-jobs.h>
+#include <io_jobs.h>
 #include <job.h>
 #include <marshal.h>
-#include <pango-ext.h>
+#include <pango_ext.h>
 #include <permbox.h>
-#include <size-label.h>
+#include <size_label.h>
 #include <utils.h>
 
 #include <fileinfo.h>

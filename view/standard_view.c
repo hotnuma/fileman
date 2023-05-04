@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <standard-view.h>
+#include <standard_view.h>
 
 #include <memory.h>
 #include <string.h>
@@ -35,15 +35,15 @@
 #include <dialogs.h>
 #include <dnd.h>
 #include <enum_types.h>
-#include <gio-ext.h>
-#include <gtk-ext.h>
+#include <gio_ext.h>
+#include <gtk_ext.h>
 #include <history.h>
 #include <icon_render.h>
 #include <launcher.h>
 #include <marshal.h>
-#include <pango-ext.h>
+#include <pango_ext.h>
 #include <propsdlg.h>
-#include <simple-job.h>
+#include <simple_job.h>
 #include <utils.h>
 
 // Property identifiers

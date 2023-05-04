@@ -21,7 +21,7 @@
 #include <config.h>
 #include <fileinfo.h>
 
-#include <gio-ext.h>
+#include <gio_ext.h>
 
 // Signal identifiers
 enum

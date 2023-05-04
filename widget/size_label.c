@@ -19,13 +19,13 @@
  */
 
 #include <config.h>
-#include <size-label.h>
+#include <size_label.h>
 
 #include <limits.h>
 #include <locale.h>
 #include <exo.h>
-#include <dcount-job.h>
-#include <gtk-ext.h>
+#include <dcount_job.h>
+#include <gtk_ext.h>
 
 /* Property identifiers */
 enum

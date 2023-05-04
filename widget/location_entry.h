@@ -19,7 +19,7 @@
 #ifndef __THUNAR_LOCATION_ENTRY_H__
 #define __THUNAR_LOCATION_ENTRY_H__
 
-#include <location-bar.h>
+#include <location_bar.h>
 
 G_BEGIN_DECLS
 

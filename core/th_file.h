@@ -21,7 +21,7 @@
 #define __THUNAR_FILE_H__
 
 #include <enum_types.h>
-#include <gio-ext.h>
+#include <gio_ext.h>
 #include <user.h>
 
 #include <gtk/gtk.h>

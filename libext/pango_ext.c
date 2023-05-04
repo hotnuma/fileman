@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <pango-ext.h>
+#include <pango_ext.h>
 
 #include <stdarg.h>
 

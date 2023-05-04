@@ -22,7 +22,7 @@
 #include <icon_factory.h>
 
 #include <exo.h>
-#include <pixbuf-ext.h>
+#include <pixbuf_ext.h>
 #include <utils.h>
 
 #include <memory.h>

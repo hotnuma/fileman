@@ -19,10 +19,10 @@
 #include <config.h>
 
 #include <exo.h>
-#include <pixbuf-ext.h>
+#include <pixbuf_ext.h>
 
 #include <clipman.h>
-#include <gdk-ext.h>
+#include <gdk_ext.h>
 #include <icon_factory.h>
 #include <icon_render.h>
 

@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <gdk-ext.h>
+#include <gdk_ext.h>
 
 #include <stdlib.h>
 #include <string.h>

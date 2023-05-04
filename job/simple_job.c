@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <simple-job.h>
+#include <simple_job.h>
 
 #include <job.h>
 

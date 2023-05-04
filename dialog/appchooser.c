@@ -25,7 +25,7 @@
 #include <appmodel.h>
 #include <icon_factory.h>
 #include <utils.h>
-#include <gtk-ext.h>
+#include <gtk_ext.h>
 
 #include <memory.h>
 #include <string.h>

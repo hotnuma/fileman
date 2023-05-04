@@ -23,7 +23,7 @@
 
 #include <gio/gio.h>
 
-#include <exo-job.h>
+#include <exo_job.h>
 #include <enum_types.h>
 #include <th_file.h>
 

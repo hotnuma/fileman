@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <gtk-ext.h>
+#include <gtk_ext.h>
 
 #include <exo.h>
 #include <utils.h>

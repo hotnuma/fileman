@@ -22,7 +22,7 @@
 
 #include <th_file.h>
 #include <utils.h>
-#include <gtk-ext.h>
+#include <gtk_ext.h>
 
 #include <glib-object.h>
 

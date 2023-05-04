@@ -19,7 +19,7 @@
 
 #include <config.h>
 
-#include <exo-tree-view.h>
+#include <exo_tree_view.h>
 
 /**
  * SECTION: exo-tree-view

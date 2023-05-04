@@ -27,14 +27,14 @@
 #include <th_device.h>
 #include <dialogs.h>
 #include <dnd.h>
-#include <gio-ext.h>
-#include <gtk-ext.h>
+#include <gio_ext.h>
+#include <gtk_ext.h>
 #include <job.h>
 #include <marshal.h>
 #include <menu.h>
 #include <propsdlg.h>
 #include <srender.h>
-#include <simple-job.h>
+#include <simple_job.h>
 #include <treemodel.h>
 #include <utils.h>
 

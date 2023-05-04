@@ -21,9 +21,9 @@
 #include <srender.h>
 
 #include <exo.h>
-#include <pixbuf-ext.h>
-#include <gio-ext.h>
-#include <gdk-ext.h>
+#include <pixbuf_ext.h>
+#include <gio_ext.h>
+#include <gdk_ext.h>
 #include <icon_factory.h>
 #include <th_device.h>
 

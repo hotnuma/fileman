@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <exo-job.h>
+#include <exo_job.h>
 
 #include <glib.h>
 #include <glib-object.h>

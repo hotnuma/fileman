@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <gio-ext.h>
+#include <gio_ext.h>
 
 #include <gio/gio.h>
 #include <gio/gunixmounts.h>

@@ -19,13 +19,13 @@
  */
 
 #include <config.h>
-#include <transfer-job.h>
+#include <transfer_job.h>
 
 #include <exo.h>
 #include <application.h>
-#include <gio-ext.h>
-#include <io-scan-directory.h>
-#include <job-utils.h>
+#include <gio_ext.h>
+#include <io_scan_directory.h>
+#include <job_utils.h>
 #include <job.h>
 
 #include <gio/gio.h>

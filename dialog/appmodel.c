@@ -20,7 +20,7 @@
 #include <config.h>
 #include <appmodel.h>
 
-#include <gio-ext.h>
+#include <gio_ext.h>
 #include <libmacros.h>
 
 /* Property identifiers */

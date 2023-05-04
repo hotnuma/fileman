@@ -20,7 +20,7 @@
 #include <config.h>
 #include <th_folder.h>
 
-#include <io-jobs.h>
+#include <io_jobs.h>
 #include <filemon.h>
 
 #define DEBUG_FILE_CHANGES FALSE

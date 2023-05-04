@@ -19,7 +19,7 @@
 #include <config.h>
 #include <history.h>
 
-#include <gtk-ext.h>
+#include <gtk_ext.h>
 #include <icon_factory.h>
 #include <navigator.h>
 #include <dialogs.h>

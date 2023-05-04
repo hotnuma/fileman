@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <column-model.h>
+#include <column_model.h>
 
 #include <stdlib.h>
 

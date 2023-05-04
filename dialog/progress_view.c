@@ -23,10 +23,10 @@
 
 #include <dialogs.h>
 #include <job.h>
-#include <pango-ext.h>
+#include <pango_ext.h>
 #include <utils.h>
-#include <transfer-job.h>
-#include <progress-view.h>
+#include <transfer_job.h>
+#include <progress_view.h>
 
 enum
 {

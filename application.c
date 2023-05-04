@@ -26,10 +26,10 @@
 #include <libxfce4ui/libxfce4ui.h>
 #include <browser.h>
 #include <dialogs.h>
-#include <gdk-ext.h>
-#include <io-jobs.h>
+#include <gdk_ext.h>
+#include <io_jobs.h>
 #include <preferences.h>
-#include <progress-dlg.h>
+#include <progress_dlg.h>
 #include <utils.h>
 #include <baseview.h>
 

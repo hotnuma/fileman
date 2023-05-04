@@ -23,8 +23,8 @@
 #include <exo.h>
 #include <filemon.h>
 #include <th_folder.h>
-#include <gio-ext.h>
-#include <pango-ext.h>
+#include <gio_ext.h>
+#include <pango_ext.h>
 #include <devmon.h>
 #include <utils.h>
 
