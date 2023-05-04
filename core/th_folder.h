@@ -19,7 +19,7 @@
 #ifndef __THUNAR_FOLDER_H__
 #define __THUNAR_FOLDER_H__
 
-#include <th-file.h>
+#include <th_file.h>
 
 G_BEGIN_DECLS
 

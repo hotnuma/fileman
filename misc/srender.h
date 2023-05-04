@@ -19,7 +19,7 @@
 #ifndef __SHORTCUT_RENDERER_H__
 #define __SHORTCUT_RENDERER_H__
 
-#include <icon-render.h>
+#include <icon_render.h>
 
 G_BEGIN_DECLS
 

@@ -20,8 +20,8 @@
 #ifndef __THUNAR_BROWSER_H__
 #define __THUNAR_BROWSER_H__
 
-#include <th-file.h>
-#include <th-device.h>
+#include <th_file.h>
+#include <th_device.h>
 
 G_BEGIN_DECLS
 

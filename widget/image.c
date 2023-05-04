@@ -22,7 +22,7 @@
 
 #include <application.h>
 #include <filemon.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 
 #include <glib.h>
 #include <glib-object.h>

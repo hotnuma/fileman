@@ -19,7 +19,7 @@
 #ifndef __PERMISSIONBOX_H__
 #define __PERMISSIONBOX_H__
 
-#include <th-file.h>
+#include <th_file.h>
 
 G_BEGIN_DECLS
 

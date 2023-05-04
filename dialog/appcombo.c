@@ -26,7 +26,7 @@
 #include <dialogs.h>
 #include <gtk-ext.h>
 #include <pango-ext.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 #include <exo.h>
 
 /* Property identifiers */

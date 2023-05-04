@@ -19,7 +19,7 @@
 #ifndef __BASEVIEW_H__
 #define __BASEVIEW_H__
 
-#include <enum-types.h>
+#include <enum_types.h>
 #include <component.h>
 #include <navigator.h>
 

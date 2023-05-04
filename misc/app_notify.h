@@ -20,7 +20,7 @@
 #ifndef __APP_NOTIFY_H__
 #define __APP_NOTIFY_H__
 
-#include <th-device.h>
+#include <th_device.h>
 
 G_BEGIN_DECLS
 

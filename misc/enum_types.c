@@ -17,13 +17,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <exo.h>
 
-#include <enum-types.h>
+#include <enum_types.h>
 
 static void thunar_icon_size_from_zoom_level(const GValue *src_value, GValue *dst_value);
 static void thunar_thumbnail_size_from_icon_size(const GValue *src_value,

@@ -21,7 +21,7 @@
 #include <config.h>
 #include <application.h>
 
-#include <app-notify.h>
+#include <app_notify.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,16 +34,16 @@ int main(int argc, char **argv)
 
     g_set_application_name(_("Fileman"));
 
-#ifdef G_ENABLE_DEBUG
+    #ifdef G_ENABLE_DEBUG
     g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
-#endif
+    #endif
 
     Application *application = application_get();
     gtk_window_set_default_icon_name("Thunar");
 
     g_application_run(G_APPLICATION(application), argc, argv);
 
-    g_object_unref(G_OBJECT(application));
+    g_object_unref(application);
 
     app_notify_uninit();
 

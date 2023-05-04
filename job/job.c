@@ -21,7 +21,7 @@
 #include <job.h>
 
 #include <exo.h>
-#include <enum-types.h>
+#include <enum_types.h>
 #include <marshal.h>
 
 #include <memory.h>

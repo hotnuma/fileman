@@ -25,7 +25,7 @@
 #include <gio/gdesktopappinfo.h>
 
 #include <exo.h>
-#include <th-file.h>
+#include <th_file.h>
 #include <utils.h>
 
 GFile* e_file_new_for_home()

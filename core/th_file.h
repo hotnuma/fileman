@@ -20,7 +20,7 @@
 #ifndef __THUNAR_FILE_H__
 #define __THUNAR_FILE_H__
 
-#include <enum-types.h>
+#include <enum_types.h>
 #include <gio-ext.h>
 #include <user.h>
 

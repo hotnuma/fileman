@@ -21,7 +21,7 @@
 #define __IO_JOBS_H__
 
 #include <job.h>
-#include <enum-types.h>
+#include <enum_types.h>
 
 G_BEGIN_DECLS
 

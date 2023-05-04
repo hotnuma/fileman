@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <th-folder.h>
+#include <th_folder.h>
 
 #include <io-jobs.h>
 #include <filemon.h>

@@ -35,7 +35,7 @@
 #include <dialogs.h>
 #include <gio-ext.h>
 #include <gtk-ext.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 #include <image.h>
 #include <io-jobs.h>
 #include <job.h>

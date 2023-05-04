@@ -24,8 +24,8 @@
 #include <pixbuf-ext.h>
 #include <gio-ext.h>
 #include <gdk-ext.h>
-#include <icon-factory.h>
-#include <th-device.h>
+#include <icon_factory.h>
+#include <th_device.h>
 
 #include <gio/gio.h>
 

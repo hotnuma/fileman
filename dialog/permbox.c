@@ -28,7 +28,7 @@
 #include <exo.h>
 
 #include <dialogs.h>
-#include <enum-types.h>
+#include <enum_types.h>
 #include <gtk-ext.h>
 #include <io-jobs.h>
 #include <pango-ext.h>

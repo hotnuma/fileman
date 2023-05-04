@@ -20,10 +20,10 @@
 
 #include <exo.h>
 
-#include <th-device.h>
+#include <th_device.h>
 #include <devmon.h>
-#include <th-file.h>
-#include <app-notify.h>
+#include <th_file.h>
+#include <app_notify.h>
 
 typedef struct _ThunarDeviceOperation ThunarDeviceOperation;
 

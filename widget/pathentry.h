@@ -21,7 +21,7 @@
 #ifndef __PATHENTRY_H__
 #define __PATHENTRY_H__
 
-#include <th-file.h>
+#include <th_file.h>
 
 G_BEGIN_DECLS
 

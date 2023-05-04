@@ -21,7 +21,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <enum-types.h>
+#include <enum_types.h>
 
 #include <gtk/gtk.h>
 

@@ -23,7 +23,7 @@
 #include <application.h>
 #include <dialogs.h>
 #include <appmodel.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 #include <utils.h>
 #include <gtk-ext.h>
 

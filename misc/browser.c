@@ -20,7 +20,7 @@
 #include <config.h>
 #include <browser.h>
 
-#include <th-file.h>
+#include <th_file.h>
 #include <utils.h>
 #include <gtk-ext.h>
 

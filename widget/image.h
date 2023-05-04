@@ -20,7 +20,7 @@
 #ifndef __THUNAR_IMAGE_H__
 #define __THUNAR_IMAGE_H__
 
-#include <th-file.h>
+#include <th_file.h>
 
 G_BEGIN_DECLS
 

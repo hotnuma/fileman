@@ -34,11 +34,11 @@
 #include <menu.h>
 #include <dialogs.h>
 #include <dnd.h>
-#include <enum-types.h>
+#include <enum_types.h>
 #include <gio-ext.h>
 #include <gtk-ext.h>
 #include <history.h>
-#include <icon-render.h>
+#include <icon_render.h>
 #include <launcher.h>
 #include <marshal.h>
 #include <pango-ext.h>

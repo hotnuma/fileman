@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = fileman
 CONFIG = c99 link_pkgconfig
-DEFINES = HAVE_CONFIG_H _XOPEN_SOURCE
+DEFINES = _GNU_SOURCE
 PKGCONFIG =
 
 PKGCONFIG += gtk+-3.0
@@ -19,9 +19,9 @@ HEADERS = \
     core/dnd.h \
     core/fileinfo.h \
     core/filemon.h \
-    core/th-device.h \
-    core/th-file.h \
-    core/th-folder.h \
+    core/th_device.h \
+    core/th_file.h \
+    core/th_folder.h \
     core/user.h \
     dialog/appchooser.h \
     dialog/appcombo.h \
@@ -49,13 +49,13 @@ HEADERS = \
     libext/utils.h \
     menu/launcher.h \
     menu/menu.h \
-    misc/app-notify.h \
+    misc/app_notify.h \
     misc/browser.h \
     misc/component.h \
-    misc/enum-types.h \
+    misc/enum_types.h \
     misc/history.h \
-    misc/icon-factory.h \
-    misc/icon-render.h \
+    misc/icon_factory.h \
+    misc/icon_render.h \
     misc/navigator.h \
     misc/srender.h \
     side/sidepane.h \
@@ -87,9 +87,9 @@ SOURCES = \
     core/dnd.c \
     core/fileinfo.c \
     core/filemon.c \
-    core/th-device.c \
-    core/th-file.c \
-    core/th-folder.c \
+    core/th_device.c \
+    core/th_file.c \
+    core/th_folder.c \
     core/user.c \
     dialog/appchooser.c \
     dialog/appcombo.c \
@@ -117,13 +117,13 @@ SOURCES = \
     libext/utils.c \
     menu/launcher.c \
     menu/menu.c \
-    misc/app-notify.c \
+    misc/app_notify.c \
     misc/browser.c \
     misc/component.c \
-    misc/enum-types.c \
+    misc/enum_types.c \
     misc/history.c \
-    misc/icon-factory.c \
-    misc/icon-render.c \
+    misc/icon_factory.c \
+    misc/icon_render.c \
     misc/navigator.c \
     misc/srender.c \
     side/sidepane.c \

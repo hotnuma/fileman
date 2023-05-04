@@ -21,7 +21,7 @@
 
 #include <baseview.h>
 #include <listmodel.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 #include <history.h>
 #include <clipman.h>
 

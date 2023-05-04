@@ -22,7 +22,7 @@
 
 #include <exo.h>
 #include <filemon.h>
-#include <th-folder.h>
+#include <th_folder.h>
 #include <gio-ext.h>
 #include <pango-ext.h>
 #include <devmon.h>

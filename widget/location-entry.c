@@ -18,16 +18,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
 
 #include <gdk/gdkkeysyms.h>
 
 #include <browser.h>
 #include <dialogs.h>
 #include <gtk-ext.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 #include <location-entry.h>
 #include <marshal.h>
 #include <pathentry.h>

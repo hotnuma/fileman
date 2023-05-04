@@ -23,8 +23,8 @@
 
 #include <clipman.h>
 #include <gdk-ext.h>
-#include <icon-factory.h>
-#include <icon-render.h>
+#include <icon_factory.h>
+#include <icon_render.h>
 
 enum
 {

@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <th-file.h>
+#include <th_file.h>
 
 #include <libxfce4ui/libxfce4ui.h>
 #include <fileinfo.h>
@@ -30,7 +30,7 @@
 #include <user.h>
 #include <utils.h>
 #include <dialogs.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

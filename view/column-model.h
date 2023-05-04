@@ -19,7 +19,7 @@
 #ifndef __COLUMN_MODEL_H__
 #define __COLUMN_MODEL_H__
 
-#include <enum-types.h>
+#include <enum_types.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS

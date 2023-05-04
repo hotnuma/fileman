@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 
 #include <exo.h>
 #include <pixbuf-ext.h>

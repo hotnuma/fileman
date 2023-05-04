@@ -20,7 +20,7 @@
 #include <history.h>
 
 #include <gtk-ext.h>
-#include <icon-factory.h>
+#include <icon_factory.h>
 #include <navigator.h>
 #include <dialogs.h>
 #include <libxfce4ui/libxfce4ui.h>
