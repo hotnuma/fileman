@@ -38,7 +38,6 @@
 
 #include <exo.h>
 #include <gio-ext.h>
-#include <gobject-ext.h>
 #include <gtk-ext.h>
 
 #include <libxfce4ui/libxfce4ui.h>

@@ -217,7 +217,9 @@ exo_tree_view_get_property (GObject    *object,
                             GValue     *value,
                             GParamSpec *pspec)
 {
-  ExoTreeView *tree_view = EXO_TREE_VIEW (object);
+    (void) pspec;
+
+    ExoTreeView *tree_view = EXO_TREE_VIEW (object);
 
   switch (prop_id)
     {
@@ -243,7 +245,9 @@ exo_tree_view_set_property (GObject      *object,
                             const GValue *value,
                             GParamSpec   *pspec)
 {
-  ExoTreeView *tree_view = EXO_TREE_VIEW (object);
+    (void) pspec;
+
+    ExoTreeView *tree_view = EXO_TREE_VIEW (object);
 
   switch (prop_id)
     {

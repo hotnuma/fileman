@@ -36,7 +36,6 @@
 #include <dnd.h>
 #include <enum-types.h>
 #include <gio-ext.h>
-#include <gobject-ext.h>
 #include <gtk-ext.h>
 #include <history.h>
 #include <icon-render.h>

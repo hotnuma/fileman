@@ -152,6 +152,8 @@ static void th_device_finalize(GObject *object)
 static void th_device_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     ThunarDevice *device = THUNAR_DEVICE(object);
 
     switch (prop_id)
@@ -177,6 +179,8 @@ static void th_device_get_property(GObject *object, guint prop_id,
 static void th_device_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     ThunarDevice *device = THUNAR_DEVICE(object);
 
     switch (prop_id)

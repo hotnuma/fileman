@@ -19,7 +19,6 @@
 #include <config.h>
 #include <history.h>
 
-#include <gobject-ext.h>
 #include <gtk-ext.h>
 #include <icon-factory.h>
 #include <navigator.h>

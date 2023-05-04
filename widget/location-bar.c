@@ -156,6 +156,8 @@ static void thunar_location_bar_get_property(GObject              *object,
                                              GValue               *value,
                                              GParamSpec           *pspec)
 {
+    (void) pspec;
+
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
@@ -173,6 +175,8 @@ static void thunar_location_bar_set_property(GObject              *object,
                                              const GValue         *value,
                                              GParamSpec           *pspec)
 {
+    (void) pspec;
+
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:

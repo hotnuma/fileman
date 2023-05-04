@@ -23,7 +23,6 @@
 
 #include <application.h>
 #include <dialogs.h>
-#include <gobject-ext.h>
 #include <exo.h>
 
 #include <string.h>

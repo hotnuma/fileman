@@ -27,7 +27,6 @@
 #include <browser.h>
 #include <dialogs.h>
 #include <gdk-ext.h>
-#include <gobject-ext.h>
 #include <io-jobs.h>
 #include <preferences.h>
 #include <progress-dlg.h>
@@ -539,8 +538,7 @@ static void application_get_property(GObject    *object,
                                             GValue     *value,
                                             GParamSpec *pspec)
 {
-    UNUSED(object);
-    UNUSED(pspec);
+    (void) pspec;
 
     Application *application = APPLICATION(object);
 
@@ -561,8 +559,7 @@ static void application_set_property(GObject      *object,
                                             const GValue *value,
                                             GParamSpec   *pspec)
 {
-    UNUSED(object);
-    UNUSED(pspec);
+    (void) pspec;
 
     Application *application = APPLICATION(object);
 

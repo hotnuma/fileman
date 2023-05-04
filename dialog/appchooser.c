@@ -24,7 +24,7 @@
 #include <dialogs.h>
 #include <appmodel.h>
 #include <icon-factory.h>
-#include <gobject-ext.h>
+#include <utils.h>
 #include <gtk-ext.h>
 
 #include <memory.h>

@@ -26,7 +26,6 @@
 
 #include <browser.h>
 #include <dialogs.h>
-#include <gobject-ext.h>
 #include <gtk-ext.h>
 #include <icon-factory.h>
 #include <location-entry.h>

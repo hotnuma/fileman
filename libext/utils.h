@@ -42,6 +42,8 @@ typedef void (*ThunarBookmarksFunc) (GFile       *file,
                                      gint        row_num,
                                      gpointer    user_data);
 
+gchar*  e_strescape(const gchar *source);
+
 gchar* util_str_get_extension(const gchar *name) G_GNUC_WARN_UNUSED_RESULT;
 
 void util_load_bookmarks(GFile *bookmarks_file,

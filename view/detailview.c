@@ -326,6 +326,8 @@ static void detailview_init(DetailView *details_view)
 static void detailview_get_property(GObject *object, guint prop_id,
                                     GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     DetailView *details_view = DETAILVIEW(object);
 
     switch (prop_id)
@@ -343,6 +345,8 @@ static void detailview_get_property(GObject *object, guint prop_id,
 static void detailview_set_property(GObject *object, guint prop_id,
                                     const GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     DetailView *details_view = DETAILVIEW(object);
 
     switch (prop_id)

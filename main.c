@@ -21,7 +21,6 @@
 #include <config.h>
 #include <application.h>
 
-#include <gobject-ext.h>
 #include <app-notify.h>
 
 #include <stdio.h>
@@ -31,28 +30,19 @@
 
 int main(int argc, char **argv)
 {
-    /* setup translation domain */
-#ifdef ENABLE_GETTEXT
-    xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
-#endif
+    //xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
 
-    /* setup application name */
     g_set_application_name(_("Fileman"));
 
 #ifdef G_ENABLE_DEBUG
     g_log_set_always_fatal(G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_WARNING);
 #endif
 
-    /* acquire a reference on the global application */
     Application *application = application_get();
-
-    /* use the Thunar icon as default for new windows */
     gtk_window_set_default_icon_name("Thunar");
 
-    /* do further processing inside gapplication */
     g_application_run(G_APPLICATION(application), argc, argv);
 
-    /* release the application reference */
     g_object_unref(G_OBJECT(application));
 
     app_notify_uninit();

@@ -107,6 +107,8 @@ static void th_image_finalize(GObject *object)
 static void th_image_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     ThunarImage *image = THUNAR_IMAGE(object);
 
     switch (prop_id)
@@ -123,6 +125,8 @@ static void th_image_get_property(GObject *object, guint prop_id,
 static void th_image_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     ThunarImage *image = THUNAR_IMAGE(object);
 
     switch (prop_id)

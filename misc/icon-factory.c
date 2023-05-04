@@ -23,7 +23,6 @@
 
 #include <exo.h>
 #include <pixbuf-ext.h>
-#include <gobject-ext.h>
 #include <utils.h>
 
 #include <memory.h>

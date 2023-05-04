@@ -150,7 +150,9 @@ static void menu_finalize(GObject *object)
 static void menu_get_property(GObject *object, guint prop_id, GValue *value,
                               GParamSpec *pspec)
 {
+    (void) object;
     UNUSED(value);
+    (void) pspec;
 
     switch (prop_id)
     {
@@ -163,6 +165,8 @@ static void menu_get_property(GObject *object, guint prop_id, GValue *value,
 static void menu_set_property(GObject *object, guint prop_id, const GValue *value,
                               GParamSpec *pspec)
 {
+    (void) pspec;
+
     ThunarMenu *menu = THUNAR_MENU(object);
 
     switch (prop_id)

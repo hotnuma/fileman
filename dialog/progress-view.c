@@ -22,7 +22,6 @@
 #include <exo.h>
 
 #include <dialogs.h>
-#include <gobject-ext.h>
 #include <job.h>
 #include <pango-ext.h>
 #include <utils.h>

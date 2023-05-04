@@ -34,7 +34,6 @@
 #include <appcombo.h>
 #include <dialogs.h>
 #include <gio-ext.h>
-#include <gobject-ext.h>
 #include <gtk-ext.h>
 #include <icon-factory.h>
 #include <image.h>

@@ -32,7 +32,6 @@
 
 #include <exo.h>
 
-#include <gobject-ext.h>
 #include <icon-factory.h>
 #include <icon-render.h>
 #include <listmodel.h>

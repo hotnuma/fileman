@@ -29,7 +29,6 @@
 
 #include <dialogs.h>
 #include <enum-types.h>
-#include <gobject-ext.h>
 #include <gtk-ext.h>
 #include <io-jobs.h>
 #include <pango-ext.h>

@@ -22,7 +22,6 @@
 #include <pixbuf-ext.h>
 
 #include <clipman.h>
-#include <gobject-ext.h>
 #include <gdk-ext.h>
 #include <icon-factory.h>
 #include <icon-render.h>

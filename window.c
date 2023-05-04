@@ -28,7 +28,6 @@
 #include <detailview.h>
 #include <dialogs.h>
 #include <gio-ext.h>
-#include <gobject-ext.h>
 #include <gtk-ext.h>
 #include <history.h>
 #include <launcher.h>

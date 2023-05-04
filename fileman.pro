@@ -43,7 +43,6 @@ HEADERS = \
     libext/exo.h \
     libext/gdk-ext.h \
     libext/gio-ext.h \
-    libext/gobject-ext.h \
     libext/gtk-ext.h \
     libext/pango-ext.h \
     libext/pixbuf-ext.h \
@@ -112,7 +111,6 @@ SOURCES = \
     libext/exo.c \
     libext/gdk-ext.c \
     libext/gio-ext.c \
-    libext/gobject-ext.c \
     libext/gtk-ext.c \
     libext/pango-ext.c \
     libext/pixbuf-ext.c \

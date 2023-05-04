@@ -223,6 +223,8 @@ static void devmon_finalize(GObject *object)
 static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
                                 GParamSpec *pspec)
 {
+    (void) pspec;
+
     DeviceMonitor *monitor = DEVICE_MONITOR(object);
 
     switch (prop_id)
@@ -240,6 +242,8 @@ static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
 static void devmon_set_property(GObject *object, guint prop_id, const GValue *value,
                                 GParamSpec *pspec)
 {
+    (void) pspec;
+
     DeviceMonitor *monitor = DEVICE_MONITOR(object);
 
     switch (prop_id)
@@ -262,7 +266,7 @@ static void devmon_set_property(GObject *object, guint prop_id, const GValue *va
 
 static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data)
 {
-    UNUSED(key);
+    (void) key;
 
     ThunarDevice *device = THUNAR_DEVICE(value);
     DeviceMonitor *monitor = DEVICE_MONITOR(data);

@@ -168,6 +168,8 @@ static void transfer_job_finalize(GObject *object)
 static void transfer_job_get_property(GObject *object, guint prop_id,
                                       GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     TransferJob *job = TRANSFERJOB(object);
 
     switch (prop_id)
@@ -187,6 +189,8 @@ static void transfer_job_get_property(GObject *object, guint prop_id,
 static void transfer_job_set_property(GObject *object, guint prop_id,
                                       const GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     TransferJob *job = TRANSFERJOB(object);
 
     switch (prop_id)

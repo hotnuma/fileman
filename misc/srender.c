@@ -23,7 +23,6 @@
 #include <exo.h>
 #include <pixbuf-ext.h>
 #include <gio-ext.h>
-#include <gobject-ext.h>
 #include <gdk-ext.h>
 #include <icon-factory.h>
 #include <th-device.h>

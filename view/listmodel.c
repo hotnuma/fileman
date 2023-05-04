@@ -23,7 +23,6 @@
 
 #include <application.h>
 #include <filemon.h>
-#include <gobject-ext.h>
 #include <user.h>
 #include <exo.h>
 

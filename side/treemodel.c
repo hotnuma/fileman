@@ -362,6 +362,8 @@ static void treemodel_get_property(GObject    *object,
                                            GValue     *value,
                                            GParamSpec *pspec)
 {
+    (void) pspec;
+
     TreeModel *model = TREEMODEL(object);
 
     switch (prop_id)
@@ -381,6 +383,8 @@ static void treemodel_set_property(GObject      *object,
                                            const GValue *value,
                                            GParamSpec   *pspec)
 {
+    (void) pspec;
+
     TreeModel *model = TREEMODEL(object);
 
     switch (prop_id)

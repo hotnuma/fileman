@@ -22,7 +22,6 @@
 
 #include <exo.h>
 
-#include <gobject-ext.h>
 #include <statusbar.h>
 
 enum

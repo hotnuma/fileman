@@ -27,7 +27,6 @@
 #include <appchooser.h>
 #include <filemon.h>
 #include <gio-ext.h>
-#include <gobject-ext.h>
 #include <user.h>
 #include <utils.h>
 #include <dialogs.h>

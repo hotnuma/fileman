@@ -164,6 +164,8 @@ static void szlabel_finalize(GObject *object)
 static void szlabel_get_property(GObject *object, guint prop_id,
                                  GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     SizeLabel *size_label = SIZELABEL(object);
 
     switch (prop_id)
@@ -185,6 +187,8 @@ static void szlabel_get_property(GObject *object, guint prop_id,
 static void szlabel_set_property(GObject *object, guint prop_id,
                                  const GValue *value, GParamSpec *pspec)
 {
+    (void) pspec;
+
     SizeLabel *size_label = SIZELABEL(object);
 
     switch (prop_id)
