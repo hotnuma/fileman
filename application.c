@@ -43,15 +43,7 @@
 #include <gudev/gudev.h>
 #endif
 
-#ifdef ENABLE_DBUS
-#include <thunar-dbus-service.h>
-#endif
-
 #define ACCEL_MAP_PATH "Thunar/accels.scm"
-
-/* the sm-client-id option is only honored while starting the primary instance,
- * and will be silently ignored on every other invocation */
-//static gchar *opt_sm_client_id = NULL;
 
 /* option entries */
 static const GOptionEntry _option_entries[] =
@@ -81,23 +73,6 @@ static void application_set_property(GObject *object,
                                             guint prop_id,
                                             const GValue *value,
                                             GParamSpec *pspec);
-
-#if ENABLE_DBUS
-static void _application_dbus_acquired_cb(GDBusConnection *conn,
-                                                const gchar *name,
-                                                gpointer user_data);
-static void _application_name_acquired_cb(GDBusConnection *connection,
-                                                const gchar *name,
-                                                gpointer user_data);
-static void _application_dbus_name_lost_cb(GDBusConnection *connection,
-                                                 const gchar *name,
-                                                 gpointer user_data);
-static void _application_dbus_init(Application *application);
-static gboolean _application_dbus_register(GApplication *application,
-                                                 GDBusConnection *connection,
-                                                 const gchar *object_path,
-                                                 GError **error);
-#endif
 
 static void application_startup(GApplication *application);
 static void _application_accel_map_changed(Application *application);
@@ -173,12 +148,6 @@ struct _Application
     guint               volman_idle_id;
     guint               volman_watch_id;
 #endif
-
-#ifdef ENABLE_DBUS
-    ThunarDBusService   *dbus_service;
-    guint               dbus_owner_id_xfce;
-    guint               dbus_owner_id_fdo;
-#endif
 };
 
 static GQuark _app_screen_quark;
@@ -209,10 +178,6 @@ static void application_class_init(ApplicationClass *klass)
     gapplication_class->shutdown = application_shutdown;
     gapplication_class->command_line = application_command_line;
 
-#ifdef ENABLE_DBUS
-    gapplication_class->dbus_register = _application_dbus_register;
-#endif
-
     g_object_class_install_property(gobject_class,
                                     PROP_DAEMON,
                                     g_param_spec_boolean(
@@ -235,52 +200,6 @@ static void application_init(Application *application)
     g_application_add_main_option_entries(G_APPLICATION(application), _option_entries);
 }
 
-#ifdef ENABLE_DBUS
-static void _application_dbus_acquired_cb(GDBusConnection *conn,
-                                                const gchar     *name,
-                                                gpointer         user_data)
-{
-    g_debug(_("Acquired the session message bus '%s'\n"), name);
-}
-
-static void _application_name_acquired_cb(GDBusConnection *connection,
-                                                const gchar     *name,
-                                                gpointer         user_data)
-{
-    g_debug(_("Acquired the name '%s' on the session message bus\n"), name);
-}
-
-static void _application_dbus_name_lost_cb(GDBusConnection *connection,
-                                                 const gchar     *name,
-                                                 gpointer         user_data)
-{
-    g_warning(_("Name '%s' lost on the message dbus."), name);
-}
-
-/* TODO: [GTK3 Port] Check if there's a cleaner way to register */
-/* these extra dbus names(besides org.xfce.Thunar) */
-static void _application_dbus_init(Application *application)
-{
-    application->dbus_owner_id_xfce = g_bus_own_name(G_BUS_TYPE_SESSION,
-                                      "org.xfce.FileManager",
-                                      G_BUS_NAME_OWNER_FLAGS_NONE,
-                                      _application_dbus_acquired_cb,
-                                      _application_name_acquired_cb,
-                                      _application_dbus_name_lost_cb,
-                                      application,
-                                      NULL);
-
-    application->dbus_owner_id_fdo = g_bus_own_name(G_BUS_TYPE_SESSION,
-                                     "org.freedesktop.FileManager1",
-                                     G_BUS_NAME_OWNER_FLAGS_NONE,
-                                     _application_dbus_acquired_cb,
-                                     _application_name_acquired_cb,
-                                     _application_dbus_name_lost_cb,
-                                     application,
-                                     NULL);
-}
-#endif
-
 static void application_startup(GApplication *gapp)
 {
     Application *application = APPLICATION(gapp);
@@ -299,13 +218,9 @@ static void application_startup(GApplication *gapp)
                      G_CALLBACK(_application_uevent), application);
 #endif
 
-#ifdef ENABLE_DBUS
-    _application_dbus_init(application);
-#endif
-
     G_APPLICATION_CLASS(application_parent_class)->startup(gapp);
 
-#if 0
+#ifdef ENABLE_ACCEL_MAP
     /* check if we have a saved accel map */
     gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
 
@@ -350,7 +265,7 @@ static gboolean _application_accel_map_save(gpointer user_data)
 
     application->accel_map_save_id = 0;
 
-#if 0
+#ifdef ENABLE_ACCEL_MAP
     /* save the current accel map */
     gchar *path = xfce_resource_save_location(XFCE_RESOURCE_CONFIG,
                                               ACCEL_MAP_PATH,
@@ -430,11 +345,6 @@ static void application_shutdown(GApplication *gapp)
     if (G_UNLIKELY(application->show_dialogs_timer_id != 0))
         g_source_remove(application->show_dialogs_timer_id);
 
-#ifdef ENABLE_DBUS
-    /* remove the dbus service */
-    g_clear_pointer(&application->dbus_service, g_object_unref);
-#endif
-
     G_APPLICATION_CLASS(application_parent_class)->shutdown(gapp);
 }
 
@@ -508,23 +418,6 @@ out:
     else
         return EXIT_SUCCESS;
 }
-
-#ifdef ENABLE_DBUS
-static gboolean _application_dbus_register(GApplication   *gapp,
-                                                 GDBusConnection *connection,
-                                                 const gchar    *object_path,
-                                                 GError         **error)
-{
-    Application *application = APPLICATION(gapp);
-
-    if (application->dbus_service) /* WTF? */
-        return TRUE;
-
-    application->dbus_service = g_object_new(THUNAR_TYPE_DBUS_SERVICE, NULL);
-
-    return thunar_dbus_service_export_on_connection(application->dbus_service, connection, error);
-}
-#endif
 
 static void application_activate(GApplication *gapp)
 {
