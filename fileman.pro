@@ -67,7 +67,6 @@ HEADERS = \
     view/detailview.h \
     view/listmodel.h \
     view/standard_view.h \
-    widget/image.h \
     widget/locationbar.h \
     widget/locationentry.h \
     widget/pathentry.h \
@@ -78,6 +77,7 @@ HEADERS = \
     debug.h \
     marshal.h \
     preferences.h \
+    widget/th_image.h \
     window.h
 
 SOURCES = \
@@ -135,7 +135,6 @@ SOURCES = \
     view/detailview.c \
     view/listmodel.c \
     view/standard_view.c \
-    widget/image.c \
     widget/locationbar.c \
     widget/locationentry.c \
     widget/pathentry.c \
@@ -145,6 +144,7 @@ SOURCES = \
     main.c \
     marshal.c \
     preferences.c \
+    widget/th_image.c \
     window.c
 
 DISTFILES = \

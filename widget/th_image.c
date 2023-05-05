@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <image.h>
+#include <th_image.h>
 
 #include <application.h>
 #include <filemon.h>

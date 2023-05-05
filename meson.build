@@ -96,7 +96,7 @@ app_sources = [
     'view/detailview.c',
     'view/listmodel.c',
     'view/standard_view.c',
-    'widget/image.c',
+    'widget/th_image.c',
     'widget/locationbar.c',
     'widget/locationentry.c',
     'widget/pathentry.c',

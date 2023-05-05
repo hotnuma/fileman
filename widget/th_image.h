@@ -25,15 +25,15 @@
 G_BEGIN_DECLS
 
 #define THUNAR_TYPE_IMAGE (th_image_get_type())
-#define THUNAR_IMAGE(obj) \
+#define THUNAR_IMAGE(obj)            \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_IMAGE, ThunarImage))
-#define THUNAR_IMAGE_CLASS(klass) \
+#define THUNAR_IMAGE_CLASS(klass)    \
     (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_IMAGE, ThunarImageClass))
-#define THUNAR_IS_IMAGE(obj) \
+#define THUNAR_IS_IMAGE(obj)         \
     (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_IMAGE))
 #define THUNAR_IS_IMAGE_CLASS(klass) \
     (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_IMAGE)
-#define THUNAR_IMAGE_GET_CLASS(obj) \
+#define THUNAR_IMAGE_GET_CLASS(obj)  \
     (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_IMAGE, ThunarImageClass))
 
 typedef struct _ThunarImagePrivate ThunarImagePrivate;
