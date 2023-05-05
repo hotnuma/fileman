@@ -1757,20 +1757,26 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
 
     /* ask the user to enter a name for the new folder */
     gchar *name = dialog_file_create(launcher->widget,
-                                "inode/directory",
-                                _("New Folder"),
-                                _("Create New Folder"));
+                                     "inode/directory",
+                                     _("New Folder"),
+                                     _("Create New Folder"));
 
     if (G_UNLIKELY(name == NULL))
         return;
 
     GList path_list;
 
-    /* fake the path list */
-    if (IS_TREEVIEW(launcher->widget) && launcher->files_are_selected && launcher->single_directory_to_process)
-        path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->single_folder), name);
+    // fake the path list
+    if (IS_TREEVIEW(launcher->widget)
+        && launcher->files_are_selected
+        && launcher->single_directory_to_process)
+        path_list.data = g_file_resolve_relative_path(
+                    th_file_get_file(launcher->single_folder),
+                    name);
     else
-        path_list.data = g_file_resolve_relative_path(th_file_get_file(launcher->current_directory), name);
+        path_list.data = g_file_resolve_relative_path(
+                    th_file_get_file(launcher->current_directory),
+                    name);
 
     path_list.next = path_list.prev = NULL;
 
@@ -2040,31 +2046,38 @@ static void _launcher_action_restore(ThunarLauncher *launcher)
 
 static void _launcher_action_duplicate(ThunarLauncher *launcher)
 {
-    Application *application;
-    GList             *files_to_process;
-
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
+
+    //g_print("_launcher_action_duplicate\n");
 
     if (G_UNLIKELY(launcher->current_directory == NULL))
         return;
-    if (launcher->files_are_selected == FALSE || th_file_is_trashed(launcher->current_directory))
+
+    if (launcher->files_are_selected == FALSE
+        || th_file_is_trashed(launcher->current_directory))
         return;
 
     /* determine the selected files for the view */
-    files_to_process = th_file_list_to_thunar_g_file_list(launcher->files_to_process);
-    if (G_LIKELY(files_to_process != NULL))
-    {
-        /* copy the selected files into the current directory, which effectively
-         * creates duplicates of the files.
-         */
-        application = application_get();
-        application_copy_into(application, launcher->widget, files_to_process,
-                                      th_file_get_file(launcher->current_directory), launcher->select_files_closure);
-        g_object_unref(G_OBJECT(application));
+    GList *files_to_process = th_file_list_to_thunar_g_file_list(
+                                            launcher->files_to_process);
 
-        /* clean up */
-        e_list_free(files_to_process);
-    }
+    if (!files_to_process)
+        return;
+
+    /* copy the selected files into the current directory, which effectively
+     * creates duplicates of the files.
+     */
+    Application *application = application_get();
+
+    application_copy_into(application,
+                          launcher->widget,
+                          files_to_process,
+                          th_file_get_file(launcher->current_directory),
+                          launcher->select_files_closure);
+
+    g_object_unref(G_OBJECT(application));
+
+    e_list_free(files_to_process);
 }
 
 static void _launcher_action_make_link(ThunarLauncher *launcher)

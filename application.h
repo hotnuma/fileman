@@ -63,6 +63,17 @@ gboolean application_process_filenames(Application *application,
                                        const gchar *startup_id,
                                        GError **error);
 
+void application_mkdir(Application *application,
+                       gpointer parent,
+                       GList *file_list,
+                       GClosure *new_files_closure);
+
+void application_creat(Application *application,
+                       gpointer parent,
+                       GList *file_list,
+                       GFile *template_file,
+                       GClosure *new_files_closure);
+
 void application_copy_into(Application *application,
                            gpointer parent,
                            GList *source_file_list,
@@ -88,24 +99,13 @@ void application_unlink_files(Application *application,
 
 void application_trash(Application *application, gpointer parent, GList *file_list);
 
-void application_creat(Application *application,
-                       gpointer parent,
-                       GList *file_list,
-                       GFile *template_file,
-                       GClosure *new_files_closure);
-
-void application_mkdir(Application *application,
-                       gpointer parent,
-                       GList *file_list,
-                       GClosure *new_files_closure);
-
-void application_empty_trash(Application *application, gpointer parent,
-                             const gchar *startup_id);
-
 void application_restore_files(Application *application,
                                gpointer parent,
                                GList *trash_file_list,
                                GClosure *new_files_closure);
+
+void application_empty_trash(Application *application, gpointer parent,
+                             const gchar *startup_id);
 
 G_END_DECLS
 

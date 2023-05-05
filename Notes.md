@@ -1,20 +1,3 @@
-#### Biggest files
-
-```
-    find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -10
-    
-    127510	./view/standard_view.c
-    102177	./core/th_file.c
-    95904	./menu/launcher.c
-    70707	./view/listmodel.c
-    70126	./side/treeview.c
-    68427	./window.c
-    60747	./side/treemodel.c
-    60213	./job/transfer_job.c
-    54371	./application.c
-    50846	./dialog/permbox.c
-```
-
 #### History
 
 * Exo

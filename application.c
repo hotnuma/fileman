@@ -1004,6 +1004,8 @@ void application_copy_into(Application *application,
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(G_IS_FILE(target_file));
 
+    //g_print("application_copy_into\n");
+
     /* generate a title for the progress dialog */
     gchar *display_name = th_file_cached_display_name(target_file);
     gchar *title = g_strdup_printf(_("Copying files to \"%s\"..."),
