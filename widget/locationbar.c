@@ -20,9 +20,9 @@
 
 #include <exo.h>
 
-#include <location_bar.h>
+#include <locationbar.h>
 #include <navigator.h>
-#include <location_entry.h>
+#include <locationentry.h>
 
 struct _ThunarLocationBarClass
 {

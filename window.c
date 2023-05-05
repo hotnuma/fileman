@@ -31,7 +31,7 @@
 #include <gtk_ext.h>
 #include <history.h>
 #include <launcher.h>
-#include <location_entry.h>
+#include <locationentry.h>
 #include <marshal.h>
 #include <menu.h>
 #include <pango_ext.h>

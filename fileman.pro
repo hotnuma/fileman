@@ -68,10 +68,10 @@ HEADERS = \
     view/listmodel.h \
     view/standard_view.h \
     widget/image.h \
-    widget/location_bar.h \
-    widget/location_entry.h \
+    widget/locationbar.h \
+    widget/locationentry.h \
     widget/pathentry.h \
-    widget/size_label.h \
+    widget/sizelabel.h \
     widget/statusbar.h \
     application.h \
     config.h \
@@ -136,10 +136,10 @@ SOURCES = \
     view/listmodel.c \
     view/standard_view.c \
     widget/image.c \
-    widget/location_bar.c \
-    widget/location_entry.c \
+    widget/locationbar.c \
+    widget/locationentry.c \
     widget/pathentry.c \
-    widget/size_label.c \
+    widget/sizelabel.c \
     widget/statusbar.c \
     application.c \
     main.c \

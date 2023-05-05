@@ -19,7 +19,7 @@
 #ifndef __LOCATIONENTRY_H__
 #define __LOCATIONENTRY_H__
 
-#include <location_bar.h>
+#include <locationbar.h>
 
 G_BEGIN_DECLS
 

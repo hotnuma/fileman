@@ -42,7 +42,7 @@
 #include <marshal.h>
 #include <pango_ext.h>
 #include <permbox.h>
-#include <size_label.h>
+#include <sizelabel.h>
 #include <utils.h>
 
 #include <fileinfo.h>

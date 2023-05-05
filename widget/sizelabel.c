@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <size_label.h>
+#include <sizelabel.h>
 
 #include <limits.h>
 #include <locale.h>
