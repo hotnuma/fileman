@@ -96,10 +96,10 @@ app_sources = [
     'widget/sizelabel.c',
     'widget/statusbar.c',
     'application.c',
+    'appmenu.c',
     'launcher.c',
     'main.c',
     'marshal.c',
-    'menu.c',
     'preferences.c',
     'window.c',
 ]

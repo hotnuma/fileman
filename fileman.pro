@@ -11,6 +11,7 @@ PKGCONFIG += libnotify
 PKGCONFIG += libxfce4ui-2
 
 HEADERS = \
+    appmenu.h \
     core/clipman.h \
     core/devmon.h \
     core/dnd.h \
@@ -45,7 +46,6 @@ HEADERS = \
     libext/pango_ext.h \
     libext/pixbuf_ext.h \
     libext/utils.h \
-    menu.h \
     misc/app_notify.h \
     misc/browser.h \
     misc/component.h \
@@ -79,6 +79,7 @@ HEADERS = \
 
 SOURCES = \
     0Temp.c \
+    appmenu.c \
     core/clipman.c \
     core/devmon.c \
     core/dnd.c \
@@ -113,7 +114,6 @@ SOURCES = \
     libext/pango_ext.c \
     libext/pixbuf_ext.c \
     libext/utils.c \
-    menu.c \
     misc/app_notify.c \
     misc/browser.c \
     misc/component.c \

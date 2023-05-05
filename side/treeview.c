@@ -31,7 +31,7 @@
 #include <gtk_ext.h>
 #include <job.h>
 #include <marshal.h>
-#include <menu.h>
+#include <appmenu.h>
 #include <propsdlg.h>
 #include <srender.h>
 #include <simple_job.h>

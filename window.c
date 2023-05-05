@@ -33,7 +33,7 @@
 #include <launcher.h>
 #include <locationentry.h>
 #include <marshal.h>
-#include <menu.h>
+#include <appmenu.h>
 #include <pango_ext.h>
 #include <preferences.h>
 #include <utils.h>

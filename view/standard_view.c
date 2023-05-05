@@ -31,7 +31,7 @@
 
 #include <exo.h>
 #include <application.h>
-#include <menu.h>
+#include <appmenu.h>
 #include <dialogs.h>
 #include <dnd.h>
 #include <enum_types.h>
