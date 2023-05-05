@@ -41,10 +41,9 @@ typedef struct _AppMenu      AppMenu;
 typedef enum
 {
     MENU_TYPE_WINDOW,
-    MENU_TYPE_CONTEXT_STANDARD_VIEW,
     MENU_TYPE_CONTEXT_LOCATION_BUTTONS,
-    MENU_TYPE_CONTEXT_RENAMER,
     MENU_TYPE_CONTEXT_TREE_VIEW,
+    MENU_TYPE_CONTEXT_STANDARD_VIEW,
     N_MENU_TYPE,
 
 } MenuType;
@@ -57,16 +56,15 @@ typedef enum
     MENU_SECTION_CUT              = 1 << 2,
     MENU_SECTION_COPY_PASTE       = 1 << 3,
     MENU_SECTION_TRASH_DELETE     = 1 << 4,
-    MENU_SECTION_EMPTY_TRASH      = 1 << 5,
-    MENU_SECTION_RESTORE          = 1 << 6,
+    MENU_SECTION_RESTORE          = 1 << 5,
+    MENU_SECTION_EMPTY_TRASH      = 1 << 6,
     MENU_SECTION_DUPLICATE        = 1 << 7,
     MENU_SECTION_MAKELINK         = 1 << 8,
     MENU_SECTION_RENAME           = 1 << 9,
     MENU_SECTION_TERMINAL         = 1 << 10,
-    MENU_SECTION_ZOOM             = 1 << 11,
-    MENU_SECTION_PROPERTIES       = 1 << 12,
-    MENU_SECTION_MOUNTABLE        = 1 << 13,
-    MENU_SECTION_EXTRACT          = 1 << 14,
+    MENU_SECTION_EXTRACT          = 1 << 11,
+    MENU_SECTION_MOUNTABLE        = 1 << 12,
+    MENU_SECTION_PROPERTIES       = 1 << 13,
 
 } MenuSections;
 

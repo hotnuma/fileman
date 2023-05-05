@@ -50,7 +50,7 @@ void application_set_daemon(Application *application, gboolean daemon);
 
 void application_take_window(Application *application, GtkWindow *window);
 
-GtkWidget *application_open_window(Application *application,
+GtkWidget* application_open_window(Application *application,
                                    ThunarFile *directory,
                                    GdkScreen *screen,
                                    const gchar *startup_id,
