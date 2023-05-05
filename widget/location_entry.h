@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __LOCATION_ENTRY_H__
-#define __LOCATION_ENTRY_H__
+#ifndef __LOCATIONENTRY_H__
+#define __LOCATIONENTRY_H__
 
 #include <location_bar.h>
 
@@ -26,26 +26,26 @@ G_BEGIN_DECLS
 typedef struct _LocationEntryClass LocationEntryClass;
 typedef struct _LocationEntry      LocationEntry;
 
-#define TYPE_LOCATION_ENTRY                   \
-    (location_entry_get_type())
-#define LOCATION_ENTRY(obj)            \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_LOCATION_ENTRY, LocationEntry))
-#define LOCATION_ENTRY_CLASS(klass)    \
-    (G_TYPE_CHECK_CLASS_CAST((klass), TYPE_LOCATION_ENTRY, LocationEntryClass))
-#define IS_LOCATION_ENTRY(obj)         \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_LOCATION_ENTRY))
-#define IS_LOCATION_ENTRY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_LOCATION_ENTRY))
-#define LOCATION_ENTRY_GET_CLASS(obj)  \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_LOCATION_ENTRY, LocationEntryClass))
+#define TYPE_LOCATIONENTRY                   \
+    (locationentry_get_type())
+#define LOCATIONENTRY(obj)            \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_LOCATIONENTRY, LocationEntry))
+#define LOCATIONENTRY_CLASS(klass)    \
+    (G_TYPE_CHECK_CLASS_CAST((klass), TYPE_LOCATIONENTRY, LocationEntryClass))
+#define IS_LOCATIONENTRY(obj)         \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_LOCATIONENTRY))
+#define IS_LOCATIONENTRY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_LOCATIONENTRY))
+#define LOCATIONENTRY_GET_CLASS(obj)  \
+    (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_LOCATIONENTRY, LocationEntryClass))
 
-GType location_entry_get_type() G_GNUC_CONST;
+GType locationentry_get_type() G_GNUC_CONST;
 
-void location_entry_accept_focus(LocationEntry *entry,
+void locationentry_accept_focus(LocationEntry *entry,
                                         const gchar *initial_text);
 
 G_END_DECLS
 
-#endif /* !__LOCATION_ENTRY_H__ */
+#endif /* !__LOCATIONENTRY_H__ */
 
 

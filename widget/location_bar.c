@@ -227,12 +227,12 @@ static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar *bar,
         && G_TYPE_CHECK_INSTANCE_TYPE(child, type))
         return child;
 
-    if (type == TYPE_LOCATION_ENTRY)
+    if (type == TYPE_LOCATIONENTRY)
     {
         if (bar->locationEntry == NULL)
         {
             bar->locationEntry = gtk_widget_new(
-                                TYPE_LOCATION_ENTRY,
+                                TYPE_LOCATIONENTRY,
                                 "orientation", GTK_ORIENTATION_HORIZONTAL,
                                 "current-directory", NULL,
                                 NULL);
@@ -291,18 +291,18 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
 
     e_return_if_fail(child != NULL && GTK_IS_WIDGET(child));
 
-    if (IS_LOCATION_ENTRY(child))
+    if (IS_LOCATIONENTRY(child))
     {
         /* already have an entry */
-        location_entry_accept_focus(LOCATION_ENTRY(child), initial_text);
+        locationentry_accept_focus(LOCATIONENTRY(child), initial_text);
     }
     else
     {
         /* not an entry => temporarily replace it */
         child = thunar_location_bar_install_widget(bar,
-                                                   TYPE_LOCATION_ENTRY);
+                                                   TYPE_LOCATIONENTRY);
 
-        location_entry_accept_focus(LOCATION_ENTRY(child),
+        locationentry_accept_focus(LOCATIONENTRY(child),
                                            initial_text);
     }
 
@@ -311,7 +311,7 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
 
 static gboolean thunar_location_bar_settings_changed(ThunarLocationBar *bar)
 {
-    thunar_location_bar_install_widget(bar, TYPE_LOCATION_ENTRY);
+    thunar_location_bar_install_widget(bar, TYPE_LOCATIONENTRY);
 
     return FALSE;
 }
