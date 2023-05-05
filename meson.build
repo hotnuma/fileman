@@ -8,8 +8,6 @@ project(
     ],
 )
 
-#'-D_XOPEN_SOURCE',
-
 c_args = [
     '-Wall',
     '-Wextra',
@@ -107,7 +105,7 @@ app_sources = [
 ]
 
 executable(
-    'fileman',
+    meson.project_name(),
     c_args : c_args,
     include_directories : app_includes,
     dependencies : app_deps,
