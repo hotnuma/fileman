@@ -26,14 +26,11 @@ app_includes = [
     'dialog',
     'job',
     'libext',
-    'menu',
     'misc',
     'side',
     'view',
     'widget',
 ]
-
-#dependency('gudev-1.0'),
 
 app_deps = [
     dependency('gtk+-3.0'),
@@ -76,8 +73,6 @@ app_sources = [
     'libext/pango_ext.c',
     'libext/pixbuf_ext.c',
     'libext/utils.c',
-    'menu/launcher.c',
-    'menu/menu.c',
     'misc/app_notify.c',
     'misc/browser.c',
     'misc/component.c',
@@ -103,8 +98,10 @@ app_sources = [
     'widget/sizelabel.c',
     'widget/statusbar.c',
     'application.c',
+    'launcher.c',
     'main.c',
     'marshal.c',
+    'menu.c',
     'preferences.c',
     'window.c',
 ]

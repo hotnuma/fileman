@@ -2,16 +2,13 @@ TEMPLATE = app
 TARGET = fileman
 CONFIG = c99 link_pkgconfig
 DEFINES = _GNU_SOURCE
+INCLUDEPATH = core dialog job libext misc side view widget
 PKGCONFIG =
 
 PKGCONFIG += gtk+-3.0
 PKGCONFIG += tinyc
 PKGCONFIG += libnotify
 PKGCONFIG += libxfce4ui-2
-
-#PKGCONFIG += gudev-1.0
-
-INCLUDEPATH = core dialog job libext menu misc side view widget
 
 HEADERS = \
     core/clipman.h \
@@ -38,6 +35,7 @@ HEADERS = \
     job/job_utils.h \
     job/simple_job.h \
     job/transfer_job.h \
+    launcher.h \
     libext/exo.h \
     libext/exo_job.h \
     libext/exo_tree_view.h \
@@ -47,8 +45,7 @@ HEADERS = \
     libext/pango_ext.h \
     libext/pixbuf_ext.h \
     libext/utils.h \
-    menu/launcher.h \
-    menu/menu.h \
+    menu.h \
     misc/app_notify.h \
     misc/browser.h \
     misc/component.h \
@@ -106,6 +103,7 @@ SOURCES = \
     job/job_utils.c \
     job/simple_job.c \
     job/transfer_job.c \
+    launcher.c \
     libext/exo.c \
     libext/exo_job.c \
     libext/exo_tree_view.c \
@@ -115,8 +113,7 @@ SOURCES = \
     libext/pango_ext.c \
     libext/pixbuf_ext.c \
     libext/utils.c \
-    menu/launcher.c \
-    menu/menu.c \
+    menu.c \
     misc/app_notify.c \
     misc/browser.c \
     misc/component.c \
