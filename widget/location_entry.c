@@ -65,7 +65,7 @@ static void thunar_location_entry_emit_edit_done(ThunarLocationEntry *entry);
 
 struct _ThunarLocationEntryClass
 {
-    GtkHBoxClass __parent__;
+    GtkBoxClass __parent__;
 
     /* internal action signals */
     gboolean    (*reset) (ThunarLocationEntry *location_entry);
@@ -77,7 +77,7 @@ struct _ThunarLocationEntryClass
 
 struct _ThunarLocationEntry
 {
-    GtkHBox     __parent__;
+    GtkBox     __parent__;
 
     ThunarFile  *current_directory;
     GtkWidget   *path_entry;
@@ -195,7 +195,7 @@ static void thunar_location_entry_finalize(GObject *object)
     /* disconnect from the current directory */
     navigator_set_current_directory(THUNAR_NAVIGATOR(object), NULL);
 
-   (*G_OBJECT_CLASS(thunar_location_entry_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(thunar_location_entry_parent_class)->finalize(object);
 }
 
 static void

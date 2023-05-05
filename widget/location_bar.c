@@ -231,12 +231,17 @@ static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar *bar,
     {
         if (bar->locationEntry == NULL)
         {
-            bar->locationEntry = gtk_widget_new(THUNAR_TYPE_LOCATION_ENTRY,
-                                                "current-directory", NULL,
-                                                NULL);
+            bar->locationEntry = gtk_widget_new(
+                                THUNAR_TYPE_LOCATION_ENTRY,
+                                "orientation", GTK_ORIENTATION_HORIZONTAL,
+                                "current-directory", NULL,
+                                NULL);
+
             g_object_ref(bar->locationEntry);
+
             g_signal_connect_swapped(bar->locationEntry, "reload-requested",
                                      G_CALLBACK(thunar_location_bar_reload_requested), bar);
+
             g_signal_connect_swapped(bar->locationEntry, "change-directory",
                                      G_CALLBACK(navigator_change_directory), THUNAR_NAVIGATOR(bar));
         }
@@ -244,7 +249,8 @@ static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar *bar,
         installedWidget = bar->locationEntry;
     }
 
-    navigator_set_current_directory(THUNAR_NAVIGATOR(installedWidget), bar->current_directory);
+    navigator_set_current_directory(THUNAR_NAVIGATOR(installedWidget),
+                                    bar->current_directory);
 
     if ((child = gtk_bin_get_child(GTK_BIN(bar))))
         gtk_container_remove(GTK_CONTAINER(bar), child);

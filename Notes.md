@@ -42,10 +42,10 @@
 
 #### TODO
 
-* Port ThunarLocationEntry to GtkBox
+* Port SizeLabel to GtkBox
     
     ```
-    ThunarLocationEntry
+    SizeLabel
         GtkHBox
     ```
 
