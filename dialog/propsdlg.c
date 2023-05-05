@@ -536,7 +536,7 @@ static void propsdlg_finalize(GObject *object)
 static void propsdlg_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
 
@@ -559,7 +559,7 @@ static void propsdlg_get_property(GObject *object, guint prop_id,
 static void propsdlg_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
 

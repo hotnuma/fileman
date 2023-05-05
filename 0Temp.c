@@ -671,7 +671,7 @@ static void thunar_column_model_notify_column_order(/*ThunarPreferences*/ void *
                                                     ColumnModel *column_model)
 {
     UNUSED(preferences);
-    UNUSED(pspec);
+    (void) pspec;
     GtkTreePath *path;
     GtkTreeIter  iter;
     gint         n;
@@ -700,7 +700,7 @@ static void thunar_column_model_notify_column_widths(void *preferences,
                                                      ColumnModel *column_model)
 {
     UNUSED(preferences);
-    UNUSED(pspec);
+    (void) pspec;
     e_return_if_fail(IS_COLUMN_MODEL(column_model));
     //e_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
 
@@ -713,7 +713,7 @@ static void thunar_column_model_notify_visible_columns(void *preferences,
                                                        ColumnModel *column_model)
 {
     UNUSED(preferences);
-    UNUSED(pspec);
+    (void) pspec;
     GtkTreePath *path;
     GtkTreeIter  iter;
     gint         n;

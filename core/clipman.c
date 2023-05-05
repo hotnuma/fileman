@@ -208,7 +208,7 @@ static void clipman_finalize(GObject *object)
 static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
                                  GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ClipboardManager *manager = CLIPBOARD_MANAGER(object);
 

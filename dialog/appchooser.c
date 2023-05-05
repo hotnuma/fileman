@@ -301,7 +301,7 @@ static void appchooser_dispose(GObject *object)
 static void appchooser_get_property(GObject *object, guint prop_id,
                                     GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     AppChooserDialog *dialog = APPCHOOSER_DIALOG(object);
 
@@ -324,7 +324,7 @@ static void appchooser_get_property(GObject *object, guint prop_id,
 static void appchooser_set_property(GObject *object, guint prop_id,
                                     const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     AppChooserDialog *dialog = APPCHOOSER_DIALOG(object);
 
@@ -864,7 +864,7 @@ static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec
     e_return_if_fail(GTK_IS_EXPANDER(expander));
     e_return_if_fail(IS_APPCHOOSER_DIALOG(dialog));
 
-    UNUSED(pspec);
+    (void) pspec;
 
     GtkTreeSelection *selection;
 

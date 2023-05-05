@@ -136,7 +136,7 @@ static void history_finalize(GObject *object)
 static void history_get_property(GObject *object, guint prop_id,
                                  GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ThunarHistory *history = THUNAR_HISTORY(object);
 
@@ -155,7 +155,7 @@ static void history_get_property(GObject *object, guint prop_id,
 static void history_set_property(GObject *object, guint prop_id,
                                  const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
     ThunarHistory *history = THUNAR_HISTORY(object);
 
     switch (prop_id)

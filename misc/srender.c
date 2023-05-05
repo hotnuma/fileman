@@ -128,7 +128,7 @@ static void srender_finalize(GObject *object)
 static void srender_get_property(GObject *object, guint prop_id,
                                  GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ShortcutRenderer *renderer = SHORTCUT_RENDERER(object);
 
@@ -151,7 +151,7 @@ static void srender_get_property(GObject *object, guint prop_id,
 static void srender_set_property(GObject *object, guint prop_id,
                                  const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ShortcutRenderer *renderer = SHORTCUT_RENDERER(object);
 

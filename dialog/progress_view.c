@@ -266,7 +266,7 @@ static void thunar_progress_view_get_property(GObject    *object,
                                               GValue     *value,
                                               GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
     ThunarProgressView *view = THUNAR_PROGRESS_VIEW(object);
 
     switch(prop_id)
@@ -294,7 +294,7 @@ static void thunar_progress_view_set_property(GObject      *object,
                                               const GValue *value,
                                               GParamSpec   *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
     ThunarProgressView *view = THUNAR_PROGRESS_VIEW(object);
 
     switch(prop_id)

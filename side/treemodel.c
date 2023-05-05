@@ -1246,7 +1246,7 @@ static void _treemodel_item_notify_loading(TreeModelItem *item,
                                                   GParamSpec          *pspec,
                                                   ThunarFolder        *folder)
 {
-    UNUSED(pspec);
+    (void) pspec;
     GNode *node;
 
     e_return_if_fail(THUNAR_IS_FOLDER(folder));

@@ -429,7 +429,7 @@ static void permbox_get_property(GObject    *object,
 {
     PermissionBox *chooser = PERMISSIONBOX(object);
     GList *lp;
-    UNUSED(pspec);
+    (void) pspec;
 
     switch (prop_id)
     {
@@ -457,7 +457,7 @@ static void permbox_set_property(GObject      *object,
                                                     GParamSpec   *pspec)
 {
     PermissionBox *chooser = PERMISSIONBOX(object);
-    UNUSED(pspec);
+    (void) pspec;
 
     switch (prop_id)
     {

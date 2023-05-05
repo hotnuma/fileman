@@ -172,7 +172,7 @@ static void irenderer_finalize(GObject *object)
 static void irenderer_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     IconRenderer *icon_renderer = ICONRENDERER(object);
 
@@ -207,7 +207,7 @@ static void irenderer_get_property(GObject *object, guint prop_id,
 static void irenderer_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     IconRenderer *icon_renderer = ICONRENDERER(object);
 

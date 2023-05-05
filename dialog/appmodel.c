@@ -124,7 +124,7 @@ static void appmodel_finalize(GObject *object)
 static void appmodel_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     AppChooserModel *model = APPCHOOSER_MODEL(object);
 
@@ -143,7 +143,7 @@ static void appmodel_get_property(GObject *object, guint prop_id,
 static void appmodel_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     AppChooserModel *model = APPCHOOSER_MODEL(object);
 

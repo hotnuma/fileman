@@ -741,7 +741,7 @@ static gboolean _window_delete(GtkWidget *widget, GdkEvent *event,
 static void window_get_property(GObject *object, guint prop_id,
                                 GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ThunarWindow *window = THUNAR_WINDOW(object);
 
@@ -764,7 +764,7 @@ static void window_get_property(GObject *object, guint prop_id,
 static void window_set_property(GObject *object, guint prop_id,
                                 const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
     ThunarWindow *window = THUNAR_WINDOW(object);
 
     switch (prop_id)
@@ -1509,7 +1509,7 @@ static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
     e_return_if_fail(THUNAR_IS_VIEW(view));
     e_return_if_fail(THUNAR_IS_WINDOW(window));
 
-    UNUSED(pspec);
+    (void) pspec;
 
     GdkCursor *cursor;
 

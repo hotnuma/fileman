@@ -22,10 +22,10 @@
 #include <config.h>
 #include <application.h>
 
-#include <exo.h>
-#include <libxfce4ui/libxfce4ui.h>
 #include <browser.h>
 #include <dialogs.h>
+
+#include <exo.h>
 #include <gdk_ext.h>
 #include <io_jobs.h>
 #include <preferences.h>
@@ -33,17 +33,16 @@
 #include <utils.h>
 #include <baseview.h>
 
+#include <libxfce4ui/libxfce4ui.h>
 #include <errno.h>
 #include <memory.h>
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>
 
-#ifdef HAVE_GUDEV
-#include <gudev/gudev.h>
-#endif
-
+#ifdef ENABLE_ACCEL_MAP
 #define ACCEL_MAP_PATH "Thunar/accels.scm"
+#endif
 
 /* option entries */
 static const GOptionEntry _option_entries[] =
@@ -65,59 +64,44 @@ enum
 };
 
 static void application_finalize(GObject *object);
-static void application_get_property(GObject *object,
-                                            guint prop_id,
-                                            GValue *value,
-                                            GParamSpec *pspec);
-static void application_set_property(GObject *object,
-                                            guint prop_id,
-                                            const GValue *value,
-                                            GParamSpec *pspec);
+static void application_get_property(GObject *object, guint prop_id,
+                                     GValue *value, GParamSpec *pspec);
+static void application_set_property(GObject *object, guint prop_id,
+                                     const GValue *value, GParamSpec *pspec);
 
 static void application_startup(GApplication *application);
+
 static void _application_accel_map_changed(Application *application);
 static gboolean _application_accel_map_save(gpointer user_data);
 static void _application_load_css();
+
 static void application_shutdown(GApplication *application);
 static void application_activate(GApplication *application);
 static int application_command_line(GApplication *application,
                                     GApplicationCommandLine *command_line);
 
 static void _application_collect_and_launch(Application *application,
-                                                  gpointer parent,
-                                                  const gchar *icon_name,
-                                                  const gchar *title,
-                                                  Launcher launcher,
-                                                  GList *source_file_list,
-                                                  GFile *target_file,
-                                                  gboolean update_source_folders,
-                                                  gboolean update_target_folders,
-                                                  GClosure *new_files_closure);
+                                            gpointer parent,
+                                            const gchar *icon_name,
+                                            const gchar *title,
+                                            Launcher launcher,
+                                            GList *source_file_list,
+                                            GFile *target_file,
+                                            gboolean update_source_folders,
+                                            gboolean update_target_folders,
+                                            GClosure *new_files_closure);
 static void _application_launch_finished(ThunarJob *job,
-                                               GList *containing_folders);
+                                         GList *containing_folders);
 static void _application_launch(Application *application,
-                                      gpointer parent,
-                                      const gchar *icon_name,
-                                      const gchar *title,
-                                      Launcher launcher,
-                                      GList *source_path_list,
-                                      GList *target_path_list,
-                                      gboolean update_source_folders,
-                                      gboolean update_target_folders,
-                                      GClosure *new_files_closure);
-
-#ifdef HAVE_GUDEV
-static void _application_uevent(GUdevClient *client,
-                                      const gchar *action,
-                                      GUdevDevice *device,
-                                      Application *application);
-static gboolean _application_volman_idle(gpointer user_data);
-static void _application_volman_idle_destroy(gpointer user_data);
-static void _application_volman_watch(GPid pid,
-                                            gint status,
-                                            gpointer user_data);
-static void _application_volman_watch_destroy(gpointer user_data);
-#endif
+                                gpointer parent,
+                                const gchar *icon_name,
+                                const gchar *title,
+                                Launcher launcher,
+                                GList *source_path_list,
+                                GList *target_path_list,
+                                gboolean update_source_folders,
+                                gboolean update_target_folders,
+                                GClosure *new_files_closure);
 
 static gboolean _application_show_dialogs(gpointer user_data);
 static void _application_show_dialogs_destroy(gpointer user_data);
@@ -141,13 +125,6 @@ struct _Application
 
     guint               accel_map_save_id;
     GtkAccelMap         *accel_map;
-
-#ifdef HAVE_GUDEV
-    GUdevClient         *udev_client;
-    GSList              *volman_udis;
-    guint               volman_idle_id;
-    guint               volman_watch_id;
-#endif
 };
 
 static GQuark _app_screen_quark;
@@ -196,29 +173,20 @@ static void application_init(Application *application)
     application->files_to_launch = NULL;
     application->progress_dialog = NULL;
 
-    g_application_set_flags(G_APPLICATION(application), G_APPLICATION_HANDLES_COMMAND_LINE);
-    g_application_add_main_option_entries(G_APPLICATION(application), _option_entries);
+    g_application_set_flags(G_APPLICATION(application),
+                            G_APPLICATION_HANDLES_COMMAND_LINE);
+
+    g_application_add_main_option_entries(G_APPLICATION(application),
+                                          _option_entries);
 }
 
-static void application_startup(GApplication *gapp)
+static void application_startup(GApplication *gapplication)
 {
-    Application *application = APPLICATION(gapp);
+    Application *application = APPLICATION(gapplication);
 
     prefs_file_read();
 
-#ifdef HAVE_GUDEV
-    static const gchar *subsystems[] = { "block", "input", "usb", NULL };
-
-    /* establish connection with udev */
-    application->udev_client = g_udev_client_new(subsystems);
-
-    /* connect to the client in order to be notified when devices are plugged in
-     * or disconnected from the computer */
-    g_signal_connect(application->udev_client, "uevent",
-                     G_CALLBACK(_application_uevent), application);
-#endif
-
-    G_APPLICATION_CLASS(application_parent_class)->startup(gapp);
+    G_APPLICATION_CLASS(application_parent_class)->startup(gapplication);
 
 #ifdef ENABLE_ACCEL_MAP
     /* check if we have a saved accel map */
@@ -283,31 +251,32 @@ static gboolean _application_accel_map_save(gpointer user_data)
 
 static void _application_load_css()
 {
-    GtkCssProvider *css_provider;
-    GdkScreen *screen;
+    GtkCssProvider *css_provider = gtk_css_provider_new();
 
-    css_provider = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(
+        css_provider,
+        /* for the pathbar-buttons any margin looks ugly*/
+        ".path-bar-button { margin-right: 0; }"
+        /* remove extra border between side pane and view */
+        ".shortcuts-pane { border-right-width: 0px; }"
+        /* add missing top border to side pane */
+        ".shortcuts-pane { border-top-style: solid; }"
+        /* make border thicker during DnD */
+        ".standard-view { border-left-width: 0px; border-right-width: 0px; }"
+        ".standard-view:drop(active) { border-width: 2px; }", -1, NULL);
 
-    gtk_css_provider_load_from_data(css_provider,
-                 /* for the pathbar-buttons any margin looks ugly*/
-                 ".path-bar-button { margin-right: 0; }"
-                 /* remove extra border between side pane and view */
-                 ".shortcuts-pane { border-right-width: 0px; }"
-                 /* add missing top border to side pane */
-                 ".shortcuts-pane { border-top-style: solid; }"
-                 /* make border thicker during DnD */
-                 ".standard-view { border-left-width: 0px; border-right-width: 0px; }"
-                 ".standard-view:drop(active) { border-width: 2px; }", -1, NULL);
-    screen = gdk_screen_get_default();
-    gtk_style_context_add_provider_for_screen(screen,
-                                              GTK_STYLE_PROVIDER(css_provider),
-                                              GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    GdkScreen *screen = gdk_screen_get_default();
+    gtk_style_context_add_provider_for_screen(
+                                    screen,
+                                    GTK_STYLE_PROVIDER(css_provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
     g_object_unref(css_provider);
 }
 
-static void application_shutdown(GApplication *gapp)
+static void application_shutdown(GApplication *gapplication)
 {
-    Application *application = APPLICATION(gapp);
+    Application *application = APPLICATION(gapplication);
 
     prefs_write();
     prefs_cleanup();
@@ -325,27 +294,11 @@ static void application_shutdown(GApplication *gapp)
     if (application->accel_map != NULL)
         g_object_unref(G_OBJECT(application->accel_map));
 
-#ifdef HAVE_GUDEV
-    /* cancel any pending volman watch source */
-    if (G_UNLIKELY(application->volman_watch_id != 0))
-        g_source_remove(application->volman_watch_id);
-
-    /* cancel any pending volman idle source */
-    if (G_UNLIKELY(application->volman_idle_id != 0))
-        g_source_remove(application->volman_idle_id);
-
-    /* drop all pending volume manager UDIs */
-    g_slist_free_full(application->volman_udis, g_free);
-
-    /* disconnect from the udev client */
-    g_object_unref(application->udev_client);
-#endif
-
     /* drop any running "show dialogs" timer */
     if (G_UNLIKELY(application->show_dialogs_timer_id != 0))
         g_source_remove(application->show_dialogs_timer_id);
 
-    G_APPLICATION_CLASS(application_parent_class)->shutdown(gapp);
+    G_APPLICATION_CLASS(application_parent_class)->shutdown(gapplication);
 }
 
 static void application_finalize(GObject *object)
@@ -356,10 +309,11 @@ static void application_finalize(GObject *object)
     G_OBJECT_CLASS(application_parent_class)->finalize(object);
 }
 
-static int application_command_line(GApplication            *gapp,
-                                           GApplicationCommandLine *command_line)
+static int application_command_line(GApplication *gapplication,
+                                    GApplicationCommandLine *command_line)
 {
-    Application *application  = APPLICATION(gapp);
+    Application *application  = APPLICATION(gapplication);
+
     gboolean           daemon       = FALSE;
     gboolean           quit         = FALSE;
     GStrv              filenames    = NULL;
@@ -377,7 +331,7 @@ static int application_command_line(GApplication            *gapp,
     if (G_UNLIKELY(quit))
     {
         g_debug("quitting");
-        g_application_quit(gapp);
+        g_application_quit(gapplication);
         goto out;
     }
 
@@ -397,8 +351,6 @@ static int application_command_line(GApplication            *gapp,
     }
     else if (!daemon)
     {
-        //DPRINT("bla\n");
-
         if (!application_process_filenames(application, cwd, cwd_list, NULL, NULL, &error))
         {
             /* we failed to process the filenames or the bulk rename failed */
@@ -426,16 +378,14 @@ static void application_activate(GApplication *gapp)
     G_APPLICATION_CLASS(application_parent_class)->activate(gapp);
 }
 
-static void application_get_property(GObject    *object,
-                                            guint       prop_id,
-                                            GValue     *value,
-                                            GParamSpec *pspec)
+static void application_get_property(GObject *object, guint prop_id,
+                                     GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
     Application *application = APPLICATION(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_DAEMON:
         g_value_set_boolean(value, application_get_daemon(application));
@@ -447,16 +397,14 @@ static void application_get_property(GObject    *object,
     }
 }
 
-static void application_set_property(GObject      *object,
-                                            guint         prop_id,
-                                            const GValue *value,
-                                            GParamSpec   *pspec)
+static void application_set_property(GObject *object, guint prop_id,
+                                     const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
     Application *application = APPLICATION(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_DAEMON:
         application_set_daemon(application, g_value_get_boolean(value));
@@ -523,16 +471,21 @@ static void _application_collect_and_launch(
     else
     {
         /* launch the operation */
-        _application_launch(application, parent, icon_name, title, launcher,
-                                   source_file_list, target_file_list, update_source_folders, update_target_folders, new_files_closure);
+        _application_launch(application,
+                            parent,
+                            icon_name,
+                            title,
+                            launcher,
+                            source_file_list, target_file_list,
+                            update_source_folders, update_target_folders,
+                            new_files_closure);
     }
 
     /* release the target path list */
     e_list_free(target_file_list);
 }
 
-static void _application_launch_finished(ThunarJob  *job,
-                                               GList      *containing_folders)
+static void _application_launch_finished(ThunarJob *job, GList *containing_folders)
 {
     GList        *lp;
     ThunarFile   *file;
@@ -568,15 +521,15 @@ static void _application_launch_finished(ThunarJob  *job,
 }
 
 static void _application_launch(Application *application,
-                                      gpointer           parent,
-                                      const gchar       *icon_name,
-                                      const gchar       *title,
-                                      Launcher           launcher,
-                                      GList             *source_file_list,
-                                      GList             *target_file_list,
-                                      gboolean           update_source_folders,
-                                      gboolean           update_target_folders,
-                                      GClosure          *new_files_closure)
+                                gpointer           parent,
+                                const gchar       *icon_name,
+                                const gchar       *title,
+                                Launcher           launcher,
+                                GList             *source_file_list,
+                                GList             *target_file_list,
+                                gboolean           update_source_folders,
+                                gboolean           update_target_folders,
+                                GClosure          *new_files_closure)
 {
     GtkWidget *dialog;
     GdkScreen *screen;
@@ -599,8 +552,8 @@ static void _application_launch(Application *application,
 
     /* connect a callback to instantly refresh the parent folders after the operation finished */
     g_signal_connect(G_OBJECT(job), "finished",
-                      G_CALLBACK(_application_launch_finished),
-                      parent_folder_list);
+                     G_CALLBACK(_application_launch_finished),
+                     parent_folder_list);
 
     /* connect the "new-files" closure(if any) */
     if (G_LIKELY(new_files_closure != NULL))
@@ -632,181 +585,17 @@ static void _application_launch(Application *application,
         if (G_LIKELY(application->show_dialogs_timer_id == 0))
         {
             application->show_dialogs_timer_id =
-                gdk_threads_add_timeout_full(G_PRIORITY_DEFAULT, 750, _application_show_dialogs,
-                                              application, _application_show_dialogs_destroy);
+                gdk_threads_add_timeout_full(G_PRIORITY_DEFAULT,
+                                             750,
+                                             _application_show_dialogs,
+                                             application,
+                                             _application_show_dialogs_destroy);
         }
     }
 
     /* drop our reference on the job */
     g_object_unref(job);
 }
-
-#ifdef HAVE_GUDEV
-static void _application_uevent(GUdevClient       *client,
-                                      const gchar       *action,
-                                      GUdevDevice       *device,
-                                      Application *application)
-{
-    e_return_if_fail(G_UDEV_IS_CLIENT(client));
-    e_return_if_fail(action != NULL && *action != '\0');
-    e_return_if_fail(G_UDEV_IS_DEVICE(device));
-    e_return_if_fail(IS_APPLICATION(application));
-    e_return_if_fail(client == application->udev_client);
-
-    /* determine the sysfs path of the device */
-    const gchar *sysfs_path = g_udev_device_get_sysfs_path(device);
-
-    /* check if the device is a CD drive */
-    gboolean is_cdrom = g_udev_device_get_property_as_boolean(device, "ID_CDROM");
-    gboolean has_media = g_udev_device_get_property_as_boolean(device, "ID_CDROM_MEDIA");
-
-    /* distinguish between "add", "change" and "remove" actions, ignore "move" */
-    if (g_strcmp0(action, "add") == 0
-        || (is_cdrom && has_media && g_strcmp0(action, "change") == 0))
-    {
-        // test if devtype is a partition
-        const gchar *devtype = g_udev_device_get_devtype(device);
-        if (!devtype || g_strcmp0(devtype, "partition") != 0)
-            return;
-
-        //DPRINT("add device...\n");
-
-        /* only insert the path if we don't have it already */
-        if (g_slist_find_custom(application->volman_udis, sysfs_path,
-                                (GCompareFunc)(void(*)(void)) g_utf8_collate) == NULL)
-        {
-            application->volman_udis = g_slist_prepend(application->volman_udis,
-                                       g_strdup(sysfs_path));
-
-            /* check if there's currently no active or scheduled handler */
-            if (G_LIKELY(application->volman_idle_id == 0
-                         && application->volman_watch_id == 0))
-            {
-                /* schedule a new handler using the idle source, which invokes the handler */
-                application->volman_idle_id =
-                    g_idle_add_full(G_PRIORITY_LOW,
-                                    _application_volman_idle,
-                                    application,
-                                    _application_volman_idle_destroy);
-            }
-        }
-    }
-    else if (g_strcmp0(action, "remove") == 0)
-    {
-        /* look for the sysfs path in the list of pending paths */
-        GSList *lp = g_slist_find_custom(application->volman_udis,
-                                         sysfs_path,
-                                        (GCompareFunc)(void(*)(void)) g_utf8_collate);
-
-        if (G_LIKELY(lp != NULL))
-        {
-            /* free the sysfs path string */
-            g_free(lp->data);
-
-            /* drop the sysfs path from the list of pending device paths */
-            application->volman_udis = g_slist_delete_link(application->volman_udis, lp);
-        }
-    }
-}
-
-static gboolean _application_volman_idle(gpointer user_data)
-{
-    Application *application = APPLICATION(user_data);
-    GdkScreen         *screen;
-    GError            *err = NULL;
-    gchar            **argv;
-    GPid               pid;
-    char              *display = NULL;
-
-    /* check if volume management is enabled(otherwise, we don't spawn anything, but clear the list here) */
-    gboolean misc_volume_management = true;
-
-    if (G_LIKELY(misc_volume_management))
-    {
-        /* check if we don't already have a handler, and we have a pending UDI */
-        if (application->volman_watch_id == 0 && application->volman_udis != NULL)
-        {
-            /* generate the argument list for the volman */
-            argv = g_new(gchar*, 4);
-            argv[0] = g_strdup("thunar-volman");
-            argv[1] = g_strdup("--device-added");
-            argv[2] = application->volman_udis->data;
-            argv[3] = NULL;
-
-            /* remove the first list item from the pending list */
-            application->volman_udis = g_slist_delete_link(application->volman_udis, application->volman_udis);
-
-            /* locate the currently active screen(the one with the pointer) */
-            screen = xfce_gdk_screen_get_active(NULL);
-
-            if (screen != NULL)
-                display = g_strdup(gdk_display_get_name(gdk_screen_get_display(screen)));
-
-            /* try to spawn the volman on the active screen */
-            if (g_spawn_async(NULL, argv, NULL, G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH, util_setup_display_cb, display, &pid, &err))
-            {
-                /* add a child watch for the volman handler */
-                application->volman_watch_id = g_child_watch_add_full(G_PRIORITY_LOW, pid, _application_volman_watch,
-                                               application, _application_volman_watch_destroy);
-            }
-            else
-            {
-                /* failed to spawn, tell the user, giving a hint to install the thunar-volman package */
-                g_warning("Failed to launch the volume manager(%s), make sure you have the \"thunar-volman\" package installed.", err->message);
-                g_error_free(err);
-            }
-
-            /* cleanup */
-            g_free(display);
-            g_strfreev(argv);
-        }
-
-    }
-    else
-    {
-        /* drop all pending HAL device UDIs */
-        g_slist_free_full(application->volman_udis, g_free);
-        application->volman_udis = NULL;
-    }
-
-    /* keep the idle source alive as long as no handler is
-     * active and we have pending UDIs that must be handled
-     */
-    return(application->volman_watch_id == 0
-            && application->volman_udis != NULL);
-}
-
-static void _application_volman_idle_destroy(gpointer user_data)
-{
-    APPLICATION(user_data)->volman_idle_id = 0;
-}
-
-static void _application_volman_watch(GPid     pid,
-                                            gint     status,
-                                            gpointer user_data)
-{
-    UNUSED(status);
-
-    Application *application = APPLICATION(user_data);
-
-    /* check if the idle source isn't active, but we have pending UDIs */
-    if (application->volman_idle_id == 0 && application->volman_udis != NULL)
-    {
-        /* schedule a new handler using the idle source, which invokes the handler */
-        application->volman_idle_id = gdk_threads_add_idle_full(G_PRIORITY_LOW, _application_volman_idle,
-                                      application, _application_volman_idle_destroy);
-    }
-
-    /* be sure to close the pid handle */
-    g_spawn_close_pid(pid);
-}
-
-static void _application_volman_watch_destroy(gpointer user_data)
-{
-    APPLICATION(user_data)->volman_watch_id = 0;
-}
-
-#endif // HAVE_GUDEV
 
 static gboolean _application_show_dialogs(gpointer user_data)
 {

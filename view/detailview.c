@@ -553,7 +553,7 @@ static void _detailview_notify_model(GtkTreeView       *tree_view,
                                      GParamSpec        *pspec,
                                      DetailView *details_view)
 {
-    UNUSED(pspec);
+    (void) pspec;
     UNUSED(details_view);
     /* We need to set the search column here, as GtkTreeView resets it
      * whenever a new model is set.
@@ -565,7 +565,7 @@ static void _detailview_notify_width(GtkTreeViewColumn *tree_view_column,
                                      GParamSpec        *pspec,
                                      DetailView *details_view)
 {
-    UNUSED(pspec);
+    (void) pspec;
     ThunarColumn column;
 
     e_return_if_fail(GTK_IS_TREE_VIEW_COLUMN(tree_view_column));

@@ -574,7 +574,7 @@ static void launcher_finalize(GObject *object)
 static void launcher_get_property(GObject *object, guint prop_id, GValue *value,
                                   GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     switch (prop_id)
     {
@@ -597,7 +597,7 @@ static void launcher_set_property(GObject      *object,
                                          const GValue *value,
                                          GParamSpec   *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ThunarLauncher *launcher = THUNAR_LAUNCHER(object);
 

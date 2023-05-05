@@ -264,7 +264,7 @@ static void pathentry_finalize(GObject *object)
 static void pathentry_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
     PathEntry *path_entry = PATHENTRY(object);
 
     switch(prop_id)
@@ -282,7 +282,7 @@ static void pathentry_get_property(GObject *object, guint prop_id,
 static void pathentry_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     PathEntry *path_entry = PATHENTRY(object);
 

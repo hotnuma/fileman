@@ -401,7 +401,7 @@ static void listmodel_finalize(GObject *object)
 static void listmodel_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ListModel *store = LISTMODEL(object);
 
@@ -448,7 +448,7 @@ static void listmodel_get_property(GObject *object, guint prop_id,
 static void listmodel_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ListModel *store = LISTMODEL(object);
 

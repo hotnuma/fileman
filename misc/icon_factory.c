@@ -235,7 +235,7 @@ static void ifactory_finalize(GObject *object)
 static void ifactory_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     IconFactory *factory = ICONFACTORY(object);
 
@@ -266,7 +266,7 @@ static void ifactory_get_property(GObject *object, guint prop_id,
 static void ifactory_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     IconFactory *factory = ICONFACTORY(object);
 

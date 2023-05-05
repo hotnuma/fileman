@@ -794,7 +794,7 @@ static void standard_view_get_property(GObject    *object,
                                        GValue     *value,
                                        GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
     ThunarFile *current_directory;
 
     switch (prop_id)
@@ -847,7 +847,7 @@ static void standard_view_set_property(GObject      *object,
                                               const GValue *value,
                                               GParamSpec   *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
     StandardView *standard_view = STANDARD_VIEW(object);
 
     switch (prop_id)

@@ -283,7 +283,7 @@ static void th_folder_finalize(GObject *object)
 static void th_folder_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ThunarFolder *folder = THUNAR_FOLDER(object);
 
@@ -306,7 +306,7 @@ static void th_folder_get_property(GObject *object, guint prop_id,
 static void th_folder_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec   *pspec)
 {
-    UNUSED(pspec);
+    (void) pspec;
 
     ThunarFolder *folder = THUNAR_FOLDER(object);
 
