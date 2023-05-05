@@ -401,20 +401,20 @@ static void treemodel_set_property(GObject      *object,
 
 static GtkTreeModelFlags treemodel_get_flags(GtkTreeModel *tree_model)
 {
-    UNUSED(tree_model);
+    (void) tree_model;
     return GTK_TREE_MODEL_ITERS_PERSIST;
 }
 
 static gint treemodel_get_n_columns(GtkTreeModel *tree_model)
 {
-    UNUSED(tree_model);
+    (void) tree_model;
     return TREEMODEL_N_COLUMNS;
 }
 
 static GType treemodel_get_column_type(GtkTreeModel *tree_model,
                                                gint         column)
 {
-    UNUSED(tree_model);
+    (void) tree_model;
     switch (column)
     {
     case TREEMODEL_COLUMN_FILE:
@@ -1506,7 +1506,7 @@ static gboolean _treemodel_node_traverse_sort(GNode   *node,
 static gboolean _treemodel_node_traverse_free(GNode   *node,
                                                      gpointer user_data)
 {
-    UNUSED(user_data);
+    (void) user_data;
     if (G_LIKELY(node->data != NULL))
         _treemodel_item_free(node->data);
     return FALSE;

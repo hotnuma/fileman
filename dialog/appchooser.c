@@ -502,8 +502,8 @@ static gboolean _appchooser_selection_func(GtkTreeSelection *selection,
                                            gboolean     path_currently_selected,
                                            gpointer     user_data)
 {
-    UNUSED(selection);
-    UNUSED(user_data);
+    (void) selection;
+    (void) user_data;
 
     GtkTreeIter iter;
     gboolean    permitted = TRUE;
@@ -716,7 +716,7 @@ static void _appchooser_action_remove(AppChooserDialog *dialog)
 
 static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dialog)
 {
-    UNUSED(button);
+    (void) button;
     GtkFileFilter *filter;
     GtkWidget     *chooser;
     gchar         *filename;
@@ -932,7 +932,7 @@ static void _appchooser_row_activated(GtkTreeView         *treeview,
                                       GtkTreeViewColumn   *column,
                                       AppChooserDialog *dialog)
 {
-    UNUSED(column);
+    (void) column;
 
     GtkTreeModel *model;
     GtkTreeIter   iter;

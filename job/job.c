@@ -68,8 +68,8 @@ static gboolean _job_ask_accumulator(GSignalInvocationHint *ihint,
                                             const GValue    *handler_return,
                                             gpointer        data)
 {
-    UNUSED(ihint);
-    UNUSED(data);
+    (void) ihint;
+    (void) data;
     g_value_copy(handler_return, return_accu);
     return FALSE;
 }

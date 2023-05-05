@@ -328,7 +328,7 @@ static void _pathentry_icon_press_event(GtkEntry             *entry,
                                         GdkEventButton       *event,
                                         gpointer             userdata)
 {
-    UNUSED(userdata);
+    (void) userdata;
 
     PathEntry *path_entry = PATHENTRY(entry);
 
@@ -346,7 +346,7 @@ static void _pathentry_icon_release_event(GtkEntry             *entry,
                                           GdkEventButton       *event,
                                           gpointer             user_data)
 {
-    UNUSED(user_data);
+    (void) user_data;
 
     PathEntry *path_entry = PATHENTRY(entry);
 
@@ -431,9 +431,9 @@ static void pathentry_drag_data_get(GtkWidget        *widget,
                                     guint            info,
                                     guint            timestamp)
 {
-    UNUSED(context);
-    UNUSED(info);
-    UNUSED(timestamp);
+    (void) context;
+    (void) info;
+    (void) timestamp;
 
     PathEntry  *path_entry = PATHENTRY(widget);
     GList             file_list;
@@ -828,7 +828,7 @@ static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
                                       GtkTreeIter        *iter,
                                       gpointer           user_data)
 {
-    UNUSED(key);
+    (void) key;
 
     GtkTreeModel    *model;
     PathEntry *path_entry;
@@ -901,7 +901,7 @@ static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
                                           GtkTreeIter        *iter,
                                           gpointer           user_data)
 {
-    UNUSED(completion);
+    (void) completion;
 
     PathEntry *path_entry = PATHENTRY(user_data);
     const gchar     *last_slash;

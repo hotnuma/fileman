@@ -88,7 +88,7 @@ static void group_class_init(ThunarGroupClass *klass)
 
 static void group_init(ThunarGroup *group)
 {
-    UNUSED(group);
+    (void) group;
 }
 
 static void _group_finalize(GObject *object)
@@ -177,7 +177,7 @@ static void user_class_init(ThunarUserClass *klass)
 
 static void user_init(ThunarUser *user)
 {
-    UNUSED(user);
+    (void) user;
 }
 
 static void _user_finalize(GObject *object)

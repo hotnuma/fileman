@@ -57,7 +57,7 @@ static void simple_job_class_init(SimpleJobClass *klass)
 
 static void simple_job_init(SimpleJob *simple_job)
 {
-    UNUSED(simple_job);
+    (void) simple_job;
 }
 
 static void simple_job_finalize(GObject *object)

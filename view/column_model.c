@@ -170,21 +170,21 @@ static void column_model_finalize(GObject *object)
 
 static GtkTreeModelFlags column_model_get_flags(GtkTreeModel *tree_model)
 {
-    UNUSED(tree_model);
+    (void) tree_model;
 
     return GTK_TREE_MODEL_LIST_ONLY;
 }
 
 static gint column_model_get_n_columns(GtkTreeModel *tree_model)
 {
-    UNUSED(tree_model);
+    (void) tree_model;
 
     return COLUMN_MODEL_N_COLUMNS;
 }
 
 static GType column_model_get_column_type(GtkTreeModel *tree_model, gint idx)
 {
-    UNUSED(tree_model);
+    (void) tree_model;
 
     switch (idx)
     {
@@ -309,8 +309,8 @@ static gboolean column_model_iter_children(GtkTreeModel *tree_model,
 static gboolean column_model_iter_has_child(GtkTreeModel *tree_model,
                                             GtkTreeIter *iter)
 {
-    UNUSED(tree_model);
-    UNUSED(iter);
+    (void) tree_model;
+    (void) iter;
     return FALSE;
 }
 
@@ -344,9 +344,9 @@ static gboolean column_model_iter_parent(GtkTreeModel *tree_model,
                                          GtkTreeIter  *iter,
                                          GtkTreeIter  *child)
 {
-    UNUSED(tree_model);
-    UNUSED(iter);
-    UNUSED(child);
+    (void) tree_model;
+    (void) iter;
+    (void) child;
     return FALSE;
 }
 

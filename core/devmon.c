@@ -607,7 +607,7 @@ static void _devmon_list_prepend(gpointer key, gpointer value, gpointer user_dat
 {
     e_return_if_fail(THUNAR_IS_DEVICE(value));
 
-    UNUSED(key);
+    (void) key;
 
     GList **list = user_data;
     *list = g_list_prepend(*list, g_object_ref(value));

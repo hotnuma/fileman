@@ -860,11 +860,11 @@ select_true (GtkTreeSelection *selection,
              gboolean          path_currently_selected,
              gpointer          data)
 {
-  UNUSED(selection);
-  UNUSED(model);
-  UNUSED(path);
-  UNUSED(path_currently_selected);
-  UNUSED(data);
+  (void) selection;
+  (void) model;
+  (void) path;
+  (void) path_currently_selected;
+  (void) data;
     return TRUE;
 }
 
@@ -877,11 +877,11 @@ select_false (GtkTreeSelection *selection,
               gboolean          path_currently_selected,
               gpointer          data)
 {
-    UNUSED(selection);
-    UNUSED(model);
-    UNUSED(path);
-    UNUSED(path_currently_selected);
-    UNUSED(data);
+    (void) selection;
+    (void) model;
+    (void) path;
+    (void) path_currently_selected;
+    (void) data;
   return FALSE;
 }
 

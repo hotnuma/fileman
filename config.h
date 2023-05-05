@@ -23,11 +23,6 @@
 #define G_OBJECT_WARN_INVALID_PROPERTY_ID(object, property_id, pspec) G_STMT_START{ (void)0; }G_STMT_END
 #endif
 
-// https://stackoverflow.com/questions/7090998/
-#ifndef UNUSED
-#define UNUSED(x) (void)(x)
-#endif
-
 #define APP_NAME "fileman"
 #define APP_DISPLAY_NAME "Fileman"
 #define PACKAGE_NAME APP_NAME

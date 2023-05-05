@@ -295,9 +295,9 @@ static gboolean _ifactory_changed(GSignalInvocationHint *ihint,
                                   const GValue          *param_values,
                                   gpointer              user_data)
 {
-    UNUSED(ihint);
-    UNUSED(n_param_values);
-    UNUSED(param_values);
+    (void) ihint;
+    (void) n_param_values;
+    (void) param_values;
 
     IconFactory *factory = ICONFACTORY(user_data);
 
@@ -313,7 +313,7 @@ static gboolean _ifactory_changed(GSignalInvocationHint *ihint,
 
 static gboolean _iconkey_check_sweep(IconKey *key, GdkPixbuf *pixbuf)
 {
-    UNUSED(key);
+    (void) key;
 
     return(G_OBJECT(pixbuf)->ref_count == 1);
 }

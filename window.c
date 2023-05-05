@@ -621,8 +621,8 @@ static void window_init(ThunarWindow *window)
 static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
                                    gpointer userdata)
 {
-    UNUSED(old_screen);
-    UNUSED(userdata);
+    (void) old_screen;
+    (void) userdata;
     GdkScreen *screen = gdk_screen_get_default();
     GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
 
@@ -711,9 +711,9 @@ static void window_finalize(GObject *object)
 static gboolean _window_delete(GtkWidget *widget, GdkEvent *event,
                                gpointer data)
 {
-    UNUSED(widget);
-    UNUSED(event);
-    UNUSED(data);
+    (void) widget;
+    (void) event;
+    (void) data;
 
     Preferences *prefs = get_preferences();
     GtkWindow *window = GTK_WINDOW(widget);
@@ -903,7 +903,7 @@ static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
     e_return_if_fail(THUNAR_IS_VIEW(page));
     e_return_if_fail(THUNAR_IS_WINDOW(window));
 
-    UNUSED(page_num);
+    (void) page_num;
 
     GSList        *view_bindings;
     ThunarFile    *current_directory;
@@ -1015,7 +1015,7 @@ static void _window_history_changed(ThunarWindow *window)
 static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
                                         guint page_num, ThunarWindow *window)
 {
-    UNUSED(page_num);
+    (void) page_num;
     e_return_if_fail(THUNAR_IS_WINDOW(window));
     e_return_if_fail(GTK_IS_NOTEBOOK(notebook));
     e_return_if_fail(THUNAR_IS_VIEW(page));
@@ -1041,7 +1041,7 @@ static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
     e_return_if_fail(THUNAR_IS_VIEW(page));
     e_return_if_fail(window->notebook == notebook);
 
-    UNUSED(page_num);
+    (void) page_num;
 
     gint n_pages;
 
@@ -1248,8 +1248,8 @@ static void _window_start_open_location(ThunarWindow *window,
 
 static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item)
 {
-    UNUSED(window);
-    UNUSED(menu_item);
+    (void) window;
+    (void) menu_item;
 
     GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
     const gchar *name = gtk_widget_get_name(focused);
@@ -1265,7 +1265,7 @@ static void _window_action_reload(ThunarWindow *window, GtkWidget *menu_item)
 {
     e_return_if_fail(THUNAR_IS_WINDOW(window));
 
-    UNUSED(menu_item);
+    (void) menu_item;
     gboolean result;
 
     /* force the view to reload */
@@ -1414,7 +1414,7 @@ static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_eve
 {
     e_return_val_if_fail(THUNAR_IS_WINDOW(window), GDK_EVENT_PROPAGATE);
 
-    UNUSED(user_data);
+    (void) user_data;
 
     GtkWidget *focused_widget = gtk_window_get_focus(window);
 
@@ -1491,7 +1491,7 @@ static void _window_menu_item_deselected(ThunarWindow *window,
 {
     e_return_if_fail(THUNAR_IS_WINDOW(window));
 
-    UNUSED(menu_item);
+    (void) menu_item;
     gint id;
 
     /* we can only undisplay tooltips if we have a statusbar */
@@ -1794,7 +1794,7 @@ gboolean window_set_directories(ThunarWindow *window, gchar **uris,
 const XfceGtkActionEntry* window_get_action_entry(ThunarWindow *window,
                                                   AppWindowAction action)
 {
-    UNUSED(window);
+    (void) window;
 
     return get_action_entry(action);
 }
@@ -1846,7 +1846,7 @@ static gboolean _window_button_press_event(GtkWidget      *view,
                                            GdkEventButton *event,
                                            ThunarWindow   *window)
 {
-    UNUSED(view);
+    (void) view;
 
     const XfceGtkActionEntry* action_entry;
 

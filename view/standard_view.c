@@ -2012,7 +2012,7 @@ static gboolean _standard_view_scroll_event(
                                             GdkEventScroll     *event,
                                             StandardView *standard_view)
 {
-    UNUSED(view);
+    (void) view;
     GdkScrollDirection scrolling_direction;
 
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
@@ -2054,7 +2054,7 @@ static gboolean _standard_view_key_press_event(
                                             GdkEventKey        *event,
                                             StandardView *standard_view)
 {
-    UNUSED(view);
+    (void) view;
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
     /* need to catch "/" and "~" first, as the views would otherwise start interactive search */
@@ -2091,7 +2091,7 @@ static void _standard_view_select_after_row_deleted(
                                             GtkTreePath        *path,
                                             StandardView *standard_view)
 {
-    UNUSED(model);
+    (void) model;
 
     e_return_if_fail(path != NULL);
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
@@ -2104,10 +2104,10 @@ static void _standard_view_row_changed(ListModel    *model,
                                              GtkTreeIter        *iter,
                                              StandardView *standard_view)
 {
-    UNUSED(model);
-    UNUSED(path);
-    UNUSED(iter);
-    UNUSED(standard_view);
+    (void) model;
+    (void) path;
+    (void) iter;
+    (void) standard_view;
     return;
 }
 
@@ -2118,9 +2118,9 @@ static void _standard_view_rows_reordered(
                                             gpointer            new_order,
                                             StandardView *standard_view)
 {
-    UNUSED(path);
-    UNUSED(iter);
-    UNUSED(new_order);
+    (void) path;
+    (void) iter;
+    (void) new_order;
 
     e_return_if_fail(IS_LISTMODEL(model));
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
@@ -2227,7 +2227,7 @@ static void _standard_view_update_statusbar_text(StandardView *standard_view)
 static void _standard_view_size_allocate(StandardView *standard_view,
                                                GtkAllocation      *allocation)
 {
-    UNUSED(allocation);
+    (void) allocation;
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
@@ -2356,8 +2356,8 @@ static gboolean _standard_view_button_release_event(
                                             GdkEventButton     *event,
                                             StandardView *standard_view)
 {
-    UNUSED(view);
-    UNUSED(event);
+    (void) view;
+    (void) event;
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
     e_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
@@ -2534,7 +2534,7 @@ static void _standard_view_selection_invert(BaseView *view)
 static void _standard_view_drag_begin(GtkWidget *view, GdkDragContext *context,
                                       StandardView *standard_view)
 {
-    UNUSED(view);
+    (void) view;
     ThunarFile *file;
     GdkPixbuf  *icon;
     gint        size;
@@ -2569,10 +2569,11 @@ static void _standard_view_drag_data_get(GtkWidget          *view,
                                          guint              timestamp,
                                          StandardView *standard_view)
 {
-    UNUSED(view);
-    UNUSED(context);
-    UNUSED(info);
-    UNUSED(timestamp);
+    (void) view;
+    (void) context;
+    (void) info;
+    (void) timestamp;
+
     gchar **uris;
 
     /* set the URI list for the drag selection */
@@ -2588,8 +2589,8 @@ static void _standard_view_drag_data_delete(GtkWidget          *view,
                                             GdkDragContext     *context,
                                             StandardView *standard_view)
 {
-    UNUSED(context);
-    UNUSED(standard_view);
+    (void) context;
+    (void) standard_view;
     /* make sure the default handler of ExoIconView/GtkTreeView is never run */
     g_signal_stop_emission_by_name(G_OBJECT(view), "drag-data-delete");
 }
@@ -2598,8 +2599,8 @@ static void _standard_view_drag_end(GtkWidget          *view,
                                     GdkDragContext     *context,
                                     StandardView *standard_view)
 {
-    UNUSED(view);
-    UNUSED(context);
+    (void) view;
+    (void) context;
 
     /* stop any running drag autoscroll timer */
     if (G_UNLIKELY(standard_view->priv->drag_scroll_timer_id != 0))
@@ -2618,9 +2619,9 @@ static void _standard_view_drag_leave(GtkWidget          *widget,
                                       guint              timestamp,
                                       StandardView *standard_view)
 {
-    UNUSED(widget);
-    UNUSED(context);
-    UNUSED(timestamp);
+    (void) widget;
+    (void) context;
+    (void) timestamp;
 
     /* reset the drop-file for the icon renderer */
     g_object_set(G_OBJECT(standard_view->icon_renderer), "drop-file", NULL, NULL);
@@ -3218,8 +3219,8 @@ static void _standard_view_drag_scroll_timer_destroy(gpointer user_data)
 static void _standard_view_reload_directory(GPid pid, gint status,
                                             gpointer user_data)
 {
-    UNUSED(pid);
-    UNUSED(status);
+    (void) pid;
+    (void) status;
 
     /* determine the path for the directory */
     GFile *file = g_file_new_for_uri(user_data);

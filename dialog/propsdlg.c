@@ -639,7 +639,7 @@ static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
 
 static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 {
-    UNUSED(entry);
+    (void) entry;
     const gchar *old_name;
     const gchar *new_name;
     ThunarJob   *job;
@@ -671,7 +671,7 @@ static gboolean _propsdlg_name_focus_out_event(GtkWidget     *entry,
                                                GdkEventFocus *event,
                                                PropertiesDialog *dialog)
 {
-    UNUSED(event);
+    (void) event;
     _propsdlg_name_activate(entry, dialog);
 
     return FALSE;

@@ -224,7 +224,7 @@ void appmodel_load(AppChooserModel *model, GtkWidget *widget)
     e_return_if_fail(IS_APPCHOOSER_MODEL(model));
     e_return_if_fail(model->content_type != NULL);
 
-    UNUSED(widget);
+    (void) widget;
 
     gtk_tree_store_clear(GTK_TREE_STORE(model));
 
@@ -383,7 +383,7 @@ static GdkPixbuf* _pixbuf_from_gicon(GtkWidget *widget, GIcon *gicon,
 
 static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget, const gchar *id)
 {
-    UNUSED(id);
+    (void) id;
 
     GtkIconTheme *icon_theme;
     gint requested_icon_size = 24;

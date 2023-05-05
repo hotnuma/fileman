@@ -861,7 +861,7 @@ static void _launcher_execute_files(ThunarLauncher *launcher,
 
 static guint _launcher_g_app_info_hash(gconstpointer app_info)
 {
-    UNUSED(app_info);
+    (void) app_info;
 
     return 0;
 }
@@ -2585,7 +2585,7 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
                                              gboolean        support_change_directory,
                                              gboolean        force)
 {
-    UNUSED(support_tabs);
+    (void) support_tabs;
     GList     *applications;
     gchar     *label_text;
     gchar     *tooltip_text;

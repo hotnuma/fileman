@@ -491,21 +491,21 @@ static void listmodel_set_property(GObject *object, guint prop_id,
 
 static GtkTreeModelFlags listmodel_get_flags(GtkTreeModel *model)
 {
-    UNUSED(model);
+    (void) model;
 
     return GTK_TREE_MODEL_ITERS_PERSIST | GTK_TREE_MODEL_LIST_ONLY;
 }
 
 static gint listmodel_get_n_columns(GtkTreeModel *model)
 {
-    UNUSED(model);
+    (void) model;
 
     return THUNAR_N_COLUMNS;
 }
 
 static GType listmodel_get_column_type(GtkTreeModel *model, gint idx)
 {
-    UNUSED(model);
+    (void) model;
 
     switch (idx)
     {
@@ -741,8 +741,8 @@ static gboolean listmodel_iter_children(GtkTreeModel *model, GtkTreeIter *iter,
 
 static gboolean listmodel_iter_has_child(GtkTreeModel *model, GtkTreeIter *iter)
 {
-    UNUSED(model);
-    UNUSED(iter);
+    (void) model;
+    (void) iter;
     return FALSE;
 }
 
@@ -782,9 +782,9 @@ static gboolean listmodel_iter_parent(GtkTreeModel *model,
                                       GtkTreeIter  *iter,
                                       GtkTreeIter  *child)
 {
-    UNUSED(model);
-    UNUSED(iter);
-    UNUSED(child);
+    (void) model;
+    (void) iter;
+    (void) child;
     return FALSE;
 }
 
@@ -792,9 +792,9 @@ static gboolean listmodel_drag_data_received(GtkTreeDragDest  *dest,
                                              GtkTreePath      *path,
                                              GtkSelectionData *data)
 {
-    UNUSED(dest);
-    UNUSED(path);
-    UNUSED(data);
+    (void) dest;
+    (void) path;
+    (void) data;
     return FALSE;
 }
 
@@ -802,9 +802,9 @@ static gboolean listmodel_row_drop_possible(GtkTreeDragDest  *dest,
                                             GtkTreePath      *path,
                                             GtkSelectionData *data)
 {
-    UNUSED(dest);
-    UNUSED(path);
-    UNUSED(data);
+    (void) dest;
+    (void) path;
+    (void) data;
     return FALSE;
 }
 
@@ -920,10 +920,10 @@ static void listmodel_set_default_sort_func(GtkTreeSortable        *sortable,
                                             gpointer               data,
                                             GDestroyNotify         destroy)
 {
-    UNUSED(sortable);
-    UNUSED(func);
-    UNUSED(data);
-    UNUSED(destroy);
+    (void) sortable;
+    (void) func;
+    (void) data;
+    (void) destroy;
 
     g_critical("ListModel has sorting facilities built-in!");
 }
@@ -934,18 +934,18 @@ static void listmodel_set_sort_func(GtkTreeSortable        *sortable,
                                     gpointer               data,
                                     GDestroyNotify         destroy)
 {
-    UNUSED(sortable);
-    UNUSED(sort_column_id);
-    UNUSED(func);
-    UNUSED(data);
-    UNUSED(destroy);
+    (void) sortable;
+    (void) sort_column_id;
+    (void) func;
+    (void) data;
+    (void) destroy;
 
     g_critical("ListModel has sorting facilities built-in!");
 }
 
 static gboolean listmodel_has_default_sort_func(GtkTreeSortable *sortable)
 {
-    UNUSED(sortable);
+    (void) sortable;
     return FALSE;
 }
 
@@ -1130,7 +1130,7 @@ static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
 static void _listmodel_files_added(ThunarFolder *folder, GList *files,
                                    ListModel *store)
 {
-    UNUSED(folder);
+    (void) folder;
 
     GtkTreePath   *path;
     GtkTreeIter    iter;
@@ -1190,7 +1190,7 @@ static void _listmodel_files_added(ThunarFolder *folder, GList *files,
 static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
                                      ListModel *store)
 {
-    UNUSED(folder);
+    (void) folder;
 
     GList         *lp;
     GSequenceIter *row;

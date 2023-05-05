@@ -284,7 +284,7 @@ static void _clipman_owner_changed(GtkClipboard        *clipboard,
     e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
     e_return_if_fail(manager->clipboard == clipboard);
 
-    UNUSED(event);
+    (void) event;
 
     /* need to take a reference on the manager, because the clipboards
      * "targets received callback" mechanism is not cancellable.
@@ -560,7 +560,7 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
                                        GtkSelectionData *selection_data,
                                        gpointer user_data)
 {
-    UNUSED(clipboard);
+    (void) clipboard;
 
     ClipboardPasteRequest *request = user_data;
     ClipboardManager *manager = CLIPBOARD_MANAGER(request->manager);

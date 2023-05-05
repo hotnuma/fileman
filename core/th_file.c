@@ -340,7 +340,7 @@ static void th_file_class_init(ThunarFileClass *klass)
 
 static void th_file_init(ThunarFile *file)
 {
-    UNUSED(file);
+    (void) file;
 }
 
 static void th_file_info_init(FileInfoIface *iface)

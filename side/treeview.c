@@ -1056,7 +1056,7 @@ static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
                                                  GtkTreeIter *iter,
                                                  GtkTreePath *path)
 {
-    UNUSED(path);
+    (void) path;
     TreeView          *view = TREEVIEW(tree_view);
     gboolean                 expandable = TRUE;
     ThunarDevice            *device;
@@ -1093,8 +1093,8 @@ static void treeview_row_collapsed(GtkTreeView *tree_view,
                                            GtkTreeIter *iter,
                                            GtkTreePath *path)
 {
-    UNUSED(iter);
-    UNUSED(path);
+    (void) iter;
+    (void) path;
 
     /* schedule a cleanup of the tree model */
     treemodel_cleanup(TREEVIEW(tree_view)->model);
@@ -1293,8 +1293,8 @@ static gboolean _treeview_selection_func(GtkTreeSelection *selection,
                                                 gboolean          path_currently_selected,
                                                 gpointer          user_data)
 {
-    UNUSED(selection);
-    UNUSED(user_data);
+    (void) selection;
+    (void) user_data;
 
     GtkTreeIter   iter;
     ThunarFile   *file;
@@ -1671,8 +1671,8 @@ static gboolean treeview_drag_drop(GtkWidget      *widget,
                                            gint            y,
                                            guint           timestamp)
 {
-    UNUSED(x);
-    UNUSED(y);
+    (void) x;
+    (void) y;
     TreeView *view = TREEVIEW(widget);
     GdkAtom         target;
 

@@ -222,7 +222,7 @@ static void _transfer_job_progress(goffset current_num_bytes,
                                    goffset total_num_bytes,
                                    gpointer user_data)
 {
-    UNUSED(total_num_bytes);
+    (void) total_num_bytes;
 
     TransferJob *job = user_data;
     guint64            new_percentage;
@@ -774,7 +774,7 @@ retry_remove:
 static gboolean _transfer_job_verify_destination(TransferJob *transfer_job,
                                                  GError **error)
 {
-    UNUSED(error);
+    (void) error;
 
     GFileInfo         *filesystem_info;
     guint64            free_space;

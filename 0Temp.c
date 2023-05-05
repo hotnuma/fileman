@@ -670,7 +670,7 @@ static void thunar_column_model_notify_column_order(/*ThunarPreferences*/ void *
                                                     GParamSpec        *pspec,
                                                     ColumnModel *column_model)
 {
-    UNUSED(preferences);
+    (void) preferences;
     (void) pspec;
     GtkTreePath *path;
     GtkTreeIter  iter;
@@ -699,7 +699,7 @@ static void thunar_column_model_notify_column_widths(void *preferences,
                                                      GParamSpec        *pspec,
                                                      ColumnModel *column_model)
 {
-    UNUSED(preferences);
+    (void) preferences;
     (void) pspec;
     e_return_if_fail(IS_COLUMN_MODEL(column_model));
     //e_return_if_fail(THUNAR_IS_PREFERENCES(preferences));
@@ -712,7 +712,7 @@ static void thunar_column_model_notify_visible_columns(void *preferences,
                                                        GParamSpec        *pspec,
                                                        ColumnModel *column_model)
 {
-    UNUSED(preferences);
+    (void) preferences;
     (void) pspec;
     GtkTreePath *path;
     GtkTreeIter  iter;
@@ -872,7 +872,7 @@ static gboolean _window_check_uca_key_activation(ThunarWindow *window,
                                                        GdkEventKey  *key_event,
                                                        gpointer      user_data)
 {
-    UNUSED(user_data);
+    (void) user_data;
 
     if (launcher_check_uca_key_activation(window->launcher, key_event))
         return GDK_EVENT_STOP;
@@ -1781,7 +1781,7 @@ void standard_view_open_on_middle_click(StandardView *standard_view,
                                         GtkTreePath        *tree_path,
                                         guint               event_state)
 {
-    UNUSED(event_state);
+    (void) event_state;
 
     GtkTreeIter     iter;
     ThunarFile     *file;

@@ -728,7 +728,7 @@ GtkWidget* application_open_window(Application *application,
                                           const gchar       *startup_id,
                                           gboolean           force_new_window)
 {
-    UNUSED(force_new_window);
+    (void) force_new_window;
 
     //DPRINT("application_open_window\n");
 
@@ -796,7 +796,7 @@ static void _application_process_files_finish(ThunarBrowser  *browser,
                                                     GError         *error,
                                                     gpointer       unused)
 {
-    UNUSED(unused);
+    (void) unused;
 
     Application *application = APPLICATION(browser);
     GdkScreen *screen;
@@ -1134,7 +1134,7 @@ void application_move_into(Application *application,
 
 static ThunarJob* unlink_stub(GList *source_path_list, GList *target_path_list)
 {
-    UNUSED(target_path_list);
+    (void) target_path_list;
     return io_unlink_files(source_path_list);
 }
 
@@ -1249,7 +1249,7 @@ void application_unlink_files(Application *application,
 
 static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
 {
-    UNUSED(target_file_list);
+    (void) target_file_list;
     return io_trash_files(source_file_list);
 }
 
@@ -1308,7 +1308,7 @@ void application_creat(Application *application,
 
 static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list)
 {
-    UNUSED(target_path_list);
+    (void) target_path_list;
     return io_make_directories(source_path_list);
 }
 

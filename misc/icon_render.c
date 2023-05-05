@@ -248,7 +248,7 @@ static void irenderer_get_preferred_width(GtkCellRenderer *renderer,
                                           gint            *minimum,
                                           gint            *natural)
 {
-    UNUSED(widget);
+    (void) widget;
 
     IconRenderer *icon_renderer = ICONRENDERER(renderer);
     int xpad;
@@ -264,7 +264,7 @@ static void irenderer_get_preferred_height(GtkCellRenderer *renderer,
                                            gint            *minimum,
                                            gint            *natural)
 {
-    UNUSED(widget);
+    (void) widget;
 
     IconRenderer *icon_renderer = ICONRENDERER(renderer);
     int ypad;
@@ -319,7 +319,7 @@ static void _irenderer_color_selected(cairo_t *cr, GtkWidget *widget)
 
 static void _irenderer_color_lighten(cairo_t *cr, GtkWidget *widget)
 {
-    UNUSED(widget);
+    (void) widget;
 
     cairo_pattern_t *source;
 
@@ -342,7 +342,7 @@ static void irenderer_render(GtkCellRenderer      *renderer,
                              const GdkRectangle   *cell_area,
                              GtkCellRendererState flags)
 {
-    UNUSED(background_area);
+    (void) background_area;
 
     ClipboardManager *clipboard;
     ThunarFileIconState     icon_state;

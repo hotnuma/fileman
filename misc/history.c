@@ -119,7 +119,7 @@ static void history_navigator_init(ThunarNavigatorIface *iface)
 
 static void history_init(ThunarHistory *history)
 {
-    UNUSED(history);
+    (void) history;
 }
 
 static void history_finalize(GObject *object)

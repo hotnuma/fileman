@@ -1219,7 +1219,7 @@ static void _permbox_job_start(PermissionBox *chooser,
 static gboolean _permbox_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
                                                          gpointer      data)
 {
-    UNUSED(data);
+    (void) data;
     gchar *name;
 
     /* determine the value of the "name" column */

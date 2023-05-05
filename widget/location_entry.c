@@ -340,7 +340,7 @@ static void thunar_location_entry_poke_file_finish(ThunarBrowser *browser,
 {
     e_return_if_fail(THUNAR_IS_LOCATION_ENTRY(browser));
     e_return_if_fail(THUNAR_IS_FILE(file));
-    UNUSED(ignored);
+    (void) ignored;
 
     if (error != NULL)
     {
@@ -384,7 +384,7 @@ static gboolean thunar_location_entry_button_press_event(
                                                     GdkEventButton    *event,
                                                     ThunarLocationEntry *location_entry)
 {
-    UNUSED(path_entry);
+    (void) path_entry;
 
     e_return_val_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry), FALSE);
 
@@ -415,8 +415,8 @@ static void thunar_location_entry_reload(GtkEntry            *entry,
                                          GdkEvent            *event,
                                          ThunarLocationEntry *location_entry)
 {
-    UNUSED(entry);
-    UNUSED(event);
+    (void) entry;
+    (void) event;
 
     e_return_if_fail(THUNAR_IS_LOCATION_ENTRY(location_entry));
 

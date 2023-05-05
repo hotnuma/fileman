@@ -131,7 +131,7 @@ struct _DetailView
 
 static void _detailview_show_column_editor(gpointer parent)
 {
-    UNUSED(parent);
+    (void) parent;
 
     return;
 }
@@ -431,8 +431,8 @@ static void _detailview_selection_invert_foreach(GtkTreeModel *model,
                                                  GtkTreeIter  *iter,
                                                  gpointer      data)
 {
-    UNUSED(model);
-    UNUSED(iter);
+    (void) model;
+    (void) iter;
     GList      **list = data;
 
     *list = g_list_prepend(*list, gtk_tree_path_copy(path));
@@ -554,7 +554,7 @@ static void _detailview_notify_model(GtkTreeView       *tree_view,
                                      DetailView *details_view)
 {
     (void) pspec;
-    UNUSED(details_view);
+    (void) details_view;
     /* We need to set the search column here, as GtkTreeView resets it
      * whenever a new model is set.
      */
@@ -736,7 +736,7 @@ static gboolean _detailview_key_press_event(GtkTreeView       *tree_view,
                                             GdkEventKey       *event,
                                             DetailView *details_view)
 {
-    UNUSED(tree_view);
+    (void) tree_view;
 
     details_view->button_pressed = FALSE;
 
@@ -756,7 +756,7 @@ static void _detailview_row_activated(GtkTreeView       *tree_view,
                                       GtkTreeViewColumn *column,
                                       DetailView *details_view)
 {
-    UNUSED(column);
+    (void) column;
 
     GtkTreeSelection *selection;
     ThunarLauncher   *launcher;
@@ -794,7 +794,7 @@ static gboolean _detailview_select_cursor_row(GtkTreeView       *tree_view,
      * default gtk signal handler there.
      */
 
-    UNUSED(editing);
+    (void) editing;
     ThunarLauncher *launcher;
     GtkWidget      *window;
 
@@ -814,9 +814,9 @@ static void _detailview_row_changed(GtkTreeView       *tree_view,
                                     GtkTreeViewColumn *column,
                                     DetailView *details_view)
 {
-    UNUSED(tree_view);
-    UNUSED(path);
-    UNUSED(column);
+    (void) tree_view;
+    (void) path;
+    (void) column;
 
     e_return_if_fail(IS_DETAILVIEW(details_view));
 
@@ -922,7 +922,7 @@ static void detailview_connect_accelerators(StandardView  *standard_view,
 static void detailview_disconnect_accelerators(StandardView  *standard_view,
                                                GtkAccelGroup *accel_group)
 {
-    UNUSED(standard_view);
+    (void) standard_view;
     /* Dont listen to the accel keys defined by the action entries any more */
     xfce_gtk_accel_group_disconnect_action_entries(accel_group,
             _detailview_actions,
@@ -942,7 +942,7 @@ static void detailview_append_menu_items(StandardView  *standard_view,
                                          GtkMenu       *menu,
                                          GtkAccelGroup *accel_group)
 {
-    UNUSED(accel_group);
+    (void) accel_group;
     DetailView *details_view = DETAILVIEW(standard_view);
 
     e_return_if_fail(IS_DETAILVIEW(details_view));

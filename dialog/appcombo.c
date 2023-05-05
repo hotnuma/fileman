@@ -303,7 +303,7 @@ static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b)
 static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
                                         gpointer data)
 {
-    UNUSED(data);
+    (void) data;
     gchar *name;
 
     /* determine the value of the "name" column */

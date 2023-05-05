@@ -151,7 +151,7 @@ static void menu_get_property(GObject *object, guint prop_id, GValue *value,
                               GParamSpec *pspec)
 {
     (void) object;
-    UNUSED(value);
+    (void) value;
     (void) pspec;
 
     switch (prop_id)

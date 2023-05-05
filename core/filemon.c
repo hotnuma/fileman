@@ -85,7 +85,7 @@ static void filemon_class_init(FileMonitorClass *klass)
 
 static void filemon_init(FileMonitor *monitor)
 {
-    UNUSED(monitor);
+    (void) monitor;
 }
 
 /**

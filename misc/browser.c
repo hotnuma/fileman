@@ -676,7 +676,7 @@ void browser_poke_location(ThunarBrowser                 *browser,
                            ThunarBrowserPokeLocationFunc func,
                            gpointer                      user_data)
 {
-    UNUSED(widget);
+    (void) widget;
 
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
     e_return_if_fail(G_IS_FILE(location));
