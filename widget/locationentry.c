@@ -19,65 +19,53 @@
  */
 
 #include <config.h>
-
-#include <gdk/gdkkeysyms.h>
-
-#include <browser.h>
-#include <dialogs.h>
-#include <gtk_ext.h>
-#include <icon_factory.h>
 #include <locationentry.h>
-#include <marshal.h>
-#include <pathentry.h>
 
-/* Property identifiers */
+#include <pathentry.h>
+#include <browser.h>
+#include <marshal.h>
+#include <dialogs.h>
+
 enum
 {
     PROP_0,
     PROP_CURRENT_DIRECTORY,
 };
 
-static void locationentry_navigator_init(ThunarNavigatorIface *iface);
-static void locationentry_finalize(GObject *object);
-static void locationentry_get_property(GObject *object,
-                                               guint prop_id,
-                                               GValue *value,
-                                               GParamSpec *pspec);
-static void locationentry_set_property(GObject *object,
-                                               guint prop_id,
-                                               const GValue *value,
-                                               GParamSpec *pspec);
-static ThunarFile *locationentry_get_current_directory(ThunarNavigator *navigator);
-static void locationentry_set_current_directory(ThunarNavigator *navigator,
-                                                        ThunarFile *current_directory);
-static void locationentry_activate(GtkWidget *path_entry,
-                                           LocationEntry *location_entry);
-static gboolean locationentry_button_press_event(
-                                                    GtkWidget *path_entry,
-                                                    GdkEventButton *event,
-                                                    LocationEntry *location_entry);
-static gboolean locationentry_reset(LocationEntry *location_entry);
-static void locationentry_reload(GtkEntry *entry,
-                                         GtkEntryIconPosition icon_pos,
-                                         GdkEvent *event,
-                                         LocationEntry *location_entry);
-static void locationentry_emit_edit_done(LocationEntry *entry);
+static void locentry_navigator_init(ThunarNavigatorIface *iface);
+static void locentry_finalize(GObject *object);
+static void locentry_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec);
+static void locentry_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec);
+static ThunarFile* locentry_get_current_directory(ThunarNavigator *navigator);
+static void locentry_set_current_directory(ThunarNavigator *navigator,
+                                           ThunarFile *current_directory);
+static void locentry_activate(GtkWidget *path_entry,
+                              LocationEntry *location_entry);
+static gboolean locentry_button_press_event(GtkWidget *path_entry,
+                                            GdkEventButton *event,
+                                            LocationEntry *location_entry);
+static gboolean locentry_reset(LocationEntry *location_entry);
+static void locentry_reload(GtkEntry *entry, GtkEntryIconPosition icon_pos,
+                            GdkEvent *event, LocationEntry *location_entry);
+static void locentry_emit_edit_done(LocationEntry *entry);
 
 struct _LocationEntryClass
 {
     GtkBoxClass __parent__;
 
-    /* internal action signals */
+    // internal action signals
     gboolean    (*reset) (LocationEntry *location_entry);
 
-    /* externally visible signals */
+    // externally visible signals
     void        (*reload_requested) (void);
     void        (*edit_done) (void);
 };
 
 struct _LocationEntry
 {
-    GtkBox     __parent__;
+    GtkBox      __parent__;
 
     ThunarFile  *current_directory;
     GtkWidget   *path_entry;
@@ -85,22 +73,20 @@ struct _LocationEntry
     gboolean    right_click_occurred;
 };
 
-G_DEFINE_TYPE_WITH_CODE(LocationEntry, locationentry, GTK_TYPE_BOX,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER, NULL)
+G_DEFINE_TYPE_WITH_CODE(LocationEntry, locentry, GTK_TYPE_BOX,
+                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER,
+                                              NULL)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
-                                              locationentry_navigator_init))
+                                              locentry_navigator_init))
 
-static void locationentry_class_init(LocationEntryClass *klass)
+static void locentry_class_init(LocationEntryClass *klass)
 {
-    GtkBindingSet *binding_set;
-    GObjectClass  *gobject_class;
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->finalize = locentry_finalize;
+    gobject_class->get_property = locentry_get_property;
+    gobject_class->set_property = locentry_set_property;
 
-    gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = locationentry_finalize;
-    gobject_class->get_property = locationentry_get_property;
-    gobject_class->set_property = locationentry_set_property;
-
-    klass->reset = locationentry_reset;
+    klass->reset = locentry_reset;
 
     /* override ThunarNavigator's properties */
     g_object_class_override_property(gobject_class, PROP_CURRENT_DIRECTORY, "current-directory");
@@ -152,54 +138,59 @@ static void locationentry_class_init(LocationEntryClass *klass)
                  G_TYPE_NONE, 0);
 
     /* setup the key bindings for the location entry */
-    binding_set = gtk_binding_set_by_class(klass);
+    GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
+
     gtk_binding_entry_add_signal(binding_set, GDK_KEY_Escape, 0, "reset", 0);
 }
 
-static void locationentry_navigator_init(ThunarNavigatorIface *iface)
+static void locentry_navigator_init(ThunarNavigatorIface *iface)
 {
-    iface->get_current_directory = locationentry_get_current_directory;
-    iface->set_current_directory = locationentry_set_current_directory;
+    iface->get_current_directory = locentry_get_current_directory;
+    iface->set_current_directory = locentry_set_current_directory;
 }
 
-static void locationentry_init(LocationEntry *location_entry)
+static void locentry_init(LocationEntry *entry)
 {
-    gtk_box_set_spacing(GTK_BOX(location_entry), 0);
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(location_entry), GTK_ORIENTATION_HORIZONTAL);
+    gtk_box_set_spacing(GTK_BOX(entry), 0);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(entry), GTK_ORIENTATION_HORIZONTAL);
 
-    location_entry->path_entry = pathentry_new();
-    g_object_bind_property(G_OBJECT(location_entry), "current-directory", G_OBJECT(location_entry->path_entry), "current-file", G_BINDING_SYNC_CREATE);
-    g_signal_connect_after(G_OBJECT(location_entry->path_entry), "activate", G_CALLBACK(locationentry_activate), location_entry);
-    gtk_box_pack_start(GTK_BOX(location_entry), location_entry->path_entry, TRUE, TRUE, 0);
-    gtk_widget_show(location_entry->path_entry);
+    entry->path_entry = pathentry_new();
+    g_object_bind_property(G_OBJECT(entry), "current-directory",
+                           G_OBJECT(entry->path_entry), "current-file",
+                           G_BINDING_SYNC_CREATE);
+    g_signal_connect_after(G_OBJECT(entry->path_entry), "activate",
+                           G_CALLBACK(locentry_activate), entry);
+
+    gtk_box_pack_start(GTK_BOX(entry), entry->path_entry, TRUE, TRUE, 0);
+    gtk_widget_show(entry->path_entry);
 
     /* put reload button in entry */
-    gtk_entry_set_icon_from_icon_name(GTK_ENTRY(location_entry->path_entry),
+    gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry->path_entry),
                                        GTK_ENTRY_ICON_SECONDARY, "view-refresh-symbolic");
-    gtk_entry_set_icon_tooltip_text(GTK_ENTRY(location_entry->path_entry),
+    gtk_entry_set_icon_tooltip_text(GTK_ENTRY(entry->path_entry),
                                      GTK_ENTRY_ICON_SECONDARY, _("Reload the current folder"));
-    g_signal_connect(G_OBJECT(location_entry->path_entry), "icon-release",
-                     G_CALLBACK(locationentry_reload), location_entry);
+    g_signal_connect(G_OBJECT(entry->path_entry), "icon-release",
+                     G_CALLBACK(locentry_reload), entry);
 
     /* make sure the edit-done signal is emitted upon moving the focus somewhere else */
-    g_signal_connect_swapped(location_entry->path_entry, "focus-out-event", G_CALLBACK(locationentry_emit_edit_done), location_entry);
+    g_signal_connect_swapped(entry->path_entry, "focus-out-event", G_CALLBACK(locentry_emit_edit_done), entry);
 
     /* ...except if it is grabbed by the context menu */
-    location_entry->right_click_occurred = FALSE;
-    g_signal_connect(G_OBJECT(location_entry->path_entry), "button-press-event",
-                     G_CALLBACK(locationentry_button_press_event), location_entry);
+    entry->right_click_occurred = FALSE;
+    g_signal_connect(G_OBJECT(entry->path_entry), "button-press-event",
+                     G_CALLBACK(locentry_button_press_event), entry);
 }
 
-static void locationentry_finalize(GObject *object)
+static void locentry_finalize(GObject *object)
 {
     /* disconnect from the current directory */
     navigator_set_current_directory(THUNAR_NAVIGATOR(object), NULL);
 
-    G_OBJECT_CLASS(locationentry_parent_class)->finalize(object);
+    G_OBJECT_CLASS(locentry_parent_class)->finalize(object);
 }
 
-static void locationentry_get_property(GObject *object, guint prop_id,
-                                        GValue *value, GParamSpec *pspec)
+static void locentry_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -215,8 +206,8 @@ static void locationentry_get_property(GObject *object, guint prop_id,
     }
 }
 
-static void locationentry_set_property(GObject *object, guint prop_id,
-                                        const GValue *value, GParamSpec *pspec)
+static void locentry_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -225,9 +216,10 @@ static void locationentry_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+                                        g_value_get_object(value));
         pathentry_set_working_directory(PATHENTRY(entry->path_entry),
-                entry->current_directory);
+                                        entry->current_directory);
         break;
 
     default:
@@ -236,13 +228,13 @@ static void locationentry_set_property(GObject *object, guint prop_id,
     }
 }
 
-static ThunarFile* locationentry_get_current_directory(ThunarNavigator *navigator)
+static ThunarFile* locentry_get_current_directory(ThunarNavigator *navigator)
 {
     return LOCATIONENTRY(navigator)->current_directory;
 }
 
-static void locationentry_set_current_directory(ThunarNavigator *navigator,
-                                                 ThunarFile      *current_directory)
+static void locentry_set_current_directory(ThunarNavigator *navigator,
+                                           ThunarFile      *current_directory)
 {
     LocationEntry *location_entry = LOCATIONENTRY(navigator);
 
@@ -261,8 +253,8 @@ static void locationentry_set_current_directory(ThunarNavigator *navigator,
     g_object_notify(G_OBJECT(location_entry), "current-directory");
 }
 
-void locationentry_accept_focus(LocationEntry *location_entry,
-                                 const gchar   *initial_text)
+void locentry_accept_focus(LocationEntry *location_entry,
+                           const gchar   *initial_text)
 {
     /* give the keyboard focus to the path entry */
     gtk_widget_grab_focus(location_entry->path_entry);
@@ -283,8 +275,8 @@ void locationentry_accept_focus(LocationEntry *location_entry,
     }
 }
 
-static void locationentry_open_or_launch(LocationEntry *location_entry,
-                                          ThunarFile    *file)
+static void locentry_open_or_launch(LocationEntry *location_entry,
+                                    ThunarFile    *file)
 {
     GError *error = NULL;
 
@@ -328,11 +320,11 @@ static void locationentry_open_or_launch(LocationEntry *location_entry,
     }
 }
 
-static void locationentry_poke_file_finish(ThunarBrowser *browser,
-                                            ThunarFile    *file,
-                                            ThunarFile    *target_file,
-                                            GError        *error,
-                                            gpointer      ignored)
+static void locentry_poke_file_finish(ThunarBrowser *browser,
+                                      ThunarFile    *file,
+                                      ThunarFile    *target_file,
+                                      GError        *error,
+                                      gpointer      ignored)
 {
     (void) ignored;
 
@@ -349,11 +341,11 @@ static void locationentry_poke_file_finish(ThunarBrowser *browser,
     }
 
     /* try to open or launch the target file */
-    locationentry_open_or_launch(LOCATIONENTRY(browser), target_file);
+    locentry_open_or_launch(LOCATIONENTRY(browser), target_file);
 }
 
-static void locationentry_activate(GtkWidget     *path_entry,
-                                    LocationEntry *location_entry)
+static void locentry_activate(GtkWidget     *path_entry,
+                              LocationEntry *location_entry)
 {
     e_return_if_fail(IS_LOCATIONENTRY(location_entry));
     e_return_if_fail(location_entry->path_entry == path_entry);
@@ -367,16 +359,15 @@ static void locationentry_activate(GtkWidget     *path_entry,
     browser_poke_file(THUNAR_BROWSER(location_entry),
                       file,
                       path_entry,
-                      locationentry_poke_file_finish,
+                      locentry_poke_file_finish,
                       NULL);
 
-    locationentry_emit_edit_done(location_entry);
+    locentry_emit_edit_done(location_entry);
 }
 
-static gboolean locationentry_button_press_event(
-                                            GtkWidget         *path_entry,
-                                            GdkEventButton    *event,
-                                            LocationEntry *location_entry)
+static gboolean locentry_button_press_event(GtkWidget      *path_entry,
+                                            GdkEventButton *event,
+                                            LocationEntry  *location_entry)
 {
     (void) path_entry;
 
@@ -391,7 +382,7 @@ static gboolean locationentry_button_press_event(
     return FALSE;
 }
 
-static gboolean locationentry_reset(LocationEntry *location_entry)
+static gboolean locentry_reset(LocationEntry *location_entry)
 {
     /* just reset the path entry to our current directory... */
     pathentry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
@@ -399,15 +390,13 @@ static gboolean locationentry_reset(LocationEntry *location_entry)
     /* ...and select the whole text again */
     gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);
 
-    locationentry_emit_edit_done(location_entry);
+    locentry_emit_edit_done(location_entry);
 
     return TRUE;
 }
 
-static void locationentry_reload(GtkEntry             *entry,
-                                  GtkEntryIconPosition icon_pos,
-                                  GdkEvent             *event,
-                                  LocationEntry        *location_entry)
+static void locentry_reload(GtkEntry *entry, GtkEntryIconPosition icon_pos,
+                            GdkEvent *event, LocationEntry *location_entry)
 {
     (void) entry;
     (void) event;
@@ -420,7 +409,7 @@ static void locationentry_reload(GtkEntry             *entry,
     }
 }
 
-static void locationentry_emit_edit_done(LocationEntry *entry)
+static void locentry_emit_edit_done(LocationEntry *entry)
 {
     /* do not emit signal if the context menu was opened */
 

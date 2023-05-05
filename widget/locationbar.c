@@ -294,7 +294,7 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
     if (IS_LOCATIONENTRY(child))
     {
         /* already have an entry */
-        locationentry_accept_focus(LOCATIONENTRY(child), initial_text);
+        locentry_accept_focus(LOCATIONENTRY(child), initial_text);
     }
     else
     {
@@ -302,7 +302,7 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
         child = thunar_location_bar_install_widget(bar,
                                                    TYPE_LOCATIONENTRY);
 
-        locationentry_accept_focus(LOCATIONENTRY(child),
+        locentry_accept_focus(LOCATIONENTRY(child),
                                            initial_text);
     }
 

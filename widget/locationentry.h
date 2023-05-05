@@ -26,8 +26,7 @@ G_BEGIN_DECLS
 typedef struct _LocationEntryClass LocationEntryClass;
 typedef struct _LocationEntry      LocationEntry;
 
-#define TYPE_LOCATIONENTRY                   \
-    (locationentry_get_type())
+#define TYPE_LOCATIONENTRY (locentry_get_type())
 #define LOCATIONENTRY(obj)            \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_LOCATIONENTRY, LocationEntry))
 #define LOCATIONENTRY_CLASS(klass)    \
@@ -39,13 +38,12 @@ typedef struct _LocationEntry      LocationEntry;
 #define LOCATIONENTRY_GET_CLASS(obj)  \
     (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_LOCATIONENTRY, LocationEntryClass))
 
-GType locationentry_get_type() G_GNUC_CONST;
+GType locentry_get_type() G_GNUC_CONST;
 
-void locationentry_accept_focus(LocationEntry *entry,
-                                        const gchar *initial_text);
+void locentry_accept_focus(LocationEntry *entry, const gchar *initial_text);
 
 G_END_DECLS
 
-#endif /* !__LOCATIONENTRY_H__ */
+#endif // __LOCATIONENTRY_H__
 
 
