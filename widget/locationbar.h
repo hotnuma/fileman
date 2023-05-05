@@ -16,30 +16,33 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_LOCATION_BAR_H__
-#define __THUNAR_LOCATION_BAR_H__
+#ifndef __LOCATIONBAR_H__
+#define __LOCATIONBAR_H__
 
 #include <component.h>
 
 G_BEGIN_DECLS;
 
-typedef struct _ThunarLocationBarClass ThunarLocationBarClass;
-typedef struct _ThunarLocationBar      ThunarLocationBar;
+typedef struct _LocationBarClass LocationBarClass;
+typedef struct _LocationBar      LocationBar;
 
-#define THUNAR_TYPE_LOCATION_BAR            (thunar_location_bar_get_type ())
-#define THUNAR_LOCATION_BAR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_LOCATION_BAR, ThunarLocationBar))
-#define THUNAR_IS_LOCATION_BAR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_LOCATION_BAR))
-#define THUNAR_LOCATION_BAR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_LOCATION_BAR, ThunarLocationBarClass))
+#define TYPE_LOCATIONBAR (locbar_get_type ())
+#define LOCATIONBAR(obj)            \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_LOCATIONBAR, LocationBar))
+#define IS_LOCATIONBAR(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_LOCATIONBAR))
+#define LOCATIONBAR_GET_CLASS(obj)  \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_LOCATIONBAR, LocationBarClass))
 
 
-GType thunar_location_bar_get_type() G_GNUC_CONST;
+GType locbar_get_type() G_GNUC_CONST;
 
-GtkWidget* thunar_location_bar_new();
+GtkWidget* locbar_new();
 
-void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *initial_text);
+void locbar_request_entry(LocationBar *bar, const gchar *initial_text);
 
 G_END_DECLS;
 
-#endif /* !__THUNAR_LOCATION_BAR_H__ */
+#endif /* !__LOCATIONBAR_H__ */
 
 

@@ -38,14 +38,17 @@ static void locentry_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec);
 static void locentry_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
+
 static ThunarFile* locentry_get_current_directory(ThunarNavigator *navigator);
 static void locentry_set_current_directory(ThunarNavigator *navigator,
                                            ThunarFile *current_directory);
+
 static void locentry_activate(GtkWidget *path_entry,
                               LocationEntry *location_entry);
 static gboolean locentry_button_press_event(GtkWidget *path_entry,
                                             GdkEventButton *event,
                                             LocationEntry *location_entry);
+
 static gboolean locentry_reset(LocationEntry *location_entry);
 static void locentry_reload(GtkEntry *entry, GtkEntryIconPosition icon_pos,
                             GdkEvent *event, LocationEntry *location_entry);
@@ -152,7 +155,8 @@ static void locentry_navigator_init(ThunarNavigatorIface *iface)
 static void locentry_init(LocationEntry *entry)
 {
     gtk_box_set_spacing(GTK_BOX(entry), 0);
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(entry), GTK_ORIENTATION_HORIZONTAL);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(entry),
+                                   GTK_ORIENTATION_HORIZONTAL);
 
     entry->path_entry = pathentry_new();
     g_object_bind_property(G_OBJECT(entry), "current-directory",
@@ -173,7 +177,8 @@ static void locentry_init(LocationEntry *entry)
                      G_CALLBACK(locentry_reload), entry);
 
     /* make sure the edit-done signal is emitted upon moving the focus somewhere else */
-    g_signal_connect_swapped(entry->path_entry, "focus-out-event", G_CALLBACK(locentry_emit_edit_done), entry);
+    g_signal_connect_swapped(entry->path_entry, "focus-out-event",
+                             G_CALLBACK(locentry_emit_edit_done), entry);
 
     /* ...except if it is grabbed by the context menu */
     entry->right_click_occurred = FALSE;

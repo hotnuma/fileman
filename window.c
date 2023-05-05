@@ -545,7 +545,7 @@ static void window_init(ThunarWindow *window)
     gtk_toolbar_insert(GTK_TOOLBAR(window->toolbar), tool_item, -1);
     gtk_toolbar_set_show_arrow(GTK_TOOLBAR(window->toolbar), FALSE);
 
-    window->location_bar = thunar_location_bar_new();
+    window->location_bar = locbar_new();
     g_object_bind_property(G_OBJECT(window), "current-directory",
                            G_OBJECT(window->location_bar), "current-directory",
                            G_BINDING_SYNC_CREATE);
@@ -1238,7 +1238,7 @@ static void _window_start_open_location(ThunarWindow *window,
 
     /* temporary show the location toolbar, even if it is normally hidden */
     gtk_widget_show(window->toolbar);
-    thunar_location_bar_request_entry(THUNAR_LOCATION_BAR(window->location_bar), initial_text);
+    locbar_request_entry(LOCATIONBAR(window->location_bar), initial_text);
 }
 
 static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item)
