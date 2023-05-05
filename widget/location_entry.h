@@ -16,30 +16,36 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_LOCATION_ENTRY_H__
-#define __THUNAR_LOCATION_ENTRY_H__
+#ifndef __LOCATION_ENTRY_H__
+#define __LOCATION_ENTRY_H__
 
 #include <location_bar.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarLocationEntryClass ThunarLocationEntryClass;
-typedef struct _ThunarLocationEntry      ThunarLocationEntry;
+typedef struct _LocationEntryClass LocationEntryClass;
+typedef struct _LocationEntry      LocationEntry;
 
-#define THUNAR_TYPE_LOCATION_ENTRY            (thunar_location_entry_get_type())
-#define THUNAR_LOCATION_ENTRY(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntry))
-#define THUNAR_LOCATION_ENTRY_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntryClass))
-#define THUNAR_IS_LOCATION_ENTRY(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_LOCATION_ENTRY))
-#define THUNAR_IS_LOCATION_ENTRY_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_LOCATION_ENTRY))
-#define THUNAR_LOCATION_ENTRY_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_LOCATION_ENTRY, ThunarLocationEntryClass))
+#define TYPE_LOCATION_ENTRY                   \
+    (location_entry_get_type())
+#define LOCATION_ENTRY(obj)            \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_LOCATION_ENTRY, LocationEntry))
+#define LOCATION_ENTRY_CLASS(klass)    \
+    (G_TYPE_CHECK_CLASS_CAST((klass), TYPE_LOCATION_ENTRY, LocationEntryClass))
+#define IS_LOCATION_ENTRY(obj)         \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_LOCATION_ENTRY))
+#define IS_LOCATION_ENTRY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_LOCATION_ENTRY))
+#define LOCATION_ENTRY_GET_CLASS(obj)  \
+    (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_LOCATION_ENTRY, LocationEntryClass))
 
-GType thunar_location_entry_get_type() G_GNUC_CONST;
+GType location_entry_get_type() G_GNUC_CONST;
 
-void thunar_location_entry_accept_focus(ThunarLocationEntry *entry,
+void location_entry_accept_focus(LocationEntry *entry,
                                         const gchar *initial_text);
 
 G_END_DECLS
 
-#endif /* !__THUNAR_LOCATION_ENTRY_H__ */
+#endif /* !__LOCATION_ENTRY_H__ */
 
 

@@ -65,7 +65,7 @@ static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar *bar,
                                                      GType type);
 static void thunar_location_bar_reload_requested(ThunarLocationBar *bar);
 static gboolean thunar_location_bar_settings_changed(ThunarLocationBar *bar);
-static void thunar_location_bar_on_enry_edit_done(ThunarLocationEntry *entry,
+static void thunar_location_bar_on_enry_edit_done(LocationEntry *entry,
                                                   ThunarLocationBar *bar);
 
 G_DEFINE_TYPE_WITH_CODE(ThunarLocationBar, thunar_location_bar, GTK_TYPE_BIN,
@@ -227,12 +227,12 @@ static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar *bar,
         && G_TYPE_CHECK_INSTANCE_TYPE(child, type))
         return child;
 
-    if (type == THUNAR_TYPE_LOCATION_ENTRY)
+    if (type == TYPE_LOCATION_ENTRY)
     {
         if (bar->locationEntry == NULL)
         {
             bar->locationEntry = gtk_widget_new(
-                                THUNAR_TYPE_LOCATION_ENTRY,
+                                TYPE_LOCATION_ENTRY,
                                 "orientation", GTK_ORIENTATION_HORIZONTAL,
                                 "current-directory", NULL,
                                 NULL);
@@ -261,7 +261,7 @@ static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar *bar,
     return installedWidget;
 }
 
-static void thunar_location_bar_on_enry_edit_done(ThunarLocationEntry *entry,
+static void thunar_location_bar_on_enry_edit_done(LocationEntry *entry,
                                                   ThunarLocationBar   *bar)
 {
     g_signal_handlers_disconnect_by_func(entry, thunar_location_bar_on_enry_edit_done, bar);
@@ -291,18 +291,18 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
 
     e_return_if_fail(child != NULL && GTK_IS_WIDGET(child));
 
-    if (THUNAR_IS_LOCATION_ENTRY(child))
+    if (IS_LOCATION_ENTRY(child))
     {
         /* already have an entry */
-        thunar_location_entry_accept_focus(THUNAR_LOCATION_ENTRY(child), initial_text);
+        location_entry_accept_focus(LOCATION_ENTRY(child), initial_text);
     }
     else
     {
         /* not an entry => temporarily replace it */
         child = thunar_location_bar_install_widget(bar,
-                                                   THUNAR_TYPE_LOCATION_ENTRY);
+                                                   TYPE_LOCATION_ENTRY);
 
-        thunar_location_entry_accept_focus(THUNAR_LOCATION_ENTRY(child),
+        location_entry_accept_focus(LOCATION_ENTRY(child),
                                            initial_text);
     }
 
@@ -311,7 +311,7 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
 
 static gboolean thunar_location_bar_settings_changed(ThunarLocationBar *bar)
 {
-    thunar_location_bar_install_widget(bar, THUNAR_TYPE_LOCATION_ENTRY);
+    thunar_location_bar_install_widget(bar, TYPE_LOCATION_ENTRY);
 
     return FALSE;
 }
