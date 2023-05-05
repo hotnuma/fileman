@@ -15,27 +15,27 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __THUNAR_MENU_H__
-#define __THUNAR_MENU_H__
+#ifndef __APPMENU_H__
+#define __APPMENU_H__
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarMenuClass ThunarMenuClass;
-typedef struct _ThunarMenu      ThunarMenu;
+typedef struct _AppMenuClass AppMenuClass;
+typedef struct _AppMenu      AppMenu;
 
-#define THUNAR_TYPE_MENU (menu_get_type())
-#define THUNAR_MENU(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_MENU, ThunarMenu))
-#define THUNAR_MENU_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_MENU, ThunarMenuClass))
-#define THUNAR_IS_MENU(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_MENU))
-#define THUNAR_IS_MENU_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_MENU))
-#define THUNAR_MENU_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_MENU, ThunarMenu))
+#define TYPE_APPMENU (appmenu_get_type())
+#define APPMENU(obj)            \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_APPMENU, AppMenu))
+#define APPMENU_CLASS(klass)    \
+    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_APPMENU, AppMenuClass))
+#define IS_APPMENU(obj)         \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_APPMENU))
+#define IS_APPMENU_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_APPMENU))
+#define APPMENU_GET_CLASS(obj)  \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_APPMENU, AppMenu))
 
 /* For window menu, some items are shown insensitive, instead of hidden */
 typedef enum
@@ -70,12 +70,12 @@ typedef enum
 
 } MenuSections;
 
-GType menu_get_type() G_GNUC_CONST;
-gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections);
-void menu_hide_accel_labels(ThunarMenu *menu);
+GType appmenu_get_type() G_GNUC_CONST;
+gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections);
+void appmenu_hide_accel_labels(AppMenu *menu);
 
 G_END_DECLS
 
-#endif // __THUNAR_MENU_H__
+#endif // __APPMENU_H__
 
 

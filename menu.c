@@ -23,7 +23,7 @@
 #include <window.h>
 
 /*
- * ThunarMenu is a GtkMenu which provides a unified menu-creation
+ * AppMenu is a GtkMenu which provides a unified menu-creation
  * service for different thunar widgets.
  *
  * Based on the passed flags and selected sections, it fills itself
@@ -42,21 +42,21 @@ enum
     PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
 };
 
-static void menu_finalize(GObject *object);
-static void menu_get_property(GObject *object, guint prop_id, GValue *value,
+static void appmenu_finalize(GObject *object);
+static void appmenu_get_property(GObject *object, guint prop_id, GValue *value,
                               GParamSpec *pspec);
-static void menu_set_property(GObject *object, guint prop_uid, const GValue *value,
+static void appmenu_set_property(GObject *object, guint prop_uid, const GValue *value,
                               GParamSpec *pspec);
 
 
 // Allocation -----------------------------------------------------------------
 
-struct _ThunarMenuClass
+struct _AppMenuClass
 {
     GtkMenuClass __parent__;
 };
 
-struct _ThunarMenu
+struct _AppMenu
 {
     GtkMenu __parent__;
 
@@ -73,20 +73,20 @@ struct _ThunarMenu
     MenuType    type;
 };
 
-static GQuark _menu_handler_quark;
+static GQuark _appmenu_handler_quark;
 
-G_DEFINE_TYPE(ThunarMenu, menu, GTK_TYPE_MENU)
+G_DEFINE_TYPE(AppMenu, appmenu, GTK_TYPE_MENU)
 
-static void menu_class_init(ThunarMenuClass *klass)
+static void appmenu_class_init(AppMenuClass *klass)
 {
     // determine the "thunar-menu-handler" quark
-    _menu_handler_quark = g_quark_from_static_string("thunar-menu-handler");
+    _appmenu_handler_quark = g_quark_from_static_string("thunar-menu-handler");
 
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-    gobject_class->finalize = menu_finalize;
-    gobject_class->get_property = menu_get_property;
-    gobject_class->set_property = menu_set_property;
+    gobject_class->finalize = appmenu_finalize;
+    gobject_class->get_property = appmenu_get_property;
+    gobject_class->set_property = appmenu_set_property;
 
     g_object_class_install_property(gobject_class,
                                     PROP_MENU_TYPE,
@@ -128,26 +128,26 @@ static void menu_class_init(ThunarMenuClass *klass)
                                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
 }
 
-static void menu_init(ThunarMenu *menu)
+static void appmenu_init(AppMenu *menu)
 {
     menu->force_section_open = FALSE;
     menu->type = FALSE;
     menu->change_directory_support_disabled = FALSE;
 }
 
-static void menu_finalize(GObject *object)
+static void appmenu_finalize(GObject *object)
 {
-    ThunarMenu *menu = THUNAR_MENU(object);
+    AppMenu *menu = APPMENU(object);
 
     g_object_unref(menu->launcher);
 
-    G_OBJECT_CLASS(menu_parent_class)->finalize(object);
+    G_OBJECT_CLASS(appmenu_parent_class)->finalize(object);
 }
 
 
 // Properties -----------------------------------------------------------------
 
-static void menu_get_property(GObject *object, guint prop_id, GValue *value,
+static void appmenu_get_property(GObject *object, guint prop_id, GValue *value,
                               GParamSpec *pspec)
 {
     (void) object;
@@ -162,12 +162,12 @@ static void menu_get_property(GObject *object, guint prop_id, GValue *value,
     }
 }
 
-static void menu_set_property(GObject *object, guint prop_id, const GValue *value,
-                              GParamSpec *pspec)
+static void appmenu_set_property(GObject *object, guint prop_id,
+                              const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
-    ThunarMenu *menu = THUNAR_MENU(object);
+    AppMenu *menu = APPMENU(object);
 
     switch (prop_id)
     {
@@ -197,9 +197,9 @@ static void menu_set_property(GObject *object, guint prop_id, const GValue *valu
 
 // Public ---------------------------------------------------------------------
 
-gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections)
+gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
 {
-    e_return_val_if_fail(THUNAR_IS_MENU(menu), FALSE);
+    e_return_val_if_fail(IS_APPMENU(menu), FALSE);
 
     gboolean force = (menu->type == MENU_TYPE_WINDOW
                       || menu->type == MENU_TYPE_CONTEXT_TREE_VIEW);
@@ -384,9 +384,9 @@ gboolean menu_add_sections(ThunarMenu *menu, MenuSections menu_sections)
     return TRUE;
 }
 
-void menu_hide_accel_labels(ThunarMenu *menu)
+void appmenu_hide_accel_labels(AppMenu *menu)
 {
-    e_return_if_fail(THUNAR_IS_MENU(menu));
+    e_return_if_fail(IS_APPMENU(menu));
 
     GList *children = gtk_container_get_children(GTK_CONTAINER(menu));
 

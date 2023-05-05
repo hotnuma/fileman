@@ -864,9 +864,9 @@ static gboolean treeview_popup_menu(GtkWidget *widget)
     return FALSE;
 }
 
-static void _treeview_context_menu(TreeView *view,
-                                          GtkTreeModel   *model,
-                                          GtkTreeIter    *iter)
+static void _treeview_context_menu(TreeView     *view,
+                                   GtkTreeModel *model,
+                                   GtkTreeIter  *iter)
 {
     /* verify that we're connected to the clipboard manager */
     if (G_UNLIKELY(view->clipboard == NULL))
@@ -881,14 +881,11 @@ static void _treeview_context_menu(TreeView *view,
                        -1);
 
     // create popup menu
-    ThunarMenu *context_menu = g_object_new(
-                                    THUNAR_TYPE_MENU,
-                                    "menu-type",
-                                    MENU_TYPE_CONTEXT_TREE_VIEW,
-                                    "launcher",
-                                    view->launcher,
-                                    "force-section-open",
-                                    TRUE,
+    AppMenu *context_menu = g_object_new(
+                                    TYPE_APPMENU,
+                                    "menu-type", MENU_TYPE_CONTEXT_TREE_VIEW,
+                                    "launcher", view->launcher,
+                                    "force-section-open", TRUE,
                                     NULL);
 
     g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
@@ -915,13 +912,13 @@ static void _treeview_context_menu(TreeView *view,
 
             xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
 
-            menu_add_sections(context_menu, MENU_SECTION_EMPTY_TRASH);
+            appmenu_add_sections(context_menu, MENU_SECTION_EMPTY_TRASH);
         }
         else
         {
-            menu_add_sections(context_menu, MENU_SECTION_OPEN);
+            appmenu_add_sections(context_menu, MENU_SECTION_OPEN);
 
-            menu_add_sections(context_menu, MENU_SECTION_CREATE_NEW_FILES
+            appmenu_add_sections(context_menu, MENU_SECTION_CREATE_NEW_FILES
                                                    | MENU_SECTION_CUT
                                                    | MENU_SECTION_COPY_PASTE
                                                    | MENU_SECTION_TRASH_DELETE
@@ -930,8 +927,8 @@ static void _treeview_context_menu(TreeView *view,
                                                    | MENU_SECTION_TERMINAL);
         }
 
-        menu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
-        menu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
+        appmenu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
+        appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
     else
     {
@@ -952,13 +949,13 @@ static void _treeview_context_menu(TreeView *view,
 
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
 
-        menu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
+        appmenu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
 
         if (th_device_is_mounted(device))
-            menu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
+            appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
 
-    menu_hide_accel_labels(context_menu);
+    appmenu_hide_accel_labels(context_menu);
     gtk_widget_show_all(GTK_WIDGET(context_menu));
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));

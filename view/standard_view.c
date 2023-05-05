@@ -1762,7 +1762,7 @@ static const gchar* standard_view_get_statusbar_text(BaseView *view)
 void standard_view_context_menu(StandardView *standard_view)
 {
     GtkWidget  *window;
-    ThunarMenu *context_menu;
+    AppMenu *context_menu;
     GList      *selected_items;
 
     //static int count;
@@ -1777,11 +1777,11 @@ void standard_view_context_menu(StandardView *standard_view)
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
 
-    context_menu = g_object_new(THUNAR_TYPE_MENU, "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
+    context_menu = g_object_new(TYPE_APPMENU, "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
                                  "launcher", window_get_launcher(THUNAR_WINDOW(window)), NULL);
     if (selected_items != NULL)
     {
-        menu_add_sections(context_menu,
+        appmenu_add_sections(context_menu,
                                  MENU_SECTION_OPEN
                                  | MENU_SECTION_CUT
                                  | MENU_SECTION_COPY_PASTE
@@ -1795,7 +1795,7 @@ void standard_view_context_menu(StandardView *standard_view)
     }
     else /* right click on some empty space */
     {
-        menu_add_sections(context_menu,
+        appmenu_add_sections(context_menu,
                                  MENU_SECTION_CREATE_NEW_FILES
                                  | MENU_SECTION_COPY_PASTE
                                  | MENU_SECTION_EMPTY_TRASH
@@ -1803,10 +1803,10 @@ void standard_view_context_menu(StandardView *standard_view)
 
         _standard_view_append_menu_items(standard_view, GTK_MENU(context_menu), NULL);
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
-        menu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
+        appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
 
-    menu_hide_accel_labels(context_menu);
+    appmenu_hide_accel_labels(context_menu);
     gtk_widget_show_all(GTK_WIDGET(context_menu));
     window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
 
