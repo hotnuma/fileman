@@ -448,10 +448,6 @@ static void window_class_init(ThunarWindowClass *klass)
 
 static void window_init(ThunarWindow *window)
 {
-    GType           type;
-    GtkToolItem     *tool_item;
-    GtkStyleContext *context;
-
     Preferences *prefs = get_preferences();
 
     window->accel_group = gtk_accel_group_new();
@@ -508,17 +504,16 @@ static void window_init(ThunarWindow *window)
         gtk_window_maximize(GTK_WINDOW(window));
 
     /* add thunar style class for easier theming */
-    context = gtk_widget_get_style_context(GTK_WIDGET(window));
+    GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(window));
     gtk_style_context_add_class(context, "thunar");
-
 
     // Create widgets
     window->grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), window->grid);
     gtk_widget_show(window->grid);
 
+    // Toolbar ----------------------------------------------------------------
 
-    // Toolbar
     window->toolbar = gtk_toolbar_new();
     gtk_toolbar_set_style(GTK_TOOLBAR(window->toolbar), GTK_TOOLBAR_ICONS);
     gtk_toolbar_set_icon_size(
@@ -543,25 +538,28 @@ static void window_init(ThunarWindow *window)
                      G_CALLBACK(window_check_uca_key_activation), NULL);
 #endif
 
-    /* add the location bar to the toolbar */
-    tool_item = gtk_tool_item_new();
+    // Location bar
+
+    GtkToolItem *tool_item = gtk_tool_item_new();
     gtk_tool_item_set_expand(tool_item, TRUE);
     gtk_toolbar_insert(GTK_TOOLBAR(window->toolbar), tool_item, -1);
     gtk_toolbar_set_show_arrow(GTK_TOOLBAR(window->toolbar), FALSE);
 
-    /* allocate the new location bar widget */
     window->location_bar = thunar_location_bar_new();
-    g_object_bind_property(G_OBJECT(window), "current-directory", G_OBJECT(window->location_bar), "current-directory", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped(G_OBJECT(window->location_bar), "change-directory", G_CALLBACK(window_set_current_directory), window);
-    g_signal_connect_swapped(G_OBJECT(window->location_bar), "reload-requested", G_CALLBACK(_window_handle_reload_request), window);
-    g_signal_connect_swapped(G_OBJECT(window->location_bar), "entry-done", G_CALLBACK(_window_update_location_bar_visible), window);
+    g_object_bind_property(G_OBJECT(window), "current-directory",
+                           G_OBJECT(window->location_bar), "current-directory",
+                           G_BINDING_SYNC_CREATE);
 
-    /* add the location bar itself */
+    g_signal_connect_swapped(G_OBJECT(window->location_bar), "change-directory",
+                             G_CALLBACK(window_set_current_directory), window);
+    g_signal_connect_swapped(G_OBJECT(window->location_bar), "reload-requested",
+                             G_CALLBACK(_window_handle_reload_request), window);
+    g_signal_connect_swapped(G_OBJECT(window->location_bar), "entry-done",
+                             G_CALLBACK(_window_update_location_bar_visible), window);
+
     gtk_container_add(GTK_CONTAINER(tool_item), window->location_bar);
 
-    /* display the toolbar */
     gtk_widget_show_all(window->toolbar);
-
     _window_update_location_bar_visible(window);
 
     // Paned
@@ -577,11 +575,8 @@ static void window_init(ThunarWindow *window)
     g_signal_connect_swapped(window->paned, "accept-position", G_CALLBACK(_window_save_paned), window);
     g_signal_connect_swapped(window->paned, "button-release-event", G_CALLBACK(_window_save_paned), window);
 
-
-    // Left pane : Treeview
-    type = TYPE_TREEPANE;
-    _window_install_sidepane(window, type);
-
+    // Side Treeview
+    _window_install_sidepane(window, TYPE_TREEPANE);
 
     // Right pane : GtkGrid
     window->view_box = gtk_grid_new();

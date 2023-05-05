@@ -216,25 +216,31 @@ static void thunar_location_bar_reload_requested(ThunarLocationBar *bar)
     g_signal_emit_by_name(bar, "reload-requested");
 }
 
-static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar    *bar,
-                                                     GType                 type)
+static GtkWidget* thunar_location_bar_install_widget(ThunarLocationBar *bar,
+                                                     GType             type)
 {
     GtkWidget *installedWidget = NULL;
     GtkWidget *child;
 
     /* check if the the right type is already installed */
-    if ((child = gtk_bin_get_child(GTK_BIN(bar))) && G_TYPE_CHECK_INSTANCE_TYPE(child, type))
+    if ((child = gtk_bin_get_child(GTK_BIN(bar)))
+        && G_TYPE_CHECK_INSTANCE_TYPE(child, type))
         return child;
 
     if (type == THUNAR_TYPE_LOCATION_ENTRY)
     {
         if (bar->locationEntry == NULL)
         {
-            bar->locationEntry = gtk_widget_new(THUNAR_TYPE_LOCATION_ENTRY, "current-directory", NULL, NULL);
+            bar->locationEntry = gtk_widget_new(THUNAR_TYPE_LOCATION_ENTRY,
+                                                "current-directory", NULL,
+                                                NULL);
             g_object_ref(bar->locationEntry);
-            g_signal_connect_swapped(bar->locationEntry, "reload-requested", G_CALLBACK(thunar_location_bar_reload_requested), bar);
-            g_signal_connect_swapped(bar->locationEntry, "change-directory", G_CALLBACK(navigator_change_directory), THUNAR_NAVIGATOR(bar));
+            g_signal_connect_swapped(bar->locationEntry, "reload-requested",
+                                     G_CALLBACK(thunar_location_bar_reload_requested), bar);
+            g_signal_connect_swapped(bar->locationEntry, "change-directory",
+                                     G_CALLBACK(navigator_change_directory), THUNAR_NAVIGATOR(bar));
         }
+
         installedWidget = bar->locationEntry;
     }
 
@@ -287,8 +293,11 @@ void thunar_location_bar_request_entry(ThunarLocationBar *bar, const gchar *init
     else
     {
         /* not an entry => temporarily replace it */
-        child = thunar_location_bar_install_widget(bar, THUNAR_TYPE_LOCATION_ENTRY);
-        thunar_location_entry_accept_focus(THUNAR_LOCATION_ENTRY(child), initial_text);
+        child = thunar_location_bar_install_widget(bar,
+                                                   THUNAR_TYPE_LOCATION_ENTRY);
+
+        thunar_location_entry_accept_focus(THUNAR_LOCATION_ENTRY(child),
+                                           initial_text);
     }
 
     g_signal_connect(child, "edit-done", G_CALLBACK(thunar_location_bar_on_enry_edit_done), bar);
