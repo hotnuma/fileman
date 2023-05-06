@@ -9,9 +9,9 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   127451	./view/standard_view.c
 +   102177	./core/th_file.c
 +   95911	./launcher.c
-    70707	./view/listmodel.c
-    70220	./side/treeview.c
-    68375	./window.c
++   70707	./view/listmodel.c
++   70220	./side/treeview.c
++   68375	./window.c
     60747	./side/treemodel.c
     60213	./job/transfer_job.c
     55265	./application.c
