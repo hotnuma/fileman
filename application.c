@@ -34,7 +34,7 @@
 #define ACCEL_MAP_PATH "Thunar/accels.scm"
 #endif
 
-/* option entries */
+// option entries
 static const GOptionEntry _option_entries[] =
 {
     {"daemon", 0, 0, G_OPTION_ARG_NONE, NULL, N_("Run in daemon mode"), NULL},
@@ -43,10 +43,10 @@ static const GOptionEntry _option_entries[] =
     {NULL, 0, 0, 0, NULL, NULL, NULL},
 };
 
-/* Prototype for the Thunar job launchers */
+// Prototype for the Thunar job launchers
 typedef ThunarJob* (*Launcher) (GList *source_path_list, GList *target_path_list);
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -130,7 +130,7 @@ G_DEFINE_TYPE_EXTENDED(Application,
 
 static void application_class_init(ApplicationClass *klass)
 {
-    /* pre-allocate the required quarks */
+    // pre-allocate the required quarks
     _app_screen_quark = g_quark_from_static_string("application-screen");
     _app_startup_id_quark = g_quark_from_static_string("application-startup-id");
     _app_file_quark = g_quark_from_static_string("application-file");
@@ -180,18 +180,18 @@ static void application_startup(GApplication *gapplication)
     G_APPLICATION_CLASS(application_parent_class)->startup(gapplication);
 
 #ifdef ENABLE_ACCEL_MAP
-    /* check if we have a saved accel map */
+    // check if we have a saved accel map
     gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
 
     if (G_LIKELY(path != NULL))
     {
-        /* load the accel map */
+        // load the accel map
         gtk_accel_map_load(path);
         g_free(path);
     }
 #endif
 
-    /* watch for changes */
+    // watch for changes
     application->accel_map = gtk_accel_map_get();
     g_signal_connect_swapped(G_OBJECT(application->accel_map), "changed",
                              G_CALLBACK(_application_accel_map_changed),
@@ -204,14 +204,14 @@ static void _application_accel_map_changed(Application *application)
 {
     e_return_if_fail(IS_APPLICATION(application));
 
-    /* stop pending save */
+    // stop pending save
     if (application->accel_map_save_id != 0)
     {
         g_source_remove(application->accel_map_save_id);
         application->accel_map_save_id = 0;
     }
 
-    /* schedule new save */
+    // schedule new save
     application->accel_map_save_id =
         g_timeout_add_seconds(10, _application_accel_map_save, application);
 }
@@ -225,13 +225,13 @@ static gboolean _application_accel_map_save(gpointer user_data)
     application->accel_map_save_id = 0;
 
 #ifdef ENABLE_ACCEL_MAP
-    /* save the current accel map */
+    // save the current accel map
     gchar *path = xfce_resource_save_location(XFCE_RESOURCE_CONFIG,
                                               ACCEL_MAP_PATH,
                                               TRUE);
     if (G_LIKELY(path != NULL))
     {
-        /* save the accel map */
+        // save the accel map
         gtk_accel_map_save(path);
         g_free(path);
     }
@@ -244,10 +244,10 @@ static void _application_load_css()
 {
     GtkCssProvider *css_provider = gtk_css_provider_new();
 
-    /* for the pathbar-buttons any margin looks ugly*/
-    /* remove extra border between side pane and view */
-    /* add missing top border to side pane */
-    /* make border thicker during DnD */
+    // for the pathbar-buttons any margin looks ugly
+    // remove extra border between side pane and view
+    // add missing top border to side pane
+    // make border thicker during DnD
 
     gtk_css_provider_load_from_data(
         css_provider,
@@ -275,10 +275,10 @@ static void application_shutdown(GApplication *gapplication)
     prefs_write();
     prefs_cleanup();
 
-    /* unqueue all files waiting to be processed */
+    // unqueue all files waiting to be processed
     e_list_free(application->files_to_launch);
 
-    /* save the current accel map */
+    // save the current accel map
     if (G_UNLIKELY(application->accel_map_save_id != 0))
     {
         g_source_remove(application->accel_map_save_id);
@@ -288,7 +288,7 @@ static void application_shutdown(GApplication *gapplication)
     if (application->accel_map != NULL)
         g_object_unref(G_OBJECT(application->accel_map));
 
-    /* drop any running "show dialogs" timer */
+    // drop any running "show dialogs" timer
     if (G_UNLIKELY(application->show_dialogs_timer_id != 0))
         g_source_remove(application->show_dialogs_timer_id);
 
@@ -316,12 +316,12 @@ static int application_command_line(GApplication *gapplication,
     GError            *error        = NULL;
     gchar             *cwd_list[]   = {(gchar *)".", NULL };
 
-    /* retrieve arguments */
+    // retrieve arguments
     g_variant_dict_lookup(options_dict, "quit", "b", &quit);
     g_variant_dict_lookup(options_dict, "daemon", "b", &daemon);
     g_variant_dict_lookup(options_dict, G_OPTION_REMAINING, "^aay", &filenames);
 
-    /* FIXME: --quit should be named --suicide */
+    // FIXME: --quit should be named --suicide
     if (G_UNLIKELY(quit))
     {
         g_debug("quitting");
@@ -329,7 +329,7 @@ static int application_command_line(GApplication *gapplication,
         goto out;
     }
 
-    /* check whether we should daemonize */
+    // check whether we should daemonize
     if (G_UNLIKELY(daemon))
     {
         application_set_daemon(application, TRUE);
@@ -339,7 +339,7 @@ static int application_command_line(GApplication *gapplication,
     {
         if (!application_process_filenames(application, cwd, filenames, NULL, NULL, &error))
         {
-            /* we failed to process the filenames or the bulk rename failed */
+            // we failed to process the filenames or the bulk rename failed
             g_application_command_line_printerr(command_line, "Thunar: %s\n", error->message);
         }
     }
@@ -347,13 +347,13 @@ static int application_command_line(GApplication *gapplication,
     {
         if (!application_process_filenames(application, cwd, cwd_list, NULL, NULL, &error))
         {
-            /* we failed to process the filenames or the bulk rename failed */
+            // we failed to process the filenames or the bulk rename failed
             g_application_command_line_printerr(command_line, "Thunar: %s\n", error->message);
         }
     }
 
 out:
-    /* cleanup */
+    // cleanup
     g_strfreev(filenames);
 
     if (error)
@@ -367,7 +367,7 @@ out:
 
 static void application_activate(GApplication *gapp)
 {
-    /* TODO */
+    // TODO
 
     G_APPLICATION_CLASS(application_parent_class)->activate(gapp);
 }
@@ -428,17 +428,17 @@ static void _application_collect_and_launch(
     GList  *lp;
     gchar  *base_name;
 
-    /* check if we have anything to operate on */
+    // check if we have anything to operate on
     if (G_UNLIKELY(source_file_list == NULL))
         return;
 
-    /* generate the target path list */
+    // generate the target path list
     for (lp = g_list_last(source_file_list); err == NULL && lp != NULL; lp = lp->prev)
     {
-        /* verify that we're not trying to collect a root node */
+        // verify that we're not trying to collect a root node
         if (G_UNLIKELY(e_file_is_root(lp->data)))
         {
-            /* tell the user that we cannot perform the requested operation */
+            // tell the user that we cannot perform the requested operation
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s", g_strerror(EINVAL));
         }
         else
@@ -447,24 +447,24 @@ static void _application_collect_and_launch(
             file = g_file_resolve_relative_path(target_file, base_name);
             g_free(base_name);
 
-            /* add to the target file list */
+            // add to the target file list
             target_file_list = e_list_prepend_ref(target_file_list, file);
             g_object_unref(file);
         }
     }
 
-    /* check if we failed */
+    // check if we failed
     if (G_UNLIKELY(err != NULL))
     {
-        /* display an error message to the user */
+        // display an error message to the user
         dialog_error(parent, err, _("Failed to launch operation"));
 
-        /* release the error */
+        // release the error
         g_error_free(err);
     }
     else
     {
-        /* launch the operation */
+        // launch the operation
         _application_launch(application,
                             parent,
                             icon_name,
@@ -475,7 +475,7 @@ static void _application_collect_and_launch(
                             new_files_closure);
     }
 
-    /* release the target path list */
+    // release the target path list
     e_list_free(target_file_list);
 }
 
@@ -499,7 +499,7 @@ static void _application_launch_finished(ThunarJob *job, GList *containing_folde
                 folder = th_folder_get_for_file(file);
                 if (folder != NULL)
                 {
-                    /* If the folder is connected to a folder monitor, we dont need to trigger the reload manually */
+                    // If the folder is connected to a folder monitor, we dont need to trigger the reload manually
                     if (!th_folder_has_folder_monitor(folder))
                     {
                         th_folder_load(folder, FALSE);
@@ -509,7 +509,7 @@ static void _application_launch_finished(ThunarJob *job, GList *containing_folde
             }
             g_object_unref(file);
         }
-        /* Unref all containing_folders(refs obtained by g_file_get_parent in thunar_g_file_list_get_parents ) */
+        // Unref all containing_folders(refs obtained by g_file_get_parent in thunar_g_file_list_get_parents )
         g_object_unref(lp->data);
     }
 }
@@ -533,10 +533,10 @@ static void _application_launch(Application *application,
 
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
-    /* parse the parent pointer */
+    // parse the parent pointer
     screen = util_parse_parent(parent, NULL);
 
-    /* try to allocate a new job for the operation */
+    // try to allocate a new job for the operation
     job =(*launcher)(source_file_list, target_file_list);
 
     if (update_source_folders)
@@ -544,31 +544,31 @@ static void _application_launch(Application *application,
     if (update_target_folders)
         parent_folder_list = g_list_concat(parent_folder_list, e_file_list_get_parents(target_file_list));
 
-    /* connect a callback to instantly refresh the parent folders after the operation finished */
+    // connect a callback to instantly refresh the parent folders after the operation finished
     g_signal_connect(G_OBJECT(job), "finished",
                      G_CALLBACK(_application_launch_finished),
                      parent_folder_list);
 
-    /* connect the "new-files" closure(if any) */
+    // connect the "new-files" closure(if any)
     if (G_LIKELY(new_files_closure != NULL))
         g_signal_connect_closure(job, "new-files", new_files_closure, FALSE);
 
-    /* get the shared progress dialog */
+    // get the shared progress dialog
     dialog = _application_get_progress_dialog(application);
 
-    /* place the dialog on the given screen */
+    // place the dialog on the given screen
     if (screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
     has_jobs = thunar_progress_dialog_has_jobs(THUNAR_PROGRESS_DIALOG(dialog));
 
-    /* add the job to the dialog */
+    // add the job to the dialog
     thunar_progress_dialog_add_job(THUNAR_PROGRESS_DIALOG(dialog),
                                     job, icon_name, title);
 
     if (has_jobs)
     {
-        /* show the dialog immediately */
+        // show the dialog immediately
         _application_show_dialogs(application);
     }
     else
@@ -587,7 +587,7 @@ static void _application_launch(Application *application,
         }
     }
 
-    /* drop our reference on the job */
+    // drop our reference on the job
     g_object_unref(job);
 }
 
@@ -595,7 +595,7 @@ static gboolean _application_show_dialogs(gpointer user_data)
 {
     Application *application = APPLICATION(user_data);
 
-    /* show the progress dialog */
+    // show the progress dialog
     if (application->progress_dialog != NULL)
         gtk_window_present(GTK_WINDOW(application->progress_dialog));
 
@@ -689,7 +689,7 @@ void application_take_window(Application *application,
     e_return_if_fail(GTK_IS_WINDOW(window));
     e_return_if_fail(IS_APPLICATION(application));
 
-    /* only windows without a parent get a new window group */
+    // only windows without a parent get a new window group
     if (gtk_window_get_transient_for(window) == NULL && !gtk_window_has_group(window))
     {
         group = gtk_window_group_new();
@@ -697,7 +697,7 @@ void application_take_window(Application *application,
         g_object_weak_ref(G_OBJECT(window),(GWeakNotify)(void(*)(void)) g_object_unref, group);
     }
 
-    /* add the ourselves to the window */
+    // add the ourselves to the window
     gtk_window_set_application(window, GTK_APPLICATION(application));
 }
 
@@ -736,29 +736,29 @@ GtkWidget* application_open_window(Application *application,
     if (G_UNLIKELY(screen == NULL))
         screen = gdk_screen_get_default();
 
-    /* generate a unique role for the new window(for session management) */
+    // generate a unique role for the new window(for session management)
     role = g_strdup_printf("Thunar-%u-%u",(guint) time(NULL),(guint) g_random_int());
 
-    /* allocate the window */
+    // allocate the window
     window = g_object_new(THUNAR_TYPE_WINDOW,
                            "role", role,
                            "screen", screen,
                            NULL);
 
-    /* cleanup */
+    // cleanup
     g_free(role);
 
-    /* set the startup id */
+    // set the startup id
     if (startup_id != NULL)
         gtk_window_set_startup_id(GTK_WINDOW(window), startup_id);
 
-    /* hook up the window */
+    // hook up the window
     application_take_window(application, GTK_WINDOW(window));
 
-    /* show the new window */
+    // show the new window
     gtk_widget_show(window);
 
-    /* change the directory */
+    // change the directory
     if (directory != NULL)
         window_set_current_directory(THUNAR_WINDOW(window), directory);
 
@@ -798,55 +798,55 @@ static void _application_process_files_finish(ThunarBrowser  *browser,
     Application *application = APPLICATION(browser);
     e_return_if_fail(IS_APPLICATION(application));
 
-    /* determine and reset the screen of the file */
+    // determine and reset the screen of the file
     GdkScreen *screen = g_object_get_qdata(G_OBJECT(file), _app_screen_quark);
     g_object_set_qdata(G_OBJECT(file), _app_screen_quark, NULL);
 
-    /* determine and the startup id of the file */
+    // determine and the startup id of the file
     const gchar *startup_id;
     startup_id = g_object_get_qdata(G_OBJECT(file), _app_startup_id_quark);
 
-    /* check if resolving/mounting failed */
+    // check if resolving/mounting failed
     if (error != NULL)
     {
-        /* don't display cancel errors */
+        // don't display cancel errors
         if (error->domain != G_IO_ERROR || error->code != G_IO_ERROR_CANCELLED)
         {
-            /* tell the user that we were unable to launch the file specified */
+            // tell the user that we were unable to launch the file specified
             dialog_error(screen, error, _("Failed to open \"%s\""),
                                        th_file_get_display_name(file));
         }
 
-        /* stop processing files */
+        // stop processing files
         e_list_free(application->files_to_launch);
         application->files_to_launch = NULL;
     }
     else
     {
-        /* try to open the file or directory */
+        // try to open the file or directory
         th_file_launch(target_file, screen, startup_id, &error);
 
-        /* remove the file from the list */
+        // remove the file from the list
         application->files_to_launch =
             g_list_delete_link(application->files_to_launch,
                                 application->files_to_launch);
 
-        /* release the file */
+        // release the file
         g_object_unref(file);
 
-        /* check if we have more files to process */
+        // check if we have more files to process
         if (application->files_to_launch != NULL)
         {
-            /* continue processing the next file */
+            // continue processing the next file
             _application_process_files(application);
         }
     }
 
-    /* unset the startup id */
+    // unset the startup id
     if (startup_id != NULL)
         g_object_set_qdata(G_OBJECT(file), _app_startup_id_quark, NULL);
 
-    /* release the application */
+    // release the application
     g_application_release(G_APPLICATION(application));
 }
 
@@ -854,17 +854,17 @@ static void _application_process_files(Application *application)
 {
     e_return_if_fail(IS_APPLICATION(application));
 
-    /* don't do anything if no files are to be processed */
+    // don't do anything if no files are to be processed
     if (application->files_to_launch == NULL)
         return;
 
-    /* take the next file from the queue */
+    // take the next file from the queue
     ThunarFile *file = THUNAR_FILE(application->files_to_launch->data);
 
-    /* retrieve the screen we need to launch the file on */
+    // retrieve the screen we need to launch the file on
     GdkScreen *screen = g_object_get_qdata(G_OBJECT(file), _app_screen_quark);
 
-    /* make sure to hold a reference to the application while file processing is going on */
+    // make sure to hold a reference to the application while file processing is going on
     g_application_hold(G_APPLICATION(application));
 
     /* resolve the file and/or mount its enclosing volume
@@ -911,35 +911,35 @@ gboolean application_process_filenames(Application *application,
     GList *file_list = NULL;
     GError *derror = NULL;
 
-    /* try to process all filenames and convert them to the appropriate file objects */
+    // try to process all filenames and convert them to the appropriate file objects
     for (gint n = 0; filenames[n] != NULL; ++n)
     {
         ThunarFile *file;
         gchar      *filename;
 
-        /* check if the filename is an absolute path or looks like an URI */
+        // check if the filename is an absolute path or looks like an URI
         if (g_path_is_absolute(filenames[n])
             || g_uri_is_valid(filenames[n], G_URI_FLAGS_NONE, NULL))
         {
-            /* determine the file for the filename directly */
+            // determine the file for the filename directly
             file = th_file_get_for_uri(filenames[n], &derror);
         }
         else
         {
-            /* translate the filename into an absolute path first */
+            // translate the filename into an absolute path first
             filename = g_build_filename(working_directory, filenames[n], NULL);
             file = th_file_get_for_uri(filename, &derror);
             g_free(filename);
         }
 
-        /* verify that we have a valid file */
+        // verify that we have a valid file
         if (G_LIKELY(file != NULL))
         {
             file_list = g_list_append(file_list, file);
         }
         else
         {
-            /* tell the user that we were unable to launch the file specified */
+            // tell the user that we were unable to launch the file specified
             dialog_error(screen, derror, _("Failed to open \"%s\""),
                                        filenames[n]);
 
@@ -953,28 +953,28 @@ gboolean application_process_filenames(Application *application,
         }
     }
 
-    /* loop over all files */
+    // loop over all files
     for (GList *lp = file_list; lp != NULL; lp = lp->next)
     {
-        /* remember the screen to launch the file on */
+        // remember the screen to launch the file on
         g_object_set_qdata(G_OBJECT(lp->data), _app_screen_quark, screen);
 
-        /* remember the startup id to set on the window */
+        // remember the startup id to set on the window
         if (G_LIKELY(startup_id != NULL && *startup_id != '\0'))
             g_object_set_qdata_full(G_OBJECT(lp->data), _app_startup_id_quark,
                                     g_strdup(startup_id),(GDestroyNotify) g_free);
 
-        /* append the file to the list of files we need to launch */
+        // append the file to the list of files we need to launch
         application->files_to_launch = g_list_append(
                                             application->files_to_launch,
                                             lp->data);
     }
 
-    /* start processing files if we have any to launch */
+    // start processing files if we have any to launch
     if (application->files_to_launch != NULL)
         _application_process_files(application);
 
-    /* free the file list */
+    // free the file list
     g_list_free(file_list);
 
     return TRUE;
@@ -1006,13 +1006,13 @@ void application_copy_into(Application *application,
 
     //g_print("application_copy_into\n");
 
-    /* generate a title for the progress dialog */
+    // generate a title for the progress dialog
     gchar *display_name = th_file_cached_display_name(target_file);
     gchar *title = g_strdup_printf(_("Copying files to \"%s\"..."),
                                    display_name);
     g_free(display_name);
 
-    /* collect the target files and launch the job */
+    // collect the target files and launch the job
     _application_collect_and_launch(application,
                                     parent,
                                     "edit-copy",
@@ -1024,7 +1024,7 @@ void application_copy_into(Application *application,
                                     TRUE,
                                     new_files_closure);
 
-    /* free the title */
+    // free the title
     g_free(title);
 }
 
@@ -1053,20 +1053,20 @@ void application_link_into(Application *application,
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(G_IS_FILE(target_file));
 
-    /* generate a title for the progress dialog */
+    // generate a title for the progress dialog
     gchar *display_name = th_file_cached_display_name(target_file);
     gchar *title;
     title = g_strdup_printf(_("Creating symbolic links in \"%s\"..."), display_name);
     g_free(display_name);
 
-    /* collect the target files and launch the job */
+    // collect the target files and launch the job
     _application_collect_and_launch(application, parent, "insert-link",
                                            title, io_link_files,
                                            source_file_list, target_file,
                                            FALSE, TRUE,
                                            new_files_closure);
 
-    /* free the title */
+    // free the title
     g_free(title);
 }
 
@@ -1095,20 +1095,20 @@ void application_move_into(Application *application,
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(target_file != NULL);
 
-    /* launch the appropriate operation depending on the target file */
+    // launch the appropriate operation depending on the target file
     if (e_file_is_trashed(target_file))
     {
         application_trash(application, parent, source_file_list);
     }
     else
     {
-        /* generate a title for the progress dialog */
+        // generate a title for the progress dialog
         gchar *display_name = th_file_cached_display_name(target_file);
         gchar *title = g_strdup_printf(_("Moving files into \"%s\"..."),
                                        display_name);
         g_free(display_name);
 
-        /* collect the target files and launch the job */
+        // collect the target files and launch the job
         _application_collect_and_launch(application,
                                         parent,
                                         "stock_folder-move",
@@ -1120,7 +1120,7 @@ void application_move_into(Application *application,
                                         TRUE,
                                         new_files_closure);
 
-        /* free the title */
+        // free the title
         g_free(title);
     }
 }
@@ -1157,10 +1157,10 @@ void application_unlink_files(Application *application,
     guint      n_path_list = 0;
     GList     *path_list = NULL;
 
-    /* determine the paths for the files */
+    // determine the paths for the files
     for (lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
     {
-        /* prepend the path to the path list */
+        // prepend the path to the path list
         path_list = e_list_prepend_ref(path_list, th_file_get_file(lp->data));
 
         /* permanently delete if at least one of the file is not a local
@@ -1170,20 +1170,20 @@ void application_unlink_files(Application *application,
             permanently = TRUE;
     }
 
-    /* nothing to do if we don't have any paths */
+    // nothing to do if we don't have any paths
     if (G_UNLIKELY(n_path_list == 0))
         return;
 
-    /* ask the user to confirm if deleting permanently */
+    // ask the user to confirm if deleting permanently
     if (G_UNLIKELY(permanently))
     {
-        /* parse the parent pointer */
+        // parse the parent pointer
         GtkWindow *window;
         GdkScreen *screen = util_parse_parent(parent, &window);
 
         gchar     *message;
 
-        /* generate the question to confirm the delete operation */
+        // generate the question to confirm the delete operation
         if (G_LIKELY(n_path_list == 1))
         {
             message = g_strdup_printf(
@@ -1198,7 +1198,7 @@ void application_unlink_files(Application *application,
                                        n_path_list);
         }
 
-        /* ask the user to confirm the delete operation */
+        // ask the user to confirm the delete operation
         GtkWidget *dialog = gtk_message_dialog_new(window,
                                          GTK_DIALOG_MODAL
                                          | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -1223,10 +1223,10 @@ void application_unlink_files(Application *application,
         gtk_widget_destroy(dialog);
         g_free(message);
 
-        /* perform the delete operation */
+        // perform the delete operation
         if (G_LIKELY(response == GTK_RESPONSE_YES))
         {
-            /* launch the "Delete" operation */
+            // launch the "Delete" operation
             _application_launch(application,
                                 parent,
                                 "edit-delete",
@@ -1241,11 +1241,11 @@ void application_unlink_files(Application *application,
     }
     else
     {
-        /* launch the "Move to Trash" operation */
+        // launch the "Move to Trash" operation
         application_trash(application, parent, path_list);
     }
 
-    /* release the path list */
+    // release the path list
     e_list_free(path_list);
 }
 
@@ -1314,7 +1314,7 @@ void application_creat(Application *application,
     template_list.next = template_list.prev = NULL;
     template_list.data = template_file;
 
-    /* launch the operation */
+    // launch the operation
     _application_launch(application,
                         parent,
                         "document-new",
@@ -1357,7 +1357,7 @@ void application_mkdir(Application *application,
                      || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
 
-    /* launch the operation */
+    // launch the operation
     _application_launch(application,
                         parent,
                         "folder-new",
@@ -1386,11 +1386,11 @@ void application_empty_trash(Application *application, gpointer parent,
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
-    /* parse the parent pointer */
+    // parse the parent pointer
     GtkWindow *window;
     GdkScreen *screen = util_parse_parent(parent, &window);
 
-    /* ask the user to confirm the operation */
+    // ask the user to confirm the operation
     GtkWidget *dialog = gtk_message_dialog_new(
                         window,
                         GTK_DIALOG_MODAL
@@ -1420,7 +1420,7 @@ void application_empty_trash(Application *application, gpointer parent,
 
     GList file_list;
 
-    /* check if the user confirmed */
+    // check if the user confirmed
     if (G_LIKELY(response == GTK_RESPONSE_YES))
     {
         /* fake a path list with only the trash root(the root
@@ -1430,7 +1430,7 @@ void application_empty_trash(Application *application, gpointer parent,
         file_list.next = NULL;
         file_list.prev = NULL;
 
-        /* launch the operation */
+        // launch the operation
         _application_launch(application,
                             parent,
                             "user-trash",
@@ -1442,7 +1442,7 @@ void application_empty_trash(Application *application, gpointer parent,
                             FALSE,
                             NULL);
 
-        /* cleanup */
+        // cleanup
         g_object_unref(file_list.data);
     }
 }
@@ -1482,14 +1482,14 @@ void application_restore_files(Application *application,
         original_uri = th_file_get_original_path(lp->data);
         if (G_UNLIKELY(original_uri == NULL))
         {
-            /* no OriginalPath, impossible to continue */
+            // no OriginalPath, impossible to continue
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL,
                          _("Failed to determine the original path for \"%s\""),
                          th_file_get_display_name(lp->data));
             break;
         }
 
-        /* TODO we might have to distinguish between URIs and paths here */
+        // TODO we might have to distinguish between URIs and paths here
         target_path = g_file_new_for_commandline_arg(original_uri);
 
         source_path_list = e_list_append_ref(source_path_list, th_file_get_file(lp->data));
@@ -1500,7 +1500,7 @@ void application_restore_files(Application *application,
 
     if (G_UNLIKELY(err != NULL))
     {
-        /* display an error dialog */
+        // display an error dialog
         dialog_error(parent,
                      err,
                      _("Could not restore \"%s\""),
@@ -1510,7 +1510,7 @@ void application_restore_files(Application *application,
     }
     else
     {
-        /* launch the operation */
+        // launch the operation
         _application_launch(application,
                             parent,
                             "stock_folder-move",
@@ -1523,7 +1523,7 @@ void application_restore_files(Application *application,
                             new_files_closure);
     }
 
-    /* free path lists */
+    // free path lists
     e_list_free(source_path_list);
     e_list_free(target_path_list);
 }

@@ -12,10 +12,10 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   70707	./view/listmodel.c
 +   70220	./side/treeview.c
 +   68375	./window.c
-    60747	./side/treemodel.c
-    60213	./job/transfer_job.c
-    55265	./application.c
-    50846	./dialog/permbox.c
++   60747	./side/treemodel.c
++   60213	./job/transfer_job.c
++   55265	./application.c
++   50846	./dialog/permbox.c
     44101	./dialog/appchooser.c
     43641	./dialog/propsdlg.c
     43501	./job/io_jobs.c
