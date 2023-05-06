@@ -868,7 +868,7 @@ static void _treeview_context_menu(TreeView     *view,
                                    GtkTreeModel *model,
                                    GtkTreeIter  *iter)
 {
-    /* verify that we're connected to the clipboard manager */
+    // check if we're connected to the clipboard manager
     if (G_UNLIKELY(view->clipboard == NULL))
         return;
 
@@ -880,20 +880,25 @@ static void _treeview_context_menu(TreeView     *view,
                        TREEMODEL_COLUMN_DEVICE, &device,
                        -1);
 
-    // create popup menu
+    // create the popup menu
     AppMenu *context_menu = g_object_new(
-                                    TYPE_APPMENU,
-                                    "menu-type", MENU_TYPE_CONTEXT_TREE_VIEW,
-                                    "launcher", view->launcher,
-                                    "force-section-open", TRUE,
-                                    NULL);
+                                TYPE_APPMENU,
+                                "menu-type", MENU_TYPE_CONTEXT_TREE_VIEW,
+                                "launcher", view->launcher,
+                                "force-section-open", TRUE,
+                                NULL);
 
-    g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
+    g_object_set(G_OBJECT(view->launcher),
+                 "selected-device", device,
+                 NULL);
 
-    gboolean file_is_available = (device == NULL || th_device_is_mounted(device));
+    gboolean file_is_available = (device == NULL
+                                  || th_device_is_mounted(device));
 
     if (file_is_available)
     {
+        // set selected files and current directory
+
         GList *files = g_list_append(NULL, file);
 
         g_object_set(G_OBJECT(view->launcher),
@@ -902,6 +907,8 @@ static void _treeview_context_menu(TreeView     *view,
                      NULL);
 
         g_list_free(files);
+
+        // build popup menu
 
         if (e_file_is_trash(th_file_get_file(file))
             || e_file_is_computer(th_file_get_file(file))
@@ -932,20 +939,22 @@ static void _treeview_context_menu(TreeView     *view,
     }
     else
     {
+        // no files selected.
+
         g_object_set(G_OBJECT(view->launcher),
                      "selected-files", NULL,
                      "current-directory", NULL,
                      NULL);
 
         launcher_append_menu_item(view->launcher,
-                                         GTK_MENU_SHELL(context_menu),
-                                         LAUNCHER_ACTION_OPEN,
-                                         TRUE);
+                                  GTK_MENU_SHELL(context_menu),
+                                  LAUNCHER_ACTION_OPEN,
+                                  TRUE);
 
         launcher_append_menu_item(view->launcher,
-                                         GTK_MENU_SHELL(context_menu),
-                                         LAUNCHER_ACTION_OPEN_IN_WINDOW,
-                                         TRUE);
+                                  GTK_MENU_SHELL(context_menu),
+                                  LAUNCHER_ACTION_OPEN_IN_WINDOW,
+                                  TRUE);
 
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
 
@@ -956,11 +965,13 @@ static void _treeview_context_menu(TreeView     *view,
     }
 
     appmenu_hide_accel_labels(context_menu);
+
     gtk_widget_show_all(GTK_WIDGET(context_menu));
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+
     window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window),
-                                                      GTK_MENU(context_menu));
+                                               GTK_MENU(context_menu));
     etk_menu_run(GTK_MENU(context_menu));
 
     if (G_UNLIKELY(device != NULL))
@@ -974,11 +985,8 @@ static void _treeview_context_menu(TreeView     *view,
 
 static void _treeview_action_open(TreeView *view)
 {
-    ThunarFile   *file;
-    ThunarDevice *device;
-
-    device = _treeview_get_selected_device(view);
-    file = _treeview_get_selected_file(view);
+    ThunarDevice *device = _treeview_get_selected_device(view);
+    ThunarFile *file = _treeview_get_selected_file(view);
 
     if (device != NULL)
     {
@@ -986,8 +994,15 @@ static void _treeview_action_open(TreeView *view)
             _treeview_open_selection(view);
         else
         {
-            g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
-            g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-device", device,
+                         NULL);
+
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-files", NULL,
+                         "current-directory", NULL,
+                         NULL);
+
             launcher_action_mount(view->launcher);
         }
     }
@@ -1005,12 +1020,11 @@ static void _treeview_action_open(TreeView *view)
 
 static void _treeview_open_selection(TreeView *view)
 {
-    ThunarFile *file;
-
     e_return_if_fail(IS_TREEVIEW(view));
 
     /* determine the selected file */
-    file = _treeview_get_selected_file(view);
+    ThunarFile *file = _treeview_get_selected_file(view);
+
     if (G_LIKELY(file != NULL))
     {
         /* open that folder in the main view */
@@ -1024,12 +1038,15 @@ static void _treeview_open_selection(TreeView *view)
 // ----------------------------------------------------------------------------
 
 static void treeview_row_activated(GtkTreeView       *tree_view,
-                                           GtkTreePath       *path,
-                                           GtkTreeViewColumn *column)
+                                   GtkTreePath       *path,
+                                   GtkTreeViewColumn *column)
 {
     /* call the parent's "row-activated" handler */
     if (GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated != NULL)
-        GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated(tree_view, path, column);
+        GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated(
+                    tree_view,
+                    path,
+                    column);
 
     /* toggle the expanded state of the activated row... */
     if (gtk_tree_view_row_expanded(tree_view, path))
@@ -1050,16 +1067,23 @@ static void treeview_row_activated(GtkTreeView       *tree_view,
 
 
 static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
-                                                 GtkTreeIter *iter,
-                                                 GtkTreePath *path)
+                                         GtkTreeIter *iter,
+                                         GtkTreePath *path)
 {
     (void) path;
-    TreeView          *view = TREEVIEW(tree_view);
-    gboolean                 expandable = TRUE;
-    ThunarDevice            *device;
+
+    TreeView *view = TREEVIEW(tree_view);
 
     /* determine the device for the iterator */
-    gtk_tree_model_get(GTK_TREE_MODEL(view->model), iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
+
+    ThunarDevice *device;
+
+    gtk_tree_model_get(GTK_TREE_MODEL(view->model),
+                       iter,
+                       TREEMODEL_COLUMN_DEVICE, &device,
+                       -1);
+
+    gboolean expandable = TRUE;
 
     /* check if we have a device */
     if (G_UNLIKELY(device != NULL))
@@ -1069,8 +1093,16 @@ static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
         {
             /* we need to mount the device before we can expand the row */
             expandable = FALSE;
-            g_object_set(G_OBJECT(view->launcher), "selected-device", device, NULL);
-            g_object_set(G_OBJECT(view->launcher), "selected-files", NULL, "current-directory", NULL, NULL);
+
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-device", device,
+                         NULL);
+
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-files", NULL,
+                         "current-directory", NULL,
+                         NULL);
+
             /* The closure will expand the row after the mount operation finished */
             launcher_action_mount(view->launcher);
         }
@@ -1137,11 +1169,12 @@ gboolean treeview_delete_selected_files(TreeView *view)
     }
 
     /* ...and we're done */
+
     return TRUE;
 }
 
 static void _treeview_action_unlink_selected_folder(TreeView *view,
-                                                           gboolean permanently)
+                                                    gboolean permanently)
 {
     e_return_if_fail(IS_TREEVIEW(view));
 
@@ -1182,12 +1215,17 @@ void treeview_rename_selected(TreeView *view)
     if (!file)
         return;
 
-    g_object_set(G_OBJECT(view->launcher), "selected-device", NULL, NULL);
+    g_object_set(G_OBJECT(view->launcher),
+                 "selected-device", NULL,
+                 NULL);
 
-    GList        *files;
-    files = g_list_append(NULL, file);
+    GList *files = g_list_append(NULL, file);
 
-    g_object_set(G_OBJECT(view->launcher), "selected-files", files, "current-directory", view->current_directory, NULL);
+    g_object_set(G_OBJECT(view->launcher),
+                 "selected-files", files,
+                 "current-directory", view->current_directory,
+                 NULL);
+
     g_list_free(files);
     g_object_unref(file);
 
@@ -1478,9 +1516,8 @@ static void _treeview_cursor_idle_destroy(gpointer user_data)
 
 
 
-static GtkTreePath* _treeview_get_preferred_toplevel_path(
-                                                        TreeView *view,
-                                                        ThunarFile     *file)
+static GtkTreePath* _treeview_get_preferred_toplevel_path(TreeView   *view,
+                                                          ThunarFile *file)
 {
     GtkTreeModel *model = GTK_TREE_MODEL(view->model);
     GtkTreePath  *path = NULL;
@@ -1602,12 +1639,12 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(
 // DnD ------------------------------------------------------------------------
 
 static void treeview_drag_data_received(GtkWidget        *widget,
-                                                GdkDragContext   *context,
-                                                gint              x,
-                                                gint              y,
-                                                GtkSelectionData *selection_data,
-                                                guint             info,
-                                                guint             timestamp)
+                                        GdkDragContext   *context,
+                                        gint             x,
+                                        gint             y,
+                                        GtkSelectionData *selection_data,
+                                        guint            info,
+                                        guint            timestamp)
 {
     TreeView *view = TREEVIEW(widget);
     GdkDragAction   actions;
@@ -1663,13 +1700,14 @@ static void treeview_drag_data_received(GtkWidget        *widget,
 }
 
 static gboolean treeview_drag_drop(GtkWidget      *widget,
-                                           GdkDragContext *context,
-                                           gint            x,
-                                           gint            y,
-                                           guint           timestamp)
+                                   GdkDragContext *context,
+                                   gint           x,
+                                   gint           y,
+                                   guint          timestamp)
 {
     (void) x;
     (void) y;
+
     TreeView *view = TREEVIEW(widget);
     GdkAtom         target;
 
@@ -1695,10 +1733,10 @@ static gboolean treeview_drag_drop(GtkWidget      *widget,
 }
 
 static gboolean treeview_drag_motion(GtkWidget      *widget,
-                                             GdkDragContext *context,
-                                             gint            x,
-                                             gint            y,
-                                             guint           timestamp)
+                                     GdkDragContext *context,
+                                     gint           x,
+                                     gint           y,
+                                     guint          timestamp)
 {
     TreeView *view = TREEVIEW(widget);
     GdkAtom         target;
@@ -1744,8 +1782,8 @@ static gboolean treeview_drag_motion(GtkWidget      *widget,
 }
 
 static void treeview_drag_leave(GtkWidget      *widget,
-                                        GdkDragContext *context,
-                                        guint           timestamp)
+                                GdkDragContext *context,
+                                guint          timestamp)
 {
     TreeView *view = TREEVIEW(widget);
 
@@ -1768,13 +1806,12 @@ static void treeview_drag_leave(GtkWidget      *widget,
     GTK_WIDGET_CLASS(treeview_parent_class)->drag_leave(widget, context, timestamp);
 }
 
-static GdkDragAction _treeview_get_dest_actions(
-                                                    TreeView *view,
-                                                    GdkDragContext *context,
-                                                    gint            x,
-                                                    gint            y,
-                                                    guint           timestamp,
-                                                    ThunarFile    **file_return)
+static GdkDragAction _treeview_get_dest_actions(TreeView       *view,
+                                                GdkDragContext *context,
+                                                gint           x,
+                                                gint           y,
+                                                guint          timestamp,
+                                                ThunarFile     **file_return)
 {
     GdkDragAction actions = 0;
     GdkDragAction action = 0;
