@@ -36,12 +36,12 @@
 
 #include <fileinfo.h>
 
-/* Use native strlcpy() if available */
+// Use native strlcpy() if available
 #if defined(HAVE_STRLCPY)
 #define g_strlcpy(dst, src, size)(strlcpy((dst),(src),(size)))
 #endif
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -49,7 +49,7 @@ enum
     PROP_MUTABLE,
 };
 
-/* Column identifiers for the group combo box */
+// Column identifiers for the group combo box
 enum
 {
     THUNAR_PERMISSIONS_STORE_COLUMN_NAME,
@@ -121,7 +121,7 @@ struct _PermissionBox
 
     GList      *files;
 
-    /* the main grid widget, which contains everything but the job control stuff */
+    // the main grid widget, which contains everything but the job control stuff
     GtkWidget  *grid;
 
     GtkWidget  *user_label;
@@ -131,7 +131,7 @@ struct _PermissionBox
     GtkWidget  *fixperm_label;
     GtkWidget  *fixperm_button;
 
-    /* job control stuff */
+    // job control stuff
     ThunarJob  *job;
     GtkWidget  *job_progress;
 };
@@ -174,13 +174,13 @@ static void permbox_init(PermissionBox *chooser)
     GtkWidget       *hbox;
     gint             row = 0;
 
-    /* setup the chooser */
+    // setup the chooser
     gtk_container_set_border_width(GTK_CONTAINER(chooser), 12);
 
     gtk_orientable_set_orientation(GTK_ORIENTABLE(chooser),
                                    GTK_ORIENTATION_VERTICAL);
 
-    /* allocate the shared renderer for the various combo boxes */
+    // allocate the shared renderer for the various combo boxes
     renderer_text = gtk_cell_renderer_text_new();
 
     chooser->grid = gtk_grid_new();
@@ -384,7 +384,7 @@ static void permbox_init(PermissionBox *chooser)
     gtk_box_pack_end(GTK_BOX(hbox), chooser->fixperm_button, FALSE, FALSE, 0);
     gtk_widget_show(chooser->fixperm_button);
 
-    /* the job control stuff */
+    // the job control stuff
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_box_pack_start(GTK_BOX(chooser), hbox, FALSE, FALSE, 0);
 
@@ -404,19 +404,19 @@ static void permbox_finalize(GObject *object)
 {
     PermissionBox *chooser = PERMISSIONBOX(object);
 
-    /* cancel any pending job */
+    // cancel any pending job
     if (G_UNLIKELY(chooser->job != NULL))
     {
-        /* cancel the job(if not already done) */
+        // cancel the job(if not already done)
         exo_job_cancel(EXO_JOB(chooser->job));
 
-        /* disconnect from the job */
+        // disconnect from the job
         g_signal_handlers_disconnect_matched(chooser->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, chooser);
         g_object_unref(chooser->job);
         chooser->job = NULL;
     }
 
-    /* drop the reference on the file(if any) */
+    // drop the reference on the file(if any)
     _permbox_set_files(chooser, NULL);
 
     G_OBJECT_CLASS(permbox_parent_class)->finalize(object);
@@ -482,16 +482,16 @@ static gboolean _permbox_ask_recursive(PermissionBox *chooser)
     GtkWidget                     *vbox;
     gint                           response;
 
-    /* determine the current recursive permissions mode */
+    // determine the current recursive permissions mode
     ThunarRecursivePermissionsMode mode = THUNAR_RECURSIVE_PERMISSIONS_ALWAYS;
 
-    /* check if we should ask the user first */
+    // check if we should ask the user first
     if (G_UNLIKELY(mode == THUNAR_RECURSIVE_PERMISSIONS_ASK))
     {
-        /* determine the toplevel widget for the chooser */
+        // determine the toplevel widget for the chooser
         toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser));
 
-        /* allocate the question dialog */
+        // allocate the question dialog
         dialog = gtk_dialog_new_with_buttons(_("Question"), GTK_WINDOW(toplevel),
                                               GTK_DIALOG_DESTROY_WITH_PARENT
                                               | GTK_DIALOG_MODAL,
@@ -533,7 +533,7 @@ static gboolean _permbox_ask_recursive(PermissionBox *chooser)
         gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
         gtk_widget_show(button);
 
-        /* run the dialog and save the selected option(if requested) */
+        // run the dialog and save the selected option(if requested)
         response = gtk_dialog_run(GTK_DIALOG(dialog));
 
         //switch (response)
@@ -552,7 +552,7 @@ static gboolean _permbox_ask_recursive(PermissionBox *chooser)
         //    break;
         //}
 
-        /* destroy the dialog resources */
+        // destroy the dialog resources
         gtk_widget_destroy(dialog);
     }
     else if (mode == THUNAR_RECURSIVE_PERMISSIONS_ALWAYS)
@@ -604,7 +604,7 @@ static gboolean thunar_permissions_chooser_has_fixable_directory(PermissionBox *
     return FALSE;
 }
 
-/* free returned list with g_list_free_full(file_list, g_object_unref); */
+// free returned list with g_list_free_full(file_list, g_object_unref);
 static GList* thunar_permissions_chooser_get_file_list(PermissionBox *chooser)
 {
     GList *file_list = NULL;
@@ -631,7 +631,7 @@ static void _permbox_change_group(PermissionBox *chooser, guint32 gid)
     e_return_if_fail(IS_PERMISSIONBOX(chooser));
     e_return_if_fail(chooser->files != NULL);
 
-    /* check if we should operate recursively */
+    // check if we should operate recursively
     if (thunar_permissions_chooser_has_directory(chooser))
     {
         response = _permbox_ask_recursive(chooser);
@@ -645,13 +645,13 @@ static void _permbox_change_group(PermissionBox *chooser, guint32 gid)
             recursive = FALSE;
             break;
 
-        default:  /* cancelled by the user */
+        default:  // cancelled by the user
             _permbox_file_changed(chooser);
             return;
         }
     }
 
-    /* try to allocate the new job */
+    // try to allocate the new job
     file_list = thunar_permissions_chooser_get_file_list(chooser);
     job = io_change_group(file_list, gid, recursive);
     _permbox_job_start(chooser, job, recursive);
@@ -673,7 +673,7 @@ static gboolean _permbox_change_mode(PermissionBox *chooser,
     e_return_val_if_fail(IS_PERMISSIONBOX(chooser), FALSE);
     e_return_val_if_fail(chooser->files != NULL, FALSE);
 
-    /* check if we should operate recursively */
+    // check if we should operate recursively
     if (thunar_permissions_chooser_has_directory(chooser))
     {
         response = _permbox_ask_recursive(chooser);
@@ -687,13 +687,13 @@ static gboolean _permbox_change_mode(PermissionBox *chooser,
             recursive = FALSE;
             break;
 
-        default:  /* cancelled by the user */
+        default:  // cancelled by the user
             _permbox_file_changed(chooser);
             return FALSE;
         }
     }
 
-    /* try to allocate the new job */
+    // try to allocate the new job
     file_list = thunar_permissions_chooser_get_file_list(chooser);
     job = io_change_mode(file_list, dir_mask, dir_mode, file_mask, file_mode, recursive);
     _permbox_job_start(chooser, job, recursive);
@@ -717,29 +717,29 @@ static void _permbox_access_changed(PermissionBox *chooser, GtkWidget *combo)
     e_return_if_fail(IS_PERMISSIONBOX(chooser));
     e_return_if_fail(GTK_IS_COMBO_BOX(combo));
 
-    /* leave if the active mode is varying */
+    // leave if the active mode is varying
     active_mode = gtk_combo_box_get_active(GTK_COMBO_BOX(combo));
     if (active_mode > 3)
         return;
 
-    /* determine the new mode from the combo box */
+    // determine the new mode from the combo box
     for(n = 0; n < G_N_ELEMENTS(chooser->access_combos) && chooser->access_combos[n] != combo ; ++n);
     dir_mode = file_mode =(active_mode << 1) <<(n * 3);
     dir_mask = file_mask = 0006 <<(n * 3);
 
-    /* keep exec bit in sync for folders */
+    // keep exec bit in sync for folders
     if (thunar_permissions_chooser_has_directory(chooser))
     {
-        /* if either read or write is, set exec as well, else unset exec as well */
+        // if either read or write is, set exec as well, else unset exec as well
         if ((dir_mode &(0004 <<(n * 3))) != 0)
             dir_mode |=(0001 <<(n * 3));
         dir_mask = 0007 <<(n * 3);
     }
 
-    /* change the permissions */
+    // change the permissions
     if (_permbox_change_mode(chooser, dir_mask, dir_mode, file_mask, file_mode))
     {
-        /* for better feedback remove the varying item */
+        // for better feedback remove the varying item
         model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo));
         if (gtk_tree_model_get_iter_from_string(model, &iter, "4"))
             gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
@@ -752,11 +752,11 @@ static gint _group_compare(gconstpointer group_a, gconstpointer group_b, gpointe
     guint32 group_a_id = group_get_id(THUNAR_GROUP(group_a));
     guint32 group_b_id = group_get_id(THUNAR_GROUP(group_b));
 
-    /* check if the groups are equal */
+    // check if the groups are equal
     if (group_a_id == group_b_id)
         return 0;
 
-    /* the primary group is always sorted first */
+    // the primary group is always sorted first
     if (group_primary != NULL)
     {
         group_primary_id = group_get_id(THUNAR_GROUP(group_primary));
@@ -766,13 +766,13 @@ static gint _group_compare(gconstpointer group_a, gconstpointer group_b, gpointe
             return 1;
     }
 
-    /* system groups(< 100) are always sorted last */
+    // system groups(< 100) are always sorted last
     if (group_a_id < 100 && group_b_id >= 100)
         return 1;
     else if (group_b_id < 100 && group_a_id >= 100)
         return -1;
 
-    /* otherwise just sort by name */
+    // otherwise just sort by name
     return g_ascii_strcasecmp(group_get_name(THUNAR_GROUP(group_a)),
                                group_get_name(THUNAR_GROUP(group_b)));
 }
@@ -799,19 +799,19 @@ static void _permbox_file_changed(PermissionBox *chooser)
 
     e_return_if_fail(IS_PERMISSIONBOX(chooser));
 
-    /* compare multiple files */
+    // compare multiple files
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
         file = THUNAR_FILE(lp->data);
 
-        /* transform the file modes in r/w/r+w for each group */
+        // transform the file modes in r/w/r+w for each group
         mode = th_file_get_mode(file);
         for(n = 0; n < 3; n++)
             file_modes[n] =((mode >>(n * 3)) & 0007) >> 1;
 
         if (n_files == 0)
         {
-            /* get information of the first file */
+            // get information of the first file
             user = th_file_get_user(file);
             group = th_file_get_group(file);
 
@@ -820,7 +820,7 @@ static void _permbox_file_changed(PermissionBox *chooser)
         }
         else
         {
-            /* unset the file info if it is different from the other files */
+            // unset the file info if it is different from the other files
             if (user != NULL && user != th_file_get_user(file))
                 user = NULL;
 
@@ -837,15 +837,15 @@ static void _permbox_file_changed(PermissionBox *chooser)
 
     file = THUNAR_FILE(chooser->files->data);
 
-    /* allocate a new store for the group combo box */
+    // allocate a new store for the group combo box
     g_signal_handlers_block_by_func(G_OBJECT(chooser->group_combo), _permbox_group_changed, chooser);
     store = gtk_list_store_new(THUNAR_PERMISSIONS_STORE_N_COLUMNS, G_TYPE_STRING, G_TYPE_UINT);
     gtk_combo_box_set_model(GTK_COMBO_BOX(chooser->group_combo), GTK_TREE_MODEL(store));
 
-    /* determine the owner of the new file */
+    // determine the owner of the new file
     if (G_LIKELY(user != NULL))
     {
-        /* determine sane display name for the owner */
+        // determine sane display name for the owner
         user_name = user_get_name(user);
         real_name = user_get_real_name(user);
         if (G_LIKELY(real_name != NULL))
@@ -860,10 +860,10 @@ static void _permbox_file_changed(PermissionBox *chooser)
                             n_files > 1 ? _("Mixed file owners") :_("Unknown file owner"));
     }
 
-    /* check if we have superuser privileges */
+    // check if we have superuser privileges
     if (G_UNLIKELY(geteuid() == 0))
     {
-        /* determine all groups in the system */
+        // determine all groups in the system
         user_manager = user_manager_get_default();
         groups = user_manager_get_all_groups(user_manager);
         g_object_unref(G_OBJECT(user_manager));
@@ -872,13 +872,13 @@ static void _permbox_file_changed(PermissionBox *chooser)
     {
         if (G_UNLIKELY(user == NULL && n_files > 1))
         {
-            /* get groups of the active user */
+            // get groups of the active user
             user_manager = user_manager_get_default();
             user = user_manager_get_user_by_id(user_manager, geteuid());
             g_object_unref(G_OBJECT(user_manager));
         }
 
-        /* determine the groups for the user and take a copy */
+        // determine the groups for the user and take a copy
         if (G_LIKELY(user != NULL))
         {
             groups = g_list_copy(user_get_groups(user));
@@ -886,17 +886,17 @@ static void _permbox_file_changed(PermissionBox *chooser)
         }
     }
 
-    /* make sure that the group list includes the file group */
+    // make sure that the group list includes the file group
     if (G_UNLIKELY(group != NULL && g_list_find(groups, group) == NULL))
         groups = g_list_prepend(groups, g_object_ref(G_OBJECT(group)));
 
-    /* sort the groups according to group_compare() */
+    // sort the groups according to group_compare()
     groups = g_list_sort_with_data(groups, _group_compare, group);
 
-    /* add the groups to the store */
+    // add the groups to the store
     for(lp = groups, n = 0; lp != NULL; lp = lp->next)
     {
-        /* append a separator after the primary group and after the user-groups(not system groups) */
+        // append a separator after the primary group and after the user-groups(not system groups)
         if (group != NULL
                 && group_get_id(groups->data) == group_get_id(group)
                 && lp != groups && n == 0)
@@ -910,19 +910,19 @@ static void _permbox_file_changed(PermissionBox *chooser)
             n += 1;
         }
 
-        /* append a new item for the group */
+        // append a new item for the group
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter,
                             THUNAR_PERMISSIONS_STORE_COLUMN_NAME, group_get_name(lp->data),
                             THUNAR_PERMISSIONS_STORE_COLUMN_GID, group_get_id(lp->data),
                             -1);
 
-        /* set the active iter for the combo box if this group is the primary group */
+        // set the active iter for the combo box if this group is the primary group
         if (G_UNLIKELY(lp->data == group))
             gtk_combo_box_set_active_iter(GTK_COMBO_BOX(chooser->group_combo), &iter);
     }
 
-    /* cleanup */
+    // cleanup
     if (G_LIKELY(user != NULL))
         g_object_unref(G_OBJECT(user));
     if (G_LIKELY(group != NULL))
@@ -930,17 +930,17 @@ static void _permbox_file_changed(PermissionBox *chooser)
 
     g_list_free_full(groups, g_object_unref);
 
-    /* determine the file mode and update the combo boxes */
+    // determine the file mode and update the combo boxes
     for(n = 0; n < G_N_ELEMENTS(chooser->access_combos); ++n)
     {
         g_signal_handlers_block_by_func(G_OBJECT(chooser->access_combos[n]), _permbox_access_changed, chooser);
 
-        /* allocate the store for the permission combos */
+        // allocate the store for the permission combos
         access_store = gtk_list_store_new(1, G_TYPE_STRING);
-        gtk_list_store_insert_with_values(access_store, NULL, 0, 0, _("None"), -1);         /* 0000 */
-        gtk_list_store_insert_with_values(access_store, NULL, 1, 0, _("Write only"), -1);   /* 0002 */
-        gtk_list_store_insert_with_values(access_store, NULL, 2, 0, _("Read only"), -1);    /* 0004 */
-        gtk_list_store_insert_with_values(access_store, NULL, 3, 0, _("Read & Write"), -1); /* 0006 */
+        gtk_list_store_insert_with_values(access_store, NULL, 0, 0, _("None"), -1);         // 0000
+        gtk_list_store_insert_with_values(access_store, NULL, 1, 0, _("Write only"), -1);   // 0002
+        gtk_list_store_insert_with_values(access_store, NULL, 2, 0, _("Read only"), -1);    // 0004
+        gtk_list_store_insert_with_values(access_store, NULL, 3, 0, _("Read & Write"), -1); // 0006
         if (modes[n] == 4)
             gtk_list_store_insert_with_values(access_store, NULL, 4, 0, _("Varying(no change)"), -1);
 
@@ -952,31 +952,31 @@ static void _permbox_file_changed(PermissionBox *chooser)
         g_object_unref(G_OBJECT(access_store));
     }
 
-    /* update the program setting based on the mode(only visible for regular files) */
+    // update the program setting based on the mode(only visible for regular files)
     g_signal_handlers_block_by_func(G_OBJECT(chooser->program_button), _permbox_program_toggled, chooser);
     g_object_set(G_OBJECT(chooser->program_button), "visible", th_file_is_regular(file), NULL);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chooser->program_button),(mode & 0111) != 0);
     g_signal_handlers_unblock_by_func(G_OBJECT(chooser->program_button), _permbox_program_toggled, chooser);
 
-    /* update the "inconsistent folder permissions" warning and the "fix permissions" button based on the mode */
+    // update the "inconsistent folder permissions" warning and the "fix permissions" button based on the mode
     if (thunar_permissions_chooser_has_fixable_directory(chooser))
     {
-        /* always display the warning even if we cannot fix it */
+        // always display the warning even if we cannot fix it
         gtk_widget_show(chooser->fixperm_label);
         gtk_widget_show(chooser->fixperm_button);
     }
     else
     {
-        /* hide both the warning text and the fix button */
+        // hide both the warning text and the fix button
         gtk_widget_hide(chooser->fixperm_button);
         gtk_widget_hide(chooser->fixperm_label);
     }
 
-    /* release our reference on the new combo store and unblock the combo */
+    // release our reference on the new combo store and unblock the combo
     g_signal_handlers_unblock_by_func(G_OBJECT(chooser->group_combo), _permbox_group_changed, chooser);
     g_object_unref(G_OBJECT(store));
 
-    /* emit notification on "mutable", so all widgets update their sensitivity */
+    // emit notification on "mutable", so all widgets update their sensitivity
     g_object_notify(G_OBJECT(chooser), "mutable");
 }
 
@@ -990,20 +990,20 @@ static void _permbox_group_changed(PermissionBox *chooser, GtkWidget *combo)
     e_return_if_fail(chooser->group_combo == combo);
     e_return_if_fail(GTK_IS_COMBO_BOX(combo));
 
-    /* verify that we have a valid file */
+    // verify that we have a valid file
     if (G_UNLIKELY(chooser->files == NULL))
         return;
 
-    /* determine the tree model from the combo box */
+    // determine the tree model from the combo box
     model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo));
 
-    /* determine the iterator for the selected item */
+    // determine the iterator for the selected item
     if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combo), &iter))
     {
-        /* determine the group id for the selected item... */
+        // determine the group id for the selected item...
         gtk_tree_model_get(model, &iter, THUNAR_PERMISSIONS_STORE_COLUMN_GID, &gid, -1);
 
-        /* ...and try to change the group to the new gid */
+        // ...and try to change the group to the new gid
         _permbox_change_group(chooser, gid);
     }
 }
@@ -1016,14 +1016,14 @@ static void _permbox_program_toggled(PermissionBox *chooser, GtkWidget *button)
     e_return_if_fail(chooser->program_button == button);
     e_return_if_fail(GTK_IS_TOGGLE_BUTTON(button));
 
-    /* verify that we have a valid file */
+    // verify that we have a valid file
     if (G_UNLIKELY(chooser->files == NULL))
         return;
 
-    /* determine the new mode based on the toggle state */
+    // determine the new mode based on the toggle state
     mode =(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) ? 0111 : 0000;
 
-    /* apply the new mode(only the executable bits for files) */
+    // apply the new mode(only the executable bits for files)
     _permbox_change_mode(chooser, 0000, 0000, 0111, mode);
 }
 
@@ -1042,16 +1042,16 @@ static void _permbox_fixperm_clicked(PermissionBox *chooser, GtkWidget *button)
     e_return_if_fail(GTK_IS_BUTTON(button));
     e_return_if_fail(thunar_permissions_chooser_has_fixable_directory(chooser));
 
-    /* verify that we have a valid file */
+    // verify that we have a valid file
     if (G_UNLIKELY(chooser->files == NULL))
         return;
 
-    /* determine the toplevel widget */
+    // determine the toplevel widget
     window = gtk_widget_get_toplevel(GTK_WIDGET(chooser));
     if (G_UNLIKELY(window == NULL))
         return;
 
-    /* popup a confirm dialog */
+    // popup a confirm dialog
     dialog = gtk_message_dialog_new(GTK_WINDOW(window),
                                      GTK_DIALOG_DESTROY_WITH_PARENT
                                      | GTK_DIALOG_MODAL,
@@ -1067,19 +1067,19 @@ static void _permbox_fixperm_clicked(PermissionBox *chooser, GtkWidget *button)
     response = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
 
-    /* check if we should apply the changes */
+    // check if we should apply the changes
     if (response == GTK_RESPONSE_OK)
     {
         for(lp = chooser->files; lp != NULL; lp = lp->next)
         {
-            /* skip files that are fine */
+            // skip files that are fine
             if (!thunar_permissions_chooser_is_fixable_directory(THUNAR_FILE(lp->data)))
                 continue;
 
-            /* determine the current mode */
+            // determine the current mode
             mode = th_file_get_mode(THUNAR_FILE(lp->data));
 
-            /* determine the new mode(making sure the owner can read/enter the folder) */
+            // determine the new mode(making sure the owner can read/enter the folder)
             mode =(THUNAR_FILE_MODE_USR_READ | THUNAR_FILE_MODE_USR_EXEC)
                    |(((mode & THUNAR_FILE_MODE_GRP_READ) != 0) ? THUNAR_FILE_MODE_GRP_EXEC : 0)
                    |(((mode & THUNAR_FILE_MODE_OTH_READ) != 0) ? THUNAR_FILE_MODE_OTH_EXEC : 0);
@@ -1088,11 +1088,11 @@ static void _permbox_fixperm_clicked(PermissionBox *chooser, GtkWidget *button)
             file_list.data = th_file_get_file(THUNAR_FILE(lp->data));
             file_list.next = NULL;
 
-            /* try to allocate the new job */
+            // try to allocate the new job
             job = io_change_mode(&file_list,
                                               0511, mode, 0000, 0000, FALSE);
 
-            /* handle the job */
+            // handle the job
             _permbox_job_start(chooser, job, FALSE);
             g_object_unref(job);
         }
@@ -1111,15 +1111,15 @@ static ThunarJobResponse _permbox_job_ask(PermissionBox *chooser,
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(chooser->job == job, THUNAR_JOB_RESPONSE_CANCEL);
 
-    /* be sure to display the progress bar prior to opening the question dialog */
+    // be sure to display the progress bar prior to opening the question dialog
     gtk_widget_show_now(chooser->job_progress);
 
-    /* determine the toplevel window for the chooser */
+    // determine the toplevel window for the chooser
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser));
     if (G_UNLIKELY(toplevel == NULL))
         return THUNAR_JOB_RESPONSE_CANCEL;
 
-    /* display the question dialog */
+    // display the question dialog
     return dialog_job_ask(GTK_WINDOW(toplevel), message, choices);
 }
 
@@ -1127,22 +1127,22 @@ static void _permbox_job_cancel(PermissionBox *chooser)
 {
     e_return_if_fail(IS_PERMISSIONBOX(chooser));
 
-    /* verify that we have a job to cancel */
+    // verify that we have a job to cancel
     if (G_UNLIKELY(chooser->job == NULL))
         return;
 
-    /* cancel the job(if not already done) */
+    // cancel the job(if not already done)
     exo_job_cancel(EXO_JOB(chooser->job));
 
-    /* disconnect from the job */
+    // disconnect from the job
     g_signal_handlers_disconnect_matched(chooser->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, chooser);
     g_object_unref(G_OBJECT(chooser->job));
     chooser->job = NULL;
 
-    /* hide the progress bar */
+    // hide the progress bar
     gtk_widget_hide(chooser->job_progress);
 
-    /* make the remaining widgets sensitive again */
+    // make the remaining widgets sensitive again
     gtk_widget_set_sensitive(chooser->grid, TRUE);
 }
 
@@ -1157,15 +1157,15 @@ static void _permbox_job_error(PermissionBox *chooser,
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(chooser->job == job);
 
-    /* be sure to display the progress bar prior to opening the error dialog */
+    // be sure to display the progress bar prior to opening the error dialog
     gtk_widget_show_now(chooser->job_progress);
 
-    /* determine the toplevel widget for the chooser */
+    // determine the toplevel widget for the chooser
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser));
     if (G_UNLIKELY(toplevel == NULL))
         return;
 
-    /* popup the error message dialog */
+    // popup the error message dialog
     dialog_job_error(GTK_WINDOW(toplevel), error);
 }
 
@@ -1175,7 +1175,7 @@ static void _permbox_job_finished(PermissionBox *chooser, ThunarJob *job)
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(chooser->job == job);
 
-    /* we can just use job_cancel(), since the job is already done */
+    // we can just use job_cancel(), since the job is already done
     _permbox_job_cancel(chooser);
 }
 
@@ -1199,20 +1199,20 @@ static void _permbox_job_start(PermissionBox *chooser,
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(chooser->job == NULL);
 
-    /* take a reference to the job and connect signals */
+    // take a reference to the job and connect signals
     chooser->job = g_object_ref(job);
     g_signal_connect_swapped(job, "ask", G_CALLBACK(_permbox_job_ask), chooser);
     g_signal_connect_swapped(job, "error", G_CALLBACK(_permbox_job_error), chooser);
     g_signal_connect_swapped(job, "finished", G_CALLBACK(_permbox_job_finished), chooser);
 
-    /* don't connect percent for single file operations */
+    // don't connect percent for single file operations
     if (G_UNLIKELY(recursive))
         g_signal_connect_swapped(job, "percent", G_CALLBACK(_permbox_job_percent), chooser);
 
-    /* setup the progress bar */
+    // setup the progress bar
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(chooser->job_progress), 0.0);
 
-    /* make the majority of widgets insensitive if doing recursively */
+    // make the majority of widgets insensitive if doing recursively
     gtk_widget_set_sensitive(chooser->grid, !recursive);
 }
 
@@ -1222,7 +1222,7 @@ static gboolean _permbox_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
     (void) data;
     gchar *name;
 
-    /* determine the value of the "name" column */
+    // determine the value of the "name" column
     gtk_tree_model_get(model, iter, THUNAR_PERMISSIONS_STORE_COLUMN_NAME, &name, -1);
     if (G_LIKELY(name != NULL))
     {
@@ -1260,11 +1260,11 @@ void _permbox_set_files(PermissionBox *chooser, GList *files)
 
     e_return_if_fail(IS_PERMISSIONBOX(chooser));
 
-    /* check if we already use that file */
+    // check if we already use that file
     if (G_UNLIKELY(chooser->files == files))
         return;
 
-    /* disconnect from the previous files */
+    // disconnect from the previous files
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
         e_assert(THUNAR_IS_FILE(lp->data));
@@ -1273,25 +1273,25 @@ void _permbox_set_files(PermissionBox *chooser, GList *files)
     }
     g_list_free(chooser->files);
 
-    /* activate the new file */
+    // activate the new file
     chooser->files = g_list_copy(files);
 
-    /* connect to the new files */
+    // connect to the new files
     for(lp = chooser->files; lp != NULL; lp = lp->next)
     {
-        /* take a reference on the file */
+        // take a reference on the file
         e_assert(THUNAR_IS_FILE(lp->data));
         g_object_ref(G_OBJECT(lp->data));
 
-        /* stay informed about changes */
+        // stay informed about changes
         g_signal_connect_swapped(G_OBJECT(lp->data), "changed", G_CALLBACK(_permbox_file_changed), chooser);
     }
 
-    /* update our state */
+    // update our state
     if (chooser->files != NULL)
         _permbox_file_changed(chooser);
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify(G_OBJECT(chooser), "files");
 }
 
