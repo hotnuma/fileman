@@ -48,7 +48,7 @@
 
 typedef struct _LauncherPokeData LauncherPokeData;
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -474,7 +474,7 @@ static void launcher_class_init(ThunarLauncherClass *klass)
     GObjectClass *gobject_class;
     gpointer     g_iface;
 
-    /* determine all used quarks */
+    // determine all used quarks
     _launcher_appinfo_quark = g_quark_from_static_string("thunar-launcher-appinfo");
     _launcher_device_quark = g_quark_from_static_string("thunar-launcher-device");
     _launcher_file_quark = g_quark_from_static_string("thunar-launcher-file");
@@ -508,21 +508,21 @@ static void launcher_class_init(ThunarLauncherClass *klass)
                              "selected-device",
                              G_PARAM_WRITABLE);
 
-    /* Override ThunarNavigator's properties */
+    // Override ThunarNavigator's properties
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_NAVIGATOR);
     _launcher_props[PROP_CURRENT_DIRECTORY] =
         g_param_spec_override("current-directory",
                               g_object_interface_find_property(g_iface,
                                                                "current-directory"));
 
-    /* Override ThunarComponent's properties */
+    // Override ThunarComponent's properties
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);
     _launcher_props[PROP_SELECTED_FILES] =
         g_param_spec_override("selected-files",
                               g_object_interface_find_property(g_iface,
                                                                "selected-files"));
 
-    /* install properties */
+    // install properties
     g_object_class_install_properties(gobject_class, N_PROPERTIES, _launcher_props);
 }
 
@@ -549,15 +549,15 @@ static void launcher_dispose(GObject *object)
 {
     ThunarLauncher *launcher = THUNAR_LAUNCHER(object);
 
-    /* reset our properties */
+    // reset our properties
     navigator_set_current_directory(THUNAR_NAVIGATOR(launcher), NULL);
     launcher_set_widget(THUNAR_LAUNCHER(launcher), NULL);
 
-    /* disconnect from the currently selected files */
+    // disconnect from the currently selected files
     e_list_free(launcher->files_to_process);
     launcher->files_to_process = NULL;
 
-    /* unref parent, if any */
+    // unref parent, if any
     if (launcher->parent_folder != NULL)
         g_object_unref(launcher->parent_folder);
 
@@ -645,24 +645,24 @@ static void launcher_set_current_directory(ThunarNavigator *navigator,
 {
     ThunarLauncher *launcher = THUNAR_LAUNCHER(navigator);
 
-    /* disconnect from the previous directory */
+    // disconnect from the previous directory
     if (G_LIKELY(launcher->current_directory != NULL))
         g_object_unref(G_OBJECT(launcher->current_directory));
 
-    /* activate the new directory */
+    // activate the new directory
     launcher->current_directory = current_directory;
 
-    /* connect to the new directory */
+    // connect to the new directory
     if (G_LIKELY(current_directory != NULL))
     {
         g_object_ref(G_OBJECT(current_directory));
 
-        /* update files_to_process if not initialized yet */
+        // update files_to_process if not initialized yet
         if (launcher->files_to_process == NULL)
             launcher_set_selected_files(THUNAR_COMPONENT(navigator), NULL);
     }
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify_by_pspec(G_OBJECT(launcher), _launcher_props[PROP_CURRENT_DIRECTORY]);
 }
 
@@ -673,20 +673,20 @@ static void launcher_set_selected_files(ThunarComponent *component,
 {
     ThunarLauncher *launcher = THUNAR_LAUNCHER(component);
 
-    /* That happens at startup for some reason */
+    // That happens at startup for some reason
     if (launcher->current_directory == NULL)
         return;
 
-    /* disconnect from the previous files to process */
+    // disconnect from the previous files to process
     if (launcher->files_to_process != NULL)
         e_list_free(launcher->files_to_process);
 
     launcher->files_to_process = NULL;
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify_by_pspec(G_OBJECT(launcher), _launcher_props[PROP_SELECTED_FILES]);
 
-    /* unref previous parent, if any */
+    // unref previous parent, if any
     if (launcher->parent_folder != NULL)
         g_object_unref(launcher->parent_folder);
 
@@ -706,18 +706,18 @@ static void launcher_set_selected_files(ThunarComponent *component,
     launcher->single_folder = NULL;
     launcher->parent_folder = NULL;
 
-    /* if nothing is selected, the current directory is the folder to use for all menus */
+    // if nothing is selected, the current directory is the folder to use for all menus
     if (launcher->files_are_selected)
         launcher->files_to_process = e_list_copy(selected_files);
     else
         launcher->files_to_process = g_list_append(launcher->files_to_process,
                                                    launcher->current_directory);
 
-    /* determine the number of files/directories/executables */
+    // determine the number of files/directories/executables
     GList *lp;
     for (lp = launcher->files_to_process; lp != NULL; lp = lp->next, ++launcher->n_files_to_process)
     {
-        /* Keep a reference on all selected files */
+        // Keep a reference on all selected files
         g_object_ref(lp->data);
 
         if (th_file_is_directory(lp->data)
@@ -742,13 +742,13 @@ static void launcher_set_selected_files(ThunarComponent *component,
 
     if (launcher->single_directory_to_process)
     {
-        /* grab the folder of the first selected item */
+        // grab the folder of the first selected item
         launcher->single_folder = THUNAR_FILE(launcher->files_to_process->data);
     }
 
     if (launcher->files_to_process != NULL)
     {
-        /* just grab the folder of the first selected item */
+        // just grab the folder of the first selected item
         launcher->parent_folder = th_file_get_parent(THUNAR_FILE(launcher->files_to_process->data), NULL);
     }
 }
@@ -768,7 +768,7 @@ void launcher_set_widget(ThunarLauncher *launcher,
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
     e_return_if_fail(widget == NULL || GTK_IS_WIDGET(widget));
 
-    /* disconnect from the previous widget */
+    // disconnect from the previous widget
     if (G_UNLIKELY(launcher->widget != NULL))
     {
         g_signal_handlers_disconnect_by_func(G_OBJECT(launcher->widget),
@@ -778,7 +778,7 @@ void launcher_set_widget(ThunarLauncher *launcher,
 
     launcher->widget = widget;
 
-    /* connect to the new widget */
+    // connect to the new widget
     if (G_LIKELY(widget != NULL))
     {
         g_object_ref(G_OBJECT(widget));
@@ -786,7 +786,7 @@ void launcher_set_widget(ThunarLauncher *launcher,
                                  G_CALLBACK(_launcher_widget_destroyed), launcher);
     }
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify_by_pspec(G_OBJECT(launcher), _launcher_props[PROP_WIDGET]);
 }
 
@@ -797,7 +797,7 @@ static void _launcher_widget_destroyed(ThunarLauncher *launcher,
     e_return_if_fail(launcher->widget == widget);
     e_return_if_fail(GTK_IS_WIDGET(widget));
 
-    /* just reset the widget property for the launcher */
+    // just reset the widget property for the launcher
     launcher_set_widget(launcher, NULL);
 }
 
@@ -831,7 +831,7 @@ static void _launcher_menu_item_activated(ThunarLauncher *launcher,
     if (G_UNLIKELY(launcher->files_to_process == NULL))
         return;
 
-    /* if we have a mime handler associated with the menu_item, we pass it to the launcher(g_object_get_qdata will return NULL otherwise)*/
+    // if we have a mime handler associated with the menu_item, we pass it to the launcher(g_object_get_qdata will return NULL otherwise)
     app_info = g_object_get_qdata(G_OBJECT(menu_item), _launcher_appinfo_quark);
     launcher_activate_selected_files(launcher, LAUNCHER_CHANGE_DIRECTORY, app_info);
 }
@@ -843,14 +843,14 @@ static void _launcher_execute_files(ThunarLauncher *launcher,
     GFile  *working_directory;
     GList  *lp;
 
-    /* execute all selected files */
+    // execute all selected files
     for (lp = files; lp != NULL; lp = lp->next)
     {
         working_directory = th_file_get_file(launcher->current_directory);
 
         if (!th_file_execute(lp->data, working_directory, launcher->widget, NULL, NULL, &error))
         {
-            /* display an error message to the user */
+            // display an error message to the user
             dialog_error(launcher->widget,
                                       error,
                                       _("Failed to execute file \"%s\""),
@@ -905,45 +905,45 @@ static void _launcher_open_files(ThunarLauncher *launcher,
         {
             app_info = g_app_info_dup(application_to_use);
 
-            /* Foreign data needs to be set explicitly to the new app_info */
+            // Foreign data needs to be set explicitly to the new app_info
             if (g_object_get_data(G_OBJECT(application_to_use), "skip-app-info-update") != NULL)
                 g_object_set_data(G_OBJECT(app_info), "skip-app-info-update", GUINT_TO_POINTER(1));
         }
         else
         {
-            /* determine the default application for the MIME type */
+            // determine the default application for the MIME type
             app_info = th_file_get_default_handler(lp->data);
         }
 
-        /* check if we have an application here */
+        // check if we have an application here
         if (G_LIKELY(app_info != NULL))
         {
-            /* check if we have that application already */
+            // check if we have that application already
             file_list = g_hash_table_lookup(applications, app_info);
             if (G_LIKELY(file_list != NULL))
             {
-                /* take a copy of the list as the old one will be dropped by the insert */
+                // take a copy of the list as the old one will be dropped by the insert
                 file_list = e_list_copy(file_list);
             }
 
-            /* append our new URI to the list */
+            // append our new URI to the list
             file_list = e_list_append_ref(file_list, th_file_get_file(lp->data));
 
-            /*(re)insert the URI list for the application */
+            //(re)insert the URI list for the application
             g_hash_table_insert(applications, app_info, file_list);
         }
         else
         {
-            /* display a chooser dialog for the file and stop */
+            // display a chooser dialog for the file and stop
             appchooser_dialog(launcher->widget, lp->data, TRUE);
             break;
         }
     }
 
-    /* run all collected applications */
+    // run all collected applications
     g_hash_table_foreach(applications,(GHFunc) _launcher_open_paths, launcher);
 
-    /* drop the applications hash table */
+    // drop the applications hash table
     g_hash_table_destroy(applications);
 }
 
@@ -959,44 +959,44 @@ static void _launcher_open_paths(GAppInfo       *app_info,
     gchar               *name;
     guint                n;
 
-    /* determine the screen on which to launch the application */
+    // determine the screen on which to launch the application
     screen = gtk_widget_get_screen(launcher->widget);
 
-    /* create launch context */
+    // create launch context
     context = gdk_display_get_app_launch_context(gdk_screen_get_display(screen));
     gdk_app_launch_context_set_screen(context, screen);
     gdk_app_launch_context_set_timestamp(context, gtk_get_current_event_time());
     gdk_app_launch_context_set_icon(context, g_app_info_get_icon(app_info));
 
-    /* determine the working directory */
+    // determine the working directory
     if (launcher->current_directory != NULL)
         working_directory = th_file_get_file(launcher->current_directory);
 
-    /* try to execute the application with the given URIs */
+    // try to execute the application with the given URIs
     if (!e_app_info_launch(app_info, working_directory, path_list, G_APP_LAUNCH_CONTEXT(context), &error))
     {
-        /* figure out the appropriate error message */
+        // figure out the appropriate error message
         n = g_list_length(path_list);
         if (G_LIKELY(n == 1))
         {
-            /* we can give a precise error message here */
+            // we can give a precise error message here
             name = g_filename_display_name(g_file_get_basename(path_list->data));
             message = g_strdup_printf(_("Failed to open file \"%s\""), name);
             g_free(name);
         }
         else
         {
-            /* we can just tell that n files failed to open */
+            // we can just tell that n files failed to open
             message = g_strdup_printf(ngettext("Failed to open %d file", "Failed to open %d files", n), n);
         }
 
-        /* display an error dialog to the user */
+        // display an error dialog to the user
         dialog_error(launcher->widget, error, "%s", message);
         g_error_free(error);
         g_free(message);
     }
 
-    /* destroy the launch context */
+    // destroy the launch context
     g_object_unref(context);
 }
 
@@ -1012,11 +1012,11 @@ static void _launcher_open_windows(ThunarLauncher *launcher,
     gint               response = GTK_RESPONSE_YES;
     gint               n;
 
-    /* ask the user if we would open more than one new window */
+    // ask the user if we would open more than one new window
     n = g_list_length(directories);
     if (G_UNLIKELY(n > 1))
     {
-        /* open a message dialog */
+        // open a message dialog
         window = gtk_widget_get_toplevel(launcher->widget);
         dialog = gtk_message_dialog_new((GtkWindow *) window,
                                          GTK_DIALOG_DESTROY_WITH_PARENT
@@ -1037,20 +1037,20 @@ static void _launcher_open_windows(ThunarLauncher *launcher,
         g_free(label);
     }
 
-    /* open n new windows if the user approved it */
+    // open n new windows if the user approved it
     if (G_LIKELY(response == GTK_RESPONSE_YES))
     {
-        /* query the application object */
+        // query the application object
         application = application_get();
 
-        /* determine the screen on which to open the new windows */
+        // determine the screen on which to open the new windows
         screen = gtk_widget_get_screen(launcher->widget);
 
-        /* open all requested windows */
+        // open all requested windows
         for (lp = directories; lp != NULL; lp = lp->next)
             application_open_window(application, lp->data, screen, NULL, TRUE);
 
-        /* release the application object */
+        // release the application object
         g_object_unref(G_OBJECT(application));
     }
 }
@@ -1076,7 +1076,7 @@ static LauncherPokeData* _launcher_poke_data_new(
     data->files_poked = NULL;
     data->application_to_use = application_to_use;
 
-    /* keep a reference on the appdata */
+    // keep a reference on the appdata
     if (application_to_use != NULL)
         g_object_ref(application_to_use);
 
@@ -1153,44 +1153,44 @@ static void _launcher_poke_files_finish(ThunarBrowser *browser,
     e_return_if_fail(poke_data != NULL);
     e_return_if_fail(poke_data->files_to_poke != NULL);
 
-    /* check if poking succeeded */
+    // check if poking succeeded
     if (error == NULL)
     {
-        /* add the resolved file to the list of file to be opened/executed later */
+        // add the resolved file to the list of file to be opened/executed later
         poke_data->files_poked = g_list_prepend(poke_data->files_poked,g_object_ref(target_file));
     }
 
-    /* release and remove the just poked file from the list */
+    // release and remove the just poked file from the list
     g_object_unref(poke_data->files_to_poke->data);
     poke_data->files_to_poke = g_list_delete_link(poke_data->files_to_poke,
                                                   poke_data->files_to_poke);
 
     if (poke_data->files_to_poke == NULL)
     {
-        /* separate files and directories in the selected files list */
+        // separate files and directories in the selected files list
         for (lp = poke_data->files_poked; lp != NULL; lp = lp->next)
         {
             if (th_file_is_directory(lp->data))
             {
-                /* add to our directory list */
+                // add to our directory list
                 directories = g_list_prepend(directories, lp->data);
             }
             else
             {
-                /* add to our file list */
+                // add to our file list
                 files = g_list_prepend(files, lp->data);
 
-                /* check if the file is executable */
+                // check if the file is executable
                 executable = (executable && th_file_is_executable(lp->data));
             }
         }
 
-        /* check if we have any directories to process */
+        // check if we have any directories to process
         if (G_LIKELY(directories != NULL))
         {
             if (poke_data->application_to_use != NULL)
             {
-                /* open them separately, using some specific application */
+                // open them separately, using some specific application
                 for (lp = directories; lp != NULL; lp = lp->next)
                     _launcher_open_file(THUNAR_LAUNCHER(browser),
                                               lp->data, poke_data->application_to_use);
@@ -1203,7 +1203,7 @@ static void _launcher_poke_files_finish(ThunarBrowser *browser,
 
             else if (poke_data->folder_open_action == LAUNCHER_CHANGE_DIRECTORY)
             {
-                /* If multiple directories are passed, we assume that we should open them all */
+                // If multiple directories are passed, we assume that we should open them all
                 if (directories->next == NULL)
                     navigator_change_directory(THUNAR_NAVIGATOR(browser), directories->data);
                 else
@@ -1221,31 +1221,31 @@ static void _launcher_poke_files_finish(ThunarBrowser *browser,
             g_list_free(directories);
         }
 
-        /* check if we have any files to process */
+        // check if we have any files to process
         if (G_LIKELY(files != NULL))
         {
-            /* if all files are executable, we just run them here */
+            // if all files are executable, we just run them here
             if (G_UNLIKELY(executable) && poke_data->application_to_use == NULL)
             {
-                /* try to execute all given files */
+                // try to execute all given files
                 _launcher_execute_files(THUNAR_LAUNCHER(browser), files);
             }
             else
             {
-                /* try to open all files */
+                // try to open all files
                 _launcher_open_files(THUNAR_LAUNCHER(browser), files, poke_data->application_to_use);
             }
 
-            /* cleanup */
+            // cleanup
             g_list_free(files);
         }
 
-        /* free the poke data */
+        // free the poke data
         _launcher_poke_data_free(poke_data);
     }
     else
     {
-        /* we need to continue this until all files have been resolved */
+        // we need to continue this until all files have been resolved
         // We will only poke one file at a time, in order to dont use all available CPU's
         // TODO: Check if that could cause slowness
         browser_poke_file(browser,
@@ -1329,7 +1329,7 @@ static gboolean _launcher_show_trash(ThunarLauncher *launcher)
     if (launcher->parent_folder == NULL)
         return FALSE;
 
-    /* If the folder is read only, always show trash insensitive */
+    // If the folder is read only, always show trash insensitive
     /* If we are outside waste basket, the selection is trashable
      * and we support trash, show trash */
 
@@ -1364,7 +1364,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     gint                      n;
 
 
-    /* This may occur when the thunar-window is build */
+    // This may occur when the thunar-window is build
     if (G_UNLIKELY(launcher->files_to_process == NULL)
         && launcher->device_to_process == NULL)
         return NULL;
@@ -1757,7 +1757,7 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
     if (th_file_is_trashed(launcher->current_directory))
         return;
 
-    /* ask the user to enter a name for the new folder */
+    // ask the user to enter a name for the new folder
     gchar *name = dialog_file_create(launcher->widget,
                                      "inode/directory",
                                      _("New Folder"),
@@ -1782,15 +1782,15 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
 
     path_list.next = path_list.prev = NULL;
 
-    /* launch the operation */
+    // launch the operation
     Application *application = application_get();
     application_mkdir(application, launcher->widget, &path_list, launcher->select_files_closure);
     g_object_unref(G_OBJECT(application));
 
-    /* release the path */
+    // release the path
     g_object_unref(path_list.data);
 
-    /* release the file name */
+    // release the file name
     g_free(name);
 }
 
@@ -1812,21 +1812,21 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
 
     if (template_file != NULL)
     {
-        /* generate a title for the create dialog */
+        // generate a title for the create dialog
         title = g_strdup_printf(_("Create Document from template \"%s\""),
                                  th_file_get_display_name(template_file));
 
-        /* ask the user to enter a name for the new document */
+        // ask the user to enter a name for the new document
         name = dialog_file_create(launcher->widget,
                              th_file_get_content_type(THUNAR_FILE(template_file)),
                              th_file_get_display_name(template_file),
                              title);
-        /* cleanup */
+        // cleanup
         g_free(title);
     }
     else
     {
-        /* ask the user to enter a name for the new empty file */
+        // ask the user to enter a name for the new empty file
         name = dialog_file_create(launcher->widget,
                              "text/plain",
                              _("New Empty File"),
@@ -1837,7 +1837,7 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
     {
         if (G_LIKELY(launcher->parent_folder != NULL))
         {
-            /* fake the target path list */
+            // fake the target path list
             if (IS_TREEVIEW(launcher->widget)
                 && launcher->files_are_selected
                 && launcher->single_directory_to_process)
@@ -1858,7 +1858,7 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
             target_path_list.next = NULL;
             target_path_list.prev = NULL;
 
-            /* launch the operation */
+            // launch the operation
             application = application_get();
             application_creat(application,
                                      launcher->widget,
@@ -1869,11 +1869,11 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
                                      launcher->select_files_closure);
             g_object_unref(G_OBJECT(application));
 
-            /* release the target path */
+            // release the target path
             g_object_unref(target_path_list.data);
         }
 
-        /* release the file name */
+        // release the file name
         g_free(name);
     }
 }
@@ -1946,7 +1946,7 @@ static void _launcher_action_trash_delete(ThunarLauncher *launcher)
 
     GdkModifierType event_state;
 
-    /* when shift modifier is pressed, we delete(as well via context menu) */
+    // when shift modifier is pressed, we delete(as well via context menu)
     if (gtk_get_current_event_state(&event_state)
         &&(event_state & GDK_SHIFT_MASK) != 0)
     {
@@ -2039,7 +2039,7 @@ static void _launcher_action_restore(ThunarLauncher *launcher)
         || !th_file_is_trashed(launcher->current_directory))
         return;
 
-    /* restore the selected files */
+    // restore the selected files
     Application *application = application_get();
 
     application_restore_files(application, launcher->widget, launcher->files_to_process, NULL);
@@ -2059,7 +2059,7 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
         || th_file_is_trashed(launcher->current_directory))
         return;
 
-    /* determine the selected files for the view */
+    // determine the selected files for the view
     GList *files_to_process = th_file_list_to_thunar_g_file_list(
                                             launcher->files_to_process);
 
@@ -2118,7 +2118,7 @@ static void _launcher_rename_finished(ExoJob *job, GtkWidget *widget)
 {
     e_return_if_fail(EXO_IS_JOB(job));
 
-    /* destroy the job */
+    // destroy the job
     g_signal_handlers_disconnect_matched(job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, widget);
 
     g_object_unref(job);
@@ -2154,13 +2154,13 @@ void launcher_action_rename(ThunarLauncher *launcher)
         || th_file_is_trashed(launcher->current_directory))
         return;
 
-    /* get the window */
+    // get the window
     GtkWidget *window = gtk_widget_get_toplevel(launcher->widget);
 
-    /* start renaming if we have exactly one selected file */
+    // start renaming if we have exactly one selected file
     if (g_list_length(launcher->files_to_process) == 1)
     {
-        /* run the rename dialog */
+        // run the rename dialog
         ThunarJob *job = dialog_file_rename(
                             GTK_WINDOW(window),
                             THUNAR_FILE(launcher->files_to_process->data));
@@ -2261,10 +2261,10 @@ static void _launcher_action_eject_finish(ThunarDevice *device,
     e_return_if_fail(THUNAR_IS_DEVICE(device));
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    /* check if there was an error */
+    // check if there was an error
     if (error != NULL)
     {
-        /* display an error dialog to inform the user */
+        // display an error dialog to inform the user
         device_name = th_device_get_name(device);
         dialog_error(GTK_WIDGET(launcher->widget), error, _("Failed to eject \"%s\""), device_name);
         g_free(device_name);
@@ -2283,11 +2283,11 @@ void launcher_action_eject(ThunarLauncher *launcher)
 
     if (G_LIKELY(launcher->device_to_process != NULL))
     {
-        /* prepare a mount operation */
+        // prepare a mount operation
         GMountOperation *mount_operation;
         mount_operation = e_mount_operation_new(GTK_WIDGET(launcher->widget));
 
-        /* eject */
+        // eject
         th_device_eject(launcher->device_to_process,
                         mount_operation,
                         NULL,
@@ -2307,10 +2307,10 @@ static void _launcher_action_unmount_finish(ThunarDevice *device,
     e_return_if_fail(THUNAR_IS_DEVICE(device));
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    /* check if there was an error */
+    // check if there was an error
     if (error != NULL)
     {
-        /* display an error dialog to inform the user */
+        // display an error dialog to inform the user
         gchar *device_name = th_device_get_name(device);
 
         dialog_error(GTK_WIDGET(launcher->widget),
@@ -2332,18 +2332,18 @@ void launcher_action_unmount(ThunarLauncher *launcher)
 
     if (G_LIKELY(launcher->device_to_process != NULL))
     {
-        /* prepare a mount operation */
+        // prepare a mount operation
         GMountOperation *mount_operation;
         mount_operation = e_mount_operation_new(GTK_WIDGET(launcher->widget));
 
-        /* eject */
+        // eject
         th_device_unmount(launcher->device_to_process,
                           mount_operation,
                           NULL,
                           _launcher_action_unmount_finish,
                           g_object_ref(launcher));
 
-        /* release the device */
+        // release the device
         g_object_unref(mount_operation);
     }
 }
@@ -2352,23 +2352,23 @@ static void _launcher_action_properties(ThunarLauncher *launcher)
 {
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
-    /* popup the files dialog */
+    // popup the files dialog
     GtkWidget *toplevel = gtk_widget_get_toplevel(launcher->widget);
 
     if (G_LIKELY(toplevel != NULL))
     {
         GtkWidget *dialog = propsdlg_new(GTK_WINDOW(toplevel));
 
-        /* check if no files are currently selected */
+        // check if no files are currently selected
         if (launcher->files_to_process == NULL)
         {
-            /* if we don't have any files selected, we just popup the properties dialog for the current folder. */
+            // if we don't have any files selected, we just popup the properties dialog for the current folder.
             propsdlg_set_file(PROPERTIES_DIALOG(dialog),
                               launcher->current_directory);
         }
         else
         {
-            /* popup the properties dialog for all file(s) */
+            // popup the properties dialog for all file(s)
             propsdlg_set_files(PROPERTIES_DIALOG(dialog),
                                launcher->files_to_process);
         }
@@ -2380,7 +2380,7 @@ static void _launcher_action_properties(ThunarLauncher *launcher)
 
 //=============================================================================
 
-/* helper method in order to find the parent menu for a menu item */
+// helper method in order to find the parent menu for a menu item
 static GtkWidget*
 _launcher_create_document_submenu_templates_find_parent_menu(
                                                         ThunarFile *file,
@@ -2392,33 +2392,33 @@ _launcher_create_document_submenu_templates_find_parent_menu(
     GList     *lp;
     GList     *ip;
 
-    /* determine the parent of the file */
+    // determine the parent of the file
     parent = g_file_get_parent(th_file_get_file(file));
 
-    /* check if the file has a parent at all */
+    // check if the file has a parent at all
     if (parent == NULL)
         return NULL;
 
-    /* iterate over all dirs and menu items */
+    // iterate over all dirs and menu items
     for (lp = g_list_first(dirs), ip = g_list_first(items);
             parent_menu == NULL && lp != NULL && ip != NULL;
             lp = lp->next, ip = ip->next)
     {
-        /* check if the current dir/item is the parent of our file */
+        // check if the current dir/item is the parent of our file
         if (g_file_equal(parent, th_file_get_file(lp->data)))
         {
-            /* we want to insert an item for the file in this menu */
+            // we want to insert an item for the file in this menu
             parent_menu = gtk_menu_item_get_submenu(ip->data);
         }
     }
 
-    /* destroy the parent GFile */
+    // destroy the parent GFile
     g_object_unref(parent);
 
     return parent_menu;
 }
 
-/* recursive helper method in order to create menu items for all available templates */
+// recursive helper method in order to create menu items for all available templates
 static gboolean _launcher_create_document_submenu_templates(
                                             ThunarLauncher *launcher,
                                             GtkWidget   *create_file_submenu,
@@ -2437,11 +2437,11 @@ static gboolean _launcher_create_document_submenu_templates(
 
     e_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
 
-    /* do nothing if there is no menu */
+    // do nothing if there is no menu
     if (create_file_submenu == NULL)
         return FALSE;
 
-    /* get the icon factory */
+    // get the icon factory
     icon_factory = ifactory_get_default();
 
     /* sort items so that directories come before files and ancestors come
@@ -2452,24 +2452,24 @@ static gboolean _launcher_create_document_submenu_templates(
     {
         file = lp->data;
 
-        /* determine the parent menu for this file/directory */
+        // determine the parent menu for this file/directory
         parent_menu = _launcher_create_document_submenu_templates_find_parent_menu(file, dirs, items);
         if (parent_menu == NULL)
             parent_menu = create_file_submenu;
 
-        /* determine the icon for this file/directory */
+        // determine the icon for this file/directory
         icon = ifactory_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 16);
 
-        /* allocate an image based on the icon */
+        // allocate an image based on the icon
         image = gtk_image_new_from_pixbuf(icon);
 
         item = xfce_gtk_image_menu_item_new(th_file_get_display_name(file), NULL, NULL, NULL, NULL, image, GTK_MENU_SHELL(parent_menu));
         if (th_file_is_directory(file))
         {
-            /* allocate a new submenu for the directory */
+            // allocate a new submenu for the directory
             submenu = gtk_menu_new();
 
-            /* allocate a new menu item for the directory */
+            // allocate a new menu item for the directory
             gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
 
             /* prepend the directory, its item and the parent menu it should
@@ -2483,18 +2483,18 @@ static gboolean _launcher_create_document_submenu_templates(
             g_object_set_qdata_full(G_OBJECT(item), _launcher_file_quark, g_object_ref(file), g_object_unref);
         }
 
-        /* release the icon reference */
+        // release the icon reference
         g_object_unref(icon);
     }
 
-    /* destroy lists */
+    // destroy lists
     g_list_free(dirs);
     g_list_free(items);
 
-    /* release the icon factory */
+    // release the icon factory
     g_object_unref(icon_factory);
 
-    /* let the job destroy the file list */
+    // let the job destroy the file list
     return FALSE;
 }
 
@@ -2518,7 +2518,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
     if (G_LIKELY(path != NULL))
         templates_dir = g_file_new_for_path(path);
 
-    /* If G_USER_DIRECTORY_TEMPLATES not found, set "~/Templates" directory as default */
+    // If G_USER_DIRECTORY_TEMPLATES not found, set "~/Templates" directory as default
     if (G_UNLIKELY(path == NULL) || G_UNLIKELY(g_file_equal(templates_dir, home_dir)))
     {
         if (templates_dir != NULL)
@@ -2528,7 +2528,7 @@ static GtkWidget* _launcher_create_document_submenu_new(
 
     if (G_LIKELY(templates_dir != NULL))
     {
-        /* load the ThunarFiles */
+        // load the ThunarFiles
         files = io_scan_directory(NULL, templates_dir, G_FILE_QUERY_INFO_NONE, TRUE, FALSE, TRUE, NULL);
     }
 
@@ -2574,7 +2574,7 @@ static GtkWidget* _launcher_build_application_submenu(
 
     submenu = gtk_menu_new();
 
-    /* add open with subitem per application */
+    // add open with subitem per application
     for (lp = applications; lp != NULL; lp = lp->next)
     {
         label_text = g_strdup_printf(_("Open With \"%s\""), g_app_info_get_name(lp->data));
@@ -2613,14 +2613,14 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
 
     e_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
 
-    /* Usually it is not required to open the current directory */
+    // Usually it is not required to open the current directory
     if (launcher->files_are_selected == FALSE && !force)
         return FALSE;
 
-    /* determine the set of applications that work for all selected files */
+    // determine the set of applications that work for all selected files
     applications = th_file_list_get_applications(launcher->files_to_process);
 
-    /* Execute OR Open OR OpenWith */
+    // Execute OR Open OR OpenWith
     if (G_UNLIKELY(launcher->n_executables_to_process == launcher->n_files_to_process))
         launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), LAUNCHER_ACTION_EXECUTE, FALSE);
     else if (G_LIKELY(launcher->n_directories_to_process >= 1))
@@ -2639,17 +2639,17 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
         menu_item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(_launcher_menu_item_activated),
                     G_OBJECT(launcher), image, menu);
 
-        /* remember the default application for the "Open" action as quark */
+        // remember the default application for the "Open" action as quark
         g_object_set_qdata_full(G_OBJECT(menu_item), _launcher_appinfo_quark, applications->data, g_object_unref);
         g_free(tooltip_text);
         g_free(label_text);
 
-        /* drop the default application from the list */
+        // drop the default application from the list
         applications = g_list_delete_link(applications, applications);
     }
     else
     {
-        /* we can only show a generic "Open" action */
+        // we can only show a generic "Open" action
         label_text = g_strdup_printf(_("_Open With Default Applications"));
         tooltip_text = g_strdup_printf(ngettext("Open the selected file with the default application",
                                         "Open the selected files with the default applications", launcher->n_files_to_process));
