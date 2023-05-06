@@ -61,16 +61,16 @@ struct _StandardViewClass
      * both the list and the items are owned by the caller. */
     GList*  (*get_selected_items)   (StandardView *standard_view);
 
-    /* Selects all items in the view */
+    // Selects all items in the view
     void    (*select_all)           (StandardView *standard_view);
 
-    /* Unselects all items in the view */
+    // Unselects all items in the view
     void    (*unselect_all)         (StandardView *standard_view);
 
-    /* Invert selection in the view */
+    // Invert selection in the view
     void    (*selection_invert)     (StandardView *standard_view);
 
-    /* Selects the given item */
+    // Selects the given item
     void    (*select_path)          (StandardView *standard_view,
                                      GtkTreePath        *path);
 
@@ -99,7 +99,7 @@ struct _StandardViewClass
                                      gint                x,
                                      gint                y);
 
-    /* Returns the visible range */
+    // Returns the visible range
     gboolean (*get_visible_range)   (StandardView *standard_view,
                                      GtkTreePath       **start_path,
                                      GtkTreePath       **end_path);
@@ -110,20 +110,20 @@ struct _StandardViewClass
     void    (*highlight_path)       (StandardView  *standard_view,
                                      GtkTreePath         *path);
 
-    /* external signals */
+    // external signals
     void    (*start_open_location)  (StandardView *standard_view,
                                      const gchar        *initial_text);
 
-    /* Appends view-specific menu items to the given menu */
+    // Appends view-specific menu items to the given menu
     void    (*append_menu_items)    (StandardView *standard_view, GtkMenu *menu, GtkAccelGroup *accel_group);
 
-    /* Connects view-specific accelerators to the given accelGroup */
+    // Connects view-specific accelerators to the given accelGroup
     void    (*connect_accelerators) (StandardView *standard_view, GtkAccelGroup *accel_group);
 
-    /* Disconnects view-specific accelerators to the given accelGroup */
+    // Disconnects view-specific accelerators to the given accelGroup
     void    (*disconnect_accelerators) (StandardView *standard_view, GtkAccelGroup *accel_group);
 
-    /* Internal action signals */
+    // Internal action signals
     gboolean (*delete_selected_files) (StandardView *standard_view);
 
     /* The name of the property in ThunarPreferences, that determines

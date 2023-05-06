@@ -369,23 +369,23 @@ static GParamSpec *_standard_view_props[N_PROPERTIES] = { NULL, };
 
 struct _StandardViewPrivate
 {
-    /* current directory of the view */
+    // current directory of the view
     ThunarFile      *current_directory;
 
-    /* history of the current view */
+    // history of the current view
     ThunarHistory   *history;
 
-    /* zoom-level support */
+    // zoom-level support
     ThunarZoomLevel zoom_level;
 
-    /* scroll_to_file support */
+    // scroll_to_file support
     GHashTable  *scroll_to_files;
 
-    /* statusbar */
+    // statusbar
     gchar       *statusbar_text;
     guint       statusbar_text_idle_id;
 
-    /* right-click drag/popup support */
+    // right-click drag/popup support
     GList       *drag_g_file_list;
     guint       drag_scroll_timer_id;
     guint       drag_timer_id;
@@ -393,7 +393,7 @@ struct _StandardViewPrivate
     gint        drag_x;
     gint        drag_y;
 
-    /* drop site support */
+    // drop site support
     guint       drop_data_ready : 1;    // whether the drop data was received already
     guint       drop_highlight : 1;
     guint       drop_occurred : 1;      // whether the data was dropped
@@ -412,18 +412,18 @@ struct _StandardViewPrivate
      */
     GList       *new_files_path_list;
 
-    /* scroll-to-file support */
+    // scroll-to-file support
     ThunarFile  *scroll_to_file;
     guint       scroll_to_select : 1;
     guint       scroll_to_use_align : 1;
     gfloat      scroll_to_row_align;
     gfloat      scroll_to_col_align;
 
-    /* selected_files support */
+    // selected_files support
     GList       *selected_files;
     guint       restore_selection_idle_id;
 
-    /* file insert signal */
+    // file insert signal
     gulong      row_changed_id;
 };
 
@@ -504,21 +504,21 @@ static void standard_view_class_init(StandardViewClass *klass)
                              FALSE,
                              E_PARAM_READWRITE);
 
-    /* override ThunarComponent's properties */
+    // override ThunarComponent's properties
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);
     _standard_view_props[PROP_SELECTED_FILES] =
         g_param_spec_override("selected-files",
                               g_object_interface_find_property(g_iface,
                                                                "selected-files"));
 
-    /* override ThunarNavigator's properties */
+    // override ThunarNavigator's properties
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_NAVIGATOR);
     _standard_view_props[PROP_CURRENT_DIRECTORY] =
         g_param_spec_override("current-directory",
                               g_object_interface_find_property(g_iface,
                                                                "current-directory"));
 
-    /* override BaseView's properties */
+    // override BaseView's properties
     g_iface = g_type_default_interface_peek(TYPE_BASEVIEW);
     _standard_view_props[PROP_STATUSBAR_TEXT] =
         g_param_spec_override("statusbar-text",
@@ -542,7 +542,7 @@ static void standard_view_class_init(StandardViewClass *klass)
                             GTK_TYPE_ACCEL_GROUP,
                             G_PARAM_WRITABLE);
 
-    /* install all properties */
+    // install all properties
     g_object_class_install_properties(gobject_class,
                                       N_PROPERTIES,
                                       _standard_view_props);
@@ -608,20 +608,20 @@ static GObject* standard_view_constructor(
                                     guint n_construct_properties,
                                     GObjectConstructParam *construct_properties)
 {
-    /* let the GObject constructor create the instance */
+    // let the GObject constructor create the instance
     GObject *object;
     object = G_OBJECT_CLASS(standard_view_parent_class)->constructor(
                                                         type,
                                                         n_construct_properties,
                                                         construct_properties);
 
-    /* cast to standard_view for convenience */
+    // cast to standard_view for convenience
     StandardView *standard_view = STANDARD_VIEW(object);
 
     ThunarZoomLevel zoom_level = THUNAR_ZOOM_LEVEL_25_PERCENT;
     baseview_set_zoom_level(BASEVIEW(standard_view), zoom_level);
 
-    /* determine the real view widget(treeview or iconview) */
+    // determine the real view widget(treeview or iconview)
     GtkWidget *view = gtk_bin_get_child(GTK_BIN(object));
 
     /* apply our list model to the real view(the child of the scrolled window),
@@ -633,15 +633,15 @@ static GObject* standard_view_constructor(
     GtkSortType sort_order = GTK_SORT_ASCENDING;
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(standard_view->model), sort_column, sort_order);
 
-    /* stay informed about changes to the sort column/order */
+    // stay informed about changes to the sort column/order
     g_signal_connect(G_OBJECT(standard_view->model), "sort-column-changed",
                      G_CALLBACK(_standard_view_sort_column_changed), standard_view);
 
-    /* setup support to navigate using a horizontal mouse wheel and the back and forward buttons */
+    // setup support to navigate using a horizontal mouse wheel and the back and forward buttons
     g_signal_connect(G_OBJECT(view), "scroll-event",
                      G_CALLBACK(_standard_view_scroll_event), object);
 
-    /* need to catch certain keys for the internal view widget */
+    // need to catch certain keys for the internal view widget
     g_signal_connect(G_OBJECT(view), "key-press-event",
                      G_CALLBACK(_standard_view_key_press_event), object);
 
@@ -698,22 +698,22 @@ static void standard_view_dispose(GObject *object)
         standard_view->loading_binding = NULL;
     }
 
-    /* be sure to cancel any pending drag autoscroll timer */
+    // be sure to cancel any pending drag autoscroll timer
     if (G_UNLIKELY(standard_view->priv->drag_scroll_timer_id != 0))
         g_source_remove(standard_view->priv->drag_scroll_timer_id);
 
-    /* be sure to cancel any pending drag timer */
+    // be sure to cancel any pending drag timer
     if (G_UNLIKELY(standard_view->priv->drag_timer_id != 0))
         g_source_remove(standard_view->priv->drag_timer_id);
 
-    /* be sure to free any pending drag timer event */
+    // be sure to free any pending drag timer event
     if (G_UNLIKELY(standard_view->priv->drag_timer_event != NULL))
     {
         gdk_event_free(standard_view->priv->drag_timer_event);
         standard_view->priv->drag_timer_event = NULL;
     }
 
-    /* disconnect from file */
+    // disconnect from file
     if (standard_view->priv->current_directory != NULL)
     {
         g_signal_handlers_disconnect_matched(standard_view->priv->current_directory,
@@ -729,36 +729,36 @@ static void standard_view_finalize(GObject *object)
 {
     StandardView *standard_view = STANDARD_VIEW(object);
 
-    /* some safety checks */
+    // some safety checks
     e_assert(standard_view->loading_binding == NULL);
     e_assert(standard_view->icon_factory == NULL);
 
-    /* disconnect accelerators */
+    // disconnect accelerators
     _standard_view_disconnect_accelerators(standard_view);
 
-    /* release the scroll_to_file reference(if any) */
+    // release the scroll_to_file reference(if any)
     if (G_UNLIKELY(standard_view->priv->scroll_to_file != NULL))
         g_object_unref(G_OBJECT(standard_view->priv->scroll_to_file));
 
-    /* release the selected_files list(if any) */
+    // release the selected_files list(if any)
     e_list_free(standard_view->priv->selected_files);
 
-    /* release the drag path list(just in case the drag-end wasn't fired before) */
+    // release the drag path list(just in case the drag-end wasn't fired before)
     e_list_free(standard_view->priv->drag_g_file_list);
 
-    /* release the drop path list(just in case the drag-leave wasn't fired before) */
+    // release the drop path list(just in case the drag-leave wasn't fired before)
     e_list_free(standard_view->priv->drop_file_list);
 
-    /* release the history */
+    // release the history
     g_object_unref(standard_view->priv->history);
 
-    /* release the reference on the name renderer */
+    // release the reference on the name renderer
     g_object_unref(G_OBJECT(standard_view->name_renderer));
 
-    /* release the reference on the icon renderer */
+    // release the reference on the icon renderer
     g_object_unref(G_OBJECT(standard_view->icon_renderer));
 
-    /* drop any existing "new-files" closure */
+    // drop any existing "new-files" closure
     if (G_UNLIKELY(standard_view->priv->new_files_closure != NULL))
     {
         g_closure_invalidate(standard_view->priv->new_files_closure);
@@ -766,24 +766,24 @@ static void standard_view_finalize(GObject *object)
         standard_view->priv->new_files_closure = NULL;
     }
 
-    /* drop any remaining "new-files" paths */
+    // drop any remaining "new-files" paths
     e_list_free(standard_view->priv->new_files_path_list);
 
-    /* disconnect from the list model */
+    // disconnect from the list model
     g_signal_handlers_disconnect_matched(G_OBJECT(standard_view->model), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, standard_view);
     g_object_unref(G_OBJECT(standard_view->model));
 
-    /* remove selection restore timeout */
+    // remove selection restore timeout
     if (standard_view->priv->restore_selection_idle_id != 0)
         g_source_remove(standard_view->priv->restore_selection_idle_id);
 
-    /* free the statusbar text(if any) */
+    // free the statusbar text(if any)
     if (standard_view->priv->statusbar_text_idle_id != 0)
         g_source_remove(standard_view->priv->statusbar_text_idle_id);
 
     g_free(standard_view->priv->statusbar_text);
 
-    /* release the scroll_to_files hash table */
+    // release the scroll_to_files hash table
     g_hash_table_destroy(standard_view->priv->scroll_to_files);
 
     G_OBJECT_CLASS(standard_view_parent_class)->finalize(object);
@@ -893,10 +893,10 @@ static void standard_view_realize(GtkWidget *widget)
     StandardView *standard_view = STANDARD_VIEW(widget);
     GtkIconTheme       *icon_theme;
 
-    /* let the GtkWidget do its work */
+    // let the GtkWidget do its work
     GTK_WIDGET_CLASS(standard_view_parent_class)->realize(widget);
 
-    /* determine the icon factory for the screen on which we are realized */
+    // determine the icon factory for the screen on which we are realized
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
     standard_view->icon_factory = ifactory_get_for_icon_theme(icon_theme);
     g_object_bind_property(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size", G_BINDING_SYNC_CREATE);
@@ -906,29 +906,29 @@ static void standard_view_unrealize(GtkWidget *widget)
 {
     StandardView *standard_view = STANDARD_VIEW(widget);
 
-    /* drop the reference on the icon factory */
+    // drop the reference on the icon factory
     g_signal_handlers_disconnect_by_func(G_OBJECT(standard_view->icon_factory), gtk_widget_queue_draw, standard_view);
     g_object_unref(G_OBJECT(standard_view->icon_factory));
     standard_view->icon_factory = NULL;
 
-    /* let the GtkWidget do its work */
+    // let the GtkWidget do its work
     GTK_WIDGET_CLASS(standard_view_parent_class)->unrealize(widget);
 }
 
 static void standard_view_grab_focus(GtkWidget *widget)
 {
-    /* forward the focus grab to the real view */
+    // forward the focus grab to the real view
     gtk_widget_grab_focus(gtk_bin_get_child(GTK_BIN(widget)));
 }
 
 static gboolean standard_view_draw(GtkWidget *widget, cairo_t *cr)
 {
-    /* let the scrolled window do it's work */
+    // let the scrolled window do it's work
     cairo_save(cr);
     gboolean result = GTK_WIDGET_CLASS(standard_view_parent_class)->draw(widget, cr);
     cairo_restore(cr);
 
-    /* render the folder drop shadow */
+    // render the folder drop shadow
     if (G_UNLIKELY(STANDARD_VIEW(widget)->priv->drop_highlight))
     {
         GtkAllocation a;
@@ -962,7 +962,7 @@ static void _standard_view_connect_accelerators(StandardView *standard_view)
             G_N_ELEMENTS(_standard_view_actions),
             standard_view);
 
-    /* as well append accelerators of derived widgets */
+    // as well append accelerators of derived widgets
     STANDARD_VIEW_GET_CLASS(standard_view)->connect_accelerators(standard_view, standard_view->accel_group);
 }
 
@@ -973,15 +973,15 @@ static void _standard_view_disconnect_accelerators(StandardView *standard_view)
     if (standard_view->accel_group == NULL)
         return;
 
-    /* Dont listen to the accel keys defined by the action entries any more */
+    // Dont listen to the accel keys defined by the action entries any more
     xfce_gtk_accel_group_disconnect_action_entries(standard_view->accel_group,
             _standard_view_actions,
             G_N_ELEMENTS(_standard_view_actions));
 
-    /* as well disconnect accelerators of derived widgets */
+    // as well disconnect accelerators of derived widgets
     STANDARD_VIEW_GET_CLASS(standard_view)->disconnect_accelerators(standard_view, standard_view->accel_group);
 
-    /* and release the accel group */
+    // and release the accel group
     g_object_unref(standard_view->accel_group);
     standard_view->accel_group = NULL;
 }
@@ -993,11 +993,11 @@ static void standard_view_init(StandardView *standard_view)
 {
     standard_view->priv = standard_view_get_instance_private(standard_view);
 
-    /* allocate the scroll_to_files mapping(directory GFile -> first visible child GFile) */
+    // allocate the scroll_to_files mapping(directory GFile -> first visible child GFile)
     standard_view->priv->scroll_to_files = g_hash_table_new_full(g_file_hash,
                                                                  (GEqualFunc) g_file_equal, g_object_unref, g_object_unref);
 
-    /* initialize the scrolled window */
+    // initialize the scrolled window
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(standard_view),
                                    GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_AUTOMATIC);
@@ -1007,14 +1007,14 @@ static void standard_view_init(StandardView *standard_view)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(standard_view),
                                         GTK_SHADOW_IN);
 
-    /* setup the history support */
+    // setup the history support
     standard_view->priv->history = g_object_new(THUNAR_TYPE_HISTORY, NULL);
     g_signal_connect_swapped(G_OBJECT(standard_view->priv->history),
                              "change-directory",
                              G_CALLBACK(navigator_change_directory),
                              standard_view);
 
-    /* setup the list model */
+    // setup the list model
     standard_view->model = listmodel_new();
     g_signal_connect_after(G_OBJECT(standard_view->model),
                            "row-deleted",
@@ -1030,7 +1030,7 @@ static void standard_view_init(StandardView *standard_view)
                      G_CALLBACK(_standard_view_error),
                      standard_view);
 
-    /* setup the icon renderer */
+    // setup the icon renderer
     standard_view->icon_renderer = irenderer_new();
     g_object_ref_sink(G_OBJECT(standard_view->icon_renderer));
 
@@ -1040,7 +1040,7 @@ static void standard_view_init(StandardView *standard_view)
                            "size",
                            G_BINDING_SYNC_CREATE);
 
-    /* setup the name renderer */
+    // setup the name renderer
     standard_view->name_renderer =
         g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
 #if PANGO_VERSION_CHECK(1, 44, 0)
@@ -1055,7 +1055,7 @@ static void standard_view_init(StandardView *standard_view)
 
     g_object_ref_sink(G_OBJECT(standard_view->name_renderer));
 
-    /* be sure to update the selection whenever the folder changes */
+    // be sure to update the selection whenever the folder changes
     g_signal_connect_swapped(G_OBJECT(standard_view->model),
                              "notify::folder",
                              G_CALLBACK(standard_view_selection_changed),
@@ -1069,19 +1069,19 @@ static void standard_view_init(StandardView *standard_view)
                              G_CALLBACK(_standard_view_update_statusbar_text),
                              standard_view);
 
-    /* be sure to update the statusbar text whenever the file-size-binary property changes */
+    // be sure to update the statusbar text whenever the file-size-binary property changes
     g_signal_connect_swapped(G_OBJECT(standard_view->model),
                              "notify::file-size-binary",
                              G_CALLBACK(_standard_view_update_statusbar_text),
                              standard_view);
 
-    /* connect to size allocation signals for generating thumbnail requests */
+    // connect to size allocation signals for generating thumbnail requests
     g_signal_connect_after(G_OBJECT(standard_view),
                            "size-allocate",
                            G_CALLBACK(_standard_view_size_allocate),
                            NULL);
 
-    /* add widget to css class */
+    // add widget to css class
     gtk_style_context_add_class(
                 gtk_widget_get_style_context(GTK_WIDGET(standard_view)),
                 "standard-view");
@@ -1108,11 +1108,11 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
     e_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
 
-    /* get the current directory */
+    // get the current directory
     if (standard_view->priv->current_directory == current_directory)
         return;
 
-    /* disconnect any previous "loading" binding */
+    // disconnect any previous "loading" binding
 
     if (G_LIKELY(standard_view->loading_binding != NULL))
     {
@@ -1120,11 +1120,11 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
         standard_view->loading_binding = NULL;
     }
 
-    /* store the current scroll position */
+    // store the current scroll position
     if (current_directory != NULL)
         _standard_view_scroll_position_save(standard_view);
 
-    /* release previous directory */
+    // release previous directory
     if (standard_view->priv->current_directory != NULL)
     {
         g_signal_handlers_disconnect_matched(standard_view->priv->current_directory,
@@ -1132,10 +1132,10 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
         g_object_unref(standard_view->priv->current_directory);
     }
 
-    /* check if we want to reset the directory */
+    // check if we want to reset the directory
     if (G_UNLIKELY(current_directory == NULL))
     {
-        /* unset */
+        // unset
         standard_view->priv->current_directory = NULL;
 
         /* resetting the folder for the model can take some time if the view has
@@ -1144,26 +1144,26 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
          */
         g_object_set(G_OBJECT(gtk_bin_get_child(GTK_BIN(standard_view))), "model", NULL, NULL);
 
-        /* reset the folder for the model */
+        // reset the folder for the model
         listmodel_set_folder(standard_view->model, NULL);
 
-        /* reconnect the model to the view */
+        // reconnect the model to the view
         g_object_set(G_OBJECT(gtk_bin_get_child(GTK_BIN(standard_view))), "model", standard_view->model, NULL);
 
-        /* and we're done */
+        // and we're done
         return;
     }
 
-    /* take ref on new directory */
+    // take ref on new directory
     standard_view->priv->current_directory = g_object_ref(current_directory);
     g_signal_connect(G_OBJECT(current_directory), "destroy", G_CALLBACK(_standard_view_current_directory_destroy), standard_view);
     g_signal_connect(G_OBJECT(current_directory), "changed", G_CALLBACK(_standard_view_current_directory_changed), standard_view);
 
-    /* scroll to top-left when changing folder */
+    // scroll to top-left when changing folder
     gtk_adjustment_set_value(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(standard_view)), 0.0);
     gtk_adjustment_set_value(gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(standard_view)), 0.0);
 
-    /* store the directory in the history */
+    // store the directory in the history
     navigator_set_current_directory(THUNAR_NAVIGATOR(standard_view->priv->history), current_directory);
 
     /* We drop the model from the view as a simple optimization to speed up
@@ -1171,7 +1171,7 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
      */
     g_object_set(G_OBJECT(gtk_bin_get_child(GTK_BIN(standard_view))), "model", NULL, NULL);
 
-    /* open the new directory as folder */
+    // open the new directory as folder
     folder = th_folder_get_for_file(current_directory);
 
     standard_view->loading_binding =
@@ -1185,21 +1185,21 @@ static void standard_view_set_current_directory(ThunarNavigator *navigator,
                                     standard_view,
                                     _standard_view_loading_unbound);
 
-    /* apply the new folder */
+    // apply the new folder
     listmodel_set_folder(standard_view->model, folder);
     g_object_unref(G_OBJECT(folder));
 
-    /* reconnect our model to the view */
+    // reconnect our model to the view
     g_object_set(G_OBJECT(gtk_bin_get_child(GTK_BIN(standard_view))), "model", standard_view->model, NULL);
 
-    /* notify all listeners about the new/old current directory */
+    // notify all listeners about the new/old current directory
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_CURRENT_DIRECTORY]);
 
-    /* update tab label and tooltip */
+    // update tab label and tooltip
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_DISPLAY_NAME]);
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_TOOLTIP_TEXT]);
 
-    /* restore the selection from the history */
+    // restore the selection from the history
     _standard_view_restore_selection_from_history(standard_view);
 }
 
@@ -1207,10 +1207,10 @@ static void _standard_view_loading_unbound(gpointer user_data)
 {
     StandardView *standard_view = STANDARD_VIEW(user_data);
 
-    /* we don't have any binding now */
+    // we don't have any binding now
     standard_view->loading_binding = NULL;
 
-    /* reset the "loading" property */
+    // reset the "loading" property
     if (G_UNLIKELY(standard_view->loading))
     {
         standard_view->loading = FALSE;
@@ -1230,10 +1230,10 @@ static void _standard_view_scroll_position_save(StandardView *standard_view)
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* store the previous directory in the scroll hash table */
+    // store the previous directory in the scroll hash table
     if (standard_view->priv->current_directory != NULL)
     {
-        /* only stop the first file is the scroll bar is actually moved */
+        // only stop the first file is the scroll bar is actually moved
         vadjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(standard_view));
         hadjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(standard_view));
         gfile = th_file_get_file(standard_view->priv->current_directory);
@@ -1241,12 +1241,12 @@ static void _standard_view_scroll_position_save(StandardView *standard_view)
         if (gtk_adjustment_get_value(vadjustment) == 0.0
                 && gtk_adjustment_get_value(hadjustment) == 0.0)
         {
-            /* remove from the hash table, we already scroll to 0,0 */
+            // remove from the hash table, we already scroll to 0,0
             g_hash_table_remove(standard_view->priv->scroll_to_files, gfile);
         }
         else if (baseview_get_visible_range(BASEVIEW(standard_view), &first_file, NULL))
         {
-            /* add the file to our internal mapping of directories to scroll files */
+            // add the file to our internal mapping of directories to scroll files
             g_hash_table_replace(standard_view->priv->scroll_to_files,
                                   g_object_ref(gfile),
                                   g_object_ref(th_file_get_file(first_file)));
@@ -1263,12 +1263,12 @@ static void _standard_view_restore_selection_from_history(StandardView *standard
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
     e_return_if_fail(THUNAR_IS_FILE(standard_view->priv->current_directory));
 
-    /* reset the selected files list */
+    // reset the selected files list
     selected_files.data = NULL;
     selected_files.prev = NULL;
     selected_files.next = NULL;
 
-    /* determine the next file in the history */
+    // determine the next file in the history
     selected_file = history_peek_forward(standard_view->priv->history);
     if (selected_file != NULL)
     {
@@ -1280,7 +1280,7 @@ static void _standard_view_restore_selection_from_history(StandardView *standard
             g_object_unref(selected_file);
     }
 
-    /* do the same with the previous file in the history */
+    // do the same with the previous file in the history
     if (selected_files.data == NULL)
     {
         selected_file = history_peek_back(standard_view->priv->history);
@@ -1320,54 +1320,54 @@ static void standard_view_set_selected_files_component(ThunarComponent *componen
     GList              *paths;
     GList              *lp;
 
-    /* release the previous selected files list(if any) */
+    // release the previous selected files list(if any)
     if (G_UNLIKELY(standard_view->priv->selected_files != NULL))
     {
         e_list_free(standard_view->priv->selected_files);
         standard_view->priv->selected_files = NULL;
     }
 
-    /* check if we're still loading */
+    // check if we're still loading
     if (baseview_get_loading(BASEVIEW(standard_view)))
     {
-        /* remember a copy of the list for later */
+        // remember a copy of the list for later
         standard_view->priv->selected_files = e_list_copy(selected_files);
     }
     else
     {
-        /* verify that we have a valid model */
+        // verify that we have a valid model
         if (G_UNLIKELY(standard_view->model == NULL))
             return;
 
-        /* unselect all previously selected files */
+        // unselect all previously selected files
         STANDARD_VIEW_GET_CLASS(standard_view)->unselect_all(standard_view);
 
-        /* determine the tree paths for the given files */
+        // determine the tree paths for the given files
         paths = listmodel_get_paths_for_files(standard_view->model, selected_files);
         if (G_LIKELY(paths != NULL))
         {
-            /* determine the first path */
+            // determine the first path
             for (first_path = paths->data, lp = paths; lp != NULL; lp = lp->next)
             {
-                /* check if this path is located before the current first_path */
+                // check if this path is located before the current first_path
                 if (gtk_tree_path_compare(lp->data, first_path) < 0)
                     first_path = lp->data;
             }
 
-            /* place the cursor on the first selected path(must be first for GtkTreeView) */
+            // place the cursor on the first selected path(must be first for GtkTreeView)
             STANDARD_VIEW_GET_CLASS(standard_view)->set_cursor(standard_view, first_path, FALSE);
 
-            /* select the given tree paths paths */
+            // select the given tree paths paths
             for (first_path = paths->data, lp = paths; lp != NULL; lp = lp->next)
             {
-                /* select the path */
+                // select the path
                 STANDARD_VIEW_GET_CLASS(standard_view)->select_path(standard_view, lp->data);
             }
 
-            /* scroll to the first path(previously determined) */
+            // scroll to the first path(previously determined)
             STANDARD_VIEW_GET_CLASS(standard_view)->scroll_to_path(standard_view, first_path, FALSE, 0.0f, 0.0f);
 
-            /* release the tree paths */
+            // release the tree paths
             g_list_free_full(paths,(GDestroyNotify) gtk_tree_path_free);
         }
     }
@@ -1408,7 +1408,7 @@ static void standard_view_set_zoom_level(BaseView     *view,
     StandardView *standard_view = STANDARD_VIEW(view);
     gboolean newThumbnailSize = FALSE;
 
-    /* check if we have a new zoom-level here */
+    // check if we have a new zoom-level here
     if (G_LIKELY(standard_view->priv->zoom_level != zoom_level))
     {
         if (thunar_zoom_level_to_thumbnail_size(zoom_level) != thunar_zoom_level_to_thumbnail_size(standard_view->priv->zoom_level))
@@ -1439,41 +1439,41 @@ static void standard_view_set_loading(StandardView *standard_view,
 
     loading = !!loading;
 
-    /* check if we're already in that state */
+    // check if we're already in that state
     if (G_UNLIKELY(standard_view->loading == loading))
         return;
 
-    /* apply the new state */
+    // apply the new state
     standard_view->loading = loading;
 
-    /* block or unblock the insert signal to avoid queueing thumbnail reloads */
+    // block or unblock the insert signal to avoid queueing thumbnail reloads
     if (loading)
         g_signal_handler_block(standard_view->model, standard_view->priv->row_changed_id);
     else
         g_signal_handler_unblock(standard_view->model, standard_view->priv->row_changed_id);
 
-    /* check if we're done loading and have a scheduled scroll_to_file */
+    // check if we're done loading and have a scheduled scroll_to_file
     if (G_UNLIKELY(!loading))
     {
         if (standard_view->priv->scroll_to_file != NULL)
         {
-            /* remember and reset the scroll_to_file reference */
+            // remember and reset the scroll_to_file reference
             file = standard_view->priv->scroll_to_file;
             standard_view->priv->scroll_to_file = NULL;
 
-            /* and try again */
+            // and try again
             baseview_scroll_to_file(BASEVIEW(standard_view), file,
                                         standard_view->priv->scroll_to_select,
                                         standard_view->priv->scroll_to_use_align,
                                         standard_view->priv->scroll_to_row_align,
                                         standard_view->priv->scroll_to_col_align);
 
-            /* cleanup */
+            // cleanup
             g_object_unref(G_OBJECT(file));
         }
         else
         {
-            /* look for a first visible file in the hash table */
+            // look for a first visible file in the hash table
             current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
             if (G_LIKELY(current_directory != NULL))
             {
@@ -1491,35 +1491,35 @@ static void standard_view_set_loading(StandardView *standard_view,
         }
     }
 
-    /* check if we have a path list from new_files pending */
+    // check if we have a path list from new_files pending
     if (G_UNLIKELY(!loading && standard_view->priv->new_files_path_list != NULL))
     {
-        /* remember and reset the new_files_path_list */
+        // remember and reset the new_files_path_list
         new_files_path_list = standard_view->priv->new_files_path_list;
         standard_view->priv->new_files_path_list = NULL;
 
-        /* and try again */
+        // and try again
         _standard_view_new_files(standard_view, new_files_path_list);
 
-        /* cleanup */
+        // cleanup
         e_list_free(new_files_path_list);
     }
 
-    /* check if we're done loading */
+    // check if we're done loading
     if (!loading)
     {
-        /* remember and reset the file list */
+        // remember and reset the file list
         selected_files = standard_view->priv->selected_files;
         standard_view->priv->selected_files = NULL;
 
-        /* and try setting the selected files again */
+        // and try setting the selected files again
         component_set_selected_files(THUNAR_COMPONENT(standard_view), selected_files);
 
-        /* cleanup */
+        // cleanup
         e_list_free(selected_files);
     }
 
-    /* notify listeners */
+    // notify listeners
     g_object_freeze_notify(G_OBJECT(standard_view));
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_LOADING]);
     _standard_view_update_statusbar_text(standard_view);
@@ -1538,26 +1538,26 @@ static void _standard_view_new_files(StandardView *standard_view,
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* release the previous "new-files" paths(if any) */
+    // release the previous "new-files" paths(if any)
     if (G_UNLIKELY(standard_view->priv->new_files_path_list != NULL))
     {
         e_list_free(standard_view->priv->new_files_path_list);
         standard_view->priv->new_files_path_list = NULL;
     }
 
-    /* check if the folder is currently being loaded */
+    // check if the folder is currently being loaded
     if (G_UNLIKELY(standard_view->loading))
     {
-        /* schedule the "new-files" paths for later processing */
+        // schedule the "new-files" paths for later processing
         standard_view->priv->new_files_path_list = e_list_copy(path_list);
     }
     else if (G_LIKELY(path_list != NULL))
     {
-        /* to check if we should reload */
+        // to check if we should reload
         parent_file = th_file_get_file(standard_view->priv->current_directory);
         belongs_here = FALSE;
 
-        /* determine the files for the paths */
+        // determine the files for the paths
         for(lp = path_list; lp != NULL; lp = lp->next)
         {
             file = th_file_cache_lookup(lp->data);
@@ -1567,16 +1567,16 @@ static void _standard_view_new_files(StandardView *standard_view,
                 belongs_here = TRUE;
         }
 
-        /* check if we have any new files here */
+        // check if we have any new files here
         if (G_LIKELY(file_list != NULL))
         {
-            /* select the files */
+            // select the files
             component_set_selected_files(THUNAR_COMPONENT(standard_view), file_list);
 
-            /* release the file list */
+            // release the file list
             g_list_free_full(file_list, g_object_unref);
 
-            /* grab the focus to the view widget */
+            // grab the focus to the view widget
             gtk_widget_grab_focus(gtk_bin_get_child(GTK_BIN(standard_view)));
         }
         else if (belongs_here)
@@ -1588,7 +1588,7 @@ static void _standard_view_new_files(StandardView *standard_view,
         }
     }
 
-    /* when performing dnd between 2 views, we force a reload on the source as well */
+    // when performing dnd between 2 views, we force a reload on the source as well
     source_view = g_object_get_data(G_OBJECT(standard_view), I_("source-view"));
     if (THUNAR_IS_VIEW(source_view))
         baseview_reload(BASEVIEW(source_view), FALSE);
@@ -1599,22 +1599,22 @@ static GClosure* _standard_view_new_files_closure(StandardView *standard_view,
 {
     e_return_val_if_fail(source_view == NULL || THUNAR_IS_VIEW(source_view), NULL);
 
-    /* drop any previous "new-files" closure */
+    // drop any previous "new-files" closure
     if (G_UNLIKELY(standard_view->priv->new_files_closure != NULL))
     {
         g_closure_invalidate(standard_view->priv->new_files_closure);
         g_closure_unref(standard_view->priv->new_files_closure);
     }
 
-    /* set the remove view data we possibly need to reload */
+    // set the remove view data we possibly need to reload
     g_object_set_data(G_OBJECT(standard_view), I_("source-view"), source_view);
 
-    /* allocate a new "new-files" closure */
+    // allocate a new "new-files" closure
     standard_view->priv->new_files_closure = g_cclosure_new_swap(G_CALLBACK(_standard_view_new_files), standard_view, NULL);
     g_closure_ref(standard_view->priv->new_files_closure);
     g_closure_sink(standard_view->priv->new_files_closure);
 
-    /* and return our new closure */
+    // and return our new closure
     return standard_view->priv->new_files_closure;
 }
 
@@ -1624,7 +1624,7 @@ static void standard_view_reload(BaseView *view, gboolean reload_info)
     ThunarFolder       *folder;
     ThunarFile         *file;
 
-    /* determine the folder for the view model */
+    // determine the folder for the view model
     folder = listmodel_get_folder(standard_view->model);
 
     if (G_LIKELY(folder != NULL))
@@ -1647,24 +1647,24 @@ static gboolean standard_view_get_visible_range(BaseView  *view,
     GtkTreePath        *end_path;
     GtkTreeIter         iter;
 
-    /* determine the visible range as tree paths */
+    // determine the visible range as tree paths
     if ((*STANDARD_VIEW_GET_CLASS(standard_view)->get_visible_range)(standard_view, &start_path, &end_path))
     {
-        /* determine the file for the start path */
+        // determine the file for the start path
         if (G_LIKELY(start_file != NULL))
         {
             gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, start_path);
             *start_file = listmodel_get_file(standard_view->model, &iter);
         }
 
-        /* determine the file for the end path */
+        // determine the file for the end path
         if (G_LIKELY(end_file != NULL))
         {
             gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, end_path);
             *end_file = listmodel_get_file(standard_view->model, &iter);
         }
 
-        /* release the tree paths */
+        // release the tree paths
         gtk_tree_path_free(start_path);
         gtk_tree_path_free(end_path);
 
@@ -1685,17 +1685,17 @@ static void standard_view_scroll_to_file(BaseView *view,
     GList               files;
     GList              *paths;
 
-    /* release the previous scroll_to_file reference(if any) */
+    // release the previous scroll_to_file reference(if any)
     if (G_UNLIKELY(standard_view->priv->scroll_to_file != NULL))
     {
         g_object_unref(G_OBJECT(standard_view->priv->scroll_to_file));
         standard_view->priv->scroll_to_file = NULL;
     }
 
-    /* check if we're still loading */
+    // check if we're still loading
     if (baseview_get_loading(view))
     {
-        /* remember a reference for the new file and settings */
+        // remember a reference for the new file and settings
         standard_view->priv->scroll_to_file = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
         standard_view->priv->scroll_to_select = select_file;
         standard_view->priv->scroll_to_use_align = use_align;
@@ -1704,27 +1704,27 @@ static void standard_view_scroll_to_file(BaseView *view,
     }
     else
     {
-        /* fake a file list */
+        // fake a file list
         files.data = file;
         files.next = NULL;
         files.prev = NULL;
 
-        /* determine the path for the file */
+        // determine the path for the file
         paths = listmodel_get_paths_for_files(standard_view->model, &files);
         if (G_LIKELY(paths != NULL))
         {
-            /* scroll to the path */
+            // scroll to the path
            (*STANDARD_VIEW_GET_CLASS(standard_view)->scroll_to_path)(standard_view, paths->data, use_align, row_align, col_align);
 
-            /* check if we should also alter the selection */
+            // check if we should also alter the selection
             if (G_UNLIKELY(select_file))
             {
-                /* select only the file in question */
+                // select only the file in question
                (*STANDARD_VIEW_GET_CLASS(standard_view)->unselect_all)(standard_view);
                (*STANDARD_VIEW_GET_CLASS(standard_view)->select_path)(standard_view, paths->data);
             }
 
-            /* cleanup */
+            // cleanup
             g_list_free_full(paths,(GDestroyNotify) gtk_tree_path_free);
         }
     }
@@ -1737,10 +1737,10 @@ static const gchar* standard_view_get_statusbar_text(BaseView *view)
 
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), NULL);
 
-    /* generate the statusbar text on-demand */
+    // generate the statusbar text on-demand
     if (standard_view->priv->statusbar_text == NULL)
     {
-        /* query the selected items(actually a list of GtkTreePath's) */
+        // query the selected items(actually a list of GtkTreePath's)
         items = STANDARD_VIEW_GET_CLASS(standard_view)->get_selected_items(standard_view);
 
         /* we display a loading text if no items are
@@ -1770,7 +1770,7 @@ void standard_view_context_menu(StandardView *standard_view)
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* grab an additional reference on the view */
+    // grab an additional reference on the view
     g_object_ref(G_OBJECT(standard_view));
 
     selected_items =(*STANDARD_VIEW_GET_CLASS(standard_view)->get_selected_items)(standard_view);
@@ -1793,7 +1793,7 @@ void standard_view_context_menu(StandardView *standard_view)
                                  | MENU_SECTION_EXTRACT
                                  | MENU_SECTION_PROPERTIES);
     }
-    else /* right click on some empty space */
+    else // right click on some empty space
     {
         appmenu_add_sections(context_menu,
                                  MENU_SECTION_CREATE_NEW_FILES
@@ -1810,7 +1810,7 @@ void standard_view_context_menu(StandardView *standard_view)
     gtk_widget_show_all(GTK_WIDGET(context_menu));
     window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
 
-    /* if there is a drag_timer_event(long press), we use it */
+    // if there is a drag_timer_event(long press), we use it
     if (standard_view->priv->drag_timer_event != NULL)
     {
         etk_menu_run_at_event(GTK_MENU(context_menu), standard_view->priv->drag_timer_event);
@@ -1824,7 +1824,7 @@ void standard_view_context_menu(StandardView *standard_view)
 
     g_list_free_full(selected_items,(GDestroyNotify) gtk_tree_path_free);
 
-    /* release the additional reference on the view */
+    // release the additional reference on the view
     g_object_unref(G_OBJECT(standard_view));
 }
 
@@ -1856,14 +1856,14 @@ void standard_view_queue_popup(StandardView *standard_view,
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
     e_return_if_fail(event != NULL);
 
-    /* check if we have already scheduled a drag timer */
+    // check if we have already scheduled a drag timer
     if (G_LIKELY(standard_view->priv->drag_timer_id == 0))
     {
-        /* remember the new coordinates */
+        // remember the new coordinates
         standard_view->priv->drag_x = event->x;
         standard_view->priv->drag_y = event->y;
 
-        /* figure out the real view */
+        // figure out the real view
         view = gtk_bin_get_child(GTK_BIN(standard_view));
 
         /* we use the menu popup delay here, note that we only use this to
@@ -1871,7 +1871,7 @@ void standard_view_queue_popup(StandardView *standard_view,
         settings = gtk_settings_get_for_screen(gtk_widget_get_screen(view));
         g_object_get(G_OBJECT(settings), "gtk-menu-popup-delay", &delay, NULL);
 
-        /* schedule the timer */
+        // schedule the timer
         standard_view->priv->drag_timer_id =
             g_timeout_add_full(G_PRIORITY_LOW,
                                MAX(225, delay),
@@ -1879,10 +1879,10 @@ void standard_view_queue_popup(StandardView *standard_view,
                                standard_view,
                                _standard_view_drag_timer_destroy);
 
-        /* store current event data */
+        // store current event data
         standard_view->priv->drag_timer_event = gtk_get_current_event();
 
-        /* register the motion notify and the button release events on the real view */
+        // register the motion notify and the button release events on the real view
         g_signal_connect(G_OBJECT(view), "button-release-event",
                          G_CALLBACK(_standard_view_button_release_event), standard_view);
 
@@ -1895,7 +1895,7 @@ static gboolean _standard_view_drag_timer(gpointer user_data)
 {
     StandardView *standard_view = STANDARD_VIEW(user_data);
 
-    /* fire up the context menu */
+    // fire up the context menu
     THUNAR_THREADS_ENTER;
 
     //DPRINT("drag timer\n");
@@ -1908,11 +1908,11 @@ static gboolean _standard_view_drag_timer(gpointer user_data)
 
 static void _standard_view_drag_timer_destroy(gpointer user_data)
 {
-    /* unregister the motion notify and button release event handlers(thread-safe) */
+    // unregister the motion notify and button release event handlers(thread-safe)
     g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)), _standard_view_button_release_event, user_data);
     g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)), _standard_view_motion_notify_event, user_data);
 
-    /* reset the drag timer source id */
+    // reset the drag timer source id
     STANDARD_VIEW(user_data)->priv->drag_timer_id = 0;
 }
 
@@ -1923,7 +1923,7 @@ void standard_view_selection_changed(StandardView *standard_view)
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* drop any existing "new-files" closure */
+    // drop any existing "new-files" closure
     if (G_UNLIKELY(standard_view->priv->new_files_closure != NULL))
     {
         g_closure_invalidate(standard_view->priv->new_files_closure);
@@ -1931,30 +1931,30 @@ void standard_view_selection_changed(StandardView *standard_view)
         standard_view->priv->new_files_closure = NULL;
     }
 
-    /* release the previously selected files */
+    // release the previously selected files
     e_list_free(standard_view->priv->selected_files);
 
-    /* determine the new list of selected files(replacing GtkTreePath's with ThunarFile's) */
+    // determine the new list of selected files(replacing GtkTreePath's with ThunarFile's)
     selected_files =(*STANDARD_VIEW_GET_CLASS(standard_view)->get_selected_items)(standard_view);
     for(lp = selected_files; lp != NULL; lp = lp->next)
     {
-        /* determine the iterator for the path */
+        // determine the iterator for the path
         gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, lp->data);
 
-        /* release the tree path... */
+        // release the tree path...
         gtk_tree_path_free(lp->data);
 
-        /* ...and replace it with the file */
+        // ...and replace it with the file
         lp->data = listmodel_get_file(standard_view->model, &iter);
     }
 
-    /* and setup the new selected files list */
+    // and setup the new selected files list
     standard_view->priv->selected_files = selected_files;
 
-    /* update the statusbar text */
+    // update the statusbar text
     _standard_view_update_statusbar_text(standard_view);
 
-    /* emit notification for "selected-files" */
+    // emit notification for "selected-files"
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_SELECTED_FILES]);
 }
 
@@ -1964,11 +1964,11 @@ void standard_view_set_history(StandardView *standard_view,
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
     e_return_if_fail(history == NULL || THUNAR_IS_HISTORY(history));
 
-    /* set the new history */
+    // set the new history
     g_object_unref(standard_view->priv->history);
     standard_view->priv->history = history;
 
-    /* connect callback */
+    // connect callback
     g_signal_connect_swapped(G_OBJECT(history), "change-directory", G_CALLBACK(navigator_change_directory), standard_view);
 }
 
@@ -1988,17 +1988,17 @@ static void _standard_view_sort_column_changed(
     e_return_if_fail(GTK_IS_TREE_SORTABLE(tree_sortable));
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* keep the currently selected files selected after the change */
+    // keep the currently selected files selected after the change
     component_restore_selection(THUNAR_COMPONENT(standard_view));
 
     GtkSortType      sort_order;
     gint             sort_column;
 
-    /* determine the new sort column and sort order, and save them */
+    // determine the new sort column and sort order, and save them
     if (gtk_tree_sortable_get_sort_column_id(tree_sortable, &sort_column, &sort_order))
     {
 #if 0
-        /* remember the new values as default */
+        // remember the new values as default
         g_object_set(G_OBJECT(standard_view->preferences),
                       "last-sort-column", sort_column,
                       "last-sort-order", sort_order,
@@ -2033,7 +2033,7 @@ static gboolean _standard_view_scroll_event(
         return FALSE;
     }
 
-    /* zoom-in/zoom-out on control+mouse wheel */
+    // zoom-in/zoom-out on control+mouse wheel
     if ((event->state & GDK_CONTROL_MASK) != 0
         && (scrolling_direction == GDK_SCROLL_UP
             || scrolling_direction == GDK_SCROLL_DOWN))
@@ -2045,7 +2045,7 @@ static gboolean _standard_view_scroll_event(
         return TRUE;
     }
 
-    /* next please... */
+    // next please...
     return FALSE;
 }
 
@@ -2057,10 +2057,10 @@ static gboolean _standard_view_key_press_event(
     (void) view;
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
-    /* need to catch "/" and "~" first, as the views would otherwise start interactive search */
+    // need to catch "/" and "~" first, as the views would otherwise start interactive search
     if ((event->keyval == GDK_KEY_slash || event->keyval == GDK_KEY_asciitilde || event->keyval == GDK_KEY_dead_tilde) && !(event->state &(~GDK_SHIFT_MASK & gtk_accelerator_get_default_mod_mask())))
     {
-        /* popup the location selector(in whatever way) */
+        // popup the location selector(in whatever way)
         if (event->keyval == GDK_KEY_dead_tilde)
             g_signal_emit(G_OBJECT(standard_view), _standard_view_signals[START_OPEN_LOCATION], 0, "~");
         else
@@ -2078,7 +2078,7 @@ static void _standard_view_scrolled(GtkAdjustment      *adjustment,
     e_return_if_fail(GTK_IS_ADJUSTMENT(adjustment));
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* ignore adjustment changes when the view is still loading */
+    // ignore adjustment changes when the view is still loading
     if (baseview_get_loading(BASEVIEW(standard_view)))
         return;
 }
@@ -2144,21 +2144,21 @@ static gboolean _standard_view_restore_selection_idle(StandardView *standard_vie
 
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
 
-    /* save the current scroll position and limits */
+    // save the current scroll position and limits
     hadjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(standard_view));
     vadjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(standard_view));
     g_object_get(G_OBJECT(hadjustment), "value", &h, "lower", &hl, "upper", &hu, NULL);
     g_object_get(G_OBJECT(vadjustment), "value", &v, "lower", &vl, "upper", &vu, NULL);
 
-    /* keep the current scroll position by setting the limits to the current value */
+    // keep the current scroll position by setting the limits to the current value
     g_object_set(G_OBJECT(hadjustment), "lower", h, "upper", h, NULL);
     g_object_set(G_OBJECT(vadjustment), "lower", v, "upper", v, NULL);
 
-    /* restore the selection */
+    // restore the selection
     component_restore_selection(THUNAR_COMPONENT(standard_view));
     standard_view->priv->restore_selection_idle_id = 0;
 
-    /* unfreeze the scroll position */
+    // unfreeze the scroll position
     g_object_set(G_OBJECT(hadjustment), "value", h, "lower", hl, "upper", hu, NULL);
     g_object_set(G_OBJECT(vadjustment), "value", v, "lower", vl, "upper", vu, NULL);
 
@@ -2175,12 +2175,12 @@ static void _standard_view_error(ListModel    *model,
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
     e_return_if_fail(standard_view->model == model);
 
-    /* determine the ThunarFile for the current directory */
+    // determine the ThunarFile for the current directory
     file = navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
     if (G_UNLIKELY(file == NULL))
         return;
 
-    /* inform the user about the problem */
+    // inform the user about the problem
     dialog_error(GTK_WIDGET(standard_view), error,
                                _("Failed to open directory \"%s\""),
                                th_file_get_display_name(file));
@@ -2194,13 +2194,13 @@ static gboolean _standard_view_update_statusbar_text_idle(gpointer data)
 
     THUNAR_THREADS_ENTER
 
-    /* clear the current status text(will be recalculated on-demand) */
+    // clear the current status text(will be recalculated on-demand)
     g_free(standard_view->priv->statusbar_text);
     standard_view->priv->statusbar_text = NULL;
 
     standard_view->priv->statusbar_text_idle_id = 0;
 
-    /* tell everybody that the statusbar text may have changed */
+    // tell everybody that the statusbar text may have changed
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_STATUSBAR_TEXT]);
 
     THUNAR_THREADS_LEAVE
@@ -2210,7 +2210,7 @@ static gboolean _standard_view_update_statusbar_text_idle(gpointer data)
 
 static void _standard_view_update_statusbar_text(StandardView *standard_view)
 {
-    /* stop pending timeout */
+    // stop pending timeout
     if (standard_view->priv->statusbar_text_idle_id != 0)
         g_source_remove(standard_view->priv->statusbar_text_idle_id);
 
@@ -2231,7 +2231,7 @@ static void _standard_view_size_allocate(StandardView *standard_view,
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* ignore size changes when the view is still loading */
+    // ignore size changes when the view is still loading
     if (baseview_get_loading(BASEVIEW(standard_view)))
         return;
 }
@@ -2248,26 +2248,26 @@ static void _standard_view_current_directory_destroy(ThunarFile *current_directo
 
     GError     *error = NULL;
 
-    /* get a fallback directory(parents or home) we can navigate to */
+    // get a fallback directory(parents or home) we can navigate to
     ThunarFile *new_directory = NULL;
     new_directory = _standard_view_get_fallback_directory(current_directory, error);
 
     if (G_UNLIKELY(new_directory == NULL))
     {
-        /* display an error to the user */
+        // display an error to the user
         dialog_error(GTK_WIDGET(standard_view), error, _("Failed to open the home folder"));
         g_error_free(error);
         return;
     }
 
-    /* let the parent window update all active and inactive views(tabs) */
+    // let the parent window update all active and inactive views(tabs)
     GtkWidget  *window;
     window = gtk_widget_get_toplevel(GTK_WIDGET(standard_view));
     window_update_directories(THUNAR_WINDOW(window),
                                       current_directory,
                                       new_directory);
 
-    /* release the reference to the new directory */
+    // release the reference to the new directory
     g_object_unref(new_directory);
 }
 
@@ -2278,7 +2278,7 @@ static void _standard_view_current_directory_changed(ThunarFile *current_directo
     e_return_if_fail(THUNAR_IS_FILE(current_directory));
     e_return_if_fail(standard_view->priv->current_directory == current_directory);
 
-    /* update tab label and tooltip */
+    // update tab label and tooltip
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_DISPLAY_NAME]);
     g_object_notify_by_pspec(G_OBJECT(standard_view), _standard_view_props[PROP_TOOLTIP_TEXT]);
 }
@@ -2299,25 +2299,25 @@ static ThunarFile* _standard_view_get_fallback_directory(
 
     e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
 
-    /* determine the path of the directory */
+    // determine the path of the directory
     path = g_object_ref(th_file_get_file(directory));
 
-    /* try to find a parent directory that still exists */
+    // try to find a parent directory that still exists
     while(new_directory == NULL)
     {
-        /* check whether the directory exists */
+        // check whether the directory exists
         if (g_file_query_exists(path, NULL))
         {
-            /* it does, try to load the file */
+            // it does, try to load the file
             new_directory = th_file_get(path, NULL);
 
-            /* fall back to $HOME if loading the file failed */
+            // fall back to $HOME if loading the file failed
             if (new_directory == NULL)
                 break;
         }
         else
         {
-            /* determine the parent of the directory */
+            // determine the parent of the directory
             tmp = g_file_get_parent(path);
 
             /* if there's no parent this means that we've found no parent
@@ -2325,21 +2325,21 @@ static ThunarFile* _standard_view_get_fallback_directory(
             if (tmp == NULL)
                 break;
 
-            /* free the old directory */
+            // free the old directory
             g_object_unref(path);
 
-            /* check the parent next */
+            // check the parent next
             path = tmp;
         }
     }
 
-    /* release last ref */
+    // release last ref
     if (path != NULL)
         g_object_unref(path);
 
     if (new_directory == NULL)
     {
-        /* fall-back to the home directory */
+        // fall-back to the home directory
         path = e_file_new_for_home();
         new_directory = th_file_get(path, &error);
         g_object_unref(path);
@@ -2362,7 +2362,7 @@ static gboolean _standard_view_button_release_event(
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
     e_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
-    /* cancel the pending drag timer */
+    // cancel the pending drag timer
     g_source_remove(standard_view->priv->drag_timer_id);
 
     standard_view_context_menu(standard_view);
@@ -2380,15 +2380,15 @@ static gboolean _standard_view_motion_notify_event(
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
     e_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
-    /* check if we passed the DnD threshold */
+    // check if we passed the DnD threshold
     if (gtk_drag_check_threshold(view, standard_view->priv->drag_x, standard_view->priv->drag_y, event->x, event->y))
     {
-        /* cancel the drag timer, as we won't popup the menu anymore */
+        // cancel the drag timer, as we won't popup the menu anymore
         g_source_remove(standard_view->priv->drag_timer_id);
         gdk_event_free(standard_view->priv->drag_timer_event);
         standard_view->priv->drag_timer_event = NULL;
 
-        /* allocate the drag context */
+        // allocate the drag context
         target_list = gtk_target_list_new(_drag_targets, G_N_ELEMENTS(_drag_targets));
         gtk_drag_begin_with_coordinates(view, target_list,
                                          GDK_ACTION_COPY |
@@ -2413,10 +2413,10 @@ static void _standard_view_select_all_files(BaseView *view)
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* grab the focus to the view */
+    // grab the focus to the view
     gtk_widget_grab_focus(GTK_WIDGET(standard_view));
 
-    /* select all files in the real view */
+    // select all files in the real view
    (*STANDARD_VIEW_GET_CLASS(standard_view)->select_all)(standard_view);
 }
 
@@ -2483,22 +2483,22 @@ static void _standard_view_select_by_pattern(BaseView *view)
     response = gtk_dialog_run(GTK_DIALOG(dialog));
     if (response == GTK_RESPONSE_OK)
     {
-        /* get entered pattern */
+        // get entered pattern
         pattern = gtk_entry_get_text(GTK_ENTRY(entry));
         if (pattern != NULL
                 && strchr(pattern, '*') == NULL
                 && strchr(pattern, '?') == NULL)
         {
-            /* make file matching pattern */
+            // make file matching pattern
             pattern_extended = g_strdup_printf("*%s*", pattern);
             pattern = pattern_extended;
         }
 
-        /* select all files that match pattern */
+        // select all files that match pattern
         paths = listmodel_get_paths_for_pattern(standard_view->model, pattern);
         STANDARD_VIEW_GET_CLASS(standard_view)->unselect_all(standard_view);
 
-        /* set the cursor and scroll to the first selected item */
+        // set the cursor and scroll to the first selected item
         if (paths != NULL)
             STANDARD_VIEW_GET_CLASS(standard_view)->set_cursor(standard_view, g_list_last(paths)->data, FALSE);
 
@@ -2520,10 +2520,10 @@ static void _standard_view_selection_invert(BaseView *view)
 
     e_return_if_fail(IS_STANDARD_VIEW(standard_view));
 
-    /* grab the focus to the view */
+    // grab the focus to the view
     gtk_widget_grab_focus(GTK_WIDGET(standard_view));
 
-    /* invert all files in the real view */
+    // invert all files in the real view
    (*STANDARD_VIEW_GET_CLASS(standard_view)->selection_invert)(standard_view);
 }
 
@@ -2538,24 +2538,24 @@ static void _standard_view_drag_begin(GtkWidget *view, GdkDragContext *context,
     GdkPixbuf  *icon;
     gint        size;
 
-    /* release the drag path list(just in case the drag-end wasn't fired before) */
+    // release the drag path list(just in case the drag-end wasn't fired before)
     e_list_free(standard_view->priv->drag_g_file_list);
 
-    /* query the list of selected URIs */
+    // query the list of selected URIs
     standard_view->priv->drag_g_file_list = th_file_list_to_thunar_g_file_list(standard_view->priv->selected_files);
     if (G_LIKELY(standard_view->priv->drag_g_file_list != NULL))
     {
-        /* determine the first selected file */
+        // determine the first selected file
         file = th_file_get(standard_view->priv->drag_g_file_list->data, NULL);
         if (G_LIKELY(file != NULL))
         {
-            /* generate an icon based on that file */
+            // generate an icon based on that file
             g_object_get(G_OBJECT(standard_view->icon_renderer), "size", &size, NULL);
             icon = ifactory_load_file_icon(standard_view->icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, size);
             gtk_drag_set_icon_pixbuf(context, icon, 0, 0);
             g_object_unref(G_OBJECT(icon));
 
-            /* release the file */
+            // release the file
             g_object_unref(G_OBJECT(file));
         }
     }
@@ -2575,7 +2575,7 @@ static void _standard_view_drag_data_get(GtkWidget          *view,
 
     gchar **uris;
 
-    /* set the URI list for the drag selection */
+    // set the URI list for the drag selection
     if (standard_view->priv->drag_g_file_list != NULL)
     {
         uris = e_file_list_to_stringv(standard_view->priv->drag_g_file_list);
@@ -2590,7 +2590,7 @@ static void _standard_view_drag_data_delete(GtkWidget          *view,
 {
     (void) context;
     (void) standard_view;
-    /* make sure the default handler of ExoIconView/GtkTreeView is never run */
+    // make sure the default handler of ExoIconView/GtkTreeView is never run
     g_signal_stop_emission_by_name(G_OBJECT(view), "drag-data-delete");
 }
 
@@ -2601,11 +2601,11 @@ static void _standard_view_drag_end(GtkWidget          *view,
     (void) view;
     (void) context;
 
-    /* stop any running drag autoscroll timer */
+    // stop any running drag autoscroll timer
     if (G_UNLIKELY(standard_view->priv->drag_scroll_timer_id != 0))
         g_source_remove(standard_view->priv->drag_scroll_timer_id);
 
-    /* release the list of dragged URIs */
+    // release the list of dragged URIs
     e_list_free(standard_view->priv->drag_g_file_list);
     standard_view->priv->drag_g_file_list = NULL;
 }
@@ -2622,21 +2622,21 @@ static void _standard_view_drag_leave(GtkWidget          *widget,
     (void) context;
     (void) timestamp;
 
-    /* reset the drop-file for the icon renderer */
+    // reset the drop-file for the icon renderer
     g_object_set(G_OBJECT(standard_view->icon_renderer), "drop-file", NULL, NULL);
 
-    /* stop any running drag autoscroll timer */
+    // stop any running drag autoscroll timer
     if (G_UNLIKELY(standard_view->priv->drag_scroll_timer_id != 0))
         g_source_remove(standard_view->priv->drag_scroll_timer_id);
 
-    /* disable the drop highlighting around the view */
+    // disable the drop highlighting around the view
     if (G_LIKELY(standard_view->priv->drop_highlight))
     {
         standard_view->priv->drop_highlight = FALSE;
         gtk_widget_queue_draw(GTK_WIDGET(standard_view));
     }
 
-    /* reset the "drop data ready" status and free the URI list */
+    // reset the "drop data ready" status and free the URI list
     if (G_LIKELY(standard_view->priv->drop_data_ready))
     {
         e_list_free(standard_view->priv->drop_file_list);
@@ -2644,7 +2644,7 @@ static void _standard_view_drag_leave(GtkWidget          *widget,
         standard_view->priv->drop_data_ready = FALSE;
     }
 
-    /* disable the highlighting of the items in the view */
+    // disable the highlighting of the items in the view
     STANDARD_VIEW_GET_CLASS(standard_view)->highlight_path(standard_view, NULL);
 }
 
@@ -2660,18 +2660,18 @@ static gboolean _standard_view_drag_motion(GtkWidget          *view,
     ThunarFile   *file = NULL;
     GdkAtom       target;
 
-    /* request the drop data on-demand(if we don't have it already) */
+    // request the drop data on-demand(if we don't have it already)
     if (G_UNLIKELY(!standard_view->priv->drop_data_ready))
     {
-        /* check if we can handle that drag data(yet?) */
+        // check if we can handle that drag data(yet?)
         target = gtk_drag_dest_find_target(view, context, NULL);
 
         if ((target == gdk_atom_intern_static_string("XdndDirectSave0")) ||(target == gdk_atom_intern_static_string("_NETSCAPE_URL")))
         {
-            /* determine the file for the given coordinates */
+            // determine the file for the given coordinates
             file = _standard_view_get_drop_file(standard_view, x, y, &path);
 
-            /* check if we can save here */
+            // check if we can save here
             if (G_LIKELY(file != NULL
                           && th_file_is_local(file)
                           && th_file_is_directory(file)
@@ -2680,27 +2680,27 @@ static gboolean _standard_view_drag_motion(GtkWidget          *view,
                 action = gdk_drag_context_get_suggested_action(context);
             }
 
-            /* reset path if we cannot drop */
+            // reset path if we cannot drop
             if (G_UNLIKELY(action == 0 && path != NULL))
             {
                 gtk_tree_path_free(path);
                 path = NULL;
             }
 
-            /* do the view highlighting */
+            // do the view highlighting
             if (standard_view->priv->drop_highlight !=(path == NULL && action != 0))
             {
                 standard_view->priv->drop_highlight =(path == NULL && action != 0);
                 gtk_widget_queue_draw(GTK_WIDGET(standard_view));
             }
 
-            /* setup drop-file for the icon renderer to highlight the target */
+            // setup drop-file for the icon renderer to highlight the target
             g_object_set(G_OBJECT(standard_view->icon_renderer), "drop-file",(action != 0) ? file : NULL, NULL);
 
-            /* do the item highlighting */
+            // do the item highlighting
            (*STANDARD_VIEW_GET_CLASS(standard_view)->highlight_path)(standard_view, path);
 
-            /* cleanup */
+            // cleanup
             if (G_LIKELY(file != NULL))
                 g_object_unref(G_OBJECT(file));
 
@@ -2709,24 +2709,24 @@ static gboolean _standard_view_drag_motion(GtkWidget          *view,
         }
         else
         {
-            /* request the drag data from the source */
+            // request the drag data from the source
             if (target != GDK_NONE)
                 gtk_drag_get_data(view, context, target, timestamp);
         }
 
-        /* tell Gdk whether we can drop here */
+        // tell Gdk whether we can drop here
         gdk_drag_status(context, action, timestamp);
     }
     else
     {
-        /* check whether we can drop at(x,y) */
+        // check whether we can drop at(x,y)
         _standard_view_get_dest_actions(standard_view, context, x, y, timestamp, NULL);
     }
 
-    /* start the drag autoscroll timer if not already running */
+    // start the drag autoscroll timer if not already running
     if (G_UNLIKELY(standard_view->priv->drag_scroll_timer_id == 0))
     {
-        /* schedule the drag autoscroll timer */
+        // schedule the drag autoscroll timer
         standard_view->priv->drag_scroll_timer_id = g_timeout_add_full(
                                         G_PRIORITY_LOW,
                                         50,
@@ -2755,61 +2755,61 @@ static gboolean _standard_view_drag_drop(GtkWidget          *view,
     target = gtk_drag_dest_find_target(view, context, NULL);
     if (G_UNLIKELY(target == GDK_NONE))
     {
-        /* we cannot handle the drag data */
+        // we cannot handle the drag data
         return FALSE;
     }
     else if (G_UNLIKELY(target == gdk_atom_intern_static_string("XdndDirectSave0")))
     {
-        /* determine the file for the drop position */
+        // determine the file for the drop position
         file = _standard_view_get_drop_file(standard_view, x, y, NULL);
         if (G_LIKELY(file != NULL))
         {
-            /* determine the file name from the DnD source window */
+            // determine the file name from the DnD source window
             if (gdk_property_get(gdk_drag_context_get_source_window(context),
                                   gdk_atom_intern_static_string("XdndDirectSave0"),
                                   gdk_atom_intern_static_string("text/plain"), 0, 1024, FALSE, NULL, NULL,
                                   &prop_len, &prop_text) && prop_text != NULL)
             {
-                /* zero-terminate the string */
+                // zero-terminate the string
                 prop_text = g_realloc(prop_text, prop_len + 1);
                 prop_text[prop_len] = '\0';
 
-                /* verify that the file name provided by the source is valid */
+                // verify that the file name provided by the source is valid
                 if (G_LIKELY(*prop_text != '\0' && strchr((const gchar *) prop_text, G_DIR_SEPARATOR) == NULL))
                 {
-                    /* allocate the relative path for the target */
+                    // allocate the relative path for the target
                     path = g_file_resolve_relative_path(th_file_get_file(file),
                                                         (const gchar *)prop_text);
 
-                    /* determine the new URI */
+                    // determine the new URI
                     uri = g_file_get_uri(path);
 
-                    /* setup the property */
+                    // setup the property
                     gdk_property_change(gdk_drag_context_get_source_window(context),
                                          gdk_atom_intern_static_string("XdndDirectSave0"),
                                          gdk_atom_intern_static_string("text/plain"), 8,
                                          GDK_PROP_MODE_REPLACE,(const guchar *) uri,
                                          strlen(uri));
 
-                    /* cleanup */
+                    // cleanup
                     g_object_unref(path);
                     g_free(uri);
                 }
                 else
                 {
-                    /* tell the user that the file name provided by the X Direct Save source is invalid */
+                    // tell the user that the file name provided by the X Direct Save source is invalid
                     dialog_error(GTK_WIDGET(standard_view), NULL, _("Invalid filename provided by XDS drag site"));
                 }
 
-                /* cleanup */
+                // cleanup
                 g_free(prop_text);
             }
 
-            /* release the file reference */
+            // release the file reference
             g_object_unref(G_OBJECT(file));
         }
 
-        /* if uri == NULL, we didn't set the property */
+        // if uri == NULL, we didn't set the property
         if (G_UNLIKELY(uri == NULL))
             return FALSE;
     }
@@ -2824,7 +2824,7 @@ static gboolean _standard_view_drag_drop(GtkWidget          *view,
      */
     gtk_drag_get_data(view, context, target, timestamp);
 
-    /* we'll call gtk_drag_finish() later */
+    // we'll call gtk_drag_finish() later
     return TRUE;
 }
 
@@ -2854,30 +2854,30 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
     GdkScreen    *screen;
     char         *display = NULL;
 
-    /* check if we don't already know the drop data */
+    // check if we don't already know the drop data
     if (G_LIKELY(!standard_view->priv->drop_data_ready))
     {
-        /* extract the URI list from the selection data(if valid) */
+        // extract the URI list from the selection data(if valid)
         if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0)
             standard_view->priv->drop_file_list = e_file_list_new_from_string((gchar *) gtk_selection_data_get_data(selection_data));
 
-        /* reset the state */
+        // reset the state
         standard_view->priv->drop_data_ready = TRUE;
     }
 
-    /* check if the data was dropped */
+    // check if the data was dropped
     if (G_UNLIKELY(standard_view->priv->drop_occurred))
     {
-        /* reset the state */
+        // reset the state
         standard_view->priv->drop_occurred = FALSE;
 
-        /* check if we're doing XdndDirectSave */
+        // check if we're doing XdndDirectSave
         if (G_UNLIKELY(info == TARGET_XDND_DIRECT_SAVE0))
         {
-            /* we don't handle XdndDirectSave stage(3), result "F" yet */
+            // we don't handle XdndDirectSave stage(3), result "F" yet
             if (G_UNLIKELY(gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) == 1 && gtk_selection_data_get_data(selection_data)[0] == 'F'))
             {
-                /* indicate that we don't provide "F" fallback */
+                // indicate that we don't provide "F" fallback
                 gdk_property_change(gdk_drag_context_get_source_window(context),
                                      gdk_atom_intern_static_string("XdndDirectSave0"),
                                      gdk_atom_intern_static_string("text/plain"), 8,
@@ -2885,45 +2885,45 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
             }
             else if (G_LIKELY(gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) == 1 && gtk_selection_data_get_data(selection_data)[0] == 'S'))
             {
-                /* XDS was successfull, so determine the file for the drop position */
+                // XDS was successfull, so determine the file for the drop position
                 file = _standard_view_get_drop_file(standard_view, x, y, NULL);
                 if (G_LIKELY(file != NULL))
                 {
-                    /* verify that we have a directory here */
+                    // verify that we have a directory here
                     if (th_file_is_directory(file))
                     {
-                        /* reload the folder corresponding to the file */
+                        // reload the folder corresponding to the file
                         folder = th_folder_get_for_file(file);
                         th_folder_load(folder, FALSE);
                         g_object_unref(G_OBJECT(folder));
                     }
 
-                    /* cleanup */
+                    // cleanup
                     g_object_unref(G_OBJECT(file));
                 }
             }
 
-            /* in either case, we succeed! */
+            // in either case, we succeed!
             succeed = TRUE;
         }
         else if (G_UNLIKELY(info == TARGET_NETSCAPE_URL))
         {
-            /* check if the format is valid and we have any data */
+            // check if the format is valid and we have any data
             if (G_LIKELY(gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0))
             {
-                /* _NETSCAPE_URL looks like this: "$URL\n$TITLE" */
+                // _NETSCAPE_URL looks like this: "$URL\n$TITLE"
                 bits = g_strsplit((const gchar *) gtk_selection_data_get_data(selection_data), "\n", -1);
                 if (G_LIKELY(g_strv_length(bits) == 2))
                 {
-                    /* determine the file for the drop position */
+                    // determine the file for the drop position
                     file = _standard_view_get_drop_file(standard_view, x, y, NULL);
                     if (G_LIKELY(file != NULL))
                     {
-                        /* determine the absolute path to the target directory */
+                        // determine the absolute path to the target directory
                         working_directory = g_file_get_path(th_file_get_file(file));
                         if (G_LIKELY(working_directory != NULL))
                         {
-                            /* prepare the basic part of the command */
+                            // prepare the basic part of the command
                             argv[n++] = "exo-desktop-item-edit";
                             argv[n++] = "--type=Link";
                             argv[n++] = "--url";
@@ -2931,13 +2931,13 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                             argv[n++] = "--name";
                             argv[n++] = bits[1];
 
-                            /* determine the toplevel window */
+                            // determine the toplevel window
                             toplevel = gtk_widget_get_toplevel(view);
                             if (toplevel != NULL && gtk_widget_is_toplevel(toplevel))
                             {
 
 #if defined(GDK_WINDOWING_X11)
-                                /* on X11, we can supply the parent window id here */
+                                // on X11, we can supply the parent window id here
                                 argv[n++] = "--xid";
                                 argv[n++] = g_newa(gchar, 32);
                                 g_snprintf(argv[n - 1], 32, "%ld",(glong) GDK_WINDOW_XID(gtk_widget_get_window(GTK_WIDGET(toplevel))));
@@ -2945,7 +2945,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
 
                             }
 
-                            /* terminate the parameter list */
+                            // terminate the parameter list
                             argv[n++] = "--create-new";
                             argv[n++] = working_directory;
                             argv[n++] = NULL;
@@ -2955,21 +2955,21 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                             if (screen != NULL)
                                 display = g_strdup(gdk_display_get_name(gdk_screen_get_display(screen)));
 
-                            /* try to run exo-desktop-item-edit */
+                            // try to run exo-desktop-item-edit
                             succeed = g_spawn_async(working_directory, argv, NULL,
                                                      G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
                                                      util_setup_display_cb, display, &pid, &error);
 
                             if (G_UNLIKELY(!succeed))
                             {
-                                /* display an error dialog to the user */
+                                // display an error dialog to the user
                                 dialog_error(standard_view, error, _("Failed to create a link for the URL \"%s\""), bits[0]);
                                 g_free(working_directory);
                                 g_error_free(error);
                             }
                             else
                             {
-                                /* reload the directory when the command terminates */
+                                // reload the directory when the command terminates
                                 g_child_watch_add_full(
                                                 G_PRIORITY_LOW,
                                                 pid,
@@ -2978,7 +2978,7 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                                                 g_free);
                             }
 
-                            /* cleanup */
+                            // cleanup
                             g_free(display);
                         }
 
@@ -2986,26 +2986,26 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                     }
                 }
 
-                /* cleanup */
+                // cleanup
                 g_strfreev(bits);
             }
         }
         else if (G_LIKELY(info == TARGET_TEXT_URI_LIST))
         {
-            /* determine the drop position */
+            // determine the drop position
             actions = _standard_view_get_dest_actions(standard_view, context, x, y, timestamp, &file);
 
             if (G_LIKELY((actions & (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK)) != 0))
             {
-                /* ask the user what to do with the drop data */
+                // ask the user what to do with the drop data
                 action = (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
                          ? dnd_ask(GTK_WIDGET(standard_view), file, standard_view->priv->drop_file_list, actions)
                          : gdk_drag_context_get_selected_action(context);
 
-                /* perform the requested action */
+                // perform the requested action
                 if (G_LIKELY(action != 0))
                 {
-                    /* look if we can find the drag source widget */
+                    // look if we can find the drag source widget
                     source_widget = gtk_drag_get_source_widget(context);
                     if (source_widget != NULL)
                     {
@@ -3021,15 +3021,15 @@ static void _standard_view_drag_data_received(GtkWidget          *view,
                 }
             }
 
-            /* release the file reference */
+            // release the file reference
             if (G_LIKELY(file != NULL))
                 g_object_unref(G_OBJECT(file));
         }
 
-        /* tell the peer that we handled the drop */
+        // tell the peer that we handled the drop
         gtk_drag_finish(context, succeed, FALSE, timestamp);
 
-        /* disable the highlighting and release the drag data */
+        // disable the highlighting and release the drag data
         _standard_view_drag_leave(view, context, timestamp, standard_view);
     }
 }
@@ -3044,34 +3044,34 @@ static ThunarFile* _standard_view_get_drop_file(
     GtkTreeIter  iter;
     ThunarFile  *file = NULL;
 
-    /* determine the path for the given coordinates */
+    // determine the path for the given coordinates
     path =(*STANDARD_VIEW_GET_CLASS(standard_view)->get_path_at_pos)(standard_view, x, y);
     if (G_LIKELY(path != NULL))
     {
-        /* determine the file for the path */
+        // determine the file for the path
         gtk_tree_model_get_iter(GTK_TREE_MODEL(standard_view->model), &iter, path);
         file = listmodel_get_file(standard_view->model, &iter);
 
-        /* we can only drop to directories and executable files */
+        // we can only drop to directories and executable files
         if (!th_file_is_directory(file) && !th_file_is_executable(file))
         {
-            /* drop to the folder instead */
+            // drop to the folder instead
             g_object_unref(G_OBJECT(file));
             gtk_tree_path_free(path);
             path = NULL;
         }
     }
 
-    /* if we don't have a path yet, we'll drop to the folder instead */
+    // if we don't have a path yet, we'll drop to the folder instead
     if (G_UNLIKELY(path == NULL))
     {
-        /* determine the current directory */
+        // determine the current directory
         file = navigator_get_current_directory(THUNAR_NAVIGATOR(standard_view));
         if (G_LIKELY(file != NULL))
             g_object_ref(G_OBJECT(file));
     }
 
-    /* return the path(if any) */
+    // return the path(if any)
     if (G_LIKELY(path_return != NULL))
         *path_return = path;
     else if (G_LIKELY(path != NULL))
@@ -3092,23 +3092,23 @@ static GdkDragAction _standard_view_get_dest_actions(StandardView *standard_view
     GtkTreePath  *path;
     ThunarFile   *file;
 
-    /* determine the file and path for the given coordinates */
+    // determine the file and path for the given coordinates
     file = _standard_view_get_drop_file(standard_view, x, y, &path);
 
-    /* check if we can drop there */
+    // check if we can drop there
     if (G_LIKELY(file != NULL))
     {
-        /* determine the possible drop actions for the file(and the suggested action if any) */
+        // determine the possible drop actions for the file(and the suggested action if any)
         actions = th_file_accepts_drop(file, standard_view->priv->drop_file_list, context, &action);
         if (G_LIKELY(actions != 0))
         {
-            /* tell the caller about the file(if it's interested) */
+            // tell the caller about the file(if it's interested)
             if (G_UNLIKELY(file_return != NULL))
                 *file_return = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
         }
     }
 
-    /* reset path if we cannot drop */
+    // reset path if we cannot drop
     if (G_UNLIKELY(action == 0 && path != NULL))
     {
         gtk_tree_path_free(path);
@@ -3120,20 +3120,20 @@ static GdkDragAction _standard_view_get_dest_actions(StandardView *standard_view
      */
     g_object_set(G_OBJECT(standard_view->icon_renderer), "drop-file",(action != 0) ? file : NULL, NULL);
 
-    /* do the view highlighting */
+    // do the view highlighting
     if (standard_view->priv->drop_highlight !=(path == NULL && action != 0))
     {
         standard_view->priv->drop_highlight =(path == NULL && action != 0);
         gtk_widget_queue_draw(GTK_WIDGET(standard_view));
     }
 
-    /* do the item highlighting */
+    // do the item highlighting
    (*STANDARD_VIEW_GET_CLASS(standard_view)->highlight_path)(standard_view, path);
 
-    /* tell Gdk whether we can drop here */
+    // tell Gdk whether we can drop here
     gdk_drag_status(context, action, timestamp);
 
-    /* clean up */
+    // clean up
     if (G_LIKELY(file != NULL))
         g_object_unref(G_OBJECT(file));
     if (G_LIKELY(path != NULL))
@@ -3150,10 +3150,10 @@ static gboolean _standard_view_drag_scroll_timer(gpointer user_data)
 
     THUNAR_THREADS_ENTER
 
-    /* verify that we are realized */
+    // verify that we are realized
     if (G_LIKELY(gtk_widget_get_realized(GTK_WIDGET(standard_view))))
     {
-        /* determine pointer location and window geometry */
+        // determine pointer location and window geometry
         GdkWindow *window = gtk_widget_get_window(
                                 gtk_bin_get_child(GTK_BIN(standard_view)));
 
@@ -3163,7 +3163,7 @@ static gboolean _standard_view_drag_scroll_timer(gpointer user_data)
         gdk_window_get_device_position(window, pointer, &x, &y, NULL);
         gdk_window_get_geometry(window, NULL, NULL, &w, &h);
 
-        /* check if we are near the edge(vertical) */
+        // check if we are near the edge(vertical)
         gint offset = y -(2 * 20);
 
         if (G_UNLIKELY(offset > 0))
@@ -3172,35 +3172,35 @@ static gboolean _standard_view_drag_scroll_timer(gpointer user_data)
         GtkAdjustment *adjustment;
         gfloat value;
 
-        /* change the vertical adjustment appropriately */
+        // change the vertical adjustment appropriately
         if (G_UNLIKELY(offset != 0))
         {
-            /* determine the vertical adjustment */
+            // determine the vertical adjustment
             adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(standard_view));
 
-            /* determine the new value */
+            // determine the new value
             value = CLAMP(gtk_adjustment_get_value(adjustment) + 2 * offset, gtk_adjustment_get_lower(adjustment), gtk_adjustment_get_upper(adjustment) - gtk_adjustment_get_page_size(adjustment));
 
-            /* apply the new value */
+            // apply the new value
             gtk_adjustment_set_value(adjustment, value);
         }
 
-        /* check if we are near the edge(horizontal) */
+        // check if we are near the edge(horizontal)
         offset = x -(2 * 20);
 
         if (G_UNLIKELY(offset > 0))
             offset = MAX(x -(w - 2 * 20), 0);
 
-        /* change the horizontal adjustment appropriately */
+        // change the horizontal adjustment appropriately
         if (G_UNLIKELY(offset != 0))
         {
-            /* determine the vertical adjustment */
+            // determine the vertical adjustment
             adjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(standard_view));
 
-            /* determine the new value */
+            // determine the new value
             value = CLAMP(gtk_adjustment_get_value(adjustment) + 2 * offset, gtk_adjustment_get_lower(adjustment), gtk_adjustment_get_upper(adjustment) - gtk_adjustment_get_page_size(adjustment));
 
-            /* apply the new value */
+            // apply the new value
             gtk_adjustment_set_value(adjustment, value);
         }
     }
@@ -3221,10 +3221,10 @@ static void _standard_view_reload_directory(GPid pid, gint status,
     (void) pid;
     (void) status;
 
-    /* determine the path for the directory */
+    // determine the path for the directory
     GFile *file = g_file_new_for_uri(user_data);
 
-    /* schedule a changed event for the directory */
+    // schedule a changed event for the directory
     GFileMonitor *monitor = g_file_monitor(file, G_FILE_MONITOR_NONE, NULL, NULL);
     if (monitor != NULL)
     {
