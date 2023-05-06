@@ -52,7 +52,7 @@ void app_notify_uninit()
 static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
                              const gchar  *message)
 {
-    /* get suitable icon for the device */
+    // get suitable icon for the device
     GIcon *icon = th_device_get_icon(device);
 
     gchar *icon_name = NULL;
@@ -83,7 +83,7 @@ static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
 
     NotifyNotification *notification;
 
-    /* create notification */
+    // create notification
 #ifdef NOTIFY_CHECK_VERSION
 #if NOTIFY_CHECK_VERSION(0, 7, 0)
     notification = notify_notification_new(summary, message, icon_name);
@@ -98,7 +98,7 @@ static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
     notify_notification_set_timeout(notification, NOTIFY_EXPIRES_NEVER);
     notify_notification_show(notification, NULL);
 
-    /* attach to object for finalize */
+    // attach to object for finalize
     g_object_set_data_full(G_OBJECT(device), I_("thunar-notification"),
                            notification, g_object_unref);
 

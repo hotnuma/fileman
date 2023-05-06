@@ -28,7 +28,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     27798	./view/column_model.c
     24656	./core/th_device.c
     24424	./job/job.c
-    24323	./misc/browser.c
++   24323	./misc/browser.c
     23925	./dialog/progress_view.c
     22433	./core/devmon.c
     21420	./core/clipman.c
@@ -57,7 +57,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     7617	./job/job_utils.c
     7231	./libext/gtk_ext.c
     6860	./misc/navigator.c
-    6626	./misc/app_notify.c
++   6626	./misc/app_notify.c
     5838	./libext/pango_ext.c
     5587	./widget/th_image.c
     5560	./job/io_scan_directory.c
@@ -69,7 +69,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     4544	./misc/component.c
     2598	./preferences.c
     2359	./side/sidepane.c
-    1422	./main.c
++   1422	./main.c
 
 * Port SizeLabel to GtkBox
     

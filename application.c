@@ -785,10 +785,10 @@ static GtkWidget* _application_get_progress_dialog(
 }
 
 static void _application_process_files_finish(ThunarBrowser  *browser,
-                                                    ThunarFile     *file,
-                                                    ThunarFile     *target_file,
-                                                    GError         *error,
-                                                    gpointer       unused)
+                                              ThunarFile     *file,
+                                              ThunarFile     *target_file,
+                                              GError         *error,
+                                              gpointer       unused)
 {
     (void) unused;
 
@@ -819,6 +819,7 @@ static void _application_process_files_finish(ThunarBrowser  *browser,
 
         // stop processing files
         e_list_free(application->files_to_launch);
+
         application->files_to_launch = NULL;
     }
     else
@@ -829,7 +830,7 @@ static void _application_process_files_finish(ThunarBrowser  *browser,
         // remove the file from the list
         application->files_to_launch =
             g_list_delete_link(application->files_to_launch,
-                                application->files_to_launch);
+                               application->files_to_launch);
 
         // release the file
         g_object_unref(file);
@@ -867,8 +868,8 @@ static void _application_process_files(Application *application)
     // make sure to hold a reference to the application while file processing is going on
     g_application_hold(G_APPLICATION(application));
 
-    /* resolve the file and/or mount its enclosing volume
-     * before handling it in the callback */
+    // resolve the file and/or mount its enclosing volume
+    // before handling it in the callback
     browser_poke_file(THUNAR_BROWSER(application),
                       file,
                       screen,

@@ -373,34 +373,40 @@ static void _browser_poke_shortcut_file_finish(GFile *location,
 }
 
 static void _browser_poke_file_internal(
-                                ThunarBrowser                *browser,
-                                GFile                        *location,
-                                ThunarFile                   *source,
-                                ThunarFile                   *file,
+                                ThunarBrowser                 *browser,
+                                GFile                         *location,
+                                ThunarFile                    *source,
+                                ThunarFile                    *file,
                                 gpointer                      widget,
                                 ThunarBrowserPokeFileFunc     func,
                                 ThunarBrowserPokeLocationFunc location_func,
                                 gpointer                      user_data)
 {
-    GMountOperation *mount_operation;
-    PokeFileData    *poke_data;
-    GFile           *target;
-
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
     e_return_if_fail(G_IS_FILE(location));
     e_return_if_fail(THUNAR_IS_FILE(source));
     e_return_if_fail(THUNAR_IS_FILE(file));
 
+    GFile           *target;
+    PokeFileData    *poke_data;
+    GMountOperation *mount_operation;
+
     if (th_file_get_kind(file) == G_FILE_TYPE_SHORTCUT)
     {
         target = th_file_get_target_location(file);
 
-        poke_data = _browser_poke_file_data_new(browser, location, source,
-                    file, func, location_func, user_data);
+        poke_data = _browser_poke_file_data_new(browser,
+                                                location,
+                                                source,
+                                                file,
+                                                func,
+                                                location_func,
+                                                user_data);
 
-        th_file_get_async(target, NULL,
-                               _browser_poke_shortcut_file_finish,
-                               poke_data);
+        th_file_get_async(target,
+                          NULL,
+                          _browser_poke_shortcut_file_finish,
+                          poke_data);
 
         g_object_unref(target);
     }
@@ -410,12 +416,18 @@ static void _browser_poke_file_internal(
         {
             target = th_file_get_target_location(file);
 
-            poke_data = _browser_poke_file_data_new(browser, location, source,
-                        file, func, location_func, user_data);
+            poke_data = _browser_poke_file_data_new(browser,
+                                                    location,
+                                                    source,
+                                                    file,
+                                                    func,
+                                                    location_func,
+                                                    user_data);
 
-            th_file_get_async(target, NULL,
-                                   _browser_poke_mountable_file_finish,
-                                   poke_data);
+            th_file_get_async(target,
+                              NULL,
+                              _browser_poke_mountable_file_finish,
+                              poke_data);
 
             g_object_unref(target);
         }
@@ -427,24 +439,32 @@ static void _browser_poke_file_internal(
             mount_operation = e_mount_operation_new(widget);
 
             g_file_mount_mountable(th_file_get_file(file),
-                                    G_MOUNT_MOUNT_NONE, mount_operation, NULL,
-                                    _browser_poke_mountable_finish,
-                                    poke_data);
+                                   G_MOUNT_MOUNT_NONE,
+                                   mount_operation,
+                                   NULL,
+                                   _browser_poke_mountable_finish,
+                                   poke_data);
 
             g_object_unref(mount_operation);
         }
     }
     else if (!th_file_is_mounted(file))
     {
-        poke_data = _browser_poke_file_data_new(browser, location, source,
-                    file, func, location_func, user_data);
+        poke_data = _browser_poke_file_data_new(browser,
+                                                location, source,
+                                                file,
+                                                func,
+                                                location_func,
+                                                user_data);
 
         mount_operation = e_mount_operation_new(widget);
 
         g_file_mount_enclosing_volume(th_file_get_file(file),
-                                       G_MOUNT_MOUNT_NONE, mount_operation, NULL,
-                                       _browser_poke_file_finish,
-                                       poke_data);
+                                      G_MOUNT_MOUNT_NONE,
+                                      mount_operation,
+                                      NULL,
+                                      _browser_poke_file_finish,
+                                      poke_data);
 
         g_object_unref(mount_operation);
     }
@@ -490,8 +510,14 @@ void browser_poke_file(ThunarBrowser             *browser,
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    _browser_poke_file_internal(browser, th_file_get_file(file), file, file, widget,
-                                       func, NULL, user_data);
+    _browser_poke_file_internal(browser,
+                                th_file_get_file(file),
+                                file,
+                                file,
+                                widget,
+                                func,
+                                NULL,
+                                user_data);
 }
 
 static void _browser_poke_device_file_finish(GFile      *location,
@@ -534,7 +560,7 @@ static void _browser_poke_device_finish(ThunarDevice *device,
 
     if (mount_point == NULL)
     {
-        /* mount_point is NULL when user dismisses the authentication dialog */
+        // mount_point is NULL when user dismisses the authentication dialog
         cancelled = TRUE;
     }
     else
