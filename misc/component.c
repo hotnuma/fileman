@@ -17,9 +17,6 @@
  */
 
 #include <config.h>
-
-#include <exo.h>
-#include <fileinfo.h>
 #include <component.h>
 
 static void component_class_init(gpointer klass);

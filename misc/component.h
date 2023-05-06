@@ -38,7 +38,7 @@ struct _ThunarComponentIface
 {
     GTypeInterface __parent__;
 
-    /* methods */
+    // methods
     GList*  (*get_selected_files) (ThunarComponent *component);
     void    (*set_selected_files) (ThunarComponent *component, GList *selected_files);
 

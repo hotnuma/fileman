@@ -20,11 +20,7 @@
 #include <config.h>
 #include <browser.h>
 
-#include <th_file.h>
-#include <utils.h>
 #include <gtk_ext.h>
-
-#include <glib-object.h>
 
 typedef struct _PokeFileData   PokeFileData;
 typedef struct _PokeDeviceData PokeDeviceData;
@@ -82,10 +78,10 @@ GType browser_get_type()
 }
 
 static PokeFileData* _browser_poke_file_data_new(
-                                    ThunarBrowser                *browser,
-                                    GFile                        *location,
-                                    ThunarFile                   *source,
-                                    ThunarFile                   *file,
+                                    ThunarBrowser                 *browser,
+                                    GFile                         *location,
+                                    ThunarFile                    *source,
+                                    ThunarFile                    *file,
                                     ThunarBrowserPokeFileFunc     func,
                                     ThunarBrowserPokeLocationFunc location_func,
                                     gpointer                      user_data)
@@ -123,8 +119,10 @@ static void _browser_poke_file_data_free(PokeFileData *poke_data)
 
     if (poke_data->location != NULL)
         g_object_unref(poke_data->location);
+
     if (poke_data->source != NULL)
         g_object_unref(poke_data->source);
+
     if (poke_data->file != NULL)
         g_object_unref(poke_data->file);
 

@@ -66,7 +66,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     5013	./libext/gdk_ext.c
     4816	./core/filemon.c
     4558	./widget/statusbar.c
-    4544	./misc/component.c
++   4544	./misc/component.c
     2598	./preferences.c
     2359	./side/sidepane.c
 +   1422	./main.c
