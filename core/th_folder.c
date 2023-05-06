@@ -20,8 +20,8 @@
 #include <config.h>
 #include <th_folder.h>
 
-#include <io_jobs.h>
 #include <filemon.h>
+#include <io_jobs.h>
 
 #define DEBUG_FILE_CHANGES FALSE
 
@@ -57,16 +57,16 @@ static void th_folder_real_destroy(ThunarFolder *folder);
 
 
 static void _th_folder_file_changed(FileMonitor *file_monitor,
-                                       ThunarFile *file,
-                                       ThunarFolder *folder);
+                                    ThunarFile *file,
+                                    ThunarFolder *folder);
 static void _th_folder_file_destroyed(FileMonitor *file_monitor,
-                                         ThunarFile *file,
-                                         ThunarFolder *folder);
+                                      ThunarFile *file,
+                                      ThunarFolder *folder);
 static void _th_folder_monitor(GFileMonitor *monitor,
-                                  GFile *file,
-                                  GFile *other_file,
-                                  GFileMonitorEvent event_type,
-                                  gpointer user_data);
+                               GFile *file,
+                               GFile *other_file,
+                               GFileMonitorEvent event_type,
+                               gpointer user_data);
 
 static void _th_folder_error(ExoJob *job, GError *error, ThunarFolder *folder);
 static gboolean _th_folder_files_ready(ThunarJob *job, GList *files,
@@ -84,7 +84,7 @@ struct _ThunarFolderClass
 {
     GObjectClass __parent__;
 
-    /* signals */
+    // signals
     void (*destroy)       (ThunarFolder *folder);
     void (*error)         (ThunarFolder *folder, const GError *error);
     void (*files_added)   (ThunarFolder *folder, GList *files);
@@ -93,7 +93,7 @@ struct _ThunarFolderClass
 
 struct _ThunarFolder
 {
-    GObject __parent__;
+    GObject     __parent__;
 
     ThunarJob   *job;
 
@@ -107,9 +107,9 @@ struct _ThunarFolder
 
     guint       in_destruction : 1;
 
-    FileMonitor   *file_monitor;
+    FileMonitor *file_monitor;
 
-    GFileMonitor        *monitor;
+    GFileMonitor *monitor;
 };
 
 static guint _th_folder_signals[LAST_SIGNAL];
@@ -192,6 +192,7 @@ static void th_folder_init(ThunarFolder *folder)
 
     g_signal_connect(G_OBJECT(folder->file_monitor), "file-changed",
                      G_CALLBACK(_th_folder_file_changed), folder);
+
     g_signal_connect(G_OBJECT(folder->file_monitor), "file-destroyed",
                      G_CALLBACK(_th_folder_file_destroyed), folder);
 
@@ -202,13 +203,19 @@ static void th_folder_init(ThunarFolder *folder)
 static void th_folder_constructed(GObject *object)
 {
     ThunarFolder *folder = THUNAR_FOLDER(object);
-    GError       *error  = NULL;
+    GError *error  = NULL;
 
-    folder->monitor = g_file_monitor_directory(th_file_get_file(folder->corresponding_file),
-                      G_FILE_MONITOR_WATCH_MOVES, NULL, &error);
+    folder->monitor = g_file_monitor_directory(
+                            th_file_get_file(folder->corresponding_file),
+                            G_FILE_MONITOR_WATCH_MOVES,
+                            NULL,
+                            &error);
 
     if (G_LIKELY(folder->monitor != NULL))
-        g_signal_connect(folder->monitor, "changed", G_CALLBACK(_th_folder_monitor), folder);
+    {
+        g_signal_connect(folder->monitor, "changed",
+                         G_CALLBACK(_th_folder_monitor), folder);
+    }
     else
     {
         g_debug("Could not create folder monitor: %s", error->message);
@@ -335,9 +342,9 @@ static void th_folder_real_destroy(ThunarFolder *folder)
 
 // ----------------------------------------------------------------------------
 
-static void _th_folder_file_changed(FileMonitor *file_monitor,
-                                    ThunarFile        *file,
-                                    ThunarFolder      *folder)
+static void _th_folder_file_changed(FileMonitor  *file_monitor,
+                                    ThunarFile   *file,
+                                    ThunarFolder *folder)
 {
     e_return_if_fail(THUNAR_IS_FILE(file));
     e_return_if_fail(THUNAR_IS_FOLDER(folder));
@@ -351,14 +358,10 @@ static void _th_folder_file_changed(FileMonitor *file_monitor,
     }
 }
 
-static void _th_folder_file_destroyed(FileMonitor *file_monitor,
-                                         ThunarFile        *file,
-                                         ThunarFolder      *folder)
+static void _th_folder_file_destroyed(FileMonitor  *file_monitor,
+                                      ThunarFile   *file,
+                                      ThunarFolder *folder)
 {
-    GList     files;
-    GList    *lp;
-    gboolean  restart = FALSE;
-
     e_return_if_fail(THUNAR_IS_FILE(file));
     e_return_if_fail(THUNAR_IS_FOLDER(folder));
     e_return_if_fail(IS_FILEMONITOR(file_monitor));
@@ -372,8 +375,13 @@ static void _th_folder_file_destroyed(FileMonitor *file_monitor,
     }
     else
     {
+        GList     files;
+        GList    *lp;
+        gboolean  restart = FALSE;
+
         /* check if we have that file */
         lp = g_list_find(folder->files, file);
+
         if (G_LIKELY(lp != NULL))
         {
             if (folder->content_type_idle_id != 0)
@@ -696,7 +704,8 @@ gboolean th_folder_get_loading(const ThunarFolder *folder)
 gboolean th_folder_has_folder_monitor(const ThunarFolder *folder)
 {
     e_return_val_if_fail(THUNAR_IS_FOLDER(folder), FALSE);
-    return(folder->monitor != NULL);
+
+    return (folder->monitor != NULL);
 }
 
 /**

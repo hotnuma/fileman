@@ -2352,20 +2352,19 @@ static ThunarFile* _standard_view_get_fallback_directory(
 // ----------------------------------------------------------------------------
 
 static gboolean _standard_view_button_release_event(
-                                            GtkWidget          *view,
-                                            GdkEventButton     *event,
-                                            StandardView *standard_view)
+                                            GtkWidget      *view,
+                                            GdkEventButton *event,
+                                            StandardView   *standard_view)
 {
     (void) view;
     (void) event;
+
     e_return_val_if_fail(IS_STANDARD_VIEW(standard_view), FALSE);
     e_return_val_if_fail(standard_view->priv->drag_timer_id != 0, FALSE);
 
     /* cancel the pending drag timer */
     g_source_remove(standard_view->priv->drag_timer_id);
 
-    /* fire up the context menu */
-    //DPRINT("release\n");
     standard_view_context_menu(standard_view);
 
     return TRUE;

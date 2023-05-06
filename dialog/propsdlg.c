@@ -173,13 +173,6 @@ static void propsdlg_class_init(PropertiesDialogClass *klass)
 
 static void propsdlg_init(PropertiesDialog *dialog)
 {
-    GtkWidget *grid;
-    GtkWidget *label;
-    GtkWidget *box;
-    GtkWidget *spacer;
-    guint      row = 0;
-    GtkWidget *image;
-
     gtk_dialog_add_buttons(GTK_DIALOG(dialog),
                             _("_Help"), GTK_RESPONSE_HELP,
                             _("_Close"), GTK_RESPONSE_CLOSE,
@@ -191,7 +184,9 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), dialog->notebook, TRUE, TRUE, 0);
     gtk_widget_show(dialog->notebook);
 
+    GtkWidget *grid;
     grid = gtk_grid_new();
+    GtkWidget *label;
     label = gtk_label_new(_("General"));
     gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
     gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
@@ -200,6 +195,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_widget_show(label);
     gtk_widget_show(grid);
 
+    guint      row = 0;
 
     /*
        First box(icon, name) for 1 file
@@ -233,6 +229,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
                      "activate",
                      G_CALLBACK(_propsdlg_name_activate), dialog);
+
     g_signal_connect(G_OBJECT(xfce_filename_input_get_entry(dialog->name_entry)),
                      "focus-out-event",
                      G_CALLBACK(_propsdlg_name_focus_out_event), dialog);
@@ -246,6 +243,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     /*
        First box(icon, name) for multiple files
      */
+    GtkWidget *box;
     box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_grid_attach(GTK_GRID(grid), box, 0, row, 1, 1);
 
@@ -256,6 +254,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
                            G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
 
 
+    GtkWidget *image;
     image = gtk_image_new_from_icon_name("text-x-generic", GTK_ICON_SIZE_DIALOG);
     gtk_box_pack_start(GTK_BOX(box), image, FALSE, TRUE, 0);
     gtk_widget_show(image);
@@ -368,6 +367,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     ++row;
 
 
+    GtkWidget *spacer;
     spacer = g_object_new(GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "height-request", 12, NULL);
     gtk_grid_attach(GTK_GRID(grid), spacer, 0, row, 2, 1);
     gtk_widget_show(spacer);
@@ -640,10 +640,6 @@ static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
 static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 {
     (void) entry;
-    const gchar *old_name;
-    const gchar *new_name;
-    ThunarJob   *job;
-    ThunarFile  *file;
 
     e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
 
@@ -653,16 +649,24 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
         return;
 
     /* determine new and old name */
-    file = THUNAR_FILE(dialog->files->data);
+    ThunarFile *file = THUNAR_FILE(dialog->files->data);
+
+    const gchar *new_name;
     new_name = xfce_filename_input_get_text(dialog->name_entry);
-    old_name = th_file_get_display_name(file);
+
+    const gchar *old_name = th_file_get_display_name(file);
+
     if (g_utf8_collate(new_name, old_name) != 0)
     {
-        job = io_rename_file(file, new_name);
+        ThunarJob *job = io_rename_file(file, new_name);
+
         if (job != NULL)
         {
-            g_signal_connect(job, "error", G_CALLBACK(_propsdlg_rename_error), dialog);
-            g_signal_connect(job, "finished", G_CALLBACK(_propsdlg_rename_finished), dialog);
+            g_signal_connect(job, "error",
+                             G_CALLBACK(_propsdlg_rename_error), dialog);
+
+            g_signal_connect(job, "finished",
+                             G_CALLBACK(_propsdlg_rename_finished), dialog);
         }
     }
 }
