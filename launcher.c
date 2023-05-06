@@ -534,7 +534,7 @@ static void launcher_navigator_init(ThunarNavigatorIface *iface)
 
 static void launcher_component_init(ThunarComponentIface *iface)
 {
-    iface->get_selected_files = (gpointer) e_noop_null;
+    iface->get_selected_files = NULL; // (gpointer) e_noop_null;
     iface->set_selected_files = launcher_set_selected_files;
 }
 
@@ -581,11 +581,13 @@ static void launcher_get_property(GObject *object, guint prop_id, GValue *value,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value,
+                           navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
 
     case PROP_SELECTED_FILES:
-        g_value_set_boxed(value, component_get_selected_files(THUNAR_COMPONENT(object)));
+        g_value_set_boxed(value,
+                          component_get_selected_files(THUNAR_COMPONENT(object)));
         break;
 
     default:
@@ -594,10 +596,8 @@ static void launcher_get_property(GObject *object, guint prop_id, GValue *value,
     }
 }
 
-static void launcher_set_property(GObject      *object,
-                                         guint         prop_id,
-                                         const GValue *value,
-                                         GParamSpec   *pspec)
+static void launcher_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -607,12 +607,12 @@ static void launcher_set_property(GObject      *object,
     {
     case PROP_CURRENT_DIRECTORY:
         navigator_set_current_directory(THUNAR_NAVIGATOR(object),
-                                               g_value_get_object(value));
+                                        g_value_get_object(value));
         break;
 
     case PROP_SELECTED_FILES:
         component_set_selected_files(THUNAR_COMPONENT(object),
-                                            g_value_get_boxed(value));
+                                     g_value_get_boxed(value));
         break;
 
     case PROP_WIDGET:

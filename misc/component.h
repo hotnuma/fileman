@@ -27,10 +27,13 @@ typedef struct _ThunarComponentIface ThunarComponentIface;
 typedef struct _ThunarComponent      ThunarComponent;
 
 #define THUNAR_TYPE_COMPONENT (component_get_type())
+
 #define THUNAR_COMPONENT(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_COMPONENT, ThunarComponent))
+
 #define THUNAR_IS_COMPONENT(obj) \
     (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_COMPONENT))
+
 #define THUNAR_COMPONENT_GET_IFACE(obj) \
     (G_TYPE_INSTANCE_GET_INTERFACE((obj), THUNAR_TYPE_COMPONENT, ThunarComponentIface))
 

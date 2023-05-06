@@ -552,8 +552,10 @@ static void window_init(ThunarWindow *window)
 
     g_signal_connect_swapped(G_OBJECT(window->location_bar), "change-directory",
                              G_CALLBACK(window_set_current_directory), window);
+
     g_signal_connect_swapped(G_OBJECT(window->location_bar), "reload-requested",
                              G_CALLBACK(_window_handle_reload_request), window);
+
     g_signal_connect_swapped(G_OBJECT(window->location_bar), "entry-done",
                              G_CALLBACK(_window_update_location_bar_visible), window);
 
@@ -1192,6 +1194,7 @@ static void _window_handle_reload_request(ThunarWindow *window)
 
     // force the view to reload
     g_signal_emit(G_OBJECT(window), _window_signals[RELOAD], 0, TRUE, &result);
+
 }
 
 static void _window_install_sidepane(ThunarWindow *window, GType type)

@@ -24,7 +24,7 @@ struct _LocationBarClass
 {
     GtkBinClass __parent__;
 
-    /* signals */
+    // signals
     void (*reload_requested) ();
     void (*entry_done) ();
 };
@@ -67,6 +67,11 @@ GtkWidget* locbar_new()
     return gtk_widget_new(TYPE_LOCATIONBAR, NULL);
 }
 
+static void _locbar_noop()
+{
+    //g_print("_locbar_noop\n");
+}
+
 static void locbar_class_init(LocationBarClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
@@ -75,12 +80,13 @@ static void locbar_class_init(LocationBarClass *klass)
     gobject_class->set_property = locbar_set_property;
     gobject_class->finalize = locbar_finalize;
 
-    klass->reload_requested = e_noop;
+    klass->reload_requested = _locbar_noop; // e_noop;
 
-    /* Override ThunarNavigator's properties */
-    g_object_class_override_property(gobject_class, PROP_CURRENT_DIRECTORY, "current-directory");
+    // Override ThunarNavigator's properties
+    g_object_class_override_property(gobject_class,
+                                     PROP_CURRENT_DIRECTORY, "current-directory");
 
-    /* install signals */
+    // install signals
 
     /**
      * LocationBar::reload-requested:
@@ -129,7 +135,7 @@ static void locbar_finalize(GObject *object)
     if (bar->locationEntry)
         g_object_unref(bar->locationEntry);
 
-    /* release from the current_directory */
+    // release from the current_directory
     navigator_set_current_directory(THUNAR_NAVIGATOR(bar), NULL);
 
     G_OBJECT_CLASS(locbar_parent_class)->finalize(object);
@@ -210,7 +216,7 @@ static GtkWidget* locbar_install_widget(LocationBar *bar, GType type)
 {
     GtkWidget *child = gtk_bin_get_child(GTK_BIN(bar));
 
-    /* check if the the right type is already installed */
+    // check if the the right type is already installed
     if (child && G_TYPE_CHECK_INSTANCE_TYPE(child, type))
         return child;
 
@@ -281,12 +287,12 @@ void locbar_request_entry(LocationBar *bar, const gchar *initial_text)
 
     if (IS_LOCATIONENTRY(child))
     {
-        /* already have an entry */
+        // already have an entry
         locentry_accept_focus(LOCATIONENTRY(child), initial_text);
     }
     else
     {
-        /* not an entry => temporarily replace it */
+        // not an entry => temporarily replace it
         child = locbar_install_widget(bar, TYPE_LOCATIONENTRY);
 
         locentry_accept_focus(LOCATIONENTRY(child), initial_text);

@@ -9,23 +9,6 @@
 #include <unistd.h>
 
 
-// noop ------------------------------------------------------------------------
-
-void e_noop()
-{
-}
-
-gpointer e_noop_null()
-{
-  return NULL;
-}
-
-gboolean e_noop_true()
-{
-  return true;
-}
-
-
 // string functions ------------------------------------------------------------
 
 gchar* e_str_replace (const gchar *str, const gchar *pattern, const gchar *replacement)

@@ -51,7 +51,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     9982	./view/baseview.c
     9732	./core/dnd.c
     9639	./misc/srender.c
-    9372	./widget/locationbar.c
++   9372	./widget/locationbar.c
     9157	./libext/exo.c
     9015	./side/treepane.c
     7617	./job/job_utils.c

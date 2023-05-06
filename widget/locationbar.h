@@ -43,6 +43,6 @@ void locbar_request_entry(LocationBar *bar, const gchar *initial_text);
 
 G_END_DECLS;
 
-#endif /* !__LOCATIONBAR_H__ */
+#endif // !__LOCATIONBAR_H__
 
 

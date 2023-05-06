@@ -222,6 +222,11 @@ static void treemodel_tree_model_init(GtkTreeModelIface *iface)
     iface->unref_node = treemodel_unref_node;
 }
 
+static gboolean treemodel_noop_true()
+{
+    return true;
+}
+
 static void treemodel_init(TreeModel *model)
 {
     // generate a unique stamp if we're in debug mode
@@ -231,7 +236,7 @@ static void treemodel_init(TreeModel *model)
 
     // initialize the model data
     model->sort_case_sensitive = TRUE;
-    model->visible_func = (TreeModelVisibleFunc)(void(*)(void)) e_noop_true;
+    model->visible_func = (TreeModelVisibleFunc) treemodel_noop_true;
     model->visible_data = NULL;
     model->cleanup_idle_id = 0;
 

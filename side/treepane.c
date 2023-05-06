@@ -102,8 +102,8 @@ static void treepane_class_init(TreePaneClass *klass)
 
 static void treepane_component_init(ThunarComponentIface *iface)
 {
-    iface->get_selected_files = (gpointer) e_noop_null;
-    iface->set_selected_files = (gpointer) e_noop;
+    iface->get_selected_files = NULL; // (gpointer) e_noop_null;
+    iface->set_selected_files = NULL; // (gpointer) e_noop;
 }
 
 static void treepane_navigator_init(ThunarNavigatorIface *iface)

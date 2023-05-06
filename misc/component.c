@@ -19,6 +19,25 @@
 #include <config.h>
 #include <component.h>
 
+/*
+ * ThunarComponent:selected-files:
+ *
+ * The list of currently selected files for the #ThunarWindow to
+ * which this ThunarComponent belongs.
+ *
+ * The exact semantics of this property depend on the implementor
+ * of this interface. For example, ThunarComponent will update
+ * the property depending on the users selection with the
+ * #GtkTreeComponent or #ExoIconComponent. While other components in a window,
+ * like the #ThunarShortcutsPane, will not update this property on
+ * their own, but rely on #ThunarWindow to synchronize the selected
+ * files list with the selected files list from the active #ThunarComponent.
+ *
+ * This way all components can behave properly depending on the
+ * set of selected files even though they don't have direct access
+ * to the #ThunarComponent.
+ */
+
 static void component_class_init(gpointer klass);
 
 GType component_get_type()
@@ -47,24 +66,6 @@ GType component_get_type()
 
 static void component_class_init(gpointer klass)
 {
-    /**
-     * ThunarComponent:selected-files:
-     *
-     * The list of currently selected files for the #ThunarWindow to
-     * which this #ThunarComponent belongs.
-     *
-     * The exact semantics of this property depend on the implementor
-     * of this interface. For example, #ThunarComponent<!---->s will update
-     * the property depending on the users selection with the
-     * #GtkTreeComponent or #ExoIconComponent. While other components in a window,
-     * like the #ThunarShortcutsPane, will not update this property on
-     * their own, but rely on #ThunarWindow to synchronize the selected
-     * files list with the selected files list from the active #ThunarComponent.
-     *
-     * This way all components can behave properly depending on the
-     * set of selected files even though they don't have direct access
-     * to the #ThunarComponent.
-     **/
     g_object_interface_install_property(klass,
                                         g_param_spec_boxed(
                                             "selected-files",
@@ -74,47 +75,33 @@ static void component_class_init(gpointer klass)
                                             E_PARAM_READWRITE));
 }
 
-/**
- * thunar_component_get_selected_files:
- * @component : a #ThunarComponent instance.
- *
- * Returns the set of selected files. Check the description
- * of the :selected-files property for details.
- *
- * Return value: the set of selected files.
- **/
 GList* component_get_selected_files(ThunarComponent *component)
 {
     e_return_val_if_fail(THUNAR_IS_COMPONENT(component), NULL);
 
-    return THUNAR_COMPONENT_GET_IFACE(component)->get_selected_files(component);
+    ThunarComponentIface *iface = THUNAR_COMPONENT_GET_IFACE(component);
+
+    if (iface->get_selected_files != NULL)
+        return iface->get_selected_files(component);
+    else
+        return NULL;
 }
 
-/**
- * thunar_component_set_selected_files:
- * @component      : a #ThunarComponent instance.
- * @selected_files : a #GList of #ThunarFile<!---->s.
- *
- * Sets the selected files for @component to @selected_files.
- * Check the description of the :selected-files property for
- * details.
- **/
 void component_set_selected_files(ThunarComponent *component,
                                          GList    *selected_files)
 {
     e_return_if_fail(THUNAR_IS_COMPONENT(component));
 
-    THUNAR_COMPONENT_GET_IFACE(component)->set_selected_files(component,
-                                                              selected_files);
+    ThunarComponentIface *iface = THUNAR_COMPONENT_GET_IFACE(component);
+
+    if (iface->set_selected_files != NULL)
+        iface->set_selected_files(component, selected_files);
 }
 
-/**
- * thunar_component_restore_selection:
- * @component      : a #ThunarComponent instance.
- *
+/***
  * Make sure that the @selected_files stay selected when a @component
  * updates. This may be necessary on row changes etc.
- **/
+ */
 void component_restore_selection(ThunarComponent *component)
 {
     e_return_if_fail(THUNAR_IS_COMPONENT(component));
