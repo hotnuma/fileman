@@ -43,13 +43,13 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     14752	./widget/locationentry.c
     14556	./appmenu.c
     14348	./marshal.c
-    14307	./core/user.c
++   14307	./core/user.c
     13649	./dialog/progress_dlg.c
     13212	./dialog/appmodel.c
     11857	./job/dcount_job.c
 +   10476	./libext/pixbuf_ext.c
     9982	./view/baseview.c
-    9732	./core/dnd.c
++   9732	./core/dnd.c
     9639	./misc/srender.c
 +   9372	./widget/locationbar.c
 +   9015	./side/treepane.c
@@ -61,9 +61,9 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     5587	./widget/th_image.c
     5560	./job/io_scan_directory.c
     5452	./job/simple_job.c
-    5425	./core/fileinfo.c
++   5425	./core/fileinfo.c
 +   5013	./libext/gdk_ext.c
-    4816	./core/filemon.c
++   4816	./core/filemon.c
     4558	./widget/statusbar.c
 +   4544	./misc/component.c
     2598	./preferences.c

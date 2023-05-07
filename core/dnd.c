@@ -72,16 +72,16 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
     GList                  *lp;
     guint                   n;
 
-    /* connect to the provider factory */
+    // connect to the provider factory
     //GList                  *items = NULL;
     //ThunarxProviderFactory *factory;
     //factory = thunarx_provider_factory_get_default();
 
-    /* prepare the popup menu */
+    // prepare the popup menu
     GtkWidget              *menu;
     menu = gtk_menu_new();
 
-    /* append the various items */
+    // append the various items
     for (n = 0; n < G_N_ELEMENTS(dnd_action_items); ++n)
         if (G_LIKELY((dnd_actions & dnd_action_items[n]) != 0))
         {
@@ -93,7 +93,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
             gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
             gtk_widget_show(item);
 
-            /* add image to the menu item */
+            // add image to the menu item
             if (G_LIKELY(dnd_action_icons[n] != NULL))
             {
                 image = gtk_image_new_from_icon_name(dnd_action_icons[n], GTK_ICON_SIZE_MENU);
@@ -103,20 +103,20 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
             }
         }
 
-    /* append the separator */
+    // append the separator
     item = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
     gtk_widget_show(item);
 
-    /* determine the toplevel window the widget belongs to */
+    // determine the toplevel window the widget belongs to
     window = gtk_widget_get_toplevel(widget);
 
     if (G_LIKELY(window != NULL && gtk_widget_get_toplevel(window)))
     {
-        /* check if we can resolve all paths */
+        // check if we can resolve all paths
         for (lp = path_list; lp != NULL; lp = lp->next)
         {
-            /* try to resolve this path */
+            // try to resolve this path
             file = th_file_cache_lookup(lp->data);
 
             if (G_LIKELY(file != NULL))
@@ -126,33 +126,33 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
         }
 
 #if 0
-        /* check if we resolved all paths(and have atleast one file) */
+        // check if we resolved all paths(and have atleast one file)
         if (G_LIKELY(file_list != NULL && lp == NULL))
         {
             GList                  *providers = NULL;
-            /* load the menu providers from the provider factory */
+            // load the menu providers from the provider factory
             providers = thunarx_provider_factory_list_providers(factory, THUNARX_TYPE_MENU_PROVIDER);
 
-            /* load the dnd menu items offered by the menu providers */
+            // load the dnd menu items offered by the menu providers
             for (lp = providers; lp != NULL; lp = lp->next)
             {
-                /* merge the menu items from this provider */
+                // merge the menu items from this provider
                 items = g_list_concat(items, thunarx_menu_provider_get_dnd_menu_items(lp->data, window, FILEINFO(folder), file_list));
                 g_object_unref(G_OBJECT(lp->data));
             }
 
             g_list_free(providers);
 
-            /* check if we have at least one item */
+            // check if we have at least one item
             if (G_UNLIKELY(items != NULL))
             {
-                /* add menu items for all items */
+                // add menu items for all items
                 for (lp = items; lp != NULL; lp = lp->next)
                     thunar_gtk_menu_thunarx_menu_item_new(lp->data, GTK_MENU_SHELL(menu));
 
                 g_list_free(items);
 
-                /* append another separator */
+                // append another separator
                 item = gtk_separator_menu_item_new();
                 gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
                 gtk_widget_show(item);
@@ -162,15 +162,15 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
 
     }
 
-    /* append the cancel item */
+    // append the cancel item
     item = gtk_menu_item_new_with_mnemonic(_("_Cancel"));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
     gtk_widget_show(item);
 
-    /* run the menu(takes over the floating of menu) */
+    // run the menu(takes over the floating of menu)
     etk_menu_run(GTK_MENU(menu));
 
-    /* cleanup */
+    // cleanup
     //g_object_unref(G_OBJECT(factory));
 
     g_list_free_full(file_list, g_object_unref);
@@ -209,17 +209,17 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
     e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     e_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
 
-    /* query a reference on the application object */
+    // query a reference on the application object
     Application *application;
     application = application_get();
 
     gboolean           succeed = TRUE;
     GError            *error = NULL;
 
-    /* check if the file is a directory */
+    // check if the file is a directory
     if (th_file_is_directory(file))
     {
-        /* perform the given directory operation */
+        // perform the given directory operation
         switch(action)
         {
         case GDK_ACTION_COPY:
@@ -240,14 +240,14 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
     }
     else if (th_file_is_executable(file))
     {
-        /* TODO any chance to determine the working dir here? */
+        // TODO any chance to determine the working dir here?
         succeed = th_file_execute(file, NULL, widget, file_list, NULL, &error);
         if (G_UNLIKELY(!succeed))
         {
-            /* display an error to the user */
+            // display an error to the user
             dialog_error(widget, error, _("Failed to execute file \"%s\""), th_file_get_display_name(file));
 
-            /* release the error */
+            // release the error
             g_error_free(error);
         }
     }
@@ -256,7 +256,7 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
         succeed = FALSE;
     }
 
-    /* release the application reference */
+    // release the application reference
     g_object_unref(G_OBJECT(application));
 
     return succeed;

@@ -32,7 +32,7 @@
 #include <string.h>
 #include <unistd.h>
 
-/* the interval in which the user/group cache is flushed(in seconds) */
+// the interval in which the user/group cache is flushed(in seconds)
 #define USER_MANAGER_FLUSH_INTERVAL (10 * 60)
 
 // Group ----------------------------------------------------------------------
@@ -94,7 +94,7 @@ static void _group_finalize(GObject *object)
 {
     ThunarGroup *group = THUNAR_GROUP(object);
 
-    /* release the group's name */
+    // release the group's name
     g_free(group->name);
 
     G_OBJECT_CLASS(group_parent_class)->finalize(object);
@@ -113,7 +113,7 @@ const gchar* group_get_name(ThunarGroup *group)
 
     g_return_val_if_fail(THUNAR_IS_GROUP(group), NULL);
 
-    /* determine the name on-demand */
+    // determine the name on-demand
     if (G_UNLIKELY(group->name == NULL))
     {
         grp = getgrgid(group->id);
@@ -183,14 +183,14 @@ static void _user_finalize(GObject *object)
 {
     ThunarUser *user = THUNAR_USER(object);
 
-    /* unref the associated groups */
+    // unref the associated groups
     g_list_free_full(user->groups, g_object_unref);
 
-    /* drop the reference on the primary group */
+    // drop the reference on the primary group
     if (G_LIKELY(user->primary_group != NULL))
         g_object_unref(G_OBJECT(user->primary_group));
 
-    /* release the names */
+    // release the names
     g_free(user->real_name);
     g_free(user->name);
 
@@ -212,30 +212,30 @@ static void _user_load(ThunarUser *user)
     {
         manager = user_manager_get_default();
 
-        /* query name and primary group */
+        // query name and primary group
         user->name = g_strdup(pw->pw_name);
         user->primary_group = user_manager_get_group_by_id(manager, pw->pw_gid);
 
-        /* try to figure out the real name */
+        // try to figure out the real name
         s = strchr(pw->pw_gecos, ',');
         if (s != NULL)
             user->real_name = g_strndup(pw->pw_gecos, s - pw->pw_gecos);
         else if (pw->pw_gecos[0] != '\0')
             user->real_name = g_strdup(pw->pw_gecos);
 
-        /* substitute '&' in the real_name with the account name */
+        // substitute '&' in the real_name with the account name
         if (G_LIKELY(user->real_name != NULL && strchr(user->real_name, '&') != NULL))
         {
-            /* generate a version of the username with the first char upper'd */
+            // generate a version of the username with the first char upper'd
             name = g_strdup(user->name);
             name[0] = g_ascii_toupper(name[0]);
 
-            /* replace all occurances of '&' */
+            // replace all occurances of '&'
             t = util_str_replace(user->real_name, "&", name);
             g_free(user->real_name);
             user->real_name = t;
 
-            /* clean up */
+            // clean up
             g_free(name);
         }
 
@@ -251,7 +251,7 @@ static ThunarGroup* _user_get_primary_group(ThunarUser *user)
 {
     g_return_val_if_fail(THUNAR_IS_USER(user), NULL);
 
-    /* load the user data on-demand */
+    // load the user data on-demand
     if (G_UNLIKELY(user->name == NULL))
         _user_load(user);
 
@@ -270,7 +270,7 @@ GList* user_get_groups(ThunarUser *user)
 
     g_return_val_if_fail(THUNAR_IS_USER(user), NULL);
 
-    /* load the groups on-demand */
+    // load the groups on-demand
     if (G_UNLIKELY(user->groups == NULL))
     {
         primary_group = _user_get_primary_group(user);
@@ -283,7 +283,7 @@ GList* user_get_groups(ThunarUser *user)
         {
             manager = user_manager_get_default();
 
-            /* add all supplementary groups */
+            // add all supplementary groups
             gidsetlen = getgroups(G_N_ELEMENTS(gidset), gidset);
             for(n = 0; n < gidsetlen; ++n)
                 if (primary_group == NULL || group_get_id(primary_group) != gidset[n])
@@ -296,7 +296,7 @@ GList* user_get_groups(ThunarUser *user)
             g_object_unref(G_OBJECT(manager));
         }
 
-        /* prepend the primary group(if any) */
+        // prepend the primary group(if any)
         if (G_LIKELY(primary_group != NULL))
         {
             user->groups = g_list_prepend(user->groups, primary_group);
@@ -311,7 +311,7 @@ const gchar* user_get_name(ThunarUser *user)
 {
     g_return_val_if_fail(THUNAR_IS_USER(user), 0);
 
-    /* load the user's data on-demand */
+    // load the user's data on-demand
     if (G_UNLIKELY(user->name == NULL))
         _user_load(user);
 
@@ -322,7 +322,7 @@ const gchar* user_get_real_name(ThunarUser *user)
 {
     g_return_val_if_fail(THUNAR_IS_USER(user), 0);
 
-    /* load the user's data on-demand */
+    // load the user's data on-demand
     if (G_UNLIKELY(user->name == NULL))
         _user_load(user);
 
@@ -373,17 +373,17 @@ static void user_manager_init(ThunarUserManager *manager)
                                            NULL,
                                            g_object_unref);
 
-    /* keep the groups file in memory if possible */
+    // keep the groups file in memory if possible
 #ifdef HAVE_SETGROUPENT
     setgroupent(TRUE);
 #endif
 
-    /* keep the passwd file in memory if possible */
+    // keep the passwd file in memory if possible
 #ifdef HAVE_SETPASSENT
     setpassent(TRUE);
 #endif
 
-    /* start the flush timer */
+    // start the flush timer
     manager->flush_timer_id = g_timeout_add_seconds_full(
                                             G_PRIORITY_LOW,
                                             USER_MANAGER_FLUSH_INTERVAL,
@@ -395,18 +395,18 @@ static void _user_manager_finalize(GObject *object)
 {
     ThunarUserManager *manager = THUNAR_USER_MANAGER(object);
 
-    /* stop the flush timer */
+    // stop the flush timer
     if (G_LIKELY(manager->flush_timer_id != 0))
         g_source_remove(manager->flush_timer_id);
 
-    /* destroy the hash tables */
+    // destroy the hash tables
     g_hash_table_destroy(manager->groups);
     g_hash_table_destroy(manager->users);
 
-    /* unload the groups file */
+    // unload the groups file
     endgrent();
 
-    /* unload the passwd file */
+    // unload the passwd file
     endpwent();
 
     G_OBJECT_CLASS(user_manager_parent_class)->finalize(object);
@@ -419,17 +419,17 @@ static gboolean _user_manager_flush_timer(gpointer user_data)
 
     UTIL_THREADS_ENTER
 
-    /* drop all cached groups */
+    // drop all cached groups
     size += g_hash_table_foreach_remove(manager->groups,
                                         (GHRFunc)(void(*)(void)) gtk_true,
                                         NULL);
 
-    /* drop all cached users */
+    // drop all cached users
     size += g_hash_table_foreach_remove(manager->users,
                                         (GHRFunc)(void(*)(void)) gtk_true,
                                         NULL);
 
-    /* reload groups and passwd files if we had cached entities */
+    // reload groups and passwd files if we had cached entities
     if (G_LIKELY(size > 0))
     {
         endgrent();
@@ -480,7 +480,7 @@ ThunarGroup* user_manager_get_group_by_id(ThunarUserManager *manager,
 
     g_return_val_if_fail(THUNAR_IS_USER_MANAGER(manager), NULL);
 
-    /* lookup/load the group corresponding to id */
+    // lookup/load the group corresponding to id
     ThunarGroup *group = g_hash_table_lookup(manager->groups, GINT_TO_POINTER(id));
     if (group == NULL)
     {
@@ -488,7 +488,7 @@ ThunarGroup* user_manager_get_group_by_id(ThunarUserManager *manager,
         g_hash_table_insert(manager->groups, GINT_TO_POINTER(id), group);
     }
 
-    /* take a reference for the caller */
+    // take a reference for the caller
     g_object_ref(G_OBJECT(group));
 
     return group;
@@ -500,7 +500,7 @@ ThunarUser* user_manager_get_user_by_id(ThunarUserManager *manager, guint32 id)
 
     g_return_val_if_fail(THUNAR_IS_USER_MANAGER(manager), NULL);
 
-    /* lookup/load the user corresponding to id */
+    // lookup/load the user corresponding to id
     ThunarUser *user = g_hash_table_lookup(manager->users, GINT_TO_POINTER(id));
     if (user == NULL)
     {
@@ -508,7 +508,7 @@ ThunarUser* user_manager_get_user_by_id(ThunarUserManager *manager, guint32 id)
         g_hash_table_insert(manager->users, GINT_TO_POINTER(id), user);
     }
 
-    /* take a reference for the caller */
+    // take a reference for the caller
     g_object_ref(G_OBJECT(user));
 
     return user;
@@ -524,18 +524,18 @@ GList* user_manager_get_all_groups(ThunarUserManager *manager)
 
     g_return_val_if_fail(THUNAR_IS_USER_MANAGER(manager), NULL);
 
-    /* make sure we reload the groups list */
+    // make sure we reload the groups list
     endgrent();
 
-    /* iterate through all groups in the system */
+    // iterate through all groups in the system
     for (;;)
     {
-        /* lookup the next group */
+        // lookup the next group
         grp = getgrent();
         if (G_UNLIKELY(grp == NULL))
             break;
 
-        /* lookup our version of the group */
+        // lookup our version of the group
         group = user_manager_get_group_by_id(manager, grp->gr_gid);
         if (G_LIKELY(group != NULL))
             groups = g_list_append(groups, group);

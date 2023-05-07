@@ -19,7 +19,7 @@
 #include <config.h>
 #include <filemon.h>
 
-/* Signal identifiers */
+// Signal identifiers
 enum
 {
     FILE_CHANGED,
@@ -107,7 +107,7 @@ FileMonitor* filemon_get_default()
 {
     if (G_UNLIKELY(_filemon_default == NULL))
     {
-        /* allocate the default monitor */
+        // allocate the default monitor
         _filemon_default = g_object_new(TYPE_FILEMONITOR, NULL);
 
         g_object_add_weak_pointer(G_OBJECT(_filemon_default),
@@ -115,7 +115,7 @@ FileMonitor* filemon_get_default()
     }
     else
     {
-        /* take a reference for the caller */
+        // take a reference for the caller
         g_object_ref(G_OBJECT(_filemon_default));
     }
 
