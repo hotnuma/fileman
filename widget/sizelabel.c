@@ -24,8 +24,6 @@
 #include <limits.h>
 #include <locale.h>
 
-#include <utils.h>
-
 #include <dcount_job.h>
 #include <gtk_ext.h>
 

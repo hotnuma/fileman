@@ -81,3 +81,5 @@ void util_append_quoted(GString *string, const gchar *unquoted);
 G_END_DECLS
 
 #endif // __UTILS_H__
+
+

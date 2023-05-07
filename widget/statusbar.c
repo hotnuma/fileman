@@ -19,9 +19,6 @@
  */
 
 #include <config.h>
-
-#include <utils.h>
-
 #include <statusbar.h>
 
 enum

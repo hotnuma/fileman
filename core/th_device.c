@@ -18,8 +18,6 @@
 
 #include <config.h>
 
-#include <utils.h>
-
 #include <th_device.h>
 #include <devmon.h>
 #include <th_file.h>

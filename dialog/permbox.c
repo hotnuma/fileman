@@ -24,9 +24,6 @@
 #include <memory.h>
 #include <string.h>
 #include <unistd.h>
-
-#include <utils.h>
-
 #include <dialogs.h>
 #include <enum_types.h>
 #include <gtk_ext.h>

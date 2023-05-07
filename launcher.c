@@ -35,8 +35,6 @@
 #include <treeview.h>
 #include <window.h>
 
-#include <utils.h>
-
 #include <gio_ext.h>
 #include <gtk_ext.h>
 

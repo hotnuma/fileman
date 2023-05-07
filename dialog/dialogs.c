@@ -31,7 +31,6 @@
 #include <io_jobs.h>
 #include <job.h>
 #include <pango_ext.h>
-#include <utils.h>
 
 static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);
 static void _dialog_job_ask_replace_callback(GtkWidget *button, gpointer user_data);

@@ -23,7 +23,6 @@
 
 #include <application.h>
 #include <dialogs.h>
-#include <utils.h>
 
 #include <string.h>
 #include <memory.h>

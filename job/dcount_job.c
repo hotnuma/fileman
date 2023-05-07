@@ -23,7 +23,6 @@
 
 #include <job.h>
 #include <marshal.h>
-#include <utils.h>
 
 #include <glib.h>
 #include <glib-object.h>

@@ -19,8 +19,6 @@
 #include <config.h>
 #include <navigator.h>
 
-#include <utils.h>
-
 enum
 {
     CHANGE_DIRECTORY,

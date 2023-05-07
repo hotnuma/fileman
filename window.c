@@ -23,8 +23,6 @@
 
 #include <application.h>
 
-#include <utils.h>
-
 #include <browser.h>
 #include <clipman.h>
 #include <detailview.h>

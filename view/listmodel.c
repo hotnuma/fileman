@@ -24,8 +24,6 @@
 #include <application.h>
 #include <filemon.h>
 
-#include <utils.h>
-
 #include <memory.h>
 #include <string.h>
 

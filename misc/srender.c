@@ -20,8 +20,6 @@
 #include <config.h>
 #include <srender.h>
 
-#include <utils.h>
-
 #include <pixbuf_ext.h>
 #include <gio_ext.h>
 #include <gdk_ext.h>

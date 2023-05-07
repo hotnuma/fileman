@@ -35,7 +35,6 @@
 #include <icon_factory.h>
 #include <icon_render.h>
 #include <listmodel.h>
-#include <utils.h>
 
 #define ICON_MARGIN (2)
 
