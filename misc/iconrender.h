@@ -27,7 +27,7 @@ G_BEGIN_DECLS
 typedef struct _IconRendererClass IconRendererClass;
 typedef struct _IconRenderer      IconRenderer;
 
-#define TYPE_ICONRENDERER (irenderer_get_type())
+#define TYPE_ICONRENDERER (iconrender_get_type())
 
 #define ICONRENDERER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_ICONRENDERER, IconRenderer))
@@ -56,9 +56,9 @@ struct _IconRenderer
     ThunarIconSize  size;
 };
 
-GType irenderer_get_type() G_GNUC_CONST;
+GType iconrender_get_type() G_GNUC_CONST;
 
-GtkCellRenderer* irenderer_new() G_GNUC_MALLOC;
+GtkCellRenderer* iconrender_new() G_GNUC_MALLOC;
 
 G_END_DECLS
 
