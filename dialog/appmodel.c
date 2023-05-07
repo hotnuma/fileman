@@ -23,7 +23,7 @@
 #include <gio_ext.h>
 #include <libmacros.h>
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -87,7 +87,7 @@ static void appmodel_class_init(AppChooserModelClass *klass)
 
 static void appmodel_init(AppChooserModel *model)
 {
-    /* allocate the types array for the columns */
+    // allocate the types array for the columns
     GType column_types[APPCHOOSER_N_COLUMNS] =
     {
         G_TYPE_STRING,
@@ -97,7 +97,7 @@ static void appmodel_init(AppChooserModel *model)
         PANGO_TYPE_WEIGHT,
     };
 
-    /* register the column types */
+    // register the column types
     gtk_tree_store_set_column_types(GTK_TREE_STORE(model),
                                     G_N_ELEMENTS(column_types),
                                     column_types);
@@ -107,7 +107,7 @@ static void appmodel_constructed(GObject *object)
 {
     AppChooserModel *model = APPCHOOSER_MODEL(object);
 
-    /* start to load the applications installed on the system */
+    // start to load the applications installed on the system
     appmodel_load(model, NULL);
 }
 
@@ -115,7 +115,7 @@ static void appmodel_finalize(GObject *object)
 {
     AppChooserModel *model = APPCHOOSER_MODEL(object);
 
-    /* free the content type */
+    // free the content type
     g_free(model->content_type);
 
     G_OBJECT_CLASS(appmodel_parent_class)->finalize(object);
@@ -185,7 +185,7 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
     GAppInfo *app_info;
     gboolean succeed;
 
-    /* determine the app info for the iter */
+    // determine the app info for the iter
     gtk_tree_model_get(GTK_TREE_MODEL(model),
                        iter,
                        APPCHOOSER_COLUMN_APPLICATION, &app_info,
@@ -194,12 +194,12 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
     if (G_UNLIKELY(app_info == NULL))
         return TRUE;
 
-    /* try to remove support for this content type */
+    // try to remove support for this content type
     succeed = g_app_info_remove_supports_type(app_info,
                                               model->content_type,
                                               error);
 
-    /* try to delete the file */
+    // try to delete the file
     if (succeed && g_app_info_delete(app_info))
     {
         g_set_error(error,
@@ -209,10 +209,10 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
                     g_app_info_get_id(app_info));
     }
 
-    /* clean up */
+    // clean up
     g_object_unref(app_info);
 
-    /* if the removal was successfull, delete the row from the model */
+    // if the removal was successfull, delete the row from the model
     if (G_LIKELY(succeed))
         gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
 
@@ -228,11 +228,11 @@ void appmodel_load(AppChooserModel *model, GtkWidget *widget)
 
     gtk_tree_store_clear(GTK_TREE_STORE(model));
 
-    /* check if we have any applications for this type */
+    // check if we have any applications for this type
 
     GList *recommended = g_app_info_get_all_for_type(model->content_type);
 
-    /* append them as recommended */
+    // append them as recommended
     recommended = g_list_sort(recommended, _sort_app_infos);
     _appmodel_append(model,
                      _("Recommended Applications"),
@@ -252,7 +252,7 @@ void appmodel_load(AppChooserModel *model, GtkWidget *widget)
         }
     }
 
-    /* append the other applications */
+    // append the other applications
     other = g_list_sort(other, _sort_app_infos);
 
     _appmodel_append(model,
@@ -302,7 +302,7 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
 
     if (G_LIKELY(app_infos != NULL))
     {
-        /* insert the program items */
+        // insert the program items
         for (GList *lp = app_infos; lp != NULL; lp = lp->next)
         {
             if (!e_app_info_should_show(lp->data))
@@ -312,7 +312,7 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
                                      g_app_info_get_icon(lp->data),
                                      g_app_info_get_id(lp->data));
 
-            /* append the tree row with the program data */
+            // append the tree row with the program data
             gtk_tree_store_append(GTK_TREE_STORE(model), &child_iter, &parent_iter);
             gtk_tree_store_set(
                     GTK_TREE_STORE(model), &child_iter,
@@ -330,7 +330,7 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
 
     if (!inserted_infos)
     {
-        /* tell the user that we don't have any applications for this category */
+        // tell the user that we don't have any applications for this category
         gtk_tree_store_append(GTK_TREE_STORE(model), &child_iter, &parent_iter);
         gtk_tree_store_set(GTK_TREE_STORE(model), &child_iter,
                            APPCHOOSER_COLUMN_NAME, _("None available"),

@@ -28,7 +28,7 @@
 #include <pango_ext.h>
 #include <icon_factory.h>
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -100,7 +100,7 @@ static void appcombo_init(AppCombo *chooser_button)
 {
     GtkCellRenderer *renderer;
 
-    /* allocate a new store for the combo box */
+    // allocate a new store for the combo box
     chooser_button->store = gtk_list_store_new(APPCOMBO_STORE_N_COLUMNS,
                                                G_TYPE_STRING,
                                                G_TYPE_ICON,
@@ -115,12 +115,12 @@ static void appcombo_init(AppCombo *chooser_button)
     g_signal_connect(chooser_button, "popup",
                      G_CALLBACK(_appcombo_popup), NULL);
 
-    /* set separator function */
+    // set separator function
     gtk_combo_box_set_row_separator_func(GTK_COMBO_BOX(chooser_button),
                                          _appcombo_row_separator,
                                          NULL, NULL);
 
-    /* add renderer for the application icon */
+    // add renderer for the application icon
     renderer = gtk_cell_renderer_pixbuf_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(chooser_button), renderer, FALSE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(chooser_button), renderer,
@@ -130,7 +130,7 @@ static void appcombo_init(AppCombo *chooser_button)
                                    APPCOMBO_STORE_COLUMN_SENSITIVE,
                                    NULL);
 
-    /* add renderer for the application name */
+    // add renderer for the application name
     renderer = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(chooser_button), renderer, FALSE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(chooser_button), renderer,
@@ -147,10 +147,10 @@ static void appcombo_finalize(GObject *object)
 {
     AppCombo *chooser_button = APPCOMBO(object);
 
-    /* reset the "file" property */
+    // reset the "file" property
     appcombo_set_file(chooser_button, NULL);
 
-    /* release the store */
+    // release the store
     g_object_unref(G_OBJECT(chooser_button->store));
 
     G_OBJECT_CLASS(appcombo_parent_class)->finalize(object);
@@ -233,28 +233,28 @@ static void _appcombo_changed(GtkComboBox *combo_box)
     e_return_if_fail(IS_APPCOMBO(chooser_button));
     e_return_if_fail(GTK_IS_LIST_STORE(chooser_button->store));
 
-    /* verify that we still have a valid file */
+    // verify that we still have a valid file
     if (G_UNLIKELY(chooser_button->file == NULL))
         return;
 
-    /* get the selected item in the combo box */
+    // get the selected item in the combo box
     if (!gtk_combo_box_get_active_iter(combo_box, &iter))
         return;
 
-    /* determine the application that was set for the item */
+    // determine the application that was set for the item
     gtk_tree_model_get(GTK_TREE_MODEL(chooser_button->store), &iter,
                         APPCOMBO_STORE_COLUMN_APPLICATION,
                         &app_info, -1);
 
     if (G_LIKELY(app_info != NULL))
     {
-        /* determine the mime info for the file */
+        // determine the mime info for the file
         content_type = th_file_get_content_type(chooser_button->file);
 
-        /* try to set application as default for these kind of file */
+        // try to set application as default for these kind of file
         if (!g_app_info_set_as_default_for_type(app_info, content_type, &error))
         {
-            /* tell the user that it didn't work */
+            // tell the user that it didn't work
             dialog_error(GTK_WIDGET(chooser_button), error,
                                        _("Failed to set default application for \"%s\""),
                                        th_file_get_display_name(chooser_button->file));
@@ -262,16 +262,16 @@ static void _appcombo_changed(GtkComboBox *combo_box)
         }
         else
         {
-            /* emit "changed" on the file, so everybody updates its state */
+            // emit "changed" on the file, so everybody updates its state
             th_file_changed(chooser_button->file);
         }
 
-        /* release the application */
+        // release the application
         g_object_unref(app_info);
     }
     else
     {
-        /* no application was found in the store, looks like the other... option */
+        // no application was found in the store, looks like the other... option
         _appcombo_chooser_dialog(chooser_button);
     }
 }
@@ -282,10 +282,10 @@ static void _appcombo_popup(AppCombo *chooser_button)
 
     if (!chooser_button->has_default_application)
     {
-        /* don't show the menu */
+        // don't show the menu
         gtk_combo_box_popdown(GTK_COMBO_BOX(chooser_button));
 
-        /* open the chooser dialog if the filetype has no default action */
+        // open the chooser dialog if the filetype has no default action
         _appcombo_chooser_dialog(chooser_button);
     }
 }
@@ -305,7 +305,7 @@ static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
     (void) data;
     gchar *name;
 
-    /* determine the value of the "name" column */
+    // determine the value of the "name" column
     gtk_tree_model_get(model, iter, APPCOMBO_STORE_COLUMN_NAME, &name, -1);
     if (G_LIKELY(name != NULL))
     {
@@ -323,12 +323,12 @@ static void _appcombo_chooser_dialog(AppCombo *chooser_button)
 
     e_return_if_fail(IS_APPCOMBO(chooser_button));
 
-    /* determine the toplevel window for the chooser */
+    // determine the toplevel window for the chooser
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser_button));
     if (G_UNLIKELY(toplevel == NULL))
         return;
 
-    /* popup the application chooser dialog */
+    // popup the application chooser dialog
     dialog = g_object_new(TYPE_APPCHOOSER_DIALOG, "open", FALSE, NULL);
 
     //exo_binding_new(G_OBJECT(chooser_button), "file",
@@ -361,22 +361,22 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
     e_return_if_fail(chooser_button->file == file);
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    /* clear the store */
+    // clear the store
     gtk_list_store_clear(chooser_button->store);
 
-    /* reset the default application flag */
+    // reset the default application flag
     chooser_button->has_default_application = FALSE;
 
-    /* block the changed signal for a moment */
+    // block the changed signal for a moment
     g_signal_handlers_block_by_func(chooser_button,
                                      _appcombo_changed,
                                      NULL);
 
-    /* determine the content type of the file */
+    // determine the content type of the file
     content_type = th_file_get_content_type(file);
     if (content_type != NULL)
     {
-        /* setup a useful tooltip for the button */
+        // setup a useful tooltip for the button
         description = g_content_type_get_description(content_type);
         etk_widget_set_tooltip(GTK_WIDGET(chooser_button),
                                        _("The selected application is used to open "
@@ -384,20 +384,20 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
                                        description);
         g_free(description);
 
-        /* determine the default application for that content type */
+        // determine the default application for that content type
         app_info = g_app_info_get_default_for_type(content_type, FALSE);
         if (G_LIKELY(app_info != NULL))
         {
-            /* determine all applications that claim to be able to handle the file */
+            // determine all applications that claim to be able to handle the file
             app_infos = g_app_info_get_all_for_type(content_type);
             app_infos = g_list_sort(app_infos, _appcombo_sort_applications);
 
-            /* add all possible applications */
+            // add all possible applications
             for(lp = app_infos, i = 0; lp != NULL; lp = lp->next, ++i)
             {
                 if (e_app_info_should_show(lp->data))
                 {
-                    /* insert the item into the store */
+                    // insert the item into the store
                     gtk_list_store_insert_with_values(chooser_button->store, &iter, i,
                                                        APPCOMBO_STORE_COLUMN_NAME,
                                                        g_app_info_get_name(lp->data),
@@ -409,29 +409,29 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
                                                        TRUE,
                                                        -1);
 
-                    /* pre-select the default application */
+                    // pre-select the default application
                     if (g_app_info_equal(lp->data, app_info))
                         gtk_combo_box_set_active_iter(GTK_COMBO_BOX(chooser_button), &iter);
                 }
 
-                /* release the application */
+                // release the application
                 g_object_unref(lp->data);
             }
 
-            /* release the application list */
+            // release the application list
             g_list_free(app_infos);
 
-            /* release the default application */
+            // release the default application
             g_object_unref(app_info);
 
-            /* assume we have some applications in the list */
+            // assume we have some applications in the list
             chooser_button->has_default_application = TRUE;
         }
     }
 
     if (content_type == NULL || !chooser_button->has_default_application)
     {
-        /* add the "No application selected" item and set as active */
+        // add the "No application selected" item and set as active
         gtk_list_store_insert_with_values(chooser_button->store, &iter, 0,
                                            APPCOMBO_STORE_COLUMN_NAME,
                                            _("No application selected"),
@@ -441,10 +441,10 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
         gtk_combo_box_set_active_iter(GTK_COMBO_BOX(chooser_button), &iter);
     }
 
-    /* insert empty row that will appear as a separator */
+    // insert empty row that will appear as a separator
     gtk_list_store_insert_with_values(chooser_button->store, NULL, ++i, -1);
 
-    /* add the "Other Application..." option */
+    // add the "Other Application..." option
     gtk_list_store_insert_with_values(chooser_button->store, NULL, ++i,
                                        APPCOMBO_STORE_COLUMN_NAME,
                                        _("Other Application..."),
@@ -452,7 +452,7 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
                                        TRUE,
                                        -1);
 
-    /* unblock the changed signal */
+    // unblock the changed signal
     g_signal_handlers_unblock_by_func(chooser_button,
                                        _appcombo_changed,
                                        NULL);
@@ -468,34 +468,34 @@ void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
     e_return_if_fail(IS_APPCOMBO(chooser_button));
     e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
-    /* check if we already use that file */
+    // check if we already use that file
     if (G_UNLIKELY(chooser_button->file == file))
         return;
 
-    /* disconnect from the previous file */
+    // disconnect from the previous file
     if (G_UNLIKELY(chooser_button->file != NULL))
     {
         g_signal_handlers_disconnect_by_func(G_OBJECT(chooser_button->file), _appcombo_file_changed, chooser_button);
         g_object_unref(G_OBJECT(chooser_button->file));
     }
 
-    /* activate the new file */
+    // activate the new file
     chooser_button->file = file;
 
-    /* connect to the new file */
+    // connect to the new file
     if (G_LIKELY(file != NULL))
     {
-        /* take a reference */
+        // take a reference
         g_object_ref(G_OBJECT(file));
 
-        /* stay informed about changes */
+        // stay informed about changes
         g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(_appcombo_file_changed), chooser_button);
 
-        /* update our state now */
+        // update our state now
         _appcombo_file_changed(chooser_button, file);
     }
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify(G_OBJECT(chooser_button), "file");
 }
 

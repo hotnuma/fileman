@@ -47,6 +47,6 @@ gboolean thunar_progress_dialog_has_jobs(ThunarProgressDialog *dialog);
 
 G_END_DECLS;
 
-#endif /* !__THUNAR_PROGRESS_DIALOG_H__ */
+#endif // !__THUNAR_PROGRESS_DIALOG_H__
 
 

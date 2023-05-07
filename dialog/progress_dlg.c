@@ -63,7 +63,7 @@ static void thunar_progress_dialog_class_init(ThunarProgressDialogClass *klass)
 {
     GObjectClass *gobject_class;
 
-    /* Determine parent type class */
+    // Determine parent type class
     thunar_progress_dialog_parent_class = g_type_class_peek_parent(klass);
 
     gobject_class = G_OBJECT_CLASS(klass);
@@ -107,7 +107,7 @@ static void thunar_progress_dialog_finalize(GObject *object)
 {
     ThunarProgressDialog *dialog = THUNAR_PROGRESS_DIALOG(object);
 
-    /* destroy the status icon */
+    // destroy the status icon
     if (dialog->status_icon != NULL)
     {
         G_GNUC_BEGIN_IGNORE_DEPRECATIONS
@@ -116,7 +116,7 @@ static void thunar_progress_dialog_finalize(GObject *object)
         g_object_unref(dialog->status_icon);
     }
 
-    /* free the view list */
+    // free the view list
     g_list_free(dialog->views);
 
    (*G_OBJECT_CLASS(thunar_progress_dialog_parent_class)->finalize)(object);
@@ -126,7 +126,7 @@ static void thunar_progress_dialog_shown(ThunarProgressDialog *dialog)
 {
     e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
 
-    /* show the status icon */
+    // show the status icon
     if (dialog->status_icon == NULL)
     {
         G_GNUC_BEGIN_IGNORE_DEPRECATIONS
@@ -144,13 +144,13 @@ static gboolean thunar_progress_dialog_closed(ThunarProgressDialog *dialog)
 {
     e_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
 
-    /* remember the position of the dialog */
+    // remember the position of the dialog
     gtk_window_get_position(GTK_WINDOW(dialog), &dialog->x, &dialog->y);
 
-    /* hide the progress dialog */
+    // hide the progress dialog
     gtk_widget_hide(GTK_WIDGET(dialog));
 
-    /* don't destroy the dialog */
+    // don't destroy the dialog
     return TRUE;
 }
 
@@ -161,26 +161,26 @@ static gboolean thunar_progress_dialog_toggled(ThunarProgressDialog *dialog,
     e_return_val_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog), FALSE);
     e_return_val_if_fail(GTK_IS_STATUS_ICON(status_icon), FALSE);
 
-    /* check if the window is visible and has the focus */
+    // check if the window is visible and has the focus
     if (gtk_widget_get_visible(GTK_WIDGET(dialog))
             && gtk_window_is_active(GTK_WINDOW(dialog)))
     {
-        /* remember the position of the dialog */
+        // remember the position of the dialog
         gtk_window_get_position(GTK_WINDOW(dialog), &dialog->x, &dialog->y);
 
-        /* it is, so hide it now */
+        // it is, so hide it now
         gtk_widget_hide(GTK_WIDGET(dialog));
     }
     else
     {
-        /* check if the dialog is invisible */
+        // check if the dialog is invisible
         if (!gtk_widget_get_visible(GTK_WIDGET(dialog)))
         {
-            /* restore its previous position before presenting it */
+            // restore its previous position before presenting it
             gtk_window_move(GTK_WINDOW(dialog), dialog->x, dialog->y);
         }
 
-        /* it's not, so we need to raise it above other windows */
+        // it's not, so we need to raise it above other windows
         gtk_window_present_with_time(GTK_WINDOW(dialog), event->time);
     }
 
@@ -193,9 +193,9 @@ static void thunar_progress_dialog_view_needs_attention(ThunarProgressDialog *di
     e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
     e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
 
-    /* TODO scroll to the view */
+    // TODO scroll to the view
 
-    /* raise the dialog */
+    // raise the dialog
     gtk_window_present(GTK_WINDOW(dialog));
 }
 
@@ -207,20 +207,20 @@ static void thunar_progress_dialog_job_finished(ThunarProgressDialog *dialog,
     e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
     e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
 
-    /* remove the view from the list */
+    // remove the view from the list
     dialog->views = g_list_remove(dialog->views, view);
 
-    /* destroy the widget */
+    // destroy the widget
     gtk_widget_destroy(GTK_WIDGET(view));
 
-    /* determine the number of views left */
+    // determine the number of views left
     n_views = g_list_length(dialog->views);
 
     /* check if we've just removed the 4th view and are now left with
      * SCROLLVIEW_THRESHOLD-1 of them, in which case we drop the scroll window */
     if (n_views == SCROLLVIEW_THRESHOLD-1)
     {
-        /* reparent the content box */
+        // reparent the content box
 
 #if LIBXFCE4UI_CHECK_VERSION(4, 13, 2)
         xfce_widget_reparent(dialog->content_box, dialog->vbox);
@@ -228,7 +228,7 @@ static void thunar_progress_dialog_job_finished(ThunarProgressDialog *dialog,
         gtk_widget_reparent(dialog->content_box, dialog->vbox);
 #endif
 
-        /* destroy the scroll win */
+        // destroy the scroll win
         gtk_widget_destroy(dialog->scrollwin);
     }
 
@@ -236,20 +236,20 @@ static void thunar_progress_dialog_job_finished(ThunarProgressDialog *dialog,
      * and need to shrink the window */
     if (n_views < SCROLLVIEW_THRESHOLD)
     {
-        /* try to shrink the window */
+        // try to shrink the window
         gtk_window_resize(GTK_WINDOW(dialog), 450, 10);
     }
 
-    /* check if we still have at least one view */
+    // check if we still have at least one view
     if (dialog->views != NULL)
     {
-        /* update the status icon */
+        // update the status icon
         if (dialog->status_icon != NULL)
             thunar_progress_dialog_update_status_icon(dialog);
     }
     else
     {
-        /* destroy the dialog as there are no views left */
+        // destroy the dialog as there are no views left
         gtk_widget_destroy(GTK_WIDGET(dialog));
     }
 }
@@ -262,21 +262,21 @@ static void thunar_progress_dialog_update_status_icon(ThunarProgressDialog *dial
     e_return_if_fail(THUNAR_IS_PROGRESS_DIALOG(dialog));
     e_return_if_fail(GTK_IS_STATUS_ICON(dialog->status_icon));
 
-    /* determine the number of views now being active */
+    // determine the number of views now being active
     n_views = g_list_length(dialog->views);
 
-    /* build the tooltip text */
+    // build the tooltip text
     tooltip_text = g_strdup_printf(ngettext("%d file operation running",
                                     "%d file operations running",
                                     n_views),
                                     n_views);
 
-    /* update the tooltip */
+    // update the tooltip
     G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     gtk_status_icon_set_tooltip_text(dialog->status_icon, tooltip_text);
     G_GNUC_END_IGNORE_DEPRECATIONS
 
-    /* free the string */
+    // free the string
     g_free(tooltip_text);
 }
 
@@ -336,18 +336,18 @@ void thunar_progress_dialog_add_job(ThunarProgressDialog *dialog,
     gtk_box_pack_start(GTK_BOX(dialog->content_box), view, FALSE, TRUE, 0);
     gtk_widget_show(view);
 
-    /* use the first job's icon-name for the dialog */
+    // use the first job's icon-name for the dialog
     if (dialog->views == NULL)
         gtk_window_set_icon_name(GTK_WINDOW(dialog), icon_name);
 
-    /* add the view to the list of known views */
+    // add the view to the list of known views
     dialog->views = g_list_prepend(dialog->views, view);
 
     /* check if we need to wrap the views in a scroll window(starting
      * at SCROLLVIEW_THRESHOLD parallel operations */
     if (g_list_length(dialog->views) == SCROLLVIEW_THRESHOLD)
     {
-        /* create a scrolled window and add it to the dialog */
+        // create a scrolled window and add it to the dialog
         dialog->scrollwin = gtk_scrolled_window_new(NULL, NULL);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(dialog->scrollwin),
                                         GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
@@ -355,14 +355,14 @@ void thunar_progress_dialog_add_job(ThunarProgressDialog *dialog,
         gtk_container_add(GTK_CONTAINER(dialog->vbox), dialog->scrollwin);
         gtk_widget_show(dialog->scrollwin);
 
-        /* create a viewport for the content box */
+        // create a viewport for the content box
         viewport = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(dialog->scrollwin)),
                                      gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(dialog->scrollwin)));
         gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
         gtk_container_add(GTK_CONTAINER(dialog->scrollwin), viewport);
         gtk_widget_show(viewport);
 
-        /* move the content box into the viewport */
+        // move the content box into the viewport
 
 #if LIBXFCE4UI_CHECK_VERSION(4, 13, 2)
         xfce_widget_reparent(dialog->content_box, viewport);

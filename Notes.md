@@ -37,15 +37,15 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   18274	./libext/gio_ext.c
 +   18067	./libext/exo_job.c
 +   18012	./libext/utils.c
-    17925	./dialog/appcombo.c
++   17925	./dialog/appcombo.c
     15914	./misc/icon_render.c
     15093	./widget/sizelabel.c
     14752	./widget/locationentry.c
     14556	./appmenu.c
     14348	./marshal.c
 +   14307	./core/user.c
-    13649	./dialog/progress_dlg.c
-    13212	./dialog/appmodel.c
++   13649	./dialog/progress_dlg.c
++   13212	./dialog/appmodel.c
     11857	./job/dcount_job.c
 +   10476	./libext/pixbuf_ext.c
     9982	./view/baseview.c
