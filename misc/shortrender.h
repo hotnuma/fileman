@@ -26,7 +26,7 @@ G_BEGIN_DECLS
 typedef struct _ShortcutRendererClass ShortcutRendererClass;
 typedef struct _ShortcutRenderer      ShortcutRenderer;
 
-#define TYPE_SHORTCUT_RENDERER (srender_get_type())
+#define TYPE_SHORTCUT_RENDERER (shrender_get_type())
 #define SHORTCUT_RENDERER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_SHORTCUT_RENDERER, ShortcutRenderer))
 #define SHORTCUT_RENDERER_CLASS(klass) \
@@ -38,9 +38,9 @@ typedef struct _ShortcutRenderer      ShortcutRenderer;
 #define SHORTCUT_RENDERER_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_SHORTCUT_RENDERER, ShortcutRendererClass))
 
-GType srender_get_type() G_GNUC_CONST;
+GType shrender_get_type() G_GNUC_CONST;
 
-GtkCellRenderer* srender_new() G_GNUC_MALLOC;
+GtkCellRenderer* shrender_new() G_GNUC_MALLOC;
 
 G_END_DECLS
 
