@@ -21,7 +21,7 @@
 
 #include <treeview.h>
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -83,17 +83,17 @@ static void treepane_class_init(TreePaneClass *klass)
     gobject_class->get_property = treepane_get_property;
     gobject_class->set_property = treepane_set_property;
 
-    /* override ThunarNavigator's properties */
+    // override ThunarNavigator's properties
     g_object_class_override_property(gobject_class,
                                      PROP_CURRENT_DIRECTORY,
                                      "current-directory");
 
-    /* override ThunarComponent's properties */
+    // override ThunarComponent's properties
     g_object_class_override_property(gobject_class,
                                      PROP_SELECTED_FILES,
                                      "selected-files");
 
-    /* override SidePane's properties */
+    // override SidePane's properties
     g_object_class_override_property(gobject_class,
                                      PROP_SHOW_HIDDEN,
                                      "show-hidden");
@@ -119,13 +119,13 @@ static void treepane_sidepane_init(SidePaneIface *iface)
 
 static void treepane_init(TreePane *tree_pane)
 {
-    /* configure the GtkScrolledWindow */
+    // configure the GtkScrolledWindow
     gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(tree_pane), NULL);
     gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(tree_pane), NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_pane), GTK_SHADOW_IN);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tree_pane), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
-    /* allocate the tree view */
+    // allocate the tree view
     tree_pane->view = treeview_new();
 
     g_object_bind_property(G_OBJECT(tree_pane), "show-hidden", G_OBJECT(tree_pane->view), "show-hidden", G_BINDING_SYNC_CREATE);
@@ -175,10 +175,8 @@ static void treepane_get_property(GObject    *object,
     }
 }
 
-static void treepane_set_property(GObject      *object,
-                                          guint         prop_id,
-                                          const GValue *value,
-                                          GParamSpec   *pspec)
+static void treepane_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -186,17 +184,17 @@ static void treepane_set_property(GObject      *object,
     {
     case PROP_CURRENT_DIRECTORY:
         navigator_set_current_directory(THUNAR_NAVIGATOR(object),
-                                               g_value_get_object(value));
+                                        g_value_get_object(value));
         break;
 
     case PROP_SELECTED_FILES:
         component_set_selected_files(THUNAR_COMPONENT(object),
-                                            g_value_get_boxed(value));
+                                     g_value_get_boxed(value));
         break;
 
     case PROP_SHOW_HIDDEN:
         sidepane_set_show_hidden(SIDEPANE(object),
-                                         g_value_get_boolean(value));
+                                 g_value_get_boolean(value));
         break;
 
     default:
@@ -210,23 +208,23 @@ static ThunarFile* treepane_get_current_directory(ThunarNavigator *navigator)
     return TREEPANE(navigator)->current_directory;
 }
 
-static void treepane_set_current_directory(ThunarNavigator  *navigator,
-                                                   ThunarFile       *current_directory)
+static void treepane_set_current_directory(ThunarNavigator *navigator,
+                                           ThunarFile      *current_directory)
 {
     TreePane *tree_pane = TREEPANE(navigator);
 
-    /* disconnect from the previously set current directory */
+    // disconnect from the previously set current directory
     if (G_LIKELY(tree_pane->current_directory != NULL))
         g_object_unref(G_OBJECT(tree_pane->current_directory));
 
-    /* activate the new directory */
+    // activate the new directory
     tree_pane->current_directory = current_directory;
 
-    /* connect to the new directory */
+    // connect to the new directory
     if (G_LIKELY(current_directory != NULL))
         g_object_ref(G_OBJECT(current_directory));
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify(G_OBJECT(tree_pane), "current-directory");
 }
 
@@ -242,13 +240,13 @@ static void treepane_set_show_hidden(SidePane *side_pane,
 
     show_hidden = !!show_hidden;
 
-    /* check if we have a new setting */
+    // check if we have a new setting
     if (G_UNLIKELY(tree_pane->show_hidden != show_hidden))
     {
-        /* remember the new setting */
+        // remember the new setting
         tree_pane->show_hidden = show_hidden;
 
-        /* notify listeners */
+        // notify listeners
         g_object_notify(G_OBJECT(tree_pane), "show-hidden");
     }
 }
