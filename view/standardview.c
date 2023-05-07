@@ -898,7 +898,7 @@ static void standard_view_realize(GtkWidget *widget)
 
     // determine the icon factory for the screen on which we are realized
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
-    standard_view->icon_factory = ifactory_get_for_icon_theme(icon_theme);
+    standard_view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
     g_object_bind_property(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size", G_BINDING_SYNC_CREATE);
 }
 
@@ -2551,7 +2551,7 @@ static void _standard_view_drag_begin(GtkWidget *view, GdkDragContext *context,
         {
             // generate an icon based on that file
             g_object_get(G_OBJECT(standard_view->icon_renderer), "size", &size, NULL);
-            icon = ifactory_load_file_icon(standard_view->icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, size);
+            icon = iconfact_load_file_icon(standard_view->icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, size);
             gtk_drag_set_icon_pixbuf(context, icon, 0, 0);
             g_object_unref(G_OBJECT(icon));
 

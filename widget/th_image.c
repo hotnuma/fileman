@@ -153,9 +153,9 @@ static void _th_image_update(ThunarImage *image)
     {
         screen = gtk_widget_get_screen(GTK_WIDGET(image));
         icon_theme = gtk_icon_theme_get_for_screen(screen);
-        icon_factory = ifactory_get_for_icon_theme(icon_theme);
+        icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
-        icon = ifactory_load_file_icon(icon_factory, image->priv->file,
+        icon = iconfact_load_file_icon(icon_factory, image->priv->file,
                 THUNAR_FILE_ICON_STATE_DEFAULT, 48);
 
         gtk_image_set_from_pixbuf(GTK_IMAGE(image), icon);

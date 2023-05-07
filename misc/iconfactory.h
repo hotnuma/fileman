@@ -26,7 +26,7 @@ G_BEGIN_DECLS
 typedef struct _IconFactoryClass IconFactoryClass;
 typedef struct _IconFactory      IconFactory;
 
-#define TYPE_ICONFACTORY (ifactory_get_type())
+#define TYPE_ICONFACTORY (iconfact_get_type())
 #define ICONFACTORY(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_ICONFACTORY, IconFactory))
 #define ICONFACTORY_CLASS(klass) \
@@ -38,20 +38,20 @@ typedef struct _IconFactory      IconFactory;
 #define ICONFACTORY_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_ICONFACTORY, IconFactoryClass))
 
-GType ifactory_get_type() G_GNUC_CONST;
+GType iconfact_get_type() G_GNUC_CONST;
 
-IconFactory* ifactory_get_default();
-IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme);
+IconFactory* iconfact_get_default();
+IconFactory* iconfact_get_for_icon_theme(GtkIconTheme *icon_theme);
 
-GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
+GdkPixbuf* iconfact_load_icon(IconFactory *factory, const gchar *name,
                               gint size, gboolean wants_default);
 
-GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
+GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
                                    ThunarFile *file,
                                    ThunarFileIconState icon_state,
                                    gint icon_size);
 
-void ifactory_clear_pixmap_cache(ThunarFile *file);
+void iconfact_clear_pixmap_cache(ThunarFile *file);
 
 G_END_DECLS
 

@@ -716,7 +716,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     gtk_widget_set_visible(dialog->permissions_chooser, !th_file_is_trashed(file));
 
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(dialog)));
-    icon_factory = ifactory_get_for_icon_theme(icon_theme);
+    icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
 
     // update the properties dialog title

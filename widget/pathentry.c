@@ -381,7 +381,7 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
 
         // setup the drag icon(atleast 24px)
         gtk_widget_style_get(widget, "icon-size", &size, NULL);
-        icon = ifactory_load_file_icon(path_entry->icon_factory,
+        icon = iconfact_load_file_icon(path_entry->icon_factory,
                 path_entry->current_file,
                 THUNAR_FILE_ICON_STATE_DEFAULT,
                 MAX(size, 16));
@@ -604,21 +604,21 @@ static void _pathentry_update_icon(PathEntry *path_entry)
     if (path_entry->icon_factory == NULL)
     {
         icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(path_entry)));
-        path_entry->icon_factory = ifactory_get_for_icon_theme(icon_theme);
+        path_entry->icon_factory = iconfact_get_for_icon_theme(icon_theme);
     }
 
     gtk_widget_style_get(GTK_WIDGET(path_entry), "icon-size", &icon_size, NULL);
 
     if (G_UNLIKELY(path_entry->current_file != NULL))
     {
-        icon = ifactory_load_file_icon(path_entry->icon_factory,
+        icon = iconfact_load_file_icon(path_entry->icon_factory,
                 path_entry->current_file,
                 THUNAR_FILE_ICON_STATE_DEFAULT,
                 icon_size);
     }
     else if (G_LIKELY(path_entry->current_folder != NULL))
     {
-        icon = ifactory_load_file_icon(path_entry->icon_factory,
+        icon = iconfact_load_file_icon(path_entry->icon_factory,
                 path_entry->current_folder,
                 THUNAR_FILE_ICON_STATE_DEFAULT,
                 icon_size);

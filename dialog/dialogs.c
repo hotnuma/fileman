@@ -302,8 +302,8 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     gtk_widget_show(grid);
 
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(dialog));
-    icon_factory = ifactory_get_for_icon_theme(icon_theme);
-    icon = ifactory_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+    icon_factory = iconfact_get_for_icon_theme(icon_theme);
+    icon = iconfact_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
     g_object_unref(G_OBJECT(icon_factory));
 
     image = gtk_image_new_from_pixbuf(icon);
@@ -725,7 +725,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
 
     // determine the icon factory to use
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(dialog));
-    icon_factory = ifactory_get_for_icon_theme(icon_theme);
+    icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
     grid = gtk_grid_new();
     gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
@@ -826,7 +826,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(label);
     g_free(text);
 
-    icon = ifactory_load_file_icon(icon_factory, dst_file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory, dst_file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
     image = gtk_image_new_from_pixbuf(icon);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
     gtk_widget_set_margin_end(GTK_WIDGET(image), 6);
@@ -871,7 +871,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(label);
     g_free(text);
 
-    icon = ifactory_load_file_icon(icon_factory, src_file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory, src_file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
     image = gtk_image_new_from_pixbuf(icon);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
     gtk_widget_set_margin_end(GTK_WIDGET(image), 6);

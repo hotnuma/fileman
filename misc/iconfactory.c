@@ -43,23 +43,23 @@ enum
 
 typedef struct _IconKey IconKey;
 
-static void ifactory_dispose(GObject *object);
-static void ifactory_finalize(GObject *object);
-static void ifactory_get_property(GObject *object, guint prop_id,
+static void iconfact_dispose(GObject *object);
+static void iconfact_finalize(GObject *object);
+static void iconfact_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec);
-static void ifactory_set_property(GObject *object, guint prop_id,
+static void iconfact_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
 
-static gboolean _ifactory_changed(GSignalInvocationHint *ihint,
+static gboolean _iconfact_changed(GSignalInvocationHint *ihint,
                                   guint n_param_values,
                                   const GValue *param_values,
                                   gpointer user_data);
-static gboolean _ifactory_sweep_timer(gpointer user_data);
-static void _ifactory_sweep_timer_destroy(gpointer user_data);
-static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
+static gboolean _iconfact_sweep_timer(gpointer user_data);
+static void _iconfact_sweep_timer_destroy(gpointer user_data);
+static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory,
                                            const gchar *path,
                                            gint size);
-static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory,
+static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory,
                                         const gchar *name,
                                         gint size,
                                         gboolean wants_default);
@@ -68,7 +68,7 @@ static guint _iconkey_hash(gconstpointer data);
 static gboolean _iconkey_equal(gconstpointer a, gconstpointer b);
 static void _iconkey_free(gpointer data);
 
-static GdkPixbuf* _ifactory_load_fallback(IconFactory *factory, gint size);
+static GdkPixbuf* _iconfact_load_fallback(IconFactory *factory, gint size);
 
 struct _IconFactoryClass
 {
@@ -109,20 +109,20 @@ typedef struct
 
 } IconStore;
 
-static GQuark _ifactory_quark = 0;
-static GQuark _ifactory_store_quark = 0;
+static GQuark _iconfact_quark = 0;
+static GQuark _iconfact_store_quark = 0;
 
-G_DEFINE_TYPE(IconFactory, ifactory, G_TYPE_OBJECT)
+G_DEFINE_TYPE(IconFactory, iconfact, G_TYPE_OBJECT)
 
-static void ifactory_class_init(IconFactoryClass *klass)
+static void iconfact_class_init(IconFactoryClass *klass)
 {
-    _ifactory_store_quark = g_quark_from_static_string("thunar-icon-factory-store");
+    _iconfact_store_quark = g_quark_from_static_string("thunar-icon-factory-store");
 
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->dispose = ifactory_dispose;
-    gobject_class->finalize = ifactory_finalize;
-    gobject_class->get_property = ifactory_get_property;
-    gobject_class->set_property = ifactory_set_property;
+    gobject_class->dispose = iconfact_dispose;
+    gobject_class->finalize = iconfact_finalize;
+    gobject_class->get_property = iconfact_get_property;
+    gobject_class->set_property = iconfact_set_property;
 
     /**
      * IconFactory:icon-theme:
@@ -171,7 +171,7 @@ static void ifactory_class_init(IconFactoryClass *klass)
                                         E_PARAM_READWRITE));
 }
 
-static void ifactory_init(IconFactory *factory)
+static void iconfact_init(IconFactory *factory)
 {
     factory->thumbnail_mode = THUNAR_THUMBNAIL_MODE_NEVER;
     factory->thumbnail_size = THUNAR_THUMBNAIL_SIZE_NORMAL;
@@ -183,7 +183,7 @@ static void ifactory_init(IconFactory *factory)
     factory->changed_hook_id = g_signal_add_emission_hook(
                             g_signal_lookup("changed", GTK_TYPE_ICON_THEME),
                             0,
-                            _ifactory_changed,
+                            _iconfact_changed,
                             factory,
                             NULL);
 
@@ -194,7 +194,7 @@ static void ifactory_init(IconFactory *factory)
                                                 g_object_unref);
 }
 
-static void ifactory_dispose(GObject *object)
+static void iconfact_dispose(GObject *object)
 {
     IconFactory *factory = ICONFACTORY(object);
 
@@ -203,10 +203,10 @@ static void ifactory_dispose(GObject *object)
     if (G_UNLIKELY(factory->sweep_timer_id != 0))
         g_source_remove(factory->sweep_timer_id);
 
-    G_OBJECT_CLASS(ifactory_parent_class)->dispose(object);
+    G_OBJECT_CLASS(iconfact_parent_class)->dispose(object);
 }
 
-static void ifactory_finalize(GObject *object)
+static void iconfact_finalize(GObject *object)
 {
     IconFactory *factory = ICONFACTORY(object);
 
@@ -221,14 +221,14 @@ static void ifactory_finalize(GObject *object)
     // disconnect from the associated icon theme(if any)
     if (G_LIKELY(factory->icon_theme != NULL))
     {
-        g_object_set_qdata(G_OBJECT(factory->icon_theme), _ifactory_quark, NULL);
+        g_object_set_qdata(G_OBJECT(factory->icon_theme), _iconfact_quark, NULL);
         g_object_unref(G_OBJECT(factory->icon_theme));
     }
 
-    G_OBJECT_CLASS(ifactory_parent_class)->finalize(object);
+    G_OBJECT_CLASS(iconfact_parent_class)->finalize(object);
 }
 
-static void ifactory_get_property(GObject *object, guint prop_id,
+static void iconfact_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
@@ -259,7 +259,7 @@ static void ifactory_get_property(GObject *object, guint prop_id,
     }
 }
 
-static void ifactory_set_property(GObject *object, guint prop_id,
+static void iconfact_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
@@ -286,7 +286,7 @@ static void ifactory_set_property(GObject *object, guint prop_id,
     }
 }
 
-static gboolean _ifactory_changed(GSignalInvocationHint *ihint,
+static gboolean _iconfact_changed(GSignalInvocationHint *ihint,
                                   guint                 n_param_values,
                                   const GValue          *param_values,
                                   gpointer              user_data)
@@ -314,7 +314,7 @@ static gboolean _iconkey_check_sweep(IconKey *key, GdkPixbuf *pixbuf)
     return(G_OBJECT(pixbuf)->ref_count == 1);
 }
 
-static gboolean _ifactory_sweep_timer(gpointer user_data)
+static gboolean _iconfact_sweep_timer(gpointer user_data)
 {
     IconFactory *factory = ICONFACTORY(user_data);
 
@@ -332,12 +332,12 @@ static gboolean _ifactory_sweep_timer(gpointer user_data)
     return FALSE;
 }
 
-static void _ifactory_sweep_timer_destroy(gpointer user_data)
+static void _iconfact_sweep_timer_destroy(gpointer user_data)
 {
     ICONFACTORY(user_data)->sweep_timer_id = 0;
 }
 
-static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
+static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory,
                                            const gchar *path,
                                            gint size)
 {
@@ -409,7 +409,7 @@ static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
     return pixbuf;
 }
 
-static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory, const gchar *name,
+static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
                                         gint size, gboolean wants_default)
 {
     IconKey  lookup_key;
@@ -432,7 +432,7 @@ static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory, const gchar *name,
         if (G_UNLIKELY(g_path_is_absolute(name)))
         {
             // load the file directly
-            pixbuf = _ifactory_load_from_file(factory, name, size);
+            pixbuf = _iconfact_load_from_file(factory, name, size);
         }
         else
         {
@@ -459,7 +459,7 @@ static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory, const gchar *name,
             if (!wants_default)
                 return NULL;
             else
-                return _ifactory_load_fallback(factory, size);
+                return _iconfact_load_fallback(factory, size);
         }
 
         // generate a key for the new cached icon
@@ -475,8 +475,8 @@ static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory, const gchar *name,
     if (G_UNLIKELY(factory->sweep_timer_id == 0))
     {
         factory->sweep_timer_id = g_timeout_add_seconds_full(G_PRIORITY_LOW, ICONFACTORY_SWEEP_TIMEOUT,
-                                  _ifactory_sweep_timer, factory,
-                                  _ifactory_sweep_timer_destroy);
+                                  _iconfact_sweep_timer, factory,
+                                  _iconfact_sweep_timer_destroy);
     }
 
     return GDK_PIXBUF(g_object_ref(G_OBJECT(pixbuf)));
@@ -527,9 +527,9 @@ static void _iconstore_free(gpointer data)
     g_slice_free(IconStore, store);
 }
 
-static GdkPixbuf* _ifactory_load_fallback(IconFactory *factory, gint size)
+static GdkPixbuf* _iconfact_load_fallback(IconFactory *factory, gint size)
 {
-    return _ifactory_lookup_icon(factory, "text-x-generic", size, FALSE);
+    return _iconfact_lookup_icon(factory, "text-x-generic", size, FALSE);
 }
 
 /**
@@ -544,13 +544,13 @@ static GdkPixbuf* _ifactory_load_fallback(IconFactory *factory, gint size)
  *
  * Return value: the #IconFactory for the default icon theme.
  **/
-IconFactory* ifactory_get_default()
+IconFactory* iconfact_get_default()
 {
     static IconFactory *factory = NULL;
 
     if (G_UNLIKELY(factory == NULL))
     {
-        factory = ifactory_get_for_icon_theme(gtk_icon_theme_get_default());
+        factory = iconfact_get_for_icon_theme(gtk_icon_theme_get_default());
         g_object_add_weak_pointer(G_OBJECT(factory),(gpointer) &factory);
     }
     else
@@ -573,24 +573,24 @@ IconFactory* ifactory_get_default()
  *
  * Return value: the #IconFactory for @icon_theme.
  **/
-IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme)
+IconFactory* iconfact_get_for_icon_theme(GtkIconTheme *icon_theme)
 {
     IconFactory *factory;
 
     e_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
     // generate the quark on-demand
-    if (G_UNLIKELY(_ifactory_quark == 0))
-        _ifactory_quark = g_quark_from_static_string("thunar-icon-factory");
+    if (G_UNLIKELY(_iconfact_quark == 0))
+        _iconfact_quark = g_quark_from_static_string("thunar-icon-factory");
 
     // check if the given icon theme already knows about an icon factory
-    factory = g_object_get_qdata(G_OBJECT(icon_theme), _ifactory_quark);
+    factory = g_object_get_qdata(G_OBJECT(icon_theme), _iconfact_quark);
     if (G_UNLIKELY(factory == NULL))
     {
         // allocate a new factory and connect it to the icon theme
         factory = g_object_new(TYPE_ICONFACTORY, NULL);
         factory->icon_theme = GTK_ICON_THEME(g_object_ref(G_OBJECT(icon_theme)));
-        g_object_set_qdata(G_OBJECT(factory->icon_theme), _ifactory_quark, factory);
+        g_object_set_qdata(G_OBJECT(factory->icon_theme), _iconfact_quark, factory);
 
     }
     else
@@ -619,7 +619,7 @@ IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme)
  *
  * Return value: the pixbuf for the icon named @name at @size.
  **/
-GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
+GdkPixbuf* iconfact_load_icon(IconFactory *factory, const gchar *name,
                               gint size, gboolean wants_default)
 {
     e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
@@ -632,13 +632,13 @@ GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
     {
         // check if the caller will happly accept the fallback icon
         if (G_LIKELY(wants_default))
-            return _ifactory_load_fallback(factory, size);
+            return _iconfact_load_fallback(factory, size);
         else
             return NULL;
     }
 
     // lookup the icon
-    return _ifactory_lookup_icon(factory, name, size, wants_default);
+    return _iconfact_lookup_icon(factory, name, size, wants_default);
 }
 
 /**
@@ -653,7 +653,7 @@ GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
  *
  * Return value: the #GdkPixbuf icon.
  **/
-GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
+GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
                                    ThunarFile  *file,
                                    ThunarFileIconState icon_state,
                                    gint        icon_size)
@@ -665,7 +665,7 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
 
     // check if we have a stored icon on the file and it is still valid
     IconStore *store = g_object_get_qdata(G_OBJECT(file),
-                                                _ifactory_store_quark);
+                                                _iconfact_store_quark);
     if (store != NULL
         && store->icon_state == icon_state
         && store->icon_size == icon_size
@@ -686,7 +686,7 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
     if (custom_icon != NULL)
     {
         // try to load the icon
-        icon = _ifactory_lookup_icon(factory, custom_icon, icon_size, FALSE);
+        icon = _iconfact_lookup_icon(factory, custom_icon, icon_size, FALSE);
         if (G_LIKELY(icon != NULL))
             return icon;
     }
@@ -767,7 +767,7 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
     if (G_LIKELY(icon == NULL))
     {
         const gchar *icon_name = th_file_get_icon_name(file, icon_state, factory->icon_theme);
-        icon = ifactory_load_icon(factory, icon_name, icon_size, TRUE);
+        icon = iconfact_load_icon(factory, icon_name, icon_size, TRUE);
     }
 
     if (G_LIKELY(icon != NULL))
@@ -780,7 +780,7 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
         store->icon = g_object_ref(icon);
 
         g_object_set_qdata_full(G_OBJECT(file),
-                                _ifactory_store_quark,
+                                _iconfact_store_quark,
                                 store, _iconstore_free);
     }
 
@@ -793,13 +793,13 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
  *
  * Unset the pixmap cache on a file to force a reload on the next request.
  **/
-void ifactory_clear_pixmap_cache(ThunarFile *file)
+void iconfact_clear_pixmap_cache(ThunarFile *file)
 {
     e_return_if_fail(THUNAR_IS_FILE(file));
 
     // unset the data
-    if (_ifactory_store_quark != 0)
-        g_object_set_qdata(G_OBJECT(file), _ifactory_store_quark, NULL);
+    if (_iconfact_store_quark != 0)
+        g_object_set_qdata(G_OBJECT(file), _iconfact_store_quark, NULL);
 }
 
 

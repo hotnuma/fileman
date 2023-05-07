@@ -471,7 +471,7 @@ void history_show_menu(ThunarHistory         *history,
 
     // determine the icon factory to use to load the icons
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(parent));
-    icon_factory = ifactory_get_for_icon_theme(icon_theme);
+    icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
     // check if we have "Back" or "Forward" here
     if (type == THUNAR_HISTORY_MENU_BACK)
@@ -496,7 +496,7 @@ void history_show_menu(ThunarHistory         *history,
         if (file != NULL)
         {
             // load the icon for the file
-            icon = ifactory_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 16);
+            icon = iconfact_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 16);
             if (icon != NULL)
             {
                 // setup the image for the file
