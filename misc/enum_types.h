@@ -24,26 +24,6 @@
 
 G_BEGIN_DECLS
 
-#define THUNAR_TYPE_RENAMER_MODE (thunar_renamer_mode_get_type ())
-
-/**
- * ThunarRenamerMode:
- * @THUNAR_RENAMER_MODE_NAME   : only the name should be renamed.
- * @THUNAR_RENAMER_MODE_SUFFIX : only the suffix should be renamed.
- * @THUNAR_RENAMER_MODE_BOTH   : the name and the suffix should be renamed.
- *
- * The rename mode for a #ThunarRenamerModel instance.
- **/
-typedef enum
-{
-    THUNAR_RENAMER_MODE_NAME,
-    THUNAR_RENAMER_MODE_SUFFIX,
-    THUNAR_RENAMER_MODE_BOTH,
-
-} ThunarRenamerMode;
-
-GType thunar_renamer_mode_get_type() G_GNUC_CONST;
-
 #define THUNAR_TYPE_DATE_STYLE (thunar_date_style_get_type ())
 
 /**
@@ -91,7 +71,7 @@ GType thunar_date_style_get_type() G_GNUC_CONST;
  **/
 typedef enum
 {
-    /* visible columns */
+    // visible columns
     THUNAR_COLUMN_DATE_ACCESSED,
     THUNAR_COLUMN_DATE_MODIFIED,
     THUNAR_COLUMN_GROUP,
@@ -103,14 +83,14 @@ typedef enum
     THUNAR_COLUMN_SIZE_IN_BYTES,
     THUNAR_COLUMN_TYPE,
 
-    /* special internal columns */
+    // special internal columns
     THUNAR_COLUMN_FILE,
     THUNAR_COLUMN_FILE_NAME,
 
-    /* number of columns */
+    // number of columns
     THUNAR_N_COLUMNS,
 
-    /* number of visible columns */
+    // number of visible columns
     THUNAR_N_VISIBLE_COLUMNS = THUNAR_COLUMN_FILE,
 
 } ThunarColumn;
@@ -238,7 +218,7 @@ typedef enum
     THUNAR_ZOOM_LEVEL_300_PERCENT,
     THUNAR_ZOOM_LEVEL_400_PERCENT,
 
-    /*< private >*/
+    //< private >
     THUNAR_ZOOM_N_LEVELS,
 
 } ThunarZoomLevel;
@@ -267,7 +247,7 @@ ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_lev
  *
  * Possible responses for the ThunarJob::ask signal.
  **/
-typedef enum /*< flags >*/
+typedef enum //< flags >
 {
     THUNAR_JOB_RESPONSE_YES         = 1 << 0,
     THUNAR_JOB_RESPONSE_YES_ALL     = 1 << 1,
@@ -296,7 +276,7 @@ GType thunar_job_response_get_type() G_GNUC_CONST;
  *
  * Special flags and permissions of a filesystem entity.
  **/
-typedef enum /*< flags >*/
+typedef enum //< flags >
 {
     THUNAR_FILE_MODE_SUID       = 04000,
     THUNAR_FILE_MODE_SGID       = 02000,

@@ -16,7 +16,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   60213	./job/transfer_job.c
 +   55265	./application.c
 +   50846	./dialog/permbox.c
-    44101	./dialog/appchooser.c
++   44101	./dialog/appchooser.c
     43641	./dialog/propsdlg.c
     43501	./job/io_jobs.c
     41070	./widget/pathentry.c
@@ -33,7 +33,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     22433	./core/devmon.c
     21420	./core/clipman.c
     19735	./misc/history.c
-    19042	./misc/enum_types.c
++   19042	./misc/enum_types.c
     18274	./libext/gio_ext.c
     18067	./libext/exo_job.c
 +   18012	./libext/utils.c
