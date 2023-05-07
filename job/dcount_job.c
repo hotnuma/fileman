@@ -28,7 +28,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-/* Signal identifiers */
+// Signal identifiers
 enum
 {
     STATUS_UPDATE,
@@ -47,7 +47,7 @@ struct _DeepCountJobClass
 {
     ThunarJobClass __parent__;
 
-    /* signals */
+    // signals
     void (*status_update) (ThunarJob *job,
                            guint64  total_size,
                            guint    file_count,
@@ -62,10 +62,10 @@ struct _DeepCountJob
     GList              *files;
     GFileQueryInfoFlags query_flags;
 
-    /* the time of the last "status-update" emission */
+    // the time of the last "status-update" emission
     gint64              last_time;
 
-    /* status information */
+    // status information
     guint64             total_size;
     guint               file_count;
     guint               directory_count;
@@ -160,18 +160,18 @@ static gboolean _dcjob_process(ExoJob       *job,
     e_return_val_if_fail(file_info == NULL || G_IS_FILE_INFO(file_info), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
-    /* abort if job was already cancelled */
+    // abort if job was already cancelled
     if (exo_job_is_cancelled(job))
         return FALSE;
 
     if (file_info != NULL)
     {
-        /* use the enumerator info */
+        // use the enumerator info
         info = g_object_ref(file_info);
     }
     else
     {
-        /* query size and type of the current file */
+        // query size and type of the current file
         info = g_file_query_info(file,
                                   DEEPCOUNT_FILEINFO_NAMESPACE,
                                   count_job->query_flags,
@@ -179,11 +179,11 @@ static gboolean _dcjob_process(ExoJob       *job,
                                   error);
     }
 
-    /* abort on invalid info or cancellation */
+    // abort on invalid info or cancellation
     if (info == NULL)
         return FALSE;
 
-    /* abort on cancellation */
+    // abort on cancellation
     if (exo_job_is_cancelled(job))
     {
         g_object_unref(info);
@@ -198,22 +198,22 @@ static gboolean _dcjob_process(ExoJob       *job,
 
     if (toplevel_fs_id == NULL)
     {
-        /* first toplevel, so use this id */
+        // first toplevel, so use this id
         toplevel_fs_id = fs_id;
     }
     else if (strcmp(fs_id, toplevel_fs_id) != 0)
     {
-        /* release the file info */
+        // release the file info
         g_object_unref(info);
 
-        /* other filesystem, continue */
+        // other filesystem, continue
         return TRUE;
     }
 
-    /* recurse if we have a directory */
+    // recurse if we have a directory
     if (g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
     {
-        /* try to read from the directory */
+        // try to read from the directory
         enumerator = g_file_enumerate_children(file,
                                                 DEEPCOUNT_FILEINFO_NAMESPACE ","
                                                 G_FILE_ATTRIBUTE_STANDARD_NAME,
@@ -225,46 +225,46 @@ static gboolean _dcjob_process(ExoJob       *job,
         {
             if (enumerator == NULL)
             {
-                /* directory was unreadable */
+                // directory was unreadable
                 count_job->unreadable_directory_count++;
 
                 if (toplevel_file
                         && g_list_length(count_job->files) < 2)
                 {
-                    /* we only bail out if the job file is unreadable */
+                    // we only bail out if the job file is unreadable
                     success = FALSE;
                 }
                 else
                 {
-                    /* ignore errors from files other than the job file */
+                    // ignore errors from files other than the job file
                     g_clear_error(error);
                 }
             }
             else
             {
-                /* directory was readable */
+                // directory was readable
                 count_job->directory_count++;
 
                 while(!exo_job_is_cancelled(job))
                 {
-                    /* query next child info */
+                    // query next child info
                     child_info = g_file_enumerator_next_file(enumerator,
                                  exo_job_get_cancellable(job),
                                  error);
 
-                    /* abort on invalid child info(iteration ends) or cancellation */
+                    // abort on invalid child info(iteration ends) or cancellation
                     if (child_info == NULL)
                         break;
 
                     if (!exo_job_is_cancelled(job))
                     {
-                        /* generate a GFile for the child */
+                        // generate a GFile for the child
                         child = g_file_resolve_relative_path(file, g_file_info_get_name(child_info));
 
-                        /* recurse unless the job was cancelled before */
+                        // recurse unless the job was cancelled before
                         _dcjob_process(job, child, child_info, toplevel_fs_id, error);
 
-                        /* free resources */
+                        // free resources
                         g_object_unref(child);
                     }
 
@@ -273,7 +273,7 @@ static gboolean _dcjob_process(ExoJob       *job,
             }
         }
 
-        /* destroy the enumerator */
+        // destroy the enumerator
         if (enumerator != NULL)
             g_object_unref(enumerator);
 
@@ -289,14 +289,14 @@ static gboolean _dcjob_process(ExoJob       *job,
     }
     else
     {
-        /* we have a regular file or at least not a directory */
+        // we have a regular file or at least not a directory
         count_job->file_count++;
 
-        /* add size of the file to the total size */
+        // add size of the file to the total size
         count_job->total_size += g_file_info_get_size(info);
     }
 
-    /* destroy the file info */
+    // destroy the file info
     g_object_unref(info);
 
     /* we've succeeded if there was no error when loading information
@@ -315,18 +315,18 @@ static gboolean dcjob_execute(ExoJob *job, GError **error)
     e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
-    /* don't start the job if it was already cancelled */
+    // don't start the job if it was already cancelled
     if (exo_job_set_error_if_cancelled(job, error))
         return FALSE;
 
-    /* reset counters */
+    // reset counters
     count_job->total_size = 0;
     count_job->file_count = 0;
     count_job->directory_count = 0;
     count_job->unreadable_directory_count = 0;
     count_job->last_time = 0;
 
-    /* count files, directories and compute size of the job files */
+    // count files, directories and compute size of the job files
     for(lp = count_job->files; lp != NULL; lp = lp->next)
     {
         gfile = th_file_get_file(THUNAR_FILE(lp->data));
@@ -354,7 +354,7 @@ static gboolean dcjob_execute(ExoJob *job, GError **error)
     }
     else if (!exo_job_is_cancelled(job))
     {
-        /* emit final status update at the very end of the computation */
+        // emit final status update at the very end of the computation
         _dcjob_status_update(count_job);
     }
 

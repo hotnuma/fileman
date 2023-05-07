@@ -67,17 +67,17 @@ GFile* job_util_next_duplicate_file(ThunarJob *job,
     e_return_val_if_fail(error == NULL || *error == NULL, NULL);
     e_return_val_if_fail(!e_file_is_root(file), NULL);
 
-    /* abort on cancellation */
+    // abort on cancellation
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return NULL;
 
-    /* query the source file info / display name */
+    // query the source file info / display name
     info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_TYPE ","
                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                               exo_job_get_cancellable(EXO_JOB(job)), &err);
 
-    /* abort on error */
+    // abort on error
     if (info == NULL)
     {
         g_propagate_error(error, err);
@@ -87,44 +87,44 @@ GFile* job_util_next_duplicate_file(ThunarJob *job,
     old_display_name = g_file_info_get_display_name(info);
     if (copy)
     {
-        /* get file extension if file is not a directory */
+        // get file extension if file is not a directory
         if (g_file_info_get_file_type(info) != G_FILE_TYPE_DIRECTORY)
             dot = util_str_get_extension(old_display_name);
 
         if (dot != NULL)
         {
             file_basename = g_strndup(old_display_name, dot - old_display_name);
-            /* I18N: put "(copy #)" between basename and extension */
+            // I18N: put "(copy #)" between basename and extension
             display_name = g_strdup_printf(_("%s(copy %u)%s"), file_basename, n, dot);
             g_free(file_basename);
         }
         else
         {
-            /* I18N: put "(copy #)" after filename(for files without extension) */
+            // I18N: put "(copy #)" after filename(for files without extension)
             display_name = g_strdup_printf(_("%s(copy %u)"), old_display_name, n);
         }
     }
     else
     {
-        /* create name for link */
+        // create name for link
         if (n == 1)
         {
-            /* I18N: name for first link to basename */
+            // I18N: name for first link to basename
             display_name = g_strdup_printf(_("link to %s"), old_display_name);
         }
         else
         {
-            /* I18N: name for nth link to basename */
+            // I18N: name for nth link to basename
             display_name = g_strdup_printf(_("link %u to %s"), n, old_display_name);
         }
     }
 
-    /* create the GFile for the copy/link */
+    // create the GFile for the copy/link
     parent_file = g_file_get_parent(file);
     duplicate_file = g_file_get_child(parent_file, display_name);
     g_object_unref(parent_file);
 
-    /* free resources */
+    // free resources
     g_object_unref(info);
     g_free(display_name);
 
@@ -172,17 +172,17 @@ GFile* job_util_next_renamed_file(ThunarJob *job,
     e_return_val_if_fail(!e_file_is_root(src_file), NULL);
     e_return_val_if_fail(!e_file_is_root(tgt_file), NULL);
 
-    /* abort on cancellation */
+    // abort on cancellation
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return NULL;
 
-    /* query the source file info / display name */
+    // query the source file info / display name
     info = g_file_query_info(src_file, G_FILE_ATTRIBUTE_STANDARD_TYPE ","
                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                               exo_job_get_cancellable(EXO_JOB(job)), &err);
 
-    /* abort on error */
+    // abort on error
     if (info == NULL)
     {
         g_propagate_error(error, err);
@@ -190,29 +190,29 @@ GFile* job_util_next_renamed_file(ThunarJob *job,
     }
 
     old_display_name = g_file_info_get_display_name(info);
-    /* get file extension if file is not a directory */
+    // get file extension if file is not a directory
     if (g_file_info_get_file_type(info) != G_FILE_TYPE_DIRECTORY)
         dot = util_str_get_extension(old_display_name);
 
     if (dot != NULL)
     {
         file_basename = g_strndup(old_display_name, dot - old_display_name);
-        /* I18N: put "(copy #)" between basename and extension */
+        // I18N: put "(copy #)" between basename and extension
         display_name = g_strdup_printf(_("%s(copy %u)%s"), file_basename, n, dot);
         g_free(file_basename);
     }
     else
     {
-        /* I18N: put "(copy #)" after filename(for files without extension) */
+        // I18N: put "(copy #)" after filename(for files without extension)
         display_name = g_strdup_printf(_("%s(copy %u)"), old_display_name, n);
     }
 
-    /* create the GFile for the copy/move */
+    // create the GFile for the copy/move
     parent_file = g_file_get_parent(tgt_file);
     renamed_file = g_file_get_child(parent_file, display_name);
     g_object_unref(parent_file);
 
-    /* free resources */
+    // free resources
     g_object_unref(info);
     g_free(display_name);
 

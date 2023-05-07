@@ -37,7 +37,7 @@ typedef struct _AppMenu      AppMenu;
 #define APPMENU_GET_CLASS(obj)  \
     (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_APPMENU, AppMenu))
 
-/* For window menu, some items are shown insensitive, instead of hidden */
+// For window menu, some items are shown insensitive, instead of hidden
 typedef enum
 {
     MENU_TYPE_WINDOW,
@@ -48,7 +48,7 @@ typedef enum
 
 } MenuType;
 
-/* Bundles of #GtkMenuItems, which can be created by this widget */
+// Bundles of #GtkMenuItems, which can be created by this widget
 typedef enum
 {
     MENU_SECTION_OPEN             = 1 << 0,

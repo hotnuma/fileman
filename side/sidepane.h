@@ -38,7 +38,7 @@ struct _SidePaneIface
 {
     GTypeInterface __parent__;
 
-    /* virtual methods */
+    // virtual methods
     gboolean (*get_show_hidden) (SidePane *side_pane);
     void     (*set_show_hidden) (SidePane *side_pane, gboolean show_hidden);
 };

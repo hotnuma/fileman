@@ -50,7 +50,7 @@ GList* io_scan_directory(ThunarJob           *job,
     e_return_val_if_fail(G_IS_FILE(file), NULL);
     e_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
-    /* abort if the job was cancelled */
+    // abort if the job was cancelled
     if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return NULL;
 
@@ -68,39 +68,39 @@ GList* io_scan_directory(ThunarJob           *job,
     if (job != NULL)
         cancellable = exo_job_get_cancellable(EXO_JOB(job));
 
-    /* query the file type */
+    // query the file type
     type = g_file_query_file_type(file, flags, cancellable);
 
-    /* abort if the job was cancelled */
+    // abort if the job was cancelled
     if (job != NULL && exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return NULL;
 
-    /* ignore non-directory nodes */
+    // ignore non-directory nodes
     if (type != G_FILE_TYPE_DIRECTORY)
         return NULL;
 
-    /* determine the namespace */
+    // determine the namespace
     if (return_thunar_files)
         namespace = FILEINFO_NAMESPACE;
     else
         namespace = G_FILE_ATTRIBUTE_STANDARD_TYPE ","
                         G_FILE_ATTRIBUTE_STANDARD_NAME;
 
-    /* try to read from the direectory */
+    // try to read from the direectory
     enumerator = g_file_enumerate_children(file, namespace,
                                             flags, cancellable, &err);
 
-    /* abort if there was an error or the job was cancelled */
+    // abort if there was an error or the job was cancelled
     if (err != NULL)
     {
         g_propagate_error(error, err);
         return NULL;
     }
 
-    /* iterate over children one by one */
+    // iterate over children one by one
     while (job == NULL || !exo_job_is_cancelled(EXO_JOB(job)))
     {
-        /* query info of the child */
+        // query info of the child
         info = g_file_enumerator_next_file(enumerator, cancellable, &err);
 
         if (G_UNLIKELY(info == NULL))
@@ -116,28 +116,28 @@ GList* io_scan_directory(ThunarJob           *job,
             }
             else
             {
-                /* break on errors */
+                // break on errors
                 break;
             }
         }
 
-        /* create GFile for the child */
+        // create GFile for the child
         child_file = g_file_get_child(file, g_file_info_get_name(info));
 
         if (return_thunar_files)
         {
-            /* Prepend the ThunarFile */
+            // Prepend the ThunarFile
             thunar_file = th_file_get_with_info(child_file, info, !is_mounted);
             files = e_list_prepend_ref(files, thunar_file);
             g_object_unref(G_OBJECT(thunar_file));
         }
         else
         {
-            /* Prepend the GFile */
+            // Prepend the GFile
             files = e_list_prepend_ref(files, child_file);
         }
 
-        /* if the child is a directory and we need to recurse ... just do so */
+        // if the child is a directory and we need to recurse ... just do so
         if (recursively
                 && is_mounted
                 && g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
@@ -154,7 +154,7 @@ GList* io_scan_directory(ThunarJob           *job,
         g_object_unref(info);
     }
 
-    /* release the enumerator */
+    // release the enumerator
     g_object_unref(enumerator);
 
     if (G_UNLIKELY(err != NULL))

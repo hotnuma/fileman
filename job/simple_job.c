@@ -64,7 +64,7 @@ static void simple_job_finalize(GObject *object)
 {
     SimpleJob *simple_job = THUNAR_SIMPLE_JOB(object);
 
-    /* release the param values */
+    // release the param values
     for (guint i = 0; i < simple_job->param_values->len; ++i)
         g_value_unset(&g_array_index(simple_job->param_values, GValue, i));
 
@@ -82,7 +82,7 @@ static gboolean simple_job_execute(ExoJob *job, GError **error)
     e_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), FALSE);
     e_return_val_if_fail(simple_job->func != NULL, FALSE);
 
-    /* try to execute the job using the supplied function */
+    // try to execute the job using the supplied function
     success =(*simple_job->func)(THUNAR_JOB(job), simple_job->param_values, &err);
 
     if (!success)
@@ -139,22 +139,22 @@ ThunarJob* simple_job_launch(SimpleJobFunc func, guint n_param_values, ...)
     gchar           *error_message;
     guint            n;
 
-    /* allocate and initialize the simple job */
+    // allocate and initialize the simple job
     simple_job = g_object_new(TYPE_SIMPLEJOB, NULL);
     simple_job->func = func;
     simple_job->param_values = g_array_sized_new(FALSE, TRUE, sizeof(GValue), n_param_values);
 
-    /* collect the parameters */
+    // collect the parameters
     va_start(var_args, n_param_values);
     for (n = 0; n < n_param_values; ++n)
     {
-        /* initialize the value to hold the next parameter */
+        // initialize the value to hold the next parameter
         g_value_init(&value, va_arg(var_args, GType));
 
-        /* collect the value from the stack */
+        // collect the value from the stack
         G_VALUE_COLLECT(&value, var_args, 0, &error_message);
 
-        /* check if an error occurred */
+        // check if an error occurred
         if (G_UNLIKELY(error_message != NULL))
         {
             g_error("%s: %s", G_STRLOC, error_message);
@@ -169,7 +169,7 @@ ThunarJob* simple_job_launch(SimpleJobFunc func, guint n_param_values, ...)
     }
     va_end(var_args);
 
-    /* launch the job */
+    // launch the job
     return THUNAR_JOB(exo_job_launch(EXO_JOB(simple_job)));
 }
 

@@ -40,7 +40,7 @@ struct _BaseViewIface
 {
     GTypeInterface  __parent__;
 
-    /* virtual methods */
+    // virtual methods
     gboolean        (*get_loading)        (BaseView *view);
     const gchar*    (*get_statusbar_text) (BaseView *view);
 
