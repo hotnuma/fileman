@@ -42,10 +42,10 @@ typedef struct _ExoTreeView        ExoTreeView;
 
 struct _ExoTreeViewClass
 {
-  /*< private >*/
+  //< private >
   GtkTreeViewClass __parent__;
 
-  /*< private >*/
+  //< private >
   void (*reserved1) (void);
   void (*reserved2) (void);
   void (*reserved3) (void);

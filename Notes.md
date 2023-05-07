@@ -21,13 +21,13 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   43501	./job/io_jobs.c
 +   41070	./widget/pathentry.c
 +   40301	./view/detailview.c
-    38433	./dialog/dialogs.c
-    33723	./libext/exo_tree_view.c
-    30271	./core/th_folder.c
++   38433	./dialog/dialogs.c
++   33723	./libext/exo_tree_view.c
++   30271	./core/th_folder.c
 +   28869	./misc/icon_factory.c
-    27798	./view/column_model.c
-    24656	./core/th_device.c
-    24424	./job/job.c
++   27798	./view/column_model.c
++   24656	./core/th_device.c
++   24424	./job/job.c
 +   24323	./misc/browser.c
     23925	./dialog/progress_view.c
     22433	./core/devmon.c

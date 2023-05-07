@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-/* Signal identifiers */
+// Signal identifiers
 enum
 {
     COLUMNS_CHANGED,
@@ -142,18 +142,18 @@ static void column_model_tree_model_init(GtkTreeModelIface *iface)
 
 static void column_model_init(ColumnModel *column_model)
 {
-    /* generate a random stamp if we're in debug mode */
+    // generate a random stamp if we're in debug mode
 #ifndef NDEBUG
     column_model->stamp = g_random_int();
 #endif
 
-    /* load the column order */
+    // load the column order
     _column_model_load_column_order(column_model);
 
-    /* load the column widths */
+    // load the column widths
     _column_model_load_column_widths(column_model);
 
-    /* load the list of visible columns */
+    // load the list of visible columns
     _column_model_load_visible_columns(column_model);
 }
 
@@ -161,7 +161,7 @@ static void column_model_finalize(GObject *object)
 {
     ColumnModel *column_model = COLUMN_MODEL(object);
 
-    /* drop any running "save width" timer */
+    // drop any running "save width" timer
     if (G_UNLIKELY(column_model->save_width_timer_id != 0))
         g_source_remove(column_model->save_width_timer_id);
 
@@ -211,12 +211,12 @@ static gboolean column_model_get_iter(GtkTreeModel *tree_model, GtkTreeIter *ite
     e_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
     e_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
 
-    /* check if the path is valid */
+    // check if the path is valid
     column = gtk_tree_path_get_indices(path)[0];
     if (G_UNLIKELY(column >= THUNAR_N_VISIBLE_COLUMNS))
         return FALSE;
 
-    /* generate an iterator */
+    // generate an iterator
     GTK_TREE_ITER_INIT(*iter, column_model->stamp, GINT_TO_POINTER(column));
 
     return TRUE;
@@ -228,7 +228,7 @@ static GtkTreePath* column_model_get_path(GtkTreeModel *tree_model,
     e_return_val_if_fail(IS_COLUMN_MODEL(tree_model), NULL);
     e_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, NULL);
 
-    /* generate the path for the iterator */
+    // generate the path for the iterator
     return gtk_tree_path_new_from_indices(GPOINTER_TO_INT(iter->user_data), -1);
 }
 
@@ -244,10 +244,10 @@ static void column_model_get_value(GtkTreeModel *tree_model,
     e_return_if_fail(idx < COLUMN_MODEL_N_COLUMNS);
     e_return_if_fail(iter->stamp == column_model->stamp);
 
-    /* determine the column from the iterator */
+    // determine the column from the iterator
     column = GPOINTER_TO_INT(iter->user_data);
 
-    /* resolve the column according to the order */
+    // resolve the column according to the order
     column = column_model->order[column];
 
     switch (idx)
@@ -281,11 +281,11 @@ static gboolean column_model_iter_next(GtkTreeModel *tree_model,
     e_return_val_if_fail(IS_COLUMN_MODEL(tree_model), FALSE);
     e_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, FALSE);
 
-    /* move the iterator to the next column */
+    // move the iterator to the next column
     column = GPOINTER_TO_INT(iter->user_data) + 1;
     iter->user_data = GINT_TO_POINTER(column);
 
-    /* check if the iterator is still valid */
+    // check if the iterator is still valid
     return(column < THUNAR_N_VISIBLE_COLUMNS);
 }
 
@@ -358,7 +358,7 @@ static void _column_model_load_column_order(ColumnModel *column_model)
     gchar      **column_order;
     gint         i, j;
 
-    /* determine the column order from the preferences */
+    // determine the column order from the preferences
     gchar       *tmp = g_strdup("THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_SIZE_IN_BYTES,THUNAR_COLUMN_TYPE,THUNAR_COLUMN_DATE_MODIFIED");
 
     //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-order", &tmp, NULL);
@@ -366,28 +366,28 @@ static void _column_model_load_column_order(ColumnModel *column_model)
     column_order = g_strsplit(tmp, ",", -1);
     g_free(tmp);
 
-    /* reset the column order to its default */
+    // reset the column order to its default
     for(j = 0; j < THUNAR_N_VISIBLE_COLUMNS; ++j)
         column_model->order[j] = j;
 
-    /* now rearrange the columns according to the preferences */
+    // now rearrange the columns according to the preferences
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
     for(i = 0; column_order[i] != NULL; ++i)
     {
-        /* determine the enum value for the name */
+        // determine the enum value for the name
         value = g_enum_get_value_by_name(klass, column_order[i]);
         if (G_UNLIKELY(value == NULL || value->value == i))
             continue;
 
-        /* find the current position of the value */
+        // find the current position of the value
         for(j = 0; j < THUNAR_N_VISIBLE_COLUMNS; ++j)
             if (column_model->order[j] ==(guint) value->value)
                 break;
 
-        /* check if valid */
+        // check if valid
         if (G_LIKELY(j < THUNAR_N_VISIBLE_COLUMNS))
         {
-            /* exchange the positions of i and j */
+            // exchange the positions of i and j
             column = column_model->order[i];
             column_model->order[i] = column_model->order[j];
             column_model->order[j] = column;
@@ -395,7 +395,7 @@ static void _column_model_load_column_order(ColumnModel *column_model)
     }
     g_type_class_unref(klass);
 
-    /* release the column order */
+    // release the column order
     g_strfreev(column_order);
 }
 
@@ -406,29 +406,29 @@ static void _column_model_save_column_order(ColumnModel *column_model)
     GString    *column_order;
     gint        n;
 
-    /* allocate a string for the column order */
+    // allocate a string for the column order
     column_order = g_string_sized_new(256);
 
-    /* transform the internal visible column list */
+    // transform the internal visible column list
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
     for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
     {
-        /* append a comma if not empty */
+        // append a comma if not empty
         if (*column_order->str != '\0')
             g_string_append_c(column_order, ',');
 
-        /* append the enum value name */
+        // append the enum value name
         value = g_enum_get_value(klass, column_model->order[n]);
         g_string_append(column_order, value->value_name);
     }
     g_type_class_unref(klass);
 
-    /* save the list of visible columns */
+    // save the list of visible columns
     //g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_order, column_model);
     //g_object_set(G_OBJECT(column_model->preferences), "last-details-view-column-order", column_order->str, NULL);
     //g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_order, column_model);
 
-    /* release the string */
+    // release the string
     g_string_free(column_order, TRUE);
 }
 
@@ -438,18 +438,18 @@ static void _column_model_load_column_widths(ColumnModel *column_model)
     gint    width;
     gint    n;
 
-    /* determine the column widths from the preferences */
+    // determine the column widths from the preferences
     gchar *tmp = g_strdup("");
     //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-widths", &tmp, NULL);
     column_widths = g_strsplit(tmp, ",", -1);
     g_free(tmp);
 
-    /* reset the column widths for the model */
+    // reset the column widths for the model
     for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
         column_model->width[n] = 50;
     column_model->width[THUNAR_COLUMN_NAME] = 200;
 
-    /* parse the widths from the preferences */
+    // parse the widths from the preferences
     for(n = 0; column_widths[n] != NULL; ++n)
     {
         width = strtol(column_widths[n], NULL, 10);
@@ -457,7 +457,7 @@ static void _column_model_load_column_widths(ColumnModel *column_model)
             column_model->width[n] = width;
     }
 
-    /* release the column width array */
+    // release the column width array
     g_strfreev(column_widths);
 }
 
@@ -466,26 +466,26 @@ static void _column_model_save_column_widths(ColumnModel *column_model)
     GString *column_widths;
     gint     n;
 
-    /* allocate a string for the column widths */
+    // allocate a string for the column widths
     column_widths = g_string_sized_new(96);
 
-    /* transform the column widths to a string */
+    // transform the column widths to a string
     for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
     {
-        /* append a comma if not empty */
+        // append a comma if not empty
         if (*column_widths->str != '\0')
             g_string_append_c(column_widths, ',');
 
-        /* append the width */
+        // append the width
         g_string_append_printf(column_widths, "%d", column_model->width[n]);
     }
 
-    /* save the column widths */
+    // save the column widths
     //g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_widths, column_model);
     //g_object_set(G_OBJECT(column_model->preferences), "last-details-view-column-widths", column_widths->str, NULL);
     //g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_column_widths, column_model);
 
-    /* release the string */
+    // release the string
     g_string_free(column_widths, TRUE);
 }
 
@@ -496,31 +496,31 @@ static void _column_model_load_visible_columns(ColumnModel *column_model)
     gchar     **visible_columns;
     gint        n;
 
-    /* determine the list of visible columns from the preferences */
+    // determine the list of visible columns from the preferences
     gchar *tmp = g_strdup("THUNAR_COLUMN_DATE_MODIFIED,THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_TYPE");
     //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-visible-columns", &tmp, NULL);
     visible_columns = g_strsplit(tmp, ",", -1);
     g_free(tmp);
 
-    /* reset the visible columns for the model */
+    // reset the visible columns for the model
     for (n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
         column_model->visible[n] = FALSE;
 
-    /* mark all columns included in the list as visible */
+    // mark all columns included in the list as visible
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
     for (n = 0; visible_columns[n] != NULL; ++n)
     {
-        /* determine the enum value from the string */
+        // determine the enum value from the string
         value = g_enum_get_value_by_name(klass, visible_columns[n]);
         if (G_LIKELY(value != NULL && value->value < THUNAR_N_VISIBLE_COLUMNS))
             column_model->visible[value->value] = TRUE;
     }
     g_type_class_unref(klass);
 
-    /* the name column is always visible */
+    // the name column is always visible
     column_model->visible[THUNAR_COLUMN_NAME] = TRUE;
 
-    /* release the list of visible columns */
+    // release the list of visible columns
     g_strfreev(visible_columns);
 }
 
@@ -530,29 +530,29 @@ static void _column_model_save_visible_columns(ColumnModel *column_model)
     GString    *visible_columns;
     gint        n;
 
-    /* allocate a string for the visible columns list */
+    // allocate a string for the visible columns list
     visible_columns = g_string_sized_new(128);
 
-    /* transform the internal visible column list */
+    // transform the internal visible column list
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
     for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
         if (column_model->visible[klass->values[n].value])
         {
-            /* append a comma if not empty */
+            // append a comma if not empty
             if (*visible_columns->str != '\0')
                 g_string_append_c(visible_columns, ',');
 
-            /* append the enum value name */
+            // append the enum value name
             g_string_append(visible_columns, klass->values[n].value_name);
         }
     g_type_class_unref(klass);
 
-    /* save the list of visible columns */
+    // save the list of visible columns
     //g_signal_handlers_block_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_visible_columns, column_model);
     //g_object_set(G_OBJECT(column_model->preferences), "last-details-view-visible-columns", visible_columns->str, NULL);
     //g_signal_handlers_unblock_by_func(G_OBJECT(column_model->preferences), thunar_column_model_notify_visible_columns, column_model);
 
-    /* release the string */
+    // release the string
     g_string_free(visible_columns, TRUE);
 }
 
@@ -616,28 +616,28 @@ void column_model_exchange(ColumnModel *column_model, GtkTreeIter *iter1,
     e_return_if_fail(iter1->stamp == column_model->stamp);
     e_return_if_fail(iter2->stamp == column_model->stamp);
 
-    /* swap the columns */
+    // swap the columns
     column = column_model->order[GPOINTER_TO_INT(iter1->user_data)];
     column_model->order[GPOINTER_TO_INT(iter1->user_data)] = column_model->order[GPOINTER_TO_INT(iter2->user_data)];
     column_model->order[GPOINTER_TO_INT(iter2->user_data)] = column;
 
-    /* initialize the new order array */
+    // initialize the new order array
     for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
         new_order[n] = n;
 
-    /* perform the swapping on the new order array */
+    // perform the swapping on the new order array
     new_order[GPOINTER_TO_INT(iter1->user_data)] = GPOINTER_TO_INT(iter2->user_data);
     new_order[GPOINTER_TO_INT(iter2->user_data)] = GPOINTER_TO_INT(iter1->user_data);
 
-    /* emit "rows-reordered" */
+    // emit "rows-reordered"
     path = gtk_tree_path_new();
     gtk_tree_model_rows_reordered(GTK_TREE_MODEL(column_model), path, NULL, new_order);
     gtk_tree_path_free(path);
 
-    /* emit "columns-changed" */
+    // emit "columns-changed"
     g_signal_emit(G_OBJECT(column_model), _column_model_signals[COLUMNS_CHANGED], 0);
 
-    /* save the new column order */
+    // save the new column order
     _column_model_save_column_order(column_model);
 }
 
@@ -696,7 +696,7 @@ const gchar* column_model_get_column_name(ColumnModel  *column_model,
     e_return_val_if_fail(IS_COLUMN_MODEL(column_model), NULL);
     e_return_val_if_fail(column < THUNAR_N_VISIBLE_COLUMNS, NULL);
 
-    /* determine the column name from the ThunarColumn enum type */
+    // determine the column name from the ThunarColumn enum type
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
     for(n = 0; n < klass->n_values; ++n)
         if (klass->values[n].value ==(gint) column)
@@ -745,20 +745,20 @@ void column_model_set_column_visible(ColumnModel  *column_model,
     e_return_if_fail(IS_COLUMN_MODEL(column_model));
     e_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
 
-    /* cannot change the visibility of the name column */
+    // cannot change the visibility of the name column
     if (G_UNLIKELY(column == THUNAR_COLUMN_NAME))
         return;
 
-    /* normalize the value */
+    // normalize the value
     visible = !!visible;
 
-    /* check if we have a new value */
+    // check if we have a new value
     if (G_LIKELY(column_model->visible[column] != visible))
     {
-        /* apply the new value */
+        // apply the new value
         column_model->visible[column] = visible;
 
-        /* reverse lookup the real column */
+        // reverse lookup the real column
         for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
             if (column_model->order[n] == column)
             {
@@ -766,16 +766,16 @@ void column_model_set_column_visible(ColumnModel  *column_model,
                 break;
             }
 
-        /* emit "row-changed" */
+        // emit "row-changed"
         path = gtk_tree_path_new_from_indices(column, -1);
         if (gtk_tree_model_get_iter(GTK_TREE_MODEL(column_model), &iter, path))
             gtk_tree_model_row_changed(GTK_TREE_MODEL(column_model), path, &iter);
         gtk_tree_path_free(path);
 
-        /* emit "columns-changed" */
+        // emit "columns-changed"
         g_signal_emit(G_OBJECT(column_model), _column_model_signals[COLUMNS_CHANGED], 0);
 
-        /* save the list of visible columns */
+        // save the list of visible columns
         _column_model_save_visible_columns(column_model);
     }
 }
@@ -816,17 +816,17 @@ void column_model_set_column_width(ColumnModel  *column_model,
     e_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
     e_return_if_fail(width >= 0);
 
-    /* check if we have a new width */
+    // check if we have a new width
     if (G_LIKELY(column_model->width[column] != width))
     {
-        /* apply the new value */
+        // apply the new value
         column_model->width[column] = width;
 
-        /* store the settings... */
+        // store the settings...
         if (column_model->save_width_timer_id != 0)
             g_source_remove(column_model->save_width_timer_id);
 
-        /* ... asynchronously and only once to not overload xfconf */
+        // ... asynchronously and only once to not overload xfconf
         column_model->save_width_timer_id = g_timeout_add(1000,
                                             _column_model_set_column_width_timer,
                                             column_model);
