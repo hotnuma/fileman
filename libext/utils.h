@@ -23,63 +23,60 @@
 
 #include <enum_types.h>
 
-#include <gtk/gtk.h>
 #include <glib.h>
+#include <gtk/gtk.h>
 
-#define UTIL_THREADS_ENTER \
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
-    gdk_threads_enter(); \
-G_GNUC_END_IGNORE_DEPRECATIONS
+#define UTIL_THREADS_ENTER           \
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
+    gdk_threads_enter();             \
+    G_GNUC_END_IGNORE_DEPRECATIONS
 
-#define UTIL_THREADS_LEAVE \
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
-    gdk_threads_leave (); \
-G_GNUC_END_IGNORE_DEPRECATIONS
+#define UTIL_THREADS_LEAVE           \
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
+    gdk_threads_leave();             \
+    G_GNUC_END_IGNORE_DEPRECATIONS
 
 G_BEGIN_DECLS
 
-gchar*  util_strescape(const gchar *source);
+gchar *util_strescape(const gchar *source);
 
-gchar* util_str_get_extension(const gchar *name) G_GNUC_WARN_UNUSED_RESULT;
+gchar *util_str_get_extension(const gchar *name) G_GNUC_WARN_UNUSED_RESULT;
 
-gchar* util_expand_filename(const gchar *filename,
+gchar *util_expand_filename(const gchar *filename,
                             GFile *working_directory,
                             GError **error)
-                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+    G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 time_t util_time_from_rfc3339(const gchar *date_string)
-                              G_GNUC_WARN_UNUSED_RESULT;
+    G_GNUC_WARN_UNUSED_RESULT;
 
-gchar* util_humanize_file_time(guint64 file_time,
+gchar *util_humanize_file_time(guint64 file_time,
                                ThunarDateStyle date_style,
                                const gchar *date_custom_style)
-                               G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+    G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-gchar* util_change_working_directory(const gchar *new_directory)
-                                     G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+gchar *util_change_working_directory(const gchar *new_directory)
+    G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
-                             G_GNUC_WARN_UNUSED_RESULT;
+GdkScreen *util_parse_parent(gpointer parent, GtkWindow **window_return)
+    G_GNUC_WARN_UNUSED_RESULT;
 
 // g_spaw_async exo-desktop-item-edit
 void util_setup_display_cb(gpointer data);
 
-gchar*      util_str_replace(const gchar *str, const gchar *pattern,
-                          const gchar *replacement);
-gchar*      util_strdup_strftime(const gchar *format, const struct tm *tm);
+gchar *util_str_replace(const gchar *str, const gchar *pattern,
+                        const gchar *replace);
+gchar *util_strdup_strftime(const gchar *format, const struct tm *tm);
 
-gchar*      util_expand_field_codes(const gchar *command,
-                                               GSList      *uri_list,
-                                               const gchar *icon,
-                                               const gchar *name,
-                                               const gchar *uri,
-                                               gboolean    requires_terminal);
+gchar *util_expand_field_codes(const gchar *command,
+                               GSList *uri_list,
+                               const gchar *icon,
+                               const gchar *name,
+                               const gchar *uri,
+                               gboolean requires_terminal);
 
-void        util_append_quoted(GString *string, const gchar *unquoted);
-
+void util_append_quoted(GString *string, const gchar *unquoted);
 
 G_END_DECLS
 
 #endif // __UTILS_H__
-
-
