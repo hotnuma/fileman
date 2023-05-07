@@ -39,6 +39,6 @@ GtkWidget* thunar_statusbar_new();
 
 G_END_DECLS
 
-#endif /* !__THUNAR_STATUSBAR_H__ */
+#endif // !__THUNAR_STATUSBAR_H__
 
 

@@ -38,12 +38,12 @@ struct _ThunarNavigatorIface
 {
     GTypeInterface __parent__;
 
-    /* methods */
+    // methods
     ThunarFile* (*get_current_directory) (ThunarNavigator *navigator);
     void        (*set_current_directory) (ThunarNavigator *navigator,
                                           ThunarFile      *current_directory);
 
-    /* signals */
+    // signals
     void        (*change_directory)      (ThunarNavigator *navigator,
                                           ThunarFile      *directory);
 };

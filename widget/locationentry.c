@@ -91,7 +91,7 @@ static void locentry_class_init(LocationEntryClass *klass)
 
     klass->reset = locentry_reset;
 
-    /* override ThunarNavigator's properties */
+    // override ThunarNavigator's properties
     g_object_class_override_property(gobject_class, PROP_CURRENT_DIRECTORY, "current-directory");
 
     /**
@@ -140,7 +140,7 @@ static void locentry_class_init(LocationEntryClass *klass)
                  NULL,
                  G_TYPE_NONE, 0);
 
-    /* setup the key bindings for the location entry */
+    // setup the key bindings for the location entry
     GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
 
     gtk_binding_entry_add_signal(binding_set, GDK_KEY_Escape, 0, "reset", 0);
@@ -168,7 +168,7 @@ static void locentry_init(LocationEntry *entry)
     gtk_box_pack_start(GTK_BOX(entry), entry->path_entry, TRUE, TRUE, 0);
     gtk_widget_show(entry->path_entry);
 
-    /* put reload button in entry */
+    // put reload button in entry
     gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry->path_entry),
                                        GTK_ENTRY_ICON_SECONDARY, "view-refresh-symbolic");
     gtk_entry_set_icon_tooltip_text(GTK_ENTRY(entry->path_entry),
@@ -176,11 +176,11 @@ static void locentry_init(LocationEntry *entry)
     g_signal_connect(G_OBJECT(entry->path_entry), "icon-release",
                      G_CALLBACK(locentry_reload), entry);
 
-    /* make sure the edit-done signal is emitted upon moving the focus somewhere else */
+    // make sure the edit-done signal is emitted upon moving the focus somewhere else
     g_signal_connect_swapped(entry->path_entry, "focus-out-event",
                              G_CALLBACK(locentry_emit_edit_done), entry);
 
-    /* ...except if it is grabbed by the context menu */
+    // ...except if it is grabbed by the context menu
     entry->right_click_occurred = FALSE;
     g_signal_connect(G_OBJECT(entry->path_entry), "button-press-event",
                      G_CALLBACK(locentry_button_press_event), entry);
@@ -188,7 +188,7 @@ static void locentry_init(LocationEntry *entry)
 
 static void locentry_finalize(GObject *object)
 {
-    /* disconnect from the current directory */
+    // disconnect from the current directory
     navigator_set_current_directory(THUNAR_NAVIGATOR(object), NULL);
 
     G_OBJECT_CLASS(locentry_parent_class)->finalize(object);
@@ -243,39 +243,39 @@ static void locentry_set_current_directory(ThunarNavigator *navigator,
 {
     LocationEntry *location_entry = LOCATIONENTRY(navigator);
 
-    /* disconnect from the previous directory */
+    // disconnect from the previous directory
     if (G_LIKELY(location_entry->current_directory != NULL))
         g_object_unref(G_OBJECT(location_entry->current_directory));
 
-    /* activate the new directory */
+    // activate the new directory
     location_entry->current_directory = current_directory;
 
-    /* connect to the new directory */
+    // connect to the new directory
     if (G_LIKELY(current_directory != NULL))
         g_object_ref(G_OBJECT(current_directory));
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify(G_OBJECT(location_entry), "current-directory");
 }
 
 void locentry_accept_focus(LocationEntry *location_entry,
                            const gchar   *initial_text)
 {
-    /* give the keyboard focus to the path entry */
+    // give the keyboard focus to the path entry
     gtk_widget_grab_focus(location_entry->path_entry);
 
-    /* check if we have an initial text for the location bar */
+    // check if we have an initial text for the location bar
     if (G_LIKELY(initial_text != NULL))
     {
-        /* setup the new text */
+        // setup the new text
         gtk_entry_set_text(GTK_ENTRY(location_entry->path_entry), initial_text);
 
-        /* move the cursor to the end of the text */
+        // move the cursor to the end of the text
         gtk_editable_set_position(GTK_EDITABLE(location_entry->path_entry), -1);
     }
     else
     {
-        /* select the whole path in the path entry */
+        // select the whole path in the path entry
         gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);
     }
 }
@@ -288,21 +288,21 @@ static void locentry_open_or_launch(LocationEntry *location_entry,
     e_return_if_fail(IS_LOCATIONENTRY(location_entry));
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    /* check if the file is mounted */
+    // check if the file is mounted
     if (th_file_is_mounted(file))
     {
-        /* check if we have a new directory or a file to launch */
+        // check if we have a new directory or a file to launch
         if (th_file_is_directory(file))
         {
-            /* open the new directory */
+            // open the new directory
             navigator_change_directory(THUNAR_NAVIGATOR(location_entry), file);
         }
         else
         {
-            /* try to launch the selected file */
+            // try to launch the selected file
             th_file_launch(file, location_entry->path_entry, NULL, &error);
 
-            /* be sure to reset the current file of the path entry */
+            // be sure to reset the current file of the path entry
             if (G_LIKELY(location_entry->current_directory != NULL))
             {
                 pathentry_set_current_file(PATHENTRY(location_entry->path_entry),
@@ -315,7 +315,7 @@ static void locentry_open_or_launch(LocationEntry *location_entry,
         g_set_error(&error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, _("File does not exist"));
     }
 
-    /* check if we need to display an error dialog */
+    // check if we need to display an error dialog
     if (error != NULL)
     {
         dialog_error(location_entry->path_entry, error,
@@ -338,14 +338,14 @@ static void locentry_poke_file_finish(ThunarBrowser *browser,
 
     if (error != NULL)
     {
-        /* display an error explaining why we couldn't open/mount the file */
+        // display an error explaining why we couldn't open/mount the file
         dialog_error(LOCATIONENTRY(browser)->path_entry,
                      error, _("Failed to open \"%s\""),
                      th_file_get_display_name(file));
         return;
     }
 
-    /* try to open or launch the target file */
+    // try to open or launch the target file
     locentry_open_or_launch(LOCATIONENTRY(browser), target_file);
 }
 
@@ -355,7 +355,7 @@ static void locentry_activate(GtkWidget     *path_entry,
     e_return_if_fail(IS_LOCATIONENTRY(location_entry));
     e_return_if_fail(location_entry->path_entry == path_entry);
 
-    /* determine the current file from the path entry */
+    // determine the current file from the path entry
     ThunarFile *file = pathentry_get_current_file(PATHENTRY(path_entry));
 
     if (G_UNLIKELY(file == NULL))
@@ -378,7 +378,7 @@ static gboolean locentry_button_press_event(GtkWidget      *path_entry,
 
     e_return_val_if_fail(IS_LOCATIONENTRY(location_entry), FALSE);
 
-    /* check if the context menu was triggered */
+    // check if the context menu was triggered
     if (event->type == GDK_BUTTON_PRESS && event->button == 3)
     {
         location_entry->right_click_occurred = TRUE;
@@ -389,10 +389,10 @@ static gboolean locentry_button_press_event(GtkWidget      *path_entry,
 
 static gboolean locentry_reset(LocationEntry *location_entry)
 {
-    /* just reset the path entry to our current directory... */
+    // just reset the path entry to our current directory...
     pathentry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
 
-    /* ...and select the whole text again */
+    // ...and select the whole text again
     gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);
 
     locentry_emit_edit_done(location_entry);
@@ -416,7 +416,7 @@ static void locentry_reload(GtkEntry *entry, GtkEntryIconPosition icon_pos,
 
 static void locentry_emit_edit_done(LocationEntry *entry)
 {
-    /* do not emit signal if the context menu was opened */
+    // do not emit signal if the context menu was opened
 
     if (entry->right_click_occurred == FALSE)
     {

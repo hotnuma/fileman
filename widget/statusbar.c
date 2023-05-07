@@ -87,7 +87,7 @@ static void thunar_statusbar_init(ThunarStatusbar *statusbar)
 {
     statusbar->context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar), "Main text");
 
-    /* make the status thinner */
+    // make the status thinner
     gtk_widget_set_margin_top(GTK_WIDGET(statusbar), 0);
     gtk_widget_set_margin_bottom(GTK_WIDGET(statusbar), 0);
 }

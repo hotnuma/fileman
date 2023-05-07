@@ -105,7 +105,7 @@ static void srender_class_init(ShortcutRendererClass *klass)
 
 static void srender_init(ShortcutRenderer *shortcuts_icon_renderer)
 {
-    /* no padding please */
+    // no padding please
     gtk_cell_renderer_set_padding(GTK_CELL_RENDERER(shortcuts_icon_renderer),
                                   0,
                                   0);
@@ -194,14 +194,14 @@ static void srender_render(GtkCellRenderer      *renderer,
     if (!gdk_cairo_get_clip_rectangle(cr, &clip_area))
         return;
 
-    /* check if we have a volume set */
+    // check if we have a volume set
     if (G_UNLIKELY(shortcuts_icon_renderer->gicon != NULL
                     ||  shortcuts_icon_renderer->device != NULL))
     {
-        /* load the volume icon */
+        // load the volume icon
         icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
 
-        /* look up the icon info */
+        // look up the icon info
         if (shortcuts_icon_renderer->gicon != NULL)
             gicon = g_object_ref(shortcuts_icon_renderer->gicon);
         else
@@ -212,34 +212,34 @@ static void srender_render(GtkCellRenderer      *renderer,
                     GTK_ICON_LOOKUP_FORCE_SIZE);
         g_object_unref(gicon);
 
-        /* try to load the icon */
+        // try to load the icon
         if (G_LIKELY(icon_info != NULL))
         {
             icon = gtk_icon_info_load_icon(icon_info, NULL);
             g_object_unref(icon_info);
         }
 
-        /* render the icon(if any) */
+        // render the icon(if any)
         if (G_LIKELY(icon != NULL))
         {
-            /* determine the real icon size */
+            // determine the real icon size
             icon_area.width = gdk_pixbuf_get_width(icon);
             icon_area.height = gdk_pixbuf_get_height(icon);
 
-            /* scale down the icon on-demand */
+            // scale down the icon on-demand
             if (G_UNLIKELY(icon_area.width > cell_area->width || icon_area.height > cell_area->height))
             {
-                /* scale down to fit */
+                // scale down to fit
                 temp = pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
                 g_object_unref(G_OBJECT(icon));
                 icon = temp;
 
-                /* determine the icon dimensions again */
+                // determine the icon dimensions again
                 icon_area.width = gdk_pixbuf_get_width(icon);
                 icon_area.height = gdk_pixbuf_get_height(icon);
             }
 
-            /* 50% translucent for unmounted volumes */
+            // 50% translucent for unmounted volumes
             if (shortcuts_icon_renderer->device != NULL
                     && !th_device_is_mounted(shortcuts_icon_renderer->device))
                 alpha = 0.50;
@@ -249,21 +249,21 @@ static void srender_render(GtkCellRenderer      *renderer,
             icon_area.x = cell_area->x +(cell_area->width - icon_area.width) / 2;
             icon_area.y = cell_area->y +(cell_area->height - icon_area.height) / 2;
 
-            /* check whether the icon is affected by the expose event */
+            // check whether the icon is affected by the expose event
             if (gdk_rectangle_intersect(&clip_area, &icon_area, NULL))
             {
-                /* render the invalid parts of the icon */
+                // render the invalid parts of the icon
                 edk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
                 cairo_paint_with_alpha(cr, alpha);
             }
 
-            /* cleanup */
+            // cleanup
             g_object_unref(G_OBJECT(icon));
         }
     }
     else
     {
-        /* fallback to the default icon renderering */
+        // fallback to the default icon renderering
         GTK_CELL_RENDERER_CLASS(srender_parent_class)->render(
                                                             renderer,
                                                             cr,

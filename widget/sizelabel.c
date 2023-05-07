@@ -27,7 +27,7 @@
 #include <dcount_job.h>
 #include <gtk_ext.h>
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -118,23 +118,23 @@ static void szlabel_init(SizeLabel *size_label)
 {
     gtk_orientable_set_orientation(GTK_ORIENTABLE(size_label), GTK_ORIENTATION_HORIZONTAL);
 
-    /* configure the box */
+    // configure the box
     gtk_box_set_spacing(GTK_BOX(size_label), 6);
 
-    /* add an evenbox for the spinner */
+    // add an evenbox for the spinner
     GtkWidget *ebox = gtk_event_box_new();
     gtk_event_box_set_visible_window(GTK_EVENT_BOX(ebox), FALSE);
     g_signal_connect(G_OBJECT(ebox), "button-press-event", G_CALLBACK(_szlabel_button_press_event), size_label);
     gtk_widget_set_tooltip_text(ebox, _("Click here to stop calculating the total size of the folder."));
     gtk_box_pack_start(GTK_BOX(size_label), ebox, FALSE, FALSE, 0);
 
-    /* add the spinner widget */
+    // add the spinner widget
     size_label->spinner = gtk_spinner_new();
     g_object_bind_property(G_OBJECT(size_label->spinner), "visible", G_OBJECT(ebox), "visible", G_BINDING_SYNC_CREATE);
     gtk_container_add(GTK_CONTAINER(ebox), size_label->spinner);
     gtk_widget_show(size_label->spinner);
 
-    /* add the label widget */
+    // add the label widget
     size_label->label = gtk_label_new(_("Calculating..."));
     gtk_label_set_xalign(GTK_LABEL(size_label->label), 0.0f);
     gtk_label_set_selectable(GTK_LABEL(size_label->label), TRUE);
@@ -147,7 +147,7 @@ static void szlabel_finalize(GObject *object)
 {
     SizeLabel *size_label = SIZELABEL(object);
 
-    /* cancel the pending job(if any) */
+    // cancel the pending job(if any)
     if (G_UNLIKELY(size_label->job != NULL))
     {
         g_signal_handlers_disconnect_matched(G_OBJECT(size_label->job), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
@@ -155,7 +155,7 @@ static void szlabel_finalize(GObject *object)
         g_object_unref(size_label->job);
     }
 
-    /* reset the file property */
+    // reset the file property
     _szlabel_set_files(size_label, NULL);
 
     G_OBJECT_CLASS(szlabel_parent_class)->finalize(object);
@@ -214,10 +214,10 @@ static gboolean _szlabel_button_press_event(GtkWidget       *ebox,
     e_return_val_if_fail(GTK_IS_EVENT_BOX(ebox), FALSE);
     e_return_val_if_fail(IS_SIZELABEL(size_label), FALSE);
 
-    /* left button press on the spinner cancels the calculation */
+    // left button press on the spinner cancels the calculation
     if (G_LIKELY(event->button == 1))
     {
-        /* cancel the pending job(if any) */
+        // cancel the pending job(if any)
         if (G_UNLIKELY(size_label->job != NULL))
         {
             g_signal_handlers_disconnect_matched(
@@ -228,14 +228,14 @@ static gboolean _szlabel_button_press_event(GtkWidget       *ebox,
             size_label->job = NULL;
         }
 
-        /* be sure to stop and hide the spinner */
+        // be sure to stop and hide the spinner
         gtk_spinner_stop(GTK_SPINNER(size_label->spinner));
         gtk_widget_hide(size_label->spinner);
 
-        /* tell the user that the operation was canceled */
+        // tell the user that the operation was canceled
         gtk_label_set_text(GTK_LABEL(size_label->label), _("Calculation aborted"));
 
-        /* we handled the event */
+        // we handled the event
         return TRUE;
     }
 
@@ -248,7 +248,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
     e_return_if_fail(size_label->files != NULL);
     e_return_if_fail(THUNAR_IS_FILE(size_label->files->data));
 
-    /* cancel the pending job(if any) */
+    // cancel the pending job(if any)
     if (G_UNLIKELY(size_label->job != NULL))
     {
         g_signal_handlers_disconnect_matched(size_label->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
@@ -257,34 +257,34 @@ static void _szlabel_files_changed(SizeLabel *size_label)
         size_label->job = NULL;
     }
 
-    /* check if there are multiple files or the single file is a directory */
+    // check if there are multiple files or the single file is a directory
     if (size_label->files->next != NULL
             || th_file_is_directory(THUNAR_FILE(size_label->files->data)))
     {
-        /* schedule a new job to determine the total size of the directory(not following symlinks) */
+        // schedule a new job to determine the total size of the directory(not following symlinks)
         size_label->job = dcjob_new(size_label->files, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS);
         g_signal_connect(size_label->job, "error", G_CALLBACK(_szlabel_error), size_label);
         g_signal_connect(size_label->job, "finished", G_CALLBACK(_szlabel_finished), size_label);
         g_signal_connect(size_label->job, "status-update", G_CALLBACK(_szlabel_status_update), size_label);
 
-        /* tell the user that we started calculation */
+        // tell the user that we started calculation
         gtk_label_set_text(GTK_LABEL(size_label->label), _("Calculating..."));
         gtk_spinner_start(GTK_SPINNER(size_label->spinner));
         gtk_widget_show(size_label->spinner);
 
-        /* launch the job */
+        // launch the job
         exo_job_launch(EXO_JOB(size_label->job));
     }
     else
     {
-        /* this is going to be quick, stop and hide the spinner */
+        // this is going to be quick, stop and hide the spinner
         gtk_spinner_stop(GTK_SPINNER(size_label->spinner));
         gtk_widget_hide(size_label->spinner);
 
-        /* determine the size of the file */
+        // determine the size of the file
         guint64 size = th_file_get_size(THUNAR_FILE(size_label->files->data));
 
-        /* setup the new label */
+        // setup the new label
         gchar *size_string = g_format_size_full(
                     size,
                     size_label->file_size_binary
@@ -302,7 +302,7 @@ static void _szlabel_error(ExoJob *job, const GError *error,
     e_return_if_fail(IS_SIZELABEL(size_label));
     e_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
 
-    /* setup the error text as label */
+    // setup the error text as label
     gtk_label_set_text(GTK_LABEL(size_label->label), error->message);
 }
 
@@ -312,11 +312,11 @@ static void _szlabel_finished(ExoJob *job, SizeLabel *size_label)
     e_return_if_fail(IS_SIZELABEL(size_label));
     e_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
 
-    /* stop and hide the spinner */
+    // stop and hide the spinner
     gtk_spinner_stop(GTK_SPINNER(size_label->spinner));
     gtk_widget_hide(size_label->spinner);
 
-    /* disconnect from the job */
+    // disconnect from the job
     g_signal_handlers_disconnect_matched(size_label->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
     g_object_unref(size_label->job);
     size_label->job = NULL;
@@ -338,12 +338,12 @@ static void _szlabel_status_update(DeepCountJob *job,
     e_return_if_fail(IS_SIZELABEL(size_label));
     e_return_if_fail(size_label->job == job);
 
-    /* determine the total number of items */
+    // determine the total number of items
     n = file_count + directory_count + unreadable_directory_count;
 
     if (G_LIKELY(n > unreadable_directory_count))
     {
-        /* update the label */
+        // update the label
         size_string = g_format_size_full(total_size, G_FORMAT_SIZE_LONG_FORMAT |(size_label->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
         text = g_strdup_printf(ngettext("%u item, totalling %s", "%u items, totalling %s", n), n, size_string);
         g_free(size_string);
@@ -362,7 +362,7 @@ static void _szlabel_status_update(DeepCountJob *job,
     }
     else
     {
-        /* nothing was readable, so permission was denied */
+        // nothing was readable, so permission was denied
         gtk_label_set_text(GTK_LABEL(size_label->label), _("Permission denied"));
     }
 }
@@ -393,7 +393,7 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     e_return_if_fail(IS_SIZELABEL(size_label));
     e_return_if_fail(files == NULL || THUNAR_IS_FILE(files->data));
 
-    /* disconnect from the previous files */
+    // disconnect from the previous files
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
         e_assert(THUNAR_IS_FILE(lp->data));
@@ -405,7 +405,7 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
 
     size_label->files = g_list_copy(files);
 
-    /* connect to the new file */
+    // connect to the new file
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
         e_assert(THUNAR_IS_FILE(lp->data));
@@ -417,7 +417,7 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     if (size_label->files != NULL)
         _szlabel_files_changed(size_label);
 
-    /* notify listeners */
+    // notify listeners
     g_object_notify(G_OBJECT(size_label), "files");
 }
 

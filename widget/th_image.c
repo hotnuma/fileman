@@ -27,7 +27,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,

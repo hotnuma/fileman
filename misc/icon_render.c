@@ -151,7 +151,7 @@ static void irenderer_class_init(IconRendererClass *klass)
 
 static void irenderer_init(IconRenderer *icon_renderer)
 {
-    /* use 1px padding */
+    // use 1px padding
     gtk_cell_renderer_set_padding(GTK_CELL_RENDERER(icon_renderer), 1, 1);
 }
 
@@ -159,7 +159,7 @@ static void irenderer_finalize(GObject *object)
 {
     IconRenderer *icon_renderer = ICONRENDERER(object);
 
-    /* free the icon data */
+    // free the icon data
     if (G_UNLIKELY(icon_renderer->drop_file != NULL))
         g_object_unref(G_OBJECT(icon_renderer->drop_file));
     if (G_LIKELY(icon_renderer->file != NULL))
@@ -365,14 +365,14 @@ static void irenderer_render(GtkCellRenderer      *renderer,
 
     g_object_get(renderer, "is-expanded", &is_expanded, NULL);
 
-    /* determine the icon state */
+    // determine the icon state
     icon_state =(icon_renderer->drop_file != icon_renderer->file)
                  ? is_expanded
                  ? THUNAR_FILE_ICON_STATE_OPEN
                  : THUNAR_FILE_ICON_STATE_DEFAULT
                  : THUNAR_FILE_ICON_STATE_DROP;
 
-    /* load the main icon */
+    // load the main icon
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
     icon_factory = ifactory_get_for_icon_theme(icon_theme);
     icon = ifactory_load_file_icon(icon_factory, icon_renderer->file, icon_state, icon_renderer->size);
@@ -382,23 +382,23 @@ static void irenderer_render(GtkCellRenderer      *renderer,
         return;
     }
 
-    /* pre-light the item if we're dragging about it */
+    // pre-light the item if we're dragging about it
     if (G_UNLIKELY(icon_state == THUNAR_FILE_ICON_STATE_DROP))
         flags |= GTK_CELL_RENDERER_PRELIT;
 
-    /* determine the real icon size */
+    // determine the real icon size
     icon_area.width = gdk_pixbuf_get_width(icon);
     icon_area.height = gdk_pixbuf_get_height(icon);
 
-    /* scale down the icon on-demand */
+    // scale down the icon on-demand
     if (G_UNLIKELY(icon_area.width > cell_area->width || icon_area.height > cell_area->height))
     {
-        /* scale down to fit */
+        // scale down to fit
         temp = pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
         g_object_unref(G_OBJECT(icon));
         icon = temp;
 
-        /* determine the icon dimensions again */
+        // determine the icon dimensions again
         icon_area.width = gdk_pixbuf_get_width(icon);
         icon_area.height = gdk_pixbuf_get_height(icon);
     }
@@ -406,23 +406,23 @@ static void irenderer_render(GtkCellRenderer      *renderer,
     icon_area.x = cell_area->x +(cell_area->width - icon_area.width) / 2;
     icon_area.y = cell_area->y +(cell_area->height - icon_area.height) / 2;
 
-    /* bools for cairo transformations */
+    // bools for cairo transformations
     color_selected = (flags & GTK_CELL_RENDERER_SELECTED) != 0 && icon_renderer->follow_state;
     color_lighten = (flags & GTK_CELL_RENDERER_PRELIT) != 0 && icon_renderer->follow_state;
 
-    /* check whether the icon is affected by the expose event */
+    // check whether the icon is affected by the expose event
     if (gdk_rectangle_intersect(&clip_area, &icon_area, NULL))
     {
-        /* use a translucent icon to represent cutted and hidden files to the user */
+        // use a translucent icon to represent cutted and hidden files to the user
         clipboard = clipman_get_for_display(gtk_widget_get_display(widget));
         if (clipman_has_cutted_file(clipboard, icon_renderer->file))
         {
-            /* 50% translucent for cutted files */
+            // 50% translucent for cutted files
             alpha = 0.50;
         }
         else if (th_file_is_hidden(icon_renderer->file))
         {
-            /* 75% translucent for hidden files */
+            // 75% translucent for hidden files
             alpha = 0.75;
         }
         else
@@ -432,27 +432,27 @@ static void irenderer_render(GtkCellRenderer      *renderer,
 
         g_object_unref(G_OBJECT(clipboard));
 
-        /* render the invalid parts of the icon */
+        // render the invalid parts of the icon
         edk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
         cairo_paint_with_alpha(cr, alpha);
 
-        /* check if we should render an insensitive icon */
+        // check if we should render an insensitive icon
         if (G_UNLIKELY(gtk_widget_get_state_flags(widget) == GTK_STATE_FLAG_INSENSITIVE || !gtk_cell_renderer_get_sensitive(renderer)))
             _irenderer_color_insensitive(cr,widget);
 
-        /* paint the lighten mask */
+        // paint the lighten mask
         if (color_lighten)
             _irenderer_color_lighten(cr, widget);
 
-        /* paint the selected mask */
+        // paint the selected mask
         if (color_selected)
             _irenderer_color_selected(cr, widget);
     }
 
-    /* release the file's icon */
+    // release the file's icon
     g_object_unref(G_OBJECT(icon));
 
-    /* release our reference on the icon factory */
+    // release our reference on the icon factory
     g_object_unref(G_OBJECT(icon_factory));
 }
 

@@ -38,9 +38,9 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   18067	./libext/exo_job.c
 +   18012	./libext/utils.c
 +   17925	./dialog/appcombo.c
-    15914	./misc/icon_render.c
-    15093	./widget/sizelabel.c
-    14752	./widget/locationentry.c
++   15914	./misc/icon_render.c
++   15093	./widget/sizelabel.c
++   14752	./widget/locationentry.c
     14556	./appmenu.c
     14348	./marshal.c
 +   14307	./core/user.c
@@ -50,21 +50,21 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   10476	./libext/pixbuf_ext.c
     9982	./view/baseview.c
 +   9732	./core/dnd.c
-    9639	./misc/srender.c
++   9639	./misc/srender.c
 +   9372	./widget/locationbar.c
 +   9015	./side/treepane.c
     7617	./job/job_utils.c
 +   7231	./libext/gtk_ext.c
-    6860	./misc/navigator.c
++   6860	./misc/navigator.c
 +   6626	./misc/app_notify.c
 +   5838	./libext/pango_ext.c
-    5587	./widget/th_image.c
++   5587	./widget/th_image.c
     5560	./job/io_scan_directory.c
     5452	./job/simple_job.c
 +   5425	./core/fileinfo.c
 +   5013	./libext/gdk_ext.c
 +   4816	./core/filemon.c
-    4558	./widget/statusbar.c
++   4558	./widget/statusbar.c
 +   4544	./misc/component.c
     2598	./preferences.c
     2359	./side/sidepane.c
