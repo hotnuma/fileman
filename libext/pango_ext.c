@@ -29,10 +29,10 @@ static PangoAttrList* _e_pango_attr_list_wrap(PangoAttribute *attribute, ...)
     PangoAttrList *attr_list;
     va_list        args;
 
-    /* allocate a new attribute list */
+    // allocate a new attribute list
     attr_list = pango_attr_list_new();
 
-    /* add all specified attributes */
+    // add all specified attributes
     va_start(args, attribute);
     while (attribute != NULL)
     {

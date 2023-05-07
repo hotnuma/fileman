@@ -46,7 +46,7 @@
  * applications based on GObject.
  **/
 
-/* Signal identifiers */
+// Signal identifiers
 enum
 {
     ERROR,
@@ -230,11 +230,11 @@ static gboolean exo_job_async_ready(gpointer user_data)
     {
         g_assert(job->priv->error != NULL);
 
-        /* don't treat cancellation as an error */
+        // don't treat cancellation as an error
         if (!g_error_matches(job->priv->error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
             exo_job_error(job, job->priv->error);
 
-        /* cleanup */
+        // cleanup
         g_error_free(job->priv->error);
         job->priv->error = NULL;
     }
@@ -276,17 +276,17 @@ static gboolean exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
 
     if (!success)
     {
-        /* clear existing error */
+        // clear existing error
         if (G_UNLIKELY(job->priv->error != NULL))
             g_error_free(job->priv->error);
 
-        /* take the error */
+        // take the error
         job->priv->error = error;
     }
 
     job->priv->failed = !success;
 
-    /* idle completion in the thread exo job was started from */
+    // idle completion in the thread exo job was started from
     source = g_idle_source_new();
     g_source_set_priority(source, G_PRIORITY_DEFAULT);
     g_source_set_callback(source, exo_job_async_ready, g_object_ref(job),
@@ -342,10 +342,10 @@ static void exo_job_emit_valist(ExoJob *job, guint signal_id,
     data.signal_id = signal_id;
     data.signal_detail = signal_detail;
 
-    /* copy the variable argument list */
+    // copy the variable argument list
     G_VA_COPY(data.var_args, var_args);
 
-    /* emit the signal in the main loop */
+    // emit the signal in the main loop
     exo_job_send_to_mainloop(job,
                               exo_job_emit_valist_in_mainloop,
                               &data, NULL);
@@ -405,7 +405,7 @@ ExoJob* exo_job_launch(ExoJob *job)
     e_return_val_if_fail(!job->priv->running, NULL);
     e_return_val_if_fail(EXO_JOB_GET_CLASS(job)->execute != NULL, NULL);
 
-    /* mark the job as running */
+    // mark the job as running
     job->priv->running = TRUE;
 
     job->priv->context = g_main_context_ref_thread_default();

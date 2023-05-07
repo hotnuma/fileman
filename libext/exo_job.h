@@ -44,10 +44,10 @@ struct _ExoJobClass
 {
     GObjectClass __parent__;
 
-    /* virtual methods */
+    // virtual methods
     gboolean    (*execute)(ExoJob *job, GError **error);
 
-    /* signals */
+    // signals
     void        (*error)(ExoJob *job, GError *error);
     void        (*finished)(ExoJob *job);
     void        (*info_message)(ExoJob *job, const gchar *message);

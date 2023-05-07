@@ -230,7 +230,7 @@ static void thunar_progress_view_init(ThunarProgressView *view)
     gtk_widget_set_can_focus(cancel_button, FALSE);
     gtk_widget_show(cancel_button);
 
-    /* connect the view title to the action label */
+    // connect the view title to the action label
     g_object_bind_property(G_OBJECT(view), "title", G_OBJECT(label), "label", G_BINDING_SYNC_CREATE);
 }
 
@@ -248,7 +248,7 @@ static void thunar_progress_view_dispose(GObject *object)
 {
     ThunarProgressView *view = THUNAR_PROGRESS_VIEW(object);
 
-    /* disconnect from the job(if any) */
+    // disconnect from the job(if any)
     if (view->job != NULL)
     {
         exo_job_cancel(EXO_JOB(view->job));
@@ -321,10 +321,10 @@ static void thunar_progress_view_pause_job(ThunarProgressView *view)
 
     if (view->job != NULL)
     {
-        /* pause the job */
+        // pause the job
         job_pause(view->job);
 
-        /* update the UI */
+        // update the UI
         gtk_widget_hide(view->pause_button);
         gtk_widget_show(view->unpause_button);
         gtk_label_set_text(GTK_LABEL(view->progress_label), _("Paused"));
@@ -342,7 +342,7 @@ static void thunar_progress_view_unpause_job(ThunarProgressView *view)
             job_resume(view->job);
         if (job_is_frozen(view->job))
             job_unfreeze(view->job);
-        /* update the UI */
+        // update the UI
         gtk_widget_hide(view->unpause_button);
         gtk_widget_show(view->pause_button);
         gtk_label_set_text(GTK_LABEL(view->progress_label), _("Resuming..."));
@@ -356,24 +356,24 @@ static void thunar_progress_view_cancel_job(ThunarProgressView *view)
 
     if (view->job != NULL)
     {
-        /* cancel the job */
+        // cancel the job
         exo_job_cancel(EXO_JOB(view->job));
 
-        /* don't listen to frozen/unfrozen states updates any more */
+        // don't listen to frozen/unfrozen states updates any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
                                               thunar_progress_view_frozen, NULL);
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
                                               thunar_progress_view_unfrozen, NULL);
 
-        /* don't listen to percentage updates any more */
+        // don't listen to percentage updates any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
                                               thunar_progress_view_percent, NULL);
 
-        /* don't listen to info messages any more */
+        // don't listen to info messages any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
                                               thunar_progress_view_info_message, NULL);
 
-        /* update the status text */
+        // update the status text
         gtk_label_set_text(GTK_LABEL(view->progress_label), _("Cancelling..."));
     }
 }
@@ -390,13 +390,13 @@ static ThunarJobResponse thunar_progress_view_ask(ThunarProgressView *view,
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
 
-    /* be sure to display the corresponding dialog prior to opening the question view */
+    // be sure to display the corresponding dialog prior to opening the question view
     g_signal_emit_by_name(view, "need-attention");
 
-    /* determine the toplevel window of the view */
+    // determine the toplevel window of the view
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    /* display the question view */
+    // display the question view
     return dialog_job_ask(window != NULL ? GTK_WINDOW(window) : NULL,
                                         message, choices);
 }
@@ -414,13 +414,13 @@ static ThunarJobResponse thunar_progress_view_ask_replace(ThunarProgressView *vi
     e_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
-    /* be sure to display the corresponding dialog prior to opening the question view */
+    // be sure to display the corresponding dialog prior to opening the question view
     g_signal_emit_by_name(view, "need-attention");
 
-    /* determine the toplevel window of the view */
+    // determine the toplevel window of the view
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    /* display the question view */
+    // display the question view
     return dialog_job_ask_replace(window != NULL ? GTK_WINDOW(window) : NULL,
             src_file, dst_file);
 }
@@ -436,13 +436,13 @@ static void thunar_progress_view_error(ThunarProgressView *view,
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
 
-    /* be sure to display the corresponding dialog prior to opening the question view */
+    // be sure to display the corresponding dialog prior to opening the question view
     g_signal_emit_by_name(view, "need-attention");
 
-    /* determine the toplevel window of the view */
+    // determine the toplevel window of the view
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    /* display the error message */
+    // display the error message
     dialog_job_error(window != NULL ? GTK_WINDOW(window) : NULL, error);
 }
 
@@ -453,7 +453,7 @@ static void thunar_progress_view_finished(ThunarProgressView *view,
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
 
-    /* emit finished signal to notify others that the job is finished */
+    // emit finished signal to notify others that the job is finished
     g_signal_emit_by_name(view, "finished");
 }
 
@@ -480,10 +480,10 @@ static void thunar_progress_view_percent(ThunarProgressView *view,
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
 
-    /* update progressbar */
+    // update progressbar
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(view->progress_bar), percent / 100.0);
 
-    /* set progress text */
+    // set progress text
     if (IS_TRANSFERJOB(job))
         text = transfer_job_get_status(TRANSFERJOB(job));
     else
@@ -502,7 +502,7 @@ static void thunar_progress_view_frozen(ThunarProgressView *view,
 
     if (IS_TRANSFERJOB(job))
     {
-        /* update the UI */
+        // update the UI
         gtk_widget_hide(view->pause_button);
         gtk_widget_show(view->unpause_button);
         gtk_label_set_text(GTK_LABEL(view->progress_label), _("Frozen by another job on same device"));
@@ -518,7 +518,7 @@ static void thunar_progress_view_unfrozen(ThunarProgressView *view,
 
     if (IS_TRANSFERJOB(job))
     {
-        /* update the UI */
+        // update the UI
         gtk_widget_hide(view->unpause_button);
         gtk_widget_show(view->pause_button);
         gtk_label_set_text(GTK_LABEL(view->progress_label), _("Unfreezing..."));
@@ -570,21 +570,21 @@ static void thunar_progress_view_set_job(ThunarProgressView *view,
     e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
     e_return_if_fail(job == NULL || THUNAR_IS_JOB(job));
 
-    /* check if we're already on that job */
+    // check if we're already on that job
     if (G_UNLIKELY(view->job == job))
         return;
 
-    /* disconnect from the previous job */
+    // disconnect from the previous job
     if (G_LIKELY(view->job != NULL))
     {
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, view);
         g_object_unref(G_OBJECT(view->job));
     }
 
-    /* activate the new job */
+    // activate the new job
     view->job = job;
 
-    /* connect to the new job */
+    // connect to the new job
     if (G_LIKELY(job != NULL))
     {
         g_object_ref(job);

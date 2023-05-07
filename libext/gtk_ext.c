@@ -103,15 +103,15 @@ void etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 
     e_return_if_fail(GTK_IS_MENU(menu));
 
-    /* take over the floating reference on the menu */
+    // take over the floating reference on the menu
     g_object_ref_sink(G_OBJECT(menu));
 
-    /* run an internal main loop */
+    // run an internal main loop
     loop = g_main_loop_new(NULL, FALSE);
     signal_id = g_signal_connect_swapped(G_OBJECT(menu), "deactivate", G_CALLBACK(g_main_loop_quit), loop);
 
 #if GTK_CHECK_VERSION(3, 24, 8)
-    /* Workaround for incorrect popup menus size */
+    // Workaround for incorrect popup menus size
     g_signal_connect(G_OBJECT(menu), "realize",
                      G_CALLBACK(_popup_menu_realized), NULL);
     gtk_widget_realize(GTK_WIDGET(menu));
@@ -126,7 +126,7 @@ void etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 
     g_signal_handler_disconnect(G_OBJECT(menu), signal_id);
 
-    /* release the menu reference */
+    // release the menu reference
     g_object_unref(G_OBJECT(menu));
 }
 
@@ -147,15 +147,15 @@ void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
     e_return_if_fail(GTK_IS_WIDGET(widget));
     e_return_if_fail(g_utf8_validate(format, -1, NULL));
 
-    /* determine the tooltip */
+    // determine the tooltip
     va_start(var_args, format);
     tooltip = g_strdup_vprintf(format, var_args);
     va_end(var_args);
 
-    /* setup the tooltip for the widget */
+    // setup the tooltip for the widget
     gtk_widget_set_tooltip_text(widget, tooltip);
 
-    /* release the tooltip */
+    // release the tooltip
     g_free(tooltip);
 }
 

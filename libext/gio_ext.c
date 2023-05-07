@@ -134,14 +134,14 @@ GKeyFile* e_file_query_key_file(GFile        *file,
     e_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), NULL);
     e_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
-    /* try to load the entire file into memory */
+    // try to load the entire file into memory
     if (!g_file_load_contents(file, cancellable, &contents, &length, NULL, error))
         return NULL;
 
-    /* allocate a new key file */
+    // allocate a new key file
     key_file = g_key_file_new();
 
-    /* try to parse the key file from the contents of the file */
+    // try to parse the key file from the contents of the file
     if (G_LIKELY(length == 0
                   || g_key_file_load_from_data(key_file, contents, length,
                           G_KEY_FILE_KEEP_COMMENTS
@@ -217,7 +217,7 @@ gchar* e_file_get_display_name_remote(GFile *mount_point)
 
     e_return_val_if_fail(G_IS_FILE(mount_point), NULL);
 
-    /* not intended for local mounts */
+    // not intended for local mounts
     if (!g_file_is_native(mount_point))
     {
         scheme = g_file_get_uri_scheme(mount_point);
@@ -225,18 +225,18 @@ gchar* e_file_get_display_name_remote(GFile *mount_point)
 
         if (g_str_has_prefix(parse_name, scheme))
         {
-            /* extract the hostname */
+            // extract the hostname
             p = parse_name + strlen(scheme);
             while(*p == ':' || *p == '/')
                 ++p;
 
-            /* goto path part */
+            // goto path part
             path = strchr(p, '/');
             firstdot = strchr(p, '.');
 
             if (firstdot != NULL)
             {
-                /* skip password or login names in the hostname */
+                // skip password or login names in the hostname
                 for(n = 0; n < G_N_ELEMENTS(skip_chars) - 1; n++)
                 {
                     skip = strchr(p, skip_chars[n]);
@@ -247,7 +247,7 @@ gchar* e_file_get_display_name_remote(GFile *mount_point)
                 }
             }
 
-            /* extract the path and hostname from the string */
+            // extract the path and hostname from the string
             if (G_LIKELY(path != NULL))
             {
                 hostname = g_strndup(p, path - p);
@@ -258,10 +258,10 @@ gchar* e_file_get_display_name_remote(GFile *mount_point)
                 path = "/";
             }
 
-            /* unescape the path so that spaces and other characters are shown correctly */
+            // unescape the path so that spaces and other characters are shown correctly
             unescaped = g_uri_unescape_string(path, NULL);
 
-            /* TRANSLATORS: this will result in "<path> on <hostname>" */
+            // TRANSLATORS: this will result in "<path> on <hostname>"
             display_name = g_strdup_printf(_("%s on %s"), unescaped, hostname);
 
             g_free(unescaped);
@@ -272,7 +272,7 @@ gchar* e_file_get_display_name_remote(GFile *mount_point)
         g_free(parse_name);
     }
 
-    /* never return null */
+    // never return null
     if (display_name == NULL)
         display_name = e_file_get_display_name(mount_point);
 
@@ -361,7 +361,7 @@ gchar* e_file_get_free_space_string(GFile *file, gboolean file_size_binary)
     {
         fs_free_str = g_format_size_full(fs_free, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
         fs_size_str = g_format_size_full(fs_size, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
-        /* free disk space string */
+        // free disk space string
         fs_string = g_strdup_printf(_("%s of %s free(%d%% used)"),
                                      fs_free_str, fs_size_str,
                                     (gint)((fs_size - fs_free) * 100 / fs_size));
@@ -442,12 +442,12 @@ gchar** e_file_list_to_stringv(GList *list)
     guint   n;
     GList  *lp;
 
-    /* allocate initial string */
+    // allocate initial string
     uris = g_new0(gchar *, g_list_length(list) + 1);
 
     for(lp = list, n = 0; lp != NULL; lp = lp->next)
     {
-        /* Prefer native paths for interoperability. */
+        // Prefer native paths for interoperability.
         gchar *path = g_file_get_path(G_FILE(lp->data));
         if (path == NULL)
         {
@@ -489,7 +489,7 @@ GList* e_file_list_get_parents(GList *file_list)
         if (parent_folder == NULL)
             continue;
         folder_already_added = FALSE;
-        /* Check if the folder already is in our list */
+        // Check if the folder already is in our list
         for(lp_parent_folder_list = parent_folder_list; lp_parent_folder_list != NULL; lp_parent_folder_list = lp_parent_folder_list->next)
         {
             if (g_file_equal(lp_parent_folder_list->data, parent_folder))
@@ -498,7 +498,7 @@ GList* e_file_list_get_parents(GList *file_list)
                 break;
             }
         }
-        /* Keep the reference for each folder added to parent_folder_list */
+        // Keep the reference for each folder added to parent_folder_list
         if (folder_already_added)
             g_object_unref(parent_folder);
         else
@@ -531,25 +531,25 @@ gboolean e_app_info_launch(GAppInfo      *info,
 
     skip_app_info_update =(g_object_get_data(G_OBJECT(info), "skip-app-info-update") != NULL);
 
-    /* check if we want to set the working directory of the spawned app */
+    // check if we want to set the working directory of the spawned app
     if (working_directory != NULL)
     {
-        /* determine the working directory path */
+        // determine the working directory path
         new_path = g_file_get_path(working_directory);
         if (new_path != NULL)
         {
-            /* switch to the desired working directory, remember that of Thunar itself */
+            // switch to the desired working directory, remember that of Thunar itself
             old_path = util_change_working_directory(new_path);
 
-            /* forget about the new working directory path */
+            // forget about the new working directory path
             g_free(new_path);
         }
     }
 
-    /* launch the paths with the specified app info */
+    // launch the paths with the specified app info
     result = g_app_info_launch(info, path_list, context, error);
 
-    /* if successful, remember the application as last used for the file types */
+    // if successful, remember the application as last used for the file types
     if (result == TRUE)
     {
         for(lp = path_list; lp != NULL; lp = lp->next)
@@ -562,11 +562,11 @@ gboolean e_app_info_launch(GAppInfo      *info,
 
             content_type = th_file_get_content_type(file);
 
-            /* determine default application */
+            // determine default application
             default_app_info = th_file_get_default_handler(file);
             if (default_app_info != NULL)
             {
-                /* check if the application is the default one */
+                // check if the application is the default one
                 if (g_app_info_equal(info, default_app_info))
                     update_app_info = FALSE;
                 g_object_unref(default_app_info);
@@ -574,7 +574,7 @@ gboolean e_app_info_launch(GAppInfo      *info,
 
             if (update_app_info)
             {
-                /* obtain list of last used applications */
+                // obtain list of last used applications
                 recommended_app_infos = g_app_info_get_recommended_for_type(content_type);
                 if (recommended_app_infos != NULL)
                 {
@@ -587,7 +587,7 @@ gboolean e_app_info_launch(GAppInfo      *info,
                 }
             }
 
-            /* emit "changed" on the file if we successfully changed the last used application */
+            // emit "changed" on the file if we successfully changed the last used application
             if (update_app_info && g_app_info_set_as_last_used_for_type(info, content_type, NULL))
                 th_file_changed(file);
 
@@ -599,10 +599,10 @@ gboolean e_app_info_launch(GAppInfo      *info,
      * opened from */
     if (old_path != NULL)
     {
-        /* switch to Thunar's original working directory */
+        // switch to Thunar's original working directory
         new_path = util_change_working_directory(old_path);
 
-        /* clean up */
+        // clean up
         g_free(new_path);
         g_free(old_path);
     }

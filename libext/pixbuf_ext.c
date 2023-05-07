@@ -51,24 +51,24 @@ GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
     gint       height;
     gint       i;
 
-    /* determine source parameters */
+    // determine source parameters
     width = gdk_pixbuf_get_width(source);
     height = gdk_pixbuf_get_height(source);
     has_alpha = gdk_pixbuf_get_has_alpha(source);
 
-    /* allocate the destination pixbuf */
+    // allocate the destination pixbuf
     dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source),
                          has_alpha,
                          gdk_pixbuf_get_bits_per_sample(source),
                          width,
                          height);
 
-    /* determine row strides on src/dst */
+    // determine row strides on src/dst
     dst_row_stride = gdk_pixbuf_get_rowstride(dst);
     src_row_stride = gdk_pixbuf_get_rowstride(source);
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
-    /* check if there's a good reason to use MMX */
+    // check if there's a good reason to use MMX
     if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
     {
         __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
@@ -78,39 +78,39 @@ GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
         __m64  zero = _mm_setzero_si64();
         __m64  src, alpha, hi, lo;
 
-        /* divide color components by 256 */
+        // divide color components by 256
         color_factor = _mm_srli_pi16(color_factor, 8);
 
         for(i =(width * height) >> 1; i > 0; --i)
         {
-            /* read the source pixel */
+            // read the source pixel
             src = *pixsrc;
 
-            /* remember the two alpha values */
+            // remember the two alpha values
             alpha = _mm_and_si64(alpha_mask, src);
 
-            /* extract the hi pixel */
+            // extract the hi pixel
             hi = _mm_unpackhi_pi8(src, zero);
             hi = _mm_mullo_pi16(hi, color_factor);
 
-            /* extract the lo pixel */
+            // extract the lo pixel
             lo = _mm_unpacklo_pi8(src, zero);
             lo = _mm_mullo_pi16(lo, color_factor);
 
-            /* prefetch the next two pixels */
+            // prefetch the next two pixels
             __builtin_prefetch(++pixsrc, 0, 1);
 
-            /* divide by 256 */
+            // divide by 256
             hi = _mm_srli_pi16(hi, 8);
             lo = _mm_srli_pi16(lo, 8);
 
-            /* combine the 2 pixels again */
+            // combine the 2 pixels again
             src = _mm_packs_pu16(lo, hi);
 
-            /* write back the calculated color together with the alpha */
+            // write back the calculated color together with the alpha
             *pixdst = _mm_or_si64(alpha, src);
 
-            /* advance the dest pointer */
+            // advance the dest pointer
             ++pixdst;
         }
 
@@ -172,20 +172,20 @@ GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
     gint       height;
     gint       i;
 
-    /* determine source parameters */
+    // determine source parameters
     width = gdk_pixbuf_get_width(source);
     height = gdk_pixbuf_get_height(source);
     has_alpha = gdk_pixbuf_get_has_alpha(source);
 
-    /* allocate the destination pixbuf */
+    // allocate the destination pixbuf
     dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source), has_alpha, gdk_pixbuf_get_bits_per_sample(source), width, height);
 
-    /* determine src/dst row strides */
+    // determine src/dst row strides
     dst_row_stride = gdk_pixbuf_get_rowstride(dst);
     src_row_stride = gdk_pixbuf_get_rowstride(source);
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
-    /* check if there's a good reason to use MMX */
+    // check if there's a good reason to use MMX
     if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
     {
         __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
@@ -196,38 +196,38 @@ GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
 
         for(i =(width * height) >> 1; i > 0; --i)
         {
-            /* read the source pixel */
+            // read the source pixel
             __m64 src = *pixsrc;
 
-            /* remember the two alpha values */
+            // remember the two alpha values
             __m64 alpha = _mm_and_si64(alpha_mask, src);
 
-            /* extract the hi pixel */
+            // extract the hi pixel
             __m64 hi = _mm_unpackhi_pi8(src, zero);
 
-            /* extract the lo pixel */
+            // extract the lo pixel
             __m64 lo = _mm_unpacklo_pi8(src, zero);
 
-            /* add(x >> 3) to x */
+            // add(x >> 3) to x
             hi = _mm_adds_pu16(hi, _mm_srli_pi16(hi, 3));
             lo = _mm_adds_pu16(lo, _mm_srli_pi16(lo, 3));
 
-            /* prefetch next value */
+            // prefetch next value
             __builtin_prefetch(++pixsrc, 0, 1);
 
-            /* combine the two pixels again */
+            // combine the two pixels again
             src = _mm_packs_pu16(lo, hi);
 
-            /* add 24(with saturation) */
+            // add 24(with saturation)
             src = _mm_adds_pu8(src, twentyfour);
 
-            /* drop the alpha channel from the temp color */
+            // drop the alpha channel from the temp color
             src = _mm_andnot_si64(alpha_mask, src);
 
-            /* write back the calculated color */
+            // write back the calculated color
             *pixdst = _mm_or_si64(alpha, src);
 
-            /* advance the dest pointer */
+            // advance the dest pointer
             ++pixdst;
         }
 
@@ -313,14 +313,14 @@ GdkPixbuf* pixbuf_scale_down(GdkPixbuf *source,
     source_width = gdk_pixbuf_get_width(source);
     source_height = gdk_pixbuf_get_height(source);
 
-    /* check if we need to scale */
+    // check if we need to scale
     if(G_UNLIKELY(source_width <= dest_width && source_height <= dest_height))
         return GDK_PIXBUF(g_object_ref(G_OBJECT(source)));
 
-    /* check if aspect ratio should be preserved */
+    // check if aspect ratio should be preserved
     if (G_LIKELY(preserve_aspect_ratio))
     {
-        /* calculate the new dimensions */
+        // calculate the new dimensions
         wratio =(gdouble) source_width  /(gdouble) dest_width;
         hratio =(gdouble) source_height /(gdouble) dest_height;
 

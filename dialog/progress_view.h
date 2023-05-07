@@ -46,6 +46,6 @@ ThunarJob *thunar_progress_view_get_job(ThunarProgressView *view);
 
 G_END_DECLS;
 
-#endif /* !__THUNAR_PROGRESS_VIEW_H__ */
+#endif // !__THUNAR_PROGRESS_VIEW_H__
 
 
