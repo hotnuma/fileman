@@ -17,10 +17,10 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
 +   55265	./application.c
 +   50846	./dialog/permbox.c
 +   44101	./dialog/appchooser.c
-    43641	./dialog/propsdlg.c
-    43501	./job/io_jobs.c
-    41070	./widget/pathentry.c
-    40301	./view/detailview.c
++   43641	./dialog/propsdlg.c
++   43501	./job/io_jobs.c
++   41070	./widget/pathentry.c
++   40301	./view/detailview.c
     38433	./dialog/dialogs.c
     33723	./libext/exo_tree_view.c
     30271	./core/th_folder.c

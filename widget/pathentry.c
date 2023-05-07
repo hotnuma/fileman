@@ -114,7 +114,7 @@ struct _PathEntry
     gint        drag_x;
     gint        drag_y;
 
-    /* auto completion support */
+    // auto completion support
     guint       in_change : 1;
     guint       has_completion : 1;
     guint       check_completion_idle_id;
@@ -186,23 +186,23 @@ static void pathentry_init(PathEntry *path_entry)
     path_entry->check_completion_idle_id = 0;
     path_entry->working_directory = NULL;
 
-    /* allocate a new entry completion for the given model */
+    // allocate a new entry completion for the given model
     completion = gtk_entry_completion_new();
     gtk_entry_completion_set_popup_single_match(completion, FALSE);
     gtk_entry_completion_set_match_func(completion, _pathentry_match_func, path_entry, NULL);
     g_signal_connect(G_OBJECT(completion), "match-selected", G_CALLBACK(_pathentry_match_selected), path_entry);
 
-    /* add the icon renderer to the entry completion */
+    // add the icon renderer to the entry completion
     renderer = g_object_new(TYPE_ICONRENDERER, "size", 16, NULL);
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(completion), renderer, FALSE);
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion), renderer, "file", THUNAR_COLUMN_FILE);
 
-    /* add the text renderer to the entry completion */
+    // add the text renderer to the entry completion
     renderer = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(completion), renderer, TRUE);
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion), renderer, "text", THUNAR_COLUMN_NAME);
 
-    /* allocate a new list mode for the completion */
+    // allocate a new list mode for the completion
     store = listmodel_new();
     listmodel_set_show_hidden(store, TRUE);
     listmodel_set_folders_first(store, TRUE);
@@ -215,17 +215,17 @@ static void pathentry_init(PathEntry *path_entry)
      */
     g_signal_connect(G_OBJECT(path_entry), "key-press-event", G_CALLBACK(_pathentry_key_press_event), NULL);
 
-    /* setup the new completion */
+    // setup the new completion
     gtk_entry_set_completion(GTK_ENTRY(path_entry), completion);
 
-    /* cleanup */
+    // cleanup
     g_object_unref(G_OBJECT(completion));
 
-    /* clear the auto completion whenever the cursor is moved manually or the selection is changed manually */
+    // clear the auto completion whenever the cursor is moved manually or the selection is changed manually
     g_signal_connect(G_OBJECT(path_entry), "notify::cursor-position", G_CALLBACK(_pathentry_clear_completion), NULL);
     g_signal_connect(G_OBJECT(path_entry), "notify::selection-bound", G_CALLBACK(_pathentry_clear_completion), NULL);
 
-    /* connect the icon signals */
+    // connect the icon signals
     g_signal_connect(G_OBJECT(path_entry), "icon-press", G_CALLBACK(_pathentry_icon_press_event), NULL);
     g_signal_connect(G_OBJECT(path_entry), "icon-release", G_CALLBACK(_pathentry_icon_release_event), NULL);
 }
@@ -234,26 +234,26 @@ static void pathentry_finalize(GObject *object)
 {
     PathEntry *path_entry = PATHENTRY(object);
 
-    /* release factory */
+    // release factory
     if (path_entry->icon_factory != NULL)
         g_object_unref(path_entry->icon_factory);
 
-    /* release the current-folder reference */
+    // release the current-folder reference
     if (G_LIKELY(path_entry->current_folder != NULL))
         g_object_unref(G_OBJECT(path_entry->current_folder));
 
-    /* release the current-file reference */
+    // release the current-file reference
     if (G_LIKELY(path_entry->current_file != NULL))
     {
         g_signal_handlers_disconnect_by_func(G_OBJECT(path_entry->current_file), pathentry_set_current_file, path_entry);
         g_object_unref(G_OBJECT(path_entry->current_file));
     }
 
-    /* release the working directory */
+    // release the working directory
     if (G_LIKELY(path_entry->working_directory != NULL))
         g_object_unref(G_OBJECT(path_entry->working_directory));
 
-    /* drop the check_completion_idle source */
+    // drop the check_completion_idle source
     if (G_UNLIKELY(path_entry->check_completion_idle_id != 0))
         g_source_remove(path_entry->check_completion_idle_id);
 
@@ -303,17 +303,17 @@ static gboolean pathentry_focus(GtkWidget *widget, GtkDirectionType direction)
     GdkModifierType  state;
     gboolean         control_pressed;
 
-    /* determine whether control is pressed */
+    // determine whether control is pressed
     control_pressed =(gtk_get_current_event_state(&state) &&(state & GDK_CONTROL_MASK) != 0);
 
-    /* evil hack, but works for GtkFileChooserEntry, so who cares :-) */
+    // evil hack, but works for GtkFileChooserEntry, so who cares :-)
     if ((direction == GTK_DIR_TAB_FORWARD) &&(gtk_widget_has_focus(widget)) && !control_pressed)
     {
-        /* if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix */
+        // if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix
         if (!path_entry->has_completion && gtk_editable_get_position(GTK_EDITABLE(path_entry)) == gtk_entry_get_text_length(GTK_ENTRY(path_entry)))
             _pathentry_common_prefix_append(path_entry, FALSE);
 
-        /* place the cursor at the end */
+        // place the cursor at the end
         gtk_editable_set_position(GTK_EDITABLE(path_entry), gtk_entry_get_text_length(GTK_ENTRY(path_entry)));
 
         return TRUE;
@@ -333,7 +333,7 @@ static void _pathentry_icon_press_event(GtkEntry             *entry,
 
     if (event->button == 1 && icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {
-        /* consume the event */
+        // consume the event
         path_entry->drag_button = event->button;
         path_entry->drag_x = event->x;
         path_entry->drag_y = event->y;
@@ -351,7 +351,7 @@ static void _pathentry_icon_release_event(GtkEntry             *entry,
 
     if (event->button == path_entry->drag_button && icon_pos == GTK_ENTRY_ICON_PRIMARY)
     {
-        /* reset the drag button state */
+        // reset the drag button state
         path_entry->drag_button = 0;
     }
 }
@@ -367,10 +367,10 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
 
     if (path_entry->drag_button > 0
             && path_entry->current_file != NULL
-            /*FIXME && event->window == gtk_entry_get_icon_window(GTK_ENTRY(widget), GTK_ENTRY_ICON_PRIMARY)*/
+            //FIXME && event->window == gtk_entry_get_icon_window(GTK_ENTRY(widget), GTK_ENTRY_ICON_PRIMARY)
             && gtk_drag_check_threshold(widget, path_entry->drag_x, path_entry->drag_y, event->x, event->y))
     {
-        /* create the drag context */
+        // create the drag context
         target_list = gtk_target_list_new(_pathentry_drag_targets, G_N_ELEMENTS(_pathentry_drag_targets));
         context = gtk_drag_begin_with_coordinates(widget, target_list,
                   GDK_ACTION_COPY |
@@ -379,7 +379,7 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
                 (GdkEvent *) event, -1, -1);
         gtk_target_list_unref(target_list);
 
-        /* setup the drag icon(atleast 24px) */
+        // setup the drag icon(atleast 24px)
         gtk_widget_style_get(widget, "icon-size", &size, NULL);
         icon = ifactory_load_file_icon(path_entry->icon_factory,
                 path_entry->current_file,
@@ -391,7 +391,7 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
             g_object_unref(G_OBJECT(icon));
         }
 
-        /* reset the drag button state */
+        // reset the drag button state
         path_entry->drag_button = 0;
 
         return TRUE;
@@ -404,20 +404,20 @@ static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event
 {
     PathEntry *path_entry = PATHENTRY(widget);
 
-    /* check if we have a tab key press here and control is not pressed */
+    // check if we have a tab key press here and control is not pressed
     if (G_UNLIKELY(event->keyval == GDK_KEY_Tab &&(event->state & GDK_CONTROL_MASK) == 0))
     {
-        /* if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix */
+        // if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix
         if (!path_entry->has_completion && gtk_editable_get_position(GTK_EDITABLE(path_entry)) == gtk_entry_get_text_length(GTK_ENTRY(path_entry)))
             _pathentry_common_prefix_append(path_entry, FALSE);
 
-        /* place the cursor at the end */
+        // place the cursor at the end
         gtk_editable_set_position(GTK_EDITABLE(path_entry), gtk_entry_get_text_length(GTK_ENTRY(path_entry)));
 
-        /* emit "changed", so the completion window is popped up */
+        // emit "changed", so the completion window is popped up
         g_signal_emit_by_name(G_OBJECT(path_entry), "changed", 0);
 
-        /* we handled the event */
+        // we handled the event
         return TRUE;
     }
 
@@ -438,14 +438,14 @@ static void pathentry_drag_data_get(GtkWidget        *widget,
     GList             file_list;
     gchar           **uris;
 
-    /* verify that we actually display a path */
+    // verify that we actually display a path
     if (G_LIKELY(path_entry->current_file != NULL))
     {
-        /* transform the path for the current file into an uri string list */
+        // transform the path for the current file into an uri string list
         file_list.next = file_list.prev = NULL;
         file_list.data = th_file_get_file(path_entry->current_file);
 
-        /* setup the uri list for the drag selection */
+        // setup the uri list for the drag selection
         uris = e_file_list_to_stringv(&file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
@@ -458,11 +458,11 @@ static void pathentry_activate(GtkEntry *entry)
 
     if (G_LIKELY(path_entry->has_completion))
     {
-        /* place cursor at the end of the text if we have completion set */
+        // place cursor at the end of the text if we have completion set
         gtk_editable_set_position(GTK_EDITABLE(path_entry), -1);
     }
 
-    /* emit the "activate" signal */
+    // emit the "activate" signal
    GTK_ENTRY_CLASS(pathentry_parent_class)->activate(entry);
 }
 
@@ -482,20 +482,20 @@ static void pathentry_changed(GtkEditable *editable)
     gchar              *file_part = NULL;
     gboolean            update_icon = FALSE;
 
-    /* check if we should ignore this event */
+    // check if we should ignore this event
     if (G_UNLIKELY(path_entry->in_change))
         return;
 
-    /* parse the entered string(handling URIs properly) */
+    // parse the entered string(handling URIs properly)
     text = gtk_entry_get_text(GTK_ENTRY(path_entry));
     if (G_UNLIKELY(g_uri_is_valid(text, G_URI_FLAGS_NONE, NULL)))
     {
-        /* try to parse the URI text */
+        // try to parse the URI text
         escaped_text = g_uri_escape_string(text, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);
         file_path = g_file_new_for_uri(escaped_text);
         g_free(escaped_text);
 
-        /* use the same file if the text assumes we're in a directory */
+        // use the same file if the text assumes we're in a directory
         if (g_str_has_suffix(text, "/"))
             folder_path = G_FILE(g_object_ref(G_OBJECT(file_path)));
         else
@@ -503,38 +503,38 @@ static void pathentry_changed(GtkEditable *editable)
     }
     else if (_pathentry_parse(path_entry, &folder_part, &file_part, NULL))
     {
-        /* determine the folder path */
+        // determine the folder path
         folder_path = g_file_new_for_path(folder_part);
 
-        /* determine the relative file path */
+        // determine the relative file path
         if (G_LIKELY(*file_part != '\0'))
             file_path = g_file_resolve_relative_path(folder_path, file_part);
         else
             file_path = g_object_ref(folder_path);
 
-        /* cleanup the part strings */
+        // cleanup the part strings
         g_free(folder_part);
         g_free(file_part);
     }
 
-    /* determine new current file/folder from the paths */
+    // determine new current file/folder from the paths
     current_folder =(folder_path != NULL) ? th_file_get(folder_path, NULL) : NULL;
     current_file =(file_path != NULL) ? th_file_get(file_path, NULL) : NULL;
 
-    /* determine the entry completion */
+    // determine the entry completion
     completion = gtk_entry_get_completion(GTK_ENTRY(path_entry));
 
-    /* update the current folder if required */
+    // update the current folder if required
     if (current_folder != path_entry->current_folder)
     {
-        /* take a reference on the current folder */
+        // take a reference on the current folder
         if (G_LIKELY(path_entry->current_folder != NULL))
             g_object_unref(G_OBJECT(path_entry->current_folder));
         path_entry->current_folder = current_folder;
         if (G_LIKELY(current_folder != NULL))
             g_object_ref(G_OBJECT(current_folder));
 
-        /* try to open the current-folder file as folder */
+        // try to open the current-folder file as folder
         if (current_folder != NULL && th_file_is_directory(current_folder))
             folder = th_folder_get_for_file(current_folder);
         else
@@ -553,15 +553,15 @@ static void pathentry_changed(GtkEditable *editable)
         gtk_entry_completion_set_model(completion, model);
         g_object_unref(G_OBJECT(model));
 
-        /* cleanup */
+        // cleanup
         if (G_LIKELY(folder != NULL))
             g_object_unref(G_OBJECT(folder));
 
-        /* we most likely need a new icon */
+        // we most likely need a new icon
         update_icon = TRUE;
     }
 
-    /* update the current file if required */
+    // update the current file if required
     if (current_file != path_entry->current_file)
     {
         if (G_UNLIKELY(path_entry->current_file != NULL))
@@ -577,14 +577,14 @@ static void pathentry_changed(GtkEditable *editable)
         }
         g_object_notify(G_OBJECT(path_entry), "current-file");
 
-        /* we most likely need a new icon */
+        // we most likely need a new icon
         update_icon = TRUE;
     }
 
     if (update_icon)
         _pathentry_update_icon(path_entry);
 
-    /* cleanup */
+    // cleanup
     if (G_LIKELY(current_folder != NULL))
         g_object_unref(G_OBJECT(current_folder));
     if (G_LIKELY(current_file != NULL))
@@ -646,17 +646,17 @@ static void pathentry_do_insert_text(GtkEditable *editable,
 {
     PathEntry *path_entry = PATHENTRY(editable);
 
-    /* let the GtkEntry class handle the insert */
+    // let the GtkEntry class handle the insert
   (*_pathentry_editable_parent_iface->do_insert_text)(editable, new_text, new_text_length, position);
 
-    /* queue a completion check if this insert operation was triggered by the user */
+    // queue a completion check if this insert operation was triggered by the user
     if (G_LIKELY(!path_entry->in_change))
         _pathentry_queue_check_completion(path_entry);
 }
 
 static void _pathentry_clear_completion(PathEntry *path_entry)
 {
-    /* reset the completion and apply the new text */
+    // reset the completion and apply the new text
     if (G_UNLIKELY(path_entry->has_completion))
     {
         path_entry->has_completion = FALSE;
@@ -677,13 +677,13 @@ static void _pathentry_common_prefix_append(PathEntry *path_entry,
     gint         offset;
     gint         base;
 
-    /* determine the common prefix */
+    // determine the common prefix
     _pathentry_common_prefix_lookup(path_entry, &prefix, &file);
 
-    /* check if we should append a slash to the prefix */
+    // check if we should append a slash to the prefix
     if (G_LIKELY(file != NULL))
     {
-        /* we only append slashes for directories */
+        // we only append slashes for directories
         if (th_file_is_directory(file) && file != path_entry->current_file)
         {
             tmp = g_strconcat(prefix, G_DIR_SEPARATOR_S, NULL);
@@ -691,14 +691,14 @@ static void _pathentry_common_prefix_append(PathEntry *path_entry,
             prefix = tmp;
         }
 
-        /* release the file */
+        // release the file
         g_object_unref(G_OBJECT(file));
     }
 
-    /* check if we have a common prefix */
+    // check if we have a common prefix
     if (G_LIKELY(prefix != NULL))
     {
-        /* determine the UTF-8 length of the entry text */
+        // determine the UTF-8 length of the entry text
         text = gtk_entry_get_text(GTK_ENTRY(path_entry));
         last_slash = g_utf8_strrchr(text, -1, G_DIR_SEPARATOR);
         if (G_LIKELY(last_slash != NULL))
@@ -707,22 +707,22 @@ static void _pathentry_common_prefix_append(PathEntry *path_entry,
             offset = 0;
         text_length = g_utf8_strlen(text, -1) - offset;
 
-        /* determine the UTF-8 length of the prefix */
+        // determine the UTF-8 length of the prefix
         prefix_length = g_utf8_strlen(prefix, -1);
 
-        /* append only if the prefix is longer than the already entered text */
+        // append only if the prefix is longer than the already entered text
         if (G_LIKELY(prefix_length > text_length))
         {
-            /* remember the base offset */
+            // remember the base offset
             base = offset;
 
-            /* insert the prefix */
+            // insert the prefix
             path_entry->in_change = TRUE;
             gtk_editable_delete_text(GTK_EDITABLE(path_entry), offset, -1);
             gtk_editable_insert_text(GTK_EDITABLE(path_entry), prefix, -1, &offset);
             path_entry->in_change = FALSE;
 
-            /* highlight the prefix if requested */
+            // highlight the prefix if requested
             if (G_LIKELY(highlight))
             {
                 gtk_editable_select_region(GTK_EDITABLE(path_entry), base + text_length, base + prefix_length);
@@ -730,7 +730,7 @@ static void _pathentry_common_prefix_append(PathEntry *path_entry,
             }
         }
 
-        /* cleanup */
+        // cleanup
         g_free(prefix);
     }
 }
@@ -770,7 +770,7 @@ static void _pathentry_common_prefix_lookup(PathEntry  *path_entry,
     *prefix_return = NULL;
     *file_return = NULL;
 
-    /* lookup the last slash character in the entry text */
+    // lookup the last slash character in the entry text
     text = gtk_entry_get_text(GTK_ENTRY(path_entry));
     s = strrchr(text, G_DIR_SEPARATOR);
     if (G_UNLIKELY(s != NULL && s[1] == '\0'))
@@ -778,35 +778,35 @@ static void _pathentry_common_prefix_lookup(PathEntry  *path_entry,
     else if (G_LIKELY(s != NULL))
         text = s + 1;
 
-    /* check all items in the model */
+    // check all items in the model
     model = gtk_entry_completion_get_model(gtk_entry_get_completion(GTK_ENTRY(path_entry)));
     if (gtk_tree_model_get_iter_first(model, &iter))
     {
         do
         {
-            /* determine the real file name for the iter */
+            // determine the real file name for the iter
             gtk_tree_model_get(model, &iter, THUNAR_COLUMN_FILE_NAME, &name, -1);
 
-            /* check if we have a valid prefix here */
+            // check if we have a valid prefix here
             if (_pathentry_has_prefix_casefolded(name, text))
             {
-                /* check if we're the first to match */
+                // check if we're the first to match
                 if (*prefix_return == NULL)
                 {
-                    /* remember the prefix */
+                    // remember the prefix
                     *prefix_return = g_strdup(name);
 
-                    /* determine the file for the iter */
+                    // determine the file for the iter
                     gtk_tree_model_get(model, &iter, THUNAR_COLUMN_FILE, file_return, -1);
                 }
                 else
                 {
-                    /* we already have another prefix, so determine the common part */
+                    // we already have another prefix, so determine the common part
                     for(s = name, t = *prefix_return; *s != '\0' && *s == *t; ++s, ++t)
                         ;
                     *t = '\0';
 
-                    /* release the file, since it's not a unique match */
+                    // release the file, since it's not a unique match
                     if (G_LIKELY(*file_return != NULL))
                     {
                         g_object_unref(G_OBJECT(*file_return));
@@ -815,7 +815,7 @@ static void _pathentry_common_prefix_lookup(PathEntry  *path_entry,
                 }
             }
 
-            /* cleanup */
+            // cleanup
             g_free(name);
         }
         while(gtk_tree_model_iter_next(model, &iter));
@@ -838,7 +838,7 @@ static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
     gchar           *name_normalized;
     gchar           *name;
 
-    /* determine the model from the completion */
+    // determine the model from the completion
     model = gtk_entry_completion_get_model(completion);
 
     /* leave if the model is null, we do this in thunar_path_entry_changed() to speed
@@ -852,14 +852,14 @@ static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
     if (G_UNLIKELY(path_entry->has_completion))
         return FALSE;
 
-    /* determine the current text(UTF-8 normalized) */
+    // determine the current text(UTF-8 normalized)
     text_normalized = g_utf8_normalize(gtk_entry_get_text(GTK_ENTRY(user_data)), -1, G_NORMALIZE_ALL);
 
-    /* lookup the last slash character in the key */
+    // lookup the last slash character in the key
     last_slash = strrchr(text_normalized, G_DIR_SEPARATOR);
     if (G_UNLIKELY(last_slash != NULL && last_slash[1] == '\0'))
     {
-        /* check if the file is hidden */
+        // check if the file is hidden
         gtk_tree_model_get(model, iter, THUNAR_COLUMN_FILE, &file, -1);
         matched = !th_file_is_hidden(file);
         g_object_unref(G_OBJECT(file));
@@ -871,7 +871,7 @@ static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
         else
             last_slash += 1;
 
-        /* determine the real file name for the iter */
+        // determine the real file name for the iter
         gtk_tree_model_get(model, iter, THUNAR_COLUMN_FILE_NAME, &name, -1);
         name_normalized = g_utf8_normalize(name, -1, G_NORMALIZE_ALL);
         if (G_LIKELY(name_normalized != NULL))
@@ -879,17 +879,17 @@ static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
         else
             name_normalized = name;
 
-        /* check if we have a match here */
+        // check if we have a match here
         if (name_normalized != NULL)
             matched = _pathentry_has_prefix_casefolded(name_normalized, last_slash);
         else
             matched = FALSE;
 
-        /* cleanup */
+        // cleanup
         g_free(name_normalized);
     }
 
-    /* cleanup */
+    // cleanup
     g_free(text_normalized);
 
     return matched;
@@ -910,13 +910,13 @@ static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
     gchar           *tmp;
     gint             offset;
 
-    /* determine the file for the iterator */
+    // determine the file for the iterator
     gtk_tree_model_get(model, iter, THUNAR_COLUMN_FILE, &file, -1);
 
-    /* determine the real name for the file */
+    // determine the real name for the file
     gtk_tree_model_get(model, iter, THUNAR_COLUMN_FILE_NAME, &real_name, -1);
 
-    /* append a slash if we have a folder here */
+    // append a slash if we have a folder here
     if (G_LIKELY(th_file_is_directory(file)))
     {
         tmp = g_strconcat(real_name, G_DIR_SEPARATOR_S, NULL);
@@ -924,7 +924,7 @@ static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
         real_name = tmp;
     }
 
-    /* determine the UTF-8 offset of the last slash on the entry text */
+    // determine the UTF-8 offset of the last slash on the entry text
     text = gtk_entry_get_text(GTK_ENTRY(path_entry));
     last_slash = g_utf8_strrchr(text, -1, G_DIR_SEPARATOR);
     if (G_LIKELY(last_slash != NULL))
@@ -932,16 +932,16 @@ static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
     else
         offset = 0;
 
-    /* delete the previous text at the specified offset */
+    // delete the previous text at the specified offset
     gtk_editable_delete_text(GTK_EDITABLE(path_entry), offset, -1);
 
-    /* insert the new file/folder name */
+    // insert the new file/folder name
     gtk_editable_insert_text(GTK_EDITABLE(path_entry), real_name, -1, &offset);
 
-    /* move the cursor to the end of the text entry */
+    // move the cursor to the end of the text entry
     gtk_editable_set_position(GTK_EDITABLE(path_entry), -1);
 
-    /* cleanup */
+    // cleanup
     g_object_unref(G_OBJECT(file));
     g_free(real_name);
 
@@ -962,18 +962,18 @@ static gboolean _pathentry_parse(PathEntry *path_entry,
     e_return_val_if_fail(folder_part != NULL, FALSE);
     e_return_val_if_fail(file_part != NULL, FALSE);
 
-    /* expand the filename */
+    // expand the filename
     filename = util_expand_filename(gtk_entry_get_text(GTK_ENTRY(path_entry)),
                                             path_entry->working_directory,
                                             error);
     if (G_UNLIKELY(filename == NULL))
         return FALSE;
 
-    /* lookup the last slash character in the filename */
+    // lookup the last slash character in the filename
     last_slash = strrchr(filename, G_DIR_SEPARATOR);
     if (G_UNLIKELY(last_slash == NULL))
     {
-        /* no slash character, it's relative to the home dir */
+        // no slash character, it's relative to the home dir
         *file_part = g_filename_from_utf8(filename, -1, NULL, NULL, error);
         if (G_LIKELY(*file_part != NULL))
             *folder_part = g_strdup(g_get_home_dir());
@@ -987,7 +987,7 @@ static gboolean _pathentry_parse(PathEntry *path_entry,
 
         if (G_LIKELY(*folder_part != NULL))
         {
-            /* if folder_part doesn't start with '/', it's relative to the home dir */
+            // if folder_part doesn't start with '/', it's relative to the home dir
             if (G_UNLIKELY(**folder_part != G_DIR_SEPARATOR))
             {
                 path = g_build_filename(g_get_home_dir(), *folder_part, NULL);
@@ -995,7 +995,7 @@ static gboolean _pathentry_parse(PathEntry *path_entry,
                 *folder_part = path;
             }
 
-            /* determine the file part */
+            // determine the file part
             *file_part = g_filename_from_utf8(last_slash + 1, -1, NULL, NULL, error);
             if (G_UNLIKELY(*file_part == NULL))
             {
@@ -1009,7 +1009,7 @@ static gboolean _pathentry_parse(PathEntry *path_entry,
         }
     }
 
-    /* release the filename */
+    // release the filename
     g_free(filename);
 
     return(*folder_part != NULL);
@@ -1033,11 +1033,11 @@ static gboolean _pathentry_check_completion_idle(gpointer user_data)
 
     UTIL_THREADS_ENTER
 
-    /* check if the user entered at least part of a filename */
+    // check if the user entered at least part of a filename
     const gchar *text = gtk_entry_get_text(GTK_ENTRY(path_entry));
     if (*text != '\0' && text[strlen(text) - 1] != '/')
     {
-        /* automatically insert the common prefix */
+        // automatically insert the common prefix
         _pathentry_common_prefix_append(path_entry, TRUE);
     }
 
@@ -1076,18 +1076,18 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
     file =(current_file != NULL) ? th_file_get_file(current_file) : NULL;
     if (G_UNLIKELY(file == NULL))
     {
-        /* invalid file */
+        // invalid file
         text = g_strdup("");
     }
     else
     {
-        /* check if the file is native to the platform */
+        // check if the file is native to the platform
         if (g_file_is_native(file))
         {
-            /* it is, try the local path first */
+            // it is, try the local path first
             text = g_file_get_path(file);
 
-            /* if there is no local path, use the URI(which always works) */
+            // if there is no local path, use the URI(which always works)
             if (text == NULL)
             {
                 text = g_file_get_uri(file);
@@ -1096,7 +1096,7 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
         }
         else
         {
-            /* not a native file, use the URI */
+            // not a native file, use the URI
             text = g_file_get_uri(file);
             is_uri = TRUE;
         }
@@ -1123,11 +1123,11 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
         unescaped = g_strdup(text);
     g_free(text);
 
-    /* setup the entry text */
+    // setup the entry text
     gtk_entry_set_text(GTK_ENTRY(path_entry), unescaped);
     g_free(unescaped);
 
-    /* update the icon */
+    // update the icon
     _pathentry_update_icon(path_entry);
 
     gtk_editable_set_position(GTK_EDITABLE(path_entry), -1);
