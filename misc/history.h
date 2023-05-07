@@ -49,7 +49,7 @@ struct _ThunarHistoryClass
 {
     GObjectClass __parent__;
 
-    /* external signals */
+    // external signals
     void (*history_changed) (ThunarHistory *history, const gchar *initial_text);
 };
 

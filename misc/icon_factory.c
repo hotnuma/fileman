@@ -28,10 +28,10 @@
 #include <memory.h>
 #include <string.h>
 
-/* the timeout until the sweeper is run(in seconds) */
+// the timeout until the sweeper is run(in seconds)
 #define ICONFACTORY_SWEEP_TIMEOUT (30)
 
-/* Property identifiers */
+// Property identifiers
 enum
 {
     PROP_0,
@@ -80,20 +80,16 @@ struct _IconFactory
     GObject __parent__;
 
     GHashTable          *icon_cache;
-
     GtkIconTheme        *icon_theme;
 
     ThunarThumbnailMode  thumbnail_mode;
-
     gboolean             thumbnail_draw_frames;
-
     ThunarThumbnailSize  thumbnail_size;
 
     guint                sweep_timer_id;
-
     gulong               changed_hook_id;
 
-    /* stamp that gets bumped when the theme changes */
+    // stamp that gets bumped when the theme changes
     guint                theme_stamp;
 };
 
@@ -191,7 +187,7 @@ static void ifactory_init(IconFactory *factory)
                             factory,
                             NULL);
 
-    /* allocate the hash table for the icon cache */
+    // allocate the hash table for the icon cache
     factory->icon_cache = g_hash_table_new_full(_iconkey_hash,
                                                 _iconkey_equal,
                                                 _iconkey_free,
@@ -216,13 +212,13 @@ static void ifactory_finalize(GObject *object)
 
     e_return_if_fail(IS_ICONFACTORY(factory));
 
-    /* clear the icon cache hash table */
+    // clear the icon cache hash table
     g_hash_table_destroy(factory->icon_cache);
 
-    /* remove the "changed" emission hook from the GtkIconTheme class */
+    // remove the "changed" emission hook from the GtkIconTheme class
     g_signal_remove_emission_hook(g_signal_lookup("changed", GTK_TYPE_ICON_THEME), factory->changed_hook_id);
 
-    /* disconnect from the associated icon theme(if any) */
+    // disconnect from the associated icon theme(if any)
     if (G_LIKELY(factory->icon_theme != NULL))
     {
         g_object_set_qdata(G_OBJECT(factory->icon_theme), _ifactory_quark, NULL);
@@ -301,13 +297,13 @@ static gboolean _ifactory_changed(GSignalInvocationHint *ihint,
 
     IconFactory *factory = ICONFACTORY(user_data);
 
-    /* drop all items from the icon cache */
+    // drop all items from the icon cache
     g_hash_table_remove_all(factory->icon_cache);
 
-    /* bump the stamp so all file icons are reloaded */
+    // bump the stamp so all file icons are reloaded
     factory->theme_stamp++;
 
-    /* keep the emission hook alive */
+    // keep the emission hook alive
     return TRUE;
 }
 
@@ -326,7 +322,7 @@ static gboolean _ifactory_sweep_timer(gpointer user_data)
 
     UTIL_THREADS_ENTER
 
-    /* ditch all icons whose ref_count is 1 */
+    // ditch all icons whose ref_count is 1
     g_hash_table_foreach_remove(factory->icon_cache,
                                 (GHRFunc)(void(*)(void)) _iconkey_check_sweep,
                                  factory);
@@ -356,11 +352,11 @@ static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
 
     e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
 
-    /* try to load the image from the file */
+    // try to load the image from the file
     pixbuf = gdk_pixbuf_new_from_file(path, NULL);
     if (G_LIKELY(pixbuf != NULL))
     {
-        /* determine the dimensions of the pixbuf */
+        // determine the dimensions of the pixbuf
         width = gdk_pixbuf_get_width(pixbuf);
         height = gdk_pixbuf_get_height(pixbuf);
 
@@ -378,7 +374,7 @@ static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
         //        && thumbnail_needs_frame(pixbuf, width, height, size);
         //}
 
-        /* be sure to make framed thumbnails fit into the size */
+        // be sure to make framed thumbnails fit into the size
         if (G_LIKELY(needs_frame))
         {
             max_width = size - (3 + 6);
@@ -390,19 +386,19 @@ static GdkPixbuf* _ifactory_load_from_file(IconFactory *factory,
             max_height = size;
         }
 
-        /* scale down the icon(if required) */
+        // scale down the icon(if required)
         if (G_LIKELY(width > max_width || height > max_height))
         {
-            /* scale down to the required size */
+            // scale down to the required size
             tmp = pixbuf_scale_down(pixbuf, TRUE, MAX(1, max_height), MAX(1, max_height));
             g_object_unref(G_OBJECT(pixbuf));
             pixbuf = tmp;
         }
 
-        /* add a frame around thumbnail(large) images */
+        // add a frame around thumbnail(large) images
         //if (G_LIKELY(needs_frame))
         //{
-        //    /* add a frame to the thumbnail */
+        //    // add a frame to the thumbnail
         //    frame = thunar_icon_factory_get_thumbnail_frame();
         //    tmp = pixbuf_frame(pixbuf, frame, 4, 3, 5, 6);
         //    g_object_unref(G_OBJECT(pixbuf));
@@ -425,57 +421,57 @@ static GdkPixbuf* _ifactory_lookup_icon(IconFactory *factory, const gchar *name,
     e_return_val_if_fail(name != NULL && *name != '\0', NULL);
     e_return_val_if_fail(size > 0, NULL);
 
-    /* prepare the lookup key */
+    // prepare the lookup key
     lookup_key.name =(gchar *) name;
     lookup_key.size = size;
 
-    /* check if we already have a cached version of the icon */
+    // check if we already have a cached version of the icon
     if (!g_hash_table_lookup_extended(factory->icon_cache, &lookup_key, NULL,(gpointer) &pixbuf))
     {
-        /* check if we have to load a file instead of a themed icon */
+        // check if we have to load a file instead of a themed icon
         if (G_UNLIKELY(g_path_is_absolute(name)))
         {
-            /* load the file directly */
+            // load the file directly
             pixbuf = _ifactory_load_from_file(factory, name, size);
         }
         else
         {
-            /* FIXME: is there a better approach? */
+            // FIXME: is there a better approach?
             if (g_strcmp0(name, "inode-directory") == 0)
                 name = "folder";
 
-            /* check if the icon theme contains an icon of that name */
+            // check if the icon theme contains an icon of that name
             icon_info = gtk_icon_theme_lookup_icon(factory->icon_theme, name, size, GTK_ICON_LOOKUP_FORCE_SIZE);
             if (G_LIKELY(icon_info != NULL))
             {
-                /* try to load the pixbuf from the icon info */
+                // try to load the pixbuf from the icon info
                 pixbuf = gtk_icon_info_load_icon(icon_info, NULL);
 
-                /* cleanup */
+                // cleanup
                 g_object_unref(icon_info);
             }
         }
 
-        /* use fallback icon if no pixbuf could be loaded */
+        // use fallback icon if no pixbuf could be loaded
         if (G_UNLIKELY(pixbuf == NULL))
         {
-            /* check if we are allowed to return the fallback icon */
+            // check if we are allowed to return the fallback icon
             if (!wants_default)
                 return NULL;
             else
                 return _ifactory_load_fallback(factory, size);
         }
 
-        /* generate a key for the new cached icon */
+        // generate a key for the new cached icon
         key = g_slice_new(IconKey);
         key->size = size;
         key->name = g_strdup(name);
 
-        /* insert the new icon into the cache */
+        // insert the new icon into the cache
         g_hash_table_insert(factory->icon_cache, key, pixbuf);
     }
 
-    /* schedule the sweeper */
+    // schedule the sweeper
     if (G_UNLIKELY(factory->sweep_timer_id == 0))
     {
         factory->sweep_timer_id = g_timeout_add_seconds_full(G_PRIORITY_LOW, ICONFACTORY_SWEEP_TIMEOUT,
@@ -505,11 +501,11 @@ static gboolean _iconkey_equal(gconstpointer a, gconstpointer b)
     const IconKey *a_key = a;
     const IconKey *b_key = b;
 
-    /* compare sizes first */
+    // compare sizes first
     if (a_key->size != b_key->size)
         return FALSE;
 
-    /* do a full string comparison on the names */
+    // do a full string comparison on the names
     return (g_strcmp0(a_key->name, b_key->name) == 0);
 }
 
@@ -583,15 +579,15 @@ IconFactory* ifactory_get_for_icon_theme(GtkIconTheme *icon_theme)
 
     e_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
-    /* generate the quark on-demand */
+    // generate the quark on-demand
     if (G_UNLIKELY(_ifactory_quark == 0))
         _ifactory_quark = g_quark_from_static_string("thunar-icon-factory");
 
-    /* check if the given icon theme already knows about an icon factory */
+    // check if the given icon theme already knows about an icon factory
     factory = g_object_get_qdata(G_OBJECT(icon_theme), _ifactory_quark);
     if (G_UNLIKELY(factory == NULL))
     {
-        /* allocate a new factory and connect it to the icon theme */
+        // allocate a new factory and connect it to the icon theme
         factory = g_object_new(TYPE_ICONFACTORY, NULL);
         factory->icon_theme = GTK_ICON_THEME(g_object_ref(G_OBJECT(icon_theme)));
         g_object_set_qdata(G_OBJECT(factory->icon_theme), _ifactory_quark, factory);
@@ -634,14 +630,14 @@ GdkPixbuf* ifactory_load_icon(IconFactory *factory, const gchar *name,
      */
     if (G_UNLIKELY(!name ||!*name))
     {
-        /* check if the caller will happly accept the fallback icon */
+        // check if the caller will happly accept the fallback icon
         if (G_LIKELY(wants_default))
             return _ifactory_load_fallback(factory, size);
         else
             return NULL;
     }
 
-    /* lookup the icon */
+    // lookup the icon
     return _ifactory_lookup_icon(factory, name, size, wants_default);
 }
 
@@ -667,7 +663,7 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
     e_return_val_if_fail(icon_size > 0, NULL);
 
 
-    /* check if we have a stored icon on the file and it is still valid */
+    // check if we have a stored icon on the file and it is still valid
     IconStore *store = g_object_get_qdata(G_OBJECT(file),
                                                 _ifactory_store_quark);
     if (store != NULL
@@ -684,12 +680,12 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
 
     GdkPixbuf *icon = NULL;
 
-    /* check if we have a custom icon for this file */
+    // check if we have a custom icon for this file
     const gchar *custom_icon = th_file_get_custom_icon(file);
 
     if (custom_icon != NULL)
     {
-        /* try to load the icon */
+        // try to load the icon
         icon = _ifactory_lookup_icon(factory, custom_icon, icon_size, FALSE);
         if (G_LIKELY(icon != NULL))
             return icon;
@@ -701,53 +697,53 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
     const gchar     *thumbnail_path;
     GIcon           *gicon;
 
-    /* check if thumbnails are enabled and we can display a thumbnail for the item */
+    // check if thumbnails are enabled and we can display a thumbnail for the item
     if (thunar_icon_factory_get_show_thumbnail(factory, file)
             && (thunar_file_is_regular(file) || thunar_file_is_directory(file)) )
     {
-        /* determine the preview icon first */
+        // determine the preview icon first
         gicon = thunar_file_get_preview_icon(file);
 
-        /* check if we have a preview icon */
+        // check if we have a preview icon
         if (gicon != NULL)
         {
             if (G_IS_THEMED_ICON(gicon))
             {
-                /* we have a themed preview icon, look it up using the icon theme */
+                // we have a themed preview icon, look it up using the icon theme
                 icon_info =
                     gtk_icon_theme_lookup_by_gicon(factory->icon_theme,
                                                     gicon, icon_size,
                                                     GTK_ICON_LOOKUP_USE_BUILTIN
                                                     | GTK_ICON_LOOKUP_FORCE_SIZE);
 
-                /* check if the lookup succeeded */
+                // check if the lookup succeeded
                 if (icon_info != NULL)
                 {
-                    /* try to load the pixbuf from the icon info */
+                    // try to load the pixbuf from the icon info
                     icon = gtk_icon_info_load_icon(icon_info, NULL);
                     g_object_unref(icon_info);
                 }
             }
             else if (G_IS_LOADABLE_ICON(gicon))
             {
-                /* we have a loadable icon, try to open it for reading */
+                // we have a loadable icon, try to open it for reading
                 stream = g_loadable_icon_load(G_LOADABLE_ICON(gicon), icon_size,
                                                NULL, NULL, NULL);
 
-                /* check if we have a valid input stream */
+                // check if we have a valid input stream
                 if (stream != NULL)
                 {
-                    /* load the pixbuf from the stream */
+                    // load the pixbuf from the stream
                     icon = gdk_pixbuf_new_from_stream_at_scale(stream, icon_size,
                             icon_size, TRUE,
                             NULL, NULL);
 
-                    /* destroy the stream */
+                    // destroy the stream
                     g_object_unref(stream);
                 }
             }
 
-            /* return the icon if we have one */
+            // return the icon if we have one
             if (icon != NULL)
                 return icon;
         }
@@ -757,17 +753,17 @@ GdkPixbuf* ifactory_load_file_icon(IconFactory *factory,
              * the filename of the thumbnail */
             thumbnail_path = thunar_file_get_thumbnail_path(file, factory->thumbnail_size);
 
-            /* check if we have a valid path */
+            // check if we have a valid path
             if (thumbnail_path != NULL)
             {
-                /* try to load the thumbnail */
+                // try to load the thumbnail
                 icon = thunar_icon_factory_load_from_file(factory, thumbnail_path, icon_size);
             }
         }
     }
 #endif
 
-    /* lookup the icon name for the icon in the given state and load the icon */
+    // lookup the icon name for the icon in the given state and load the icon
     if (G_LIKELY(icon == NULL))
     {
         const gchar *icon_name = th_file_get_icon_name(file, icon_state, factory->icon_theme);
@@ -801,7 +797,7 @@ void ifactory_clear_pixmap_cache(ThunarFile *file)
 {
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    /* unset the data */
+    // unset the data
     if (_ifactory_store_quark != 0)
         g_object_set_qdata(G_OBJECT(file), _ifactory_store_quark, NULL);
 }
@@ -819,34 +815,34 @@ static inline gboolean thumbnail_needs_frame(const GdkPixbuf *thumbnail,
     gint          rowstride;
     gint          n;
 
-    /* don't add frames to small thumbnails */
+    // don't add frames to small thumbnails
     if (size < THUNAR_ICON_SIZE_64 )
         return FALSE;
 
-    /* always add a frame to thumbnails w/o alpha channel */
+    // always add a frame to thumbnails w/o alpha channel
     if (G_LIKELY(!gdk_pixbuf_get_has_alpha(thumbnail)))
         return TRUE;
 
-    /* get a pointer to the thumbnail data */
+    // get a pointer to the thumbnail data
     pixels = gdk_pixbuf_get_pixels(thumbnail);
 
-    /* check if we have a transparent pixel on the first row */
+    // check if we have a transparent pixel on the first row
     for(n = width * 4; n > 0; n -= 4)
         if (pixels[n - 1] < 255u)
             return FALSE;
 
-    /* determine the rowstride */
+    // determine the rowstride
     rowstride = gdk_pixbuf_get_rowstride(thumbnail);
 
-    /* skip the first row */
+    // skip the first row
     pixels += rowstride;
 
-    /* check if we have a transparent pixel in the first or last column */
+    // check if we have a transparent pixel in the first or last column
     for(n = height - 2; n > 0; --n, pixels += rowstride)
         if (pixels[3] < 255u || pixels[width * 4 - 1] < 255u)
             return FALSE;
 
-    /* check if we have a transparent pixel on the last row */
+    // check if we have a transparent pixel on the last row
     for(n = width * 4; n > 0; n -= 4)
         if (pixels[n - 1] < 255u)
             return FALSE;
@@ -887,21 +883,21 @@ gboolean thunar_icon_factory_get_show_thumbnail(const IconFactory *factory,
             || factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_NEVER)
         return FALSE;
 
-    /* always create thumbs for local files */
+    // always create thumbs for local files
     if (thunar_file_is_local(file))
         return TRUE;
 
     preview = thunar_file_get_preview_type(file);
 
-    /* file system says to never thumbnail anything */
+    // file system says to never thumbnail anything
     if (preview == G_FILESYSTEM_PREVIEW_TYPE_NEVER)
         return FALSE;
 
-    /* only if the setting is local and the fs reports to be local */
+    // only if the setting is local and the fs reports to be local
     if (factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_ONLY_LOCAL)
         return preview == G_FILESYSTEM_PREVIEW_TYPE_IF_LOCAL;
 
-    /* THUNAR_THUMBNAIL_MODE_ALWAYS */
+    // THUNAR_THUMBNAIL_MODE_ALWAYS
     return TRUE;
 }
 #endif
