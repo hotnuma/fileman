@@ -36,7 +36,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr
     19042	./misc/enum_types.c
     18274	./libext/gio_ext.c
     18067	./libext/exo_job.c
-    18012	./libext/utils.c
++   18012	./libext/utils.c
     17925	./dialog/appcombo.c
     15914	./misc/icon_render.c
     15093	./widget/sizelabel.c

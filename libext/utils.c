@@ -425,193 +425,6 @@ gchar *util_humanize_file_time(guint64 file_time,
     return g_strdup(_("Unknown"));
 }
 
-/**
- * thunar_util_parse_parent:
- * @parent        : a #GtkWidget, a #GdkScreen or %NULL.
- * @window_return : return location for the toplevel #GtkWindow or
- *                  %NULL.
- *
- * Determines the screen for the @parent and returns that #GdkScreen.
- * If @window_return is not %NULL, the pointer to the #GtkWindow is
- * placed into it, or %NULL if the window could not be determined.
- *
- * Return value: the #GdkScreen for the @parent.
- **/
-GdkScreen *util_parse_parent(gpointer parent, GtkWindow **window_return)
-{
-    GdkScreen *screen;
-    GtkWidget *window = NULL;
-
-    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
-
-    // determine the proper parent
-    if (parent == NULL)
-    {
-        // just use the default screen then
-        screen = gdk_screen_get_default();
-    }
-    else if (GDK_IS_SCREEN(parent))
-    {
-        // yep, that's a screen
-        screen = GDK_SCREEN(parent);
-    }
-    else
-    {
-        // parent is a widget, so let's determine the toplevel window
-        window = gtk_widget_get_toplevel(GTK_WIDGET(parent));
-        if (window != NULL && gtk_widget_is_toplevel(window))
-        {
-            // make sure the toplevel window is shown
-            gtk_widget_show_now(window);
-        }
-        else
-        {
-            // no toplevel, not usable then
-            window = NULL;
-        }
-
-        // determine the screen for the widget
-        screen = gtk_widget_get_screen(GTK_WIDGET(parent));
-    }
-
-    // check if we should return the window
-    if (G_LIKELY(window_return != NULL))
-        *window_return = (GtkWindow *)window;
-
-    return screen;
-}
-
-/**
- * thunar_util_time_from_rfc3339:
- * @date_string : an RFC 3339 encoded date string.
- *
- * Decodes the @date_string, which must be in the special RFC 3339
- * format <literal>YYYY-MM-DDThh:mm:ss</literal>. This method is
- * used to decode deletion dates of files in the trash. See the
- * Trash Specification for details.
- *
- * Return value: the time value matching the @date_string or
- *               %0 if the @date_string could not be parsed.
- **/
-time_t util_time_from_rfc3339(const gchar *date_string)
-{
-    struct tm tm;
-
-#ifdef HAVE_STRPTIME
-    // using strptime() its easy to parse the date string
-    if (G_UNLIKELY(strptime(date_string, "%FT%T", &tm) == NULL))
-        return 0;
-#else
-    gulong val;
-
-    // be sure to start with a clean tm
-    memset(&tm, 0, sizeof(tm));
-
-    // parsing by hand is also doable for RFC 3339 dates
-    val = strtoul(date_string, (gchar **)&date_string, 10);
-    if (G_UNLIKELY(*date_string != '-'))
-        return 0;
-
-    // YYYY-MM-DD
-    tm.tm_year = val - 1900;
-    date_string++;
-    tm.tm_mon = strtoul(date_string, (gchar **)&date_string, 10) - 1;
-
-    if (G_UNLIKELY(*date_string++ != '-'))
-        return 0;
-
-    tm.tm_mday = strtoul(date_string, (gchar **)&date_string, 10);
-
-    if (G_UNLIKELY(*date_string++ != 'T'))
-        return 0;
-
-    val = strtoul(date_string, (gchar **)&date_string, 10);
-    if (G_UNLIKELY(*date_string != ':'))
-        return 0;
-
-    // hh:mm:ss
-    tm.tm_hour = val;
-    date_string++;
-    tm.tm_min = strtoul(date_string, (gchar **)&date_string, 10);
-
-    if (G_UNLIKELY(*date_string++ != ':'))
-        return 0;
-
-    tm.tm_sec = strtoul(date_string, (gchar **)&date_string, 10);
-#endif // !HAVE_STRPTIME
-
-    // translate tm to time_t
-    return mktime(&tm);
-}
-
-gchar *util_change_working_directory(const gchar *new_directory)
-{
-    gchar *old_directory;
-
-    e_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
-
-    // try to determine the current working directory
-    old_directory = g_get_current_dir();
-
-    // try switching to the new working directory
-    if (g_chdir(new_directory) != 0)
-    {
-        // switching failed, we don't need to return the old directory
-        g_free(old_directory);
-        old_directory = NULL;
-    }
-
-    return old_directory;
-}
-
-// g_spaw_async exo-desktop-item-edit
-void util_setup_display_cb(gpointer data)
-{
-    g_setenv("DISPLAY", (char *)data, TRUE);
-}
-
-// string functions ------------------------------------------------------------
-
-gchar *util_str_replace(const gchar *str, const gchar *pattern,
-                        const gchar *replace)
-{
-    const gchar *s, *p;
-    GString *result;
-
-    /* an empty string or pattern is useless, so just
-     * return a copy of str */
-    if (G_UNLIKELY(!str || !*str || !pattern || !*pattern))
-        return g_strdup(str);
-
-    // allocate the result string
-    result = g_string_sized_new(strlen(str));
-
-    // process the input string
-    while (*str != '\0')
-    {
-        if (G_UNLIKELY(*str == *pattern))
-        {
-            // compare the pattern to the current string
-            for (p = pattern + 1, s = str + 1; *p == *s; ++s, ++p)
-                if (*p == '\0' || *s == '\0')
-                    break;
-
-            // check if the pattern fully matched
-            if (G_LIKELY(*p == '\0'))
-            {
-                if (G_LIKELY(replace != NULL && *replace != '\0'))
-                    g_string_append(result, replace);
-                str = s;
-                continue;
-            }
-        }
-
-        g_string_append_c(result, *str++);
-    }
-
-    return g_string_free(result, FALSE);
-}
-
 gchar *util_strdup_strftime(const gchar *format, const struct tm *tm)
 {
     static const gchar C_STANDARD_STRFTIME_CHARACTERS[] = "aAbBcCdeFgGhHIjklmMnprRsStTuUVwWxXyYzZ";
@@ -766,6 +579,194 @@ gchar *util_strdup_strftime(const gchar *format, const struct tm *tm)
     return result;
 }
 
+
+/**
+ * thunar_util_parse_parent:
+ * @parent        : a #GtkWidget, a #GdkScreen or %NULL.
+ * @window_return : return location for the toplevel #GtkWindow or
+ *                  %NULL.
+ *
+ * Determines the screen for the @parent and returns that #GdkScreen.
+ * If @window_return is not %NULL, the pointer to the #GtkWindow is
+ * placed into it, or %NULL if the window could not be determined.
+ *
+ * Return value: the #GdkScreen for the @parent.
+ **/
+GdkScreen *util_parse_parent(gpointer parent, GtkWindow **window_return)
+{
+    GdkScreen *screen;
+    GtkWidget *window = NULL;
+
+    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
+
+    // determine the proper parent
+    if (parent == NULL)
+    {
+        // just use the default screen then
+        screen = gdk_screen_get_default();
+    }
+    else if (GDK_IS_SCREEN(parent))
+    {
+        // yep, that's a screen
+        screen = GDK_SCREEN(parent);
+    }
+    else
+    {
+        // parent is a widget, so let's determine the toplevel window
+        window = gtk_widget_get_toplevel(GTK_WIDGET(parent));
+        if (window != NULL && gtk_widget_is_toplevel(window))
+        {
+            // make sure the toplevel window is shown
+            gtk_widget_show_now(window);
+        }
+        else
+        {
+            // no toplevel, not usable then
+            window = NULL;
+        }
+
+        // determine the screen for the widget
+        screen = gtk_widget_get_screen(GTK_WIDGET(parent));
+    }
+
+    // check if we should return the window
+    if (G_LIKELY(window_return != NULL))
+        *window_return = (GtkWindow *)window;
+
+    return screen;
+}
+
+/**
+ * thunar_util_time_from_rfc3339:
+ * @date_string : an RFC 3339 encoded date string.
+ *
+ * Decodes the @date_string, which must be in the special RFC 3339
+ * format <literal>YYYY-MM-DDThh:mm:ss</literal>. This method is
+ * used to decode deletion dates of files in the trash. See the
+ * Trash Specification for details.
+ *
+ * Return value: the time value matching the @date_string or
+ *               %0 if the @date_string could not be parsed.
+ **/
+time_t util_time_from_rfc3339(const gchar *date_string)
+{
+    struct tm tm;
+
+#ifdef HAVE_STRPTIME
+    // using strptime() its easy to parse the date string
+    if (G_UNLIKELY(strptime(date_string, "%FT%T", &tm) == NULL))
+        return 0;
+#else
+    gulong val;
+
+    // be sure to start with a clean tm
+    memset(&tm, 0, sizeof(tm));
+
+    // parsing by hand is also doable for RFC 3339 dates
+    val = strtoul(date_string, (gchar **)&date_string, 10);
+    if (G_UNLIKELY(*date_string != '-'))
+        return 0;
+
+    // YYYY-MM-DD
+    tm.tm_year = val - 1900;
+    date_string++;
+    tm.tm_mon = strtoul(date_string, (gchar **)&date_string, 10) - 1;
+
+    if (G_UNLIKELY(*date_string++ != '-'))
+        return 0;
+
+    tm.tm_mday = strtoul(date_string, (gchar **)&date_string, 10);
+
+    if (G_UNLIKELY(*date_string++ != 'T'))
+        return 0;
+
+    val = strtoul(date_string, (gchar **)&date_string, 10);
+    if (G_UNLIKELY(*date_string != ':'))
+        return 0;
+
+    // hh:mm:ss
+    tm.tm_hour = val;
+    date_string++;
+    tm.tm_min = strtoul(date_string, (gchar **)&date_string, 10);
+
+    if (G_UNLIKELY(*date_string++ != ':'))
+        return 0;
+
+    tm.tm_sec = strtoul(date_string, (gchar **)&date_string, 10);
+#endif // !HAVE_STRPTIME
+
+    // translate tm to time_t
+    return mktime(&tm);
+}
+
+gchar *util_change_working_directory(const gchar *new_directory)
+{
+    gchar *old_directory;
+
+    e_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
+
+    // try to determine the current working directory
+    old_directory = g_get_current_dir();
+
+    // try switching to the new working directory
+    if (g_chdir(new_directory) != 0)
+    {
+        // switching failed, we don't need to return the old directory
+        g_free(old_directory);
+        old_directory = NULL;
+    }
+
+    return old_directory;
+}
+
+// standard_view g_spaw_async exo-desktop-item-edit
+void util_setup_display_cb(gpointer data)
+{
+    g_setenv("DISPLAY", (char*) data, TRUE);
+}
+
+// string functions ------------------------------------------------------------
+
+gchar* util_str_replace(const gchar *str, const gchar *pattern,
+                        const gchar *replace)
+{
+    const gchar *s, *p;
+    GString *result;
+
+    /* an empty string or pattern is useless, so just
+     * return a copy of str */
+    if (G_UNLIKELY(!str || !*str || !pattern || !*pattern))
+        return g_strdup(str);
+
+    // allocate the result string
+    result = g_string_sized_new(strlen(str));
+
+    // process the input string
+    while (*str != '\0')
+    {
+        if (G_UNLIKELY(*str == *pattern))
+        {
+            // compare the pattern to the current string
+            for (p = pattern + 1, s = str + 1; *p == *s; ++s, ++p)
+                if (*p == '\0' || *s == '\0')
+                    break;
+
+            // check if the pattern fully matched
+            if (G_LIKELY(*p == '\0'))
+            {
+                if (G_LIKELY(replace != NULL && *replace != '\0'))
+                    g_string_append(result, replace);
+                str = s;
+                continue;
+            }
+        }
+
+        g_string_append_c(result, *str++);
+    }
+
+    return g_string_free(result, FALSE);
+}
+
 // Desktop Entry ---------------------------------------------------------------
 
 gchar *util_expand_field_codes(const gchar *command,
@@ -800,8 +801,9 @@ gchar *util_expand_field_codes(const gchar *command,
                 for (li = uri_list; li != NULL; li = li->next)
                 {
                     /* passing through a GFile seems necessary to properly handle
-                   * all URI schemes, in particular g_filename_from_uri() is not
-                   * able to do so */
+                     * all URI schemes, in particular g_filename_from_uri() is not
+                     * able to do so */
+
                     file = g_file_new_for_uri(li->data);
                     filename = g_file_get_path(file);
                     if (G_LIKELY(filename != NULL))
@@ -862,13 +864,11 @@ gchar *util_expand_field_codes(const gchar *command,
     return g_string_free(string, FALSE);
 }
 
-// GString ---------------------------------------------------------------------
-
 void util_append_quoted(GString *string, const gchar *unquoted)
 {
-    gchar *quoted;
-
-    quoted = g_shell_quote(unquoted);
+    gchar *quoted = g_shell_quote(unquoted);
     g_string_append(string, quoted);
     g_free(quoted);
 }
+
+

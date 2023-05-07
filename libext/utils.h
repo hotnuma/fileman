@@ -55,6 +55,8 @@ gchar *util_humanize_file_time(guint64 file_time,
                                const gchar *date_custom_style)
     G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
+gchar *util_strdup_strftime(const gchar *format, const struct tm *tm);
+
 gchar *util_change_working_directory(const gchar *new_directory)
     G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
@@ -66,7 +68,6 @@ void util_setup_display_cb(gpointer data);
 
 gchar *util_str_replace(const gchar *str, const gchar *pattern,
                         const gchar *replace);
-gchar *util_strdup_strftime(const gchar *format, const struct tm *tm);
 
 gchar *util_expand_field_codes(const gchar *command,
                                GSList *uri_list,
