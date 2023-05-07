@@ -1385,7 +1385,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
     GList          *lp;
     GList          *path_as_list = NULL;
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     // for easier navigation, we sometimes want to force/keep selection of a certain path
     if (view->select_path != NULL)
@@ -1504,7 +1504,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
     }
     g_list_free(path_as_list);
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return !done;
 }
@@ -1898,7 +1898,7 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
     gint            offset;
     gint            y, h;
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     // verify that we are realized
     if (gtk_widget_get_realized(GTK_WIDGET(view)))
@@ -1969,7 +1969,7 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
         }
     }
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return TRUE;
 }
@@ -1984,7 +1984,7 @@ static gboolean _treeview_expand_timer(gpointer user_data)
     TreeView *view = TREEVIEW(user_data);
     GtkTreePath    *path;
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     // cancel the drag autoscroll timer when expanding a row
     if (G_UNLIKELY(view->drag_scroll_timer_id != 0))
@@ -1999,7 +1999,7 @@ static gboolean _treeview_expand_timer(gpointer user_data)
         gtk_tree_path_free(path);
     }
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return FALSE;
 }

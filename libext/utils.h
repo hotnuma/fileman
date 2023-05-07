@@ -26,12 +26,12 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
-#define THUNAR_THREADS_ENTER \
+#define UTIL_THREADS_ENTER \
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
     gdk_threads_enter(); \
 G_GNUC_END_IGNORE_DEPRECATIONS
 
-#define THUNAR_THREADS_LEAVE \
+#define UTIL_THREADS_LEAVE \
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS \
     gdk_threads_leave (); \
 G_GNUC_END_IGNORE_DEPRECATIONS
@@ -64,18 +64,18 @@ GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
 // g_spaw_async exo-desktop-item-edit
 void util_setup_display_cb(gpointer data);
 
-gchar*      e_str_replace(const gchar *str, const gchar *pattern,
+gchar*      util_str_replace(const gchar *str, const gchar *pattern,
                           const gchar *replacement);
-gchar*      e_strdup_strftime(const gchar *format, const struct tm *tm);
+gchar*      util_strdup_strftime(const gchar *format, const struct tm *tm);
 
-gchar*      e_expand_desktop_entry_field_codes(const gchar *command,
+gchar*      util_expand_field_codes(const gchar *command,
                                                GSList      *uri_list,
                                                const gchar *icon,
                                                const gchar *name,
                                                const gchar *uri,
                                                gboolean    requires_terminal);
 
-void        e_string_append_quoted(GString *string, const gchar *unquoted);
+void        util_append_quoted(GString *string, const gchar *unquoted);
 
 
 G_END_DECLS

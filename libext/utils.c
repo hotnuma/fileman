@@ -368,7 +368,7 @@ gchar* util_humanize_file_time(guint64          file_time,
                 else /* if (date_style == THUNAR_DATE_STYLE_SHORT) */
                 {
                     /* TRANSLATORS: file was modified less than one day ago */
-                    return e_strdup_strftime(_("Today at %X"), &tfile);
+                    return util_strdup_strftime(_("Today at %X"), &tfile);
                 }
             }
             else if (diff == 1)
@@ -381,7 +381,7 @@ gchar* util_humanize_file_time(guint64          file_time,
                 else /* if (date_style == THUNAR_DATE_STYLE_SHORT) */
                 {
                     /* TRANSLATORS: file was modified less than two days ago */
-                    return e_strdup_strftime(_("Yesterday at %X"), &tfile);
+                    return util_strdup_strftime(_("Yesterday at %X"), &tfile);
                 }
             }
             else
@@ -398,25 +398,25 @@ gchar* util_humanize_file_time(guint64          file_time,
                 }
 
                 /* format the date string accordingly */
-                return e_strdup_strftime(date_format, &tfile);
+                return util_strdup_strftime(date_format, &tfile);
             }
         }
         else if (date_style == THUNAR_DATE_STYLE_LONG)
         {
             /* use long, date(1)-like format string */
-            return e_strdup_strftime("%c", &tfile);
+            return util_strdup_strftime("%c", &tfile);
         }
         else if (date_style == THUNAR_DATE_STYLE_YYYYMMDD)
         {
-            return e_strdup_strftime("%Y-%m-%d %H:%M:%S", &tfile);
+            return util_strdup_strftime("%Y-%m-%d %H:%M:%S", &tfile);
         }
         else if (date_style == THUNAR_DATE_STYLE_MMDDYYYY)
         {
-            return e_strdup_strftime("%m-%d-%Y %H:%M:%S", &tfile);
+            return util_strdup_strftime("%m-%d-%Y %H:%M:%S", &tfile);
         }
         else if (date_style == THUNAR_DATE_STYLE_DDMMYYYY)
         {
-            return e_strdup_strftime("%d-%m-%Y %H:%M:%S", &tfile);
+            return util_strdup_strftime("%d-%m-%Y %H:%M:%S", &tfile);
         }
         else /* if (date_style == THUNAR_DATE_STYLE_CUSTOM) */
         {
@@ -424,7 +424,7 @@ gchar* util_humanize_file_time(guint64          file_time,
                 return g_strdup("");
 
             /* use custom date formatting */
-            return e_strdup_strftime(date_custom_style, &tfile);
+            return util_strdup_strftime(date_custom_style, &tfile);
         }
     }
 
@@ -580,7 +580,7 @@ void util_setup_display_cb(gpointer data)
 
 // string functions ------------------------------------------------------------
 
-gchar* e_str_replace (const gchar *str, const gchar *pattern, const gchar *replacement)
+gchar* util_str_replace (const gchar *str, const gchar *pattern, const gchar *replacement)
 {
   const gchar *s, *p;
   GString     *result;
@@ -619,7 +619,7 @@ gchar* e_str_replace (const gchar *str, const gchar *pattern, const gchar *repla
   return g_string_free (result, FALSE);
 }
 
-gchar* e_strdup_strftime(const gchar *format, const struct tm *tm)
+gchar* util_strdup_strftime(const gchar *format, const struct tm *tm)
 {
   static const gchar C_STANDARD_STRFTIME_CHARACTERS[] = "aAbBcCdeFgGhHIjklmMnprRsStTuUVwWxXyYzZ";
   static const gchar C_STANDARD_NUMERIC_STRFTIME_CHARACTERS[] = "CdegGHIjklmMsSuUVwWyY";
@@ -775,7 +775,7 @@ gchar* e_strdup_strftime(const gchar *format, const struct tm *tm)
 
 // Desktop Entry ---------------------------------------------------------------
 
-gchar* e_expand_desktop_entry_field_codes(const gchar *command,
+gchar* util_expand_field_codes(const gchar *command,
                                           GSList      *uri_list,
                                           const gchar *icon,
                                           const gchar *name,
@@ -812,7 +812,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
                   file = g_file_new_for_uri (li->data);
                   filename = g_file_get_path (file);
                   if (G_LIKELY (filename != NULL))
-                    e_string_append_quoted (string, filename);
+                    util_append_quoted (string, filename);
 
                   g_object_unref (file);
                   g_free (filename);
@@ -828,7 +828,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
             case 'U':
               for (li = uri_list; li != NULL; li = li->next)
                 {
-                  e_string_append_quoted (string, li->data);
+                  util_append_quoted (string, li->data);
 
                   if (*p == 'u')
                     break;
@@ -841,18 +841,18 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
               if (icon != NULL && *icon != '\0')
                 {
                   g_string_append (string, "--icon ");
-                  e_string_append_quoted (string, icon);
+                  util_append_quoted (string, icon);
                 }
               break;
 
             case 'c':
               if (name != NULL && *name != '\0')
-                e_string_append_quoted (string, name);
+                util_append_quoted (string, name);
               break;
 
             case 'k':
               if (uri != NULL && *uri != '\0')
-                e_string_append_quoted (string, uri);
+                util_append_quoted (string, uri);
               break;
 
             case '%':
@@ -872,7 +872,7 @@ gchar* e_expand_desktop_entry_field_codes(const gchar *command,
 
 // GString ---------------------------------------------------------------------
 
-void e_string_append_quoted(GString *string, const gchar *unquoted)
+void util_append_quoted(GString *string, const gchar *unquoted)
 {
   gchar *quoted;
 

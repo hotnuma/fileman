@@ -1073,7 +1073,7 @@ gboolean th_file_execute(ThunarFile  *file,
                     snotify = g_key_file_get_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, NULL);
 
                     // expand the field codes and parse the execute command
-                    command = e_expand_desktop_entry_field_codes(exec, uri_list, icon_name,
+                    command = util_expand_field_codes(exec, uri_list, icon_name,
                               name, location, terminal);
                     g_free(name);
                     result = g_shell_parse_argv(command, NULL, &argv, error);
@@ -1132,7 +1132,7 @@ gboolean th_file_execute(ThunarFile  *file,
         // fake the Exec line
         escaped_location = g_shell_quote(location);
         exec = g_strconcat(escaped_location, " %F", NULL);
-        command = e_expand_desktop_entry_field_codes(exec, uri_list, NULL, NULL, NULL, FALSE);
+        command = util_expand_field_codes(exec, uri_list, NULL, NULL, NULL, FALSE);
         result = g_shell_parse_argv(command, NULL, &argv, error);
         g_free(escaped_location);
         g_free(exec);

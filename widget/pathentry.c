@@ -1032,7 +1032,7 @@ static gboolean _pathentry_check_completion_idle(gpointer user_data)
 {
     PathEntry *path_entry = PATHENTRY(user_data);
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     /* check if the user entered at least part of a filename */
     const gchar *text = gtk_entry_get_text(GTK_ENTRY(path_entry));
@@ -1042,7 +1042,7 @@ static gboolean _pathentry_check_completion_idle(gpointer user_data)
         _pathentry_common_prefix_append(path_entry, TRUE);
     }
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return FALSE;
 }

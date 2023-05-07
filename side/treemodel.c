@@ -833,13 +833,13 @@ static gboolean _treemodel_cleanup_idle(gpointer user_data)
 {
     TreeModel *model = TREEMODEL(user_data);
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     // walk through the tree and release all the nodes with a ref count of 0
     g_node_traverse(model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
                      _treemodel_node_traverse_cleanup, model);
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return FALSE;
 }
@@ -1292,7 +1292,7 @@ static gboolean _treemodel_item_load_idle(gpointer user_data)
     e_return_val_if_fail(node->children == NULL || G_NODE_HAS_DUMMY(node), FALSE);
 #endif
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     // check if we don't have a file yet and this is a mounted volume
     if (item->file == NULL && item->device != NULL && th_device_is_mounted(item->device))
@@ -1329,7 +1329,7 @@ static gboolean _treemodel_item_load_idle(gpointer user_data)
         }
     }
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return FALSE;
 }

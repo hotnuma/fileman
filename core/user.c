@@ -231,7 +231,7 @@ static void _user_load(ThunarUser *user)
             name[0] = g_ascii_toupper(name[0]);
 
             /* replace all occurances of '&' */
-            t = e_str_replace(user->real_name, "&", name);
+            t = util_str_replace(user->real_name, "&", name);
             g_free(user->real_name);
             user->real_name = t;
 
@@ -417,7 +417,7 @@ static gboolean _user_manager_flush_timer(gpointer user_data)
     ThunarUserManager *manager = THUNAR_USER_MANAGER(user_data);
     guint size = 0;
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     /* drop all cached groups */
     size += g_hash_table_foreach_remove(manager->groups,
@@ -444,7 +444,7 @@ static gboolean _user_manager_flush_timer(gpointer user_data)
 #endif
     }
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return TRUE;
 }

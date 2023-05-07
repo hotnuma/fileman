@@ -324,14 +324,14 @@ static gboolean _ifactory_sweep_timer(gpointer user_data)
 
     e_return_val_if_fail(IS_ICONFACTORY(factory), FALSE);
 
-    THUNAR_THREADS_ENTER
+    UTIL_THREADS_ENTER
 
     /* ditch all icons whose ref_count is 1 */
     g_hash_table_foreach_remove(factory->icon_cache,
                                 (GHRFunc)(void(*)(void)) _iconkey_check_sweep,
                                  factory);
 
-    THUNAR_THREADS_LEAVE
+    UTIL_THREADS_LEAVE
 
     return FALSE;
 }
