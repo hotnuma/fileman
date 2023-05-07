@@ -26,7 +26,7 @@
 #include <dialogs.h>
 #include <gtk_ext.h>
 #include <pango_ext.h>
-#include <icon_factory.h>
+#include <iconfactory.h>
 
 // Property identifiers
 enum

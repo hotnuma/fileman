@@ -19,7 +19,7 @@
 #ifndef __DETAILVIEW_H__
 #define __DETAILVIEW_H__
 
-#include <standard_view.h>
+#include <standardview.h>
 
 G_BEGIN_DECLS
 

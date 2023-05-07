@@ -17,8 +17,8 @@
  * MA 02110-1301 USA
  */
 
-#ifndef __EXO_TREE_VIEW_H__
-#define __EXO_TREE_VIEW_H__
+#ifndef __EXO_TREEVIEW_H__
+#define __EXO_TREEVIEW_H__
 
 #include <gtk/gtk.h>
 
@@ -77,6 +77,6 @@ void        exo_tree_view_set_single_click_timeout(ExoTreeView *tree_view,
 
 G_END_DECLS
 
-#endif // __EXO_TREE_VIEW_H__
+#endif // __EXO_TREEVIEW_H__
 
 

@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <dialogs.h>
-#include <enum_types.h>
+#include <enumtypes.h>
 #include <gtk_ext.h>
 #include <io_jobs.h>
 #include <pango_ext.h>

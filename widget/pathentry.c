@@ -32,8 +32,8 @@
 
 #include <utils.h>
 
-#include <icon_factory.h>
-#include <icon_render.h>
+#include <iconfactory.h>
+#include <iconrender.h>
 #include <listmodel.h>
 
 #define ICON_MARGIN (2)

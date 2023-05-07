@@ -26,8 +26,8 @@ HEADERS = \
     dialog/appmodel.h \
     dialog/dialogs.h \
     dialog/permbox.h \
-    dialog/progress_dlg.h \
-    dialog/progress_view.h \
+    dialog/progressdlg.h \
+    dialog/progressview.h \
     dialog/propsdlg.h \
     job/dcount_job.h \
     job/io_jobs.h \
@@ -38,31 +38,31 @@ HEADERS = \
     job/transfer_job.h \
     launcher.h \
     libext/exo_job.h \
-    libext/exo_tree_view.h \
+    libext/exo_treeview.h \
     libext/gdk_ext.h \
     libext/gio_ext.h \
     libext/gtk_ext.h \
     libext/pango_ext.h \
     libext/pixbuf_ext.h \
     libext/utils.h \
-    misc/app_notify.h \
+    misc/appnotify.h \
     misc/browser.h \
     misc/component.h \
-    misc/enum_types.h \
+    misc/enumtypes.h \
     misc/history.h \
-    misc/icon_factory.h \
-    misc/icon_render.h \
+    misc/iconfactory.h \
+    misc/iconrender.h \
     misc/navigator.h \
-    misc/srender.h \
+    misc/shortrender.h \
     side/sidepane.h \
     side/treemodel.h \
     side/treepane.h \
     side/treeview.h \
     view/baseview.h \
-    view/column_model.h \
+    view/columnmodel.h \
     view/detailview.h \
     view/listmodel.h \
-    view/standard_view.h \
+    view/standardview.h \
     widget/locationbar.h \
     widget/locationentry.h \
     widget/pathentry.h \
@@ -93,8 +93,8 @@ SOURCES = \
     dialog/appmodel.c \
     dialog/dialogs.c \
     dialog/permbox.c \
-    dialog/progress_dlg.c \
-    dialog/progress_view.c \
+    dialog/progressdlg.c \
+    dialog/progressview.c \
     dialog/propsdlg.c \
     job/dcount_job.c \
     job/io_jobs.c \
@@ -105,31 +105,31 @@ SOURCES = \
     job/transfer_job.c \
     launcher.c \
     libext/exo_job.c \
-    libext/exo_tree_view.c \
+    libext/exo_treeview.c \
     libext/gdk_ext.c \
     libext/gio_ext.c \
     libext/gtk_ext.c \
     libext/pango_ext.c \
     libext/pixbuf_ext.c \
     libext/utils.c \
-    misc/app_notify.c \
+    misc/appnotify.c \
     misc/browser.c \
     misc/component.c \
-    misc/enum_types.c \
+    misc/enumtypes.c \
     misc/history.c \
-    misc/icon_factory.c \
-    misc/icon_render.c \
+    misc/iconfactory.c \
+    misc/iconrender.c \
     misc/navigator.c \
-    misc/srender.c \
+    misc/shortrender.c \
     side/sidepane.c \
     side/treemodel.c \
     side/treepane.c \
     side/treeview.c \
     view/baseview.c \
-    view/column_model.c \
+    view/columnmodel.c \
     view/detailview.c \
     view/listmodel.c \
-    view/standard_view.c \
+    view/standardview.c \
     widget/locationbar.c \
     widget/locationentry.c \
     widget/pathentry.c \

@@ -19,7 +19,7 @@
 #ifndef __ICONRENDERER_H__
 #define __ICONRENDERER_H__
 
-#include <enum_types.h>
+#include <enumtypes.h>
 #include <th_file.h>
 
 G_BEGIN_DECLS

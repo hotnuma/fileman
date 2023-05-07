@@ -18,12 +18,12 @@
  */
 
 #include <config.h>
-#include <srender.h>
+#include <shortrender.h>
 
 #include <pixbuf_ext.h>
 #include <gio_ext.h>
 #include <gdk_ext.h>
-#include <icon_factory.h>
+#include <iconfactory.h>
 #include <th_device.h>
 
 #include <gio/gio.h>

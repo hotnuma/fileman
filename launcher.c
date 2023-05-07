@@ -27,7 +27,7 @@
 #include <appchooser.h>
 #include <clipman.h>
 #include <dialogs.h>
-#include <icon_factory.h>
+#include <iconfactory.h>
 #include <io_scan_directory.h>
 #include <propsdlg.h>
 #include <simple_job.h>

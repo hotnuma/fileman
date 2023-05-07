@@ -19,8 +19,8 @@
 #include <config.h>
 #include <detailview.h>
 
-#include <exo_tree_view.h>
-#include <column_model.h>
+#include <exo_treeview.h>
+#include <columnmodel.h>
 #include <launcher.h>
 #include <gtk_ext.h>
 #include <window.h>

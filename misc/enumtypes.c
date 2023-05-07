@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <enum_types.h>
+#include <enumtypes.h>
 
 static void thunar_icon_size_from_zoom_level(const GValue *src_value,
                                              GValue *dst_value);

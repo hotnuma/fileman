@@ -19,7 +19,7 @@
 #ifndef __THUNAR_WINDOW_H__
 #define __THUNAR_WINDOW_H__
 
-#include <enum_types.h>
+#include <enumtypes.h>
 #include <th_folder.h>
 #include <launcher.h>
 #include <libxfce4ui/libxfce4ui.h>

@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <icon_factory.h>
+#include <iconfactory.h>
 
 #include <utils.h>
 

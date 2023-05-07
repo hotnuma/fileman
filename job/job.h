@@ -24,7 +24,7 @@
 #include <gio/gio.h>
 
 #include <exo_job.h>
-#include <enum_types.h>
+#include <enumtypes.h>
 #include <th_file.h>
 
 G_BEGIN_DECLS

@@ -16,12 +16,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __STANDARD_VIEW_H__
-#define __STANDARD_VIEW_H__
+#ifndef __STANDARDVIEW_H__
+#define __STANDARDVIEW_H__
 
 #include <baseview.h>
 #include <listmodel.h>
-#include <icon_factory.h>
+#include <iconfactory.h>
 #include <history.h>
 #include <clipman.h>
 
@@ -163,6 +163,6 @@ void standard_view_set_history(StandardView *standard_view,
 
 G_END_DECLS
 
-#endif // __STANDARD_VIEW_H__
+#endif // __STANDARDVIEW_H__
 
 

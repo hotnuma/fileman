@@ -27,7 +27,7 @@
 
 #include <dialogs.h>
 #include <gtk_ext.h>
-#include <icon_factory.h>
+#include <iconfactory.h>
 #include <io_jobs.h>
 #include <job.h>
 #include <pango_ext.h>

@@ -26,7 +26,7 @@
 #include <preferences.h>
 
 #include <dialogs.h>
-#include <progress_dlg.h>
+#include <progressdlg.h>
 #include <io_jobs.h>
 #include <utils.h>
 

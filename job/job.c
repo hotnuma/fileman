@@ -20,7 +20,7 @@
 #include <config.h>
 #include <job.h>
 
-#include <enum_types.h>
+#include <enumtypes.h>
 #include <marshal.h>
 
 #include <memory.h>

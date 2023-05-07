@@ -34,7 +34,7 @@
 #include <marshal.h>
 #include <appmenu.h>
 #include <propsdlg.h>
-#include <srender.h>
+#include <shortrender.h>
 #include <simple_job.h>
 #include <treemodel.h>
 

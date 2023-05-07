@@ -17,8 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __APP_NOTIFY_H__
-#define __APP_NOTIFY_H__
+#ifndef __APPNOTIFY_H__
+#define __APPNOTIFY_H__
 
 #include <th_device.h>
 
@@ -33,6 +33,6 @@ void app_notify_finish(ThunarDevice *device);
 
 G_END_DECLS
 
-#endif // __APP_NOTIFY_H__
+#endif // __APPNOTIFY_H__
 
 

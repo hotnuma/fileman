@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <progress_view.h>
+#include <progressview.h>
 
 #include <dialogs.h>
 #include <job.h>

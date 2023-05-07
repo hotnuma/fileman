@@ -23,8 +23,8 @@
 
 #include <libxfce4ui/libxfce4ui.h>
 
-#include <progress_dlg.h>
-#include <progress_view.h>
+#include <progressdlg.h>
+#include <progressview.h>
 
 #define SCROLLVIEW_THRESHOLD 5
 

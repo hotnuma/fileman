@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <standard_view.h>
+#include <standardview.h>
 
 #include <memory.h>
 #include <string.h>
@@ -35,11 +35,11 @@
 #include <appmenu.h>
 #include <dialogs.h>
 #include <dnd.h>
-#include <enum_types.h>
+#include <enumtypes.h>
 #include <gio_ext.h>
 #include <gtk_ext.h>
 #include <history.h>
-#include <icon_render.h>
+#include <iconrender.h>
 #include <launcher.h>
 #include <marshal.h>
 #include <pango_ext.h>

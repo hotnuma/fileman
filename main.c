@@ -20,7 +20,7 @@
 
 #include <config.h>
 #include <application.h>
-#include <app_notify.h>
+#include <appnotify.h>
 
 int main(int argc, char **argv)
 {

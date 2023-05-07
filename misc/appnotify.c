@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <app_notify.h>
+#include <appnotify.h>
 #include <libnotify/notify.h>
 
 static gboolean _app_notify_initted = FALSE;

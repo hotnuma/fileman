@@ -21,7 +21,7 @@
 #include <th_device.h>
 #include <devmon.h>
 #include <th_file.h>
-#include <app_notify.h>
+#include <appnotify.h>
 
 typedef struct _ThunarDeviceOperation ThunarDeviceOperation;
 

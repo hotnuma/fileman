@@ -22,8 +22,8 @@
 
 #include <clipman.h>
 #include <gdk_ext.h>
-#include <icon_factory.h>
-#include <icon_render.h>
+#include <iconfactory.h>
+#include <iconrender.h>
 
 enum
 {

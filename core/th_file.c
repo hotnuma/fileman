@@ -30,7 +30,7 @@
 #include <user.h>
 #include <utils.h>
 #include <dialogs.h>
-#include <icon_factory.h>
+#include <iconfactory.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

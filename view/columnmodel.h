@@ -16,10 +16,10 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __COLUMN_MODEL_H__
-#define __COLUMN_MODEL_H__
+#ifndef __COLUMNMODEL_H__
+#define __COLUMNMODEL_H__
 
-#include <enum_types.h>
+#include <enumtypes.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
@@ -77,6 +77,6 @@ void        column_model_set_column_width(ColumnModel *column_model,
                                           gint width);
 G_END_DECLS
 
-#endif // __COLUMN_MODEL_H__
+#endif // __COLUMNMODEL_H__
 
 
