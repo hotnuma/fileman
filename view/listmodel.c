@@ -23,8 +23,8 @@
 
 #include <application.h>
 #include <filemon.h>
-#include <user.h>
-#include <exo.h>
+
+#include <utils.h>
 
 #include <memory.h>
 #include <string.h>

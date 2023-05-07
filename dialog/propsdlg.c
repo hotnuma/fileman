@@ -27,7 +27,8 @@
 
 #include <gdk/gdkkeysyms.h>
 
-#include <exo.h>
+#include <utils.h>
+
 #include <libxfce4ui/libxfce4ui.h>
 
 #include <application.h>
@@ -43,7 +44,6 @@
 #include <pango_ext.h>
 #include <permbox.h>
 #include <sizelabel.h>
-#include <utils.h>
 
 #include <fileinfo.h>
 

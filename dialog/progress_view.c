@@ -19,12 +19,11 @@
 
 #include <config.h>
 
-#include <exo.h>
+#include <utils.h>
 
 #include <dialogs.h>
 #include <job.h>
 #include <pango_ext.h>
-#include <utils.h>
 #include <transfer_job.h>
 #include <progress_view.h>
 

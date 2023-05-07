@@ -19,7 +19,8 @@
 #include <config.h>
 #include <detailview.h>
 
-#include <exo.h>
+#include <utils.h>
+
 #include <exo_tree_view.h>
 #include <column_model.h>
 #include <launcher.h>

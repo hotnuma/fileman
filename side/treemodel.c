@@ -20,13 +20,13 @@
 #include <config.h>
 #include <treemodel.h>
 
-#include <exo.h>
+#include <utils.h>
+
 #include <filemon.h>
 #include <th_folder.h>
 #include <gio_ext.h>
 #include <pango_ext.h>
 #include <devmon.h>
-#include <utils.h>
 
 #include <memory.h>
 #include <string.h>

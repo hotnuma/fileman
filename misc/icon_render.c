@@ -18,7 +18,8 @@
 
 #include <config.h>
 
-#include <exo.h>
+#include <utils.h>
+
 #include <pixbuf_ext.h>
 
 #include <clipman.h>

@@ -29,7 +29,8 @@
 #include <gdk/gdkx.h>
 #endif
 
-#include <exo.h>
+#include <utils.h>
+
 #include <application.h>
 #include <appmenu.h>
 #include <dialogs.h>
@@ -44,7 +45,6 @@
 #include <pango_ext.h>
 #include <propsdlg.h>
 #include <simple_job.h>
-#include <utils.h>
 
 // Property identifiers
 enum

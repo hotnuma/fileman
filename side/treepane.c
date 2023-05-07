@@ -19,7 +19,8 @@
 #include <config.h>
 #include <treepane.h>
 
-#include <exo.h>
+#include <utils.h>
+
 #include <treeview.h>
 
 /* Property identifiers */

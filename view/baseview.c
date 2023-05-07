@@ -19,7 +19,7 @@
 #include <config.h>
 #include <baseview.h>
 
-#include <exo.h>
+#include <utils.h>
 
 static void baseview_class_init(gpointer klass);
 

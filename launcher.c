@@ -33,10 +33,10 @@
 #include <simple_job.h>
 #include <devmon.h>
 #include <treeview.h>
-#include <utils.h>
 #include <window.h>
 
-#include <exo.h>
+#include <utils.h>
+
 #include <gio_ext.h>
 #include <gtk_ext.h>
 

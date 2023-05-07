@@ -21,7 +21,8 @@
 #include <config.h>
 #include <treeview.h>
 
-#include <exo.h>
+#include <utils.h>
+
 #include <application.h>
 #include <clipman.h>
 #include <th_device.h>
@@ -36,7 +37,6 @@
 #include <srender.h>
 #include <simple_job.h>
 #include <treemodel.h>
-#include <utils.h>
 
 #include <gdk/gdkkeysyms.h>
 

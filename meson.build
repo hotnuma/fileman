@@ -64,7 +64,6 @@ app_sources = [
     'job/transfer_job.c',
     'libext/exo_job.c',
     'libext/exo_tree_view.c',
-    'libext/exo.c',
     'libext/gdk_ext.c',
     'libext/gio_ext.c',
     'libext/gtk_ext.c',

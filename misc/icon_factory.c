@@ -21,9 +21,9 @@
 #include <config.h>
 #include <icon_factory.h>
 
-#include <exo.h>
-#include <pixbuf_ext.h>
 #include <utils.h>
+
+#include <pixbuf_ext.h>
 
 #include <memory.h>
 #include <string.h>

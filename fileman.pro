@@ -37,7 +37,6 @@ HEADERS = \
     job/simple_job.h \
     job/transfer_job.h \
     launcher.h \
-    libext/exo.h \
     libext/exo_job.h \
     libext/exo_tree_view.h \
     libext/gdk_ext.h \
@@ -105,7 +104,6 @@ SOURCES = \
     job/simple_job.c \
     job/transfer_job.c \
     launcher.c \
-    libext/exo.c \
     libext/exo_job.c \
     libext/exo_tree_view.c \
     libext/gdk_ext.c \

@@ -18,7 +18,7 @@
 
 #include <config.h>
 
-#include <exo.h>
+#include <utils.h>
 
 #include <th_device.h>
 #include <devmon.h>

@@ -23,7 +23,7 @@
 
 #include <application.h>
 #include <dialogs.h>
-#include <exo.h>
+#include <utils.h>
 
 #include <string.h>
 #include <memory.h>

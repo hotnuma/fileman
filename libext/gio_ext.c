@@ -24,9 +24,9 @@
 #include <gio/gunixmounts.h>
 #include <gio/gdesktopappinfo.h>
 
-#include <exo.h>
-#include <th_file.h>
 #include <utils.h>
+
+#include <th_file.h>
 
 GFile* e_file_new_for_home()
 {

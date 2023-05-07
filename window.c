@@ -22,7 +22,9 @@
 #include <window.h>
 
 #include <application.h>
-#include <exo.h>
+
+#include <utils.h>
+
 #include <browser.h>
 #include <clipman.h>
 #include <detailview.h>
@@ -36,7 +38,6 @@
 #include <appmenu.h>
 #include <pango_ext.h>
 #include <preferences.h>
-#include <utils.h>
 #include <statusbar.h>
 #include <treepane.h>
 #include <devmon.h>

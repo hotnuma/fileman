@@ -21,7 +21,6 @@
 #include <config.h>
 #include <user.h>
 
-#include <exo.h>
 #include <utils.h>
 
 #include <glib-object.h>

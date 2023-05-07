@@ -19,8 +19,8 @@
 #include <config.h>
 #include <gtk_ext.h>
 
-#include <exo.h>
 #include <utils.h>
+
 #include <stdarg.h>
 #include <libxfce4ui/libxfce4ui.h>
 

@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include <exo.h>
+#include <utils.h>
 
 #include <statusbar.h>
 
