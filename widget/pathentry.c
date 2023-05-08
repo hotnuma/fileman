@@ -36,6 +36,8 @@
 #include <iconrender.h>
 #include <listmodel.h>
 
+#include <gio_ext.h>
+
 #define ICON_MARGIN (2)
 
 enum

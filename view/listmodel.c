@@ -26,6 +26,7 @@
 
 #include <memory.h>
 #include <string.h>
+#include <gio_ext.h>
 
 // Property identifiers
 enum

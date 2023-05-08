@@ -26,6 +26,7 @@
 
 #include <string.h>
 #include <memory.h>
+#include <gio_ext.h>
 
 enum
 {

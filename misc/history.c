@@ -24,6 +24,7 @@
 #include <navigator.h>
 #include <dialogs.h>
 #include <libxfce4ui/libxfce4ui.h>
+#include <gio_ext.h>
 
 // Property identifiers
 enum

@@ -22,6 +22,7 @@
 
 #include <filemonitor.h>
 #include <io_jobs.h>
+#include <gio_ext.h>
 
 #define DEBUG_FILE_CHANGES FALSE
 

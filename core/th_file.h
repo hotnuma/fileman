@@ -20,11 +20,12 @@
 #ifndef __THUNAR_FILE_H__
 #define __THUNAR_FILE_H__
 
-#include <enumtypes.h>
-#include <gio_ext.h>
-#include <usermanager.h>
-
 #include <gtk/gtk.h>
+#include <enumtypes.h>
+#include <usermanager.h>
+#include <fileinfo.h>
+
+//#include <gio_ext.h>
 
 G_BEGIN_DECLS
 

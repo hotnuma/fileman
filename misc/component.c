@@ -19,6 +19,9 @@
 #include <config.h>
 #include <component.h>
 
+#include <gio_ext.h>
+
+
 /*
  * ThunarComponent:selected-files:
  *

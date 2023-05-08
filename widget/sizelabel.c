@@ -22,6 +22,7 @@
 #include <sizelabel.h>
 
 #include <dcount_job.h>
+#include <gio_ext.h>
 
 enum
 {

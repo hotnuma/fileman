@@ -28,6 +28,9 @@
 #include <pango_ext.h>
 #include <iconfactory.h>
 
+#include <th_file.h>
+#include <gio_ext.h>
+
 // Property identifiers
 enum
 {
