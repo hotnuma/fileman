@@ -18,8 +18,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __USER_H__
-#define __USER_H__
+#ifndef __USERMANAGER_H__
+#define __USERMANAGER_H__
 
 #include <glib-object.h>
 
@@ -103,6 +103,6 @@ GList*          usermanager_get_all_groups(UserManager *manager)
 
 G_END_DECLS
 
-#endif // __USER_H__
+#endif // __USERMANAGER_H__
 
 
