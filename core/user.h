@@ -74,31 +74,31 @@ gboolean        user_is_me(ThunarUser *user);
 
 // User Manager ---------------------------------------------------------------
 
-typedef struct _ThunarUserManagerClass ThunarUserManagerClass;
-typedef struct _ThunarUserManager      ThunarUserManager;
+typedef struct _UserManagerClass UserManagerClass;
+typedef struct _UserManager      UserManager;
 
-#define THUNAR_TYPE_USER_MANAGER (user_manager_get_type ())
-#define THUNAR_USER_MANAGER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManager))
-#define THUNAR_USER_MANAGER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
-#define THUNAR_IS_USER_MANAGER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_USER_MANAGER))
-#define THUNAR_IS_USER_MANAGER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_USER_MANAGER))
-#define THUNAR_USER_MANAGER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
+#define TYPE_USERMANAGER (usermanager_get_type ())
+#define USERMANAGER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_USERMANAGER, UserManager))
+#define USERMANAGER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_USERMANAGER, UserManagerClass))
+#define IS_USERMANAGER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_USERMANAGER))
+#define IS_USERMANAGER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_USERMANAGER))
+#define USERMANAGER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_USERMANAGER, UserManagerClass))
 
-GType user_manager_get_type() G_GNUC_CONST;
+GType usermanager_get_type() G_GNUC_CONST;
 
-ThunarUserManager* user_manager_get_default() G_GNUC_WARN_UNUSED_RESULT;
+UserManager* usermanager_get_default() G_GNUC_WARN_UNUSED_RESULT;
 
-ThunarGroup*    user_manager_get_group_by_id(ThunarUserManager *manager, guint32 id)
+ThunarGroup*    usermanager_get_group_by_id(UserManager *manager, guint32 id)
                                              G_GNUC_WARN_UNUSED_RESULT;
-ThunarUser*     user_manager_get_user_by_id(ThunarUserManager *manager, guint32 id)
+ThunarUser*     usermanager_get_user_by_id(UserManager *manager, guint32 id)
                                             G_GNUC_WARN_UNUSED_RESULT;
 
-GList*          user_manager_get_all_groups(ThunarUserManager *manager)
+GList*          usermanager_get_all_groups(UserManager *manager)
                                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS

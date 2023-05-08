@@ -49,9 +49,9 @@ static ThunarGroup* _user_get_primary_group(ThunarUser *user);
 
 // User Manager ---------------------------------------------------------------
 
-static void _user_manager_finalize(GObject *object);
-static gboolean _user_manager_flush_timer(gpointer user_data);
-static void _user_manager_flush_timer_destroy(gpointer user_data);
+static void _usermanager_finalize(GObject *object);
+static gboolean _usermanager_flush_timer(gpointer user_data);
+static void _usermanager_flush_timer_destroy(gpointer user_data);
 
 
 // Group ----------------------------------------------------------------------
@@ -201,7 +201,7 @@ static void _user_load(ThunarUser *user)
 {
     g_return_if_fail(user->name == NULL);
 
-    ThunarUserManager *manager;
+    UserManager *manager;
     const gchar       *s;
     gchar             *name;
     gchar             *t;
@@ -210,11 +210,11 @@ static void _user_load(ThunarUser *user)
     pw = getpwuid(user->id);
     if (G_LIKELY(pw != NULL))
     {
-        manager = user_manager_get_default();
+        manager = usermanager_get_default();
 
         // query name and primary group
         user->name = g_strdup(pw->pw_name);
-        user->primary_group = user_manager_get_group_by_id(manager, pw->pw_gid);
+        user->primary_group = usermanager_get_group_by_id(manager, pw->pw_gid);
 
         // try to figure out the real name
         s = strchr(pw->pw_gecos, ',');
@@ -261,7 +261,7 @@ static ThunarGroup* _user_get_primary_group(ThunarUser *user)
 // The return list must not be altered or freed
 GList* user_get_groups(ThunarUser *user)
 {
-    ThunarUserManager *manager;
+    UserManager *manager;
     ThunarGroup       *primary_group;
     ThunarGroup       *group;
     gid_t              gidset[NGROUPS_MAX];
@@ -281,14 +281,14 @@ GList* user_get_groups(ThunarUser *user)
          */
         if (user_is_me(user))
         {
-            manager = user_manager_get_default();
+            manager = usermanager_get_default();
 
             // add all supplementary groups
             gidsetlen = getgroups(G_N_ELEMENTS(gidset), gidset);
             for(n = 0; n < gidsetlen; ++n)
                 if (primary_group == NULL || group_get_id(primary_group) != gidset[n])
                 {
-                    group = user_manager_get_group_by_id(manager, gidset[n]);
+                    group = usermanager_get_group_by_id(manager, gidset[n]);
                     if (G_LIKELY(group != NULL))
                         user->groups = g_list_append(user->groups, group);
                 }
@@ -339,12 +339,12 @@ gboolean user_is_me(ThunarUser *user)
 
 // User Manager ---------------------------------------------------------------
 
-struct _ThunarUserManagerClass
+struct _UserManagerClass
 {
     GObjectClass __parent__;
 };
 
-struct _ThunarUserManager
+struct _UserManager
 {
     GObject __parent__;
 
@@ -354,15 +354,15 @@ struct _ThunarUserManager
     guint       flush_timer_id;
 };
 
-G_DEFINE_TYPE(ThunarUserManager, user_manager, G_TYPE_OBJECT)
+G_DEFINE_TYPE(UserManager, usermanager, G_TYPE_OBJECT)
 
-static void user_manager_class_init(ThunarUserManagerClass *klass)
+static void usermanager_class_init(UserManagerClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = _user_manager_finalize;
+    gobject_class->finalize = _usermanager_finalize;
 }
 
-static void user_manager_init(ThunarUserManager *manager)
+static void usermanager_init(UserManager *manager)
 {
     manager->groups = g_hash_table_new_full(g_direct_hash,
                                             g_direct_equal,
@@ -387,13 +387,13 @@ static void user_manager_init(ThunarUserManager *manager)
     manager->flush_timer_id = g_timeout_add_seconds_full(
                                             G_PRIORITY_LOW,
                                             USER_MANAGER_FLUSH_INTERVAL,
-                                            _user_manager_flush_timer, manager,
-                                            _user_manager_flush_timer_destroy);
+                                            _usermanager_flush_timer, manager,
+                                            _usermanager_flush_timer_destroy);
 }
 
-static void _user_manager_finalize(GObject *object)
+static void _usermanager_finalize(GObject *object)
 {
-    ThunarUserManager *manager = THUNAR_USER_MANAGER(object);
+    UserManager *manager = USERMANAGER(object);
 
     // stop the flush timer
     if (G_LIKELY(manager->flush_timer_id != 0))
@@ -409,12 +409,12 @@ static void _user_manager_finalize(GObject *object)
     // unload the passwd file
     endpwent();
 
-    G_OBJECT_CLASS(user_manager_parent_class)->finalize(object);
+    G_OBJECT_CLASS(usermanager_parent_class)->finalize(object);
 }
 
-static gboolean _user_manager_flush_timer(gpointer user_data)
+static gboolean _usermanager_flush_timer(gpointer user_data)
 {
-    ThunarUserManager *manager = THUNAR_USER_MANAGER(user_data);
+    UserManager *manager = USERMANAGER(user_data);
     guint size = 0;
 
     UTIL_THREADS_ENTER
@@ -449,20 +449,20 @@ static gboolean _user_manager_flush_timer(gpointer user_data)
     return TRUE;
 }
 
-static void _user_manager_flush_timer_destroy(gpointer user_data)
+static void _usermanager_flush_timer_destroy(gpointer user_data)
 {
-    THUNAR_USER_MANAGER(user_data)->flush_timer_id = 0;
+    USERMANAGER(user_data)->flush_timer_id = 0;
 }
 
-ThunarUserManager* user_manager_get_default()
+UserManager* usermanager_get_default()
 {
     // g_object_unref
 
-    static ThunarUserManager *manager = NULL;
+    static UserManager *manager = NULL;
 
     if (G_UNLIKELY(manager == NULL))
     {
-        manager = g_object_new(THUNAR_TYPE_USER_MANAGER, NULL);
+        manager = g_object_new(TYPE_USERMANAGER, NULL);
         g_object_add_weak_pointer(G_OBJECT(manager),(gpointer) &manager);
     }
     else
@@ -473,12 +473,12 @@ ThunarUserManager* user_manager_get_default()
     return manager;
 }
 
-ThunarGroup* user_manager_get_group_by_id(ThunarUserManager *manager,
+ThunarGroup* usermanager_get_group_by_id(UserManager *manager,
                                           guint32 id)
 {
     // g_object_unref
 
-    g_return_val_if_fail(THUNAR_IS_USER_MANAGER(manager), NULL);
+    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
 
     // lookup/load the group corresponding to id
     ThunarGroup *group = g_hash_table_lookup(manager->groups, GINT_TO_POINTER(id));
@@ -494,11 +494,11 @@ ThunarGroup* user_manager_get_group_by_id(ThunarUserManager *manager,
     return group;
 }
 
-ThunarUser* user_manager_get_user_by_id(ThunarUserManager *manager, guint32 id)
+ThunarUser* usermanager_get_user_by_id(UserManager *manager, guint32 id)
 {
     // g_object_unref
 
-    g_return_val_if_fail(THUNAR_IS_USER_MANAGER(manager), NULL);
+    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
 
     // lookup/load the user corresponding to id
     ThunarUser *user = g_hash_table_lookup(manager->users, GINT_TO_POINTER(id));
@@ -514,7 +514,7 @@ ThunarUser* user_manager_get_user_by_id(ThunarUserManager *manager, guint32 id)
     return user;
 }
 
-GList* user_manager_get_all_groups(ThunarUserManager *manager)
+GList* usermanager_get_all_groups(UserManager *manager)
 {
     // g_list_free_full(list, g_object_unref)
 
@@ -522,7 +522,7 @@ GList* user_manager_get_all_groups(ThunarUserManager *manager)
     struct group *grp;
     GList        *groups = NULL;
 
-    g_return_val_if_fail(THUNAR_IS_USER_MANAGER(manager), NULL);
+    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
 
     // make sure we reload the groups list
     endgrent();
@@ -536,7 +536,7 @@ GList* user_manager_get_all_groups(ThunarUserManager *manager)
             break;
 
         // lookup our version of the group
-        group = user_manager_get_group_by_id(manager, grp->gr_gid);
+        group = usermanager_get_group_by_id(manager, grp->gr_gid);
         if (G_LIKELY(group != NULL))
             groups = g_list_append(groups, group);
     }

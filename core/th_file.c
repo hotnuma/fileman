@@ -99,7 +99,7 @@ static void _th_file_monitor_update(GFile *path, GFileMonitorEvent event_type);
 static void _th_file_reload_parent(ThunarFile *file);
 static void _th_file_watch_destroyed(gpointer data);
 
-static ThunarUserManager    *_user_manager;
+static UserManager    *_user_manager;
 static GHashTable           *_file_cache;
 static guint32              _effective_user_id;
 static GQuark               _file_watch_quark;
@@ -315,7 +315,7 @@ static void th_file_class_init(ThunarFileClass *klass)
     _file_watch_quark = g_quark_from_static_string("thunar-file-watch");
 
     // grab a reference on the user manager
-    _user_manager = user_manager_get_default();
+    _user_manager = usermanager_get_default();
 
     // determine the effective user id of the process
     _effective_user_id = geteuid();
@@ -1738,7 +1738,7 @@ ThunarGroup* th_file_get_group(const ThunarFile *file)
     gid = g_file_info_get_attribute_uint32(file->info,
                                             G_FILE_ATTRIBUTE_UNIX_GID);
 
-    return user_manager_get_group_by_id(_user_manager, gid);
+    return usermanager_get_group_by_id(_user_manager, gid);
 }
 
 /**
@@ -1764,7 +1764,7 @@ ThunarUser* th_file_get_user(const ThunarFile *file)
     uid = g_file_info_get_attribute_uint32(file->info,
                                             G_FILE_ATTRIBUTE_UNIX_UID);
 
-    return user_manager_get_user_by_id(_user_manager, uid);
+    return usermanager_get_user_by_id(_user_manager, uid);
 }
 
 /**

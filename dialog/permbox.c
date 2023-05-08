@@ -777,7 +777,7 @@ static gint _group_compare(gconstpointer group_a, gconstpointer group_b, gpointe
 static void _permbox_file_changed(PermissionBox *chooser)
 {
     ThunarFile        *file;
-    ThunarUserManager *user_manager;
+    UserManager *user_manager;
     ThunarFileMode     mode = 0;
     ThunarGroup       *group = NULL;
     ThunarUser        *user = NULL;
@@ -861,8 +861,8 @@ static void _permbox_file_changed(PermissionBox *chooser)
     if (G_UNLIKELY(geteuid() == 0))
     {
         // determine all groups in the system
-        user_manager = user_manager_get_default();
-        groups = user_manager_get_all_groups(user_manager);
+        user_manager = usermanager_get_default();
+        groups = usermanager_get_all_groups(user_manager);
         g_object_unref(G_OBJECT(user_manager));
     }
     else
@@ -870,8 +870,8 @@ static void _permbox_file_changed(PermissionBox *chooser)
         if (G_UNLIKELY(user == NULL && n_files > 1))
         {
             // get groups of the active user
-            user_manager = user_manager_get_default();
-            user = user_manager_get_user_by_id(user_manager, geteuid());
+            user_manager = usermanager_get_default();
+            user = usermanager_get_user_by_id(user_manager, geteuid());
             g_object_unref(G_OBJECT(user_manager));
         }
 
