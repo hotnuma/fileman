@@ -19,7 +19,7 @@
 #include <config.h>
 
 #include <th_device.h>
-#include <devmon.h>
+#include <devmonitor.h>
 #include <th_file.h>
 #include <appnotify.h>
 

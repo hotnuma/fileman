@@ -38,11 +38,11 @@ app_deps = [
 ]
 
 app_sources = [
-    'core/clipman.c',
-    'core/devmon.c',
+    'core/clipboard.c',
+    'core/devmonitor.c',
     'core/dnd.c',
     'core/fileinfo.c',
-    'core/filemon.c',
+    'core/filemonitor.c',
     'core/th_device.c',
     'core/th_file.c',
     'core/th_folder.c',

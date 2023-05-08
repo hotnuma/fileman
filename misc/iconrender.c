@@ -20,7 +20,7 @@
 
 #include <pixbuf_ext.h>
 
-#include <clipman.h>
+#include <clipboard.h>
 #include <gdk_ext.h>
 #include <iconfactory.h>
 #include <iconrender.h>

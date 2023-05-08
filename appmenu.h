@@ -48,7 +48,7 @@ typedef enum
 
 } MenuType;
 
-// Bundles of #GtkMenuItems, which can be created by this widget
+// Bundles of GtkMenuItems, which can be created by this widget
 typedef enum
 {
     MENU_SECTION_OPEN             = 1 << 0,

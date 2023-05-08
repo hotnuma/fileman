@@ -18,34 +18,20 @@
  */
 
 #include <config.h>
-#include <devmon.h>
+#include <devmonitor.h>
 
 #include <marshal.h>
-
 #include <gio/gio.h>
 #include <gio/gunixmounts.h>
 
-// signal identifiers
-enum
-{
-    DEVICE_ADDED,
-    DEVICE_REMOVED,
-    DEVICE_CHANGED,
-    DEVICE_PRE_UNMOUNT,
-    LAST_SIGNAL
-};
-
-enum
-{
-    PROP_0,
-    PROP_HIDDEN_DEVICES
-};
+// ----------------------------------------------------------------------------
 
 static void devmon_finalize(GObject *object);
 static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
                                 GParamSpec *pspec);
 static void devmon_set_property(GObject *object, guint prop_id, const GValue *value,
                                 GParamSpec *pspec);
+
 static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data);
 static gboolean _devmon_id_is_hidden(DeviceMonitor *monitor, const gchar *id);
 
@@ -65,6 +51,23 @@ static void _devmon_mount_changed(GVolumeMonitor *volume_monitor, GMount *mount,
                                   DeviceMonitor *monitor);
 static void _devmon_mount_pre_unmount(GVolumeMonitor *volume_monitor, GMount *mount,
                                       DeviceMonitor *monitor);
+
+// ----------------------------------------------------------------------------
+
+enum
+{
+    DEVICE_ADDED,
+    DEVICE_REMOVED,
+    DEVICE_CHANGED,
+    DEVICE_PRE_UNMOUNT,
+    LAST_SIGNAL
+};
+
+enum
+{
+    PROP_0,
+    PROP_HIDDEN_DEVICES
+};
 
 struct _DeviceMonitorClass
 {
@@ -619,7 +622,7 @@ DeviceMonitor* devmon_get()
     if (G_UNLIKELY(monitor == NULL))
     {
         monitor = g_object_new(TYPE_DEVICE_MONITOR, NULL);
-        g_object_add_weak_pointer(G_OBJECT(monitor),(gpointer) &monitor);
+        g_object_add_weak_pointer(G_OBJECT(monitor), (gpointer) &monitor);
     }
     else
     {

@@ -25,6 +25,7 @@
 #include <browser.h>
 #include <marshal.h>
 #include <dialogs.h>
+#include <navigator.h>
 
 enum
 {

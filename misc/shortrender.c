@@ -107,8 +107,7 @@ static void shrender_init(ShortcutRenderer *shortcuts_icon_renderer)
 {
     // no padding please
     gtk_cell_renderer_set_padding(GTK_CELL_RENDERER(shortcuts_icon_renderer),
-                                  0,
-                                  0);
+                                  0, 0);
 }
 
 static void shrender_finalize(GObject *object)
@@ -210,6 +209,7 @@ static void shrender_render(GtkCellRenderer      *renderer,
         icon_info = gtk_icon_theme_lookup_by_gicon(icon_theme, gicon, cell_area->width,
                     GTK_ICON_LOOKUP_USE_BUILTIN |
                     GTK_ICON_LOOKUP_FORCE_SIZE);
+
         g_object_unref(gicon);
 
         // try to load the icon

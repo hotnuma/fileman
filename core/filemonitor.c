@@ -17,9 +17,8 @@
  */
 
 #include <config.h>
-#include <filemon.h>
+#include <filemonitor.h>
 
-// Signal identifiers
 enum
 {
     FILE_CHANGED,
@@ -37,7 +36,7 @@ struct _FileMonitor
     GObject __parent__;
 };
 
-static FileMonitor *_filemon_default;
+static FileMonitor* _filemon_default;
 static guint _filemon_signals[LAST_SIGNAL];
 
 G_DEFINE_TYPE(FileMonitor, filemon, G_TYPE_OBJECT)

@@ -12,11 +12,11 @@ PKGCONFIG += libxfce4ui-2
 
 HEADERS = \
     appmenu.h \
-    core/clipman.h \
-    core/devmon.h \
+    core/clipboard.h \
+    core/devmonitor.h \
     core/dnd.h \
     core/fileinfo.h \
-    core/filemon.h \
+    core/filemonitor.h \
     core/th_device.h \
     core/th_file.h \
     core/th_folder.h \
@@ -79,11 +79,11 @@ HEADERS = \
 SOURCES = \
     0Temp.c \
     appmenu.c \
-    core/clipman.c \
-    core/devmon.c \
+    core/clipboard.c \
+    core/devmonitor.c \
     core/dnd.c \
     core/fileinfo.c \
-    core/filemon.c \
+    core/filemonitor.c \
     core/th_device.c \
     core/th_file.c \
     core/th_folder.c \

@@ -21,7 +21,7 @@
 #include <th_image.h>
 
 #include <application.h>
-#include <filemon.h>
+#include <filemonitor.h>
 #include <iconfactory.h>
 
 #include <glib.h>

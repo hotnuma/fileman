@@ -24,7 +24,7 @@
 #include <application.h>
 
 #include <browser.h>
-#include <clipman.h>
+#include <clipboard.h>
 #include <detailview.h>
 #include <dialogs.h>
 #include <gio_ext.h>
@@ -38,7 +38,7 @@
 #include <preferences.h>
 #include <statusbar.h>
 #include <treepane.h>
-#include <devmon.h>
+#include <devmonitor.h>
 
 #include <unistd.h>
 #include <locale.h>

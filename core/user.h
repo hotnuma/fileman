@@ -30,12 +30,17 @@ G_BEGIN_DECLS
 typedef struct _ThunarGroupClass ThunarGroupClass;
 typedef struct _ThunarGroup      ThunarGroup;
 
-#define THUNAR_TYPE_GROUP            (group_get_type ())
-#define THUNAR_GROUP(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_GROUP, ThunarGroup))
-#define THUNAR_GROUP_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_GROUP, ThunarGroupClass))
-#define THUNAR_IS_GROUP(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_GROUP))
-#define THUNAR_IS_GROUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_GROUP))
-#define THUNAR_GROUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_GROUP, ThunarGroupClass))
+#define THUNAR_TYPE_GROUP (group_get_type ())
+#define THUNAR_GROUP(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_GROUP, ThunarGroup))
+#define THUNAR_GROUP_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_GROUP, ThunarGroupClass))
+#define THUNAR_IS_GROUP(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_GROUP))
+#define THUNAR_IS_GROUP_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_GROUP))
+#define THUNAR_GROUP_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_GROUP, ThunarGroupClass))
 
 GType           group_get_type() G_GNUC_CONST;
 
@@ -48,12 +53,17 @@ const gchar*    group_get_name(ThunarGroup *group);
 typedef struct _ThunarUserClass ThunarUserClass;
 typedef struct _ThunarUser      ThunarUser;
 
-#define THUNAR_TYPE_USER            (user_get_type ())
-#define THUNAR_USER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_USER, ThunarUser))
-#define THUNAR_USER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_USER, ThunarUserClass))
-#define THUNAR_IS_USER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_USER))
-#define THUNAR_IS_USER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_USER))
-#define THUNAR_USER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_USER, ThunarUserClass))
+#define THUNAR_TYPE_USER (user_get_type ())
+#define THUNAR_USER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_USER, ThunarUser))
+#define THUNAR_USER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_USER, ThunarUserClass))
+#define THUNAR_IS_USER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_USER))
+#define THUNAR_IS_USER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_USER))
+#define THUNAR_USER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_USER, ThunarUserClass))
 
 GType user_get_type() G_GNUC_CONST;
 
@@ -67,12 +77,17 @@ gboolean        user_is_me(ThunarUser *user);
 typedef struct _ThunarUserManagerClass ThunarUserManagerClass;
 typedef struct _ThunarUserManager      ThunarUserManager;
 
-#define THUNAR_TYPE_USER_MANAGER            (user_manager_get_type ())
-#define THUNAR_USER_MANAGER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManager))
-#define THUNAR_USER_MANAGER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
-#define THUNAR_IS_USER_MANAGER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_USER_MANAGER))
-#define THUNAR_IS_USER_MANAGER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_USER_MANAGER))
-#define THUNAR_USER_MANAGER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
+#define THUNAR_TYPE_USER_MANAGER (user_manager_get_type ())
+#define THUNAR_USER_MANAGER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManager))
+#define THUNAR_USER_MANAGER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
+#define THUNAR_IS_USER_MANAGER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_USER_MANAGER))
+#define THUNAR_IS_USER_MANAGER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_USER_MANAGER))
+#define THUNAR_USER_MANAGER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_USER_MANAGER, ThunarUserManagerClass))
 
 GType user_manager_get_type() G_GNUC_CONST;
 

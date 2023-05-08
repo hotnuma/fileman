@@ -19,6 +19,7 @@
 #include <config.h>
 #include <locationbar.h>
 #include <locationentry.h>
+#include <navigator.h>
 
 struct _LocationBarClass
 {
@@ -34,7 +35,6 @@ struct _LocationBar
     GtkBin      __parent__;
 
     ThunarFile  *current_directory;
-
     GtkWidget   *locationEntry;
 };
 
@@ -46,13 +46,16 @@ enum
 
 static void locbar_navigator_init(ThunarNavigatorIface *iface);
 static void locbar_finalize(GObject *object);
+
 static void locbar_get_property(GObject *object, guint prop_id,
                                 GValue *value, GParamSpec *pspec);
 static void locbar_set_property(GObject *object, guint prop_id,
                                 const GValue *value, GParamSpec *pspec);
+
 static ThunarFile* locbar_get_current_directory(ThunarNavigator *navigator);
 static void locbar_set_current_directory(ThunarNavigator *navigator,
                                          ThunarFile *current_directory);
+
 static GtkWidget* locbar_install_widget(LocationBar *bar, GType type);
 static void locbar_reload_requested(LocationBar *bar);
 static gboolean locbar_settings_changed(LocationBar *bar);
@@ -76,24 +79,17 @@ static void locbar_class_init(LocationBarClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
+    gobject_class->finalize = locbar_finalize;
     gobject_class->get_property = locbar_get_property;
     gobject_class->set_property = locbar_set_property;
-    gobject_class->finalize = locbar_finalize;
 
-    klass->reload_requested = _locbar_noop; // e_noop;
+    klass->reload_requested = _locbar_noop;
 
     // Override ThunarNavigator's properties
     g_object_class_override_property(gobject_class,
-                                     PROP_CURRENT_DIRECTORY, "current-directory");
+                                     PROP_CURRENT_DIRECTORY,
+                                     "current-directory");
 
-    // install signals
-
-    /**
-     * LocationBar::reload-requested:
-     * @location_bar : a #LocationBar.
-     *
-     * Emitted by @location_bar whenever the user clicked a "reload" button
-     **/
     g_signal_new("reload-requested",
                  G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
@@ -102,13 +98,8 @@ static void locbar_class_init(LocationBarClass *klass)
                  NULL,
                  G_TYPE_NONE, 0);
 
-    /**
-     * LocationBar::entry-done:
-     * @location_bar : a #LocationBar.
-     *
-     * Emitted by @location_bar exactly once after an entry has been requested using
-     * #locbar_request_entry and the user has finished editing the entry.
-     **/
+    // Emitted exactly once after an entry has been requested using
+    // locbar_request_entry and the user has finished editing the entry.
     g_signal_new("entry-done",
                  G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
@@ -129,7 +120,6 @@ static void locbar_init(LocationBar *bar)
 static void locbar_finalize(GObject *object)
 {
     LocationBar *bar = LOCATIONBAR(object);
-
     e_return_if_fail(IS_LOCATIONBAR(bar));
 
     if (bar->locationEntry)
@@ -155,7 +145,9 @@ static void locbar_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value,
+                           navigator_get_current_directory(
+                                            THUNAR_NAVIGATOR(object)));
         break;
 
     default:
@@ -172,7 +164,8 @@ static void locbar_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+                                        g_value_get_object(value));
         break;
 
     default:
@@ -238,7 +231,8 @@ static GtkWidget* locbar_install_widget(LocationBar *bar, GType type)
                                      G_CALLBACK(locbar_reload_requested), bar);
 
             g_signal_connect_swapped(bar->locationEntry, "change-directory",
-                                     G_CALLBACK(navigator_change_directory), THUNAR_NAVIGATOR(bar));
+                                     G_CALLBACK(navigator_change_directory),
+                                     THUNAR_NAVIGATOR(bar));
         }
 
         widget = bar->locationEntry;
@@ -263,21 +257,27 @@ static void locbar_on_entry_edit_done(LocationEntry *entry, LocationBar *bar)
     g_signal_handlers_disconnect_by_func(entry, locbar_on_entry_edit_done, bar);
 
     g_object_ref(bar);
-    g_idle_add_full(G_PRIORITY_HIGH_IDLE,(GSourceFunc)locbar_settings_changed, bar, g_object_unref);
+
+    g_idle_add_full(G_PRIORITY_HIGH_IDLE,
+                    (GSourceFunc)locbar_settings_changed,
+                    bar, g_object_unref);
 
     g_signal_emit_by_name(bar, "entry-done");
 }
 
-/**
- * locbar_request_entry
- * @bar          : The #LocationBar
- * @initial_text : The initial text to be placed inside the entry, or NULL to
- *                 use the path of the current directory.
- *
- * Makes the location bar display an entry with the given text and places the cursor
- * accordingly. If the currently displayed location widget is a path bar, it will be
- * temporarily swapped for an entry widget and swapped back once the user completed
- *(or aborted) the input.
+static gboolean locbar_settings_changed(LocationBar *bar)
+{
+    locbar_install_widget(bar, TYPE_LOCATIONENTRY);
+
+    return FALSE;
+}
+
+// Public members -------------------------------------------------------------
+/*
+ * Makes the location bar display an entry with the given text and places the
+ * cursor accordingly. If the currently displayed location widget is a path
+ * bar, it will be temporarily swapped for an entry widget and swapped back
+ * once the user completed (or aborted) the input.
  */
 void locbar_request_entry(LocationBar *bar, const gchar *initial_text)
 {
@@ -300,13 +300,6 @@ void locbar_request_entry(LocationBar *bar, const gchar *initial_text)
 
     g_signal_connect(child, "edit-done",
                      G_CALLBACK(locbar_on_entry_edit_done), bar);
-}
-
-static gboolean locbar_settings_changed(LocationBar *bar)
-{
-    locbar_install_widget(bar, TYPE_LOCATIONENTRY);
-
-    return FALSE;
 }
 
 

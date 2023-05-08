@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <clipman.h>
+#include <clipboard.h>
 
 #include <application.h>
 #include <dialogs.h>
@@ -214,7 +214,7 @@ static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
     switch (prop_id)
     {
     case PROP_CAN_PASTE:
-        g_value_set_boolean(value, clipman_get_can_paste(manager));
+        g_value_set_boolean(value, clipman_can_paste(manager));
         break;
 
     default:
@@ -336,7 +336,7 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
     g_object_unref(manager);
 }
 
-gboolean clipman_get_can_paste(ClipboardManager *manager)
+gboolean clipman_can_paste(ClipboardManager *manager)
 {
     e_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
 
@@ -402,7 +402,8 @@ static void _clipman_transfer_files(ClipboardManager *manager,
                                  G_OBJECT(manager));
 
     // Need to fake a "owner-change" event here if the Xserver doesn't support clipboard notification
-    if (!gdk_display_supports_selection_notification(gtk_clipboard_get_display(manager->clipboard)))
+    if (!gdk_display_supports_selection_notification(
+                gtk_clipboard_get_display(manager->clipboard)))
         _clipman_owner_changed(manager->clipboard, NULL, manager);
 }
 
@@ -426,10 +427,11 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
                                   guint            target_info,
                                   gpointer         user_data)
 {
-    ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
     e_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+
+    ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
     e_return_if_fail(manager->clipboard == clipboard);
+    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
 
     // determine the path list from the file list
     GList *file_list = th_file_list_to_thunar_g_file_list(manager->files);
@@ -604,7 +606,7 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
         e_list_free(file_list);
 
         /* clear the clipboard if it contained "cutted data"
-         *(gtk_clipboard_clear takes care of not clearing
+         * (gtk_clipboard_clear takes care of not clearing
          * the selection if we don't own it)
          */
         if (G_UNLIKELY(!path_copy))

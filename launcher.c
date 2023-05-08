@@ -22,31 +22,26 @@
 #include <launcher.h>
 
 #include <application.h>
-#include <preferences.h>
-#include <browser.h>
-#include <appchooser.h>
-#include <clipman.h>
-#include <dialogs.h>
-#include <iconfactory.h>
-#include <io_scan_directory.h>
-#include <propsdlg.h>
-#include <simple_job.h>
-#include <devmon.h>
 #include <treeview.h>
-#include <window.h>
+#include <preferences.h>
+#include <component.h>
+#include <browser.h>
+#include <clipboard.h>
+#include <iconfactory.h>
 
-#include <gio_ext.h>
+#include <simple_job.h>
+#include <io_scan_directory.h>
 #include <gtk_ext.h>
-
-#include <libxfce4ui/libxfce4ui.h>
-#include <cstring.h>
-#include <memory.h>
-#include <string.h>
 #include <fnmatch.h>
+
+#include <dialogs.h>
+#include <appchooser.h>
+#include <propsdlg.h>
+
+// ----------------------------------------------------------------------------
 
 typedef struct _LauncherPokeData LauncherPokeData;
 
-// Property identifiers
 enum
 {
     PROP_0,
@@ -67,10 +62,10 @@ static void launcher_finalize(GObject *object);
 
 // Properties -----------------------------------------------------------------
 
-static void launcher_get_property(GObject *object, guint prop_id, GValue *value,
-                                  GParamSpec *pspec);
-static void launcher_set_property(GObject *object, guint prop_id, const GValue *value,
-                                  GParamSpec *pspec);
+static void launcher_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec);
+static void launcher_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec);
 
 // Navigator ------------------------------------------------------------------
 
@@ -104,9 +99,9 @@ static void _launcher_menu_item_activated(ThunarLauncher *launcher,
 // Poke Files -----------------------------------------------------------------
 
 static LauncherPokeData* _launcher_poke_data_new(
-                            GList *files_to_poke,
-                            GAppInfo *application_to_use,
-                            FolderOpenAction folder_open_action);
+                                        GList *files_to_poke,
+                                        GAppInfo *application_to_use,
+                                        FolderOpenAction folder_open_action);
 static void _launcher_poke_data_free(LauncherPokeData *data);
 static void _launcher_poke(ThunarLauncher *launcher,
                            GAppInfo *application_to_use,
@@ -145,49 +140,7 @@ static bool _launcher_can_extract(ThunarLauncher *launcher);
 
 static void _launcher_action_properties(ThunarLauncher *launcher);
 
-struct _ThunarLauncherClass
-{
-    GObjectClass __parent__;
-};
-
-struct _ThunarLauncher
-{
-    GObject         __parent__;
-
-    ThunarFile      *current_directory;
-    GList           *files_to_process;
-    ThunarDevice    *device_to_process;
-
-    gint            n_files_to_process;
-    gint            n_directories_to_process;
-    gint            n_executables_to_process;
-    gint            n_regulars_to_process;
-    gboolean        files_to_process_trashable;
-    gboolean        files_are_selected;
-    gboolean        single_directory_to_process;
-
-    ThunarFile      *single_folder;
-    ThunarFile      *parent_folder;
-
-    GClosure        *select_files_closure;
-
-    GtkWidget       *widget;
-};
-
-static GQuark _launcher_appinfo_quark;
-static GQuark _launcher_device_quark;
-static GQuark _launcher_file_quark;
-
-struct _LauncherPokeData
-{
-    GList       *files_to_poke;
-    GList       *files_poked;
-    GAppInfo    *application_to_use;
-
-    FolderOpenAction folder_open_action;
-};
-
-static GParamSpec* _launcher_props[N_PROPERTIES] = {NULL,};
+// ----------------------------------------------------------------------------
 
 static XfceGtkActionEntry _launcher_actions[] =
 {
@@ -458,6 +411,53 @@ static XfceGtkActionEntry _launcher_actions[] =
                                     G_N_ELEMENTS(_launcher_actions), \
                                     id)
 
+// ----------------------------------------------------------------------------
+
+struct _LauncherPokeData
+{
+    GList       *files_to_poke;
+    GList       *files_poked;
+    GAppInfo    *application_to_use;
+
+    FolderOpenAction folder_open_action;
+};
+
+// ----------------------------------------------------------------------------
+
+static GQuark _launcher_appinfo_quark;
+static GQuark _launcher_device_quark;
+static GQuark _launcher_file_quark;
+static GParamSpec* _launcher_props[N_PROPERTIES] = {NULL,};
+
+struct _ThunarLauncherClass
+{
+    GObjectClass    __parent__;
+};
+
+struct _ThunarLauncher
+{
+    GObject         __parent__;
+
+    ThunarFile      *current_directory;
+    GList           *files_to_process;
+    ThunarDevice    *device_to_process;
+
+    gint            n_files_to_process;
+    gint            n_directories_to_process;
+    gint            n_executables_to_process;
+    gint            n_regulars_to_process;
+    gboolean        files_to_process_trashable;
+    gboolean        files_are_selected;
+    gboolean        single_directory_to_process;
+
+    ThunarFile      *single_folder;
+    ThunarFile      *parent_folder;
+
+    GClosure        *select_files_closure;
+
+    GtkWidget       *widget;
+};
+
 G_DEFINE_TYPE_WITH_CODE(ThunarLauncher,
                         launcher,
                         G_TYPE_OBJECT,
@@ -469,9 +469,6 @@ G_DEFINE_TYPE_WITH_CODE(ThunarLauncher,
 
 static void launcher_class_init(ThunarLauncherClass *klass)
 {
-    GObjectClass *gobject_class;
-    gpointer     g_iface;
-
     // determine all used quarks
     _launcher_appinfo_quark = g_quark_from_static_string("thunar-launcher-appinfo");
     _launcher_device_quark = g_quark_from_static_string("thunar-launcher-device");
@@ -479,7 +476,7 @@ static void launcher_class_init(ThunarLauncherClass *klass)
 
     xfce_gtk_translate_action_entries(_launcher_actions, G_N_ELEMENTS(_launcher_actions));
 
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = launcher_dispose;
     gobject_class->finalize = launcher_finalize;
     gobject_class->get_property = launcher_get_property;
@@ -505,6 +502,8 @@ static void launcher_class_init(ThunarLauncherClass *klass)
                              "selected-device",
                              "selected-device",
                              G_PARAM_WRITABLE);
+
+    gpointer g_iface;
 
     // Override ThunarNavigator's properties
     g_iface = g_type_default_interface_peek(THUNAR_TYPE_NAVIGATOR);
@@ -571,8 +570,8 @@ static void launcher_finalize(GObject *object)
 
 // Properties -----------------------------------------------------------------
 
-static void launcher_get_property(GObject *object, guint prop_id, GValue *value,
-                                  GParamSpec *pspec)
+static void launcher_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -801,7 +800,7 @@ static void _launcher_widget_destroyed(ThunarLauncher *launcher,
 
 
 
-//=============================================================================
+// ----------------------------------------------------------------------------
 
 void launcher_activate_selected_files(ThunarLauncher  *launcher,
                                              FolderOpenAction action,
@@ -811,11 +810,6 @@ void launcher_activate_selected_files(ThunarLauncher  *launcher,
 
     _launcher_poke(launcher, app_info, action);
 }
-
-
-
-
-
 
 
 
@@ -1501,7 +1495,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
             return NULL;
         clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
         item = xfce_gtk_menu_item_new_from_action_entry(action_entry, G_OBJECT(launcher), GTK_MENU_SHELL(menu));
-        gtk_widget_set_sensitive(item, clipman_get_can_paste(clipboard) && th_file_is_writable(launcher->single_folder));
+        gtk_widget_set_sensitive(item, clipman_can_paste(clipboard) && th_file_is_writable(launcher->single_folder));
         g_object_unref(clipboard);
         return item;
 
@@ -1530,7 +1524,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
             item = xfce_gtk_menu_item_new_from_action_entry(action_entry,
                                                             G_OBJECT(launcher),
                                                             GTK_MENU_SHELL(menu));
-            gtk_widget_set_sensitive(item, clipman_get_can_paste(clipboard) && th_file_is_writable(launcher->current_directory));
+            gtk_widget_set_sensitive(item, clipman_can_paste(clipboard) && th_file_is_writable(launcher->current_directory));
             g_object_unref(clipboard);
         }
         return item;

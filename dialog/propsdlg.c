@@ -197,9 +197,8 @@ static void propsdlg_init(PropertiesDialog *dialog)
 
     guint      row = 0;
 
-    /*
-       First box(icon, name) for 1 file
-     */
+    // First box(icon, name) for 1 file
+
     dialog->single_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     gtk_grid_attach(GTK_GRID(grid), dialog->single_box, 0, row, 1, 1);
 
@@ -777,6 +776,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
             str = g_strdup_printf(_("link to %s"), th_file_get_symlink_target(file));
         else
             str = g_content_type_get_description(content_type);
+
         gtk_widget_set_tooltip_text(dialog->kind_ebox, content_type);
         gtk_label_set_text(GTK_LABEL(dialog->kind_label), str);
         g_free(str);

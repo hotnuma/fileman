@@ -19,7 +19,7 @@
 #ifndef __THUNAR_DEVICE_H__
 #define __THUNAR_DEVICE_H__
 
-#include <th_file.h>
+#include <gio_ext.h>
 
 G_BEGIN_DECLS
 

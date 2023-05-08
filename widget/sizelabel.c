@@ -21,13 +21,8 @@
 #include <config.h>
 #include <sizelabel.h>
 
-#include <limits.h>
-#include <locale.h>
-
 #include <dcount_job.h>
-#include <gtk_ext.h>
 
-// Property identifiers
 enum
 {
     PROP_0,
@@ -59,12 +54,12 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files);
 
 struct _SizeLabelClass
 {
-    GtkHBoxClass __parent__;
+    GtkBoxClass __parent__;
 };
 
 struct _SizeLabel
 {
-    GtkHBox             __parent__;
+    GtkBox             __parent__;
 
     DeepCountJob  *job;
 
@@ -421,16 +416,11 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     g_object_notify(G_OBJECT(size_label), "files");
 }
 
-/**
- * thunar_size_label_new:
- *
- * Allocates a new #SizeLabel instance.
- *
- * Return value: the newly allocated #SizeLabel.
- **/
 GtkWidget* szlabel_new()
 {
-    return g_object_new(TYPE_SIZELABEL, NULL);
+    return g_object_new(TYPE_SIZELABEL,
+                        "orientation", GTK_ORIENTATION_HORIZONTAL,
+                        NULL);
 }
 
 

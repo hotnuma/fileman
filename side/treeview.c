@@ -24,7 +24,7 @@
 #include <utils.h>
 
 #include <application.h>
-#include <clipman.h>
+#include <clipboard.h>
 #include <th_device.h>
 #include <dialogs.h>
 #include <dnd.h>

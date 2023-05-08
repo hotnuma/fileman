@@ -22,7 +22,7 @@
 #include <listmodel.h>
 
 #include <application.h>
-#include <filemon.h>
+#include <filemonitor.h>
 
 #include <memory.h>
 #include <string.h>
@@ -604,7 +604,7 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
     file = g_sequence_get(iter->user_data);
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    switch(column)
+    switch (column)
     {
     case THUNAR_COLUMN_DATE_ACCESSED:
         g_value_init(value, G_TYPE_STRING);
@@ -1670,10 +1670,14 @@ void listmodel_set_folder(ListModel *store,
             _listmodel_files_added(folder, files, store);
 
         // connect signals to the new folder
-        g_signal_connect(G_OBJECT(store->folder), "destroy", G_CALLBACK(_listmodel_folder_destroy), store);
-        g_signal_connect(G_OBJECT(store->folder), "error", G_CALLBACK(_listmodel_folder_error), store);
-        g_signal_connect(G_OBJECT(store->folder), "files-added", G_CALLBACK(_listmodel_files_added), store);
-        g_signal_connect(G_OBJECT(store->folder), "files-removed", G_CALLBACK(_listmodel_files_removed), store);
+        g_signal_connect(G_OBJECT(store->folder),
+                         "destroy", G_CALLBACK(_listmodel_folder_destroy), store);
+        g_signal_connect(G_OBJECT(store->folder),
+                         "error", G_CALLBACK(_listmodel_folder_error), store);
+        g_signal_connect(G_OBJECT(store->folder),
+                         "files-added", G_CALLBACK(_listmodel_files_added), store);
+        g_signal_connect(G_OBJECT(store->folder),
+                         "files-removed", G_CALLBACK(_listmodel_files_removed), store);
     }
 
     // notify listeners that we have a new folder
@@ -1695,7 +1699,7 @@ void listmodel_set_folders_first(ListModel *store, gboolean folders_first)
 
     // check if the new setting differs
     if ((store->sort_folders_first && folders_first)
-            ||(!store->sort_folders_first && !folders_first))
+        ||(!store->sort_folders_first && !folders_first))
         return;
 
     // apply the new setting(re-sorting the store)
@@ -1707,7 +1711,7 @@ void listmodel_set_folders_first(ListModel *store, gboolean folders_first)
        reloaded with the new folders first setting */
     gtk_tree_model_foreach(GTK_TREE_MODEL(store),
                            (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
-                            NULL);
+                           NULL);
 }
 
 gboolean listmodel_get_show_hidden(ListModel *store)
@@ -1961,7 +1965,7 @@ static gchar* _listmodel_get_statusbar_text_for_files(
     gchar   *non_folder_text = NULL;
 
     // analyze files
-    for(lp = files; lp != NULL; lp = lp->next)
+    for (lp = files; lp != NULL; lp = lp->next)
     {
         if (th_file_is_directory(lp->data))
         {
@@ -2160,7 +2164,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
     else // more than one item selected
     {
         // build GList of files from selection
-        for(lp = selected_items; lp != NULL; lp = lp->next)
+        for (lp = selected_items; lp != NULL; lp = lp->next)
         {
             gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &iter, lp->data);
             relevant_files = g_list_append(relevant_files, g_sequence_get(iter.user_data));

@@ -20,28 +20,10 @@
 #include <config.h>
 #include <th_folder.h>
 
-#include <filemon.h>
+#include <filemonitor.h>
 #include <io_jobs.h>
 
 #define DEBUG_FILE_CHANGES FALSE
-
-// property identifiers
-enum
-{
-    PROP_0,
-    PROP_CORRESPONDING_FILE,
-    PROP_LOADING,
-};
-
-// signal identifiers
-enum
-{
-    DESTROY,
-    ERROR,
-    FILES_ADDED,
-    FILES_REMOVED,
-    LAST_SIGNAL,
-};
 
 // Allocate -------------------------------------------------------------------
 
@@ -79,6 +61,23 @@ static void _th_folder_content_type_loader_idle_destroyed(gpointer data);
 
 
 // Allocate -------------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_CORRESPONDING_FILE,
+    PROP_LOADING,
+};
+
+// signal identifiers
+enum
+{
+    DESTROY,
+    ERROR,
+    FILES_ADDED,
+    FILES_REMOVED,
+    LAST_SIGNAL,
+};
 
 struct _ThunarFolderClass
 {

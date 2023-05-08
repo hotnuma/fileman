@@ -18,20 +18,18 @@
 #include <config.h>
 #include <appmenu.h>
 
-#include <gtk_ext.h>
 #include <launcher.h>
-#include <window.h>
+#include <libxfce4ui/libxfce4ui.h>
 
 /*
  * AppMenu is a GtkMenu which provides a unified menu-creation
  * service for different thunar widgets.
  *
  * Based on the passed flags and selected sections, it fills itself
- * with the requested menu-items
- * by creating them with ThunarLauncher.
+ * with the requested menu-items by creating them with ThunarLauncher.
  */
 
-// property identifiers
+// ----------------------------------------------------------------------------
 
 enum
 {
@@ -43,13 +41,14 @@ enum
 };
 
 static void appmenu_finalize(GObject *object);
-static void appmenu_get_property(GObject *object, guint prop_id, GValue *value,
-                              GParamSpec *pspec);
-static void appmenu_set_property(GObject *object, guint prop_uid, const GValue *value,
-                              GParamSpec *pspec);
-
+static void appmenu_get_property(GObject *object, guint prop_id,
+                                 GValue *value, GParamSpec *pspec);
+static void appmenu_set_property(GObject *object, guint prop_uid,
+                                 const GValue *value, GParamSpec *pspec);
 
 // Allocation -----------------------------------------------------------------
+
+static GQuark _appmenu_handler_quark;
 
 struct _AppMenuClass
 {
@@ -58,22 +57,20 @@ struct _AppMenuClass
 
 struct _AppMenu
 {
-    GtkMenu __parent__;
+    GtkMenu         __parent__;
 
-    ThunarLauncher *launcher;
+    ThunarLauncher  *launcher;
 
     // true, if the 'open' section should be forced
-    gboolean    force_section_open;
+    gboolean        force_section_open;
 
     // true, if 'open' for folders, which would result
     // in changing the directory, should not be shown
-    gboolean    change_directory_support_disabled;
+    gboolean        change_directory_support_disabled;
 
     // detailed type of the thunar menu
-    MenuType    type;
+    MenuType        type;
 };
-
-static GQuark _appmenu_handler_quark;
 
 G_DEFINE_TYPE(AppMenu, appmenu, GTK_TYPE_MENU)
 
@@ -83,7 +80,6 @@ static void appmenu_class_init(AppMenuClass *klass)
     _appmenu_handler_quark = g_quark_from_static_string("thunar-menu-handler");
 
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-
     gobject_class->finalize = appmenu_finalize;
     gobject_class->get_property = appmenu_get_property;
     gobject_class->set_property = appmenu_set_property;
@@ -144,11 +140,10 @@ static void appmenu_finalize(GObject *object)
     G_OBJECT_CLASS(appmenu_parent_class)->finalize(object);
 }
 
-
 // Properties -----------------------------------------------------------------
 
 static void appmenu_get_property(GObject *object, guint prop_id, GValue *value,
-                              GParamSpec *pspec)
+                                 GParamSpec *pspec)
 {
     (void) object;
     (void) value;
@@ -194,7 +189,6 @@ static void appmenu_set_property(GObject *object, guint prop_id,
     }
 }
 
-
 // Public ---------------------------------------------------------------------
 
 gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
@@ -203,7 +197,6 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
 
     gboolean force = (menu->type == MENU_TYPE_WINDOW
                       || menu->type == MENU_TYPE_CONTEXT_TREE_VIEW);
-
 
     if (menu_sections & MENU_SECTION_OPEN)
     {

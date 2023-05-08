@@ -19,21 +19,20 @@
 #ifndef __LOCATIONBAR_H__
 #define __LOCATIONBAR_H__
 
-#include <component.h>
+#include <gtk/gtk.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct _LocationBarClass LocationBarClass;
 typedef struct _LocationBar      LocationBar;
 
 #define TYPE_LOCATIONBAR (locbar_get_type ())
-#define LOCATIONBAR(obj)            \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_LOCATIONBAR, LocationBar))
+#define LOCATIONBAR(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_LOCATIONBAR, LocationBar))
 #define IS_LOCATIONBAR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_LOCATIONBAR))
-#define LOCATIONBAR_GET_CLASS(obj)  \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_LOCATIONBAR, LocationBarClass))
-
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_LOCATIONBAR))
+#define LOCATIONBAR_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_LOCATIONBAR, LocationBarClass))
 
 GType locbar_get_type() G_GNUC_CONST;
 
@@ -41,8 +40,8 @@ GtkWidget* locbar_new();
 
 void locbar_request_entry(LocationBar *bar, const gchar *initial_text);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif // !__LOCATIONBAR_H__
+#endif // __LOCATIONBAR_H__
 
 

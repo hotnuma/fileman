@@ -77,26 +77,26 @@ struct _IconFactoryClass
 
 struct _IconFactory
 {
-    GObject __parent__;
+    GObject             __parent__;
 
     GHashTable          *icon_cache;
     GtkIconTheme        *icon_theme;
 
-    ThunarThumbnailMode  thumbnail_mode;
-    gboolean             thumbnail_draw_frames;
-    ThunarThumbnailSize  thumbnail_size;
+    ThunarThumbnailMode thumbnail_mode;
+    gboolean            thumbnail_draw_frames;
+    ThunarThumbnailSize thumbnail_size;
 
-    guint                sweep_timer_id;
-    gulong               changed_hook_id;
+    guint               sweep_timer_id;
+    gulong              changed_hook_id;
 
     // stamp that gets bumped when the theme changes
-    guint                theme_stamp;
+    guint               theme_stamp;
 };
 
 struct _IconKey
 {
-    gchar *name;
-    gint   size;
+    gchar   *name;
+    gint    size;
 };
 
 typedef struct

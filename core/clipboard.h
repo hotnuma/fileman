@@ -31,18 +31,19 @@ typedef struct _ClipboardManager      ClipboardManager;
 #define CLIPBOARD_MANAGER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_CLIPBOARD_MANAGER, ClipboardManager))
 #define CLIPBOARD_MANAGER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((obj),    TYPE_CLIPBOARD_MANAGER, ClipboardManagerClass))
+    (G_TYPE_CHECK_CLASS_CAST((obj),     TYPE_CLIPBOARD_MANAGER, ClipboardManagerClass))
 #define IS_CLIPBOARD_MANAGER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_CLIPBOARD_MANAGER))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_CLIPBOARD_MANAGER))
 #define IS_CLIPBOARD_MANAGER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_CLIPBOARD_MANAGER))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_CLIPBOARD_MANAGER))
 #define CLIPBOARD_MANAGER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_CLIPBOARD_MANAGER, ClipboardManagerClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_CLIPBOARD_MANAGER, ClipboardManagerClass))
 
 GType clipman_get_type() G_GNUC_CONST;
 
 ClipboardManager* clipman_get_for_display(GdkDisplay *display);
-gboolean clipman_get_can_paste(ClipboardManager *manager);
+
+gboolean clipman_can_paste(ClipboardManager *manager);
 gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *file);
 
 void clipman_copy_files(ClipboardManager *manager, GList *files);

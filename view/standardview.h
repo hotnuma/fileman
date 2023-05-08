@@ -23,7 +23,7 @@
 #include <listmodel.h>
 #include <iconfactory.h>
 #include <history.h>
-#include <clipman.h>
+#include <clipboard.h>
 
 G_BEGIN_DECLS
 

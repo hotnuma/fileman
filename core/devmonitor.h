@@ -28,15 +28,15 @@ typedef struct _DeviceMonitor      DeviceMonitor;
 
 #define TYPE_DEVICE_MONITOR (devmon_get_type())
 #define DEVICE_MONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_DEVICE_MONITOR, DeviceMonitor))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_DEVICE_MONITOR, DeviceMonitor))
 #define DEVICE_MONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_DEVICE_MONITOR, DeviceMonitorClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_DEVICE_MONITOR, DeviceMonitorClass))
 #define IS_DEVICE_MONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_DEVICE_MONITOR))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_DEVICE_MONITOR))
 #define IS_DEVICE_MONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((obj),    TYPE_DEVICE_MONITOR))
+    (G_TYPE_CHECK_CLASS_TYPE((obj),    TYPE_DEVICE_MONITOR))
 #define DEVICE_MONITOR_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_DEVICE_MONITOR, DeviceMonitorClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_DEVICE_MONITOR, DeviceMonitorClass))
 
 GType   devmon_get_type() G_GNUC_CONST;
 
