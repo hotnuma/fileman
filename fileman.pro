@@ -20,7 +20,7 @@ HEADERS = \
     core/th_device.h \
     core/th_file.h \
     core/th_folder.h \
-    core/user.h \
+    core/usermanager.h \
     dialog/appchooser.h \
     dialog/appcombo.h \
     dialog/appmodel.h \
@@ -87,7 +87,7 @@ SOURCES = \
     core/th_device.c \
     core/th_file.c \
     core/th_folder.c \
-    core/user.c \
+    core/usermanager.c \
     dialog/appchooser.c \
     dialog/appcombo.c \
     dialog/appmodel.c \

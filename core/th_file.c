@@ -27,7 +27,7 @@
 #include <appchooser.h>
 #include <filemonitor.h>
 #include <gio_ext.h>
-#include <user.h>
+#include <usermanager.h>
 #include <utils.h>
 #include <dialogs.h>
 #include <iconfactory.h>

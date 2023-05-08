@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <user.h>
+#include <usermanager.h>
 
 #include <utils.h>
 

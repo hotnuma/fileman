@@ -46,7 +46,7 @@ app_sources = [
     'core/th_device.c',
     'core/th_file.c',
     'core/th_folder.c',
-    'core/user.c',
+    'core/usermanager.c',
     'dialog/appchooser.c',
     'dialog/appcombo.c',
     'dialog/appmodel.c',

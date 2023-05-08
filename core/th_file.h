@@ -22,7 +22,7 @@
 
 #include <enumtypes.h>
 #include <gio_ext.h>
-#include <user.h>
+#include <usermanager.h>
 
 #include <gtk/gtk.h>
 

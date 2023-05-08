@@ -29,7 +29,7 @@
 #include <gtk_ext.h>
 #include <io_jobs.h>
 #include <pango_ext.h>
-#include <user.h>
+#include <usermanager.h>
 
 #include <fileinfo.h>
 
