@@ -17,35 +17,40 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_PROGRESS_VIEW_H__
-#define __THUNAR_PROGRESS_VIEW_H__
+#ifndef __PROGRESSVIEW_H__
+#define __PROGRESSVIEW_H__
 
 #include <gtk/gtk.h>
 
 #include <job.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarProgressViewClass ThunarProgressViewClass;
-typedef struct _ThunarProgressView      ThunarProgressView;
+typedef struct _ProgressViewClass ProgressViewClass;
+typedef struct _ProgressView      ProgressView;
 
-#define THUNAR_TYPE_PROGRESS_VIEW            (thunar_progress_view_get_type ())
-#define THUNAR_PROGRESS_VIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_PROGRESS_VIEW, ThunarProgressView))
-#define THUNAR_PROGRESS_VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_PROGRESS_VIEW, ThunarProgressViewClass))
-#define THUNAR_IS_PROGRESS_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_PROGRESS_VIEW))
-#define THUNAR_IS_PROGRESS_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_PROGRESS_VIEW))
-#define THUNAR_PROGRESS_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_PROGRESS_VIEW, ThunarProgressViewClass))
+#define TYPE_PROGRESSVIEW (progressview_get_type())
+#define PROGRESSVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_PROGRESSVIEW, ProgressView))
+#define PROGRESSVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass), TYPE_PROGRESSVIEW, ProgressViewClass))
+#define IS_PROGRESSVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_PROGRESSVIEW))
+#define IS_PROGRESSVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_PROGRESSVIEW))
+#define PROGRESSVIEW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_PROGRESSVIEW, ProgressViewClass))
 
-GType thunar_progress_view_get_type() G_GNUC_CONST;
+GType progressview_get_type() G_GNUC_CONST;
 
-GtkWidget* thunar_progress_view_new_with_job(ThunarJob *job) G_GNUC_MALLOC;
+GtkWidget* progressview_new_with_job(ThunarJob *job) G_GNUC_MALLOC;
 
-void thunar_progress_view_set_icon_name(ThunarProgressView *view, const gchar *icon_name);
-void thunar_progress_view_set_title(ThunarProgressView *view, const gchar *title);
-ThunarJob *thunar_progress_view_get_job(ThunarProgressView *view);
+void progressview_set_icon_name(ProgressView *view, const gchar *icon_name);
+void progressview_set_title(ProgressView *view, const gchar *title);
+ThunarJob *progressview_get_job(ProgressView *view);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif // !__THUNAR_PROGRESS_VIEW_H__
+#endif // __PROGRESSVIEW_H__
 
 

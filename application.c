@@ -560,10 +560,10 @@ static void _application_launch(Application *application,
     if (screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
-    has_jobs = thunar_progress_dialog_has_jobs(THUNAR_PROGRESS_DIALOG(dialog));
+    has_jobs = progressdlg_has_jobs(PROGRESSDIALOG(dialog));
 
     // add the job to the dialog
-    thunar_progress_dialog_add_job(THUNAR_PROGRESS_DIALOG(dialog),
+    progressdlg_add_job(PROGRESSDIALOG(dialog),
                                     job, icon_name, title);
 
     if (has_jobs)
@@ -772,7 +772,7 @@ static GtkWidget* _application_get_progress_dialog(
 
     if (application->progress_dialog == NULL)
     {
-        application->progress_dialog = thunar_progress_dialog_new();
+        application->progress_dialog = progressdlg_new();
 
         g_object_add_weak_pointer(G_OBJECT(application->progress_dialog),
                                   (gpointer) &application->progress_dialog);

@@ -35,6 +35,66 @@
 static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);
 static void _dialog_job_ask_replace_callback(GtkWidget *button, gpointer user_data);
 
+// ----------------------------------------------------------------------------
+
+void dialog_error(gpointer parent, const GError *error, const gchar  *format, ...)
+{
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+
+    // do not display error dialog for already handled errors
+    if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
+        return;
+
+    // parse the parent pointer
+    GtkWindow *window;
+    GdkScreen *screen;
+    screen = util_parse_parent(parent, &window);
+
+    // determine the primary error text
+    va_list    args;
+    va_start(args, format);
+    gchar     *primary_text;
+    primary_text = g_strdup_vprintf(format, args);
+    va_end(args);
+
+    // allocate the error dialog
+    GtkWidget *dialog;
+    dialog = gtk_message_dialog_new(window,
+                                     GTK_DIALOG_DESTROY_WITH_PARENT
+                                     | GTK_DIALOG_MODAL,
+                                     GTK_MESSAGE_ERROR,
+                                     GTK_BUTTONS_CLOSE,
+                                     "%s.", primary_text);
+
+    // move the dialog to the appropriate screen
+    if (G_UNLIKELY(window == NULL && screen != NULL))
+        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
+    // set secondary text if an error is provided
+    if (G_LIKELY(error != NULL))
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s.", error->message);
+
+    GList *children = gtk_container_get_children(
+                            GTK_CONTAINER(gtk_message_dialog_get_message_area(
+                                                      GTK_MESSAGE_DIALOG(dialog))));
+    // enable wrap for labels
+    for (GList *lp = children; lp != NULL; lp = lp->next)
+    {
+        if (GTK_IS_LABEL(lp->data))
+            gtk_label_set_line_wrap_mode(GTK_LABEL(lp->data), PANGO_WRAP_WORD_CHAR);
+    }
+
+    // display the dialog
+    gtk_dialog_run(GTK_DIALOG(dialog));
+
+    // cleanup
+    gtk_widget_destroy(dialog);
+
+    g_free(primary_text);
+    g_list_free(children);
+}
+
+// ----------------------------------------------------------------------------
 
 gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFile *file,
                                  const gchar *command)
@@ -466,64 +526,7 @@ gboolean dialog_folder_trash(GtkWindow *window)
     return (response == GTK_RESPONSE_YES);
 }
 
-void dialog_error(gpointer parent, const GError *error, const gchar  *format, ...)
-{
-    GtkWidget *dialog;
-    GtkWindow *window;
-    GdkScreen *screen;
-    va_list    args;
-    gchar     *primary_text;
-    GList     *children;
-    GList     *lp;
-
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-
-    // do not display error dialog for already handled errors
-    if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
-        return;
-
-    // parse the parent pointer
-    screen = util_parse_parent(parent, &window);
-
-    // determine the primary error text
-    va_start(args, format);
-    primary_text = g_strdup_vprintf(format, args);
-    va_end(args);
-
-    // allocate the error dialog
-    dialog = gtk_message_dialog_new(window,
-                                     GTK_DIALOG_DESTROY_WITH_PARENT
-                                     | GTK_DIALOG_MODAL,
-                                     GTK_MESSAGE_ERROR,
-                                     GTK_BUTTONS_CLOSE,
-                                     "%s.", primary_text);
-
-    // move the dialog to the appropriate screen
-    if (G_UNLIKELY(window == NULL && screen != NULL))
-        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
-
-    // set secondary text if an error is provided
-    if (G_LIKELY(error != NULL))
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s.", error->message);
-
-    children = gtk_container_get_children(
-                   GTK_CONTAINER(gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG(dialog))));
-
-    // enable wrap for labels
-    for(lp = children; lp != NULL; lp = lp->next)
-        if (GTK_IS_LABEL(lp->data))
-            gtk_label_set_line_wrap_mode(GTK_LABEL(lp->data), PANGO_WRAP_WORD_CHAR);
-
-    // display the dialog
-    gtk_dialog_run(GTK_DIALOG(dialog));
-
-    // cleanup
-    gtk_widget_destroy(dialog);
-
-    g_free(primary_text);
-    g_list_free(children);
-}
-
+// ----------------------------------------------------------------------------
 
 ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
                                  ThunarJobResponse choices)

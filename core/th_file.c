@@ -21,35 +21,19 @@
 #include <config.h>
 #include <th_file.h>
 
-#include <libxfce4ui/libxfce4ui.h>
-#include <fileinfo.h>
 #include <application.h>
-#include <appchooser.h>
 #include <filemonitor.h>
+#include <iconfactory.h>
+#include <appchooser.h>
+#include <dialogs.h>
 #include <gio_ext.h>
 #include <utils.h>
-#include <dialogs.h>
-#include <iconfactory.h>
 
-#include <sys/types.h>
+#include <libxfce4ui/libxfce4ui.h>
 #include <sys/stat.h>
-#include <errno.h>
-#include <memory.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
-#include <gio/gio.h>
 
 // Dump the file cache every X second, set to 0 to disable
 #define DUMP_FILE_CACHE 0
-
-// Signal identifiers
-enum
-{
-    DESTROY,
-    LAST_SIGNAL,
-};
 
 // Allocate -------------------------------------------------------------------
 
@@ -98,11 +82,7 @@ static void _th_file_monitor_update(GFile *path, GFileMonitorEvent event_type);
 static void _th_file_reload_parent(ThunarFile *file);
 static void _th_file_watch_destroyed(gpointer data);
 
-static UserManager    *_user_manager;
-static GHashTable           *_file_cache;
-static guint32              _effective_user_id;
-static GQuark               _file_watch_quark;
-static guint                _file_signals[LAST_SIGNAL];
+// ----------------------------------------------------------------------------
 
 G_LOCK_DEFINE_STATIC(_file_cache_mutex);
 G_LOCK_DEFINE_STATIC(_file_content_type_mutex);
@@ -128,6 +108,55 @@ typedef enum
     THUNAR_FILE_FLAG_IS_MOUNTED     = 1 << 3,
 
 } ThunarFileFlags;
+
+typedef struct
+{
+    GFileMonitor    *monitor;
+    guint           watch_count;
+
+} ThunarFileWatch;
+
+typedef struct
+{
+    ThunarFileGetFunc func;
+    gpointer        user_data;
+    GCancellable    *cancellable;
+
+} ThunarFileGetData;
+
+// user directories
+static struct
+{
+    GUserDirectory  type;
+    const gchar     *icon_name;
+}
+
+thunar_file_dirs[] =
+{
+    {G_USER_DIRECTORY_DESKTOP,      "user-desktop"},
+    {G_USER_DIRECTORY_DOCUMENTS,    "folder-documents"},
+    {G_USER_DIRECTORY_DOWNLOAD,     "folder-download"},
+    {G_USER_DIRECTORY_MUSIC,        "folder-music"},
+    {G_USER_DIRECTORY_PICTURES,     "folder-pictures"},
+    {G_USER_DIRECTORY_PUBLIC_SHARE, "folder-publicshare"},
+    {G_USER_DIRECTORY_TEMPLATES,    "folder-templates"},
+    {G_USER_DIRECTORY_VIDEOS,       "folder-videos"}
+};
+
+static UserManager  *_user_manager;
+static GHashTable   *_file_cache;
+static guint32      _effective_user_id;
+static GQuark       _file_watch_quark;
+
+// ----------------------------------------------------------------------------
+
+enum
+{
+    DESTROY,
+    LAST_SIGNAL,
+};
+
+static guint _file_signals[LAST_SIGNAL];
 
 struct _ThunarFileClass
 {
@@ -162,39 +191,6 @@ struct _ThunarFile
 
     // tells whether the file watch is not set
     gboolean    no_file_watch;
-};
-
-typedef struct
-{
-    GFileMonitor    *monitor;
-    guint           watch_count;
-
-} ThunarFileWatch;
-
-typedef struct
-{
-    ThunarFileGetFunc func;
-    gpointer        user_data;
-    GCancellable    *cancellable;
-
-} ThunarFileGetData;
-
-static struct
-{
-    GUserDirectory  type;
-    const gchar     *icon_name;
-}
-
-thunar_file_dirs[] =
-{
-    {G_USER_DIRECTORY_DESKTOP,      "user-desktop"},
-    {G_USER_DIRECTORY_DOCUMENTS,    "folder-documents"},
-    {G_USER_DIRECTORY_DOWNLOAD,     "folder-download"},
-    {G_USER_DIRECTORY_MUSIC,        "folder-music"},
-    {G_USER_DIRECTORY_PICTURES,     "folder-pictures"},
-    {G_USER_DIRECTORY_PUBLIC_SHARE, "folder-publicshare"},
-    {G_USER_DIRECTORY_TEMPLATES,    "folder-templates"},
-    {G_USER_DIRECTORY_VIDEOS,       "folder-videos"}
 };
 
 G_DEFINE_TYPE_WITH_CODE(ThunarFile,
@@ -524,7 +520,6 @@ static void th_file_info_changed(FileInfo *file_info)
     filemon_file_changed(file);
 }
 
-
 // Public ---------------------------------------------------------------------
 
 ThunarFile* th_file_get(GFile *gfile, GError **error)
@@ -679,28 +674,22 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     e_return_if_fail(THUNAR_IS_FILE(file));
     e_return_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info));
 
-    const gchar *target_uri;
-    GKeyFile    *key_file;
-    gchar       *p;
-    const gchar *display_name;
-    gboolean    is_secure = FALSE;
-    gchar       *casefold;
-    gchar       *path;
-
     if (G_LIKELY(file->info != NULL))
     {
         // this is requested so often, cache it
         file->kind = g_file_info_get_file_type(file->info);
 
+        const gchar *target_uri;
+
         if (file->kind == G_FILE_TYPE_MOUNTABLE)
         {
             target_uri = g_file_info_get_attribute_string(
-                                        file->info,
-                                        G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
+                                            file->info,
+                                            G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
 
             if (target_uri != NULL && !g_file_info_get_attribute_boolean(
-                                        file->info,
-                                        G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT))
+                                            file->info,
+                                            G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT))
                 FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
             else
                 FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
@@ -714,6 +703,7 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     // problematic files with content type reading
     if (strcmp(file->basename, "kmsg") == 0 && g_file_is_native(file->gfile))
     {
+        gchar       *path;
         path = g_file_get_path(file->gfile);
 
         if (g_strcmp0(path, "/proc/kmsg") == 0)
@@ -722,21 +712,27 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
         g_free(path);
     }
 
+    gboolean is_secure = FALSE;
+
     // check if this file is a desktop entry
     if (th_file_is_desktop_file(file, &is_secure) && is_secure)
     {
+        gchar *p;
+
         // determine the custom icon and display name for .desktop files
 
         // query a key file for the .desktop file
+        GKeyFile    *key_file;
         key_file = e_file_query_key_file(file->gfile, cancellable, NULL);
 
         if (key_file != NULL)
         {
             // read the icon name from the .desktop file
-            file->custom_icon_name = g_key_file_get_string(key_file,
-                                     G_KEY_FILE_DESKTOP_GROUP,
-                                     G_KEY_FILE_DESKTOP_KEY_ICON,
-                                     NULL);
+            file->custom_icon_name = g_key_file_get_string(
+                                                    key_file,
+                                                    G_KEY_FILE_DESKTOP_GROUP,
+                                                    G_KEY_FILE_DESKTOP_KEY_ICON,
+                                                    NULL);
 
             if (G_UNLIKELY(!file->custom_icon_name || !*file->custom_icon_name))
             {
@@ -764,9 +760,12 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     if (file->display_name == NULL)
     {
         if (G_UNLIKELY(e_file_is_trash(file->gfile)))
+        {
             file->display_name = g_strdup(_("Trash"));
+        }
         else if (G_LIKELY(file->info != NULL))
         {
+            const gchar *display_name;
             display_name = g_file_info_get_display_name(file->info);
             if (G_LIKELY(display_name != NULL))
             {
@@ -785,8 +784,7 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     // create case sensitive collation key
     file->collate_key = g_utf8_collate_key_for_filename(file->display_name, -1);
 
-    // lowercase the display name
-    casefold = g_utf8_casefold(file->display_name, -1);
+    gchar *casefold = g_utf8_casefold(file->display_name, -1);
 
     // if the lowercase name is equal, only peek the already hash key
     if (casefold != NULL && strcmp(casefold, file->display_name) != 0)
@@ -794,7 +792,6 @@ static void _th_file_info_reload(ThunarFile *file, GCancellable *cancellable)
     else
         file->collate_key_nocase = file->collate_key;
 
-    // cleanup
     g_free(casefold);
 }
 

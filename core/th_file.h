@@ -203,8 +203,8 @@ GList*          th_file_list_to_thunar_g_file_list(GList *file_list);
 
 // Emits the ::changed signal on @file. This function is meant to be called
 // by derived classes whenever they notice changes to the @file.
-#define th_file_changed(file)                         \
-G_STMT_START{                                             \
+#define th_file_changed(file) \
+G_STMT_START{ \
     fileinfo_changed(FILEINFO((file))); \
 }G_STMT_END
 

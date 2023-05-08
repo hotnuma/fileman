@@ -60,8 +60,9 @@ static void _th_folder_content_type_loader(ThunarFolder *folder);
 static gboolean _th_folder_content_type_loader_idle(gpointer data);
 static void _th_folder_content_type_loader_idle_destroyed(gpointer data);
 
-
 // Allocate -------------------------------------------------------------------
+
+static GQuark _th_folder_quark;
 
 enum
 {
@@ -79,6 +80,8 @@ enum
     FILES_REMOVED,
     LAST_SIGNAL,
 };
+
+static guint _th_folder_signals[LAST_SIGNAL];
 
 struct _ThunarFolderClass
 {
@@ -111,9 +114,6 @@ struct _ThunarFolder
 
     GFileMonitor *monitor;
 };
-
-static guint _th_folder_signals[LAST_SIGNAL];
-static GQuark _th_folder_quark;
 
 G_DEFINE_TYPE(ThunarFolder, th_folder, G_TYPE_OBJECT)
 

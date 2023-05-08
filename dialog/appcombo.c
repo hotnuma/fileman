@@ -31,6 +31,21 @@
 #include <th_file.h>
 #include <gio_ext.h>
 
+static void appcombo_finalize(GObject *object);
+static void appcombo_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec);
+static void appcombo_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec);
+
+static gboolean appcombo_scroll_event(GtkWidget *widget, GdkEventScroll *event);
+static void _appcombo_changed(GtkComboBox *combo_box);
+static void _appcombo_popup(AppCombo *chooser_button);
+static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b);
+static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
+                                        gpointer data);
+static void _appcombo_chooser_dialog(AppCombo *chooser_button);
+static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file);
+
 // Property identifiers
 enum
 {
@@ -47,21 +62,6 @@ enum
     APPCOMBO_STORE_COLUMN_STYLE,
     APPCOMBO_STORE_N_COLUMNS
 };
-
-static void appcombo_finalize(GObject *object);
-static void appcombo_get_property(GObject *object, guint prop_id,
-                                  GValue *value, GParamSpec *pspec);
-static void appcombo_set_property(GObject *object, guint prop_id,
-                                  const GValue *value, GParamSpec *pspec);
-
-static gboolean appcombo_scroll_event(GtkWidget *widget, GdkEventScroll *event);
-static void _appcombo_changed(GtkComboBox *combo_box);
-static void _appcombo_popup(AppCombo *chooser_button);
-static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b);
-static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
-                                        gpointer data);
-static void _appcombo_chooser_dialog(AppCombo *chooser_button);
-static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file);
 
 struct _AppComboClass
 {
@@ -345,26 +345,20 @@ static void _appcombo_chooser_dialog(AppCombo *chooser_button)
 
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(toplevel));
     gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
+
     if (gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT)
         _appcombo_file_changed(chooser_button, chooser_button->file);
+
     gtk_widget_destroy(dialog);
 }
 
 static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
 {
-    const gchar *content_type;
-    GtkTreeIter  iter;
-    GAppInfo    *app_info;
-    GList       *app_infos;
-    GList       *lp;
-    gchar       *description;
-    guint        i = 0;
-
     e_return_if_fail(IS_APPCOMBO(chooser_button));
     e_return_if_fail(chooser_button->file == file);
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    // clear the store
+        // clear the store
     gtk_list_store_clear(chooser_button->store);
 
     // reset the default application flag
@@ -375,10 +369,19 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
                                      _appcombo_changed,
                                      NULL);
 
+    GtkTreeIter  iter;
+    guint        i = 0;
+
     // determine the content type of the file
+    const gchar *content_type;
     content_type = th_file_get_content_type(file);
+
     if (content_type != NULL)
     {
+        GAppInfo    *app_info;
+        GList       *app_infos;
+        gchar       *description;
+
         // setup a useful tooltip for the button
         description = g_content_type_get_description(content_type);
         etk_widget_set_tooltip(GTK_WIDGET(chooser_button),
@@ -395,8 +398,10 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
             app_infos = g_app_info_get_all_for_type(content_type);
             app_infos = g_list_sort(app_infos, _appcombo_sort_applications);
 
+            GList       *lp;
+
             // add all possible applications
-            for(lp = app_infos, i = 0; lp != NULL; lp = lp->next, ++i)
+            for (lp = app_infos, i = 0; lp != NULL; lp = lp->next, ++i)
             {
                 if (e_app_info_should_show(lp->data))
                 {

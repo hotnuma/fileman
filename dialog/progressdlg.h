@@ -17,36 +17,39 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __THUNAR_PROGRESS_DIALOG_H__
-#define __THUNAR_PROGRESS_DIALOG_H__
+#ifndef __PROGRESSDIALOG_H__
+#define __PROGRESSDIALOG_H__
 
 #include <gtk/gtk.h>
 #include <job.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-typedef struct _ThunarProgressDialogClass ThunarProgressDialogClass;
-typedef struct _ThunarProgressDialog      ThunarProgressDialog;
+typedef struct _ProgressDialogClass ProgressDialogClass;
+typedef struct _ProgressDialog      ProgressDialog;
 
-#define THUNAR_TYPE_PROGRESS_DIALOG            (thunar_progress_dialog_get_type ())
-#define THUNAR_PROGRESS_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_PROGRESS_DIALOG, ThunarProgressDialog))
-#define THUNAR_PROGRESS_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_PROGRESS_DIALOG, ThunarProgressDialogClass))
-#define THUNAR_IS_PROGRESS_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_PROGRESS_DIALOG))
-#define THUNAR_IS_PROGRESS_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_PROGRESS_DIALOG))
-#define THUNAR_PROGRESS_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_PROGRESS_DIALOG, ThunarProgressDialogClass))
+#define TYPE_PROGRESSDIALOG (progressdlg_get_type ())
+#define PROGRESSDIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PROGRESSDIALOG, ProgressDialog))
+#define PROGRESSDIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_PROGRESSDIALOG, ProgressDialogClass))
+#define IS_PROGRESSDIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_PROGRESSDIALOG))
+#define IS_PROGRESSDIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_PROGRESSDIALOG))
+#define PROGRESSDIALOG_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_PROGRESSDIALOG, ProgressDialogClass))
 
-GType thunar_progress_dialog_get_type() G_GNUC_CONST;
+GType progressdlg_get_type() G_GNUC_CONST;
 
-GtkWidget* thunar_progress_dialog_new();
-GList* thunar_progress_dialog_list_jobs(ThunarProgressDialog *dialog);
-void thunar_progress_dialog_add_job(ThunarProgressDialog *dialog,
-                                    ThunarJob            *job,
-                                    const gchar          *icon_name,
-                                    const gchar          *title);
-gboolean thunar_progress_dialog_has_jobs(ThunarProgressDialog *dialog);
+GtkWidget* progressdlg_new();
+GList* progressdlg_list_jobs(ProgressDialog *dialog);
+void progressdlg_add_job(ProgressDialog *dialog, ThunarJob *job,
+                         const gchar *icon_name, const gchar *title);
+gboolean progressdlg_has_jobs(ProgressDialog *dialog);
 
-G_END_DECLS;
+G_END_DECLS
 
-#endif // !__THUNAR_PROGRESS_DIALOG_H__
+#endif // __PROGRESSDIALOG_H__
 
 

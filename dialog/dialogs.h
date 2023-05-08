@@ -23,23 +23,27 @@
 
 G_BEGIN_DECLS
 
-gboolean    dialog_insecure_program(gpointer parent, const gchar *title,
-                                    ThunarFile *file, const gchar *command);
+// generic dialog error message
+void dialog_error(gpointer parent, const GError *error,
+                  const gchar *format, ...) G_GNUC_PRINTF(3, 4);
 
-gchar*      dialog_file_create(gpointer parent, const gchar *content_type,
-                               const gchar *filename, const gchar *title);
-ThunarJob*  dialog_file_rename(gpointer parent, ThunarFile *file);
+// th_file
+gboolean dialog_insecure_program(gpointer parent, const gchar *title,
+                                 ThunarFile *file, const gchar *command);
 
-gboolean    dialog_folder_trash(GtkWindow *window);
+// launcher
+gchar* dialog_file_create(gpointer parent, const gchar *content_type,
+                          const gchar *filename, const gchar *title);
+ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file);
+gboolean dialog_folder_trash(GtkWindow *window);
 
-void        dialog_error(gpointer parent, const GError *error,
-                         const gchar *format, ...) G_GNUC_PRINTF (3, 4);
-
+// permbox, progressview
 ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
                                  ThunarJobResponse choices);
 ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
-                                         ThunarFile *src_file, ThunarFile *dst_file);
-void        dialog_job_error(GtkWindow *parent, GError *error);
+                                         ThunarFile *src_file,
+                                         ThunarFile *dst_file);
+void dialog_job_error(GtkWindow *parent, GError *error);
 
 G_END_DECLS
 

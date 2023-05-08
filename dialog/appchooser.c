@@ -26,10 +26,8 @@
 #include <iconfactory.h>
 #include <utils.h>
 #include <gtk_ext.h>
-
 #include <memory.h>
 #include <string.h>
-
 #include <gio_ext.h>
 
 // Property identifiers

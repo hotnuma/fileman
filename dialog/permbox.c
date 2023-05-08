@@ -38,22 +38,6 @@
 #define g_strlcpy(dst, src, size)(strlcpy((dst),(src),(size)))
 #endif
 
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_FILES,
-    PROP_MUTABLE,
-};
-
-// Column identifiers for the group combo box
-enum
-{
-    THUNAR_PERMISSIONS_STORE_COLUMN_NAME,
-    THUNAR_PERMISSIONS_STORE_COLUMN_GID,
-    THUNAR_PERMISSIONS_STORE_N_COLUMNS,
-};
-
 static void permbox_finalize(GObject *object);
 static void permbox_get_property(GObject *object,
                                                      guint prop_id,
@@ -106,6 +90,22 @@ static gboolean _permbox_row_separator(GtkTreeModel *model,
 static GList* _permbox_get_files(PermissionBox *chooser);
 static void _permbox_set_files(PermissionBox *chooser,
                                                      GList *files);
+
+// Property identifiers
+enum
+{
+    PROP_0,
+    PROP_FILES,
+    PROP_MUTABLE,
+};
+
+// Column identifiers for the group combo box
+enum
+{
+    THUNAR_PERMISSIONS_STORE_COLUMN_NAME,
+    THUNAR_PERMISSIONS_STORE_COLUMN_GID,
+    THUNAR_PERMISSIONS_STORE_N_COLUMNS,
+};
 
 struct _PermissionBoxClass
 {

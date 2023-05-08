@@ -221,10 +221,10 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
 
 void appmodel_load(AppChooserModel *model, GtkWidget *widget)
 {
+    (void) widget;
+
     e_return_if_fail(IS_APPCHOOSER_MODEL(model));
     e_return_if_fail(model->content_type != NULL);
-
-    (void) widget;
 
     gtk_tree_store_clear(GTK_TREE_STORE(model));
 

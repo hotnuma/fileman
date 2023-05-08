@@ -25,6 +25,41 @@
 #include <pango_ext.h>
 #include <transfer_job.h>
 
+static void progressview_finalize(GObject *object);
+static void progressview_dispose(GObject *object);
+static void progressview_get_property(GObject *object,
+                                              guint prop_id,
+                                              GValue *value,
+                                              GParamSpec *pspec);
+static void progressview_set_property(GObject *object,
+                                              guint prop_id,
+                                              const GValue *value,
+                                              GParamSpec *pspec);
+static void progressview_pause_job(ProgressView *view);
+static void progressview_unpause_job(ProgressView *view);
+static void progressview_cancel_job(ProgressView *view);
+static ThunarJobResponse progressview_ask(ProgressView *view,
+                                                  const gchar *message,
+                                                  ThunarJobResponse choices,
+                                                  ThunarJob *job);
+static ThunarJobResponse progressview_ask_replace(ProgressView *view,
+                                                          ThunarFile *src_file,
+                                                          ThunarFile *dst_file,
+                                                          ThunarJob *job);
+static void progressview_error(ProgressView *view,
+                                       GError *error,
+                                       ExoJob *job);
+static void progressview_finished(ProgressView *view, ExoJob *job);
+static void progressview_info_message(ProgressView *view,
+                                              const gchar *message,
+                                              ExoJob *job);
+static void progressview_percent(ProgressView *view,
+                                         gdouble percent,
+                                         ExoJob *job);
+static void progressview_frozen(ProgressView *view, ExoJob *job);
+static void progressview_unfrozen(ProgressView *view, ExoJob *job);
+static void progressview_set_job(ProgressView *view, ThunarJob *job);
+
 enum
 {
     PROP_0,
@@ -33,76 +68,41 @@ enum
     PROP_TITLE,
 };
 
-static void thunar_progress_view_finalize(GObject *object);
-static void thunar_progress_view_dispose(GObject *object);
-static void thunar_progress_view_get_property(GObject *object,
-                                              guint prop_id,
-                                              GValue *value,
-                                              GParamSpec *pspec);
-static void thunar_progress_view_set_property(GObject *object,
-                                              guint prop_id,
-                                              const GValue *value,
-                                              GParamSpec *pspec);
-static void thunar_progress_view_pause_job(ThunarProgressView *view);
-static void thunar_progress_view_unpause_job(ThunarProgressView *view);
-static void thunar_progress_view_cancel_job(ThunarProgressView *view);
-static ThunarJobResponse thunar_progress_view_ask(ThunarProgressView *view,
-                                                  const gchar *message,
-                                                  ThunarJobResponse choices,
-                                                  ThunarJob *job);
-static ThunarJobResponse thunar_progress_view_ask_replace(ThunarProgressView *view,
-                                                          ThunarFile *src_file,
-                                                          ThunarFile *dst_file,
-                                                          ThunarJob *job);
-static void thunar_progress_view_error(ThunarProgressView *view,
-                                       GError *error,
-                                       ExoJob *job);
-static void thunar_progress_view_finished(ThunarProgressView *view, ExoJob *job);
-static void thunar_progress_view_info_message(ThunarProgressView *view,
-                                              const gchar *message,
-                                              ExoJob *job);
-static void thunar_progress_view_percent(ThunarProgressView *view,
-                                         gdouble percent,
-                                         ExoJob *job);
-static void thunar_progress_view_frozen(ThunarProgressView *view, ExoJob *job);
-static void thunar_progress_view_unfrozen(ThunarProgressView *view, ExoJob *job);
-static void thunar_progress_view_set_job(ThunarProgressView *view, ThunarJob *job);
-
-struct _ThunarProgressViewClass
+struct _ProgressViewClass
 {
-    GtkVBoxClass __parent__;
+    GtkBoxClass __parent__;
 };
 
-struct _ThunarProgressView
+struct _ProgressView
 {
-    GtkVBox  __parent__;
+    GtkBox     __parent__;
 
-    ThunarJob *job;
+    ThunarJob   *job;
 
-    GtkWidget *progress_bar;
-    GtkWidget *progress_label;
-    GtkWidget *message_label;
-    GtkWidget *pause_button;
-    GtkWidget *unpause_button;
+    GtkWidget   *progress_bar;
+    GtkWidget   *progress_label;
+    GtkWidget   *message_label;
+    GtkWidget   *pause_button;
+    GtkWidget   *unpause_button;
 
-    gchar     *icon_name;
-    gchar     *title;
+    gchar       *icon_name;
+    gchar       *title;
 };
 
-G_DEFINE_TYPE(ThunarProgressView, thunar_progress_view, GTK_TYPE_BOX)
+G_DEFINE_TYPE(ProgressView, progressview, GTK_TYPE_BOX)
 
-static void thunar_progress_view_class_init(ThunarProgressViewClass *klass)
+static void progressview_class_init(ProgressViewClass *klass)
 {
     GObjectClass *gobject_class;
 
     gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = thunar_progress_view_finalize;
-    gobject_class->dispose = thunar_progress_view_dispose;
-    gobject_class->get_property = thunar_progress_view_get_property;
-    gobject_class->set_property = thunar_progress_view_set_property;
+    gobject_class->finalize = progressview_finalize;
+    gobject_class->dispose = progressview_dispose;
+    gobject_class->get_property = progressview_get_property;
+    gobject_class->set_property = progressview_set_property;
 
     /**
-     * ThunarProgressView:job:
+     * ProgressView:job:
      *
      * The #ThunarJob, whose progress is displayed by this view, or
      * %NULL if no job is set.
@@ -130,7 +130,7 @@ static void thunar_progress_view_class_init(ThunarProgressViewClass *klass)
                                              E_PARAM_READWRITE));
 
     g_signal_new("need-attention",
-                  THUNAR_TYPE_PROGRESS_VIEW,
+                  TYPE_PROGRESSVIEW,
                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_HOOKS,
                   0,
                   NULL,
@@ -140,7 +140,7 @@ static void thunar_progress_view_class_init(ThunarProgressViewClass *klass)
                   0);
 
     g_signal_new("finished",
-                  THUNAR_TYPE_PROGRESS_VIEW,
+                  TYPE_PROGRESSVIEW,
                   G_SIGNAL_RUN_LAST | G_SIGNAL_NO_HOOKS,
                   0,
                   NULL,
@@ -150,7 +150,7 @@ static void thunar_progress_view_class_init(ThunarProgressViewClass *klass)
                   0);
 }
 
-static void thunar_progress_view_init(ThunarProgressView *view)
+static void progressview_init(ProgressView *view)
 {
     GtkWidget *image;
     GtkWidget *label;
@@ -211,21 +211,21 @@ static void thunar_progress_view_init(ThunarProgressView *view)
 
     view->pause_button = gtk_button_new_from_icon_name("media-playback-pause", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_label(GTK_BUTTON(view->pause_button), _("Pause"));
-    g_signal_connect_swapped(view->pause_button, "clicked", G_CALLBACK(thunar_progress_view_pause_job), view);
+    g_signal_connect_swapped(view->pause_button, "clicked", G_CALLBACK(progressview_pause_job), view);
     gtk_box_pack_start(GTK_BOX(hbox), view->pause_button, FALSE, FALSE, 0);
     gtk_widget_set_can_focus(view->pause_button, FALSE);
     gtk_widget_hide(view->pause_button);
 
     view->unpause_button = gtk_button_new_from_icon_name("media-playback-start", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_label(GTK_BUTTON(view->unpause_button), _("Resume"));
-    g_signal_connect_swapped(view->unpause_button, "clicked", G_CALLBACK(thunar_progress_view_unpause_job), view);
+    g_signal_connect_swapped(view->unpause_button, "clicked", G_CALLBACK(progressview_unpause_job), view);
     gtk_box_pack_start(GTK_BOX(hbox), view->unpause_button, FALSE, FALSE, 0);
     gtk_widget_set_can_focus(view->unpause_button, FALSE);
     gtk_widget_hide(view->unpause_button);
 
     cancel_button = gtk_button_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_label(GTK_BUTTON(cancel_button), _("Cancel"));
-    g_signal_connect_swapped(cancel_button, "clicked", G_CALLBACK(thunar_progress_view_cancel_job), view);
+    g_signal_connect_swapped(cancel_button, "clicked", G_CALLBACK(progressview_cancel_job), view);
     gtk_box_pack_start(GTK_BOX(hbox), cancel_button, FALSE, FALSE, 0);
     gtk_widget_set_can_focus(cancel_button, FALSE);
     gtk_widget_show(cancel_button);
@@ -234,42 +234,42 @@ static void thunar_progress_view_init(ThunarProgressView *view)
     g_object_bind_property(G_OBJECT(view), "title", G_OBJECT(label), "label", G_BINDING_SYNC_CREATE);
 }
 
-static void thunar_progress_view_finalize(GObject *object)
+static void progressview_finalize(GObject *object)
 {
-    ThunarProgressView *view = THUNAR_PROGRESS_VIEW(object);
+    ProgressView *view = PROGRESSVIEW(object);
 
     g_free(view->icon_name);
     g_free(view->title);
 
-   (*G_OBJECT_CLASS(thunar_progress_view_parent_class)->finalize)(object);
+   (*G_OBJECT_CLASS(progressview_parent_class)->finalize)(object);
 }
 
-static void thunar_progress_view_dispose(GObject *object)
+static void progressview_dispose(GObject *object)
 {
-    ThunarProgressView *view = THUNAR_PROGRESS_VIEW(object);
+    ProgressView *view = PROGRESSVIEW(object);
 
     // disconnect from the job(if any)
     if (view->job != NULL)
     {
         exo_job_cancel(EXO_JOB(view->job));
-        thunar_progress_view_set_job(view, NULL);
+        progressview_set_job(view, NULL);
     }
 
-    (*G_OBJECT_CLASS(thunar_progress_view_parent_class)->dispose)(object);
+    (*G_OBJECT_CLASS(progressview_parent_class)->dispose)(object);
 }
 
-static void thunar_progress_view_get_property(GObject    *object,
+static void progressview_get_property(GObject    *object,
                                               guint       prop_id,
                                               GValue     *value,
                                               GParamSpec *pspec)
 {
     (void) pspec;
-    ThunarProgressView *view = THUNAR_PROGRESS_VIEW(object);
+    ProgressView *view = PROGRESSVIEW(object);
 
     switch(prop_id)
     {
     case PROP_JOB:
-        g_value_set_object(value, thunar_progress_view_get_job(view));
+        g_value_set_object(value, progressview_get_job(view));
         break;
 
     case PROP_ICON_NAME:
@@ -286,26 +286,26 @@ static void thunar_progress_view_get_property(GObject    *object,
     }
 }
 
-static void thunar_progress_view_set_property(GObject      *object,
+static void progressview_set_property(GObject      *object,
                                               guint         prop_id,
                                               const GValue *value,
                                               GParamSpec   *pspec)
 {
     (void) pspec;
-    ThunarProgressView *view = THUNAR_PROGRESS_VIEW(object);
+    ProgressView *view = PROGRESSVIEW(object);
 
     switch(prop_id)
     {
     case PROP_JOB:
-        thunar_progress_view_set_job(view, g_value_get_object(value));
+        progressview_set_job(view, g_value_get_object(value));
         break;
 
     case PROP_ICON_NAME:
-        thunar_progress_view_set_icon_name(view, g_value_get_string(value));
+        progressview_set_icon_name(view, g_value_get_string(value));
         break;
 
     case PROP_TITLE:
-        thunar_progress_view_set_title(view, g_value_get_string(value));
+        progressview_set_title(view, g_value_get_string(value));
         break;
 
     default:
@@ -314,9 +314,9 @@ static void thunar_progress_view_set_property(GObject      *object,
     }
 }
 
-static void thunar_progress_view_pause_job(ThunarProgressView *view)
+static void progressview_pause_job(ProgressView *view)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(view->job));
 
     if (view->job != NULL)
@@ -331,9 +331,9 @@ static void thunar_progress_view_pause_job(ThunarProgressView *view)
     }
 }
 
-static void thunar_progress_view_unpause_job(ThunarProgressView *view)
+static void progressview_unpause_job(ProgressView *view)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(view->job));
 
     if (view->job != NULL)
@@ -349,9 +349,9 @@ static void thunar_progress_view_unpause_job(ThunarProgressView *view)
     }
 }
 
-static void thunar_progress_view_cancel_job(ThunarProgressView *view)
+static void progressview_cancel_job(ProgressView *view)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(view->job));
 
     if (view->job != NULL)
@@ -361,31 +361,31 @@ static void thunar_progress_view_cancel_job(ThunarProgressView *view)
 
         // don't listen to frozen/unfrozen states updates any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                              thunar_progress_view_frozen, NULL);
+                                              progressview_frozen, NULL);
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                              thunar_progress_view_unfrozen, NULL);
+                                              progressview_unfrozen, NULL);
 
         // don't listen to percentage updates any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                              thunar_progress_view_percent, NULL);
+                                              progressview_percent, NULL);
 
         // don't listen to info messages any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                              thunar_progress_view_info_message, NULL);
+                                              progressview_info_message, NULL);
 
         // update the status text
         gtk_label_set_text(GTK_LABEL(view->progress_label), _("Cancelling..."));
     }
 }
 
-static ThunarJobResponse thunar_progress_view_ask(ThunarProgressView *view,
+static ThunarJobResponse progressview_ask(ProgressView *view,
                                                   const gchar       *message,
                                                   ThunarJobResponse choices,
                                                   ThunarJob         *job)
 {
     GtkWidget *window;
 
-    e_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_PROGRESSVIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(g_utf8_validate(message, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
@@ -401,14 +401,14 @@ static ThunarJobResponse thunar_progress_view_ask(ThunarProgressView *view,
                                         message, choices);
 }
 
-static ThunarJobResponse thunar_progress_view_ask_replace(ThunarProgressView *view,
+static ThunarJobResponse progressview_ask_replace(ProgressView *view,
                                                           ThunarFile         *src_file,
                                                           ThunarFile         *dst_file,
                                                           ThunarJob          *job)
 {
     GtkWidget *window;
 
-    e_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_PROGRESSVIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
@@ -425,13 +425,13 @@ static ThunarJobResponse thunar_progress_view_ask_replace(ThunarProgressView *vi
             src_file, dst_file);
 }
 
-static void thunar_progress_view_error(ThunarProgressView *view,
+static void progressview_error(ProgressView *view,
                                        GError             *error,
                                        ExoJob             *job)
 {
     GtkWidget *window;
 
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(error != NULL && error->message != NULL);
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
@@ -446,10 +446,10 @@ static void thunar_progress_view_error(ThunarProgressView *view,
     dialog_job_error(window != NULL ? GTK_WINDOW(window) : NULL, error);
 }
 
-static void thunar_progress_view_finished(ThunarProgressView *view,
+static void progressview_finished(ProgressView *view,
                                           ExoJob             *job)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
 
@@ -457,11 +457,11 @@ static void thunar_progress_view_finished(ThunarProgressView *view,
     g_signal_emit_by_name(view, "finished");
 }
 
-static void thunar_progress_view_info_message(ThunarProgressView *view,
+static void progressview_info_message(ProgressView *view,
                                               const gchar        *message,
                                               ExoJob             *job)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(g_utf8_validate(message, -1, NULL));
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
@@ -469,13 +469,13 @@ static void thunar_progress_view_info_message(ThunarProgressView *view,
     gtk_label_set_text(GTK_LABEL(view->message_label), message);
 }
 
-static void thunar_progress_view_percent(ThunarProgressView *view,
+static void progressview_percent(ProgressView *view,
                                          gdouble             percent,
                                          ExoJob             *job)
 {
     gchar *text;
 
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(percent >= 0.0 && percent <= 100.0);
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
@@ -493,10 +493,10 @@ static void thunar_progress_view_percent(ThunarProgressView *view,
     g_free(text);
 }
 
-static void thunar_progress_view_frozen(ThunarProgressView *view,
+static void progressview_frozen(ProgressView *view,
                                         ExoJob             *job)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
 
@@ -509,10 +509,10 @@ static void thunar_progress_view_frozen(ThunarProgressView *view,
     }
 }
 
-static void thunar_progress_view_unfrozen(ThunarProgressView *view,
+static void progressview_unfrozen(ProgressView *view,
                                           ExoJob             *job)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(view->job == THUNAR_JOB(job));
 
@@ -526,22 +526,26 @@ static void thunar_progress_view_unfrozen(ThunarProgressView *view,
 }
 
 /**
- * thunar_progress_view_new_with_job:
+ * progressview_new_with_job:
  * @job : a #ThunarJob or %NULL.
  *
- * Allocates a new #ThunarProgressView and associates it with the @job.
+ * Allocates a new #ProgressView and associates it with the @job.
  *
- * Return value: the newly allocated #ThunarProgressView.
+ * Return value: the newly allocated #ProgressView.
  **/
-GtkWidget* thunar_progress_view_new_with_job(ThunarJob *job)
+GtkWidget* progressview_new_with_job(ThunarJob *job)
 {
     e_return_val_if_fail(job == NULL || THUNAR_IS_JOB(job), NULL);
-    return g_object_new(THUNAR_TYPE_PROGRESS_VIEW, "job", job, NULL);
+
+    return g_object_new(TYPE_PROGRESSVIEW,
+                        "job", job,
+                        "orientation", GTK_ORIENTATION_VERTICAL,
+                        NULL);
 }
 
 /**
- * thunar_progress_view_get_job:
- * @view : a #ThunarProgressView.
+ * progressview_get_job:
+ * @view : a #ProgressView.
  *
  * Returns the #ThunarJob associated with @view
  * or %NULL if no job is currently associated with @view.
@@ -551,23 +555,23 @@ GtkWidget* thunar_progress_view_new_with_job(ThunarJob *job)
  *
  * Return value: the job associated with @view or %NULL.
  **/
-ThunarJob* thunar_progress_view_get_job(ThunarProgressView *view)
+ThunarJob* progressview_get_job(ProgressView *view)
 {
-    e_return_val_if_fail(THUNAR_IS_PROGRESS_VIEW(view), NULL);
+    e_return_val_if_fail(IS_PROGRESSVIEW(view), NULL);
     return view->job;
 }
 
 /**
- * thunar_progress_view_set_job:
- * @view : a #ThunarProgressView.
+ * progressview_set_job:
+ * @view : a #ProgressView.
  * @job    : a #ThunarJob or %NULL.
  *
  * Associates @job with @view.
  **/
-static void thunar_progress_view_set_job(ThunarProgressView *view,
+static void progressview_set_job(ProgressView *view,
                                          ThunarJob          *job)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(job == NULL || THUNAR_IS_JOB(job));
 
     // check if we're already on that job
@@ -589,14 +593,14 @@ static void thunar_progress_view_set_job(ThunarProgressView *view,
     {
         g_object_ref(job);
 
-        g_signal_connect_swapped(job, "ask", G_CALLBACK(thunar_progress_view_ask), view);
-        g_signal_connect_swapped(job, "ask-replace", G_CALLBACK(thunar_progress_view_ask_replace), view);
-        g_signal_connect_swapped(job, "error", G_CALLBACK(thunar_progress_view_error), view);
-        g_signal_connect_swapped(job, "finished", G_CALLBACK(thunar_progress_view_finished), view);
-        g_signal_connect_swapped(job, "info-message", G_CALLBACK(thunar_progress_view_info_message), view);
-        g_signal_connect_swapped(job, "percent", G_CALLBACK(thunar_progress_view_percent), view);
-        g_signal_connect_swapped(job, "frozen", G_CALLBACK(thunar_progress_view_frozen), view);
-        g_signal_connect_swapped(job, "unfrozen", G_CALLBACK(thunar_progress_view_unfrozen), view);
+        g_signal_connect_swapped(job, "ask", G_CALLBACK(progressview_ask), view);
+        g_signal_connect_swapped(job, "ask-replace", G_CALLBACK(progressview_ask_replace), view);
+        g_signal_connect_swapped(job, "error", G_CALLBACK(progressview_error), view);
+        g_signal_connect_swapped(job, "finished", G_CALLBACK(progressview_finished), view);
+        g_signal_connect_swapped(job, "info-message", G_CALLBACK(progressview_info_message), view);
+        g_signal_connect_swapped(job, "percent", G_CALLBACK(progressview_percent), view);
+        g_signal_connect_swapped(job, "frozen", G_CALLBACK(progressview_frozen), view);
+        g_signal_connect_swapped(job, "unfrozen", G_CALLBACK(progressview_unfrozen), view);
         if (job_is_pausable(job))
         {
             gtk_widget_show(view->pause_button);
@@ -606,10 +610,10 @@ static void thunar_progress_view_set_job(ThunarProgressView *view,
     g_object_notify(G_OBJECT(view), "job");
 }
 
-void thunar_progress_view_set_icon_name(ThunarProgressView *view,
+void progressview_set_icon_name(ProgressView *view,
                                         const gchar        *icon_name)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
 
     if (g_strcmp0(view->icon_name, icon_name) == 0)
         return;
@@ -620,10 +624,10 @@ void thunar_progress_view_set_icon_name(ThunarProgressView *view,
     g_object_notify(G_OBJECT(view), "icon-name");
 }
 
-void thunar_progress_view_set_title(ThunarProgressView *view,
+void progressview_set_title(ProgressView *view,
                                     const gchar        *title)
 {
-    e_return_if_fail(THUNAR_IS_PROGRESS_VIEW(view));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
 
     if (g_strcmp0(view->title, title) == 0)
         return;
