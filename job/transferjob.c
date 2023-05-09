@@ -23,7 +23,7 @@
 
 #include <gio_ext.h>
 #include <io_scandir.h>
-#include <job_utils.h>
+#include <jobutils.h>
 
 // seconds before we show the transfer rate + remaining time
 #define MINIMUM_TRANSFER_TIME (10 * G_USEC_PER_SEC) // 10 seconds
@@ -529,7 +529,7 @@ static GFile* _transferjob_copy_file(TransferJob *job,
         {
             for(n = 1; err == NULL; ++n)
             {
-                GFile *duplicate_file = job_util_next_duplicate_file(THUNAR_JOB(job),
+                GFile *duplicate_file = jobutil_next_duplicate_file(THUNAR_JOB(job),
                                         source_file,
                                         TRUE, n,
                                         &err);
@@ -586,7 +586,7 @@ static GFile* _transferjob_copy_file(TransferJob *job,
             else if (response == THUNAR_JOB_RESPONSE_RENAME)
             {
                 GFile *renamed_file;
-                renamed_file = job_util_next_renamed_file(THUNAR_JOB(job),
+                renamed_file = jobutil_next_renamed_file(THUNAR_JOB(job),
                                source_file,
                                dest_file,
                                ++n_rename, &err);
@@ -955,7 +955,7 @@ static gboolean _transferjob_move_file_with_rename(ExoJob         *job,
     while(TRUE)
     {
         g_clear_error(error);
-        renamed_file = job_util_next_renamed_file(THUNAR_JOB(job),
+        renamed_file = jobutil_next_renamed_file(THUNAR_JOB(job),
                        node->source_file,
                        tp->data,
                        n_rename++, error);

@@ -22,7 +22,7 @@
 #include <sizelabel.h>
 
 #include <job.h>
-#include <dcount_job.h>
+#include <dcountjob.h>
 
 enum
 {

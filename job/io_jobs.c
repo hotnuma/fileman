@@ -24,7 +24,7 @@
 #include <enumtypes.h>
 #include <gio_ext.h>
 #include <io_scandir.h>
-#include <job_utils.h>
+#include <jobutils.h>
 #include <simplejob.h>
 #include <transferjob.h>
 
@@ -777,7 +777,7 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
         {
             for (n = 1; err == NULL; ++n)
             {
-                GFile *duplicate_file = job_util_next_duplicate_file(job,
+                GFile *duplicate_file = jobutil_next_duplicate_file(job,
                                         source_file,
                                         FALSE, n,
                                         &err);

@@ -29,12 +29,12 @@ HEADERS = \
     dialog/progressdlg.h \
     dialog/progressview.h \
     dialog/propsdlg.h \
-    job/dcount_job.h \
+    job/dcountjob.h \
     job/exo_job.h \
     job/io_jobs.h \
     job/io_scandir.h \
     job/job.h \
-    job/job_utils.h \
+    job/jobutils.h \
     job/simplejob.h \
     job/transferjob.h \
     launcher.h \
@@ -96,12 +96,12 @@ SOURCES = \
     dialog/progressdlg.c \
     dialog/progressview.c \
     dialog/propsdlg.c \
-    job/dcount_job.c \
+    job/dcountjob.c \
     job/exo_job.c \
     job/io_jobs.c \
     job/io_scandir.c \
     job/job.c \
-    job/job_utils.c \
+    job/jobutils.c \
     job/simplejob.c \
     job/transferjob.c \
     launcher.c \

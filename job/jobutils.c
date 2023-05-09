@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <job_utils.h>
+#include <jobutils.h>
 
 #include <gio_ext.h>
 #include <utils.h>
@@ -44,7 +44,7 @@
  * Return value: the #GFile referencing the @n<!---->th copy or link
  *               of @file or %NULL on error/cancellation.
  **/
-GFile* job_util_next_duplicate_file(ThunarJob *job,
+GFile* jobutil_next_duplicate_file(ThunarJob *job,
                                     GFile     *file,
                                     gboolean  copy,
                                     guint     n,
@@ -147,7 +147,7 @@ GFile* job_util_next_duplicate_file(ThunarJob *job,
  * Return value: the #GFile referencing the @n<!---->th copy/move
  *               of @tgt_file or %NULL on error/cancellation.
  **/
-GFile* job_util_next_renamed_file(ThunarJob *job,
+GFile* jobutil_next_renamed_file(ThunarJob *job,
                                   GFile     *src_file,
                                   GFile     *tgt_file,
                                   guint     n,
