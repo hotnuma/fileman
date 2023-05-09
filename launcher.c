@@ -2122,7 +2122,7 @@ static void _launcher_rename_error(ExoJob *job, GError *error,
     e_return_if_fail(EXO_IS_JOB(job));
     e_return_if_fail(error != NULL);
 
-    GArray *param_values = simple_job_get_param_values(THUNAR_SIMPLE_JOB(job));
+    GArray *param_values = simplejob_get_param_values(THUNAR_SIMPLE_JOB(job));
     ThunarFile *file;
     file = g_value_get_object(&g_array_index(param_values, GValue, 0));
 

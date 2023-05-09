@@ -38,14 +38,14 @@ enum
 
 typedef struct _TransferNode TransferNode;
 
-static void transfer_job_get_property(GObject *object, guint prop_id,
+static void transferjob_get_property(GObject *object, guint prop_id,
                                       GValue *value, GParamSpec *pspec);
 
-static void transfer_job_set_property(GObject *object, guint prop_id,
+static void transferjob_set_property(GObject *object, guint prop_id,
                                       const GValue *value, GParamSpec *pspec);
 
-static void transfer_job_finalize(GObject *object);
-static gboolean transfer_job_execute(ExoJob *job, GError **error);
+static void transferjob_finalize(GObject *object);
+static gboolean transferjob_execute(ExoJob *job, GError **error);
 
 static void _transfer_node_free(gpointer data);
 
@@ -90,20 +90,20 @@ struct _TransferNode
     gboolean    rename_confirmed;
 };
 
-G_DEFINE_TYPE(TransferJob, transfer_job, THUNAR_TYPE_JOB)
+G_DEFINE_TYPE(TransferJob, transferjob, THUNAR_TYPE_JOB)
 
-static void transfer_job_class_init(TransferJobClass *klass)
+static void transferjob_class_init(TransferJobClass *klass)
 {
     GObjectClass *gobject_class;
     ExoJobClass  *exojob_class;
 
     gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = transfer_job_finalize;
-    gobject_class->get_property = transfer_job_get_property;
-    gobject_class->set_property = transfer_job_set_property;
+    gobject_class->finalize = transferjob_finalize;
+    gobject_class->get_property = transferjob_get_property;
+    gobject_class->set_property = transferjob_set_property;
 
     exojob_class = EXO_JOB_CLASS(klass);
-    exojob_class->execute = transfer_job_execute;
+    exojob_class->execute = transferjob_execute;
 
     g_object_class_install_property(gobject_class,
                                     PROP_FILE_SIZE_BINARY,
@@ -125,7 +125,7 @@ static void transfer_job_class_init(TransferJobClass *klass)
                                         E_PARAM_READWRITE));
 }
 
-static void transfer_job_init(TransferJob *job)
+static void transferjob_init(TransferJob *job)
 {
     job->type = 0;
     job->source_node_list = NULL;
@@ -143,7 +143,7 @@ static void transfer_job_init(TransferJob *job)
     job->start_time = 0;
 }
 
-static void transfer_job_finalize(GObject *object)
+static void transferjob_finalize(GObject *object)
 {
     TransferJob *job = TRANSFERJOB(object);
 
@@ -157,10 +157,10 @@ static void transfer_job_finalize(GObject *object)
 
     e_list_free(job->target_file_list);
 
-    G_OBJECT_CLASS(transfer_job_parent_class)->finalize(object);
+    G_OBJECT_CLASS(transferjob_parent_class)->finalize(object);
 }
 
-static void transfer_job_get_property(GObject *object, guint prop_id,
+static void transferjob_get_property(GObject *object, guint prop_id,
                                       GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
@@ -181,7 +181,7 @@ static void transfer_job_get_property(GObject *object, guint prop_id,
     }
 }
 
-static void transfer_job_set_property(GObject *object, guint prop_id,
+static void transferjob_set_property(GObject *object, guint prop_id,
                                       const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
@@ -202,7 +202,7 @@ static void transfer_job_set_property(GObject *object, guint prop_id,
     }
 }
 
-static void _transfer_job_check_pause(TransferJob *job)
+static void _transferjob_check_pause(TransferJob *job)
 {
     e_return_if_fail(IS_TRANSFERJOB(job));
 
@@ -213,7 +213,7 @@ static void _transfer_job_check_pause(TransferJob *job)
     }
 }
 
-static void _transfer_job_progress(goffset current_num_bytes,
+static void _transferjob_progress(goffset current_num_bytes,
                                    goffset total_num_bytes,
                                    gpointer user_data)
 {
@@ -227,7 +227,7 @@ static void _transfer_job_progress(goffset current_num_bytes,
 
     e_return_if_fail(IS_TRANSFERJOB(job));
 
-    _transfer_job_check_pause(job);
+    _transferjob_check_pause(job);
 
     if (G_LIKELY(job->total_size > 0))
     {
@@ -266,7 +266,7 @@ static void _transfer_job_progress(goffset current_num_bytes,
     }
 }
 
-static gboolean _transfer_job_collect_node(TransferJob *job, TransferNode *node,
+static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
                                            GError **error)
 {
     TransferNode *child_node;
@@ -305,7 +305,7 @@ static gboolean _transfer_job_collect_node(TransferJob *job, TransferNode *node,
         // add children to the transfer node
         for(lp = file_list; err == NULL && lp != NULL; lp = lp->next)
         {
-            _transfer_job_check_pause(job);
+            _transferjob_check_pause(job);
 
             // allocate a new transfer node for the child
             child_node = g_slice_new0(TransferNode);
@@ -318,7 +318,7 @@ static gboolean _transfer_job_collect_node(TransferJob *job, TransferNode *node,
             node->children = child_node;
 
             // collect the child node
-            _transfer_job_collect_node(job, child_node, &err);
+            _transferjob_collect_node(job, child_node, &err);
         }
 
         // release the child files
@@ -337,7 +337,7 @@ static gboolean _transfer_job_collect_node(TransferJob *job, TransferNode *node,
     return TRUE;
 }
 
-static gboolean _transfer_job_copy_file_real(TransferJob    *job,
+static gboolean _transferjob_copy_file_real(TransferJob    *job,
                                              GFile          *source_file,
                                              GFile          *target_file,
                                              GFileCopyFlags copy_flags,
@@ -359,21 +359,21 @@ static gboolean _transfer_job_copy_file_real(TransferJob    *job,
 
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return FALSE;
-    _transfer_job_check_pause(job);
+    _transferjob_check_pause(job);
 
     source_type = g_file_query_file_type(source_file, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                           exo_job_get_cancellable(EXO_JOB(job)));
 
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return FALSE;
-    _transfer_job_check_pause(job);
+    _transferjob_check_pause(job);
 
     target_type = g_file_query_file_type(target_file, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                           exo_job_get_cancellable(EXO_JOB(job)));
 
     if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
         return FALSE;
-    _transfer_job_check_pause(job);
+    _transferjob_check_pause(job);
 
     // check if the target is a symlink and we are in overwrite mode
     if (target_type == G_FILE_TYPE_SYMBOLIC_LINK &&(copy_flags & G_FILE_COPY_OVERWRITE) != 0)
@@ -389,7 +389,7 @@ static gboolean _transfer_job_copy_file_real(TransferJob    *job,
     // try to copy the file
     g_file_copy(source_file, target_file, copy_flags,
                  exo_job_get_cancellable(EXO_JOB(job)),
-                 _transfer_job_progress, job, &err);
+                 _transferjob_progress, job, &err);
 
     // check if there were errors
     if (G_UNLIKELY(err != NULL && err->domain == G_IO_ERROR))
@@ -459,7 +459,7 @@ static gboolean _transfer_job_copy_file_real(TransferJob    *job,
 }
 
 /**
- * _transfer_job_copy_file:
+ * _transferjob_copy_file:
  * @job                : a #TransferJob.
  * @source_file        : the source #GFile to copy.
  * @target_file        : the destination #GFile to copy to.
@@ -484,7 +484,7 @@ static gboolean _transfer_job_copy_file_real(TransferJob    *job,
  *               @source_file if the file was skipped and will be %NULL
  *               on error or cancellation.
  **/
-static GFile* _transfer_job_copy_file(TransferJob *job,
+static GFile* _transferjob_copy_file(TransferJob *job,
                                       GFile       *source_file,
                                       GFile       *target_file,
                                       gboolean    replace_confirmed,
@@ -510,11 +510,11 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
     // various attempts to copy the file
     while(err == NULL)
     {
-        _transfer_job_check_pause(job);
+        _transferjob_check_pause(job);
         if (G_LIKELY(!g_file_equal(source_file, dest_file)))
         {
             // try to copy the file from source_file to the dest_file
-            if (_transfer_job_copy_file_real(job,
+            if (_transferjob_copy_file_real(job,
                                         source_file,
                                         dest_file,
                                         copy_flags,
@@ -537,7 +537,7 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
                 if (err == NULL)
                 {
                     // try to copy the file from source file to the duplicate file
-                    if (_transfer_job_copy_file_real(job,
+                    if (_transferjob_copy_file_real(job,
                                                 source_file,
                                                 duplicate_file,
                                                 copy_flags,
@@ -615,7 +615,7 @@ static GFile* _transfer_job_copy_file(TransferJob *job,
     return NULL;
 }
 
-static void _transfer_job_copy_node(TransferJob  *job,
+static void _transferjob_copy_node(TransferJob  *job,
                                     TransferNode *node,
                                     GFile        *target_file,
                                     GFile        *target_parent_file,
@@ -669,10 +669,10 @@ static void _transfer_job_copy_node(TransferJob  *job,
         exo_job_info_message(EXO_JOB(job), "%s", g_file_info_get_display_name(info));
 
 retry_copy:
-        _transfer_job_check_pause(job);
+        _transferjob_check_pause(job);
 
         // copy the item specified by this node(not recursively)
-        real_target_file = _transfer_job_copy_file(job, node->source_file,
+        real_target_file = _transferjob_copy_file(job, node->source_file,
                            target_file,
                            node->replace_confirmed,
                            node->rename_confirmed,
@@ -686,7 +686,7 @@ retry_copy:
                 if (node->children != NULL)
                 {
                     // copy all children of this node
-                    _transfer_job_copy_node(job, node->children, NULL, real_target_file, NULL, &err);
+                    _transferjob_copy_node(job, node->children, NULL, real_target_file, NULL, &err);
 
                     // free resources allocted for the children
                     _transfer_node_free(node->children);
@@ -711,7 +711,7 @@ retry_copy:
                 }
 
 retry_remove:
-                _transfer_job_check_pause(job);
+                _transferjob_check_pause(job);
 
                 // try to remove the source directory if we are on copy+remove fallback for move
                 if (job->type == TRANSFERJOB_MOVE)
@@ -766,7 +766,7 @@ retry_remove:
         g_propagate_error(error, err);
 }
 
-static gboolean _transfer_job_verify_destination(TransferJob *transfer_job,
+static gboolean _transferjob_verify_destination(TransferJob *transfer_job,
                                                  GError **error)
 {
     (void) error;
@@ -852,7 +852,7 @@ static gboolean _transfer_job_verify_destination(TransferJob *transfer_job,
 }
 
 
-static gboolean _transfer_job_prepare_untrash_file(ExoJob    *job,
+static gboolean _transferjob_prepare_untrash_file(ExoJob    *job,
                                                    GFileInfo *info,
                                                    GFile     *file,
                                                    GError    **error)
@@ -941,7 +941,7 @@ static gboolean _transfer_job_prepare_untrash_file(ExoJob    *job,
 }
 
 
-static gboolean _transfer_job_move_file_with_rename(ExoJob         *job,
+static gboolean _transferjob_move_file_with_rename(ExoJob         *job,
                                                     TransferNode   *node,
                                                     GList          *tp,
                                                     GFileCopyFlags flags,
@@ -977,7 +977,7 @@ static gboolean _transfer_job_move_file_with_rename(ExoJob         *job,
     }
 }
 
-static gboolean _transfer_job_move_file(ExoJob         *job,
+static gboolean _transferjob_move_file(ExoJob         *job,
                                         GFileInfo      *info,
                                         GList          *sp,
                                         TransferNode   *node,
@@ -1018,7 +1018,7 @@ static gboolean _transfer_job_move_file(ExoJob         *job,
         // if the user chose to rename then try to do so
         else if (response == THUNAR_JOB_RESPONSE_RENAME)
         {
-            move_successful = _transfer_job_move_file_with_rename(job, node, tp, move_flags, error);
+            move_successful = _transferjob_move_file_with_rename(job, node, tp, move_flags, error);
         }
         // if the user chose to cancel then abort all remaining file moves
         else if (response == THUNAR_JOB_RESPONSE_CANCEL)
@@ -1067,13 +1067,13 @@ static gboolean _transfer_job_move_file(ExoJob         *job,
                               g_file_info_get_display_name(info));
 
         // if this call fails to collect the node, err will be non-NULL and the loop will exit
-        _transfer_job_collect_node(transfer_job, node, error);
+        _transferjob_collect_node(transfer_job, node, error);
     }
     return TRUE;
 }
 
 
-static GList* _transfer_job_filter_running_jobs(GList *jobs, ThunarJob *own_job)
+static GList* _transferjob_filter_running_jobs(GList *jobs, ThunarJob *own_job)
 {
     ThunarJob *job;
     GList     *run_jobs = NULL;
@@ -1094,7 +1094,7 @@ static GList* _transfer_job_filter_running_jobs(GList *jobs, ThunarJob *own_job)
     return run_jobs;
 }
 
-static gboolean _transfer_job_device_id_in_job_list(const char *device_fs_id,
+static gboolean _transferjob_device_id_in_job_list(const char *device_fs_id,
                                                     GList      *jobs)
 {
     TransferJob *job;
@@ -1114,7 +1114,7 @@ static gboolean _transfer_job_device_id_in_job_list(const char *device_fs_id,
 }
 
 /**
- * thunar_transfer_job_is_file_on_local_device:
+ * thunar_transferjob_is_file_on_local_device:
  * @file : the source or target #GFile to test.
  *
  * Tries to find if the @file is on a local device or not.
@@ -1131,7 +1131,7 @@ static gboolean _transfer_job_device_id_in_job_list(const char *device_fs_id,
  *
  * Return value: %TRUE if #GFile @file is on a so-called local device.
  **/
-static gboolean _transfer_job_is_file_on_local_device(GFile *file)
+static gboolean _transferjob_is_file_on_local_device(GFile *file)
 {
     gboolean  is_local;
     GFile    *target_file;
@@ -1179,7 +1179,7 @@ static gboolean _transfer_job_is_file_on_local_device(GFile *file)
 }
 
 
-static void _transfer_job_fill_source_device_info(TransferJob *transfer_job,
+static void _transferjob_fill_source_device_info(TransferJob *transfer_job,
                                                   GFile       *file)
 {
     /* query device filesystem id(unique string)
@@ -1194,10 +1194,10 @@ static void _transfer_job_fill_source_device_info(TransferJob *transfer_job,
         transfer_job->source_device_fs_id = g_strdup(g_file_info_get_attribute_string(file_info, G_FILE_ATTRIBUTE_ID_FILESYSTEM));
         g_object_unref(file_info);
     }
-    transfer_job->is_source_device_local = _transfer_job_is_file_on_local_device(file);
+    transfer_job->is_source_device_local = _transferjob_is_file_on_local_device(file);
 }
 
-static void _transfer_job_fill_target_device_info(TransferJob *transfer_job,
+static void _transferjob_fill_target_device_info(TransferJob *transfer_job,
                                                   GFile       *file)
 {
     /*
@@ -1232,10 +1232,10 @@ static void _transfer_job_fill_target_device_info(TransferJob *transfer_job,
         }
     }
     g_object_unref(target_file);
-    transfer_job->is_target_device_local = _transfer_job_is_file_on_local_device(file);
+    transfer_job->is_target_device_local = _transferjob_is_file_on_local_device(file);
 }
 
-static void _transfer_job_determine_copy_behavior(
+static void _transferjob_determine_copy_behavior(
                                     TransferJob *transfer_job,
                                     gboolean    *freeze_if_src_busy_p,
                                     gboolean    *freeze_if_tgt_busy_p,
@@ -1298,7 +1298,7 @@ static void _transfer_job_determine_copy_behavior(
 }
 
 /**
- * thunar_transfer_job_freeze_optional:
+ * thunar_transferjob_freeze_optional:
  * @job : a #TransferJob.
  *
  * Based on thunar setting, will block until all running jobs
@@ -1306,7 +1306,7 @@ static void _transfer_job_determine_copy_behavior(
  * The unblocking could be forced by the user in the UI.
  *
  **/
-static void _transfer_job_freeze_optional(TransferJob *transfer_job)
+static void _transferjob_freeze_optional(TransferJob *transfer_job)
 {
     gboolean            freeze_if_src_busy;
     gboolean            freeze_if_tgt_busy;
@@ -1320,10 +1320,10 @@ static void _transfer_job_freeze_optional(TransferJob *transfer_job)
     if (transfer_job->source_node_list == NULL || transfer_job->target_file_list == NULL)
         return;
     // first source file
-    _transfer_job_fill_source_device_info(transfer_job,((TransferNode*) transfer_job->source_node_list->data)->source_file);
+    _transferjob_fill_source_device_info(transfer_job,((TransferNode*) transfer_job->source_node_list->data)->source_file);
     // first target file
-    _transfer_job_fill_target_device_info(transfer_job, G_FILE(transfer_job->target_file_list->data));
-    _transfer_job_determine_copy_behavior(transfer_job,
+    _transferjob_fill_target_device_info(transfer_job, G_FILE(transfer_job->target_file_list->data));
+    _transferjob_determine_copy_behavior(transfer_job,
             &freeze_if_src_busy,
             &freeze_if_tgt_busy,
             &always_parallel_copy,
@@ -1335,16 +1335,16 @@ static void _transfer_job_freeze_optional(TransferJob *transfer_job)
     while(TRUE)
     {
         GList *jobs = job_ask_jobs(THUNAR_JOB(transfer_job));
-        GList *other_jobs = _transfer_job_filter_running_jobs(jobs, THUNAR_JOB(transfer_job));
+        GList *other_jobs = _transferjob_filter_running_jobs(jobs, THUNAR_JOB(transfer_job));
         g_list_free(g_steal_pointer(&jobs));
         if
        (
             // should freeze because another job is running
            (should_freeze_on_any_other_job && other_jobs != NULL) ||
             // should freeze because source is busy and source device id appears in another job
-           (freeze_if_src_busy && _transfer_job_device_id_in_job_list(transfer_job->source_device_fs_id, other_jobs)) ||
+           (freeze_if_src_busy && _transferjob_device_id_in_job_list(transfer_job->source_device_fs_id, other_jobs)) ||
             // should freeze because target is busy and target device id appears in another job
-           (freeze_if_tgt_busy && _transfer_job_device_id_in_job_list(transfer_job->target_device_fs_id, other_jobs))
+           (freeze_if_tgt_busy && _transferjob_device_id_in_job_list(transfer_job->target_device_fs_id, other_jobs))
         )
             g_list_free(g_steal_pointer(&other_jobs));
         else
@@ -1370,7 +1370,7 @@ static void _transfer_job_freeze_optional(TransferJob *transfer_job)
         job_unfreeze(THUNAR_JOB(transfer_job));
 }
 
-static gboolean transfer_job_execute(ExoJob *job, GError **error)
+static gboolean transferjob_execute(ExoJob *job, GError **error)
 {
     TransferNode   *node;
     TransferJob    *transfer_job = TRANSFERJOB(job);
@@ -1394,7 +1394,7 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
             sp != NULL && tp != NULL && err == NULL;
             sp = snext, tp = tnext)
     {
-        _transfer_job_check_pause(transfer_job);
+        _transferjob_check_pause(transfer_job);
 
         // determine the next list items
         snext = sp->next;
@@ -1416,23 +1416,23 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
         if (transfer_job->type == TRANSFERJOB_MOVE
                 && e_file_is_trashed(node->source_file))
         {
-            if (!_transfer_job_prepare_untrash_file(job, info, tp->data, &err))
+            if (!_transferjob_prepare_untrash_file(job, info, tp->data, &err))
                 break;
-            if (!_transfer_job_move_file(job, info, sp, node, tp,
+            if (!_transferjob_move_file(job, info, sp, node, tp,
                                                 G_FILE_COPY_NOFOLLOW_SYMLINKS | G_FILE_COPY_ALL_METADATA,
                                                 /*thumbnail_cache,*/ &new_files_list, &err))
                 break;
         }
         else if (transfer_job->type == TRANSFERJOB_MOVE)
         {
-            if (!_transfer_job_move_file(job, info, sp, node, tp,
+            if (!_transferjob_move_file(job, info, sp, node, tp,
                                                 G_FILE_COPY_NOFOLLOW_SYMLINKS | G_FILE_COPY_NO_FALLBACK_FOR_MOVE | G_FILE_COPY_ALL_METADATA,
                                                 /*thumbnail_cache,*/ &new_files_list, &err))
                 break;
         }
         else if (transfer_job->type == TRANSFERJOB_COPY)
         {
-            if (!_transfer_job_collect_node(TRANSFERJOB(job), node, &err))
+            if (!_transferjob_collect_node(TRANSFERJOB(job), node, &err))
                 break;
         }
 
@@ -1443,7 +1443,7 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
     if (G_LIKELY(err == NULL))
     {
         // check destination
-        if (!_transfer_job_verify_destination(transfer_job, &err))
+        if (!_transferjob_verify_destination(transfer_job, &err))
         {
             if (err != NULL)
             {
@@ -1457,7 +1457,7 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
             }
         }
 
-        _transfer_job_freeze_optional(transfer_job);
+        _transferjob_freeze_optional(transfer_job);
 
         // transfer starts now
         transfer_job->start_time = g_get_real_time();
@@ -1467,7 +1467,7 @@ static gboolean transfer_job_execute(ExoJob *job, GError **error)
                 sp != NULL && tp != NULL && err == NULL;
                 sp = sp->next, tp = tp->next)
         {
-            _transfer_job_copy_node(transfer_job, sp->data, tp->data, NULL,
+            _transferjob_copy_node(transfer_job, sp->data, tp->data, NULL,
                                            &new_files_list, &err);
         }
     }
@@ -1511,7 +1511,7 @@ static void _transfer_node_free(gpointer data)
     }
 }
 
-ThunarJob* transfer_job_new(GList *source_node_list, GList *target_file_list,
+ThunarJob* transferjob_new(GList *source_node_list, GList *target_file_list,
                             TransferJobType type)
 {
     TransferNode *node;
@@ -1556,7 +1556,7 @@ ThunarJob* transfer_job_new(GList *source_node_list, GList *target_file_list,
     return THUNAR_JOB(job);
 }
 
-gchar* transfer_job_get_status(TransferJob *job)
+gchar* transferjob_get_status(TransferJob *job)
 {
     gchar             *total_size_str;
     gchar             *total_progress_str;

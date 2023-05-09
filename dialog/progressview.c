@@ -461,7 +461,7 @@ static void progressview_percent(ProgressView *view, gdouble percent, ExoJob *jo
 
     // set progress text
     if (IS_TRANSFERJOB(job))
-        text = transfer_job_get_status(TRANSFERJOB(job));
+        text = transferjob_get_status(TRANSFERJOB(job));
     else
         text = g_strdup_printf("%.2f%%", percent);
 

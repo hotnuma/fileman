@@ -23,8 +23,8 @@
 
 #include <gobject/gvaluecollector.h>
 
-static void simple_job_finalize(GObject *object);
-static gboolean simple_job_execute(ExoJob *job, GError **error);
+static void simplejob_finalize(GObject *object);
+static gboolean simplejob_execute(ExoJob *job, GError **error);
 
 struct _SimpleJobClass
 {
@@ -39,23 +39,23 @@ struct _SimpleJob
     GArray          *param_values;
 };
 
-G_DEFINE_TYPE(SimpleJob, simple_job, THUNAR_TYPE_JOB)
+G_DEFINE_TYPE(SimpleJob, simplejob, THUNAR_TYPE_JOB)
 
-static void simple_job_class_init(SimpleJobClass *klass)
+static void simplejob_class_init(SimpleJobClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = simple_job_finalize;
+    gobject_class->finalize = simplejob_finalize;
 
     ExoJobClass *exojob_class = EXO_JOB_CLASS(klass);
-    exojob_class->execute = simple_job_execute;
+    exojob_class->execute = simplejob_execute;
 }
 
-static void simple_job_init(SimpleJob *simple_job)
+static void simplejob_init(SimpleJob *simple_job)
 {
     (void) simple_job;
 }
 
-static void simple_job_finalize(GObject *object)
+static void simplejob_finalize(GObject *object)
 {
     SimpleJob *simple_job = THUNAR_SIMPLE_JOB(object);
 
@@ -65,10 +65,10 @@ static void simple_job_finalize(GObject *object)
 
     g_array_free(simple_job->param_values, TRUE);
 
-    G_OBJECT_CLASS(simple_job_parent_class)->finalize(object);
+    G_OBJECT_CLASS(simplejob_parent_class)->finalize(object);
 }
 
-static gboolean simple_job_execute(ExoJob *job, GError **error)
+static gboolean simplejob_execute(ExoJob *job, GError **error)
 {
     SimpleJob *simple_job = THUNAR_SIMPLE_JOB(job);
     gboolean         success = TRUE;
@@ -103,7 +103,7 @@ static gboolean simple_job_execute(ExoJob *job, GError **error)
 }
 
 /**
- * thunar_simple_job_launch:
+ * thunar_simplejob_launch:
  * @func           : the #SimpleJobFunc to execute the job.
  * @n_param_values : the number of parameters to pass to the @func.
  * @...            : a list of #GType and parameter pairs(exactly
@@ -113,11 +113,11 @@ static gboolean simple_job_execute(ExoJob *job, GError **error)
  * @func with the specified parameters.
  *
  * For example the listdir @func expects a #ThunarPath for the
- * folder to list, so the call to thunar_simple_job_launch()
+ * folder to list, so the call to thunar_simplejob_launch()
  * would look like this:
  *
  * <informalexample><programlisting>
- * thunar_simple_job_launch(_thunar_io_jobs_listdir, 1,
+ * thunar_simplejob_launch(_thunar_io_jobs_listdir, 1,
  *                               THUNAR_TYPE_PATH, path);
  * </programlisting></informalexample>
  *
@@ -126,7 +126,7 @@ static gboolean simple_job_execute(ExoJob *job, GError **error)
  *
  * Return value: the launched #ThunarJob.
  **/
-ThunarJob* simple_job_launch(SimpleJobFunc func, guint n_param_values, ...)
+ThunarJob* simplejob_launch(SimpleJobFunc func, guint n_param_values, ...)
 {
     SimpleJob *simple_job;
     va_list          var_args;
@@ -168,7 +168,7 @@ ThunarJob* simple_job_launch(SimpleJobFunc func, guint n_param_values, ...)
     return THUNAR_JOB(exo_job_launch(EXO_JOB(simple_job)));
 }
 
-GArray* simple_job_get_param_values(SimpleJob *job)
+GArray* simplejob_get_param_values(SimpleJob *job)
 {
     e_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), NULL);
     return job->param_values;

@@ -28,10 +28,10 @@ G_BEGIN_DECLS
  * SimpleJobFunc:
  * @job            : a #ThunarJob.
  * @param_values   : a #GArray of the #GValue<!---->s passed to
- *                   thunar_simple_job_launch().
+ *                   thunar_simplejob_launch().
  * @error          : return location for errors.
  *
- * Used by the #SimpleJob to process the @job. See thunar_simple_job_launch()
+ * Used by the #SimpleJob to process the @job. See thunar_simplejob_launch()
  * for further details.
  *
  * Return value: %TRUE on success, %FALSE in case of an error.
@@ -43,7 +43,7 @@ typedef gboolean (*SimpleJobFunc) (ThunarJob *job,
 typedef struct _SimpleJobClass SimpleJobClass;
 typedef struct _SimpleJob      SimpleJob;
 
-#define TYPE_SIMPLEJOB (simple_job_get_type())
+#define TYPE_SIMPLEJOB (simplejob_get_type())
 #define THUNAR_SIMPLE_JOB(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_SIMPLEJOB, SimpleJob))
 #define THUNAR_SIMPLE_JOB_CLASS(klass) \
@@ -55,14 +55,14 @@ typedef struct _SimpleJob      SimpleJob;
 #define THUNAR_SIMPLE_JOB_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_SIMPLEJOB, SimpleJobClass))
 
-GType simple_job_get_type() G_GNUC_CONST;
+GType simplejob_get_type() G_GNUC_CONST;
 
-ThunarJob* simple_job_launch(SimpleJobFunc func,
+ThunarJob* simplejob_launch(SimpleJobFunc func,
                              guint n_param_values,
                              ...)
                              G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-GArray* simple_job_get_param_values(SimpleJob *job);
+GArray* simplejob_get_param_values(SimpleJob *job);
 
 G_END_DECLS
 

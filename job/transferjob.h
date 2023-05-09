@@ -37,7 +37,7 @@ typedef struct _TransferJobPrivate TransferJobPrivate;
 typedef struct _TransferJobClass   TransferJobClass;
 typedef struct _TransferJob        TransferJob;
 
-#define TYPE_TRANSFERJOB (transfer_job_get_type())
+#define TYPE_TRANSFERJOB (transferjob_get_type())
 #define TRANSFERJOB(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TRANSFERJOB, TransferJob))
 #define TRANSFERJOB_CLASS(klass) \
@@ -49,13 +49,13 @@ typedef struct _TransferJob        TransferJob;
 #define TRANSFERJOB_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS ((obj),   TYPE_TRANSFERJOB, TransferJobClass))
 
-GType transfer_job_get_type() G_GNUC_CONST;
+GType transferjob_get_type() G_GNUC_CONST;
 
-ThunarJob* transfer_job_new(GList *source_file_list, GList *target_file_list,
+ThunarJob* transferjob_new(GList *source_file_list, GList *target_file_list,
                             TransferJobType type)
                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-gchar* transfer_job_get_status(TransferJob *job);
+gchar* transferjob_get_status(TransferJob *job);
 
 G_END_DECLS
 
