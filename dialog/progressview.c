@@ -27,35 +27,24 @@
 
 static void progressview_finalize(GObject *object);
 static void progressview_dispose(GObject *object);
-static void progressview_get_property(GObject *object,
-                                              guint prop_id,
-                                              GValue *value,
-                                              GParamSpec *pspec);
-static void progressview_set_property(GObject *object,
-                                              guint prop_id,
-                                              const GValue *value,
-                                              GParamSpec *pspec);
-static void progressview_pause_job(ProgressView *view);
-static void progressview_unpause_job(ProgressView *view);
+static void progressview_get_property(GObject *object, guint prop_id,
+                                      GValue *value, GParamSpec *pspec);
+static void progressview_set_property(GObject *object, guint prop_id,
+                                      const GValue *value, GParamSpec *pspec);
+//static void progressview_pause_job(ProgressView *view);
+//static void progressview_unpause_job(ProgressView *view);
 static void progressview_cancel_job(ProgressView *view);
-static ThunarJobResponse progressview_ask(ProgressView *view,
-                                                  const gchar *message,
-                                                  ThunarJobResponse choices,
-                                                  ThunarJob *job);
+static ThunarJobResponse progressview_ask(ProgressView *view, const gchar *message,
+                                          ThunarJobResponse choices, ThunarJob *job);
 static ThunarJobResponse progressview_ask_replace(ProgressView *view,
-                                                          ThunarFile *src_file,
-                                                          ThunarFile *dst_file,
-                                                          ThunarJob *job);
-static void progressview_error(ProgressView *view,
-                                       GError *error,
-                                       ExoJob *job);
+                                                  ThunarFile *src_file,
+                                                  ThunarFile *dst_file,
+                                                  ThunarJob *job);
+static void progressview_error(ProgressView *view, GError *error, ExoJob *job);
 static void progressview_finished(ProgressView *view, ExoJob *job);
-static void progressview_info_message(ProgressView *view,
-                                              const gchar *message,
-                                              ExoJob *job);
-static void progressview_percent(ProgressView *view,
-                                         gdouble percent,
-                                         ExoJob *job);
+static void progressview_info_message(ProgressView *view, const gchar *message,
+                                      ExoJob *job);
+static void progressview_percent(ProgressView *view, gdouble percent, ExoJob *job);
 static void progressview_frozen(ProgressView *view, ExoJob *job);
 static void progressview_unfrozen(ProgressView *view, ExoJob *job);
 static void progressview_set_job(ProgressView *view, ThunarJob *job);
@@ -82,8 +71,9 @@ struct _ProgressView
     GtkWidget   *progress_bar;
     GtkWidget   *progress_label;
     GtkWidget   *message_label;
-    GtkWidget   *pause_button;
-    GtkWidget   *unpause_button;
+
+    //GtkWidget   *pause_button;
+    //GtkWidget   *unpause_button;
 
     gchar       *icon_name;
     gchar       *title;
@@ -152,34 +142,31 @@ static void progressview_class_init(ProgressViewClass *klass)
 
 static void progressview_init(ProgressView *view)
 {
-    GtkWidget *image;
-    GtkWidget *label;
-    GtkWidget *cancel_button;
-    GtkWidget *vbox;
-    GtkWidget *vbox2;
-    GtkWidget *vbox3;
-    GtkWidget *hbox;
-
     gtk_orientable_set_orientation(GTK_ORIENTABLE(view), GTK_ORIENTATION_VERTICAL);
 
+    GtkWidget *vbox;
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_container_add(GTK_CONTAINER(view), vbox);
     gtk_widget_show(vbox);
 
+    GtkWidget *hbox;
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 0);
     gtk_widget_show(hbox);
 
+    GtkWidget *image;
     image = g_object_new(GTK_TYPE_IMAGE, "icon-size", GTK_ICON_SIZE_DND, NULL);
     gtk_image_set_pixel_size(GTK_IMAGE(image), 32);
     gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
     g_object_bind_property(G_OBJECT(view), "icon-name", G_OBJECT(image), "icon-name", G_BINDING_SYNC_CREATE);
     gtk_widget_show(image);
 
+    GtkWidget *vbox2;
     vbox2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
     gtk_widget_show(vbox2);
 
+    GtkWidget *label;
     label = g_object_new(GTK_TYPE_LABEL, "xalign", 0.0f, NULL);
     gtk_label_set_attributes(GTK_LABEL(label), e_pango_attr_list_big_bold());
     gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_MIDDLE);
@@ -195,6 +182,7 @@ static void progressview_init(ProgressView *view)
     gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 0);
     gtk_widget_show(hbox);
 
+    GtkWidget *vbox3;
     vbox3 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
     gtk_box_pack_start(GTK_BOX(hbox), vbox3, TRUE, TRUE, 0);
     gtk_widget_show(vbox3);
@@ -209,20 +197,21 @@ static void progressview_init(ProgressView *view)
     gtk_box_pack_start(GTK_BOX(vbox3), view->progress_label, FALSE, TRUE, 0);
     gtk_widget_show(view->progress_label);
 
-    view->pause_button = gtk_button_new_from_icon_name("media-playback-pause", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_label(GTK_BUTTON(view->pause_button), _("Pause"));
-    g_signal_connect_swapped(view->pause_button, "clicked", G_CALLBACK(progressview_pause_job), view);
-    gtk_box_pack_start(GTK_BOX(hbox), view->pause_button, FALSE, FALSE, 0);
-    gtk_widget_set_can_focus(view->pause_button, FALSE);
-    gtk_widget_hide(view->pause_button);
+//    view->pause_button = gtk_button_new_from_icon_name("media-playback-pause", GTK_ICON_SIZE_BUTTON);
+//    gtk_button_set_label(GTK_BUTTON(view->pause_button), _("Pause"));
+//    g_signal_connect_swapped(view->pause_button, "clicked", G_CALLBACK(progressview_pause_job), view);
+//    gtk_box_pack_start(GTK_BOX(hbox), view->pause_button, FALSE, FALSE, 0);
+//    gtk_widget_set_can_focus(view->pause_button, FALSE);
+//    gtk_widget_hide(view->pause_button);
 
-    view->unpause_button = gtk_button_new_from_icon_name("media-playback-start", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_label(GTK_BUTTON(view->unpause_button), _("Resume"));
-    g_signal_connect_swapped(view->unpause_button, "clicked", G_CALLBACK(progressview_unpause_job), view);
-    gtk_box_pack_start(GTK_BOX(hbox), view->unpause_button, FALSE, FALSE, 0);
-    gtk_widget_set_can_focus(view->unpause_button, FALSE);
-    gtk_widget_hide(view->unpause_button);
+//    view->unpause_button = gtk_button_new_from_icon_name("media-playback-start", GTK_ICON_SIZE_BUTTON);
+//    gtk_button_set_label(GTK_BUTTON(view->unpause_button), _("Resume"));
+//    g_signal_connect_swapped(view->unpause_button, "clicked", G_CALLBACK(progressview_unpause_job), view);
+//    gtk_box_pack_start(GTK_BOX(hbox), view->unpause_button, FALSE, FALSE, 0);
+//    gtk_widget_set_can_focus(view->unpause_button, FALSE);
+//    gtk_widget_hide(view->unpause_button);
 
+    GtkWidget *cancel_button;
     cancel_button = gtk_button_new_from_icon_name("process-stop", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_label(GTK_BUTTON(cancel_button), _("Cancel"));
     g_signal_connect_swapped(cancel_button, "clicked", G_CALLBACK(progressview_cancel_job), view);
@@ -241,7 +230,7 @@ static void progressview_finalize(GObject *object)
     g_free(view->icon_name);
     g_free(view->title);
 
-   (*G_OBJECT_CLASS(progressview_parent_class)->finalize)(object);
+    G_OBJECT_CLASS(progressview_parent_class)->finalize(object);
 }
 
 static void progressview_dispose(GObject *object)
@@ -255,7 +244,7 @@ static void progressview_dispose(GObject *object)
         progressview_set_job(view, NULL);
     }
 
-    (*G_OBJECT_CLASS(progressview_parent_class)->dispose)(object);
+    G_OBJECT_CLASS(progressview_parent_class)->dispose(object);
 }
 
 static void progressview_get_property(GObject    *object,
@@ -266,7 +255,7 @@ static void progressview_get_property(GObject    *object,
     (void) pspec;
     ProgressView *view = PROGRESSVIEW(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_JOB:
         g_value_set_object(value, progressview_get_job(view));
@@ -294,7 +283,7 @@ static void progressview_set_property(GObject      *object,
     (void) pspec;
     ProgressView *view = PROGRESSVIEW(object);
 
-    switch(prop_id)
+    switch (prop_id)
     {
     case PROP_JOB:
         progressview_set_job(view, g_value_get_object(value));
@@ -314,40 +303,40 @@ static void progressview_set_property(GObject      *object,
     }
 }
 
-static void progressview_pause_job(ProgressView *view)
-{
-    e_return_if_fail(IS_PROGRESSVIEW(view));
-    e_return_if_fail(THUNAR_IS_JOB(view->job));
+//static void progressview_pause_job(ProgressView *view)
+//{
+//    e_return_if_fail(IS_PROGRESSVIEW(view));
+//    e_return_if_fail(THUNAR_IS_JOB(view->job));
 
-    if (view->job != NULL)
-    {
-        // pause the job
-        job_pause(view->job);
+//    if (view->job != NULL)
+//    {
+//        // pause the job
+//        job_pause(view->job);
 
-        // update the UI
-        gtk_widget_hide(view->pause_button);
-        gtk_widget_show(view->unpause_button);
-        gtk_label_set_text(GTK_LABEL(view->progress_label), _("Paused"));
-    }
-}
+//        // update the UI
+//        gtk_widget_hide(view->pause_button);
+//        gtk_widget_show(view->unpause_button);
+//        gtk_label_set_text(GTK_LABEL(view->progress_label), _("Paused"));
+//    }
+//}
 
-static void progressview_unpause_job(ProgressView *view)
-{
-    e_return_if_fail(IS_PROGRESSVIEW(view));
-    e_return_if_fail(THUNAR_IS_JOB(view->job));
+//static void progressview_unpause_job(ProgressView *view)
+//{
+//    e_return_if_fail(IS_PROGRESSVIEW(view));
+//    e_return_if_fail(THUNAR_IS_JOB(view->job));
 
-    if (view->job != NULL)
-    {
-        if (job_is_paused(view->job))
-            job_resume(view->job);
-        if (job_is_frozen(view->job))
-            job_unfreeze(view->job);
-        // update the UI
-        gtk_widget_hide(view->unpause_button);
-        gtk_widget_show(view->pause_button);
-        gtk_label_set_text(GTK_LABEL(view->progress_label), _("Resuming..."));
-    }
-}
+//    if (view->job != NULL)
+//    {
+//        if (job_is_paused(view->job))
+//            job_resume(view->job);
+//        if (job_is_frozen(view->job))
+//            job_unfreeze(view->job);
+//        // update the UI
+//        gtk_widget_hide(view->unpause_button);
+//        gtk_widget_show(view->pause_button);
+//        gtk_label_set_text(GTK_LABEL(view->progress_label), _("Resuming..."));
+//    }
+//}
 
 static void progressview_cancel_job(ProgressView *view)
 {
@@ -402,12 +391,10 @@ static ThunarJobResponse progressview_ask(ProgressView *view,
 }
 
 static ThunarJobResponse progressview_ask_replace(ProgressView *view,
-                                                          ThunarFile         *src_file,
-                                                          ThunarFile         *dst_file,
-                                                          ThunarJob          *job)
+                                                  ThunarFile *src_file,
+                                                  ThunarFile *dst_file,
+                                                  ThunarJob *job)
 {
-    GtkWidget *window;
-
     e_return_val_if_fail(IS_PROGRESSVIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
@@ -418,19 +405,15 @@ static ThunarJobResponse progressview_ask_replace(ProgressView *view,
     g_signal_emit_by_name(view, "need-attention");
 
     // determine the toplevel window of the view
-    window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+    GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
     // display the question view
     return dialog_job_ask_replace(window != NULL ? GTK_WINDOW(window) : NULL,
-            src_file, dst_file);
+                                  src_file, dst_file);
 }
 
-static void progressview_error(ProgressView *view,
-                                       GError             *error,
-                                       ExoJob             *job)
+static void progressview_error(ProgressView *view, GError *error, ExoJob *job)
 {
-    GtkWidget *window;
-
     e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(error != NULL && error->message != NULL);
     e_return_if_fail(THUNAR_IS_JOB(job));
@@ -440,14 +423,13 @@ static void progressview_error(ProgressView *view,
     g_signal_emit_by_name(view, "need-attention");
 
     // determine the toplevel window of the view
-    window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+    GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
     // display the error message
     dialog_job_error(window != NULL ? GTK_WINDOW(window) : NULL, error);
 }
 
-static void progressview_finished(ProgressView *view,
-                                          ExoJob             *job)
+static void progressview_finished(ProgressView *view, ExoJob *job)
 {
     e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(job));
@@ -457,9 +439,8 @@ static void progressview_finished(ProgressView *view,
     g_signal_emit_by_name(view, "finished");
 }
 
-static void progressview_info_message(ProgressView *view,
-                                              const gchar        *message,
-                                              ExoJob             *job)
+static void progressview_info_message(ProgressView *view, const gchar *message,
+                                      ExoJob *job)
 {
     e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(g_utf8_validate(message, -1, NULL));
@@ -469,9 +450,7 @@ static void progressview_info_message(ProgressView *view,
     gtk_label_set_text(GTK_LABEL(view->message_label), message);
 }
 
-static void progressview_percent(ProgressView *view,
-                                         gdouble             percent,
-                                         ExoJob             *job)
+static void progressview_percent(ProgressView *view, gdouble percent, ExoJob *job)
 {
     gchar *text;
 
@@ -481,7 +460,8 @@ static void progressview_percent(ProgressView *view,
     e_return_if_fail(view->job == THUNAR_JOB(job));
 
     // update progressbar
-    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(view->progress_bar), percent / 100.0);
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(view->progress_bar),
+                                  percent / 100.0);
 
     // set progress text
     if (IS_TRANSFERJOB(job))
@@ -490,11 +470,11 @@ static void progressview_percent(ProgressView *view,
         text = g_strdup_printf("%.2f%%", percent);
 
     gtk_label_set_text(GTK_LABEL(view->progress_label), text);
+
     g_free(text);
 }
 
-static void progressview_frozen(ProgressView *view,
-                                        ExoJob             *job)
+static void progressview_frozen(ProgressView *view, ExoJob *job)
 {
     e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(job));
@@ -503,14 +483,15 @@ static void progressview_frozen(ProgressView *view,
     if (IS_TRANSFERJOB(job))
     {
         // update the UI
-        gtk_widget_hide(view->pause_button);
-        gtk_widget_show(view->unpause_button);
-        gtk_label_set_text(GTK_LABEL(view->progress_label), _("Frozen by another job on same device"));
+        //gtk_widget_hide(view->pause_button);
+        //gtk_widget_show(view->unpause_button);
+
+        gtk_label_set_text(GTK_LABEL(view->progress_label),
+                           _("Frozen by another job on same device"));
     }
 }
 
-static void progressview_unfrozen(ProgressView *view,
-                                          ExoJob             *job)
+static void progressview_unfrozen(ProgressView *view, ExoJob *job)
 {
     e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(THUNAR_IS_JOB(job));
@@ -519,20 +500,13 @@ static void progressview_unfrozen(ProgressView *view,
     if (IS_TRANSFERJOB(job))
     {
         // update the UI
-        gtk_widget_hide(view->unpause_button);
-        gtk_widget_show(view->pause_button);
+        //gtk_widget_hide(view->unpause_button);
+        //gtk_widget_show(view->pause_button);
+
         gtk_label_set_text(GTK_LABEL(view->progress_label), _("Unfreezing..."));
     }
 }
 
-/**
- * progressview_new_with_job:
- * @job : a #ThunarJob or %NULL.
- *
- * Allocates a new #ProgressView and associates it with the @job.
- *
- * Return value: the newly allocated #ProgressView.
- **/
 GtkWidget* progressview_new_with_job(ThunarJob *job)
 {
     e_return_val_if_fail(job == NULL || THUNAR_IS_JOB(job), NULL);
@@ -543,33 +517,14 @@ GtkWidget* progressview_new_with_job(ThunarJob *job)
                         NULL);
 }
 
-/**
- * progressview_get_job:
- * @view : a #ProgressView.
- *
- * Returns the #ThunarJob associated with @view
- * or %NULL if no job is currently associated with @view.
- *
- * The #ThunarJob is owned by the @view and should
- * not be freed by the caller.
- *
- * Return value: the job associated with @view or %NULL.
- **/
 ThunarJob* progressview_get_job(ProgressView *view)
 {
     e_return_val_if_fail(IS_PROGRESSVIEW(view), NULL);
+
     return view->job;
 }
 
-/**
- * progressview_set_job:
- * @view : a #ProgressView.
- * @job    : a #ThunarJob or %NULL.
- *
- * Associates @job with @view.
- **/
-static void progressview_set_job(ProgressView *view,
-                                         ThunarJob          *job)
+static void progressview_set_job(ProgressView *view, ThunarJob *job)
 {
     e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(job == NULL || THUNAR_IS_JOB(job));
@@ -581,7 +536,10 @@ static void progressview_set_job(ProgressView *view,
     // disconnect from the previous job
     if (G_LIKELY(view->job != NULL))
     {
-        g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, view);
+        g_signal_handlers_disconnect_matched(view->job,
+                                             G_SIGNAL_MATCH_DATA,
+                                             0, 0, NULL, NULL,
+                                             view);
         g_object_unref(G_OBJECT(view->job));
     }
 
@@ -593,25 +551,33 @@ static void progressview_set_job(ProgressView *view,
     {
         g_object_ref(job);
 
-        g_signal_connect_swapped(job, "ask", G_CALLBACK(progressview_ask), view);
-        g_signal_connect_swapped(job, "ask-replace", G_CALLBACK(progressview_ask_replace), view);
-        g_signal_connect_swapped(job, "error", G_CALLBACK(progressview_error), view);
-        g_signal_connect_swapped(job, "finished", G_CALLBACK(progressview_finished), view);
-        g_signal_connect_swapped(job, "info-message", G_CALLBACK(progressview_info_message), view);
-        g_signal_connect_swapped(job, "percent", G_CALLBACK(progressview_percent), view);
-        g_signal_connect_swapped(job, "frozen", G_CALLBACK(progressview_frozen), view);
-        g_signal_connect_swapped(job, "unfrozen", G_CALLBACK(progressview_unfrozen), view);
-        if (job_is_pausable(job))
-        {
-            gtk_widget_show(view->pause_button);
-        }
+        g_signal_connect_swapped(job, "ask",
+                                 G_CALLBACK(progressview_ask), view);
+        g_signal_connect_swapped(job, "ask-replace",
+                                 G_CALLBACK(progressview_ask_replace), view);
+        g_signal_connect_swapped(job, "error",
+                                 G_CALLBACK(progressview_error), view);
+        g_signal_connect_swapped(job, "finished",
+                                 G_CALLBACK(progressview_finished), view);
+        g_signal_connect_swapped(job, "info-message",
+                                 G_CALLBACK(progressview_info_message), view);
+        g_signal_connect_swapped(job, "percent",
+                                 G_CALLBACK(progressview_percent), view);
+        g_signal_connect_swapped(job, "frozen",
+                                 G_CALLBACK(progressview_frozen), view);
+        g_signal_connect_swapped(job, "unfrozen",
+                                 G_CALLBACK(progressview_unfrozen), view);
+
+        //if (job_is_pausable(job))
+        //{
+        //    gtk_widget_show(view->pause_button);
+        //}
     }
 
     g_object_notify(G_OBJECT(view), "job");
 }
 
-void progressview_set_icon_name(ProgressView *view,
-                                        const gchar        *icon_name)
+void progressview_set_icon_name(ProgressView *view, const gchar *icon_name)
 {
     e_return_if_fail(IS_PROGRESSVIEW(view));
 
@@ -624,8 +590,7 @@ void progressview_set_icon_name(ProgressView *view,
     g_object_notify(G_OBJECT(view), "icon-name");
 }
 
-void progressview_set_title(ProgressView *view,
-                                    const gchar        *title)
+void progressview_set_title(ProgressView *view, const gchar *title)
 {
     e_return_if_fail(IS_PROGRESSVIEW(view));
 

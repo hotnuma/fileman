@@ -18,13 +18,10 @@
  */
 
 #include <config.h>
-
-#include <gtk/gtk.h>
-
-#include <libxfce4ui/libxfce4ui.h>
-
 #include <progressdlg.h>
+
 #include <progressview.h>
+#include <libxfce4ui/libxfce4ui.h>
 
 #define SCROLLVIEW_THRESHOLD 5
 
@@ -153,9 +150,8 @@ static gboolean progressdlg_closed(ProgressDialog *dialog)
     return TRUE;
 }
 
-static gboolean progressdlg_toggled(ProgressDialog *dialog,
-                                               GdkEventButton       *event,
-                                               GtkStatusIcon        *status_icon)
+static gboolean progressdlg_toggled(ProgressDialog *dialog, GdkEventButton *event,
+                                    GtkStatusIcon *status_icon)
 {
     e_return_val_if_fail(IS_PROGRESSDIALOG(dialog), FALSE);
     e_return_val_if_fail(GTK_IS_STATUS_ICON(status_icon), FALSE);
@@ -187,7 +183,7 @@ static gboolean progressdlg_toggled(ProgressDialog *dialog,
 }
 
 static void progressdlg_view_needs_attention(ProgressDialog *dialog,
-                                                        ProgressView   *view)
+                                             ProgressView *view)
 {
     e_return_if_fail(IS_PROGRESSDIALOG(dialog));
     e_return_if_fail(IS_PROGRESSVIEW(view));
@@ -198,8 +194,7 @@ static void progressdlg_view_needs_attention(ProgressDialog *dialog,
     gtk_window_present(GTK_WINDOW(dialog));
 }
 
-static void progressdlg_job_finished(ProgressDialog *dialog,
-                                                ProgressView   *view)
+static void progressdlg_job_finished(ProgressDialog *dialog, ProgressView *view)
 {
     guint n_views;
 
@@ -317,10 +312,8 @@ GList* progressdlg_list_jobs(ProgressDialog *dialog)
     return jobs;
 }
 
-void progressdlg_add_job(ProgressDialog *dialog,
-                                    ThunarJob            *job,
-                                    const gchar          *icon_name,
-                                    const gchar          *title)
+void progressdlg_add_job(ProgressDialog *dialog, ThunarJob *job,
+                         const gchar *icon_name, const gchar *title)
 {
     GtkWidget *viewport;
     GtkWidget *view;
@@ -371,20 +364,15 @@ void progressdlg_add_job(ProgressDialog *dialog,
 
     }
 
-    g_signal_connect_swapped(view,
-                             "need-attention",
+    g_signal_connect_swapped(view, "need-attention",
                              G_CALLBACK(progressdlg_view_needs_attention),
                              dialog);
 
-    g_signal_connect_swapped(view,
-                             "finished",
-                             G_CALLBACK(progressdlg_job_finished),
-                             dialog);
+    g_signal_connect_swapped(view, "finished",
+                             G_CALLBACK(progressdlg_job_finished), dialog);
 
-    g_signal_connect_swapped(job,
-                             "ask-jobs",
-                             G_CALLBACK(progressdlg_list_jobs),
-                             dialog);
+    g_signal_connect_swapped(job, "ask-jobs",
+                             G_CALLBACK(progressdlg_list_jobs), dialog);
 
     if (dialog->status_icon != NULL)
         progressdlg_update_status_icon(dialog);

@@ -21,7 +21,6 @@
 #define __PROGRESSVIEW_H__
 
 #include <gtk/gtk.h>
-
 #include <job.h>
 
 G_BEGIN_DECLS
@@ -44,7 +43,6 @@ typedef struct _ProgressView      ProgressView;
 GType progressview_get_type() G_GNUC_CONST;
 
 GtkWidget* progressview_new_with_job(ThunarJob *job) G_GNUC_MALLOC;
-
 void progressview_set_icon_name(ProgressView *view, const gchar *icon_name);
 void progressview_set_title(ProgressView *view, const gchar *title);
 ThunarJob *progressview_get_job(ProgressView *view);

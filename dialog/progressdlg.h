@@ -43,10 +43,10 @@ typedef struct _ProgressDialog      ProgressDialog;
 GType progressdlg_get_type() G_GNUC_CONST;
 
 GtkWidget* progressdlg_new();
+gboolean progressdlg_has_jobs(ProgressDialog *dialog);
 GList* progressdlg_list_jobs(ProgressDialog *dialog);
 void progressdlg_add_job(ProgressDialog *dialog, ThunarJob *job,
                          const gchar *icon_name, const gchar *title);
-gboolean progressdlg_has_jobs(ProgressDialog *dialog);
 
 G_END_DECLS
 
