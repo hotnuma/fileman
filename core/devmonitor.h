@@ -38,13 +38,13 @@ typedef struct _DeviceMonitor      DeviceMonitor;
 #define DEVICE_MONITOR_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_DEVICE_MONITOR, DeviceMonitorClass))
 
-GType   devmon_get_type() G_GNUC_CONST;
+GType devmon_get_type() G_GNUC_CONST;
 
 DeviceMonitor* devmon_get();
 
-GList*  devmon_get_devices(DeviceMonitor *monitor);
-void    devmon_set_hidden(DeviceMonitor *monitor, ThunarDevice *device,
-                          gboolean hidden);
+GList* devmon_get_devices(DeviceMonitor *monitor);
+void devmon_set_hidden(DeviceMonitor *monitor, ThunarDevice *device,
+                       gboolean hidden);
 
 G_END_DECLS
 

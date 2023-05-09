@@ -351,6 +351,7 @@ static void progressview_cancel_job(ProgressView *view)
         // don't listen to frozen/unfrozen states updates any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
                                               progressview_frozen, NULL);
+
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
                                               progressview_unfrozen, NULL);
 
@@ -367,13 +368,9 @@ static void progressview_cancel_job(ProgressView *view)
     }
 }
 
-static ThunarJobResponse progressview_ask(ProgressView *view,
-                                                  const gchar       *message,
-                                                  ThunarJobResponse choices,
-                                                  ThunarJob         *job)
+static ThunarJobResponse progressview_ask(ProgressView *view, const gchar *message,
+                                          ThunarJobResponse choices, ThunarJob *job)
 {
-    GtkWidget *window;
-
     e_return_val_if_fail(IS_PROGRESSVIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(g_utf8_validate(message, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
@@ -383,7 +380,7 @@ static ThunarJobResponse progressview_ask(ProgressView *view,
     g_signal_emit_by_name(view, "need-attention");
 
     // determine the toplevel window of the view
-    window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+    GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
     // display the question view
     return dialog_job_ask(window != NULL ? GTK_WINDOW(window) : NULL,
@@ -452,8 +449,6 @@ static void progressview_info_message(ProgressView *view, const gchar *message,
 
 static void progressview_percent(ProgressView *view, gdouble percent, ExoJob *job)
 {
-    gchar *text;
-
     e_return_if_fail(IS_PROGRESSVIEW(view));
     e_return_if_fail(percent >= 0.0 && percent <= 100.0);
     e_return_if_fail(THUNAR_IS_JOB(job));
@@ -462,6 +457,8 @@ static void progressview_percent(ProgressView *view, gdouble percent, ExoJob *jo
     // update progressbar
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(view->progress_bar),
                                   percent / 100.0);
+
+    gchar *text;
 
     // set progress text
     if (IS_TRANSFERJOB(job))

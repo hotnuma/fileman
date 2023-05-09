@@ -38,9 +38,9 @@ typedef struct _PermissionBox      PermissionBox;
 #define PERMISSIONBOX_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_PERMISSIONBOX, PermissionBoxClass))
 
-GType       permbox_get_type() G_GNUC_CONST;
+GType permbox_get_type() G_GNUC_CONST;
 
-GtkWidget*  permbox_new() G_GNUC_MALLOC;
+GtkWidget* permbox_new() G_GNUC_MALLOC;
 
 G_END_DECLS
 

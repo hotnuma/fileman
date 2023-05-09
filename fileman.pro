@@ -30,6 +30,7 @@ HEADERS = \
     dialog/progressview.h \
     dialog/propsdlg.h \
     job/dcount_job.h \
+    job/exo_job.h \
     job/io_jobs.h \
     job/io_scan_directory.h \
     job/job.h \
@@ -37,7 +38,6 @@ HEADERS = \
     job/simple_job.h \
     job/transfer_job.h \
     launcher.h \
-    libext/exo_job.h \
     libext/exo_treeview.h \
     libext/gdk_ext.h \
     libext/gio_ext.h \
@@ -97,6 +97,7 @@ SOURCES = \
     dialog/progressview.c \
     dialog/propsdlg.c \
     job/dcount_job.c \
+    job/exo_job.c \
     job/io_jobs.c \
     job/io_scan_directory.c \
     job/job.c \
@@ -104,7 +105,6 @@ SOURCES = \
     job/simple_job.c \
     job/transfer_job.c \
     launcher.c \
-    libext/exo_job.c \
     libext/exo_treeview.c \
     libext/gdk_ext.c \
     libext/gio_ext.c \
