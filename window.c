@@ -1253,9 +1253,9 @@ static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item)
 
     DPRINT("focused widget = %s\n", name);
 
-    openlog("Fileman", LOG_PID, LOG_USER);
+    //openlog("Fileman", LOG_PID, LOG_USER);
     syslog(LOG_INFO,"focused widget = %s\n", name);
-    closelog();
+    //closelog();
 }
 
 static void _window_action_reload(ThunarWindow *window, GtkWidget *menu_item)

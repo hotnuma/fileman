@@ -17,12 +17,14 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_ENUM_TYPES_H__
-#define __THUNAR_ENUM_TYPES_H__
+#ifndef __ENUMTYPES_H__
+#define __ENUMTYPES_H__
 
 #include <glib-object.h>
 
 G_BEGIN_DECLS
+
+// ----------------------------------------------------------------------------
 
 #define THUNAR_TYPE_DATE_STYLE (thunar_date_style_get_type ())
 
@@ -48,6 +50,8 @@ typedef enum
 } ThunarDateStyle;
 
 GType thunar_date_style_get_type() G_GNUC_CONST;
+
+// ----------------------------------------------------------------------------
 
 #define THUNAR_TYPE_COLUMN (thunar_column_get_type ())
 
@@ -95,9 +99,11 @@ typedef enum
 
 } ThunarColumn;
 
-GType       thunar_column_get_type() G_GNUC_CONST;
+GType thunar_column_get_type() G_GNUC_CONST;
 const gchar* thunar_column_string_from_value(ThunarColumn value);
-gboolean    thunar_column_value_from_string(const gchar *value_string, gint *value);
+gboolean thunar_column_value_from_string(const gchar *value_string, gint *value);
+
+// ----------------------------------------------------------------------------
 
 #define THUNAR_TYPE_ICON_SIZE (thunar_icon_size_get_type ())
 
@@ -122,6 +128,8 @@ typedef enum
 
 GType thunar_icon_size_get_type() G_GNUC_CONST;
 
+// ----------------------------------------------------------------------------
+
 #define THUNAR_TYPE_THUMBNAIL_MODE (thunar_thumbnail_mode_get_type ())
 
 /**
@@ -140,6 +148,8 @@ typedef enum
 
 GType thunar_thumbnail_mode_get_type() G_GNUC_CONST;
 
+// ----------------------------------------------------------------------------
+
 #define THUNAR_TYPE_THUMBNAIL_SIZE (thunar_thumbnail_size_get_type ())
 
 /**
@@ -157,6 +167,8 @@ typedef enum
 GType       thunar_thumbnail_size_get_type() G_GNUC_CONST;
 const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
                                            G_GNUC_CONST;
+
+// ----------------------------------------------------------------------------
 
 #define TYPE_PARALLEL_COPY_MODE (parallel_copy_mode_get_type())
 
@@ -178,6 +190,8 @@ typedef enum
 
 GType parallel_copy_mode_get_type() G_GNUC_CONST;
 
+// ----------------------------------------------------------------------------
+
 #define THUNAR_TYPE_RECURSIVE_PERMISSIONS (thunar_recursive_permissions_get_type ())
 
 /**
@@ -197,6 +211,8 @@ typedef enum
 } ThunarRecursivePermissionsMode;
 
 GType thunar_recursive_permissions_get_type() G_GNUC_CONST;
+
+// ----------------------------------------------------------------------------
 
 #define THUNAR_TYPE_ZOOM_LEVEL (thunar_zoom_level_get_type ())
 
@@ -218,36 +234,21 @@ typedef enum
     THUNAR_ZOOM_LEVEL_300_PERCENT,
     THUNAR_ZOOM_LEVEL_400_PERCENT,
 
-    //< private >
     THUNAR_ZOOM_N_LEVELS,
 
 } ThunarZoomLevel;
 
-GType   thunar_zoom_level_get_type() G_GNUC_CONST;
+GType thunar_zoom_level_get_type() G_GNUC_CONST;
 ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
                                                         G_GNUC_CONST;
 
+// ----------------------------------------------------------------------------
+
 #define THUNAR_TYPE_JOB_RESPONSE (thunar_job_response_get_type ())
 
-/**
- * ThunarJobResponse:
- * @THUNAR_JOB_RESPONSE_YES         :
- * @THUNAR_JOB_RESPONSE_YES_ALL     :
- * @THUNAR_JOB_RESPONSE_NO          :
- * @THUNAR_JOB_RESPONSE_NO_ALL      :
- * @THUNAR_JOB_RESPONSE_CANCEL      :
- * @THUNAR_JOB_RESPONSE_RETRY       :
- * @THUNAR_JOB_RESPONSE_FORCE       :
- * @THUNAR_JOB_RESPONSE_REPLACE     :
- * @THUNAR_JOB_RESPONSE_REPLACE_ALL :
- * @THUNAR_JOB_RESPONSE_SKIP        :
- * @THUNAR_JOB_RESPONSE_SKIP_ALL    :
- * @THUNAR_JOB_RESPONSE_RENAME      :
- * @THUNAR_JOB_RESPONSE_RENAME_ALL  :
- *
- * Possible responses for the ThunarJob::ask signal.
- **/
-typedef enum //< flags >
+// Possible responses for the ThunarJob::ask signal
+
+typedef enum
 {
     THUNAR_JOB_RESPONSE_YES         = 1 << 0,
     THUNAR_JOB_RESPONSE_YES_ALL     = 1 << 1,
@@ -269,7 +270,9 @@ typedef enum //< flags >
 
 GType thunar_job_response_get_type() G_GNUC_CONST;
 
-#define THUNAR_TYPE_FILE_MODE (thunar_file_mode_get_type ())
+// ----------------------------------------------------------------------------
+
+#define THUNAR_TYPE_FILE_MODE (thunar_file_mode_get_type())
 
 /**
  * ThunarFileMode:
@@ -300,6 +303,6 @@ GType thunar_file_mode_get_type() G_GNUC_CONST;
 
 G_END_DECLS
 
-#endif // __THUNAR_ENUM_TYPES_H__
+#endif // __ENUMTYPES_H__
 
 

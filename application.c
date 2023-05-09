@@ -470,7 +470,8 @@ static void _application_collect_and_launch(
                             icon_name,
                             title,
                             launcher,
-                            source_file_list, target_file_list,
+                            source_file_list,
+                            target_file_list,
                             update_source_folders, update_target_folders,
                             new_files_closure);
     }
@@ -896,11 +897,11 @@ static void _application_process_files(Application *application)
  * Return value: %TRUE on success, %FALSE if @error is set.
  **/
 gboolean application_process_filenames(Application *application,
-                                              const gchar       *working_directory,
-                                              gchar            **filenames,
-                                              GdkScreen         *screen,
-                                              const gchar       *startup_id,
-                                              GError           **error)
+                                       const gchar       *working_directory,
+                                       gchar            **filenames,
+                                       GdkScreen         *screen,
+                                       const gchar       *startup_id,
+                                       GError           **error)
 {
     e_return_val_if_fail(IS_APPLICATION(application), FALSE);
     e_return_val_if_fail(working_directory != NULL, FALSE);

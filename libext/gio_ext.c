@@ -20,13 +20,10 @@
 #include <config.h>
 #include <gio_ext.h>
 
-#include <gio/gio.h>
-#include <gio/gunixmounts.h>
-#include <gio/gdesktopappinfo.h>
-
-#include <utils.h>
-
 #include <th_file.h>
+#include <utils.h>
+#include <gio/gdesktopappinfo.h>
+#include <syslog.h>
 
 GFile* e_file_new_for_home()
 {
@@ -121,6 +118,61 @@ gboolean e_file_is_network(GFile *file)
 
     return is_network;
 }
+
+
+
+
+gboolean e_file_move(GFile                  *source,
+                     GFile                  *destination,
+                     GFileCopyFlags         flags,
+                     GCancellable           *cancellable,
+                     GFileProgressCallback  progress_callback,
+                     gpointer               progress_callback_data,
+                     GError                 **error)
+{
+    gboolean ret = g_file_move(source,
+                               destination,
+                               flags,
+                               cancellable,
+                               progress_callback,
+                               progress_callback_data,
+                               error);
+
+    if (!error)
+        return ret;
+
+    GError *err = *error;
+
+    // cancelled
+    if (err && err->code == G_IO_ERROR_CANCELLED)
+    {
+        GFileType source_type = g_file_query_file_type(
+                                        source,
+                                        G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                        NULL);
+
+        if (source_type == G_FILE_TYPE_REGULAR
+            || source_type == G_FILE_TYPE_SYMBOLIC_LINK
+            || source_type == G_FILE_TYPE_SPECIAL)
+        {
+            gchar *target_path = g_file_get_path(destination);
+            syslog(LOG_WARNING,
+                   "e_file_move: delete truncated file \"%s\"\n",
+                   target_path);
+            g_free(target_path);
+
+            // remove truncated target file
+            g_file_delete(destination, NULL, NULL);
+        }
+    }
+
+    return ret;
+}
+
+
+
+
+
 
 GKeyFile* e_file_query_key_file(GFile        *file,
                                        GCancellable *cancellable,
@@ -372,7 +424,7 @@ gchar* e_file_get_free_space_string(GFile *file, gboolean file_size_binary)
     return fs_string;
 }
 
-GType thunar_g_file_list_get_type()
+GType e_file_list_get_type()
 {
     static GType type = G_TYPE_INVALID;
 

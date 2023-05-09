@@ -52,8 +52,8 @@ typedef struct _TransferJob        TransferJob;
 GType transferjob_get_type() G_GNUC_CONST;
 
 ThunarJob* transferjob_new(GList *source_file_list, GList *target_file_list,
-                            TransferJobType type)
-                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+                           TransferJobType type)
+                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 gchar* transferjob_get_status(TransferJob *job);
 
