@@ -22,7 +22,6 @@
 
 #include <fileinfo.h>
 #include <gio_ext.h>
-#include <job.h>
 
 #include <gio/gio.h>
 

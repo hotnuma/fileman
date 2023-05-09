@@ -45,24 +45,18 @@ struct _ExoJobClass
     GObjectClass __parent__;
 
     // virtual methods
-    gboolean    (*execute)(ExoJob *job, GError **error);
+    gboolean    (*execute) (ExoJob *job, GError **error);
 
     // signals
-    void        (*error)(ExoJob *job, GError *error);
-    void        (*finished)(ExoJob *job);
-    void        (*info_message)(ExoJob *job, const gchar *message);
-    void        (*percent)(ExoJob *job, gdouble percent);
+    void        (*error) (ExoJob *job, GError *error);
+    void        (*finished) (ExoJob *job);
+    void        (*info_message) (ExoJob *job, const gchar *message);
+    void        (*percent) (ExoJob *job, gdouble percent);
 };
 
-/**
- * ExoJob:
- *
- * The #ExoJob struct contains only private fields and should not be
- * directly accessed.
- **/
 struct _ExoJob
 {
-    GObject __parent__;
+    GObject     __parent__;
 
     ExoJobPrivate *priv;
 };

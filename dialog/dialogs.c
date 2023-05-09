@@ -18,19 +18,14 @@
  */
 
 #include <config.h>
-#include <memory.h>
-#include <stdarg.h>
-#include <string.h>
-
-#include <libxfce4ui/libxfce4ui.h>
-#include <utils.h>
-
 #include <dialogs.h>
-#include <gtk_ext.h>
+
 #include <iconfactory.h>
 #include <io_jobs.h>
-#include <job.h>
+#include <utils.h>
+#include <gtk_ext.h>
 #include <pango_ext.h>
+#include <libxfce4ui/libxfce4ui.h>
 
 static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);
 static void _dialog_job_ask_replace_callback(GtkWidget *button, gpointer user_data);

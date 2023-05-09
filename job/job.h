@@ -21,10 +21,7 @@
 #ifndef __THUNAR_JOB_H__
 #define __THUNAR_JOB_H__
 
-#include <gio/gio.h>
-
 #include <exo_job.h>
-#include <enumtypes.h>
 #include <th_file.h>
 
 G_BEGIN_DECLS
@@ -50,11 +47,10 @@ struct _ThunarJobClass
     ExoJobClass __parent__;
 
     // signals
-    ThunarJobResponse (*ask)(ThunarJob *job, const gchar *message,
-                             ThunarJobResponse choices);
-    ThunarJobResponse (*ask_replace)(ThunarJob *job,
-                                     ThunarFile *source_file,
-                                     ThunarFile *target_file);
+    ThunarJobResponse (*ask) (ThunarJob *job, const gchar *message,
+                              ThunarJobResponse choices);
+    ThunarJobResponse (*ask_replace) (ThunarJob *job, ThunarFile *source_file,
+                                      ThunarFile *target_file);
 };
 
 struct _ThunarJob

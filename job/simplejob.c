@@ -19,13 +19,8 @@
  */
 
 #include <config.h>
-#include <simple_job.h>
+#include <simplejob.h>
 
-#include <job.h>
-
-#include <memory.h>
-#include <stdarg.h>
-#include <string.h>
 #include <gobject/gvaluecollector.h>
 
 static void simple_job_finalize(GObject *object);

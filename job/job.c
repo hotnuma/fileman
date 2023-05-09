@@ -19,12 +19,7 @@
 
 #include <config.h>
 #include <job.h>
-
-#include <enumtypes.h>
 #include <marshal.h>
-
-#include <memory.h>
-#include <string.h>
 
 // Signal identifiers
 enum
@@ -75,9 +70,7 @@ static gboolean _job_ask_accumulator(GSignalInvocationHint *ihint,
 
 static void job_class_init(ThunarJobClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = job_finalize;
 
     klass->ask = job_real_ask;

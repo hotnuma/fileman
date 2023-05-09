@@ -21,9 +21,8 @@
 #include <progressview.h>
 
 #include <dialogs.h>
-#include <job.h>
+#include <transferjob.h>
 #include <pango_ext.h>
-#include <transfer_job.h>
 
 static void progressview_finalize(GObject *object);
 static void progressview_dispose(GObject *object);

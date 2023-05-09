@@ -44,7 +44,7 @@
 #include <marshal.h>
 #include <pango_ext.h>
 #include <propsdlg.h>
-#include <simple_job.h>
+#include <simplejob.h>
 
 // Property identifiers
 enum

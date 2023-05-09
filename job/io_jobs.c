@@ -25,9 +25,8 @@
 #include <gio_ext.h>
 #include <io_scan_directory.h>
 #include <job_utils.h>
-#include <job.h>
-#include <simple_job.h>
-#include <transfer_job.h>
+#include <simplejob.h>
+#include <transferjob.h>
 
 #include <errno.h>
 #include <gio/gio.h>

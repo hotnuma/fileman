@@ -19,17 +19,11 @@
  */
 
 #include <config.h>
-#include <transfer_job.h>
+#include <transferjob.h>
 
-#include <utils.h>
-
-#include <application.h>
 #include <gio_ext.h>
 #include <io_scan_directory.h>
 #include <job_utils.h>
-#include <job.h>
-
-#include <gio/gio.h>
 
 // seconds before we show the transfer rate + remaining time
 #define MINIMUM_TRANSFER_TIME (10 * G_USEC_PER_SEC) // 10 seconds

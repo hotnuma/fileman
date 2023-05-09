@@ -19,11 +19,9 @@
 
 #include <config.h>
 #include <job_utils.h>
-#include <gio_ext.h>
-#include <job.h>
-#include <utils.h>
 
-#include <gio/gio.h>
+#include <gio_ext.h>
+#include <utils.h>
 
 /**
  * thunar_io_jobs_util_next_duplicate_file:

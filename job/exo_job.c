@@ -20,31 +20,25 @@
 #include <config.h>
 #include <exo_job.h>
 
-#include <glib.h>
-#include <glib-object.h>
-#include <gio/gio.h>
-
 /**
- * SECTION: exo-job
- * @title: ExoJob
- * @short_description: Base class for threaded/asynchronous jobs
- * @include: exo/exo.h
- * @see_also: <link linkend="ExoSimpleJob">ExoSimpleJob</link>
- *
- * <link linkend="ExoJob">ExoJob</link> is an abstract base class
+ * ExoJob is an abstract base class
  * intended to wrap threaded/asynchronous operations(called jobs here).
  * It was written because the ways of dealing with threads provided by
  * GLib are not exactly object-oriented.
  *
  * It can be used to wrap any kind of long-running or possibly-blocking
  * operation like file operations or communication with web services.
- * The benefit of using <link linkend="ExoJob">ExoJob</link> is that one
+ * The benefit of using ExoJob is that one
  * gets an object associated with each operation. After creating the job
- * the caller can connect to signals like <link linkend="ExoJob::error">"error"
- * </link> or <link linkend="ExoJob::percent">"percent"</link>. This
+ * the caller can connect to signals like ExoJob::error
+ * or ExoJob::percent. This
  * design integrates very well with the usual object-oriented design of
  * applications based on GObject.
  **/
+
+static void exo_job_finalize(GObject *object);
+static void exo_job_error(ExoJob *job, const GError *error);
+static void exo_job_finished(ExoJob *job);
 
 // Signal identifiers
 enum
@@ -57,12 +51,6 @@ enum
 };
 
 typedef struct _ExoJobSignalData ExoJobSignalData;
-
-static void exo_job_finalize(GObject *object);
-static void exo_job_error(ExoJob *job, const GError *error);
-static void exo_job_finished(ExoJob *job);
-
-
 
 struct _ExoJobPrivate
 {
@@ -578,8 +566,10 @@ gboolean exo_job_send_to_mainloop(ExoJob         *job,
     e_return_val_if_fail(job->priv->scheduler_job != NULL, FALSE);
 
     G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-    return g_io_scheduler_job_send_to_mainloop(job->priv->scheduler_job, func, user_data,
-            destroy_notify);
+    return g_io_scheduler_job_send_to_mainloop(job->priv->scheduler_job,
+                                               func,
+                                               user_data,
+                                               destroy_notify);
     G_GNUC_END_IGNORE_DEPRECATIONS
 }
 

@@ -29,7 +29,7 @@
 #include <clipboard.h>
 #include <iconfactory.h>
 
-#include <simple_job.h>
+#include <simplejob.h>
 #include <io_scan_directory.h>
 #include <gtk_ext.h>
 #include <fnmatch.h>

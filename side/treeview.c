@@ -30,12 +30,11 @@
 #include <dnd.h>
 #include <gio_ext.h>
 #include <gtk_ext.h>
-#include <job.h>
 #include <marshal.h>
 #include <appmenu.h>
 #include <propsdlg.h>
 #include <shortrender.h>
-#include <simple_job.h>
+#include <simplejob.h>
 #include <treemodel.h>
 
 #include <gdk/gdkkeysyms.h>

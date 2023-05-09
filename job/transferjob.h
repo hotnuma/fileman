@@ -20,7 +20,6 @@
 #ifndef __TRANSFERJOB_H__
 #define __TRANSFERJOB_H__
 
-#include <glib-object.h>
 #include <job.h>
 
 G_BEGIN_DECLS

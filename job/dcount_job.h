@@ -20,7 +20,6 @@
 #ifndef __DEEPCOUNT_JOB_H__
 #define __DEEPCOUNT_JOB_H__
 
-#include <job.h>
 #include <gio/gio.h>
 
 G_BEGIN_DECLS

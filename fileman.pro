@@ -35,8 +35,8 @@ HEADERS = \
     job/io_scan_directory.h \
     job/job.h \
     job/job_utils.h \
-    job/simple_job.h \
-    job/transfer_job.h \
+    job/simplejob.h \
+    job/transferjob.h \
     launcher.h \
     libext/exo_treeview.h \
     libext/gdk_ext.h \
@@ -102,8 +102,8 @@ SOURCES = \
     job/io_scan_directory.c \
     job/job.c \
     job/job_utils.c \
-    job/simple_job.c \
-    job/transfer_job.c \
+    job/simplejob.c \
+    job/transferjob.c \
     launcher.c \
     libext/exo_treeview.c \
     libext/gdk_ext.c \

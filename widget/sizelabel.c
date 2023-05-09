@@ -21,8 +21,8 @@
 #include <config.h>
 #include <sizelabel.h>
 
+#include <job.h>
 #include <dcount_job.h>
-#include <gio_ext.h>
 
 enum
 {
