@@ -28,10 +28,10 @@ G_BEGIN_DECLS
  * SimpleJobFunc:
  * @job            : a #ThunarJob.
  * @param_values   : a #GArray of the #GValue<!---->s passed to
- *                   thunar_simplejob_launch().
+ *                   simplejob_launch().
  * @error          : return location for errors.
  *
- * Used by the #SimpleJob to process the @job. See thunar_simplejob_launch()
+ * Used by the #SimpleJob to process the @job. See simplejob_launch()
  * for further details.
  *
  * Return value: %TRUE on success, %FALSE in case of an error.

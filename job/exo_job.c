@@ -260,7 +260,7 @@ static gboolean exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
 
     job->priv->scheduler_job = scheduler_job;
 
-    success =(*EXO_JOB_GET_CLASS(job)->execute)(job, &error);
+    success = EXO_JOB_GET_CLASS(job)->execute(job, &error);
 
     if (!success)
     {

@@ -632,7 +632,10 @@ static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
     e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
 
-    g_signal_handlers_disconnect_matched(job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, dialog);
+    g_signal_handlers_disconnect_matched(job,
+                                         G_SIGNAL_MATCH_DATA,
+                                         0, 0, NULL, NULL,
+                                         dialog);
     g_object_unref(job);
 }
 
@@ -655,19 +658,18 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 
     const gchar *old_name = th_file_get_display_name(file);
 
-    if (g_utf8_collate(new_name, old_name) != 0)
-    {
-        ThunarJob *job = io_rename_file(file, new_name);
+    if (g_utf8_collate(new_name, old_name) == 0)
+        return;
 
-        if (job != NULL)
-        {
-            g_signal_connect(job, "error",
-                             G_CALLBACK(_propsdlg_rename_error), dialog);
+    ThunarJob *job = io_rename_file(file, new_name);
+    if (!job)
+        return;
 
-            g_signal_connect(job, "finished",
-                             G_CALLBACK(_propsdlg_rename_finished), dialog);
-        }
-    }
+    g_signal_connect(job, "error",
+                     G_CALLBACK(_propsdlg_rename_error), dialog);
+
+    g_signal_connect(job, "finished",
+                     G_CALLBACK(_propsdlg_rename_finished), dialog);
 }
 
 static gboolean _propsdlg_name_focus_out_event(GtkWidget     *entry,

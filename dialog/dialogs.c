@@ -439,15 +439,14 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     }
 
     // cleanup
-    if (G_LIKELY(response != GTK_RESPONSE_NONE))
-    {
-        // unregister handler
-        g_signal_handlers_disconnect_by_func(G_OBJECT(file),
-                                             gtk_widget_destroy,
-                                             dialog);
+    if (G_UNLIKELY(response == GTK_RESPONSE_NONE))
+        return job;
 
-        gtk_widget_destroy(dialog);
-    }
+    // unregister handler
+    g_signal_handlers_disconnect_by_func(G_OBJECT(file),
+                                         gtk_widget_destroy,
+                                         dialog);
+    gtk_widget_destroy(dialog);
 
     return job;
 }

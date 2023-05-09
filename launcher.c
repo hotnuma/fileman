@@ -1789,30 +1789,29 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
 static void _launcher_action_create_document(ThunarLauncher   *launcher,
                                                    GtkWidget        *menu_item)
 {
-    Application *application;
-    GList              target_path_list;
-    gchar             *name;
-    gchar             *title;
-    ThunarFile        *template_file;
-
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     if (th_file_is_trashed(launcher->current_directory))
         return;
 
+    ThunarFile        *template_file;
     template_file = g_object_get_qdata(G_OBJECT(menu_item), _launcher_file_quark);
+
+    gchar             *name;
 
     if (template_file != NULL)
     {
         // generate a title for the create dialog
+        gchar *title;
         title = g_strdup_printf(_("Create Document from template \"%s\""),
-                                 th_file_get_display_name(template_file));
+                                th_file_get_display_name(template_file));
 
         // ask the user to enter a name for the new document
-        name = dialog_file_create(launcher->widget,
-                             th_file_get_content_type(THUNAR_FILE(template_file)),
-                             th_file_get_display_name(template_file),
-                             title);
+        name = dialog_file_create(
+                        launcher->widget,
+                        th_file_get_content_type(THUNAR_FILE(template_file)),
+                        th_file_get_display_name(template_file),
+                        title);
         // cleanup
         g_free(title);
     }
@@ -1820,68 +1819,67 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
     {
         // ask the user to enter a name for the new empty file
         name = dialog_file_create(launcher->widget,
-                             "text/plain",
-                             _("New Empty File"),
-                             _("New Empty File..."));
+                                  "text/plain",
+                                  _("New Empty File"),
+                                  _("New Empty File..."));
     }
 
-    if (G_LIKELY(name != NULL))
+    if (G_UNLIKELY(name == NULL))
+        return;
+
+    if (G_LIKELY(launcher->parent_folder != NULL))
     {
-        if (G_LIKELY(launcher->parent_folder != NULL))
+        GList target_path_list;
+
+        // fake the target path list
+        if (IS_TREEVIEW(launcher->widget)
+            && launcher->files_are_selected
+            && launcher->single_directory_to_process)
         {
-            // fake the target path list
-            if (IS_TREEVIEW(launcher->widget)
-                && launcher->files_are_selected
-                && launcher->single_directory_to_process)
-            {
-                target_path_list.data =
-                            g_file_get_child(
-                                th_file_get_file(launcher->single_folder),
-                                name);
-            }
-            else
-            {
-                target_path_list.data =
-                            g_file_get_child(
-                                th_file_get_file(launcher->current_directory),
-                                name);
-            }
-
-            target_path_list.next = NULL;
-            target_path_list.prev = NULL;
-
-            // launch the operation
-            application = application_get();
-            application_creat(application,
-                                     launcher->widget,
-                                     &target_path_list,
-                                     template_file != NULL
-                                        ? th_file_get_file(template_file)
-                                        : NULL,
-                                     launcher->select_files_closure);
-            g_object_unref(G_OBJECT(application));
-
-            // release the target path
-            g_object_unref(target_path_list.data);
+            target_path_list.data = g_file_get_child(
+                            th_file_get_file(launcher->single_folder),
+                            name);
+        }
+        else
+        {
+            target_path_list.data = g_file_get_child(
+                            th_file_get_file(launcher->current_directory),
+                            name);
         }
 
-        // release the file name
-        g_free(name);
-    }
-}
+        target_path_list.next = NULL;
+        target_path_list.prev = NULL;
 
+        // launch the operation
+        Application *application = application_get();
+        application_creat(application,
+                          launcher->widget,
+                          &target_path_list,
+                          template_file != NULL
+                            ? th_file_get_file(template_file)
+                            : NULL,
+                          launcher->select_files_closure);
+
+        g_object_unref(G_OBJECT(application));
+
+        // release the target path
+        g_object_unref(target_path_list.data);
+    }
+
+    // release the file name
+    g_free(name);
+}
 
 static void _launcher_action_cut(ThunarLauncher *launcher)
 {
-    ClipboardManager *clipboard;
-
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     if (launcher->files_are_selected == FALSE || launcher->parent_folder == NULL)
         return;
 
-    clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
+    ClipboardManager *clipboard = clipman_get_for_display(gtk_widget_get_display(launcher->widget));
     clipman_cut_files(clipboard, launcher->files_to_process);
+
     g_object_unref(G_OBJECT(clipboard));
 }
 
@@ -2150,25 +2148,26 @@ void launcher_action_rename(ThunarLauncher *launcher)
     GtkWidget *window = gtk_widget_get_toplevel(launcher->widget);
 
     // start renaming if we have exactly one selected file
-    if (g_list_length(launcher->files_to_process) == 1)
-    {
-        // run the rename dialog
-        ThunarJob *job = dialog_file_rename(
+    if (g_list_length(launcher->files_to_process) != 1)
+        return;
+
+    // run the rename dialog
+    ThunarJob *job = dialog_file_rename(
                             GTK_WINDOW(window),
                             THUNAR_FILE(launcher->files_to_process->data));
 
-        if (G_LIKELY(job != NULL))
-        {
-            g_signal_connect(job,
-                             "error",
-                             G_CALLBACK(_launcher_rename_error),
-                             launcher->widget);
-            g_signal_connect(job,
-                             "finished",
-                             G_CALLBACK(_launcher_rename_finished),
-                             launcher->widget);
-        }
-    }
+    if (!job)
+        return;
+
+    g_signal_connect(job,
+                     "error",
+                     G_CALLBACK(_launcher_rename_error),
+                     launcher->widget);
+
+    g_signal_connect(job,
+                     "finished",
+                     G_CALLBACK(_launcher_rename_finished),
+                     launcher->widget);
 }
 
 static void _launcher_action_key_rename(ThunarLauncher *launcher)

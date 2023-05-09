@@ -296,7 +296,7 @@ static void _szlabel_error(ExoJob *job, const GError *error,
 {
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(IS_SIZELABEL(size_label));
-    e_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
+    e_return_if_fail(size_label->job == DEEPCOUNTJOB(job));
 
     // setup the error text as label
     gtk_label_set_text(GTK_LABEL(size_label->label), error->message);
@@ -306,7 +306,7 @@ static void _szlabel_finished(ExoJob *job, SizeLabel *size_label)
 {
     e_return_if_fail(THUNAR_IS_JOB(job));
     e_return_if_fail(IS_SIZELABEL(size_label));
-    e_return_if_fail(size_label->job == DEEPCOUNT_JOB(job));
+    e_return_if_fail(size_label->job == DEEPCOUNTJOB(job));
 
     // stop and hide the spinner
     gtk_spinner_stop(GTK_SPINNER(size_label->spinner));
@@ -330,7 +330,7 @@ static void _szlabel_status_update(DeepCountJob *job,
     guint              n;
     gchar             *unreable_text;
 
-    e_return_if_fail(IS_DEEPCOUNT_JOB(job));
+    e_return_if_fail(IS_DEEPCOUNTJOB(job));
     e_return_if_fail(IS_SIZELABEL(size_label));
     e_return_if_fail(size_label->job == job);
 

@@ -17,8 +17,8 @@
  * MA  02111-1307  USA
  */
 
-#ifndef __DEEPCOUNT_JOB_H__
-#define __DEEPCOUNT_JOB_H__
+#ifndef __DEEPCOUNTJOB_H__
+#define __DEEPCOUNTJOB_H__
 
 #include <gio/gio.h>
 
@@ -28,17 +28,17 @@ typedef struct _DeepCountJobPrivate DeepCountJobPrivate;
 typedef struct _DeepCountJobClass   DeepCountJobClass;
 typedef struct _DeepCountJob        DeepCountJob;
 
-#define TYPE_DEEPCOUNT_JOB (dcjob_get_type())
-#define DEEPCOUNT_JOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_DEEPCOUNT_JOB, DeepCountJob))
-#define DEEPCOUNT_JOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_DEEPCOUNT_JOB, DeepCountJobClass))
-#define IS_DEEPCOUNT_JOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_DEEPCOUNT_JOB))
-#define IS_DEEPCOUNT_JOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_DEEPCOUNT_JOB)
-#define DEEPCOUNT_JOB_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_DEEPCOUNT_JOB, DeepCountJobClass))
+#define TYPE_DEEPCOUNTJOB (dcjob_get_type())
+#define DEEPCOUNTJOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_DEEPCOUNTJOB, DeepCountJob))
+#define DEEPCOUNTJOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_DEEPCOUNTJOB, DeepCountJobClass))
+#define IS_DEEPCOUNTJOB(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_DEEPCOUNTJOB))
+#define IS_DEEPCOUNTJOB_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_DEEPCOUNTJOB)
+#define DEEPCOUNTJOB_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_DEEPCOUNTJOB, DeepCountJobClass))
 
 GType dcjob_get_type() G_GNUC_CONST;
 
@@ -47,6 +47,6 @@ DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
 
 G_END_DECLS
 
-#endif // __DEEPCOUNT_JOB_H__
+#endif // __DEEPCOUNTJOB_H__
 
 

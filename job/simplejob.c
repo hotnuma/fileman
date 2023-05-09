@@ -103,7 +103,7 @@ static gboolean simplejob_execute(ExoJob *job, GError **error)
 }
 
 /**
- * thunar_simplejob_launch:
+ * simplejob_launch:
  * @func           : the #SimpleJobFunc to execute the job.
  * @n_param_values : the number of parameters to pass to the @func.
  * @...            : a list of #GType and parameter pairs(exactly
@@ -113,11 +113,11 @@ static gboolean simplejob_execute(ExoJob *job, GError **error)
  * @func with the specified parameters.
  *
  * For example the listdir @func expects a #ThunarPath for the
- * folder to list, so the call to thunar_simplejob_launch()
+ * folder to list, so the call to simplejob_launch()
  * would look like this:
  *
  * <informalexample><programlisting>
- * thunar_simplejob_launch(_thunar_io_jobs_listdir, 1,
+ * simplejob_launch(_thunar_io_jobs_listdir, 1,
  *                               THUNAR_TYPE_PATH, path);
  * </programlisting></informalexample>
  *
@@ -128,20 +128,19 @@ static gboolean simplejob_execute(ExoJob *job, GError **error)
  **/
 ThunarJob* simplejob_launch(SimpleJobFunc func, guint n_param_values, ...)
 {
-    SimpleJob *simple_job;
-    va_list          var_args;
-    GValue           value = { 0, };
-    gchar           *error_message;
-    guint            n;
-
     // allocate and initialize the simple job
+    SimpleJob *simple_job;
     simple_job = g_object_new(TYPE_SIMPLEJOB, NULL);
     simple_job->func = func;
     simple_job->param_values = g_array_sized_new(FALSE, TRUE, sizeof(GValue), n_param_values);
 
+    va_list var_args;
+    gchar *error_message;
+    GValue value = { 0, };
+
     // collect the parameters
     va_start(var_args, n_param_values);
-    for (n = 0; n < n_param_values; ++n)
+    for (guint n = 0; n < n_param_values; ++n)
     {
         // initialize the value to hold the next parameter
         g_value_init(&value, va_arg(var_args, GType));

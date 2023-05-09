@@ -119,7 +119,7 @@ static void dcjob_init(DeepCountJob *job)
 
 static void dcjob_finalize(GObject *object)
 {
-    DeepCountJob *job = DEEPCOUNT_JOB(object);
+    DeepCountJob *job = DEEPCOUNTJOB(object);
 
     g_list_free_full(job->files, g_object_unref);
 
@@ -128,7 +128,7 @@ static void dcjob_finalize(GObject *object)
 
 static void _dcjob_status_update(DeepCountJob *job)
 {
-    e_return_if_fail(IS_DEEPCOUNT_JOB(job));
+    e_return_if_fail(IS_DEEPCOUNTJOB(job));
 
     exo_job_emit(EXO_JOB(job),
                   deep_count_signals[STATUS_UPDATE],
@@ -145,7 +145,7 @@ static gboolean _dcjob_process(ExoJob       *job,
                                               const gchar  *toplevel_fs_id,
                                               GError      **error)
 {
-    DeepCountJob *count_job = DEEPCOUNT_JOB(job);
+    DeepCountJob *count_job = DEEPCOUNTJOB(job);
     GFileEnumerator    *enumerator;
     GFileInfo          *child_info;
     GFileInfo          *info;
@@ -306,7 +306,7 @@ static gboolean _dcjob_process(ExoJob       *job,
 
 static gboolean dcjob_execute(ExoJob *job, GError **error)
 {
-    DeepCountJob *count_job = DEEPCOUNT_JOB(job);
+    DeepCountJob *count_job = DEEPCOUNTJOB(job);
     gboolean            success = TRUE;
     GError             *err = NULL;
     GList              *lp;
@@ -367,7 +367,7 @@ DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
 
     e_return_val_if_fail(files != NULL, NULL);
 
-    job = g_object_new(TYPE_DEEPCOUNT_JOB, NULL);
+    job = g_object_new(TYPE_DEEPCOUNTJOB, NULL);
     job->files = g_list_copy(files);
     job->query_flags = flags;
 

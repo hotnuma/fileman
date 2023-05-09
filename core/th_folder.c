@@ -743,9 +743,12 @@ void th_folder_load(ThunarFolder *folder, gboolean reload_info)
     // start a new job
     folder->job = io_list_directory(th_file_get_file(folder->corresponding_file));
 
-    g_signal_connect(folder->job, "error", G_CALLBACK(_th_folder_error), folder);
-    g_signal_connect(folder->job, "finished", G_CALLBACK(_th_folder_finished), folder);
-    g_signal_connect(folder->job, "files-ready", G_CALLBACK(_th_folder_files_ready), folder);
+    g_signal_connect(folder->job, "error",
+                     G_CALLBACK(_th_folder_error), folder);
+    g_signal_connect(folder->job, "finished",
+                     G_CALLBACK(_th_folder_finished), folder);
+    g_signal_connect(folder->job, "files-ready",
+                     G_CALLBACK(_th_folder_files_ready), folder);
 
     // tell all consumers that we're loading
     g_object_notify(G_OBJECT(folder), "loading");
