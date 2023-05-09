@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <io_scan_directory.h>
+#include <io_scandir.h>
 
 #include <fileinfo.h>
 #include <gio_ext.h>

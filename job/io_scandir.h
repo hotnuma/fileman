@@ -17,8 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __IO_SCAN_DIRECTORY_H__
-#define __IO_SCAN_DIRECTORY_H__
+#ifndef __IO_SCANDIR_H__
+#define __IO_SCANDIR_H__
 
 #include <job.h>
 
@@ -34,6 +34,6 @@ GList* io_scan_directory(ThunarJob           *job,
 
 G_END_DECLS
 
-#endif // __IO_SCAN_DIRECTORY_H__
+#endif // __IO_SCANDIR_H__
 
 

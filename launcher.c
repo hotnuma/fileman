@@ -30,7 +30,7 @@
 #include <iconfactory.h>
 
 #include <simplejob.h>
-#include <io_scan_directory.h>
+#include <io_scandir.h>
 #include <gtk_ext.h>
 #include <fnmatch.h>
 

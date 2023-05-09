@@ -22,7 +22,7 @@
 #include <transferjob.h>
 
 #include <gio_ext.h>
-#include <io_scan_directory.h>
+#include <io_scandir.h>
 #include <job_utils.h>
 
 // seconds before we show the transfer rate + remaining time

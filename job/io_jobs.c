@@ -23,7 +23,7 @@
 #include <application.h>
 #include <enumtypes.h>
 #include <gio_ext.h>
-#include <io_scan_directory.h>
+#include <io_scandir.h>
 #include <job_utils.h>
 #include <simplejob.h>
 #include <transferjob.h>

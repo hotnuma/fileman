@@ -32,7 +32,7 @@ HEADERS = \
     job/dcount_job.h \
     job/exo_job.h \
     job/io_jobs.h \
-    job/io_scan_directory.h \
+    job/io_scandir.h \
     job/job.h \
     job/job_utils.h \
     job/simplejob.h \
@@ -99,7 +99,7 @@ SOURCES = \
     job/dcount_job.c \
     job/exo_job.c \
     job/io_jobs.c \
-    job/io_scan_directory.c \
+    job/io_scandir.c \
     job/job.c \
     job/job_utils.c \
     job/simplejob.c \
