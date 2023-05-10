@@ -19,11 +19,9 @@
 #ifndef __STANDARDVIEW_H__
 #define __STANDARDVIEW_H__
 
-#include <baseview.h>
 #include <listmodel.h>
 #include <iconfactory.h>
 #include <history.h>
-#include <clipboard.h>
 
 G_BEGIN_DECLS
 
@@ -59,13 +57,13 @@ struct _StandardViewClass
 
     /* Returns the list of currently selected GtkTreePath's, where
      * both the list and the items are owned by the caller. */
-    GList*  (*get_selected_items)   (StandardView *standard_view);
+    GList* (*get_selected_items) (StandardView *standard_view);
 
     // Selects all items in the view
-    void    (*select_all)           (StandardView *standard_view);
+    void (*select_all) (StandardView *standard_view);
 
     // Unselects all items in the view
-    void    (*unselect_all)         (StandardView *standard_view);
+    void (*unselect_all) (StandardView *standard_view);
 
     // Invert selection in the view
     void    (*selection_invert)     (StandardView *standard_view);
@@ -115,13 +113,16 @@ struct _StandardViewClass
                                      const gchar        *initial_text);
 
     // Appends view-specific menu items to the given menu
-    void    (*append_menu_items)    (StandardView *standard_view, GtkMenu *menu, GtkAccelGroup *accel_group);
+    void (*append_menu_items) (StandardView *standard_view, GtkMenu *menu,
+                               GtkAccelGroup *accel_group);
 
     // Connects view-specific accelerators to the given accelGroup
-    void    (*connect_accelerators) (StandardView *standard_view, GtkAccelGroup *accel_group);
+    void (*connect_accelerators) (StandardView *standard_view,
+                                  GtkAccelGroup *accel_group);
 
     // Disconnects view-specific accelerators to the given accelGroup
-    void    (*disconnect_accelerators) (StandardView *standard_view, GtkAccelGroup *accel_group);
+    void (*disconnect_accelerators) (StandardView *standard_view,
+                                     GtkAccelGroup *accel_group);
 
     // Internal action signals
     gboolean (*delete_selected_files) (StandardView *standard_view);

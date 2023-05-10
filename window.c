@@ -22,6 +22,7 @@
 #include <window.h>
 
 #include <application.h>
+#include <baseview.h>
 
 #include <browser.h>
 #include <clipboard.h>

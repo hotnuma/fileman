@@ -21,62 +21,22 @@
 #include <config.h>
 #include <standardview.h>
 
-#include <memory.h>
-#include <string.h>
-#include <gdk/gdkkeysyms.h>
+#include <baseview.h>
+#include <iconrender.h>
+#include <appmenu.h>
+#include <dnd.h>
 
+#include <window.h>
+#include <dialogs.h>
+#include <utils.h>
+#include <gio_ext.h>
+#include <gtk_ext.h>
+#include <pango_ext.h>
+
+// for desktop file edit
 #if defined(GDK_WINDOWING_X11)
 #include <gdk/gdkx.h>
 #endif
-
-#include <utils.h>
-
-#include <application.h>
-#include <appmenu.h>
-#include <dialogs.h>
-#include <dnd.h>
-#include <enumtypes.h>
-#include <gio_ext.h>
-#include <gtk_ext.h>
-#include <history.h>
-#include <iconrender.h>
-#include <launcher.h>
-#include <marshal.h>
-#include <pango_ext.h>
-#include <propsdlg.h>
-#include <simplejob.h>
-
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_CURRENT_DIRECTORY,
-    PROP_LOADING,
-    PROP_DISPLAY_NAME,
-    PROP_TOOLTIP_TEXT,
-    PROP_SELECTED_FILES,
-    PROP_SHOW_HIDDEN,
-    PROP_STATUSBAR_TEXT,
-    PROP_ZOOM_LEVEL,
-    PROP_DIRECTORY_SPECIFIC_SETTINGS,
-    PROP_ACCEL_GROUP,
-    N_PROPERTIES
-};
-
-// Signal identifiers
-enum
-{
-    START_OPEN_LOCATION,
-    LAST_SIGNAL,
-};
-
-// Identifiers for DnD target types
-enum
-{
-    TARGET_TEXT_URI_LIST,
-    TARGET_XDND_DIRECT_SAVE0,
-    TARGET_NETSCAPE_URL,
-};
 
 // Allocation -----------------------------------------------------------------
 
@@ -347,6 +307,15 @@ static XfceGtkActionEntry _standard_view_actions[] =
                                     G_N_ELEMENTS(_standard_view_actions), \
                                     id)
 
+// DnD target -----------------------------------------------------------------
+
+enum
+{
+    TARGET_TEXT_URI_LIST,
+    TARGET_XDND_DIRECT_SAVE0,
+    TARGET_NETSCAPE_URL,
+};
+
 // Target types for dragging from the view
 static const GtkTargetEntry _drag_targets[] =
 {
@@ -361,11 +330,31 @@ static const GtkTargetEntry _drop_targets[] =
     {"_NETSCAPE_URL",   0, TARGET_NETSCAPE_URL},
 };
 
-
 // Allocation -----------------------------------------------------------------
 
-static guint _standard_view_signals[LAST_SIGNAL];
+enum
+{
+    PROP_0,
+    PROP_CURRENT_DIRECTORY,
+    PROP_LOADING,
+    PROP_DISPLAY_NAME,
+    PROP_TOOLTIP_TEXT,
+    PROP_SELECTED_FILES,
+    PROP_SHOW_HIDDEN,
+    PROP_STATUSBAR_TEXT,
+    PROP_ZOOM_LEVEL,
+    PROP_DIRECTORY_SPECIFIC_SETTINGS,
+    PROP_ACCEL_GROUP,
+    N_PROPERTIES
+};
 static GParamSpec *_standard_view_props[N_PROPERTIES] = { NULL, };
+
+enum
+{
+    START_OPEN_LOCATION,
+    LAST_SIGNAL,
+};
+static guint _standard_view_signals[LAST_SIGNAL];
 
 struct _StandardViewPrivate
 {
@@ -427,8 +416,7 @@ struct _StandardViewPrivate
     gulong      row_changed_id;
 };
 
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE(StandardView,
-                                 standard_view,
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE(StandardView, standard_view,
                                  GTK_TYPE_SCROLLED_WINDOW,
                                  G_IMPLEMENT_INTERFACE(
                                      THUNAR_TYPE_NAVIGATOR,
@@ -443,10 +431,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE(StandardView,
 
 static void standard_view_class_init(StandardViewClass *klass)
 {
-    GtkWidgetClass *gtkwidget_class;
     GObjectClass   *gobject_class;
-    gpointer       g_iface;
-
     gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->constructor = standard_view_constructor;
     gobject_class->dispose = standard_view_dispose;
@@ -454,6 +439,7 @@ static void standard_view_class_init(StandardViewClass *klass)
     gobject_class->get_property = standard_view_get_property;
     gobject_class->set_property = standard_view_set_property;
 
+    GtkWidgetClass *gtkwidget_class;
     gtkwidget_class = GTK_WIDGET_CLASS(klass);
     gtkwidget_class->realize = standard_view_realize;
     gtkwidget_class->unrealize = standard_view_unrealize;
@@ -505,7 +491,7 @@ static void standard_view_class_init(StandardViewClass *klass)
                              E_PARAM_READWRITE);
 
     // override ThunarComponent's properties
-    g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);
+    gpointer g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);
     _standard_view_props[PROP_SELECTED_FILES] =
         g_param_spec_override("selected-files",
                               g_object_interface_find_property(g_iface,
@@ -789,10 +775,8 @@ static void standard_view_finalize(GObject *object)
     G_OBJECT_CLASS(standard_view_parent_class)->finalize(object);
 }
 
-static void standard_view_get_property(GObject    *object,
-                                       guint       prop_id,
-                                       GValue     *value,
-                                       GParamSpec *pspec)
+static void standard_view_get_property(GObject *object, guint prop_id,
+                                       GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
     ThunarFile *current_directory;
@@ -801,7 +785,9 @@ static void standard_view_get_property(GObject    *object,
     {
 
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value,
+                           navigator_get_current_directory(
+                                            THUNAR_NAVIGATOR(object)));
         break;
 
     case PROP_LOADING:
@@ -809,9 +795,11 @@ static void standard_view_get_property(GObject    *object,
         break;
 
     case PROP_DISPLAY_NAME:
-        current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(object));
+        current_directory = navigator_get_current_directory(
+                                            THUNAR_NAVIGATOR(object));
         if (current_directory != NULL)
-            g_value_set_static_string(value, th_file_get_display_name(current_directory));
+            g_value_set_static_string(value,
+                                      th_file_get_display_name(current_directory));
         break;
 
     case PROP_TOOLTIP_TEXT:
@@ -842,10 +830,8 @@ static void standard_view_get_property(GObject    *object,
     }
 }
 
-static void standard_view_set_property(GObject      *object,
-                                              guint         prop_id,
-                                              const GValue *value,
-                                              GParamSpec   *pspec)
+static void standard_view_set_property(GObject *object, guint prop_id,
+                                       const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
     StandardView *standard_view = STANDARD_VIEW(object);
@@ -854,7 +840,8 @@ static void standard_view_set_property(GObject      *object,
     {
 
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+                                        g_value_get_object(value));
         break;
 
     case PROP_LOADING:
@@ -862,7 +849,8 @@ static void standard_view_set_property(GObject      *object,
         break;
 
     case PROP_SELECTED_FILES:
-        component_set_selected_files(THUNAR_COMPONENT(object), g_value_get_boxed(value));
+        component_set_selected_files(THUNAR_COMPONENT(object),
+                                     g_value_get_boxed(value));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -891,15 +879,19 @@ static void standard_view_set_property(GObject      *object,
 static void standard_view_realize(GtkWidget *widget)
 {
     StandardView *standard_view = STANDARD_VIEW(widget);
-    GtkIconTheme       *icon_theme;
 
     // let the GtkWidget do its work
     GTK_WIDGET_CLASS(standard_view_parent_class)->realize(widget);
 
     // determine the icon factory for the screen on which we are realized
-    icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
+    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
+                                                gtk_widget_get_screen(widget));
     standard_view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
-    g_object_bind_property(G_OBJECT(standard_view->icon_renderer), "size", G_OBJECT(standard_view->icon_factory), "thumbnail-size", G_BINDING_SYNC_CREATE);
+
+    g_object_bind_property(
+            G_OBJECT(standard_view->icon_renderer), "size",
+            G_OBJECT(standard_view->icon_factory), "thumbnail-size",
+            G_BINDING_SYNC_CREATE);
 }
 
 static void standard_view_unrealize(GtkWidget *widget)
@@ -907,7 +899,8 @@ static void standard_view_unrealize(GtkWidget *widget)
     StandardView *standard_view = STANDARD_VIEW(widget);
 
     // drop the reference on the icon factory
-    g_signal_handlers_disconnect_by_func(G_OBJECT(standard_view->icon_factory), gtk_widget_queue_draw, standard_view);
+    g_signal_handlers_disconnect_by_func(G_OBJECT(standard_view->icon_factory),
+                                         gtk_widget_queue_draw, standard_view);
     g_object_unref(G_OBJECT(standard_view->icon_factory));
     standard_view->icon_factory = NULL;
 
@@ -945,7 +938,6 @@ static gboolean standard_view_draw(GtkWidget *widget, cairo_t *cr)
 
     return result;
 }
-
 
 // Accelerators ---------------------------------------------------------------
 
@@ -986,7 +978,6 @@ static void _standard_view_disconnect_accelerators(StandardView *standard_view)
     standard_view->accel_group = NULL;
 }
 
-
 // Standard View Init ---------------------------------------------------------
 
 static void standard_view_init(StandardView *standard_view)
@@ -995,7 +986,9 @@ static void standard_view_init(StandardView *standard_view)
 
     // allocate the scroll_to_files mapping(directory GFile -> first visible child GFile)
     standard_view->priv->scroll_to_files = g_hash_table_new_full(g_file_hash,
-                                                                 (GEqualFunc) g_file_equal, g_object_unref, g_object_unref);
+                                                                 (GEqualFunc) g_file_equal,
+                                                                 g_object_unref,
+                                                                 g_object_unref);
 
     // initialize the scrolled window
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(standard_view),
@@ -1016,19 +1009,19 @@ static void standard_view_init(StandardView *standard_view)
 
     // setup the list model
     standard_view->model = listmodel_new();
-    g_signal_connect_after(G_OBJECT(standard_view->model),
-                           "row-deleted",
+    g_signal_connect_after(G_OBJECT(standard_view->model), "row-deleted",
                            G_CALLBACK(_standard_view_select_after_row_deleted),
                            standard_view);
-    standard_view->priv->row_changed_id = g_signal_connect(G_OBJECT(standard_view->model), "row-changed", G_CALLBACK(_standard_view_row_changed), standard_view);
-    g_signal_connect(G_OBJECT(standard_view->model),
-                     "rows-reordered",
-                     G_CALLBACK(_standard_view_rows_reordered),
-                     standard_view);
-    g_signal_connect(G_OBJECT(standard_view->model),
-                     "error",
-                     G_CALLBACK(_standard_view_error),
-                     standard_view);
+
+    standard_view->priv->row_changed_id =
+        g_signal_connect(G_OBJECT(standard_view->model), "row-changed",
+                         G_CALLBACK(_standard_view_row_changed), standard_view);
+
+    g_signal_connect(G_OBJECT(standard_view->model), "rows-reordered",
+                     G_CALLBACK(_standard_view_rows_reordered), standard_view);
+
+    g_signal_connect(G_OBJECT(standard_view->model), "error",
+                     G_CALLBACK(_standard_view_error), standard_view);
 
     // setup the icon renderer
     standard_view->icon_renderer = iconrender_new();
