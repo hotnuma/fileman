@@ -2057,8 +2057,7 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
         return;
 
     /* copy the selected files into the current directory, which effectively
-     * creates duplicates of the files.
-     */
+     * creates duplicates of the files */
     Application *application = application_get();
 
     application_copy_into(application,
@@ -2089,8 +2088,7 @@ static void _launcher_action_make_link(ThunarLauncher *launcher)
     }
 
     /* link the selected files into the current directory, which effectively
-     * creates new unique links for the files.
-     */
+     * creates new unique links for the files */
     Application *application = application_get();
 
     application_link_into(application,

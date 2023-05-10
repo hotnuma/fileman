@@ -20,11 +20,7 @@
 #include <config.h>
 #include <io_scandir.h>
 
-#include <fileinfo.h>
 #include <gio_ext.h>
-
-#include <gio/gio.h>
-
 
 GList* io_scan_directory(ThunarJob           *job,
                          GFile               *file,

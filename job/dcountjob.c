@@ -49,27 +49,27 @@ struct _DeepCountJobClass
 
     // signals
     void (*status_update) (ThunarJob *job,
-                           guint64  total_size,
-                           guint    file_count,
-                           guint    directory_count,
-                           guint    unreadable_directory_count);
+                           guint64   total_size,
+                           guint     file_count,
+                           guint     directory_count,
+                           guint     unreadable_directory_count);
 };
 
 struct _DeepCountJob
 {
-    ThunarJob __parent__;
+    ThunarJob   __parent__;
 
-    GList              *files;
+    GList       *files;
     GFileQueryInfoFlags query_flags;
 
     // the time of the last "status-update" emission
-    gint64              last_time;
+    gint64      last_time;
 
     // status information
-    guint64             total_size;
-    guint               file_count;
-    guint               directory_count;
-    guint               unreadable_directory_count;
+    guint64     total_size;
+    guint       file_count;
+    guint       directory_count;
+    guint       unreadable_directory_count;
 };
 
 static guint deep_count_signals[LAST_SIGNAL];
@@ -78,13 +78,10 @@ G_DEFINE_TYPE(DeepCountJob, dcjob, THUNAR_TYPE_JOB)
 
 static void dcjob_class_init(DeepCountJobClass *klass)
 {
-    ExoJobClass  *job_class;
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = dcjob_finalize;
 
-    job_class = EXO_JOB_CLASS(klass);
+    ExoJobClass *job_class = EXO_JOB_CLASS(klass);
     job_class->execute = dcjob_execute;
 
     /**
@@ -100,16 +97,16 @@ static void dcjob_class_init(DeepCountJobClass *klass)
      **/
     deep_count_signals[STATUS_UPDATE] =
         g_signal_new("status-update",
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_NO_HOOKS,
-                      G_STRUCT_OFFSET(DeepCountJobClass, status_update),
-                      NULL, NULL,
-                      _thunar_marshal_VOID__UINT64_UINT_UINT_UINT,
-                      G_TYPE_NONE, 4,
-                      G_TYPE_UINT64,
-                      G_TYPE_UINT,
-                      G_TYPE_UINT,
-                      G_TYPE_UINT);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_NO_HOOKS,
+                     G_STRUCT_OFFSET(DeepCountJobClass, status_update),
+                     NULL, NULL,
+                     _thunar_marshal_VOID__UINT64_UINT_UINT_UINT,
+                     G_TYPE_NONE, 4,
+                     G_TYPE_UINT64,
+                     G_TYPE_UINT,
+                     G_TYPE_UINT,
+                     G_TYPE_UINT);
 }
 
 static void dcjob_init(DeepCountJob *job)
@@ -131,19 +128,19 @@ static void _dcjob_status_update(DeepCountJob *job)
     e_return_if_fail(IS_DEEPCOUNTJOB(job));
 
     exo_job_emit(EXO_JOB(job),
-                  deep_count_signals[STATUS_UPDATE],
-                  0,
-                  job->total_size,
-                  job->file_count,
-                  job->directory_count,
-                  job->unreadable_directory_count);
+                 deep_count_signals[STATUS_UPDATE],
+                 0,
+                 job->total_size,
+                 job->file_count,
+                 job->directory_count,
+                 job->unreadable_directory_count);
 }
 
 static gboolean _dcjob_process(ExoJob       *job,
-                                              GFile        *file,
-                                              GFileInfo    *file_info,
-                                              const gchar  *toplevel_fs_id,
-                                              GError      **error)
+                               GFile        *file,
+                               GFileInfo    *file_info,
+                               const gchar  *toplevel_fs_id,
+                               GError      **error)
 {
     DeepCountJob *count_job = DEEPCOUNTJOB(job);
     GFileEnumerator    *enumerator;
