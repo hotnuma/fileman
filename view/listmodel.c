@@ -25,11 +25,6 @@
 #include <filemonitor.h>
 #include <gio_ext.h>
 
-// Sort Func ------------------------------------------------------------------
-
-typedef gint (*ModelSortFunc) (const ThunarFile *a, const ThunarFile *b,
-                               gboolean case_sensitive);
-
 // GObject --------------------------------------------------------------------
 
 static void listmodel_dispose(GObject *object);
@@ -93,11 +88,11 @@ static void listmodel_set_sort_func(GtkTreeSortable *sortable,
                                     GDestroyNotify destroy);
 static gboolean listmodel_has_default_sort_func(GtkTreeSortable *sortable);
 
-// ----------------------------------------------------------------------------
+// Sorting --------------------------------------------------------------------
 
+static void _listmodel_sort(ListModel *store);
 static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
                                 gpointer user_data);
-static void _listmodel_sort(ListModel *store);
 
 static gint _sort_by_date_accessed(const ThunarFile *a, const ThunarFile *b,
                                    gboolean case_sensitive);
@@ -122,9 +117,11 @@ static gint _sort_by_type(const ThunarFile *a, const ThunarFile *b,
 
 static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                                     ListModel *store);
+
 static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store);
 static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
                                     ListModel *store);
+
 static void _listmodel_files_added(ThunarFolder *folder, GList *files,
                                    ListModel *store);
 static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
@@ -169,6 +166,9 @@ enum
     LAST_SIGNAL,
 };
 static guint _listmodel_signals[LAST_SIGNAL];
+
+typedef gint (*ModelSortFunc) (const ThunarFile *a, const ThunarFile *b,
+                               gboolean case_sensitive);
 
 struct _ListModelClass
 {
@@ -1117,25 +1117,19 @@ static void _listmodel_files_added(ThunarFolder *folder, GList *files,
     /* we use a simple trick here to avoid allocating
      * GtkTreePath's again and again, by simply accessing
      * the indices directly and only modifying the first
-     * item in the integer array... looks a hack, eh?
-     */
-    GtkTreePath   *path;
-    path = gtk_tree_path_new_first();
-    gint          *indices;
-    indices = gtk_tree_path_get_indices(path);
+     * item in the integer array... looks a hack, eh? */
+    GtkTreePath *path = gtk_tree_path_new_first();
+    gint *indices = gtk_tree_path_get_indices(path);
 
     // check if we have any handlers connected for "row-inserted"
-    gboolean       has_handler;
-    has_handler = g_signal_has_handler_pending(G_OBJECT(store),
-                                               store->row_inserted_id, 0, FALSE);
-    GtkTreeIter    iter;
-    ThunarFile    *file;
-    GSequenceIter *row;
-    GList         *lp;
+    gboolean has_handler = g_signal_has_handler_pending(
+                                                G_OBJECT(store),
+                                                store->row_inserted_id, 0, FALSE);
     // process all added files
-    for (lp = files; lp != NULL; lp = lp->next)
+    for (GList *lp = files; lp != NULL; lp = lp->next)
     {
         // take a reference on that file
+        ThunarFile    *file;
         file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
         e_return_if_fail(THUNAR_IS_FILE(file));
 
@@ -1147,12 +1141,14 @@ static void _listmodel_files_added(ThunarFolder *folder, GList *files,
         else
         {
             // insert the file
+            GSequenceIter *row;
             row = g_sequence_insert_sorted(store->rows, file,
                                             _listmodel_cmp_func, store);
 
             if (has_handler)
             {
                 // generate an iterator for the new item
+                GtkTreeIter    iter;
                 GTK_TREE_ITER_INIT(iter, store->stamp, row);
 
                 indices[0] = g_sequence_iter_get_position(row);
@@ -1173,29 +1169,25 @@ static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
 {
     (void) folder;
 
-    GList         *lp;
-    GSequenceIter *row;
-    GSequenceIter *end;
-    GSequenceIter *next;
-    GtkTreePath   *path;
-    gboolean      found;
-
     // drop all the referenced files from the model
-    for (lp = files; lp != NULL; lp = lp->next)
+    for (GList *lp = files; lp != NULL; lp = lp->next)
     {
-        row = g_sequence_get_begin_iter(store->rows);
-        end = g_sequence_get_end_iter(store->rows);
+        gboolean found;
+
+        GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
+        GSequenceIter *end = g_sequence_get_end_iter(store->rows);
 
         found = FALSE;
 
         while (row != end)
         {
-            next = g_sequence_iter_next(row);
+            GSequenceIter *next = g_sequence_iter_next(row);
 
             if (g_sequence_get(row) == lp->data)
             {
                 // setup path for "row-deleted"
-                path = gtk_tree_path_new_from_indices(g_sequence_iter_get_position(row), -1);
+                GtkTreePath *path = gtk_tree_path_new_from_indices(
+                                        g_sequence_iter_get_position(row), -1);
 
                 // remove file from the model
                 g_sequence_remove(row);
@@ -1230,11 +1222,8 @@ static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
 static gint _sort_by_date_accessed(const ThunarFile *a, const ThunarFile *b,
                                    gboolean case_sensitive)
 {
-    guint64 date_a;
-    guint64 date_b;
-
-    date_a = th_file_get_date(a, THUNAR_FILE_DATE_ACCESSED);
-    date_b = th_file_get_date(b, THUNAR_FILE_DATE_ACCESSED);
+    guint64 date_a = th_file_get_date(a, THUNAR_FILE_DATE_ACCESSED);
+    guint64 date_b = th_file_get_date(b, THUNAR_FILE_DATE_ACCESSED);
 
     if (date_a < date_b)
         return -1;
@@ -1574,16 +1563,8 @@ ThunarFolder* listmodel_get_folder(ListModel *store)
     return store->folder;
 }
 
-void listmodel_set_folder(ListModel *store,
-                                  ThunarFolder    *folder)
+void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
 {
-    GtkTreePath   *path;
-    gboolean       has_handler;
-    GList         *files;
-    GSequenceIter *row;
-    GSequenceIter *end;
-    GSequenceIter *next;
-
     e_return_if_fail(IS_LISTMODEL(store));
     e_return_if_fail(folder == NULL || THUNAR_IS_FOLDER(folder));
 
@@ -1595,16 +1576,21 @@ void listmodel_set_folder(ListModel *store,
     if (G_LIKELY(store->folder != NULL))
     {
         // check if we have any handlers connected for "row-deleted"
+        gboolean       has_handler;
         has_handler = g_signal_has_handler_pending(G_OBJECT(store), store->row_deleted_id, 0, FALSE);
 
+        GSequenceIter *row;
+        GSequenceIter *end;
         row = g_sequence_get_begin_iter(store->rows);
         end = g_sequence_get_end_iter(store->rows);
 
         // remove existing entries
+        GtkTreePath   *path;
         path = gtk_tree_path_new_first();
-        while(row != end)
+        while (row != end)
         {
             // remove the row from the list
+            GSequenceIter *next;
             next = g_sequence_iter_next(row);
             g_sequence_remove(row);
             row = next;
@@ -1646,6 +1632,7 @@ void listmodel_set_folder(ListModel *store,
         g_object_ref(G_OBJECT(folder));
 
         // get the already loaded files
+        GList         *files;
         files = th_folder_get_files(folder);
 
         // insert the files
@@ -1655,10 +1642,13 @@ void listmodel_set_folder(ListModel *store,
         // connect signals to the new folder
         g_signal_connect(G_OBJECT(store->folder),
                          "destroy", G_CALLBACK(_listmodel_folder_destroy), store);
+
         g_signal_connect(G_OBJECT(store->folder),
                          "error", G_CALLBACK(_listmodel_folder_error), store);
+
         g_signal_connect(G_OBJECT(store->folder),
                          "files-added", G_CALLBACK(_listmodel_files_added), store);
+
         g_signal_connect(G_OBJECT(store->folder),
                          "files-removed", G_CALLBACK(_listmodel_files_removed), store);
     }
