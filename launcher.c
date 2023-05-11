@@ -2274,7 +2274,7 @@ void launcher_action_eject(ThunarLauncher *launcher)
     {
         // prepare a mount operation
         GMountOperation *mount_operation;
-        mount_operation = e_mount_operation_new(GTK_WIDGET(launcher->widget));
+        mount_operation = etk_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         // eject
         th_device_eject(launcher->device_to_process,
@@ -2323,7 +2323,7 @@ void launcher_action_unmount(ThunarLauncher *launcher)
     {
         // prepare a mount operation
         GMountOperation *mount_operation;
-        mount_operation = e_mount_operation_new(GTK_WIDGET(launcher->widget));
+        mount_operation = etk_mount_operation_new(GTK_WIDGET(launcher->widget));
 
         // eject
         th_device_unmount(launcher->device_to_process,

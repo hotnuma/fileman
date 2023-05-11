@@ -67,6 +67,7 @@ static gboolean exo_treeview_move_cursor(GtkTreeView *view,
                                          gint count);
 static gboolean exo_treeview_single_click_timeout(gpointer user_data);
 static void exo_treeview_single_click_timeout_destroy(gpointer user_data);
+
 static gboolean select_true(GtkTreeSelection *selection,
                             GtkTreeModel *model,
                             GtkTreePath *path,
@@ -155,16 +156,14 @@ static void exo_treeview_class_init(ExoTreeViewClass *klass)
                                                       E_PARAM_READWRITE));
 }
 
-static void
-exo_treeview_init(ExoTreeView *tree_view)
+static void exo_treeview_init(ExoTreeView *tree_view)
 {
     // grab a pointer on the private data
     tree_view->priv = exo_treeview_get_instance_private(tree_view);
     tree_view->priv->single_click_timeout_id = -1;
 }
 
-static void
-exo_treeview_finalize(GObject *object)
+static void exo_treeview_finalize(GObject *object)
 {
     ExoTreeView *tree_view = EXO_TREE_VIEW(object);
 
@@ -202,9 +201,8 @@ static void exo_treeview_get_property(GObject *object, guint prop_id,
     }
 }
 
-static void
-exo_treeview_set_property(GObject *object, guint prop_id,
-                          const GValue *value, GParamSpec *pspec)
+static void exo_treeview_set_property(GObject *object, guint prop_id,
+                                      const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -226,8 +224,8 @@ exo_treeview_set_property(GObject *object, guint prop_id,
     }
 }
 
-static gboolean
-exo_treeview_button_press_event(GtkWidget *widget, GdkEventButton *event)
+static gboolean exo_treeview_button_press_event(GtkWidget *widget,
+                                                GdkEventButton *event)
 {
     GtkTreeSelection *selection;
     ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
@@ -335,7 +333,8 @@ exo_treeview_button_press_event(GtkWidget *widget, GdkEventButton *event)
     return result;
 }
 
-static gboolean exo_treeview_button_release_event(GtkWidget *widget, GdkEventButton *event)
+static gboolean exo_treeview_button_release_event(GtkWidget *widget,
+                                                  GdkEventButton *event)
 {
     GtkTreeViewColumn *column;
     GtkTreeSelection *selection;
@@ -411,9 +410,8 @@ static gboolean exo_treeview_button_release_event(GtkWidget *widget, GdkEventBut
     return (*GTK_WIDGET_CLASS(exo_treeview_parent_class)->button_release_event)(widget, event);
 }
 
-static gboolean
-exo_treeview_motion_notify_event(GtkWidget *widget,
-                                  GdkEventMotion *event)
+static gboolean exo_treeview_motion_notify_event(GtkWidget      *widget,
+                                                 GdkEventMotion *event)
 {
     ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
     GtkTreePath *path;
@@ -490,7 +488,7 @@ exo_treeview_motion_notify_event(GtkWidget *widget,
     return (*GTK_WIDGET_CLASS(exo_treeview_parent_class)->motion_notify_event)(widget, event);
 }
 
-static gboolean exo_treeview_leave_notify_event(GtkWidget *widget,
+static gboolean exo_treeview_leave_notify_event(GtkWidget        *widget,
                                                 GdkEventCrossing *event)
 {
     ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
@@ -517,8 +515,7 @@ static gboolean exo_treeview_leave_notify_event(GtkWidget *widget,
     return (*GTK_WIDGET_CLASS(exo_treeview_parent_class)->leave_notify_event)(widget, event);
 }
 
-static void
-exo_treeview_drag_begin(GtkWidget *widget, GdkDragContext *context)
+static void exo_treeview_drag_begin(GtkWidget *widget, GdkDragContext *context)
 {
     ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
 

@@ -177,21 +177,20 @@ GtkWidget* etk_get_focused_widget()
 }
 
 /**
- * thunar_gtk_mount_operation_new:
+ * etk_mount_operation_new:
  * @parent : a #GtkWindow or non-toplevel widget.
  *
  * Create a mount operation with some defaults.
  **/
-GMountOperation* e_mount_operation_new(gpointer parent)
+GMountOperation* etk_mount_operation_new(gpointer parent)
 {
-    GMountOperation *operation;
-    GdkScreen       *screen;
-    GtkWindow       *window = NULL;
+    GtkWindow *window = NULL;
+    GdkScreen *screen = util_parse_parent(parent, &window);
 
-    screen = util_parse_parent(parent, &window);
+    GMountOperation *operation = gtk_mount_operation_new(window);
+    g_mount_operation_set_password_save(G_MOUNT_OPERATION(operation),
+                                        G_PASSWORD_SAVE_FOR_SESSION);
 
-    operation = gtk_mount_operation_new(window);
-    g_mount_operation_set_password_save(G_MOUNT_OPERATION(operation), G_PASSWORD_SAVE_FOR_SESSION);
     if (window == NULL && screen != NULL)
         gtk_mount_operation_set_screen(GTK_MOUNT_OPERATION(operation), screen);
 

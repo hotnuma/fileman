@@ -40,8 +40,9 @@ gboolean e_file_is_network(GFile *file);
 gchar* e_file_get_location(GFile *file);
 gchar* e_file_get_display_name(GFile *file);
 gchar* e_file_get_display_name_remote(GFile *file);
-gboolean e_file_get_free_space(GFile *file,
-                               guint64 *fs_free_return, guint64 *fs_size_return);
+
+gboolean e_file_get_free_space(GFile *file, guint64 *fs_free_return,
+                               guint64 *fs_size_return);
 gchar* e_file_get_free_space_string(GFile *file, gboolean file_size_binary);
 
 gboolean e_file_move(GFile                  *source,
@@ -60,10 +61,10 @@ GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
 // File List ------------------------------------------------------------------
 
 #define TYPE_EFILELIST (e_file_list_get_type())
-GType   e_file_list_get_type();
+GType e_file_list_get_type();
 
-GList*  e_list_copy(GList *list);
-void    e_list_free(GList *list);
+GList* e_list_copy(GList *list);
+void e_list_free(GList *list);
 
 GList*  e_file_list_new_from_string(const gchar *string);
 gchar** e_file_list_to_stringv(GList *list);
@@ -77,18 +78,15 @@ GList*  e_file_list_get_parents(GList *list);
 
 // App Info -------------------------------------------------------------------
 
-gboolean e_app_info_launch(GAppInfo *info,
-                                     GFile *working_directory,
-                                     GList *path_list,
-                                     GAppLaunchContext *context,
-                                     GError **error);
+gboolean e_app_info_launch(GAppInfo *info, GFile *working_directory,
+                           GList *path_list, GAppLaunchContext *context,
+                           GError **error);
 
 gboolean e_app_info_should_show(GAppInfo *info);
 
 // VFS ------------------------------------------------------------------------
 
 gboolean e_vfs_is_uri_scheme_supported(const gchar *scheme);
-
 
 G_END_DECLS
 

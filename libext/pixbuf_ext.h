@@ -27,16 +27,16 @@
 G_BEGIN_DECLS
 
 GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor *color)
-G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
-G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 GdkPixbuf* pixbuf_scale_down(GdkPixbuf *source,
                              gboolean  preserve_aspect_ratio,
                              gint      dest_width,
                              gint      dest_height)
-G_GNUC_WARN_UNUSED_RESULT;
+                             G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 
