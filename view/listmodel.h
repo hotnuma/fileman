@@ -23,6 +23,8 @@
 
 G_BEGIN_DECLS
 
+// Allocation -----------------------------------------------------------------
+
 typedef struct _ListModelClass ListModelClass;
 typedef struct _ListModel      ListModel;
 
@@ -42,8 +44,12 @@ GType listmodel_get_type() G_GNUC_CONST;
 
 ListModel* listmodel_new();
 
+// Get/set --------------------------------------------------------------------
+
 ThunarFolder* listmodel_get_folder(ListModel *store);
 void listmodel_set_folder(ListModel *store, ThunarFolder *folder);
+
+void listmodel_set_folders_first(ListModel *store, gboolean folders_first);
 
 gboolean listmodel_get_show_hidden(ListModel *store);
 void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden);
@@ -51,12 +57,12 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden);
 gboolean listmodel_get_file_size_binary(ListModel *store);
 void listmodel_set_file_size_binary(ListModel *store, gboolean file_size_binary);
 
+// Public ---------------------------------------------------------------------
+
 ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter);
 GList* listmodel_get_paths_for_files(ListModel *store, GList *files);
 GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern);
 gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items);
-
-void listmodel_set_folders_first(ListModel *store, gboolean folders_first);
 
 G_END_DECLS
 

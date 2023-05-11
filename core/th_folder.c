@@ -26,7 +26,7 @@
 
 #define DEBUG_FILE_CHANGES FALSE
 
-// Allocate -------------------------------------------------------------------
+// Allocation -----------------------------------------------------------------
 
 static void th_folder_constructed(GObject *object);
 static void th_folder_dispose(GObject *object);
@@ -60,7 +60,7 @@ static void _th_folder_content_type_loader(ThunarFolder *folder);
 static gboolean _th_folder_content_type_loader_idle(gpointer data);
 static void _th_folder_content_type_loader_idle_destroyed(gpointer data);
 
-// Allocate -------------------------------------------------------------------
+// Allocation -----------------------------------------------------------------
 
 static GQuark _th_folder_quark;
 

@@ -35,7 +35,7 @@
 // Dump the file cache every X second, set to 0 to disable
 #define DUMP_FILE_CACHE 0
 
-// Allocate -------------------------------------------------------------------
+// Allocation -----------------------------------------------------------------
 
 static void th_file_info_init(FileInfoIface *iface);
 static void th_file_dispose(GObject *object);
@@ -287,7 +287,7 @@ static gboolean thunar_file_cache_dump(gpointer user_data)
 #endif
 
 
-// Allocate -------------------------------------------------------------------
+// Allocation -----------------------------------------------------------------
 
 static void th_file_class_init(ThunarFileClass *klass)
 {

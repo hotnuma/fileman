@@ -53,7 +53,7 @@ enum
     N_PROPERTIES
 };
 
-// Allocate -------------------------------------------------------------------
+// Allocation -----------------------------------------------------------------
 
 static void launcher_navigator_init(ThunarNavigatorIface *iface);
 static void launcher_component_init(ThunarComponentIface *iface);

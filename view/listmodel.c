@@ -34,6 +34,23 @@ static void listmodel_get_property(GObject *object, guint prop_id,
 static void listmodel_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);
 
+// Get/set --------------------------------------------------------------------
+
+static gboolean _listmodel_get_case_sensitive(ListModel *store);
+static void _listmodel_set_case_sensitive(ListModel *store,
+                                          gboolean case_sensitive);
+
+static ThunarDateStyle _listmodel_get_date_style(ListModel *store);
+static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_style);
+
+static const char* _listmodel_get_date_custom_style(ListModel *store);
+static void _listmodel_set_date_custom_style(ListModel *store,
+                                             const char *date_custom_style);
+
+static gboolean _listmodel_get_folders_first(ListModel *store);
+
+static gint _listmodel_get_num_files(ListModel *store);
+
 // Interfaces -----------------------------------------------------------------
 
 static void listmodel_tree_model_init(GtkTreeModelIface *iface);
@@ -77,15 +94,15 @@ static gboolean listmodel_get_sort_column_id(GtkTreeSortable *sortable,
 static void listmodel_set_sort_column_id(GtkTreeSortable *sortable,
                                          gint sort_column_id,
                                          GtkSortType order);
-static void listmodel_set_default_sort_func(GtkTreeSortable *sortable,
-                                            GtkTreeIterCompareFunc func,
-                                            gpointer data,
-                                            GDestroyNotify destroy);
 static void listmodel_set_sort_func(GtkTreeSortable *sortable,
                                     gint sort_column_id,
                                     GtkTreeIterCompareFunc func,
                                     gpointer data,
                                     GDestroyNotify destroy);
+static void listmodel_set_default_sort_func(GtkTreeSortable *sortable,
+                                            GtkTreeIterCompareFunc func,
+                                            gpointer data,
+                                            GDestroyNotify destroy);
 static gboolean listmodel_has_default_sort_func(GtkTreeSortable *sortable);
 
 // Sorting --------------------------------------------------------------------
@@ -127,23 +144,13 @@ static void _listmodel_files_added(ThunarFolder *folder, GList *files,
 static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
                                      ListModel *store);
 
-// ----------------------------------------------------------------------------
+// Public ---------------------------------------------------------------------
 
-static gboolean _listmodel_get_case_sensitive(ListModel *store);
-static void _listmodel_set_case_sensitive(ListModel *store,
-                                          gboolean case_sensitive);
+static gchar* _listmodel_get_statusbar_text_for_files(
+                                        GList *files,
+                                        gboolean show_file_size_binary_format);
 
-static ThunarDateStyle _listmodel_get_date_style(ListModel *store);
-static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_style);
-
-static const char* _listmodel_get_date_custom_style(ListModel *store);
-static void _listmodel_set_date_custom_style(ListModel *store,
-                                             const char *date_custom_style);
-
-static gint _listmodel_get_num_files(ListModel *store);
-static gboolean _listmodel_get_folders_first(ListModel *store);
-
-// ----------------------------------------------------------------------------
+// Allocation -----------------------------------------------------------------
 
 enum
 {
@@ -308,6 +315,8 @@ static void listmodel_class_init(ListModelClass *klass)
                      1,
                      G_TYPE_POINTER);
 }
+
+// Interfaces -----------------------------------------------------------------
 
 static void listmodel_tree_model_init(GtkTreeModelIface *iface)
 {
@@ -477,6 +486,352 @@ static void listmodel_set_property(GObject *object, guint prop_id,
     }
 }
 
+static gboolean _listmodel_get_case_sensitive(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    return store->sort_case_sensitive;
+}
+
+static void _listmodel_set_case_sensitive(ListModel *store,
+                                          gboolean case_sensitive)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+
+    // normalize the setting
+    case_sensitive = !!case_sensitive;
+
+    // check if we have a new setting
+    if (store->sort_case_sensitive != case_sensitive)
+    {
+        // apply the new setting
+        store->sort_case_sensitive = case_sensitive;
+
+        // resort the model with the new setting
+        _listmodel_sort(store);
+
+        // notify listeners
+        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_CASE_SENSITIVE]);
+
+        /* emit a "changed" signal for each row, so the display is
+           reloaded with the new case-sensitive setting */
+        gtk_tree_model_foreach(GTK_TREE_MODEL(store),
+                               (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
+                                NULL);
+    }
+}
+
+static ThunarDateStyle _listmodel_get_date_style(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), THUNAR_DATE_STYLE_SIMPLE);
+    return store->date_style;
+}
+
+static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_style)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+
+    // check if we have a new setting
+    if (store->date_style != date_style)
+    {
+        // apply the new setting
+        store->date_style = date_style;
+
+        // notify listeners
+        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_DATE_STYLE]);
+
+        // emit a "changed" signal for each row, so the display is reloaded with the new date style
+        gtk_tree_model_foreach(
+            GTK_TREE_MODEL(store),
+            (GtkTreeModelForeachFunc) (void(*)(void)) gtk_tree_model_row_changed,
+            NULL);
+    }
+}
+
+static const char* _listmodel_get_date_custom_style(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
+
+    return store->date_custom_style;
+}
+
+static void _listmodel_set_date_custom_style(ListModel *store,
+                                             const char *date_custom_style)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+
+    // check if we have a new setting
+    if (g_strcmp0(store->date_custom_style, date_custom_style) != 0)
+    {
+        // apply the new setting
+        store->date_custom_style = g_strdup(date_custom_style);
+
+        // notify listeners
+        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_DATE_CUSTOM_STYLE]);
+
+        // emit a "changed" signal for each row, so the display is reloaded with the new date style
+        gtk_tree_model_foreach(GTK_TREE_MODEL(store),
+                               (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
+                                NULL);
+    }
+}
+
+ThunarFolder* listmodel_get_folder(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
+    return store->folder;
+}
+
+void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(folder == NULL || THUNAR_IS_FOLDER(folder));
+
+    // check if we're not already using that folder
+    if (G_UNLIKELY(store->folder == folder))
+        return;
+
+    // unlink from the previously active folder(if any)
+    if (G_LIKELY(store->folder != NULL))
+    {
+        // check if we have any handlers connected for "row-deleted"
+        gboolean       has_handler;
+        has_handler = g_signal_has_handler_pending(G_OBJECT(store), store->row_deleted_id, 0, FALSE);
+
+        GSequenceIter *row;
+        GSequenceIter *end;
+        row = g_sequence_get_begin_iter(store->rows);
+        end = g_sequence_get_end_iter(store->rows);
+
+        // remove existing entries
+        GtkTreePath   *path;
+        path = gtk_tree_path_new_first();
+        while (row != end)
+        {
+            // remove the row from the list
+            GSequenceIter *next;
+            next = g_sequence_iter_next(row);
+            g_sequence_remove(row);
+            row = next;
+
+            /* notify the view(s) if they're actually
+             * interested in the "row-deleted" signal.
+             */
+            if (G_LIKELY(has_handler))
+                gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
+        }
+        gtk_tree_path_free(path);
+
+        // remove hidden entries
+        g_slist_free_full(store->hidden, g_object_unref);
+        store->hidden = NULL;
+
+        // unregister signals and drop the reference
+        g_signal_handlers_disconnect_matched(G_OBJECT(store->folder), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, store);
+        g_object_unref(G_OBJECT(store->folder));
+    }
+
+    // ... just to be sure!
+    e_assert(g_sequence_get_length(store->rows) == 0);
+
+#ifndef NDEBUG
+    // new stamp since the model changed
+    store->stamp = g_random_int();
+#endif
+
+    // activate the new folder
+    store->folder = folder;
+
+    // freeze
+    g_object_freeze_notify(G_OBJECT(store));
+
+    // connect to the new folder(if any)
+    if (folder != NULL)
+    {
+        g_object_ref(G_OBJECT(folder));
+
+        // get the already loaded files
+        GList         *files;
+        files = th_folder_get_files(folder);
+
+        // insert the files
+        if (files != NULL)
+            _listmodel_files_added(folder, files, store);
+
+        // connect signals to the new folder
+        g_signal_connect(G_OBJECT(store->folder),
+                         "destroy", G_CALLBACK(_listmodel_folder_destroy), store);
+
+        g_signal_connect(G_OBJECT(store->folder),
+                         "error", G_CALLBACK(_listmodel_folder_error), store);
+
+        g_signal_connect(G_OBJECT(store->folder),
+                         "files-added", G_CALLBACK(_listmodel_files_added), store);
+
+        g_signal_connect(G_OBJECT(store->folder),
+                         "files-removed", G_CALLBACK(_listmodel_files_removed), store);
+    }
+
+    // notify listeners that we have a new folder
+    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_FOLDER]);
+    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_NUM_FILES]);
+
+    g_object_thaw_notify(G_OBJECT(store));
+}
+
+static gboolean _listmodel_get_folders_first(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    return store->sort_folders_first;
+}
+
+void listmodel_set_folders_first(ListModel *store, gboolean folders_first)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+
+    // check if the new setting differs
+    if ((store->sort_folders_first && folders_first)
+        ||(!store->sort_folders_first && !folders_first))
+        return;
+
+    // apply the new setting(re-sorting the store)
+    store->sort_folders_first = folders_first;
+    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_FOLDERS_FIRST]);
+    _listmodel_sort(store);
+
+    /* emit a "changed" signal for each row, so the display is
+       reloaded with the new folders first setting */
+    gtk_tree_model_foreach(GTK_TREE_MODEL(store),
+                           (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
+                           NULL);
+}
+
+// Counts the number of visible files into the store
+static gint _listmodel_get_num_files(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), 0);
+
+    return g_sequence_get_length(store->rows);
+}
+
+gboolean listmodel_get_show_hidden(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    return store->show_hidden;
+}
+
+void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
+{
+    GtkTreePath   *path;
+    GtkTreeIter    iter;
+    ThunarFile    *file;
+    GSList        *lp;
+    GSequenceIter *row;
+    GSequenceIter *next;
+    GSequenceIter *end;
+
+    e_return_if_fail(IS_LISTMODEL(store));
+
+    // check if the settings differ
+    if (store->show_hidden == show_hidden)
+        return;
+
+    store->show_hidden = show_hidden;
+
+    if (store->show_hidden)
+    {
+        for(lp = store->hidden; lp != NULL; lp = lp->next)
+        {
+            file = THUNAR_FILE(lp->data);
+
+            // insert file in the sorted position
+            row = g_sequence_insert_sorted(store->rows, file,
+                                            _listmodel_cmp_func, store);
+
+            GTK_TREE_ITER_INIT(iter, store->stamp, row);
+
+            // tell the view about the new row
+            path = gtk_tree_path_new_from_indices(g_sequence_iter_get_position(row), -1);
+            gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
+            gtk_tree_path_free(path);
+        }
+        g_slist_free(store->hidden);
+        store->hidden = NULL;
+    }
+    else
+    {
+        e_assert(store->hidden == NULL);
+
+        // remove all hidden files
+        row = g_sequence_get_begin_iter(store->rows);
+        end = g_sequence_get_end_iter(store->rows);
+
+        while(row != end)
+        {
+            next = g_sequence_iter_next(row);
+
+            file = g_sequence_get(row);
+            if (th_file_is_hidden(file))
+            {
+                // store file in the list
+                store->hidden = g_slist_prepend(store->hidden, g_object_ref(file));
+
+                // setup path for "row-deleted"
+                path = gtk_tree_path_new_from_indices(g_sequence_iter_get_position(row), -1);
+
+                // remove file from the model
+                g_sequence_remove(row);
+
+                // notify the view(s)
+                gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
+                gtk_tree_path_free(path);
+            }
+
+            row = next;
+            e_assert(end == g_sequence_get_end_iter(store->rows));
+        }
+    }
+
+    // notify listeners about the new setting
+    g_object_freeze_notify(G_OBJECT(store));
+    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_NUM_FILES]);
+    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_SHOW_HIDDEN]);
+    g_object_thaw_notify(G_OBJECT(store));
+}
+
+gboolean listmodel_get_file_size_binary(ListModel *store)
+{
+    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
+    return store->file_size_binary;
+}
+
+void listmodel_set_file_size_binary(ListModel *store, gboolean file_size_binary)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+
+    // normalize the setting
+    file_size_binary = !!file_size_binary;
+
+    // check if we have a new setting
+    if (store->file_size_binary != file_size_binary)
+    {
+        // apply the new setting
+        store->file_size_binary = file_size_binary;
+
+        // resort the model with the new setting
+        _listmodel_sort(store);
+
+        // notify listeners
+        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_FILE_SIZE_BINARY]);
+
+        /* emit a "changed" signal for each row, so the display is
+           reloaded with the new binary file size setting */
+        gtk_tree_model_foreach(GTK_TREE_MODEL(store),
+                               (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
+                                NULL);
+    }
+}
+
+// GtkTreeModel ---------------------------------------------------------------
 
 static GtkTreeModelFlags listmodel_get_flags(GtkTreeModel *model)
 {
@@ -773,6 +1128,8 @@ static gboolean listmodel_iter_parent(GtkTreeModel *model,
     return FALSE;
 }
 
+// GtkTreeDragDest ------------------------------------------------------------
+
 static gboolean listmodel_drag_data_received(GtkTreeDragDest  *dest,
                                              GtkTreePath      *path,
                                              GtkSelectionData *data)
@@ -792,6 +1149,8 @@ static gboolean listmodel_row_drop_possible(GtkTreeDragDest  *dest,
     (void) data;
     return FALSE;
 }
+
+// GtkTreeSortable ------------------------------------------------------------
 
 static gboolean listmodel_get_sort_column_id(GtkTreeSortable *sortable,
                                              gint            *sort_column_id,
@@ -900,19 +1259,6 @@ static void listmodel_set_sort_column_id(GtkTreeSortable *sortable,
     gtk_tree_sortable_sort_column_changed(sortable);
 }
 
-static void listmodel_set_default_sort_func(GtkTreeSortable        *sortable,
-                                            GtkTreeIterCompareFunc func,
-                                            gpointer               data,
-                                            GDestroyNotify         destroy)
-{
-    (void) sortable;
-    (void) func;
-    (void) data;
-    (void) destroy;
-
-    g_critical("ListModel has sorting facilities built-in!");
-}
-
 static void listmodel_set_sort_func(GtkTreeSortable        *sortable,
                                     gint                   sort_column_id,
                                     GtkTreeIterCompareFunc func,
@@ -928,31 +1274,27 @@ static void listmodel_set_sort_func(GtkTreeSortable        *sortable,
     g_critical("ListModel has sorting facilities built-in!");
 }
 
+static void listmodel_set_default_sort_func(GtkTreeSortable        *sortable,
+                                            GtkTreeIterCompareFunc func,
+                                            gpointer               data,
+                                            GDestroyNotify         destroy)
+{
+    (void) sortable;
+    (void) func;
+    (void) data;
+    (void) destroy;
+
+    g_critical("ListModel has sorting facilities built-in!");
+}
+
 static gboolean listmodel_has_default_sort_func(GtkTreeSortable *sortable)
 {
     (void) sortable;
+
     return FALSE;
 }
 
-static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
-                                gpointer user_data)
-{
-    e_return_val_if_fail(THUNAR_IS_FILE(a), 0);
-    e_return_val_if_fail(THUNAR_IS_FILE(b), 0);
-
-    ListModel *store = LISTMODEL(user_data);
-
-    if (G_LIKELY(store->sort_folders_first))
-    {
-        gboolean isdir_a = th_file_is_directory(a);
-        gboolean isdir_b = th_file_is_directory(b);
-
-        if (isdir_a != isdir_b)
-            return isdir_a ? -1 : 1;
-    }
-
-    return store->sort_func(a, b, store->sort_case_sensitive) * store->sort_sign;
-}
+// Sorting --------------------------------------------------------------------
 
 static void _listmodel_sort(ListModel *store)
 {
@@ -1008,215 +1350,24 @@ static void _listmodel_sort(ListModel *store)
     }
 }
 
-static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
-                                    ListModel *store)
+static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
+                                gpointer user_data)
 {
-    e_return_if_fail(IS_FILEMONITOR(file_monitor));
-    e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_val_if_fail(THUNAR_IS_FILE(a), 0);
+    e_return_val_if_fail(THUNAR_IS_FILE(b), 0);
 
-    GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
-    GSequenceIter *end = g_sequence_get_end_iter(store->rows);
+    ListModel *store = LISTMODEL(user_data);
 
-    gint           pos_after;
-    gint           pos_before = 0;
-    gint          *new_order;
-    gint           length;
-    gint           i, j;
-    GtkTreePath   *path;
-    GtkTreeIter    iter;
-
-    while (row != end)
+    if (G_LIKELY(store->sort_folders_first))
     {
-        if (G_UNLIKELY(g_sequence_get(row) == file))
-        {
-            // generate the iterator for this row
-            GTK_TREE_ITER_INIT(iter, store->stamp, row);
+        gboolean isdir_a = th_file_is_directory(a);
+        gboolean isdir_b = th_file_is_directory(b);
 
-            e_assert(pos_before == g_sequence_iter_get_position(row));
-
-            // check if the sorting changed
-            g_sequence_sort_changed(row, _listmodel_cmp_func, store);
-            pos_after = g_sequence_iter_get_position(row);
-
-            if (pos_after != pos_before)
-            {
-                // do swap sorting here since its much faster than a complete sort
-                length = g_sequence_get_length(store->rows);
-                if (G_LIKELY(length < 2000))
-                    new_order = g_newa(gint, length);
-                else
-                    new_order = g_new(gint, length);
-
-                // new_order[newpos] = oldpos
-                for (i = 0, j = 0; i < length; ++i)
-                {
-                    if (G_UNLIKELY(i == pos_after))
-                    {
-                        new_order[i] = pos_before;
-                    }
-                    else
-                    {
-                        if (G_UNLIKELY(j == pos_before))
-                            j++;
-                        new_order[i] = j++;
-                    }
-                }
-
-                // tell the view about the new item order
-                path = gtk_tree_path_new_first();
-                gtk_tree_model_rows_reordered(GTK_TREE_MODEL(store), path, NULL, new_order);
-                gtk_tree_path_free(path);
-
-                // clean up if we used the heap
-                if (G_UNLIKELY(length >= 2000))
-                    g_free(new_order);
-            }
-
-            // notify the view that it has to redraw the file
-            path = gtk_tree_path_new_from_indices(pos_before, -1);
-            gtk_tree_model_row_changed(GTK_TREE_MODEL(store), path, &iter);
-            gtk_tree_path_free(path);
-            break;
-        }
-
-        row = g_sequence_iter_next(row);
-        pos_before++;
-    }
-}
-
-static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store)
-{
-    e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(THUNAR_IS_FOLDER(folder));
-
-    listmodel_set_folder(store, NULL);
-
-    // TODO: What to do when the folder is deleted?
-}
-
-static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
-                                    ListModel *store)
-{
-    e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(THUNAR_IS_FOLDER(folder));
-    e_return_if_fail(error != NULL);
-
-    // forward the error signal
-    g_signal_emit(G_OBJECT(store), _listmodel_signals[ERROR], 0, error);
-
-    // reset the current folder
-    listmodel_set_folder(store, NULL);
-}
-
-static void _listmodel_files_added(ThunarFolder *folder, GList *files,
-                                   ListModel *store)
-{
-    (void) folder;
-
-    /* we use a simple trick here to avoid allocating
-     * GtkTreePath's again and again, by simply accessing
-     * the indices directly and only modifying the first
-     * item in the integer array... looks a hack, eh? */
-    GtkTreePath *path = gtk_tree_path_new_first();
-    gint *indices = gtk_tree_path_get_indices(path);
-
-    // check if we have any handlers connected for "row-inserted"
-    gboolean has_handler = g_signal_has_handler_pending(
-                                                G_OBJECT(store),
-                                                store->row_inserted_id, 0, FALSE);
-    // process all added files
-    for (GList *lp = files; lp != NULL; lp = lp->next)
-    {
-        // take a reference on that file
-        ThunarFile    *file;
-        file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
-        e_return_if_fail(THUNAR_IS_FILE(file));
-
-        // check if the file should be hidden
-        if (!store->show_hidden && th_file_is_hidden(file))
-        {
-            store->hidden = g_slist_prepend(store->hidden, file);
-        }
-        else
-        {
-            // insert the file
-            GSequenceIter *row;
-            row = g_sequence_insert_sorted(store->rows, file,
-                                            _listmodel_cmp_func, store);
-
-            if (has_handler)
-            {
-                // generate an iterator for the new item
-                GtkTreeIter    iter;
-                GTK_TREE_ITER_INIT(iter, store->stamp, row);
-
-                indices[0] = g_sequence_iter_get_position(row);
-                gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
-            }
-        }
+        if (isdir_a != isdir_b)
+            return isdir_a ? -1 : 1;
     }
 
-    // release the path
-    gtk_tree_path_free(path);
-
-    // number of visible files may have changed
-    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_NUM_FILES]);
-}
-
-static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
-                                     ListModel *store)
-{
-    (void) folder;
-
-    // drop all the referenced files from the model
-    for (GList *lp = files; lp != NULL; lp = lp->next)
-    {
-        gboolean found;
-
-        GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
-        GSequenceIter *end = g_sequence_get_end_iter(store->rows);
-
-        found = FALSE;
-
-        while (row != end)
-        {
-            GSequenceIter *next = g_sequence_iter_next(row);
-
-            if (g_sequence_get(row) == lp->data)
-            {
-                // setup path for "row-deleted"
-                GtkTreePath *path = gtk_tree_path_new_from_indices(
-                                        g_sequence_iter_get_position(row), -1);
-
-                // remove file from the model
-                g_sequence_remove(row);
-
-                // notify the view(s)
-                gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
-                gtk_tree_path_free(path);
-
-                // no need to look in the hidden files
-                found = TRUE;
-
-                break;
-            }
-
-            row = next;
-        }
-
-        // check if the file was found
-        if (!found)
-        {
-            // file is hidden
-            e_assert(g_slist_find(store->hidden, lp->data) != NULL);
-            store->hidden = g_slist_remove(store->hidden, lp->data);
-            g_object_unref(G_OBJECT(lp->data));
-        }
-    }
-
-    // this probably changed
-    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_NUM_FILES]);
+    return store->sort_func(a, b, store->sort_case_sensitive) * store->sort_sign;
 }
 
 static gint _sort_by_date_accessed(const ThunarFile *a, const ThunarFile *b,
@@ -1463,294 +1614,188 @@ static gint _sort_by_type(const ThunarFile *a, const ThunarFile *b,
         return result;
 }
 
-ListModel* listmodel_new()
-{
-    return g_object_new(TYPE_LISTMODEL, NULL);
-}
+// File Monitors --------------------------------------------------------------
 
-static gboolean _listmodel_get_case_sensitive(ListModel *store)
+static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
+                                    ListModel *store)
 {
-    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
-    return store->sort_case_sensitive;
-}
-
-static void _listmodel_set_case_sensitive(ListModel *store,
-                                          gboolean case_sensitive)
-{
+    e_return_if_fail(IS_FILEMONITOR(file_monitor));
     e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
-    // normalize the setting
-    case_sensitive = !!case_sensitive;
+    GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
+    GSequenceIter *end = g_sequence_get_end_iter(store->rows);
 
-    // check if we have a new setting
-    if (store->sort_case_sensitive != case_sensitive)
-    {
-        // apply the new setting
-        store->sort_case_sensitive = case_sensitive;
-
-        // resort the model with the new setting
-        _listmodel_sort(store);
-
-        // notify listeners
-        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_CASE_SENSITIVE]);
-
-        /* emit a "changed" signal for each row, so the display is
-           reloaded with the new case-sensitive setting */
-        gtk_tree_model_foreach(GTK_TREE_MODEL(store),
-                               (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
-                                NULL);
-    }
-}
-
-static ThunarDateStyle _listmodel_get_date_style(ListModel *store)
-{
-    e_return_val_if_fail(IS_LISTMODEL(store), THUNAR_DATE_STYLE_SIMPLE);
-    return store->date_style;
-}
-
-static void _listmodel_set_date_style(ListModel *store, ThunarDateStyle date_style)
-{
-    e_return_if_fail(IS_LISTMODEL(store));
-
-    // check if we have a new setting
-    if (store->date_style != date_style)
-    {
-        // apply the new setting
-        store->date_style = date_style;
-
-        // notify listeners
-        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_DATE_STYLE]);
-
-        // emit a "changed" signal for each row, so the display is reloaded with the new date style
-        gtk_tree_model_foreach(
-            GTK_TREE_MODEL(store),
-            (GtkTreeModelForeachFunc) (void(*)(void)) gtk_tree_model_row_changed,
-            NULL);
-    }
-}
-
-static const char* _listmodel_get_date_custom_style(ListModel *store)
-{
-    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
-
-    return store->date_custom_style;
-}
-
-static void _listmodel_set_date_custom_style(ListModel *store,
-                                             const char *date_custom_style)
-{
-    e_return_if_fail(IS_LISTMODEL(store));
-
-    // check if we have a new setting
-    if (g_strcmp0(store->date_custom_style, date_custom_style) != 0)
-    {
-        // apply the new setting
-        store->date_custom_style = g_strdup(date_custom_style);
-
-        // notify listeners
-        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_DATE_CUSTOM_STYLE]);
-
-        // emit a "changed" signal for each row, so the display is reloaded with the new date style
-        gtk_tree_model_foreach(GTK_TREE_MODEL(store),
-                               (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
-                                NULL);
-    }
-}
-
-ThunarFolder* listmodel_get_folder(ListModel *store)
-{
-    e_return_val_if_fail(IS_LISTMODEL(store), NULL);
-    return store->folder;
-}
-
-void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
-{
-    e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(folder == NULL || THUNAR_IS_FOLDER(folder));
-
-    // check if we're not already using that folder
-    if (G_UNLIKELY(store->folder == folder))
-        return;
-
-    // unlink from the previously active folder(if any)
-    if (G_LIKELY(store->folder != NULL))
-    {
-        // check if we have any handlers connected for "row-deleted"
-        gboolean       has_handler;
-        has_handler = g_signal_has_handler_pending(G_OBJECT(store), store->row_deleted_id, 0, FALSE);
-
-        GSequenceIter *row;
-        GSequenceIter *end;
-        row = g_sequence_get_begin_iter(store->rows);
-        end = g_sequence_get_end_iter(store->rows);
-
-        // remove existing entries
-        GtkTreePath   *path;
-        path = gtk_tree_path_new_first();
-        while (row != end)
-        {
-            // remove the row from the list
-            GSequenceIter *next;
-            next = g_sequence_iter_next(row);
-            g_sequence_remove(row);
-            row = next;
-
-            /* notify the view(s) if they're actually
-             * interested in the "row-deleted" signal.
-             */
-            if (G_LIKELY(has_handler))
-                gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
-        }
-        gtk_tree_path_free(path);
-
-        // remove hidden entries
-        g_slist_free_full(store->hidden, g_object_unref);
-        store->hidden = NULL;
-
-        // unregister signals and drop the reference
-        g_signal_handlers_disconnect_matched(G_OBJECT(store->folder), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, store);
-        g_object_unref(G_OBJECT(store->folder));
-    }
-
-    // ... just to be sure!
-    e_assert(g_sequence_get_length(store->rows) == 0);
-
-#ifndef NDEBUG
-    // new stamp since the model changed
-    store->stamp = g_random_int();
-#endif
-
-    // activate the new folder
-    store->folder = folder;
-
-    // freeze
-    g_object_freeze_notify(G_OBJECT(store));
-
-    // connect to the new folder(if any)
-    if (folder != NULL)
-    {
-        g_object_ref(G_OBJECT(folder));
-
-        // get the already loaded files
-        GList         *files;
-        files = th_folder_get_files(folder);
-
-        // insert the files
-        if (files != NULL)
-            _listmodel_files_added(folder, files, store);
-
-        // connect signals to the new folder
-        g_signal_connect(G_OBJECT(store->folder),
-                         "destroy", G_CALLBACK(_listmodel_folder_destroy), store);
-
-        g_signal_connect(G_OBJECT(store->folder),
-                         "error", G_CALLBACK(_listmodel_folder_error), store);
-
-        g_signal_connect(G_OBJECT(store->folder),
-                         "files-added", G_CALLBACK(_listmodel_files_added), store);
-
-        g_signal_connect(G_OBJECT(store->folder),
-                         "files-removed", G_CALLBACK(_listmodel_files_removed), store);
-    }
-
-    // notify listeners that we have a new folder
-    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_FOLDER]);
-    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_NUM_FILES]);
-
-    g_object_thaw_notify(G_OBJECT(store));
-}
-
-static gboolean _listmodel_get_folders_first(ListModel *store)
-{
-    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
-    return store->sort_folders_first;
-}
-
-void listmodel_set_folders_first(ListModel *store, gboolean folders_first)
-{
-    e_return_if_fail(IS_LISTMODEL(store));
-
-    // check if the new setting differs
-    if ((store->sort_folders_first && folders_first)
-        ||(!store->sort_folders_first && !folders_first))
-        return;
-
-    // apply the new setting(re-sorting the store)
-    store->sort_folders_first = folders_first;
-    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_FOLDERS_FIRST]);
-    _listmodel_sort(store);
-
-    /* emit a "changed" signal for each row, so the display is
-       reloaded with the new folders first setting */
-    gtk_tree_model_foreach(GTK_TREE_MODEL(store),
-                           (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
-                           NULL);
-}
-
-gboolean listmodel_get_show_hidden(ListModel *store)
-{
-    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
-    return store->show_hidden;
-}
-
-void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
-{
+    gint           pos_after;
+    gint           pos_before = 0;
+    gint          *new_order;
+    gint           length;
+    gint           i, j;
     GtkTreePath   *path;
     GtkTreeIter    iter;
-    ThunarFile    *file;
-    GSList        *lp;
-    GSequenceIter *row;
-    GSequenceIter *next;
-    GSequenceIter *end;
 
-    e_return_if_fail(IS_LISTMODEL(store));
-
-    // check if the settings differ
-    if (store->show_hidden == show_hidden)
-        return;
-
-    store->show_hidden = show_hidden;
-
-    if (store->show_hidden)
+    while (row != end)
     {
-        for(lp = store->hidden; lp != NULL; lp = lp->next)
+        if (G_UNLIKELY(g_sequence_get(row) == file))
         {
-            file = THUNAR_FILE(lp->data);
+            // generate the iterator for this row
+            GTK_TREE_ITER_INIT(iter, store->stamp, row);
 
-            // insert file in the sorted position
+            e_assert(pos_before == g_sequence_iter_get_position(row));
+
+            // check if the sorting changed
+            g_sequence_sort_changed(row, _listmodel_cmp_func, store);
+            pos_after = g_sequence_iter_get_position(row);
+
+            if (pos_after != pos_before)
+            {
+                // do swap sorting here since its much faster than a complete sort
+                length = g_sequence_get_length(store->rows);
+                if (G_LIKELY(length < 2000))
+                    new_order = g_newa(gint, length);
+                else
+                    new_order = g_new(gint, length);
+
+                // new_order[newpos] = oldpos
+                for (i = 0, j = 0; i < length; ++i)
+                {
+                    if (G_UNLIKELY(i == pos_after))
+                    {
+                        new_order[i] = pos_before;
+                    }
+                    else
+                    {
+                        if (G_UNLIKELY(j == pos_before))
+                            j++;
+                        new_order[i] = j++;
+                    }
+                }
+
+                // tell the view about the new item order
+                path = gtk_tree_path_new_first();
+                gtk_tree_model_rows_reordered(GTK_TREE_MODEL(store), path, NULL, new_order);
+                gtk_tree_path_free(path);
+
+                // clean up if we used the heap
+                if (G_UNLIKELY(length >= 2000))
+                    g_free(new_order);
+            }
+
+            // notify the view that it has to redraw the file
+            path = gtk_tree_path_new_from_indices(pos_before, -1);
+            gtk_tree_model_row_changed(GTK_TREE_MODEL(store), path, &iter);
+            gtk_tree_path_free(path);
+            break;
+        }
+
+        row = g_sequence_iter_next(row);
+        pos_before++;
+    }
+}
+
+static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+
+    listmodel_set_folder(store, NULL);
+
+    // TODO: What to do when the folder is deleted?
+}
+
+static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
+                                    ListModel *store)
+{
+    e_return_if_fail(IS_LISTMODEL(store));
+    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(error != NULL);
+
+    // forward the error signal
+    g_signal_emit(G_OBJECT(store), _listmodel_signals[ERROR], 0, error);
+
+    // reset the current folder
+    listmodel_set_folder(store, NULL);
+}
+
+static void _listmodel_files_added(ThunarFolder *folder, GList *files,
+                                   ListModel *store)
+{
+    (void) folder;
+
+    /* we use a simple trick here to avoid allocating
+     * GtkTreePath's again and again, by simply accessing
+     * the indices directly and only modifying the first
+     * item in the integer array... looks a hack, eh? */
+    GtkTreePath *path = gtk_tree_path_new_first();
+    gint *indices = gtk_tree_path_get_indices(path);
+
+    // check if we have any handlers connected for "row-inserted"
+    gboolean has_handler = g_signal_has_handler_pending(
+                                                G_OBJECT(store),
+                                                store->row_inserted_id, 0, FALSE);
+    // process all added files
+    for (GList *lp = files; lp != NULL; lp = lp->next)
+    {
+        // take a reference on that file
+        ThunarFile    *file;
+        file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
+        e_return_if_fail(THUNAR_IS_FILE(file));
+
+        // check if the file should be hidden
+        if (!store->show_hidden && th_file_is_hidden(file))
+        {
+            store->hidden = g_slist_prepend(store->hidden, file);
+        }
+        else
+        {
+            // insert the file
+            GSequenceIter *row;
             row = g_sequence_insert_sorted(store->rows, file,
                                             _listmodel_cmp_func, store);
 
-            GTK_TREE_ITER_INIT(iter, store->stamp, row);
-
-            // tell the view about the new row
-            path = gtk_tree_path_new_from_indices(g_sequence_iter_get_position(row), -1);
-            gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
-            gtk_tree_path_free(path);
-        }
-        g_slist_free(store->hidden);
-        store->hidden = NULL;
-    }
-    else
-    {
-        e_assert(store->hidden == NULL);
-
-        // remove all hidden files
-        row = g_sequence_get_begin_iter(store->rows);
-        end = g_sequence_get_end_iter(store->rows);
-
-        while(row != end)
-        {
-            next = g_sequence_iter_next(row);
-
-            file = g_sequence_get(row);
-            if (th_file_is_hidden(file))
+            if (has_handler)
             {
-                // store file in the list
-                store->hidden = g_slist_prepend(store->hidden, g_object_ref(file));
+                // generate an iterator for the new item
+                GtkTreeIter    iter;
+                GTK_TREE_ITER_INIT(iter, store->stamp, row);
 
+                indices[0] = g_sequence_iter_get_position(row);
+                gtk_tree_model_row_inserted(GTK_TREE_MODEL(store), path, &iter);
+            }
+        }
+    }
+
+    // release the path
+    gtk_tree_path_free(path);
+
+    // number of visible files may have changed
+    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_NUM_FILES]);
+}
+
+static void _listmodel_files_removed(ThunarFolder *folder, GList *files,
+                                     ListModel *store)
+{
+    (void) folder;
+
+    // drop all the referenced files from the model
+    for (GList *lp = files; lp != NULL; lp = lp->next)
+    {
+        gboolean found;
+
+        GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
+        GSequenceIter *end = g_sequence_get_end_iter(store->rows);
+
+        found = FALSE;
+
+        while (row != end)
+        {
+            GSequenceIter *next = g_sequence_iter_next(row);
+
+            if (g_sequence_get(row) == lp->data)
+            {
                 // setup path for "row-deleted"
-                path = gtk_tree_path_new_from_indices(g_sequence_iter_get_position(row), -1);
+                GtkTreePath *path = gtk_tree_path_new_from_indices(
+                                        g_sequence_iter_get_position(row), -1);
 
                 // remove file from the model
                 g_sequence_remove(row);
@@ -1758,51 +1803,35 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
                 // notify the view(s)
                 gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
                 gtk_tree_path_free(path);
+
+                // no need to look in the hidden files
+                found = TRUE;
+
+                break;
             }
 
             row = next;
-            e_assert(end == g_sequence_get_end_iter(store->rows));
+        }
+
+        // check if the file was found
+        if (!found)
+        {
+            // file is hidden
+            e_assert(g_slist_find(store->hidden, lp->data) != NULL);
+            store->hidden = g_slist_remove(store->hidden, lp->data);
+            g_object_unref(G_OBJECT(lp->data));
         }
     }
 
-    // notify listeners about the new setting
-    g_object_freeze_notify(G_OBJECT(store));
+    // this probably changed
     g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_NUM_FILES]);
-    g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_SHOW_HIDDEN]);
-    g_object_thaw_notify(G_OBJECT(store));
 }
 
-gboolean listmodel_get_file_size_binary(ListModel *store)
+// Public ---------------------------------------------------------------------
+
+ListModel* listmodel_new()
 {
-    e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
-    return store->file_size_binary;
-}
-
-void listmodel_set_file_size_binary(ListModel *store, gboolean file_size_binary)
-{
-    e_return_if_fail(IS_LISTMODEL(store));
-
-    // normalize the setting
-    file_size_binary = !!file_size_binary;
-
-    // check if we have a new setting
-    if (store->file_size_binary != file_size_binary)
-    {
-        // apply the new setting
-        store->file_size_binary = file_size_binary;
-
-        // resort the model with the new setting
-        _listmodel_sort(store);
-
-        // notify listeners
-        g_object_notify_by_pspec(G_OBJECT(store), _listmodel_props[PROP_FILE_SIZE_BINARY]);
-
-        /* emit a "changed" signal for each row, so the display is
-           reloaded with the new binary file size setting */
-        gtk_tree_model_foreach(GTK_TREE_MODEL(store),
-                               (GtkTreeModelForeachFunc)(void(*)(void)) gtk_tree_model_row_changed,
-                                NULL);
-    }
+    return g_object_new(TYPE_LISTMODEL, NULL);
 }
 
 ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter)
@@ -1813,14 +1842,6 @@ ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter)
     e_return_val_if_fail(iter->stamp == store->stamp, NULL);
 
     return g_object_ref(g_sequence_get(iter->user_data));
-}
-
-// Counts the number of visible files into the store
-static gint _listmodel_get_num_files(ListModel *store)
-{
-    e_return_val_if_fail(IS_LISTMODEL(store), 0);
-
-    return g_sequence_get_length(store->rows);
 }
 
 /**
@@ -1920,72 +1941,6 @@ GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern)
     g_pattern_spec_free(pspec);
 
     return paths;
-}
-
-static gchar* _listmodel_get_statusbar_text_for_files(
-                                        GList *files,
-                                        gboolean show_file_size_binary_format)
-{
-    // g_free
-
-    guint64  size_summary = 0;
-    gint     folder_count = 0;
-    gint     non_folder_count = 0;
-    GList   *lp;
-    gchar   *size_string;
-    gchar   *text;
-    gchar   *folder_text = NULL;
-    gchar   *non_folder_text = NULL;
-
-    // analyze files
-    for (lp = files; lp != NULL; lp = lp->next)
-    {
-        if (th_file_is_directory(lp->data))
-        {
-            folder_count++;
-        }
-        else
-        {
-            non_folder_count++;
-            if (th_file_is_regular(lp->data))
-                size_summary += th_file_get_size(lp->data);
-        }
-    }
-
-    if (non_folder_count > 0)
-    {
-        size_string = g_format_size_full(size_summary, G_FORMAT_SIZE_LONG_FORMAT |(show_file_size_binary_format ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
-        non_folder_text = g_strdup_printf(ngettext("%d file: %s",
-                                           "%d files: %s",
-                                           non_folder_count), non_folder_count, size_string);
-        g_free(size_string);
-    }
-
-    if (folder_count > 0)
-    {
-        folder_text = g_strdup_printf(ngettext("%d folder",
-                                       "%d folders",
-                                       folder_count), folder_count);
-    }
-
-    if (folder_text == NULL && non_folder_text == NULL)
-        text = g_strdup_printf(_("0 items"));
-    else if (folder_text == NULL)
-        text = non_folder_text;
-    else if (non_folder_text == NULL)
-        text = folder_text;
-    else
-    {
-        /* This is marked for translation in case a localizer
-         * needs to change ", " to something else. The comma
-         * is between the message about the number of folders
-         * and the number of items in the selection */
-        // TRANSLATORS: string moved from line 2573 to here 
-        text = g_strdup_printf(_("%s, %s"), folder_text, non_folder_text);
-        g_free(folder_text);
-        g_free(non_folder_text);
-    }
-    return text;
 }
 
 gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
@@ -2149,6 +2104,72 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
         g_list_free(relevant_files);
     }
 
+    return text;
+}
+
+static gchar* _listmodel_get_statusbar_text_for_files(
+                                        GList *files,
+                                        gboolean show_file_size_binary_format)
+{
+    // g_free
+
+    guint64  size_summary = 0;
+    gint     folder_count = 0;
+    gint     non_folder_count = 0;
+    GList   *lp;
+    gchar   *size_string;
+    gchar   *text;
+    gchar   *folder_text = NULL;
+    gchar   *non_folder_text = NULL;
+
+    // analyze files
+    for (lp = files; lp != NULL; lp = lp->next)
+    {
+        if (th_file_is_directory(lp->data))
+        {
+            folder_count++;
+        }
+        else
+        {
+            non_folder_count++;
+            if (th_file_is_regular(lp->data))
+                size_summary += th_file_get_size(lp->data);
+        }
+    }
+
+    if (non_folder_count > 0)
+    {
+        size_string = g_format_size_full(size_summary, G_FORMAT_SIZE_LONG_FORMAT |(show_file_size_binary_format ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
+        non_folder_text = g_strdup_printf(ngettext("%d file: %s",
+                                           "%d files: %s",
+                                           non_folder_count), non_folder_count, size_string);
+        g_free(size_string);
+    }
+
+    if (folder_count > 0)
+    {
+        folder_text = g_strdup_printf(ngettext("%d folder",
+                                       "%d folders",
+                                       folder_count), folder_count);
+    }
+
+    if (folder_text == NULL && non_folder_text == NULL)
+        text = g_strdup_printf(_("0 items"));
+    else if (folder_text == NULL)
+        text = non_folder_text;
+    else if (non_folder_text == NULL)
+        text = folder_text;
+    else
+    {
+        /* This is marked for translation in case a localizer
+         * needs to change ", " to something else. The comma
+         * is between the message about the number of folders
+         * and the number of items in the selection */
+        // TRANSLATORS: string moved from line 2573 to here
+        text = g_strdup_printf(_("%s, %s"), folder_text, non_folder_text);
+        g_free(folder_text);
+        g_free(non_folder_text);
+    }
     return text;
 }
 
