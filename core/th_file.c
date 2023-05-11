@@ -69,24 +69,30 @@ static GFileInfo* th_fileinfo_get_filesystem_info(FileInfo *file_info);
 static GFile* th_fileinfo_get_location(FileInfo *file_info);
 static void th_fileinfo_changed(FileInfo *file_info);
 
-static void _th_fileinfo_clear(ThunarFile *file);
-static void _th_fileinfo_reload(ThunarFile *file, GCancellable *cancellable);
-
 // Public ---------------------------------------------------------------------
 
+// th_file_get
 static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
                               GError **error);
+static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable);
+static void _th_file_info_clear(ThunarFile *file);
+
+// th_file_get_async
 static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
                                       gpointer user_data);
-
-static gboolean _th_file_same_filesystem(const ThunarFile *file_a,
-                                         const ThunarFile *file_b);
-
+// th_file_get_icon_name
 static const gchar* _th_file_get_icon_name_for_state(
                                             const gchar *icon_name,
                                             ThunarFileIconState icon_state);
 
-// Monitor --------------------------------------------------------------------
+// th_file_accepts_drop
+static gboolean _th_file_same_filesystem(const ThunarFile *file_a,
+                                         const ThunarFile *file_b);
+
+// th_filelist_get_applications
+static gint _compare_app_infos(gconstpointer a, gconstpointer b);
+
+// File Monitor ---------------------------------------------------------------
 
 static void _th_file_monitor(GFileMonitor *monitor,
                              GFile *path,
@@ -98,9 +104,6 @@ static void _th_file_watch_reconnect(ThunarFile *file);
 static void _th_file_monitor_update(GFile *path, GFileMonitorEvent event_type);
 static void _th_file_reload_parent(ThunarFile *file);
 static void _th_file_watch_destroyed(gpointer data);
-
-static gint _compare_app_infos(gconstpointer a, gconstpointer b);
-
 
 // Globals --------------------------------------------------------------------
 
@@ -534,7 +537,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
     G_UNLOCK(_file_cache_mutex);
 
     // reset the file
-    _th_fileinfo_clear(file);
+    _th_file_info_clear(file);
 
     GError *err = NULL;
 
@@ -546,7 +549,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
                                    &err);
 
     // update the file from the information
-    _th_fileinfo_reload(file, cancellable);
+    _th_file_info_load(file, cancellable);
 
     // update the mounted info
     if (err != NULL
@@ -577,59 +580,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
     return TRUE;
 }
 
-static void _th_fileinfo_clear(ThunarFile *file)
-{
-    e_return_if_fail(THUNAR_IS_FILE(file));
-
-    // release the current file info
-    if (file->info != NULL)
-    {
-        g_object_unref(file->info);
-        file->info = NULL;
-    }
-
-    // unset
-    file->kind = G_FILE_TYPE_UNKNOWN;
-
-    // free the custom icon name
-    g_free(file->custom_icon_name);
-    file->custom_icon_name = NULL;
-
-    // free display name and basename
-    g_free(file->display_name);
-    file->display_name = NULL;
-
-    g_free(file->basename);
-    file->basename = NULL;
-
-    // content type
-    g_free(file->content_type);
-    file->content_type = NULL;
-
-    g_free(file->icon_name);
-    file->icon_name = NULL;
-
-    // free collate keys
-    if (file->collate_key_nocase != file->collate_key)
-        g_free(file->collate_key_nocase);
-
-    file->collate_key_nocase = NULL;
-
-    g_free(file->collate_key);
-    file->collate_key = NULL;
-
-    // free thumbnail path
-    g_free(file->thumbnail_path);
-    file->thumbnail_path = NULL;
-
-    // assume the file is mounted by default
-    FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
-
-    // set thumb state to unknown
-    FLAG_SET_THUMB_STATE(file, 0);
-}
-
-static void _th_fileinfo_reload(ThunarFile *file, GCancellable *cancellable)
+static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
 {
     e_return_if_fail(THUNAR_IS_FILE(file));
     e_return_if_fail(file->info == NULL || G_IS_FILE_INFO(file->info));
@@ -755,6 +706,58 @@ static void _th_fileinfo_reload(ThunarFile *file, GCancellable *cancellable)
     g_free(casefold);
 }
 
+static void _th_file_info_clear(ThunarFile *file)
+{
+    e_return_if_fail(THUNAR_IS_FILE(file));
+
+    // release the current file info
+    if (file->info != NULL)
+    {
+        g_object_unref(file->info);
+        file->info = NULL;
+    }
+
+    // unset
+    file->kind = G_FILE_TYPE_UNKNOWN;
+
+    // free the custom icon name
+    g_free(file->custom_icon_name);
+    file->custom_icon_name = NULL;
+
+    // free display name and basename
+    g_free(file->display_name);
+    file->display_name = NULL;
+
+    g_free(file->basename);
+    file->basename = NULL;
+
+    // content type
+    g_free(file->content_type);
+    file->content_type = NULL;
+
+    g_free(file->icon_name);
+    file->icon_name = NULL;
+
+    // free collate keys
+    if (file->collate_key_nocase != file->collate_key)
+        g_free(file->collate_key_nocase);
+
+    file->collate_key_nocase = NULL;
+
+    g_free(file->collate_key);
+    file->collate_key = NULL;
+
+    // free thumbnail path
+    g_free(file->thumbnail_path);
+    file->thumbnail_path = NULL;
+
+    // assume the file is mounted by default
+    FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+
+    // set thumb state to unknown
+    FLAG_SET_THUMB_STATE(file, 0);
+}
+
 ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
 {
     // g_object_unref
@@ -813,13 +816,13 @@ ThunarFile* th_file_get_with_info(GFile *gfile, GFileInfo *info, gboolean not_mo
     file->gfile = g_object_ref(gfile);
 
     // reset the file
-    _th_fileinfo_clear(file);
+    _th_file_info_clear(file);
 
     // set the passed info
     file->info = g_object_ref(info);
 
     // update the file from the information
-    _th_fileinfo_reload(file, NULL);
+    _th_file_info_load(file, NULL);
 
     // update the mounted info
     if (not_mounted)
@@ -893,7 +896,7 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
     file->gfile = g_object_ref(location);
 
     // reset the file
-    _th_fileinfo_clear(file);
+    _th_file_info_clear(file);
 
     // set the file information
     file->info = file_info;
@@ -901,7 +904,7 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
     ThunarFileGetData *data = user_data;
 
     // update the file from the information
-    _th_fileinfo_reload(file, data->cancellable);
+    _th_file_info_load(file, data->cancellable);
 
     // update the mounted info
     if (error != NULL
@@ -1854,6 +1857,30 @@ GdkDragAction th_file_accepts_drop(ThunarFile     *file,
 
     // yeppa, we can drop here
     return actions;
+}
+
+static gboolean _th_file_same_filesystem(const ThunarFile *file_a,
+                                            const ThunarFile *file_b)
+{
+    const gchar *filesystem_id_a;
+    const gchar *filesystem_id_b;
+
+    e_return_val_if_fail(THUNAR_IS_FILE(file_a), FALSE);
+    e_return_val_if_fail(THUNAR_IS_FILE(file_b), FALSE);
+
+    // return false if we have no information about one of the files
+    if (file_a->info == NULL || file_b->info == NULL)
+        return FALSE;
+
+    // determine the filesystem IDs
+    filesystem_id_a = g_file_info_get_attribute_string(file_a->info,
+                      G_FILE_ATTRIBUTE_ID_FILESYSTEM);
+
+    filesystem_id_b = g_file_info_get_attribute_string(file_b->info,
+                      G_FILE_ATTRIBUTE_ID_FILESYSTEM);
+
+    // compare the filesystem IDs
+    return (g_strcmp0(filesystem_id_a, filesystem_id_b) == 0);
 }
 
 gboolean th_file_can_be_trashed(const ThunarFile *file)
@@ -2811,7 +2838,7 @@ void th_file_reload_idle_unref(ThunarFile *file)
                     (GDestroyNotify) g_object_unref);
 }
 
-// Watch ----------------------------------------------------------------------
+// File Monitor ---------------------------------------------------------------
 
 /**
  * th_file_watch:
@@ -2855,11 +2882,13 @@ void th_file_watch(ThunarFile *file)
         else
         {
             // watch monitor for file changes
-            g_signal_connect(file_watch->monitor, "changed", G_CALLBACK(_th_file_monitor), file);
+            g_signal_connect(file_watch->monitor, "changed",
+                             G_CALLBACK(_th_file_monitor), file);
         }
 
         // attach to file
-        g_object_set_qdata_full(G_OBJECT(file), _file_watch_quark, file_watch, _th_file_watch_destroyed);
+        g_object_set_qdata_full(G_OBJECT(file), _file_watch_quark,
+                                file_watch, _th_file_watch_destroyed);
     }
     else if (G_LIKELY(!file->no_file_watch))
     {
@@ -2867,6 +2896,19 @@ void th_file_watch(ThunarFile *file)
         e_return_if_fail(G_IS_FILE_MONITOR(file_watch->monitor));
         file_watch->watch_count++;
     }
+}
+
+static void _th_file_watch_destroyed(gpointer data)
+{
+    ThunarFileWatch *file_watch = data;
+
+    if (G_LIKELY(file_watch->monitor != NULL))
+    {
+        g_file_monitor_cancel(file_watch->monitor);
+        g_object_unref(file_watch->monitor);
+    }
+
+    g_slice_free(ThunarFileWatch, file_watch);
 }
 
 /**
@@ -2898,35 +2940,6 @@ void th_file_unwatch(ThunarFile *file)
     {
         e_assert_not_reached();
     }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-static void _th_file_watch_destroyed(gpointer data)
-{
-    ThunarFileWatch *file_watch = data;
-
-    if (G_LIKELY(file_watch->monitor != NULL))
-    {
-        g_file_monitor_cancel(file_watch->monitor);
-        g_object_unref(file_watch->monitor);
-    }
-
-    g_slice_free(ThunarFileWatch, file_watch);
 }
 
 static void _th_file_monitor(GFileMonitor *monitor,
@@ -3051,7 +3064,8 @@ static void _th_file_watch_reconnect(ThunarFile *file)
         if (G_LIKELY(file_watch->monitor != NULL))
         {
             // watch monitor for file changes
-            g_signal_connect(file_watch->monitor, "changed", G_CALLBACK(_th_file_monitor), file);
+            g_signal_connect(file_watch->monitor, "changed",
+                             G_CALLBACK(_th_file_monitor), file);
         }
     }
 }
@@ -3105,34 +3119,15 @@ static void _th_file_reload_parent(ThunarFile *file)
     }
 }
 
-static gint _compare_app_infos(gconstpointer a, gconstpointer b)
-{
-    return g_app_info_equal(G_APP_INFO(a), G_APP_INFO(b)) ? 0 : 1;
-}
 
-static gboolean _th_file_same_filesystem(const ThunarFile *file_a,
-                                            const ThunarFile *file_b)
-{
-    const gchar *filesystem_id_a;
-    const gchar *filesystem_id_b;
 
-    e_return_val_if_fail(THUNAR_IS_FILE(file_a), FALSE);
-    e_return_val_if_fail(THUNAR_IS_FILE(file_b), FALSE);
 
-    // return false if we have no information about one of the files
-    if (file_a->info == NULL || file_b->info == NULL)
-        return FALSE;
 
-    // determine the filesystem IDs
-    filesystem_id_a = g_file_info_get_attribute_string(file_a->info,
-                      G_FILE_ATTRIBUTE_ID_FILESYSTEM);
 
-    filesystem_id_b = g_file_info_get_attribute_string(file_b->info,
-                      G_FILE_ATTRIBUTE_ID_FILESYSTEM);
 
-    // compare the filesystem IDs
-    return (g_strcmp0(filesystem_id_a, filesystem_id_b) == 0);
-}
+
+
+
 
 
 
@@ -3256,6 +3251,11 @@ GList* th_filelist_get_applications(GList *file_list)
     }
 
     return applications;
+}
+
+static gint _compare_app_infos(gconstpointer a, gconstpointer b)
+{
+    return g_app_info_equal(G_APP_INFO(a), G_APP_INFO(b)) ? 0 : 1;
 }
 
 /*
