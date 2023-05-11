@@ -19,7 +19,7 @@
 #ifndef __SIDEPANE_H__
 #define __SIDEPANE_H__
 
-#include <component.h>
+#include <glib-object.h>
 
 G_BEGIN_DECLS
 
@@ -28,11 +28,11 @@ typedef struct _SidePane      SidePane;
 
 #define TYPE_SIDEPANE (sidepane_get_type())
 #define SIDEPANE(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj),     TYPE_SIDEPANE, SidePane))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_SIDEPANE, SidePane))
 #define IS_SIDEPANE(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj),     TYPE_SIDEPANE))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_SIDEPANE))
 #define SIDEPANE_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE ((obj),  TYPE_SIDEPANE, SidePaneIface))
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_SIDEPANE, SidePaneIface))
 
 struct _SidePaneIface
 {

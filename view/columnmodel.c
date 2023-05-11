@@ -21,13 +21,6 @@
 
 #include <stdlib.h>
 
-// Signal identifiers
-enum
-{
-    COLUMNS_CHANGED,
-    LAST_SIGNAL,
-};
-
 static void column_model_tree_model_init(GtkTreeModelIface *iface);
 static void column_model_finalize(GObject *object);
 
@@ -67,6 +60,15 @@ static void _column_model_save_visible_columns(ColumnModel *column_model);
 
 static gboolean _column_model_set_column_width_timer(gpointer user_data);
 
+// ----------------------------------------------------------------------------
+
+enum
+{
+    COLUMNS_CHANGED,
+    LAST_SIGNAL,
+};
+static guint _column_model_signals[LAST_SIGNAL];
+
 struct _ColumnModelClass
 {
     GObjectClass __parent__;
@@ -92,8 +94,6 @@ struct _ColumnModel
     gint               width[THUNAR_N_VISIBLE_COLUMNS];
     guint              save_width_timer_id;
 };
-
-static guint _column_model_signals[LAST_SIGNAL];
 
 G_DEFINE_TYPE_WITH_CODE(ColumnModel,
                         column_model,
@@ -206,12 +206,11 @@ static gboolean column_model_get_iter(GtkTreeModel *tree_model, GtkTreeIter *ite
                                       GtkTreePath *path)
 {
     ColumnModel *column_model = COLUMN_MODEL(tree_model);
-    ThunarColumn       column;
-
     e_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
     e_return_val_if_fail(gtk_tree_path_get_depth(path) > 0, FALSE);
 
     // check if the path is valid
+    ThunarColumn       column;
     column = gtk_tree_path_get_indices(path)[0];
     if (G_UNLIKELY(column >= THUNAR_N_VISIBLE_COLUMNS))
         return FALSE;
@@ -440,7 +439,9 @@ static void _column_model_load_column_widths(ColumnModel *column_model)
 
     // determine the column widths from the preferences
     gchar *tmp = g_strdup("");
+
     //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-widths", &tmp, NULL);
+
     column_widths = g_strsplit(tmp, ",", -1);
     g_free(tmp);
 

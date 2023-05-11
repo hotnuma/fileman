@@ -20,8 +20,7 @@
 #define __BASEVIEW_H__
 
 #include <enumtypes.h>
-#include <component.h>
-#include <navigator.h>
+#include <th_file.h>
 
 G_BEGIN_DECLS
 
@@ -90,6 +89,7 @@ void baseview_scroll_to_file(BaseView *view,
                              gboolean use_align,
                              gfloat row_align,
                              gfloat col_align);
+
 GList* baseview_get_selected_files(BaseView *view);
 void baseview_set_selected_files(BaseView *view, GList *path_list);
 

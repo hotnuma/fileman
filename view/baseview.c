@@ -19,6 +19,9 @@
 #include <config.h>
 #include <baseview.h>
 
+#include <component.h>
+#include <navigator.h>
+
 static void baseview_class_init(gpointer klass);
 
 GType baseview_get_type()
@@ -264,11 +267,11 @@ gboolean baseview_get_visible_range(BaseView  *view,
  * the contents are loaded.
  **/
 void baseview_scroll_to_file(BaseView  *view,
-                                ThunarFile  *file,
-                                gboolean    select_file,
-                                gboolean    use_align,
-                                gfloat      row_align,
-                                gfloat      col_align)
+                            ThunarFile  *file,
+                            gboolean    select_file,
+                            gboolean    use_align,
+                            gfloat      row_align,
+                            gfloat      col_align)
 {
     e_return_if_fail(THUNAR_IS_VIEW(view));
     e_return_if_fail(THUNAR_IS_FILE(file));

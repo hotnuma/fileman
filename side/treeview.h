@@ -19,7 +19,7 @@
 #ifndef __TREEVIEW_H__
 #define __TREEVIEW_H__
 
-#include <navigator.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 

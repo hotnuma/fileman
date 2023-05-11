@@ -21,6 +21,8 @@
 #include <config.h>
 #include <treeview.h>
 
+#include <navigator.h>
+
 #include <utils.h>
 
 #include <application.h>
@@ -174,6 +176,7 @@ struct _TreeViewClass
 struct _TreeView
 {
     GtkTreeView             __parent__;
+
     ClipboardManager  *clipboard;
     GtkCellRenderer         *icon_renderer;
     ThunarFile              *current_directory;

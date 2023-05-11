@@ -19,16 +19,7 @@
 #include <config.h>
 #include <treepane.h>
 
-#include <treeview.h>
-
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_CURRENT_DIRECTORY,
-    PROP_SELECTED_FILES,
-    PROP_SHOW_HIDDEN,
-};
+#include <component.h>
 
 static void treepane_component_init(ThunarComponentIface *iface);
 static void treepane_navigator_init(ThunarNavigatorIface *iface);
@@ -51,6 +42,15 @@ static void treepane_set_current_directory(ThunarNavigator *navigator,
 static gboolean treepane_get_show_hidden(SidePane *side_pane);
 static void treepane_set_show_hidden(SidePane *side_pane,
                                              gboolean show_hidden);
+
+// Property identifiers
+enum
+{
+    PROP_0,
+    PROP_CURRENT_DIRECTORY,
+    PROP_SELECTED_FILES,
+    PROP_SHOW_HIDDEN,
+};
 
 struct _TreePaneClass
 {

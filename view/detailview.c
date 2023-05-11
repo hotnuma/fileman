@@ -19,16 +19,11 @@
 #include <config.h>
 #include <detailview.h>
 
+#include <standardview.h>
 #include <window.h>
 #include <exo_treeview.h>
 #include <columnmodel.h>
 #include <launcher.h>
-
-enum
-{
-    PROP_0,
-    PROP_FIXED_COLUMNS,
-};
 
 static void detailview_finalize(GObject *object);
 static void detailview_get_property(GObject *object, guint prop_id,
@@ -126,6 +121,12 @@ static XfceGtkActionEntry _detailview_actions[] =
                                     G_N_ELEMENTS(_detailview_actions), \
                                     id)
 
+enum
+{
+    PROP_0,
+    PROP_FIXED_COLUMNS,
+};
+
 struct _DetailViewClass
 {
     StandardViewClass __parent__;
@@ -137,7 +138,6 @@ struct _DetailView
 
     GtkTreeViewColumn *columns[THUNAR_N_VISIBLE_COLUMNS];
     ColumnModel     *column_model;
-
     gboolean        fixed_columns;
 
     // whether the most recent item activation used a mouse button press
@@ -191,23 +191,25 @@ static void detailview_class_init(DetailViewClass *klass)
 
 static void detailview_init(DetailView *details_view)
 {
-    // we need to force the GtkTreeView to recalculate column sizes
-    // whenever the zoom-level changes, so we connect a handler here.
+    /* we need to force the GtkTreeView to recalculate column sizes
+       whenever the zoom-level changes, so we connect a handler here. */
     g_signal_connect(G_OBJECT(details_view), "notify::zoom-level",
                      G_CALLBACK(_detailview_zoom_level_changed), NULL);
 
     // create the tree view to embed
     GtkWidget *tree_view = exo_tree_view_new();
+
     g_signal_connect(G_OBJECT(tree_view), "notify::model",
-                      G_CALLBACK(_detailview_notify_model), details_view);
+                     G_CALLBACK(_detailview_notify_model), details_view);
     g_signal_connect(G_OBJECT(tree_view), "button-press-event",
-                      G_CALLBACK(_detailview_button_press_event), details_view);
+                     G_CALLBACK(_detailview_button_press_event), details_view);
     g_signal_connect(G_OBJECT(tree_view), "key-press-event",
-                      G_CALLBACK(_detailview_key_press_event), details_view);
+                     G_CALLBACK(_detailview_key_press_event), details_view);
     g_signal_connect(G_OBJECT(tree_view), "row-activated",
-                      G_CALLBACK(_detailview_row_activated), details_view);
+                     G_CALLBACK(_detailview_row_activated), details_view);
     g_signal_connect(G_OBJECT(tree_view), "select-cursor-row",
-                      G_CALLBACK(_detailview_select_cursor_row), details_view);
+                     G_CALLBACK(_detailview_select_cursor_row), details_view);
+
     gtk_container_add(GTK_CONTAINER(details_view), tree_view);
     gtk_widget_show(tree_view);
 

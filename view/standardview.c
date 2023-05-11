@@ -22,6 +22,8 @@
 #include <standardview.h>
 
 #include <baseview.h>
+#include <component.h>
+#include <navigator.h>
 #include <iconrender.h>
 #include <appmenu.h>
 #include <dnd.h>
@@ -382,8 +384,7 @@ struct _StandardViewPrivate
     GList       *drop_file_list;        // the list of URIs that are contained in the drop data */
 
     /* the "new-files" closure, which is used to select files whenever
-     * new files are created by a ThunarJob associated with this view
-     */
+     * new files are created by a ThunarJob associated with this view */
     GClosure    *new_files_closure;
 
     /* the "new-files" path list that was remembered in the closure callback
@@ -2474,7 +2475,6 @@ static gboolean _standardview_motion_notify_event(GtkWidget      *widget,
 static void _standardview_select_all_files(BaseView *baseview)
 {
     StandardView *view = STANDARD_VIEW(baseview);
-
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
     // grab the focus to the view

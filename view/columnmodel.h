@@ -29,15 +29,15 @@ typedef struct _ColumnModel      ColumnModel;
 
 #define TYPE_COLUMN_MODEL (column_model_get_type ())
 #define COLUMN_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_COLUMN_MODEL, ColumnModel))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_COLUMN_MODEL, ColumnModel))
 #define COLUMN_MODEL_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_COLUMN_MODEL, ColumnModelClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_COLUMN_MODEL, ColumnModelClass))
 #define IS_COLUMN_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_COLUMN_MODEL))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_COLUMN_MODEL))
 #define IS_COLUMN_MODEL_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_COLUMN_MODEL))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_COLUMN_MODEL))
 #define COLUMN_MODEL_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_COLUMN_MODEL, ColumnModelClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_COLUMN_MODEL, ColumnModelClass))
 
 typedef enum
 {

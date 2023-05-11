@@ -22,52 +22,29 @@
 #include <window.h>
 
 #include <application.h>
+#include <locationentry.h>
+#include <treepane.h>
 #include <baseview.h>
-
-#include <browser.h>
-#include <clipboard.h>
+#include <standardview.h>
 #include <detailview.h>
+#include <launcher.h>
+#include <appmenu.h>
+#include <statusbar.h>
+#include <preferences.h>
+
+#include <devmonitor.h>
+#include <browser.h>
+#include <component.h>
+#include <history.h>
+#include <clipboard.h>
 #include <dialogs.h>
+
 #include <gio_ext.h>
 #include <gtk_ext.h>
-#include <history.h>
-#include <launcher.h>
-#include <locationentry.h>
 #include <marshal.h>
-#include <appmenu.h>
 #include <pango_ext.h>
-#include <preferences.h>
-#include <statusbar.h>
-#include <treepane.h>
-#include <devmonitor.h>
 
-#include <unistd.h>
-#include <locale.h>
-#include <gdk/gdkkeysyms.h>
-#include <glib.h>
 #include <syslog.h>
-
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_CURRENT_DIRECTORY,
-    PROP_ZOOM_LEVEL,
-};
-
-// Signal identifiers
-enum
-{
-    BACK,
-    RELOAD,
-    TOGGLE_SIDEPANE,
-    TOGGLE_MENUBAR,
-    ZOOM_IN,
-    ZOOM_OUT,
-    ZOOM_RESET,
-    TAB_CHANGE,
-    LAST_SIGNAL,
-};
 
 static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
                                    gpointer userdata);
@@ -148,69 +125,6 @@ static gboolean _window_button_press_event(GtkWidget *view,
                                            ThunarWindow *window);
 static void _window_history_changed(ThunarWindow *window);
 
-struct _ThunarWindowClass
-{
-    GtkWindowClass __parent__;
-
-    // internal action signals
-    gboolean (*reload)     (ThunarWindow *window, gboolean reload_info);
-    gboolean (*zoom_in)    (ThunarWindow *window);
-    gboolean (*zoom_out)   (ThunarWindow *window);
-    gboolean (*zoom_reset) (ThunarWindow *window);
-    gboolean (*tab_change) (ThunarWindow *window, gint idx);
-};
-
-struct _ThunarWindow
-{
-    GtkWindow __parent__;
-
-    ClipboardManager *clipboard;
-
-    IconFactory     *icon_factory;
-
-    // to be able to change folder on "device-pre-unmount" if required
-    DeviceMonitor   *device_monitor;
-
-    GtkWidget       *grid;
-    GtkWidget       *paned;
-    GtkWidget       *sidepane;
-    GtkWidget       *view_box;
-    GtkWidget       *notebook;
-    GtkWidget       *view;
-    GtkWidget       *statusbar;
-
-    GSList          *view_bindings;
-
-    // we need to maintain pointers to be able to toggle sensitivity
-    GtkWidget       *toolbar;
-    GtkWidget       *toolbar_item_back;
-    GtkWidget       *toolbar_item_forward;
-    GtkWidget       *toolbar_item_parent;
-    GtkWidget       *location_bar;
-
-    gulong          signal_handler_id_history_changed;
-
-    ThunarLauncher  *launcher;
-
-    ThunarFile      *current_directory;
-    GtkAccelGroup   *accel_group;
-
-    // zoom-level support
-    ThunarZoomLevel zoom_level;
-    gboolean        show_hidden;
-
-    // support to remember window geometry
-    guint           save_geometry_timer_id;
-
-    /* support to toggle side pane using F9,
-     * see the toggle_sidepane() function.
-     */
-    GType           toggle_sidepane_type;
-
-    // Takes care to select a file after e.g. rename/create
-    GClosure        *select_files_closure;
-};
-
 static XfceGtkActionEntry _window_actions[] =
 {
     {APP_WINDOW_ACTION_BACK,
@@ -290,6 +204,91 @@ static XfceGtkActionEntry _window_actions[] =
     xfce_gtk_get_action_entry_by_id(_window_actions, \
     G_N_ELEMENTS(_window_actions), \
     id)
+
+// Property identifiers
+enum
+{
+    PROP_0,
+    PROP_CURRENT_DIRECTORY,
+    PROP_ZOOM_LEVEL,
+};
+
+// Signal identifiers
+enum
+{
+    BACK,
+    RELOAD,
+    TOGGLE_SIDEPANE,
+    TOGGLE_MENUBAR,
+    ZOOM_IN,
+    ZOOM_OUT,
+    ZOOM_RESET,
+    TAB_CHANGE,
+    LAST_SIGNAL,
+};
+
+struct _ThunarWindowClass
+{
+    GtkWindowClass __parent__;
+
+    // internal action signals
+    gboolean (*reload)     (ThunarWindow *window, gboolean reload_info);
+    gboolean (*zoom_in)    (ThunarWindow *window);
+    gboolean (*zoom_out)   (ThunarWindow *window);
+    gboolean (*zoom_reset) (ThunarWindow *window);
+    gboolean (*tab_change) (ThunarWindow *window, gint idx);
+};
+
+struct _ThunarWindow
+{
+    GtkWindow __parent__;
+
+    ClipboardManager *clipboard;
+
+    IconFactory     *icon_factory;
+
+    // to be able to change folder on "device-pre-unmount" if required
+    DeviceMonitor   *device_monitor;
+
+    GtkWidget       *grid;
+    GtkWidget       *paned;
+    GtkWidget       *sidepane;
+    GtkWidget       *view_box;
+    GtkWidget       *notebook;
+    GtkWidget       *view;
+    GtkWidget       *statusbar;
+
+    GSList          *view_bindings;
+
+    // we need to maintain pointers to be able to toggle sensitivity
+    GtkWidget       *toolbar;
+    GtkWidget       *toolbar_item_back;
+    GtkWidget       *toolbar_item_forward;
+    GtkWidget       *toolbar_item_parent;
+    GtkWidget       *location_bar;
+
+    gulong          signal_handler_id_history_changed;
+
+    ThunarLauncher  *launcher;
+
+    ThunarFile      *current_directory;
+    GtkAccelGroup   *accel_group;
+
+    // zoom-level support
+    ThunarZoomLevel zoom_level;
+    gboolean        show_hidden;
+
+    // support to remember window geometry
+    guint           save_geometry_timer_id;
+
+    /* support to toggle side pane using F9,
+     * see the toggle_sidepane() function.
+     */
+    GType           toggle_sidepane_type;
+
+    // Takes care to select a file after e.g. rename/create
+    GClosure        *select_files_closure;
+};
 
 static guint _window_signals[LAST_SIGNAL];
 
@@ -521,14 +520,21 @@ static void window_init(ThunarWindow *window)
     gtk_widget_set_hexpand(window->toolbar, TRUE);
     gtk_grid_attach(GTK_GRID(window->grid), window->toolbar, 0, 0, 1, 1);
 
-    window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry(get_action_entry(APP_WINDOW_ACTION_BACK), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry(get_action_entry(APP_WINDOW_ACTION_FORWARD), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry(get_action_entry(APP_WINDOW_ACTION_OPEN_PARENT), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    xfce_gtk_tool_button_new_from_action_entry(get_action_entry(APP_WINDOW_ACTION_OPEN_HOME), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+    window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry(
+                get_action_entry(APP_WINDOW_ACTION_BACK), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+    window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry(
+                get_action_entry(APP_WINDOW_ACTION_FORWARD), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+    window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry(
+                get_action_entry(APP_WINDOW_ACTION_OPEN_PARENT), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+    xfce_gtk_tool_button_new_from_action_entry(
+                get_action_entry(APP_WINDOW_ACTION_OPEN_HOME), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
 
-    g_signal_connect(G_OBJECT(window->toolbar_item_back), "button-press-event", G_CALLBACK(_window_history_clicked), G_OBJECT(window));
-    g_signal_connect(G_OBJECT(window->toolbar_item_forward), "button-press-event", G_CALLBACK(_window_history_clicked), G_OBJECT(window));
-    g_signal_connect(G_OBJECT(window), "button-press-event", G_CALLBACK(_window_button_press_event), G_OBJECT(window));
+    g_signal_connect(G_OBJECT(window->toolbar_item_back), "button-press-event",
+                     G_CALLBACK(_window_history_clicked), G_OBJECT(window));
+    g_signal_connect(G_OBJECT(window->toolbar_item_forward), "button-press-event",
+                     G_CALLBACK(_window_history_clicked), G_OBJECT(window));
+    g_signal_connect(G_OBJECT(window), "button-press-event",
+                     G_CALLBACK(_window_button_press_event), G_OBJECT(window));
     window->signal_handler_id_history_changed = 0;
 
 #if 0

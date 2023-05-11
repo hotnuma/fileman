@@ -19,6 +19,8 @@
 #include <config.h>
 #include <sidepane.h>
 
+#include <component.h>
+
 static void sidepane_class_init(gpointer klass);
 
 GType sidepane_get_type()
