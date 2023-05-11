@@ -292,7 +292,7 @@ static void detailview_init(DetailView *details_view)
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
 
     g_signal_connect_swapped(G_OBJECT(selection), "changed",
-                             G_CALLBACK(standard_view_selection_changed), details_view);
+                             G_CALLBACK(standardview_selection_changed), details_view);
 
     // apply the initial column order and visibility from the column model
     _detailview_columns_changed(details_view->column_model, details_view);
@@ -443,7 +443,7 @@ static void detailview_selection_invert(StandardView *standard_view)
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
 
     // block updates
-    g_signal_handlers_block_by_func(selection, standard_view_selection_changed, standard_view);
+    g_signal_handlers_block_by_func(selection, standardview_selection_changed, standard_view);
 
     // get paths of selected files
     gtk_tree_selection_selected_foreach(selection, _detailview_selection_invert_foreach, &selected_paths);
@@ -460,9 +460,9 @@ static void detailview_selection_invert(StandardView *standard_view)
     g_list_free(selected_paths);
 
     // unblock updates
-    g_signal_handlers_unblock_by_func(selection, standard_view_selection_changed, standard_view);
+    g_signal_handlers_unblock_by_func(selection, standardview_selection_changed, standard_view);
 
-    standard_view_selection_changed(STANDARD_VIEW(standard_view));
+    standardview_selection_changed(STANDARD_VIEW(standard_view));
 }
 
 static void detailview_select_path(StandardView *standard_view, GtkTreePath *path)
@@ -658,7 +658,7 @@ static gboolean _detailview_button_press_event(GtkTreeView          *tree_view,
 
             //DPRINT("button press 3-1\n");
 
-            standard_view_context_menu(STANDARD_VIEW(details_view));
+            standardview_context_menu(STANDARD_VIEW(details_view));
         }
         else
         {
@@ -670,7 +670,7 @@ static gboolean _detailview_button_press_event(GtkTreeView          *tree_view,
 
                 // queue the menu popup
                 //DPRINT("button press 3-2\n");
-                standard_view_queue_popup(STANDARD_VIEW(details_view),
+                standardview_queue_popup(STANDARD_VIEW(details_view),
                                                  event);
             }
             else
@@ -684,7 +684,7 @@ static gboolean _detailview_button_press_event(GtkTreeView          *tree_view,
 
                 // show the context menu
                 //DPRINT("button press 3-3\n");
-                standard_view_context_menu(STANDARD_VIEW(details_view));
+                standardview_context_menu(STANDARD_VIEW(details_view));
             }
 
             gtk_tree_path_free(path);
@@ -711,7 +711,7 @@ static gboolean _detailview_button_press_event(GtkTreeView          *tree_view,
             gtk_tree_selection_select_path(selection, path);
 
             // try to open the path as new window/tab, if possible
-            standard_view_open_on_middle_click(STANDARD_VIEW(details_view),
+            standardview_open_on_middle_click(STANDARD_VIEW(details_view),
                                                path, event->state);
 
             // cleanup
@@ -737,7 +737,7 @@ static gboolean _detailview_key_press_event(GtkTreeView       *tree_view,
     if (event->keyval == GDK_KEY_Menu ||((event->state & GDK_SHIFT_MASK) != 0 && event->keyval == GDK_KEY_F10))
     {
         //DPRINT("key press\n");
-        standard_view_context_menu(STANDARD_VIEW(details_view));
+        standardview_context_menu(STANDARD_VIEW(details_view));
         return TRUE;
     }
 

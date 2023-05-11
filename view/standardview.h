@@ -29,7 +29,7 @@ typedef struct _StandardViewPrivate StandardViewPrivate;
 typedef struct _StandardViewClass   StandardViewClass;
 typedef struct _StandardView        StandardView;
 
-#define TYPE_STANDARD_VIEW (standard_view_get_type())
+#define TYPE_STANDARD_VIEW (standardview_get_type())
 #define STANDARD_VIEW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_STANDARD_VIEW, StandardView))
 #define STANDARD_VIEW_CLASS(klass) \
@@ -150,16 +150,16 @@ struct _StandardView
     StandardViewPrivate *priv;
 };
 
-GType standard_view_get_type() G_GNUC_CONST;
+GType standardview_get_type() G_GNUC_CONST;
 
-void standard_view_context_menu(StandardView *standard_view);
-void standard_view_queue_popup(StandardView *standard_view,
+void standardview_context_menu(StandardView *standard_view);
+void standardview_queue_popup(StandardView *standard_view,
                                GdkEventButton *event);
 
-void standard_view_selection_changed(StandardView *standard_view);
+void standardview_selection_changed(StandardView *standard_view);
 
-ThunarHistory* standard_view_get_history(StandardView *standard_view);
-void standard_view_set_history(StandardView *standard_view,
+ThunarHistory* standardview_get_history(StandardView *standard_view);
+void standardview_set_history(StandardView *standard_view,
                                ThunarHistory *history);
 
 G_END_DECLS
