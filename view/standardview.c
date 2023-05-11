@@ -104,7 +104,7 @@ static void standardview_set_loading(StandardView *view,
 
 static void _standardview_new_files(StandardView *view,
                                     GList *path_list);
-static GClosure *_standardview_new_files_closure(StandardView *view,
+static GClosure* _standardview_new_files_closure(StandardView *view,
                                                  GtkWidget *source_view);
 
 static void standardview_reload(BaseView *baseview, gboolean reload_info);
@@ -121,9 +121,11 @@ static const gchar* standardview_get_statusbar_text(BaseView *baseview);
 
 // Public Functions -----------------------------------------------------------
 
+// standardview_context_menu
 static void _standardview_append_menu_items(StandardView  *view,
                                             GtkMenu       *menu,
                                             GtkAccelGroup *accel_group);
+// standardview_queue_popup
 static gboolean _standardview_drag_timer(gpointer user_data);
 static void _standardview_drag_timer_destroy(gpointer user_data);
 
@@ -255,9 +257,17 @@ static void _standardview_drag_scroll_timer_destroy(gpointer user_data);
 
 // Actions --------------------------------------------------------------------
 
+typedef enum
+{
+    STANDARDVIEW_ACTION_SELECT_ALL_FILES,
+    STANDARDVIEW_ACTION_SELECT_BY_PATTERN,
+    STANDARDVIEW_ACTION_INVERT_SELECTION,
+
+} StandardViewAction;
+
 static XfceGtkActionEntry _standardview_actions[] =
 {
-    {STANDARD_VIEW_ACTION_SELECT_ALL_FILES,
+    {STANDARDVIEW_ACTION_SELECT_ALL_FILES,
      "<Actions>/StandardView/select-all-files",
      "<Primary>a",
      XFCE_GTK_MENU_ITEM,
@@ -266,7 +276,7 @@ static XfceGtkActionEntry _standardview_actions[] =
      NULL,
      G_CALLBACK(_standardview_select_all_files)},
 
-    {STANDARD_VIEW_ACTION_SELECT_BY_PATTERN,
+    {STANDARDVIEW_ACTION_SELECT_BY_PATTERN,
      "<Actions>/StandardView/select-by-pattern",
      "<Primary>s",
      XFCE_GTK_MENU_ITEM,
@@ -275,7 +285,7 @@ static XfceGtkActionEntry _standardview_actions[] =
      NULL,
      G_CALLBACK(_standardview_select_by_pattern)},
 
-    {STANDARD_VIEW_ACTION_INVERT_SELECTION,
+    {STANDARDVIEW_ACTION_INVERT_SELECTION,
      "<Actions>/StandardView/invert-selection",
      "",
      XFCE_GTK_MENU_ITEM,
@@ -614,6 +624,7 @@ static GObject* standardview_constructor(GType type, guint n_props,
                         _drag_targets,
                         G_N_ELEMENTS(_drag_targets),
                         GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK);
+
     g_signal_connect(G_OBJECT(child), "drag-begin",
                      G_CALLBACK(_standardview_drag_begin), object);
     g_signal_connect(G_OBJECT(child), "drag-data-get",
@@ -628,7 +639,11 @@ static GObject* standardview_constructor(GType type, guint n_props,
                       0,
                       _drop_targets,
                       G_N_ELEMENTS(_drop_targets),
-                      GDK_ACTION_ASK | GDK_ACTION_COPY | GDK_ACTION_LINK | GDK_ACTION_MOVE);
+                      GDK_ACTION_ASK
+                      | GDK_ACTION_COPY
+                      | GDK_ACTION_LINK
+                      | GDK_ACTION_MOVE);
+
     g_signal_connect(G_OBJECT(child), "drag-leave",
                      G_CALLBACK(_standardview_drag_leave), object);
     g_signal_connect(G_OBJECT(child), "drag-motion",
@@ -640,9 +655,10 @@ static GObject* standardview_constructor(GType type, guint n_props,
 
     // connect to scroll events for generating thumbnail requests
     GtkAdjustment *adjustment = gtk_scrolled_window_get_hadjustment(
-                                            GTK_SCROLLED_WINDOW(view));
+                                                        GTK_SCROLLED_WINDOW(view));
     g_signal_connect(adjustment, "value-changed",
                      G_CALLBACK(_standardview_scrolled), object);
+
     adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(view));
     g_signal_connect(adjustment, "value-changed",
                      G_CALLBACK(_standardview_scrolled), object);
@@ -779,16 +795,20 @@ static void standardview_get_property(GObject *object, guint prop_id,
         current_directory = navigator_get_current_directory(
                                             THUNAR_NAVIGATOR(object));
         if (current_directory != NULL)
+        {
             g_value_set_static_string(value,
                                       th_file_get_display_name(current_directory));
+        }
         break;
 
     case PROP_TOOLTIP_TEXT:
         current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(object));
         if (current_directory != NULL)
+        {
             g_value_take_string(
                     value,
                     g_file_get_parse_name(th_file_get_file(current_directory)));
+        }
         break;
 
     case PROP_SELECTED_FILES:
@@ -871,10 +891,9 @@ static void standardview_realize(GtkWidget *widget)
     StandardView *view = STANDARD_VIEW(widget);
     view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
-    g_object_bind_property(
-            G_OBJECT(view->icon_renderer), "size",
-            G_OBJECT(view->icon_factory), "thumbnail-size",
-            G_BINDING_SYNC_CREATE);
+    g_object_bind_property(G_OBJECT(view->icon_renderer), "size",
+                           G_OBJECT(view->icon_factory), "thumbnail-size",
+                           G_BINDING_SYNC_CREATE);
 }
 
 static void standardview_unrealize(GtkWidget *widget)
@@ -884,6 +903,7 @@ static void standardview_unrealize(GtkWidget *widget)
     // drop the reference on the icon factory
     g_signal_handlers_disconnect_by_func(G_OBJECT(view->icon_factory),
                                          gtk_widget_queue_draw, view);
+
     g_object_unref(G_OBJECT(view->icon_factory));
     view->icon_factory = NULL;
 
@@ -1070,7 +1090,6 @@ static void standardview_init(StandardView *view)
 
     view->accel_group = NULL;
 }
-
 
 // Navigator Interface --------------------------------------------------------
 

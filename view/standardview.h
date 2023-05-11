@@ -41,126 +41,108 @@ typedef struct _StandardView        StandardView;
 #define STANDARD_VIEW_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_STANDARD_VIEW, StandardViewClass))
 
-// Action Entrys provided by this widget
-
-typedef enum
-{
-    STANDARD_VIEW_ACTION_SELECT_ALL_FILES,
-    STANDARD_VIEW_ACTION_SELECT_BY_PATTERN,
-    STANDARD_VIEW_ACTION_INVERT_SELECTION,
-
-} StandardViewAction;
-
 struct _StandardViewClass
 {
     GtkScrolledWindowClass __parent__;
 
     /* Returns the list of currently selected GtkTreePath's, where
      * both the list and the items are owned by the caller. */
-    GList* (*get_selected_items) (StandardView *standard_view);
+    GList* (*get_selected_items) (StandardView *view);
 
     // Selects all items in the view
-    void (*select_all) (StandardView *standard_view);
+    void (*select_all) (StandardView *view);
 
     // Unselects all items in the view
-    void (*unselect_all) (StandardView *standard_view);
+    void (*unselect_all) (StandardView *view);
 
     // Invert selection in the view
-    void    (*selection_invert)     (StandardView *standard_view);
+    void (*selection_invert) (StandardView *view);
 
     // Selects the given item
-    void    (*select_path)          (StandardView *standard_view,
-                                     GtkTreePath        *path);
+    void (*select_path) (StandardView *view, GtkTreePath *path);
 
     /* Called by the StandardView class to let derived class
      * place the cursor on the item/row referred to by path. If
      * start_editing is TRUE, the derived class should also start
-     * editing that item/row.
-     */
-    void    (*set_cursor)           (StandardView *standard_view,
-                                     GtkTreePath        *path,
-                                     gboolean            start_editing);
+     * editing that item/row. */
+    void (*set_cursor) (StandardView *view, GtkTreePath *path,
+                        gboolean start_editing);
 
     /* Called by the StandardView class to let derived class
-     * scroll the view to the given path.
-     */
-    void    (*scroll_to_path)       (StandardView *standard_view,
-                                     GtkTreePath        *path,
-                                     gboolean            use_align,
-                                     gfloat              row_align,
-                                     gfloat              col_align);
+     * scroll the view to the given path. */
+    void (*scroll_to_path) (StandardView *view, GtkTreePath *path,
+                            gboolean use_align, gfloat row_align,
+                            gfloat col_align);
 
     /* Returns the path at the given position or NULL if no item/row
-     * is located at that coordinates. The path is freed by the caller.
-     */
-    GtkTreePath* (*get_path_at_pos) (StandardView *standard_view,
-                                     gint                x,
-                                     gint                y);
+     * is located at that coordinates. The path is freed by the caller. */
+    GtkTreePath* (*get_path_at_pos) (StandardView *view, gint x, gint y);
 
     // Returns the visible range
-    gboolean (*get_visible_range)   (StandardView *standard_view,
-                                     GtkTreePath       **start_path,
-                                     GtkTreePath       **end_path);
+    gboolean (*get_visible_range) (StandardView *view,
+                                   GtkTreePath  **start_path,
+                                   GtkTreePath  **end_path);
 
     /* Sets the item/row that is highlighted for feedback. NULL is
-     * passed for path to disable the highlighting.
-     */
-    void    (*highlight_path)       (StandardView  *standard_view,
-                                     GtkTreePath         *path);
+     * passed for path to disable the highlighting. */
+    void (*highlight_path) (StandardView *view,
+                            GtkTreePath  *path);
 
     // external signals
-    void    (*start_open_location)  (StandardView *standard_view,
-                                     const gchar        *initial_text);
+    void (*start_open_location) (StandardView *view,
+                                 const gchar  *initial_text);
 
     // Appends view-specific menu items to the given menu
-    void (*append_menu_items) (StandardView *standard_view, GtkMenu *menu,
+    void (*append_menu_items) (StandardView *view, GtkMenu *menu,
                                GtkAccelGroup *accel_group);
 
     // Connects view-specific accelerators to the given accelGroup
-    void (*connect_accelerators) (StandardView *standard_view,
+    void (*connect_accelerators) (StandardView *view,
                                   GtkAccelGroup *accel_group);
 
     // Disconnects view-specific accelerators to the given accelGroup
-    void (*disconnect_accelerators) (StandardView *standard_view,
+    void (*disconnect_accelerators) (StandardView *view,
                                      GtkAccelGroup *accel_group);
 
     // Internal action signals
-    gboolean (*delete_selected_files) (StandardView *standard_view);
+    gboolean (*delete_selected_files) (StandardView *view);
 
     /* The name of the property in ThunarPreferences, that determines
-     * the last(and default) zoom-level for the view classes.
-     */
+     * the last(and default) zoom-level for the view classes. */
     const gchar* zoom_level_property_name;
 };
 
 struct _StandardView
 {
-    GtkScrolledWindow   __parent__;
+    GtkScrolledWindow __parent__;
 
-    ListModel     *model;
+    ListModel       *model;
 
-    IconFactory   *icon_factory;
-    GtkCellRenderer     *icon_renderer;
-    GtkCellRenderer     *name_renderer;
+    IconFactory     *icon_factory;
+    GtkCellRenderer *icon_renderer;
+    GtkCellRenderer *name_renderer;
 
-    GBinding            *loading_binding;
-    gboolean            loading;
-    GtkAccelGroup       *accel_group;
+    GBinding        *loading_binding;
+    gboolean        loading;
+    GtkAccelGroup   *accel_group;
 
     StandardViewPrivate *priv;
 };
 
 GType standardview_get_type() G_GNUC_CONST;
 
-void standardview_context_menu(StandardView *standard_view);
-void standardview_queue_popup(StandardView *standard_view,
-                               GdkEventButton *event);
-
-void standardview_selection_changed(StandardView *standard_view);
-
+// history
 ThunarHistory* standardview_get_history(StandardView *standard_view);
 void standardview_set_history(StandardView *standard_view,
-                               ThunarHistory *history);
+                              ThunarHistory *history);
+
+void standardview_context_menu(StandardView *standard_view);
+
+// for detailview
+void standardview_queue_popup(StandardView *standard_view,
+                              GdkEventButton *event);
+
+void standardview_selection_changed(StandardView *standard_view);
 
 G_END_DECLS
 
