@@ -27,11 +27,6 @@
 
 G_BEGIN_DECLS
 
-// File List ------------------------------------------------------------------
-
-GList* th_filelist_get_applications(GList *file_list);
-GList* th_filelist_to_thunar_g_file_list(GList *file_list);
-
 // Thunar File ----------------------------------------------------------------
 
 typedef enum
@@ -164,9 +159,9 @@ gboolean th_file_is_writable(const ThunarFile *file);
 
 // Compare --------------------------------------------------------------------
 
-gint th_file_compare_by_type(ThunarFile *file_a, ThunarFile *file_b);
 gint th_file_compare_by_name(const ThunarFile *file_a, const ThunarFile *file_b,
                              gboolean case_sensitive) G_GNUC_PURE;
+gint th_file_compare_by_type(ThunarFile *file_a, ThunarFile *file_b);
 
 // Actions --------------------------------------------------------------------
 
@@ -202,6 +197,11 @@ void th_file_unwatch(ThunarFile *file);
 G_STMT_START{ \
     fileinfo_changed(FILEINFO((file))); \
 }G_STMT_END
+
+// File List ------------------------------------------------------------------
+
+GList* th_filelist_get_applications(GList *file_list);
+GList* th_filelist_to_thunar_g_file_list(GList *file_list);
 
 G_END_DECLS
 
