@@ -38,7 +38,6 @@ HEADERS = \
     job/simplejob.h \
     job/transferjob.h \
     launcher.h \
-    libext/exo_treeview.h \
     libext/gdk_ext.h \
     libext/gio_ext.h \
     libext/gtk_ext.h \
@@ -61,6 +60,7 @@ HEADERS = \
     view/baseview.h \
     view/columnmodel.h \
     view/detailview.h \
+    view/exotreeview.h \
     view/listmodel.h \
     view/standardview.h \
     widget/locationbar.h \
@@ -105,7 +105,6 @@ SOURCES = \
     job/simplejob.c \
     job/transferjob.c \
     launcher.c \
-    libext/exo_treeview.c \
     libext/gdk_ext.c \
     libext/gio_ext.c \
     libext/gtk_ext.c \
@@ -128,6 +127,7 @@ SOURCES = \
     view/baseview.c \
     view/columnmodel.c \
     view/detailview.c \
+    view/exotreeview.c \
     view/listmodel.c \
     view/standardview.c \
     widget/locationbar.c \

@@ -21,7 +21,7 @@
 
 #include <standardview.h>
 #include <window.h>
-#include <exo_treeview.h>
+#include <exotreeview.h>
 #include <columnmodel.h>
 #include <launcher.h>
 
@@ -197,7 +197,7 @@ static void detailview_init(DetailView *details_view)
                      G_CALLBACK(_detailview_zoom_level_changed), NULL);
 
     // create the tree view to embed
-    GtkWidget *tree_view = exo_tree_view_new();
+    GtkWidget *tree_view = exo_treeview_new();
 
     g_signal_connect(G_OBJECT(tree_view), "notify::model",
                      G_CALLBACK(_detailview_notify_model), details_view);
