@@ -349,6 +349,8 @@ static void listmodel_sortable_init(GtkTreeSortableIface *iface)
     iface->has_default_sort_func  = listmodel_has_default_sort_func;
 }
 
+// Init -----------------------------------------------------------------------
+
 static void listmodel_init(ListModel *store)
 {
 #ifndef NDEBUG

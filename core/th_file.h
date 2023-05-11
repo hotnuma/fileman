@@ -65,31 +65,26 @@ typedef void (*ThunarFileGetFunc) (GFile      *location,
                                    GError     *error,
                                    gpointer   user_data);
 
-GType           th_file_get_type() G_GNUC_CONST;
+GType th_file_get_type() G_GNUC_CONST;
 
-ThunarFile*     th_file_get(GFile *file, GError **error);
-ThunarFile*     th_file_get_with_info(GFile *file, GFileInfo *info,
-                                      gboolean not_mounted);
-ThunarFile*     th_file_get_for_uri(const gchar *uri, GError **error);
-void            th_file_get_async(GFile *location,
-                                  GCancellable *cancellable,
-                                  ThunarFileGetFunc func,
-                                  gpointer user_data);
+// Get ------------------------------------------------------------------------
 
-GFile*          th_file_get_file(const ThunarFile *file) G_GNUC_PURE;
+ThunarFile* th_file_get(GFile *file, GError **error);
+ThunarFile* th_file_get_with_info(GFile *file, GFileInfo *info,
+                                  gboolean not_mounted);
+ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error);
+void th_file_get_async(GFile *location, GCancellable *cancellable,
+                       ThunarFileGetFunc func, gpointer user_data);
 
-GFileInfo*      th_file_get_info(const ThunarFile *file) G_GNUC_PURE;
+GFile* th_file_get_file(const ThunarFile *file) G_GNUC_PURE;
+GFileInfo* th_file_get_info(const ThunarFile *file) G_GNUC_PURE;
+ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error);
 
-ThunarFile*     th_file_get_parent(const ThunarFile *file, GError **error);
+gboolean th_file_check_loaded(ThunarFile *file);
 
-gboolean        th_file_check_loaded(ThunarFile *file);
-
-gboolean        th_file_execute(ThunarFile *file,
-                                GFile *working_directory,
-                                gpointer parent,
-                                GList *path_list,
-                                const gchar *startup_id,
-                                GError **error);
+gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
+                         gpointer parent, GList *path_list,
+                         const gchar *startup_id, GError **error);
 
 gboolean        th_file_launch(ThunarFile *file,
                                gpointer parent,

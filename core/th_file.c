@@ -28,16 +28,26 @@
 #include <dialogs.h>
 #include <gio_ext.h>
 #include <utils.h>
-
-#include <libxfce4ui/libxfce4ui.h>
 #include <sys/stat.h>
 
 // Dump the file cache every X second, set to 0 to disable
 #define DUMP_FILE_CACHE 0
 
+#define DEFAULT_CONTENT_TYPE "application/octet-stream"
+
+G_LOCK_DEFINE_STATIC(_file_cache_mutex);
+G_LOCK_DEFINE_STATIC(_file_content_type_mutex);
+G_LOCK_DEFINE_STATIC(_file_rename_mutex);
+
+#define FLAG_SET_THUMB_STATE(file,new_state) G_STMT_START{(file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); }G_STMT_END
+
+#define FLAG_SET(file,flag)    G_STMT_START{((file)->flags |=(flag)); }G_STMT_END
+#define FLAG_UNSET(file,flag)  G_STMT_START{((file)->flags &= ~(flag)); }G_STMT_END
+#define FLAG_IS_SET(file,flag) (((file)->flags &(flag)) != 0)
+
 // Allocation -----------------------------------------------------------------
 
-static void th_file_info_init(FileInfoIface *iface);
+static void th_fileinfo_init(FileInfoIface *iface);
 static void th_file_dispose(GObject *object);
 static void th_file_finalize(GObject *object);
 
@@ -82,19 +92,32 @@ static void _th_file_monitor_update(GFile *path, GFileMonitorEvent event_type);
 static void _th_file_reload_parent(ThunarFile *file);
 static void _th_file_watch_destroyed(gpointer data);
 
+// Globals --------------------------------------------------------------------
+
+static UserManager  *_user_manager;
+static GHashTable   *_file_cache;
+static guint32      _effective_user_id;
+static GQuark       _file_watch_quark;
+
+// user directories
+static struct
+{
+    GUserDirectory  type;
+    const gchar     *icon_name;
+}
+_th_file_dirs[] =
+{
+    {G_USER_DIRECTORY_DESKTOP,      "user-desktop"},
+    {G_USER_DIRECTORY_DOCUMENTS,    "folder-documents"},
+    {G_USER_DIRECTORY_DOWNLOAD,     "folder-download"},
+    {G_USER_DIRECTORY_MUSIC,        "folder-music"},
+    {G_USER_DIRECTORY_PICTURES,     "folder-pictures"},
+    {G_USER_DIRECTORY_PUBLIC_SHARE, "folder-publicshare"},
+    {G_USER_DIRECTORY_TEMPLATES,    "folder-templates"},
+    {G_USER_DIRECTORY_VIDEOS,       "folder-videos"}
+};
+
 // ----------------------------------------------------------------------------
-
-G_LOCK_DEFINE_STATIC(_file_cache_mutex);
-G_LOCK_DEFINE_STATIC(_file_content_type_mutex);
-G_LOCK_DEFINE_STATIC(_file_rename_mutex);
-
-#define FLAG_SET_THUMB_STATE(file,new_state) G_STMT_START{(file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); }G_STMT_END
-
-#define FLAG_SET(file,flag)    G_STMT_START{((file)->flags |=(flag)); }G_STMT_END
-#define FLAG_UNSET(file,flag)  G_STMT_START{((file)->flags &= ~(flag)); }G_STMT_END
-#define FLAG_IS_SET(file,flag) (((file)->flags &(flag)) != 0)
-
-#define DEFAULT_CONTENT_TYPE "application/octet-stream"
 
 typedef enum
 {
@@ -124,31 +147,7 @@ typedef struct
 
 } ThunarFileGetData;
 
-// user directories
-static struct
-{
-    GUserDirectory  type;
-    const gchar     *icon_name;
-}
-
-thunar_file_dirs[] =
-{
-    {G_USER_DIRECTORY_DESKTOP,      "user-desktop"},
-    {G_USER_DIRECTORY_DOCUMENTS,    "folder-documents"},
-    {G_USER_DIRECTORY_DOWNLOAD,     "folder-download"},
-    {G_USER_DIRECTORY_MUSIC,        "folder-music"},
-    {G_USER_DIRECTORY_PICTURES,     "folder-pictures"},
-    {G_USER_DIRECTORY_PUBLIC_SHARE, "folder-publicshare"},
-    {G_USER_DIRECTORY_TEMPLATES,    "folder-templates"},
-    {G_USER_DIRECTORY_VIDEOS,       "folder-videos"}
-};
-
-static UserManager  *_user_manager;
-static GHashTable   *_file_cache;
-static guint32      _effective_user_id;
-static GQuark       _file_watch_quark;
-
-// ----------------------------------------------------------------------------
+// Allocation -----------------------------------------------------------------
 
 enum
 {
@@ -197,7 +196,7 @@ G_DEFINE_TYPE_WITH_CODE(ThunarFile,
                         th_file,
                         G_TYPE_OBJECT,
                         G_IMPLEMENT_INTERFACE(TYPE_FILEINFO,
-                                              th_file_info_init))
+                                              th_fileinfo_init))
 
 static GWeakRef* weak_ref_new(GObject *obj)
 {
@@ -213,97 +212,21 @@ static void weak_ref_free(GWeakRef *ref)
     g_slice_free(GWeakRef, ref);
 }
 
-#ifdef G_ENABLE_DEBUG
-#ifdef HAVE_ATEXIT
-static gboolean thunar_file_atexit_registered = FALSE;
-
-static void thnar_file_atexit_foreach(gpointer key,
-                                      gpointer value,
-                                      gpointer user_data)
-{
-    gchar *uri;
-
-    uri = g_file_get_uri(key);
-    g_print("--> %s\n", uri);
-
-    if (G_OBJECT(key)->ref_count > 2)
-        g_print("    GFile(%u)\n", G_OBJECT(key)->ref_count - 2);
-
-    g_free(uri);
-}
-
-static void thunar_file_atexit()
-{
-    G_LOCK(file_cache_mutex);
-
-    if (file_cache == NULL || g_hash_table_size(file_cache) == 0)
-    {
-        G_UNLOCK(file_cache_mutex);
-        return;
-    }
-
-    g_print("--- Leaked a total of %u ThunarFile objects:\n",
-             g_hash_table_size(file_cache));
-
-    g_hash_table_foreach(file_cache, thunar_file_atexit_foreach, NULL);
-
-    g_print("\n");
-
-    G_UNLOCK(file_cache_mutex);
-}
-#endif
-#endif
-
-#if DUMP_FILE_CACHE
-static void thunar_file_cache_dump_foreach(gpointer gfile,
-                                           gpointer value,
-                                           gpointer user_data)
-{
-    gchar *name;
-
-    name = g_file_get_parse_name(G_FILE(gfile));
-    g_print("    %s\n", name);
-    g_free(name);
-}
-
-static gboolean thunar_file_cache_dump(gpointer user_data)
-{
-    G_LOCK(file_cache_mutex);
-
-    if (file_cache != NULL)
-    {
-        g_print("--- %d ThunarFile objects in cache:\n",
-                 g_hash_table_size(file_cache));
-
-        g_hash_table_foreach(file_cache, thunar_file_cache_dump_foreach, NULL);
-
-        g_print("\n");
-    }
-
-    G_UNLOCK(file_cache_mutex);
-
-    return TRUE;
-}
-#endif
-
-
-// Allocation -----------------------------------------------------------------
-
 static void th_file_class_init(ThunarFileClass *klass)
 {
 
 #ifdef G_ENABLE_DEBUG
 #ifdef HAVE_ATEXIT
-    if (G_UNLIKELY(!thunar_file_atexit_registered))
+    if (G_UNLIKELY(!th_file_atexit_registered))
     {
-        atexit((void(*)(void)) thunar_file_atexit);
-        thunar_file_atexit_registered = TRUE;
+        atexit((void(*)(void)) th_file_atexit);
+        th_file_atexit_registered = TRUE;
     }
 #endif
 #endif
 
 #if DUMP_FILE_CACHE
-    g_timeout_add_seconds(DUMP_FILE_CACHE, thunar_file_cache_dump, NULL);
+    g_timeout_add_seconds(DUMP_FILE_CACHE, th_file_cache_dump, NULL);
 #endif
 
     // pre-allocate the required quarks
@@ -333,12 +256,9 @@ static void th_file_class_init(ThunarFileClass *klass)
                      G_TYPE_NONE, 0);
 }
 
-static void th_file_init(ThunarFile *file)
-{
-    (void) file;
-}
+// Interfaces -----------------------------------------------------------------
 
-static void th_file_info_init(FileInfoIface *iface)
+static void th_fileinfo_init(FileInfoIface *iface)
 {
     iface->get_name = th_file_info_get_name;
     iface->get_uri = th_file_info_get_uri;
@@ -351,6 +271,13 @@ static void th_file_info_init(FileInfoIface *iface)
     iface->get_filesystem_info = th_file_info_get_filesystem_info;
     iface->get_location = th_file_info_get_location;
     iface->changed = th_file_info_changed;
+}
+
+// Init -----------------------------------------------------------------------
+
+static void th_file_init(ThunarFile *file)
+{
+    (void) file;
 }
 
 static void th_file_dispose(GObject *object)
@@ -376,7 +303,7 @@ static void th_file_finalize(GObject *object)
     // verify that nobody's watching the file anymore
 #ifdef G_ENABLE_DEBUG
     ThunarFileWatch *file_watch = g_object_get_qdata(G_OBJECT(file),
-                                                     thunar_file_watch_quark);
+                                                     th_file_watch_quark);
     if (file_watch != NULL)
     {
         g_error("Attempt to finalize a ThunarFile, which has an active "
@@ -418,20 +345,15 @@ static void th_file_finalize(GObject *object)
     G_OBJECT_CLASS(th_file_parent_class)->finalize(object);
 }
 
-
 // FileInfo ------------------------------------------------------------
 
 static gchar* th_file_info_get_name(FileInfo *file_info)
 {
-    // g_free when unneeded
-
     return g_strdup(th_file_get_basename(THUNAR_FILE(file_info)));
 }
 
 static gchar* th_file_info_get_uri(FileInfo *file_info)
 {
-    // g_free when unneeded
-
     return th_file_dup_uri(THUNAR_FILE(file_info));
 }
 
@@ -457,19 +379,17 @@ static gchar* th_file_info_get_uri_scheme(FileInfo *file_info)
 
 static gchar* th_file_info_get_mime_type(FileInfo *file_info)
 {
-    // g_free
-
     return g_strdup(th_file_get_content_type(THUNAR_FILE(file_info)));
 }
 
 static gboolean th_file_info_has_mime_type(FileInfo *file_info,
-                                               const gchar     *mime_type)
+                                           const gchar *mime_type)
 {
     if (THUNAR_FILE(file_info)->info == NULL)
         return FALSE;
 
-    return g_content_type_is_a(th_file_get_content_type(THUNAR_FILE(file_info)),
-                               mime_type);
+    return g_content_type_is_a(
+                th_file_get_content_type(THUNAR_FILE(file_info)), mime_type);
 }
 
 static gboolean th_file_info_is_directory(FileInfo *file_info)
@@ -479,8 +399,6 @@ static gboolean th_file_info_is_directory(FileInfo *file_info)
 
 static GFileInfo* th_file_info_get_file_info(FileInfo *file_info)
 {
-    // g_object_unref
-
     e_return_val_if_fail(THUNAR_IS_FILE(file_info), NULL);
 
     if (THUNAR_FILE(file_info)->info != NULL)
@@ -501,8 +419,6 @@ static GFileInfo* th_file_info_get_filesystem_info(FileInfo *file_info)
 
 static GFile* th_file_info_get_location(FileInfo *file_info)
 {
-    // g_object_unref
-
     e_return_val_if_fail(THUNAR_IS_FILE(file_info), NULL);
 
     return g_object_ref(THUNAR_FILE(file_info)->gfile);
@@ -966,7 +882,6 @@ GFileInfo* th_file_get_info(const ThunarFile *file)
     return file->info;
 }
 
-
 ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error)
 {
     // You may want to call th_file_has_parent() first
@@ -1230,7 +1145,7 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent, const gchar *startup_
         return th_file_execute(file, NULL, parent, NULL, NULL, error);
 
     // determine the default application to open the file
-    // TODO We should probably add a cancellable argument to thunar_file_launch()
+    // TODO We should probably add a cancellable argument to th_file_launch()
     GAppInfo            *app_info;
     app_info = th_file_get_default_handler(THUNAR_FILE(file));
 
@@ -1317,7 +1232,7 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name, GCancellable *cance
 }
 
 /**
- * thunar_file_accepts_drop:
+ * th_file_accepts_drop:
  * @file                    : a #ThunarFile instance.
  * @file_list               : the list of #GFile<!---->s that will be dropped.
  * @context                 : the current #GdkDragContext, which is used for the drop.
@@ -1492,7 +1407,7 @@ static gboolean _th_file_same_filesystem(const ThunarFile *file_a,
 }
 
 /**
- * thunar_file_get_date:
+ * th_file_get_date:
  * @file        : a #ThunarFile instance.
  * @date_type   : the kind of date you are interested in.
  *
@@ -1529,7 +1444,7 @@ guint64 th_file_get_date(const ThunarFile  *file,
 }
 
 /**
- * thunar_file_get_date_string:
+ * th_file_get_date_string:
  * @file       : a #ThunarFile instance.
  * @date_type  : the kind of date you are interested to know about @file.
  * @date_style : the style used to format the date.
@@ -1551,7 +1466,7 @@ gchar* th_file_get_date_string(const ThunarFile  *file,
 }
 
 /**
- * thunar_file_get_mode_string:
+ * th_file_get_mode_string:
  * @file : a #ThunarFile instance.
  *
  * Returns the mode of @file as text. You'll need to free
@@ -1625,7 +1540,7 @@ gchar* th_file_get_mode_string(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_size_in_bytes_string:
+ * th_file_get_size_in_bytes_string:
  * @file : a #ThunarFile instance.
  *
  * Returns the size in bytes of the file as text.
@@ -1641,7 +1556,7 @@ gchar* th_file_get_size_in_bytes_string(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_size_string_formatted:
+ * th_file_get_size_string_formatted:
  * @file             : a #ThunarFile instance.
  * @file_size_binary : indicates if file size format
  *                     should be binary or not.
@@ -1662,7 +1577,7 @@ gchar* th_file_get_size_string_formatted(const ThunarFile *file,
 }
 
 /**
- * thunar_file_get_size_string_long:
+ * th_file_get_size_string_long:
  * @file             : a #ThunarFile instance.
  * @file_size_binary : indicates if file size format
  *                     should be binary or not.
@@ -1684,7 +1599,7 @@ gchar* th_file_get_size_string_long(const ThunarFile *file,
 }
 
 /**
- * thunar_file_get_volume:
+ * th_file_get_volume:
  * @file           : a #ThunarFile instance.
  *
  * Attempts to determine the #GVolume on which @file is located. If @file cannot
@@ -1712,7 +1627,7 @@ GVolume* th_file_get_volume(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_group:
+ * th_file_get_group:
  * @file : a #ThunarFile instance.
  *
  * Determines the #ThunarGroup for @file. If there's no
@@ -1738,7 +1653,7 @@ ThunarGroup* th_file_get_group(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_user:
+ * th_file_get_user:
  * @file : a #ThunarFile instance.
  *
  * Determines the #ThunarUser for @file. If there's no
@@ -1764,7 +1679,7 @@ ThunarUser* th_file_get_user(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_content_type:
+ * th_file_get_content_type:
  * @file : a #ThunarFile.
  *
  * Returns the content type of @file.
@@ -1850,7 +1765,7 @@ gboolean th_file_load_content_type(ThunarFile *file)
 }
 
 /**
- * thunar_file_get_symlink_target:
+ * th_file_get_symlink_target:
  * @file : a #ThunarFile.
  *
  * Returns the path of the symlink target or %NULL if the @file
@@ -1896,7 +1811,7 @@ guint64 th_file_get_size(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_default_handler:
+ * th_file_get_default_handler:
  * @file : a #ThunarFile instance.
  *
  * Returns the default #GAppInfo for @file or %NULL if there is none.
@@ -1932,7 +1847,7 @@ GAppInfo* th_file_get_default_handler(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_kind:
+ * th_file_get_kind:
  * @file : a #ThunarFile instance.
  *
  * Returns the kind of @file.
@@ -1961,7 +1876,7 @@ GFile* th_file_get_target_location(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_mode:
+ * th_file_get_mode:
  * @file : a #ThunarFile instance.
  *
  * Returns the permission bits of @file.
@@ -2018,7 +1933,7 @@ gboolean th_file_is_local(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_parent:
+ * th_file_is_parent:
  * @file  : a #ThunarFile instance.
  * @child : another #ThunarFile instance.
  *
@@ -2046,7 +1961,7 @@ gboolean th_file_is_parent(const ThunarFile *file,
 }
 
 /**
- * thunar_file_is_ancestor:
+ * th_file_is_ancestor:
  * @file     : a #ThunarFile instance.
  * @ancestor : another #GFile instance.
  *
@@ -2087,7 +2002,7 @@ gboolean th_file_is_gfile_ancestor(const ThunarFile *file,
 }
 
 /**
- * thunar_file_is_ancestor:
+ * th_file_is_ancestor:
  * @file     : a #ThunarFile instance.
  * @ancestor : another #ThunarFile instance.
  *
@@ -2107,7 +2022,7 @@ gboolean th_file_is_ancestor(const ThunarFile *file,
 }
 
 /**
- * thunar_file_is_executable:
+ * th_file_is_executable:
  * @file : a #ThunarFile instance.
  *
  * Determines whether the owner of the current process is allowed
@@ -2151,7 +2066,7 @@ gboolean th_file_is_executable(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_writable:
+ * th_file_is_writable:
  * @file : a #ThunarFile instance.
  *
  * Determines whether the owner of the current process is allowed
@@ -2174,7 +2089,7 @@ gboolean th_file_is_writable(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_hidden:
+ * th_file_is_hidden:
  * @file : a #ThunarFile instance.
  *
  * Checks whether @file can be considered a hidden file.
@@ -2193,7 +2108,7 @@ gboolean th_file_is_hidden(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_regular:
+ * th_file_is_regular:
  * @file : a #ThunarFile.
  *
  * Checks whether @file refers to a regular file.
@@ -2207,7 +2122,7 @@ gboolean th_file_is_regular(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_trashed:
+ * th_file_is_trashed:
  * @file : a #ThunarFile instance.
  *
  * Returns %TRUE if @file is a local file that resides in
@@ -2223,7 +2138,7 @@ gboolean th_file_is_trashed(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_desktop_file:
+ * th_file_is_desktop_file:
  * @file      : a #ThunarFile.
  * @is_secure : if %NULL do a simple check, else it will set this boolean
  *              to indicate if the desktop file is safe see bug #5012
@@ -2298,7 +2213,7 @@ const gchar* th_file_get_display_name(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_deletion_date:
+ * th_file_get_deletion_date:
  * @file       : a #ThunarFile instance.
  * @date_style : the style used to format the date.
  * @date_custom_style : custom style to apply, if @date_style is set to custom
@@ -2335,7 +2250,7 @@ gchar* th_file_get_deletion_date(const ThunarFile   *file,
 }
 
 /**
- * thunar_file_get_original_path:
+ * th_file_get_original_path:
  * @file : a #ThunarFile instance.
  *
  * Returns the original path of the @file if the @file
@@ -2356,7 +2271,7 @@ const gchar* th_file_get_original_path(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_item_count:
+ * th_file_get_item_count:
  * @file : a #ThunarFile instance.
  *
  * Returns the number of items in the trash, if @file refers to the
@@ -2377,7 +2292,7 @@ guint32 th_file_get_item_count(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_chmodable:
+ * th_file_is_chmodable:
  * @file : a #ThunarFile instance.
  *
  * Determines whether the owner of the current process is allowed
@@ -2409,12 +2324,12 @@ gboolean th_file_is_chmodable(const ThunarFile *file)
 }
 
 /**
- * thunar_file_is_renameable:
+ * th_file_is_renameable:
  * @file : a #ThunarFile instance.
  *
  * Determines whether @file can be renamed using
- * #thunar_file_rename(). Note that the return
- * value is just a guess and #thunar_file_rename()
+ * #th_file_rename(). Note that the return
+ * value is just a guess and #th_file_rename()
  * may fail even if this method returns %TRUE.
  *
  * Return value: %TRUE if @file can be renamed.
@@ -2442,7 +2357,7 @@ gboolean th_file_can_be_trashed(const ThunarFile *file)
 }
 
 /**
- * thunar_file_get_custom_icon:
+ * th_file_get_custom_icon:
  * @file : a #ThunarFile instance.
  *
  * Queries the custom icon from @file if any, else %NULL is returned.
@@ -2479,7 +2394,7 @@ static const gchar* thunar_file_get_icon_name_for_state(
 }
 
 /**
- * thunar_file_get_icon_name:
+ * th_file_get_icon_name:
  * @file       : a #ThunarFile instance.
  * @icon_state : the state of the @file<!---->s icon we are interested in.
  * @icon_theme : the #GtkIconTheme on which to lookup up the icon name.
@@ -2524,13 +2439,13 @@ const gchar* th_file_get_icon_name(ThunarFile           *file,
                     *special_names = "user-home";
                 else
                 {
-                    for(i = 0; i < G_N_ELEMENTS(thunar_file_dirs); i++)
+                    for(i = 0; i < G_N_ELEMENTS(_th_file_dirs); i++)
                     {
-                        special_dir = g_get_user_special_dir(thunar_file_dirs[i].type);
+                        special_dir = g_get_user_special_dir(_th_file_dirs[i].type);
                         if (special_dir != NULL
                                 && strcmp(path, special_dir) == 0)
                         {
-                            *special_names = thunar_file_dirs[i].icon_name;
+                            *special_names = _th_file_dirs[i].icon_name;
                             break;
                         }
                     }
@@ -2641,19 +2556,19 @@ check_names:
 
 // Monitor --------------------------------------------------------------------
 /**
- * thunar_file_watch:
+ * th_file_watch:
  * @file : a #ThunarFile instance.
  *
  * Tells @file to watch itself for changes. Not all #ThunarFile
  * implementations must support this, but if a #ThunarFile
- * implementation implements the thunar_file_watch() method,
- * it must also implement the thunar_file_unwatch() method.
+ * implementation implements the th_file_watch() method,
+ * it must also implement the th_file_unwatch() method.
  *
  * The #ThunarFile base class implements automatic "ref
- * counting" for watches, that says, you can call thunar_file_watch()
+ * counting" for watches, that says, you can call th_file_watch()
  * multiple times, but the virtual method will be invoked only
- * once. This also means that you MUST call thunar_file_unwatch()
- * for every thunar_file_watch() invokation, else the application
+ * once. This also means that you MUST call th_file_unwatch()
+ * for every th_file_watch() invokation, else the application
  * will abort.
  **/
 void th_file_watch(ThunarFile *file)
@@ -2764,7 +2679,7 @@ static void _th_file_monitor(GFileMonitor *monitor,
             {
                 // notify the thumbnail cache that we can now also move the thumbnail
 
-                //thunar_file_move_thumbnail_cache_file(event_path, other_path);
+                //th_file_move_thumbnail_cache_file(event_path, other_path);
 
                 // reload the containing target folder
                 _th_file_reload_parent(other_file);
@@ -2784,7 +2699,7 @@ static void _th_file_monitor_moved(ThunarFile *file, GFile *renamed_file)
     GFile *previous_file = G_FILE(g_object_ref(G_OBJECT(file->gfile)));
 
     // notify the thumbnail cache that we can now also move the thumbnail
-    //thunar_file_move_thumbnail_cache_file(previous_file, renamed_file);
+    //th_file_move_thumbnail_cache_file(previous_file, renamed_file);
 
     // set the new file
     file->gfile = G_FILE(g_object_ref(G_OBJECT(renamed_file)));
@@ -2886,10 +2801,10 @@ static void _th_file_reload_parent(ThunarFile *file)
 }
 
 /**
- * thunar_file_unwatch:
+ * th_file_unwatch:
  * @file : a #ThunarFile instance.
  *
- * See thunar_file_watch() for a description of how watching
+ * See th_file_watch() for a description of how watching
  * #ThunarFile<!---->s works.
  **/
 void th_file_unwatch(ThunarFile *file)
@@ -2917,7 +2832,7 @@ void th_file_unwatch(ThunarFile *file)
 }
 
 /**
- * thunar_file_reload:
+ * th_file_reload:
  * @file : a #ThunarFile instance.
  *
  * Tells @file to reload its internal state, e.g. by reacquiring
@@ -2927,7 +2842,7 @@ void th_file_unwatch(ThunarFile *file)
  * destroyed during the reload call.
  *
  * Return value: As this function can be used as a callback function
- * for thunar_file_reload_idle, it will always return FALSE to prevent
+ * for th_file_reload_idle, it will always return FALSE to prevent
  * being called repeatedly.
  **/
 gboolean th_file_reload(ThunarFile *file)
@@ -2951,10 +2866,10 @@ gboolean th_file_reload(ThunarFile *file)
 }
 
 /**
- * thunar_file_reload_idle_unref:
+ * th_file_reload_idle_unref:
  * @file : a #ThunarFile instance.
  *
- * Schedules a reload of the @file by calling thunar_file_reload
+ * Schedules a reload of the @file by calling th_file_reload
  * when idle. When scheduled function returns @file object will be
  * unreferenced.
  *
@@ -2970,7 +2885,7 @@ void th_file_reload_idle_unref(ThunarFile *file)
 }
 
 /**
- * thunar_file_destroy:
+ * th_file_destroy:
  * @file : a #ThunarFile instance.
  *
  * Emits the ::destroy signal notifying all reference holders
@@ -3002,7 +2917,7 @@ void th_file_destroy(ThunarFile *file)
 }
 
 /**
- * thunar_file_compare_by_type:
+ * th_file_compare_by_type:
  * @a : the first #ThunarFile.
  * @b : the second #ThunarFile.
  *
@@ -3067,7 +2982,7 @@ gint th_file_compare_by_type(ThunarFile *a, ThunarFile *b)
 }
 
 /**
- * thunar_file_compare_by_name:
+ * th_file_compare_by_name:
  * @file_a         : the first #ThunarFile.
  * @file_b         : the second #ThunarFile.
  * @case_sensitive : whether the comparison should be case-sensitive.
@@ -3111,7 +3026,7 @@ gint th_file_compare_by_name(const ThunarFile   *file_a,
 }
 
 /**
- * thunar_file_cache_lookup:
+ * th_file_cache_lookup:
  * @file : a #GFile.
  *
  * Looks up the #ThunarFile for @file in the internal file
@@ -3121,7 +3036,7 @@ gint th_file_compare_by_name(const ThunarFile   *file_a,
  * Note that no reference is taken for the caller.
  *
  * This method should not be used but in very rare cases.
- * Consider using thunar_file_get() instead.
+ * Consider using th_file_get() instead.
  *
  * Return value: the #ThunarFile for @file in the internal
  *               cache, or %NULL. If you are done with the
@@ -3185,7 +3100,7 @@ static gint compare_app_infos(gconstpointer a, gconstpointer b)
 }
 
 /**
- * thunar_file_list_get_applications:
+ * th_file_list_get_applications:
  * @file_list : a #GList of #ThunarFile<!---->s.
  *
  * Returns the #GList of #GAppInfo<!---->s that can be used to open
@@ -3300,7 +3215,7 @@ GList* th_file_list_get_applications(GList *file_list)
 }
 
 /**
- * thunar_file_list_to_thunar_g_file_list:
+ * th_file_list_to_thunar_g_file_list:
  * @file_list : a #GList of #ThunarFile<!---->s.
  *
  * Transforms the @file_list to a #GList of #GFile<!---->s for
@@ -3321,5 +3236,80 @@ GList* th_file_list_to_thunar_g_file_list(GList *file_list)
 
     return list;
 }
+
+// Debug ----------------------------------------------------------------------
+
+#ifdef G_ENABLE_DEBUG
+#ifdef HAVE_ATEXIT
+static gboolean th_file_atexit_registered = FALSE;
+
+static void thnar_file_atexit_foreach(gpointer key,
+                                      gpointer value,
+                                      gpointer user_data)
+{
+    gchar *uri;
+
+    uri = g_file_get_uri(key);
+    g_print("--> %s\n", uri);
+
+    if (G_OBJECT(key)->ref_count > 2)
+        g_print("    GFile(%u)\n", G_OBJECT(key)->ref_count - 2);
+
+    g_free(uri);
+}
+
+static void th_file_atexit()
+{
+    G_LOCK(file_cache_mutex);
+
+    if (file_cache == NULL || g_hash_table_size(file_cache) == 0)
+    {
+        G_UNLOCK(file_cache_mutex);
+        return;
+    }
+
+    g_print("--- Leaked a total of %u ThunarFile objects:\n",
+             g_hash_table_size(file_cache));
+
+    g_hash_table_foreach(file_cache, th_file_atexit_foreach, NULL);
+
+    g_print("\n");
+
+    G_UNLOCK(file_cache_mutex);
+}
+#endif
+#endif
+
+#if DUMP_FILE_CACHE
+static void th_file_cache_dump_foreach(gpointer gfile,
+                                           gpointer value,
+                                           gpointer user_data)
+{
+    gchar *name;
+
+    name = g_file_get_parse_name(G_FILE(gfile));
+    g_print("    %s\n", name);
+    g_free(name);
+}
+
+static gboolean th_file_cache_dump(gpointer user_data)
+{
+    G_LOCK(file_cache_mutex);
+
+    if (file_cache != NULL)
+    {
+        g_print("--- %d ThunarFile objects in cache:\n",
+                 g_hash_table_size(file_cache));
+
+        g_hash_table_foreach(file_cache, th_file_cache_dump_foreach, NULL);
+
+        g_print("\n");
+    }
+
+    G_UNLOCK(file_cache_mutex);
+
+    return TRUE;
+}
+#endif
 
 

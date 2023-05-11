@@ -19,12 +19,18 @@
 #include <config.h>
 #include <filemonitor.h>
 
+// Global monitor -------------------------------------------------------------
+
+static FileMonitor* _filemon_default;
+
+// Allocation -----------------------------------------------------------------
 enum
 {
     FILE_CHANGED,
     FILE_DESTROYED,
     LAST_SIGNAL,
 };
+static guint _filemon_signals[LAST_SIGNAL];
 
 struct _FileMonitorClass
 {
@@ -35,9 +41,6 @@ struct _FileMonitor
 {
     GObject __parent__;
 };
-
-static FileMonitor* _filemon_default;
-static guint _filemon_signals[LAST_SIGNAL];
 
 G_DEFINE_TYPE(FileMonitor, filemon, G_TYPE_OBJECT)
 
