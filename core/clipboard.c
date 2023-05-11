@@ -435,7 +435,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
     e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
 
     // determine the path list from the file list
-    GList *file_list = th_file_list_to_thunar_g_file_list(manager->files);
+    GList *file_list = th_filelist_to_thunar_g_file_list(manager->files);
 
     gchar **uris;
     const gchar *prefix;

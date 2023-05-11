@@ -2050,7 +2050,7 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
         return;
 
     // determine the selected files for the view
-    GList *files_to_process = th_file_list_to_thunar_g_file_list(
+    GList *files_to_process = th_filelist_to_thunar_g_file_list(
                                             launcher->files_to_process);
 
     if (!files_to_process)
@@ -2607,7 +2607,7 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
         return FALSE;
 
     // determine the set of applications that work for all selected files
-    applications = th_file_list_get_applications(launcher->files_to_process);
+    applications = th_filelist_get_applications(launcher->files_to_process);
 
     // Execute OR Open OR OpenWith
     if (G_UNLIKELY(launcher->n_executables_to_process == launcher->n_files_to_process))

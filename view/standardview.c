@@ -2608,7 +2608,7 @@ static void _standardview_drag_begin(GtkWidget      *widget,
     e_list_free(view->priv->drag_g_file_list);
 
     // query the list of selected URIs
-    view->priv->drag_g_file_list = th_file_list_to_thunar_g_file_list(
+    view->priv->drag_g_file_list = th_filelist_to_thunar_g_file_list(
                 view->priv->selected_files);
 
     if (G_LIKELY(view->priv->drag_g_file_list != NULL))

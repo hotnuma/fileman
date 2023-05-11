@@ -3100,7 +3100,7 @@ static gint compare_app_infos(gconstpointer a, gconstpointer b)
 }
 
 /**
- * th_file_list_get_applications:
+ * th_filelist_get_applications:
  * @file_list : a #GList of #ThunarFile<!---->s.
  *
  * Returns the #GList of #GAppInfo<!---->s that can be used to open
@@ -3114,7 +3114,7 @@ static gint compare_app_infos(gconstpointer a, gconstpointer b)
  * Return value: the list of #GAppInfo<!---->s that can be used to open all
  *               items in the @file_list.
  **/
-GList* th_file_list_get_applications(GList *file_list)
+GList* th_filelist_get_applications(GList *file_list)
 {
     GList       *applications = NULL;
     GList       *list;
@@ -3215,7 +3215,7 @@ GList* th_file_list_get_applications(GList *file_list)
 }
 
 /**
- * th_file_list_to_thunar_g_file_list:
+ * th_filelist_to_thunar_g_file_list:
  * @file_list : a #GList of #ThunarFile<!---->s.
  *
  * Transforms the @file_list to a #GList of #GFile<!---->s for
@@ -3226,7 +3226,7 @@ GList* th_file_list_get_applications(GList *file_list)
  *
  * Return value: the list of #GFile<!---->s for @file_list.
  **/
-GList* th_file_list_to_thunar_g_file_list(GList *file_list)
+GList* th_filelist_to_thunar_g_file_list(GList *file_list)
 {
     GList *list = NULL;
     GList *lp;
