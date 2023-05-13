@@ -57,7 +57,7 @@ typedef enum
     LAUNCHER_ACTION_PASTE_INTO_FOLDER,
     LAUNCHER_ACTION_PASTE,
 
-    LAUNCHER_ACTION_TRASH_DELETE,
+    //LAUNCHER_ACTION_TRASH_DELETE,
     LAUNCHER_ACTION_MOVE_TO_TRASH,
     LAUNCHER_ACTION_DELETE,
     LAUNCHER_ACTION_EMPTY_TRASH,
@@ -66,7 +66,7 @@ typedef enum
     LAUNCHER_ACTION_DUPLICATE,
     LAUNCHER_ACTION_MAKE_LINK,
     LAUNCHER_ACTION_RENAME,
-    LAUNCHER_ACTION_KEY_RENAME,
+    //LAUNCHER_ACTION_KEY_RENAME,
 
     LAUNCHER_ACTION_TERMINAL,
     LAUNCHER_ACTION_EXTRACT,
@@ -110,11 +110,11 @@ gboolean    launcher_append_open_section(ThunarLauncher *launcher,
                                          gboolean support_change_directory,
                                          gboolean force);
 
-void        launcher_action_mount(ThunarLauncher *launcher);
-void        launcher_action_unmount(ThunarLauncher *launcher);
-void        launcher_action_eject(ThunarLauncher *launcher);
-
-void        launcher_action_rename(ThunarLauncher *launcher);
+void launcher_action_mount(ThunarLauncher *launcher);
+void launcher_action_unmount(ThunarLauncher *launcher);
+void launcher_action_eject(ThunarLauncher *launcher);
+void launcher_action_rename(ThunarLauncher *launcher);
+void launcher_action_trash_delete(ThunarLauncher *launcher);
 
 G_END_DECLS
 

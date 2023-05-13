@@ -260,12 +260,12 @@ again:
 static gboolean _io_delete_file(GFile *file, GCancellable *cancellable,
                                 GError **error)
 {
-    gchar *path;
-
     if (!g_file_is_native(file))
         return g_file_delete(file, cancellable, error);
 
     // adapted from g_local_file_delete of gio/glocalfile.c
+    gchar *path;
+
     path = g_file_get_path(file);
 
     if (g_remove(path) == 0)

@@ -123,8 +123,7 @@ static void _launcher_action_copy(ThunarLauncher *launcher);
 static void _launcher_action_paste(ThunarLauncher *launcher);
 static void _launcher_action_paste_into_folder(ThunarLauncher *launcher);
 
-static void _launcher_action_trash_delete(ThunarLauncher *launcher);
-static void _launcher_action_key_trash_delete(ThunarLauncher *launcher);
+//static void _launcher_action_key_trash_delete(ThunarLauncher *launcher);
 static void _launcher_action_move_to_trash(ThunarLauncher *launcher);
 static void _launcher_action_delete(ThunarLauncher *launcher);
 static void _launcher_action_empty_trash(ThunarLauncher *launcher);
@@ -132,7 +131,7 @@ static void _launcher_action_restore(ThunarLauncher *launcher);
 
 static void _launcher_action_duplicate(ThunarLauncher *launcher);
 static void _launcher_action_make_link(ThunarLauncher *launcher);
-static void _launcher_action_key_rename(ThunarLauncher *launcher);
+//static void _launcher_action_key_rename(ThunarLauncher *launcher);
 
 static void _launcher_action_terminal(ThunarLauncher *launcher);
 static void _launcher_action_extract(ThunarLauncher *launcher);
@@ -238,23 +237,23 @@ static XfceGtkActionEntry _launcher_actions[] =
      G_CALLBACK(_launcher_action_paste)},
 
 
-    {LAUNCHER_ACTION_TRASH_DELETE,
-     "<Actions>/ThunarLauncher/trash-delete",
-     "Delete",
-     0,
-     NULL,
-     NULL,
-     NULL,
-     G_CALLBACK(_launcher_action_key_trash_delete)},
+    //{LAUNCHER_ACTION_TRASH_DELETE,
+    // "<Actions>/ThunarLauncher/trash-delete",
+    // "Delete",
+    // 0,
+    // NULL,
+    // NULL,
+    // NULL,
+    // G_CALLBACK(_launcher_action_key_trash_delete)},
 
-    {LAUNCHER_ACTION_TRASH_DELETE,
-     "<Actions>/ThunarLauncher/trash-delete-2",
-     "KP_Delete",
-     0,
-     NULL,
-     NULL,
-     NULL,
-     G_CALLBACK(_launcher_action_key_trash_delete)},
+    //{LAUNCHER_ACTION_TRASH_DELETE,
+    // "<Actions>/ThunarLauncher/trash-delete-2",
+    // "KP_Delete",
+    // 0,
+    // NULL,
+    // NULL,
+    // NULL,
+    // G_CALLBACK(_launcher_action_key_trash_delete)},
 
     {LAUNCHER_ACTION_MOVE_TO_TRASH,
      "<Actions>/ThunarLauncher/move-to-trash",
@@ -263,7 +262,7 @@ static XfceGtkActionEntry _launcher_actions[] =
      N_("Mo_ve to Trash"),
      NULL,
      "user-trash",
-     G_CALLBACK(_launcher_action_trash_delete)},
+     G_CALLBACK(launcher_action_trash_delete)},
 
     {LAUNCHER_ACTION_DELETE,
      "<Actions>/ThunarLauncher/delete",
@@ -338,14 +337,14 @@ static XfceGtkActionEntry _launcher_actions[] =
      NULL,
      G_CALLBACK(launcher_action_rename)},
 
-    {LAUNCHER_ACTION_KEY_RENAME,
-     "<Actions>/StandardView/rename-2",
-     "F2",
-     0, // XFCE_GTK_MENU_ITEM,
-     NULL, // N_("_Rename..."),
-     NULL,
-     NULL,
-     G_CALLBACK(_launcher_action_key_rename)},
+//    {LAUNCHER_ACTION_KEY_RENAME,
+//     "<Actions>/StandardView/rename-2",
+//     "F2",
+//     0,
+//     NULL,
+//     NULL,
+//     NULL,
+//     G_CALLBACK(_launcher_action_key_rename)},
 
 
     {LAUNCHER_ACTION_TERMINAL,
@@ -1933,7 +1932,7 @@ static void _launcher_action_paste(ThunarLauncher *launcher)
 }
 
 
-static void _launcher_action_trash_delete(ThunarLauncher *launcher)
+void launcher_action_trash_delete(ThunarLauncher *launcher)
 {
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
@@ -1953,25 +1952,25 @@ static void _launcher_action_trash_delete(ThunarLauncher *launcher)
     _launcher_action_move_to_trash(launcher);
 }
 
-static void _launcher_action_key_trash_delete(ThunarLauncher *launcher)
-{
-    e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
-    e_return_if_fail(IS_APPWINDOW(launcher->widget));
+//static void _launcher_action_key_trash_delete(ThunarLauncher *launcher)
+//{
+//    e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
+//    e_return_if_fail(IS_APPWINDOW(launcher->widget));
 
-    AppWindow *window = APPWINDOW(launcher->widget);
-    GtkWidget *tree_view = window_get_focused_tree_view(window);
+//    AppWindow *window = APPWINDOW(launcher->widget);
+//    GtkWidget *tree_view = window_get_focused_tree_view(window);
 
-    if (!tree_view)
-    {
-        _launcher_action_trash_delete(launcher);
-        return;
-    }
+//    if (!tree_view)
+//    {
+//        _launcher_action_trash_delete(launcher);
+//        return;
+//    }
 
-    if (dialog_folder_trash(GTK_WINDOW(window)) == FALSE)
-        return;
+//    if (dialog_folder_trash(GTK_WINDOW(window)) == FALSE)
+//        return;
 
-    treeview_delete_selected_files(TREEVIEW(tree_view));
-}
+//    treeview_delete_selected_files(TREEVIEW(tree_view));
+//}
 
 static void _launcher_action_move_to_trash(ThunarLauncher *launcher)
 {
@@ -2179,19 +2178,19 @@ void launcher_action_rename(ThunarLauncher *launcher)
                      launcher->widget);
 }
 
-static void _launcher_action_key_rename(ThunarLauncher *launcher)
-{
-    AppWindow *window = APPWINDOW(launcher->widget);
-    GtkWidget *tree_view = window_get_focused_tree_view(window);
+//static void _launcher_action_key_rename(ThunarLauncher *launcher)
+//{
+//    AppWindow *window = APPWINDOW(launcher->widget);
+//    GtkWidget *tree_view = window_get_focused_tree_view(window);
 
-    if (!tree_view)
-    {
-        launcher_action_rename(launcher);
-        return;
-    }
+//    if (!tree_view)
+//    {
+//        launcher_action_rename(launcher);
+//        return;
+//    }
 
-    treeview_rename_selected(TREEVIEW(tree_view));
-}
+//    treeview_rename_selected(TREEVIEW(tree_view));
+//}
 
 static void _launcher_action_terminal(ThunarLauncher *launcher)
 {
@@ -2206,14 +2205,10 @@ static void _launcher_action_terminal(ThunarLauncher *launcher)
     GFile *gfile = th_file_get_file(file);
     gchar *filepath = g_file_get_path(gfile);
 
-    //const gchar *filename = th_file_get_display_name(file);
-
-    CStringAuto *cmd = cstr_new_size(32);
+    CStringAuto *cmd = cstr_new_size(128);
     cstr_fmt(cmd,
              "exo-open --working-directory \"%s\" --launch TerminalEmulator",
              filepath);
-
-    //g_print("execute : %s\n", c_str(cmd));
 
     g_spawn_command_line_async(c_str(cmd), NULL);
 
@@ -2232,7 +2227,7 @@ static void _launcher_action_extract(ThunarLauncher *launcher)
     GFile *gfile = th_file_get_file(file);
     gchar *filepath = g_file_get_path(gfile);
 
-    CStringAuto *cmd = cstr_new_size(32);
+    CStringAuto *cmd = cstr_new_size(128);
     const char *extractpath = "extract.sh";
     cstr_fmt(cmd,
              "xfce4-terminal -e 'bash -c \"%s %s; bash\"'",

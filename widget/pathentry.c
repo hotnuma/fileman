@@ -1076,16 +1076,14 @@ ThunarFile* pathentry_get_current_file(PathEntry *path_entry)
 
 void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
 {
-    GFile    *file;
-    gchar    *text;
-    gchar    *unescaped;
-    gchar    *tmp;
-    gboolean  is_uri = FALSE;
-
     e_return_if_fail(IS_PATHENTRY(path_entry));
     e_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
 
-    file =(current_file != NULL) ? th_file_get_file(current_file) : NULL;
+    GFile *file = (current_file != NULL) ? th_file_get_file(current_file) : NULL;
+
+    gchar    *text;
+    gboolean  is_uri = FALSE;
+
     if (G_UNLIKELY(file == NULL))
     {
         // invalid file
@@ -1113,6 +1111,8 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
             is_uri = TRUE;
         }
 
+        gchar *tmp;
+
         /* if the file is a directory, end with a / to avoid loading the parent
          * directory which is probably not something the user wants */
         if (th_file_is_directory(current_file)
@@ -1128,6 +1128,8 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
         text = g_filename_display_name(tmp);
         g_free(tmp);
     }
+
+    gchar *unescaped;
 
     if (is_uri)
         unescaped = g_uri_unescape_string(text, NULL);
