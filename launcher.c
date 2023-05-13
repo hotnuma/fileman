@@ -241,7 +241,7 @@ static XfceGtkActionEntry _launcher_actions[] =
     {LAUNCHER_ACTION_TRASH_DELETE,
      "<Actions>/ThunarLauncher/trash-delete",
      "Delete",
-     0, //XFCE_GTK_IMAGE_MENU_ITEM,
+     0,
      NULL,
      NULL,
      NULL,
@@ -250,7 +250,7 @@ static XfceGtkActionEntry _launcher_actions[] =
     {LAUNCHER_ACTION_TRASH_DELETE,
      "<Actions>/ThunarLauncher/trash-delete-2",
      "KP_Delete",
-     0, //XFCE_GTK_IMAGE_MENU_ITEM,
+     0,
      NULL,
      NULL,
      NULL,
@@ -277,7 +277,7 @@ static XfceGtkActionEntry _launcher_actions[] =
     {LAUNCHER_ACTION_DELETE,
      "<Actions>/ThunarLauncher/delete-2",
      "<Shift>Delete",
-     0, //XFCE_GTK_IMAGE_MENU_ITEM,
+     0,
      NULL,
      NULL,
      NULL,
@@ -286,7 +286,7 @@ static XfceGtkActionEntry _launcher_actions[] =
     {LAUNCHER_ACTION_DELETE,
      "<Actions>/ThunarLauncher/delete-3",
      "<Shift>KP_Delete",
-     0, //XFCE_GTK_IMAGE_MENU_ITEM,
+     0,
      NULL,
      NULL,
      NULL,
@@ -1303,8 +1303,7 @@ void launcher_open_selected_folders(ThunarLauncher *launcher)
     _launcher_poke(launcher, NULL, LAUNCHER_OPEN_AS_NEW_WINDOW);
 }
 
-void launcher_append_accelerators(ThunarLauncher *launcher,
-                                         GtkAccelGroup  *accel_group)
+void launcher_append_accelerators(ThunarLauncher *launcher, GtkAccelGroup *accel_group)
 {
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 

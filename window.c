@@ -71,7 +71,8 @@ static void _window_install_sidepane(ThunarWindow *window, GType type);
 static void _window_start_open_location(ThunarWindow *window,
                                         const gchar *initial_text);
 
-static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item);
+// Actions --------------------------------------------------------------------
+
 static void _window_action_reload(ThunarWindow *window, GtkWidget *menu_item);
 static void _window_create_view(ThunarWindow *window, GtkWidget *view,
                                 GType view_type);
@@ -80,6 +81,8 @@ static void _window_action_back(ThunarWindow *window);
 static void _window_action_forward(ThunarWindow *window);
 static void _window_action_open_home(ThunarWindow *window);
 static void _window_action_show_hidden(ThunarWindow *window);
+static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item);
+
 static gboolean _window_propagate_key_event(GtkWindow *window,
                                             GdkEvent *key_event,
                                             gpointer user_data);
@@ -158,7 +161,7 @@ static XfceGtkActionEntry _window_actions[] =
     {APP_WINDOW_ACTION_BACK_ALT,
      "<Actions>/StandardView/back-alt",
      "BackSpace",
-     0, //XFCE_GTK_IMAGE_MENU_ITEM,
+     0,
      NULL,
      NULL,
      NULL,
@@ -167,7 +170,7 @@ static XfceGtkActionEntry _window_actions[] =
     {APP_WINDOW_ACTION_RELOAD_ALT,
      "<Actions>/ThunarWindow/reload-alt",
      "F5",
-     0, //XFCE_GTK_IMAGE_MENU_ITEM,
+     0,
      NULL,
      NULL,
      NULL,
@@ -185,7 +188,7 @@ static XfceGtkActionEntry _window_actions[] =
     {APP_WINDOW_ACTION_DEBUG,
      "<Actions>/ThunarWindow/debug",
      "<Primary>d",
-     0, //XFCE_GTK_IMAGE_MENU_ITEM,
+     0,
      NULL,
      NULL,
      NULL,
@@ -508,26 +511,37 @@ static void window_init(ThunarWindow *window)
 
     window->toolbar = gtk_toolbar_new();
     gtk_toolbar_set_style(GTK_TOOLBAR(window->toolbar), GTK_TOOLBAR_ICONS);
-    gtk_toolbar_set_icon_size(
-        GTK_TOOLBAR(window->toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
+    gtk_toolbar_set_icon_size(GTK_TOOLBAR(window->toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
     gtk_widget_set_hexpand(window->toolbar, TRUE);
     gtk_grid_attach(GTK_GRID(window->grid), window->toolbar, 0, 0, 1, 1);
 
+    // back
     window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry(
-                get_action_entry(APP_WINDOW_ACTION_BACK), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry(
-                get_action_entry(APP_WINDOW_ACTION_FORWARD), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry(
-                get_action_entry(APP_WINDOW_ACTION_OPEN_PARENT), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    xfce_gtk_tool_button_new_from_action_entry(
-                get_action_entry(APP_WINDOW_ACTION_OPEN_HOME), G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-
+                                        get_action_entry(APP_WINDOW_ACTION_BACK),
+                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
     g_signal_connect(G_OBJECT(window->toolbar_item_back), "button-press-event",
                      G_CALLBACK(_window_history_clicked), G_OBJECT(window));
+
+    // forward
+    window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry(
+                                        get_action_entry(APP_WINDOW_ACTION_FORWARD),
+                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
     g_signal_connect(G_OBJECT(window->toolbar_item_forward), "button-press-event",
                      G_CALLBACK(_window_history_clicked), G_OBJECT(window));
+
+    // parent
+    window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry(
+                                        get_action_entry(APP_WINDOW_ACTION_OPEN_PARENT),
+                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+
+    // home
+    xfce_gtk_tool_button_new_from_action_entry(
+                                        get_action_entry(APP_WINDOW_ACTION_OPEN_HOME),
+                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+
     g_signal_connect(G_OBJECT(window), "button-press-event",
                      G_CALLBACK(_window_button_press_event), G_OBJECT(window));
+
     window->signal_handler_id_history_changed = 0;
 
 #if 0
@@ -704,8 +718,7 @@ static void window_finalize(GObject *object)
     G_OBJECT_CLASS(window_parent_class)->finalize(object);
 }
 
-static gboolean _window_delete(GtkWidget *widget, GdkEvent *event,
-                               gpointer data)
+static gboolean _window_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
     (void) widget;
     (void) event;
@@ -716,12 +729,10 @@ static gboolean _window_delete(GtkWidget *widget, GdkEvent *event,
 
     if (gtk_widget_get_visible(GTK_WIDGET(widget)))
     {
-        GdkWindowState state = gdk_window_get_state(
-                                            gtk_widget_get_window(widget));
+        GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(widget));
 
         prefs->window_maximized = ((state & (GDK_WINDOW_STATE_MAXIMIZED
-                                             | GDK_WINDOW_STATE_FULLSCREEN))
-                                    != 0);
+                                             | GDK_WINDOW_STATE_FULLSCREEN)) != 0);
 
         if (!prefs->window_maximized)
         {
@@ -888,7 +899,6 @@ static void _window_binding_create(ThunarWindow *window,
     window->view_bindings = g_slist_prepend(window->view_bindings, binding);
 }
 
-
 // Notebook functions ---------------------------------------------------------
 
 static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
@@ -941,18 +951,17 @@ static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
     window_set_current_directory(window, current_directory);
 
     // add stock bindings
-    _window_binding_create(window,
-                                  window, "current-directory",
-                                  page, "current-directory",
-                                  G_BINDING_DEFAULT);
-    _window_binding_create(window,
-                                  page, "selected-files",
-                                  window->launcher, "selected-files",
-                                  G_BINDING_SYNC_CREATE);
-    _window_binding_create(window,
-                                  page, "zoom-level",
-                                  window, "zoom-level",
-                                  G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
+    _window_binding_create(window, window, "current-directory",
+                                   page, "current-directory",
+                                   G_BINDING_DEFAULT);
+
+    _window_binding_create(window, page, "selected-files",
+                                   window->launcher, "selected-files",
+                                   G_BINDING_SYNC_CREATE);
+
+    _window_binding_create(window, page, "zoom-level",
+                                   window, "zoom-level",
+                                   G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
 
     // connect to the sidepane(if any)
     if (G_LIKELY(window->sidepane != NULL))
@@ -1243,24 +1252,14 @@ static void _window_start_open_location(ThunarWindow *window,
     locbar_request_entry(LOCATIONBAR(window->location_bar), initial_text);
 }
 
-static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item)
-{
-    (void) window;
-    (void) menu_item;
-
-    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
-    const gchar *name = gtk_widget_get_name(focused);
-
-    //DPRINT("focused widget = %s\n", name);
-
-    syslog(LOG_INFO, "focused widget = %s\n", name);
-}
+// Actions --------------------------------------------------------------------
 
 static void _window_action_reload(ThunarWindow *window, GtkWidget *menu_item)
 {
     e_return_if_fail(THUNAR_IS_WINDOW(window));
 
     (void) menu_item;
+
     gboolean result;
 
     // force the view to reload
@@ -1438,6 +1437,39 @@ static void _window_action_show_hidden(ThunarWindow *window)
     if (G_LIKELY(window->sidepane != NULL))
         sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
 }
+
+static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item)
+{
+    (void) window;
+    (void) menu_item;
+
+//    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
+
+//    if (IS_DETAILVIEW(focused))
+//    {
+//        //DPRINT("focused widget = %s\n", name);
+//    }
+
+
+    //const gchar *name = gtk_widget_get_name(focused);
+
+    //syslog(LOG_INFO, "focused widget = %s\n", name);
+
+    //ThunarWindow *window = THUNAR_WINDOW(launcher->widget);
+
+    GtkWidget *tree_view = window_get_focused_tree_view(window);
+
+    if (tree_view)
+    {
+        treeview_rename_selected(TREEVIEW(tree_view));
+        return;
+    }
+
+    launcher_action_rename(window->launcher);
+
+    return;
+}
+
 
 static void _window_current_directory_changed(ThunarFile *current_directory,
                                               ThunarWindow *window)
