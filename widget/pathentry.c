@@ -181,21 +181,20 @@ static void pathentry_editable_init(GtkEditableInterface *iface)
 
 static void pathentry_init(PathEntry *path_entry)
 {
-    GtkEntryCompletion *completion;
-    GtkCellRenderer    *renderer;
-    ListModel    *store;
-
     path_entry->check_completion_idle_id = 0;
     path_entry->working_directory = NULL;
 
     // allocate a new entry completion for the given model
-    completion = gtk_entry_completion_new();
+    GtkEntryCompletion *completion = gtk_entry_completion_new();
     gtk_entry_completion_set_popup_single_match(completion, FALSE);
     gtk_entry_completion_set_match_func(completion, _pathentry_match_func, path_entry, NULL);
     g_signal_connect(G_OBJECT(completion), "match-selected", G_CALLBACK(_pathentry_match_selected), path_entry);
 
     // add the icon renderer to the entry completion
-    renderer = g_object_new(TYPE_ICONRENDERER, "size", 16, NULL);
+    GtkCellRenderer *renderer = g_object_new(TYPE_ICONRENDERER,
+                                             "size", 16,
+                                             NULL);
+
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(completion), renderer, FALSE);
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion), renderer, "file", THUNAR_COLUMN_FILE);
 
@@ -205,16 +204,16 @@ static void pathentry_init(PathEntry *path_entry)
     gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion), renderer, "text", THUNAR_COLUMN_NAME);
 
     // allocate a new list mode for the completion
-    store = listmodel_new();
+    ListModel *store = listmodel_new();
     listmodel_set_show_hidden(store, TRUE);
     listmodel_set_folders_first(store, TRUE);
+
     gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), THUNAR_COLUMN_FILE_NAME, GTK_SORT_ASCENDING);
     gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
     g_object_unref(G_OBJECT(store));
 
     /* need to connect the "key-press-event" before the GtkEntry class connects the completion signals, so
-     * we get the Tab key before its handled as part of the completion stuff.
-     */
+     * we get the Tab key before its handled as part of the completion stuff. */
     g_signal_connect(G_OBJECT(path_entry), "key-press-event", G_CALLBACK(_pathentry_key_press_event), NULL);
 
     // setup the new completion
@@ -470,26 +469,21 @@ static void pathentry_activate(GtkEntry *entry)
 
 static void pathentry_changed(GtkEditable *editable)
 {
-    GtkEntryCompletion *completion;
-    PathEntry    *path_entry = PATHENTRY(editable);
-    ThunarFolder       *folder;
-    GtkTreeModel       *model;
-    const gchar        *text;
-    gchar              *escaped_text;
-    ThunarFile         *current_folder;
-    ThunarFile         *current_file;
-    GFile              *folder_path = NULL;
-    GFile              *file_path = NULL;
-    gchar              *folder_part = NULL;
-    gchar              *file_part = NULL;
-    gboolean            update_icon = FALSE;
+    PathEntry *path_entry = PATHENTRY(editable);
 
     // check if we should ignore this event
     if (G_UNLIKELY(path_entry->in_change))
         return;
 
     // parse the entered string(handling URIs properly)
-    text = gtk_entry_get_text(GTK_ENTRY(path_entry));
+    const gchar *text = gtk_entry_get_text(GTK_ENTRY(path_entry));
+
+    gchar *escaped_text;
+    GFile *file_path = NULL;
+    GFile *folder_path = NULL;
+    gchar *folder_part = NULL;
+    gchar *file_part = NULL;
+
     if (G_UNLIKELY(g_uri_is_valid(text, G_URI_FLAGS_NONE, NULL)))
     {
         // try to parse the URI text
@@ -520,11 +514,18 @@ static void pathentry_changed(GtkEditable *editable)
     }
 
     // determine new current file/folder from the paths
-    current_folder =(folder_path != NULL) ? th_file_get(folder_path, NULL) : NULL;
-    current_file =(file_path != NULL) ? th_file_get(file_path, NULL) : NULL;
+    ThunarFile *current_folder;
+    current_folder = (folder_path != NULL) ? th_file_get(folder_path, NULL) : NULL;
+    ThunarFile *current_file;
+    current_file = (file_path != NULL) ? th_file_get(file_path, NULL) : NULL;
 
     // determine the entry completion
+    GtkEntryCompletion *completion;
     completion = gtk_entry_get_completion(GTK_ENTRY(path_entry));
+
+    ThunarFolder *folder;
+    GtkTreeModel *model;
+    gboolean update_icon = FALSE;
 
     // update the current folder if required
     if (current_folder != path_entry->current_folder)
@@ -532,7 +533,9 @@ static void pathentry_changed(GtkEditable *editable)
         // take a reference on the current folder
         if (G_LIKELY(path_entry->current_folder != NULL))
             g_object_unref(G_OBJECT(path_entry->current_folder));
+
         path_entry->current_folder = current_folder;
+
         if (G_LIKELY(current_folder != NULL))
             g_object_ref(G_OBJECT(current_folder));
 
@@ -571,12 +574,16 @@ static void pathentry_changed(GtkEditable *editable)
             g_signal_handlers_disconnect_by_func(G_OBJECT(path_entry->current_file), pathentry_set_current_file, path_entry);
             g_object_unref(G_OBJECT(path_entry->current_file));
         }
+
         path_entry->current_file = current_file;
+
         if (G_UNLIKELY(current_file != NULL))
         {
             g_object_ref(G_OBJECT(current_file));
-            g_signal_connect_swapped(G_OBJECT(current_file), "changed", G_CALLBACK(pathentry_set_current_file), path_entry);
+            g_signal_connect_swapped(G_OBJECT(current_file), "changed",
+                                     G_CALLBACK(pathentry_set_current_file), path_entry);
         }
+
         g_object_notify(G_OBJECT(path_entry), "current-file");
 
         // we most likely need a new icon
@@ -589,10 +596,13 @@ static void pathentry_changed(GtkEditable *editable)
     // cleanup
     if (G_LIKELY(current_folder != NULL))
         g_object_unref(G_OBJECT(current_folder));
+
     if (G_LIKELY(current_file != NULL))
         g_object_unref(G_OBJECT(current_file));
+
     if (G_LIKELY(folder_path != NULL))
         g_object_unref(folder_path);
+
     if (G_LIKELY(file_path != NULL))
         g_object_unref(file_path);
 }

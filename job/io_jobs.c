@@ -849,8 +849,7 @@ ThunarJob* io_trash_files(GList *file_list)
 {
     e_return_val_if_fail(file_list != NULL, NULL);
 
-    return simplejob_launch(_io_trash, 1,
-                            TYPE_EFILELIST, file_list);
+    return simplejob_launch(_io_trash, 1, TYPE_EFILELIST, file_list);
 }
 
 static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error)

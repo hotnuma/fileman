@@ -17,8 +17,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __THUNAR_DEBUG_H__
-#define __THUNAR_DEBUG_H__
+#ifndef __APP_DEBUG_H__
+#define __APP_DEBUG_H__
 
 #include <glib-object.h>
 
@@ -30,7 +30,7 @@ G_BEGIN_DECLS;
 #define DPRINT(fmt, ...) do {} while (0)
 #endif
 
-/* support macros for debugging */
+// support macros for debugging
 #ifdef NDEBUG
 #define e_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
 #define e_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
@@ -43,7 +43,7 @@ G_BEGIN_DECLS;
 #define e_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
 #endif
 
-/* avoid trivial g_value_get_*() function calls */
+// avoid trivial g_value_get_*() function calls
 #ifdef NDEBUG
 #define g_value_get_boolean(v)  (((const GValue *) (v))->data[0].v_int)
 #define g_value_get_char(v)     (((const GValue *) (v))->data[0].v_int)
@@ -65,7 +65,7 @@ G_BEGIN_DECLS;
 #define g_value_get_object(v)   (((const GValue *) (v))->data[0].v_pointer)
 #endif
 
-/* support macros for the GtkTreeModel implementations */
+// support macros for the GtkTreeModel implementations
 #ifdef NDEBUG
 #define GTK_TREE_ITER_INIT(iter, iter_stamp, iter_user_data)  \
 G_STMT_START{                                                 \
@@ -81,6 +81,6 @@ G_STMT_START{                                                 \
 
 G_END_DECLS;
 
-#endif // __THUNAR_DEBUG_H__
+#endif // __APP_DEBUG_H__
 
 

@@ -1334,9 +1334,6 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
                 || source_type == G_FILE_TYPE_SYMBOLIC_LINK
                 || source_type == G_FILE_TYPE_SPECIAL))
         {
-            //printf("source_type : %d\n", source_type);
-            //printf("target_type : %d\n", target_type);
-
             gchar *target_path = g_file_get_path(target_file);
             syslog(LOG_WARNING,
                    "copy_file_real: delete truncated file \"%s\"\n",

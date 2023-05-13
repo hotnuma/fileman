@@ -753,21 +753,21 @@ static void _detailview_row_activated(GtkTreeView       *tree_view,
 {
     (void) column;
 
-    GtkTreeSelection *selection;
-    ThunarLauncher   *launcher;
-    GtkWidget        *window;
-
     e_return_if_fail(IS_DETAILVIEW(details_view));
 
     // be sure to have only the clicked item selected
     if (details_view->button_pressed)
     {
+        GtkTreeSelection *selection;
+
         selection = gtk_tree_view_get_selection(tree_view);
         gtk_tree_selection_unselect_all(selection);
         gtk_tree_selection_select_path(selection, path);
     }
 
+    GtkWidget        *window;
     window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
+    ThunarLauncher   *launcher;
     launcher = window_get_launcher(THUNAR_WINDOW(window));
     launcher_activate_selected_files(launcher,
                                              LAUNCHER_CHANGE_DIRECTORY,
@@ -900,46 +900,33 @@ static void detailview_connect_accelerators(StandardView  *standard_view,
 
     e_return_if_fail(IS_DETAILVIEW(details_view));
 
-    xfce_gtk_accel_map_add_entries(_detailview_actions, G_N_ELEMENTS(_detailview_actions));
+    xfce_gtk_accel_map_add_entries(_detailview_actions,
+                                   G_N_ELEMENTS(_detailview_actions));
+
     xfce_gtk_accel_group_connect_action_entries(accel_group,
-            _detailview_actions,
-            G_N_ELEMENTS(_detailview_actions),
-            standard_view);
+                                                _detailview_actions,
+                                                G_N_ELEMENTS(_detailview_actions),
+                                                standard_view);
 }
 
-/**
- * thunar_details_view_disconnect_accelerators:
- * @standard_view : a #StandardView.
- * @accel_group   : a #GtkAccelGroup to be disconnected
- *
- * Dont listen to the accel keys defined by the action entries any more
- **/
-static void detailview_disconnect_accelerators(StandardView  *standard_view,
+static void detailview_disconnect_accelerators(StandardView *standard_view,
                                                GtkAccelGroup *accel_group)
 {
     (void) standard_view;
+
     // Dont listen to the accel keys defined by the action entries any more
     xfce_gtk_accel_group_disconnect_action_entries(accel_group,
-            _detailview_actions,
-            G_N_ELEMENTS(_detailview_actions));
+                                                   _detailview_actions,
+                                                   G_N_ELEMENTS(_detailview_actions));
 }
 
-/**
- * thunar_details_view_append_menu_items:
- * @standard_view : a #StandardView.
- * @menu          : the #GtkMenu to add the menu items.
- * @accel_group   : a #GtkAccelGroup to be used used for new menu items
- *
- * Appends widget-specific menu items to a #GtkMenu and connects them to the passed #GtkAccelGroup
- * Implements method 'append_menu_items' of #StandardView
- **/
 static void detailview_append_menu_items(StandardView  *standard_view,
                                          GtkMenu       *menu,
                                          GtkAccelGroup *accel_group)
 {
     (void) accel_group;
-    DetailView *details_view = DETAILVIEW(standard_view);
 
+    DetailView *details_view = DETAILVIEW(standard_view);
     e_return_if_fail(IS_DETAILVIEW(details_view));
 
     xfce_gtk_menu_item_new_from_action_entry(
@@ -948,27 +935,13 @@ static void detailview_append_menu_items(StandardView  *standard_view,
                 GTK_MENU_SHELL(menu));
 }
 
-/**
- * thunar_details_view_get_fixed_columns:
- * @details_view : a #DetailView.
- *
- * Returns %TRUE if @details_view uses fixed column widths.
- *
- * Return value: %TRUE if @details_view uses fixed column widths.
- **/
 static gboolean _detailview_get_fixed_columns(DetailView *details_view)
 {
     e_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);
+
     return details_view->fixed_columns;
 }
 
-/**
- * thunar_details_view_set_fixed_columns:
- * @details_view  : a #DetailView.
- * @fixed_columns : %TRUE to use fixed column widths.
- *
- * Applies @fixed_columns to @details_view.
- **/
 static void _detailview_set_fixed_columns(DetailView *details_view,
                                           gboolean fixed_columns)
 {

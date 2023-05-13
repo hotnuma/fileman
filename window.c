@@ -20,29 +20,21 @@
 
 #include <config.h>
 #include <window.h>
+#include <marshal.h>
 
-#include <application.h>
 #include <locationentry.h>
 #include <treepane.h>
 #include <baseview.h>
 #include <standardview.h>
 #include <detailview.h>
-#include <launcher.h>
-#include <appmenu.h>
 #include <statusbar.h>
+#include <dialogs.h>
 #include <preferences.h>
 
-#include <devmonitor.h>
 #include <browser.h>
-#include <component.h>
-#include <history.h>
 #include <clipboard.h>
-#include <dialogs.h>
-
-#include <gio_ext.h>
-#include <gtk_ext.h>
-#include <marshal.h>
-#include <pango_ext.h>
+#include <component.h>
+#include <devmonitor.h>
 
 #include <syslog.h>
 
@@ -166,7 +158,7 @@ static XfceGtkActionEntry _window_actions[] =
     {APP_WINDOW_ACTION_BACK_ALT,
      "<Actions>/StandardView/back-alt",
      "BackSpace",
-     XFCE_GTK_IMAGE_MENU_ITEM,
+     0, //XFCE_GTK_IMAGE_MENU_ITEM,
      NULL,
      NULL,
      NULL,
@@ -175,7 +167,7 @@ static XfceGtkActionEntry _window_actions[] =
     {APP_WINDOW_ACTION_RELOAD_ALT,
      "<Actions>/ThunarWindow/reload-alt",
      "F5",
-     XFCE_GTK_IMAGE_MENU_ITEM,
+     0, //XFCE_GTK_IMAGE_MENU_ITEM,
      NULL,
      NULL,
      NULL,
@@ -193,7 +185,7 @@ static XfceGtkActionEntry _window_actions[] =
     {APP_WINDOW_ACTION_DEBUG,
      "<Actions>/ThunarWindow/debug",
      "<Primary>d",
-     XFCE_GTK_IMAGE_MENU_ITEM,
+     0, //XFCE_GTK_IMAGE_MENU_ITEM,
      NULL,
      NULL,
      NULL,
@@ -451,10 +443,11 @@ static void window_init(ThunarWindow *window)
 
     window->accel_group = gtk_accel_group_new();
     xfce_gtk_accel_map_add_entries(_window_actions, G_N_ELEMENTS(_window_actions));
+
     xfce_gtk_accel_group_connect_action_entries(window->accel_group,
-            _window_actions,
-            G_N_ELEMENTS(_window_actions),
-            window);
+                                                _window_actions,
+                                                G_N_ELEMENTS(_window_actions),
+                                                window);
 
     gtk_window_add_accel_group(GTK_WINDOW(window), window->accel_group);
 
@@ -1258,11 +1251,9 @@ static void _window_action_debug(ThunarWindow *window, GtkWidget *menu_item)
     GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
     const gchar *name = gtk_widget_get_name(focused);
 
-    DPRINT("focused widget = %s\n", name);
+    //DPRINT("focused widget = %s\n", name);
 
-    //openlog("Fileman", LOG_PID, LOG_USER);
-    syslog(LOG_INFO,"focused widget = %s\n", name);
-    //closelog();
+    syslog(LOG_INFO, "focused widget = %s\n", name);
 }
 
 static void _window_action_reload(ThunarWindow *window, GtkWidget *menu_item)
@@ -1298,7 +1289,8 @@ static void _window_create_view(ThunarWindow *window, GtkWidget *view,
 
     //DPRINT("enter : window_create_view\n");
 
-    // if we have not got a current directory from the old view, use the window's current directory
+    /* if we have not got a current directory from the old view, use the
+     *  window's current directory */
     if (current_directory == NULL && window->current_directory != NULL)
         current_directory = g_object_ref(window->current_directory);
 
@@ -1343,13 +1335,14 @@ static void _window_create_view(ThunarWindow *window, GtkWidget *view,
 
 static void _window_action_go_up(ThunarWindow *window)
 {
-    ThunarFile *parent;
-    GError     *error = NULL;
+    GError *error = NULL;
 
-    parent = th_file_get_parent(window->current_directory, &error);
+    ThunarFile *parent = th_file_get_parent(window->current_directory, &error);
+
     if (G_LIKELY(parent != NULL))
     {
         window_set_current_directory(window, parent);
+
         g_object_unref(G_OBJECT(parent));
     }
     else
@@ -1359,6 +1352,7 @@ static void _window_action_go_up(ThunarWindow *window)
         {
             dialog_error(GTK_WIDGET(window), error, _("Failed to open parent folder"));
         }
+
         g_error_free(error);
     }
 }
@@ -1651,7 +1645,8 @@ void window_set_current_directory(ThunarWindow *window,
     if (G_LIKELY(window->current_directory != NULL))
     {
         // disconnect signals and release reference
-        g_signal_handlers_disconnect_by_func(G_OBJECT(window->current_directory), _window_current_directory_changed, window);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(window->current_directory),
+                                             _window_current_directory_changed, window);
         g_object_unref(G_OBJECT(window->current_directory));
     }
 
@@ -1670,10 +1665,9 @@ void window_set_current_directory(ThunarWindow *window,
         }
 
         // connect the "changed"/"destroy" signals
-        g_signal_connect(G_OBJECT(current_directory),
-                          "changed",
-                          G_CALLBACK(_window_current_directory_changed),
-                          window);
+        g_signal_connect(G_OBJECT(current_directory), "changed",
+                         G_CALLBACK(_window_current_directory_changed),
+                         window);
 
         // update window icon and title
         _window_current_directory_changed(current_directory, window);
@@ -1685,13 +1679,14 @@ void window_set_current_directory(ThunarWindow *window,
         }
 
         _window_history_changed(window);
-        gtk_widget_set_sensitive(window->toolbar_item_parent, !e_file_is_root(th_file_get_file(current_directory)));
+        gtk_widget_set_sensitive(window->toolbar_item_parent,
+                                 !e_file_is_root(th_file_get_file(current_directory)));
     }
 
     /* tell everybody that we have a new "current-directory",
      * we do this first so other widgets display the new
-     * state already while the folder view is loading.
-     */
+     * state already while the folder view is loading. */
+
     g_object_notify(G_OBJECT(window), "current-directory");
 }
 

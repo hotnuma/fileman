@@ -38,12 +38,12 @@ typedef struct _TreeView      TreeView;
 #define TREEVIEW_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_TREEVIEW, TreeViewClass))
 
-GType       treeview_get_type() G_GNUC_CONST;
+GType treeview_get_type() G_GNUC_CONST;
 
-GtkWidget*  treeview_new() G_GNUC_MALLOC;
+GtkWidget* treeview_new() G_GNUC_MALLOC;
 
-gboolean    treeview_delete_selected_files(TreeView *view);
-void        treeview_rename_selected(TreeView *view);
+gboolean treeview_delete_selected_files(TreeView *view);
+void treeview_rename_selected(TreeView *view);
 
 G_END_DECLS
 

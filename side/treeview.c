@@ -24,7 +24,7 @@
 #include <navigator.h>
 
 #include <utils.h>
-
+#include <th_folder.h>
 #include <application.h>
 #include <clipboard.h>
 #include <th_device.h>
@@ -175,50 +175,50 @@ struct _TreeViewClass
 
 struct _TreeView
 {
-    GtkTreeView             __parent__;
+    GtkTreeView         __parent__;
 
-    ClipboardManager  *clipboard;
-    GtkCellRenderer         *icon_renderer;
-    ThunarFile              *current_directory;
-    TreeModel         *model;
+    ClipboardManager    *clipboard;
+    GtkCellRenderer     *icon_renderer;
+    ThunarFile          *current_directory;
+    TreeModel           *model;
 
     // whether to display hidden/backup files
-    guint                   show_hidden : 1;
+    guint               show_hidden : 1;
 
     // drop site support
-    guint                   drop_data_ready : 1;
+    guint               drop_data_ready : 1;
     // whether the drop data was received already
-    guint                   drop_occurred : 1;
-    GList                   *drop_file_list;
+    guint               drop_occurred : 1;
+    GList               *drop_file_list;
     // the list of URIs that are contained in the drop data
 
     /* the "new-files" closure, which is used to
      * open newly created directories once done.
      */
-    GClosure                *new_files_closure;
+    GClosure            *new_files_closure;
 
     /* sometimes we want to keep the cursor on a certain item to allow
      * more intuitive navigation, even though the main view shows another path
      */
-    GtkTreePath             *select_path;
+    GtkTreePath         *select_path;
 
     // used to create menu items for the context menu
-    ThunarLauncher          *launcher;
+    ThunarLauncher      *launcher;
 
     /* the currently pressed mouse button, set in the
      * button-press-event handler if the associated
      * button-release-event should activate.
      */
-    gint                    pressed_button;
+    gint                pressed_button;
 
     // set cursor to current directory idle source
-    guint                   cursor_idle_id;
+    guint               cursor_idle_id;
 
     // autoscroll during drag timer source
-    guint                   drag_scroll_timer_id;
+    guint               drag_scroll_timer_id;
 
     // expand drag dest row timer source
-    guint                   expand_timer_id;
+    guint               expand_timer_id;
 };
 
 // Target types for dropping into the tree view
@@ -283,10 +283,6 @@ static void treeview_navigator_init(ThunarNavigatorIface *iface)
 
 static void treeview_init(TreeView *view)
 {
-    GtkTreeViewColumn *column;
-    GtkTreeSelection  *selection;
-    GtkCellRenderer   *renderer;
-
     // Create a tree model for this tree view
     view->model = g_object_new(TYPE_TREEMODEL, NULL);
 
@@ -298,12 +294,14 @@ static void treeview_init(TreeView *view)
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
 
     // allocate a single column for our renderers
+    GtkTreeViewColumn *column;
     column = g_object_new(GTK_TYPE_TREE_VIEW_COLUMN,
                           "reorderable", FALSE,
                           "resizable", FALSE,
                           "sizing", GTK_TREE_VIEW_COLUMN_AUTOSIZE,
                           "spacing", 2,
                           NULL);
+
     gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
 
     // allocate the special icon renderer
@@ -315,7 +313,7 @@ static void treeview_init(TreeView *view)
                                         NULL);
 
     // allocate the text renderer
-    renderer = gtk_cell_renderer_text_new();
+    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, TRUE);
     gtk_tree_view_column_set_attributes(column, renderer,
                                         "attributes", TREEMODEL_COLUMN_ATTR,
@@ -323,7 +321,7 @@ static void treeview_init(TreeView *view)
                                         NULL);
 
     // setup the tree selection
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    GtkTreeSelection *selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
     gtk_tree_selection_set_select_function(selection, _treeview_selection_func, view, NULL);
 
@@ -337,14 +335,19 @@ static void treeview_init(TreeView *view)
 
     view->new_files_closure = g_cclosure_new_swap(
                                     G_CALLBACK(_treeview_select_files), view, NULL);
+
     g_closure_ref(view->new_files_closure);
     g_closure_sink(view->new_files_closure);
 
     view->launcher =  g_object_new(THUNAR_TYPE_LAUNCHER, "widget", GTK_WIDGET(view),
                                    "select-files-closure", view->new_files_closure, NULL);
 
-    g_signal_connect_swapped(G_OBJECT(view->launcher), "change-directory", G_CALLBACK(_treeview_action_open), view);
-    g_object_bind_property(G_OBJECT(view), "current-directory", G_OBJECT(view->launcher), "current-directory", G_BINDING_SYNC_CREATE);
+    g_signal_connect_swapped(G_OBJECT(view->launcher), "change-directory",
+                             G_CALLBACK(_treeview_action_open), view);
+
+    g_object_bind_property(G_OBJECT(view), "current-directory",
+                           G_OBJECT(view->launcher), "current-directory",
+                           G_BINDING_SYNC_CREATE);
 }
 
 static void treeview_finalize(GObject *object)
@@ -389,13 +392,13 @@ static void treeview_finalize(GObject *object)
 static void treeview_realize(GtkWidget *widget)
 {
     TreeView *view = TREEVIEW(widget);
-    GdkDisplay     *display;
 
     // let the parent class realize the widget
     GTK_WIDGET_CLASS(treeview_parent_class)->realize(widget);
 
     // query the clipboard manager for the display
-    display = gtk_widget_get_display(widget);
+    GdkDisplay *display = gtk_widget_get_display(widget);
+
     view->clipboard = clipman_get_for_display(display);
 }
 
@@ -413,17 +416,16 @@ static void treeview_unrealize(GtkWidget *widget)
 
 // Properties -----------------------------------------------------------------
 
-static void treeview_get_property(GObject   *object,
-                                          guint     prop_id,
-                                          GValue    *value,
-                                          GParamSpec *pspec)
+static void treeview_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value,
+                           navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -436,17 +438,16 @@ static void treeview_get_property(GObject   *object,
     }
 }
 
-static void treeview_set_property(GObject       *object,
-                                          guint         prop_id,
-                                          const GValue  *value,
-                                          GParamSpec    *pspec)
+static void treeview_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object), g_value_get_object(value));
+        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+                                        g_value_get_object(value));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -459,17 +460,15 @@ static void treeview_set_property(GObject       *object,
     }
 }
 
-
 // Current Directory ----------------------------------------------------------
 
-static ThunarFile* treeview_get_current_directory(
-                                                    ThunarNavigator *navigator)
+static ThunarFile* treeview_get_current_directory(ThunarNavigator *navigator)
 {
     return TREEVIEW(navigator)->current_directory;
 }
 
 static void treeview_set_current_directory(ThunarNavigator *navigator,
-                                                   ThunarFile *current_directory)
+                                           ThunarFile *current_directory)
 {
     TreeView *view = TREEVIEW(navigator);
     ThunarFile  *file;
@@ -866,9 +865,8 @@ static gboolean treeview_popup_menu(GtkWidget *widget)
     return FALSE;
 }
 
-static void _treeview_context_menu(TreeView     *view,
-                                   GtkTreeModel *model,
-                                   GtkTreeIter  *iter)
+static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
+                                   GtkTreeIter *iter)
 {
     // check if we're connected to the clipboard manager
     if (G_UNLIKELY(view->clipboard == NULL))

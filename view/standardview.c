@@ -954,6 +954,7 @@ static void _standardview_connect_accelerators(StandardView *view)
 
     xfce_gtk_accel_map_add_entries(_standardview_actions,
                                    G_N_ELEMENTS(_standardview_actions));
+
     xfce_gtk_accel_group_connect_action_entries(
                                     view->accel_group,
                                     _standardview_actions,

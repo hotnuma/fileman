@@ -19,7 +19,6 @@
 #ifndef __DETAILVIEW_H__
 #define __DETAILVIEW_H__
 
-//#include <standardview.h>
 #include <glib-object.h>
 
 G_BEGIN_DECLS

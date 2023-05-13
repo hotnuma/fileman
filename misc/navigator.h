@@ -40,22 +40,20 @@ struct _ThunarNavigatorIface
 
     // methods
     ThunarFile* (*get_current_directory) (ThunarNavigator *navigator);
-    void        (*set_current_directory) (ThunarNavigator *navigator,
-                                          ThunarFile      *current_directory);
+    void (*set_current_directory) (ThunarNavigator *navigator,
+                                   ThunarFile *current_directory);
 
     // signals
-    void        (*change_directory)      (ThunarNavigator *navigator,
-                                          ThunarFile      *directory);
+    void (*change_directory) (ThunarNavigator *navigator, ThunarFile *directory);
 };
 
-GType       navigator_get_type() G_GNUC_CONST;
+GType navigator_get_type() G_GNUC_CONST;
 
 ThunarFile* navigator_get_current_directory(ThunarNavigator *navigator);
-void        navigator_set_current_directory(ThunarNavigator *navigator,
-                                            ThunarFile      *current_directory);
+void navigator_set_current_directory(ThunarNavigator *navigator,
+                                     ThunarFile *current_directory);
 
-void        navigator_change_directory(ThunarNavigator *navigator,
-                                       ThunarFile      *directory);
+void navigator_change_directory(ThunarNavigator *navigator, ThunarFile *directory);
 
 G_END_DECLS
 

@@ -200,11 +200,8 @@ struct _ListModel
 
     GSequence       *rows;
     GSList          *hidden;
+
     ThunarFolder    *folder;
-    gboolean        show_hidden : 1;
-    gboolean        file_size_binary : 1;
-    ThunarDateStyle date_style;
-    char            *date_custom_style;
 
     /* Use the shared FileMonitor instance, so we
      * do not need to connect "changed" handler to every
@@ -215,6 +212,11 @@ struct _ListModel
      * of GtkTreeModel to speed up folder changing. */
     guint           row_inserted_id;
     guint           row_deleted_id;
+
+    gboolean        show_hidden : 1;
+    gboolean        file_size_binary : 1;
+    ThunarDateStyle date_style;
+    char            *date_custom_style;
 
     gboolean        sort_case_sensitive : 1;
     gboolean        sort_folders_first : 1;
@@ -593,11 +595,10 @@ void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
     e_return_if_fail(IS_LISTMODEL(store));
     e_return_if_fail(folder == NULL || THUNAR_IS_FOLDER(folder));
 
-    // check if we're not already using that folder
     if (G_UNLIKELY(store->folder == folder))
         return;
 
-    // unlink from the previously active folder(if any)
+    // remove existing entries, remove previous ThunarFolder
     if (G_LIKELY(store->folder != NULL))
     {
         // check if we have any handlers connected for "row-deleted"
@@ -609,7 +610,6 @@ void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
         GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
         GSequenceIter *end = g_sequence_get_end_iter(store->rows);
 
-        // remove existing entries
         GtkTreePath *path = gtk_tree_path_new_first();
 
         while (row != end)

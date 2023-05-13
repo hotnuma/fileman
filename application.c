@@ -24,7 +24,7 @@
 
 #include <browser.h>
 #include <preferences.h>
-
+#include <th_folder.h>
 #include <dialogs.h>
 #include <progressdlg.h>
 #include <io_jobs.h>
@@ -44,7 +44,7 @@ static const GOptionEntry _option_entries[] =
 };
 
 // Prototype for the Thunar job launchers
-typedef ThunarJob* (*Launcher) (GList *source_path_list, GList *target_path_list);
+typedef ThunarJob* (*LauncherFunc) (GList *source_path_list, GList *target_path_list);
 
 // Property identifiers
 enum
@@ -74,7 +74,7 @@ static void _application_collect_and_launch(Application *application,
                                             gpointer parent,
                                             const gchar *icon_name,
                                             const gchar *title,
-                                            Launcher launcher,
+                                            LauncherFunc launcher,
                                             GList *source_file_list,
                                             GFile *target_file,
                                             gboolean update_source_folders,
@@ -86,7 +86,7 @@ static void _application_launch(Application *application,
                                 gpointer parent,
                                 const gchar *icon_name,
                                 const gchar *title,
-                                Launcher launcher,
+                                LauncherFunc launcher,
                                 GList *source_path_list,
                                 GList *target_path_list,
                                 gboolean update_source_folders,
@@ -415,7 +415,7 @@ static void _application_collect_and_launch(
                                         gpointer    parent,
                                         const gchar *icon_name,
                                         const gchar *title,
-                                        Launcher    launcher,
+                                        LauncherFunc    launcher,
                                         GList       *source_file_list,
                                         GFile       *target_file,
                                         gboolean    update_source_folders,
@@ -519,29 +519,28 @@ static void _application_launch(Application *application,
                                 gpointer           parent,
                                 const gchar       *icon_name,
                                 const gchar       *title,
-                                Launcher           launcher,
+                                LauncherFunc           launcher,
                                 GList             *source_file_list,
                                 GList             *target_file_list,
                                 gboolean           update_source_folders,
                                 gboolean           update_target_folders,
                                 GClosure          *new_files_closure)
 {
-    GtkWidget *dialog;
-    GdkScreen *screen;
-    ThunarJob *job;
-    GList     *parent_folder_list = NULL;
-    gboolean   has_jobs;
-
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
     // parse the parent pointer
+    GdkScreen *screen;
     screen = util_parse_parent(parent, NULL);
 
     // try to allocate a new job for the operation
-    job =(*launcher)(source_file_list, target_file_list);
+    ThunarJob *job;
+    job = (*launcher) (source_file_list, target_file_list);
+
+    GList *parent_folder_list = NULL;
 
     if (update_source_folders)
         parent_folder_list = g_list_concat(parent_folder_list, e_file_list_get_parents(source_file_list));
+
     if (update_target_folders)
         parent_folder_list = g_list_concat(parent_folder_list, e_file_list_get_parents(target_file_list));
 
@@ -555,13 +554,13 @@ static void _application_launch(Application *application,
         g_signal_connect_closure(job, "new-files", new_files_closure, FALSE);
 
     // get the shared progress dialog
-    dialog = _application_get_progress_dialog(application);
+    GtkWidget *dialog = _application_get_progress_dialog(application);
 
     // place the dialog on the given screen
     if (screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
-    has_jobs = progressdlg_has_jobs(PROGRESSDIALOG(dialog));
+    gboolean has_jobs = progressdlg_has_jobs(PROGRESSDIALOG(dialog));
 
     // add the job to the dialog
     progressdlg_add_job(PROGRESSDIALOG(dialog),

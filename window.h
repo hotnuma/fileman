@@ -19,9 +19,8 @@
 #ifndef __THUNAR_WINDOW_H__
 #define __THUNAR_WINDOW_H__
 
-#include <enumtypes.h>
-#include <th_folder.h>
 #include <launcher.h>
+#include <th_file.h>
 #include <libxfce4ui/libxfce4ui.h>
 
 G_BEGIN_DECLS
