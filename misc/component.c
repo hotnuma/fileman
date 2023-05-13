@@ -25,7 +25,7 @@
 /*
  * ThunarComponent:selected-files:
  *
- * The list of currently selected files for the #ThunarWindow to
+ * The list of currently selected files for the #AppWindow to
  * which this ThunarComponent belongs.
  *
  * The exact semantics of this property depend on the implementor
@@ -33,7 +33,7 @@
  * the property depending on the users selection with the
  * #GtkTreeComponent or #ExoIconComponent. While other components in a window,
  * like the #ThunarShortcutsPane, will not update this property on
- * their own, but rely on #ThunarWindow to synchronize the selected
+ * their own, but rely on #AppWindow to synchronize the selected
  * files list with the selected files list from the active #ThunarComponent.
  *
  * This way all components can behave properly depending on the

@@ -970,7 +970,7 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window),
+    window_redirect_tooltips(APPWINDOW(window),
                                                GTK_MENU(context_menu));
     etk_menu_run(GTK_MENU(context_menu));
 

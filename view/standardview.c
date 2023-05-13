@@ -1797,7 +1797,7 @@ void standardview_context_menu(StandardView *view)
     window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
     context_menu = g_object_new(TYPE_APPMENU, "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
-                                 "launcher", window_get_launcher(THUNAR_WINDOW(window)), NULL);
+                                 "launcher", window_get_launcher(APPWINDOW(window)), NULL);
     if (selected_items != NULL)
     {
         appmenu_add_sections(context_menu,
@@ -1827,7 +1827,7 @@ void standardview_context_menu(StandardView *view)
 
     appmenu_hide_accel_labels(context_menu);
     gtk_widget_show_all(GTK_WIDGET(context_menu));
-    window_redirect_menu_tooltips_to_statusbar(THUNAR_WINDOW(window), GTK_MENU(context_menu));
+    window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
 
     // if there is a drag_timer_event(long press), we use it
     if (view->priv->drag_timer_event != NULL)
@@ -2328,7 +2328,7 @@ static void _standardview_current_directory_destroy(ThunarFile *current_director
 
     // let the parent window update all active and inactive views(tabs)
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
-    window_update_directories(THUNAR_WINDOW(window), current_directory,
+    window_update_directories(APPWINDOW(window), current_directory,
                               new_directory);
 
     // release the reference to the new directory

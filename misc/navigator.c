@@ -83,7 +83,7 @@ static void navigator_base_init(gpointer klass)
          * The @navigator must not apply the @directory to the
          * "current-directory" property directly. But
          * instead, it must wait for the surrounding module(usually
-         * a #ThunarWindow instance) to explicitly inform the
+         * a #AppWindow instance) to explicitly inform the
          * @navigator to change it's current directory using
          * the #thunar_navigator_set_current_directory() method
          * or the "current-directory" property.
@@ -112,7 +112,7 @@ static void navigator_class_init(gpointer klass)
      * of a navigator that has no directory associated with it).
      *
      * Whenever a navigator wants the surrounding module(usually
-     * a #ThunarWindow) to change to another directory, it should
+     * a #AppWindow) to change to another directory, it should
      * invoke the "change-directory" signal using the
      * #thunar_navigator_change_directory() method. It should
      * not directly change the "current-directory" property,
@@ -174,7 +174,7 @@ void navigator_set_current_directory(ThunarNavigator *navigator,
  * selects a new directory from within @navigator. The derived
  * class should not perform any directory changing operations
  * itself, but leave it up to the surrounding module(usually
- * a #ThunarWindow instance) to change the directory.
+ * a #AppWindow instance) to change the directory.
  *
  * It should never ever be called from outside a #ThunarNavigator
  * implementation, as that may led to unexpected results!

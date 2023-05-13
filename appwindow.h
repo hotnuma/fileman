@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_WINDOW_H__
-#define __THUNAR_WINDOW_H__
+#ifndef __APPWINDOW_H__
+#define __APPWINDOW_H__
 
 #include <launcher.h>
 #include <th_file.h>
@@ -25,75 +25,63 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarWindowClass ThunarWindowClass;
-typedef struct _ThunarWindow      ThunarWindow;
+typedef struct _AppWindowClass AppWindowClass;
+typedef struct _AppWindow      AppWindow;
 
-#define THUNAR_TYPE_WINDOW (window_get_type())
-#define THUNAR_WINDOW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  THUNAR_TYPE_WINDOW, ThunarWindow))
-#define THUNAR_WINDOW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   THUNAR_TYPE_WINDOW, ThunarWindowClass))
-#define THUNAR_IS_WINDOW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  THUNAR_TYPE_WINDOW))
-#define THUNAR_IS_WINDOW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   THUNAR_TYPE_WINDOW))
-#define THUNAR_WINDOW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   THUNAR_TYPE_WINDOW, ThunarWindowClass))
+#define TYPE_APPWINDOW (window_get_type())
+#define APPWINDOW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPWINDOW, AppWindow))
+#define APPWINDOW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_APPWINDOW, AppWindowClass))
+#define IS_APPWINDOW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_APPWINDOW))
+#define IS_APPWINDOW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPWINDOW))
+#define APPWINDOW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPWINDOW, AppWindowClass))
 
 GType window_get_type() G_GNUC_CONST;
 
-// Action Entrys provided by this widget
-
 typedef enum
 {
-    APP_WINDOW_ACTION_BACK,
-    APP_WINDOW_ACTION_FORWARD,
-    APP_WINDOW_ACTION_OPEN_PARENT,
-    APP_WINDOW_ACTION_OPEN_HOME,
+    WINDOW_ACTION_BACK,
+    WINDOW_ACTION_FORWARD,
+    WINDOW_ACTION_OPEN_PARENT,
+    WINDOW_ACTION_OPEN_HOME,
 
-    APP_WINDOW_ACTION_BACK_ALT,
-    APP_WINDOW_ACTION_RELOAD_ALT,
-    APP_WINDOW_ACTION_SHOW_HIDDEN,
+    WINDOW_ACTION_BACK_ALT,
+    WINDOW_ACTION_RELOAD_ALT,
+    WINDOW_ACTION_SHOW_HIDDEN,
 
-    APP_WINDOW_ACTION_DEBUG,
+    WINDOW_ACTION_DEBUG,
 
-} AppWindowAction;
+} WindowAction;
 
-ThunarFile* window_get_current_directory(ThunarWindow *window);
-void window_set_current_directory(ThunarWindow *window,
-                                         ThunarFile *current_directory);
+ThunarFile* window_get_current_directory(AppWindow *window);
+void window_set_current_directory(AppWindow *window, ThunarFile *current_directory);
 
-void window_scroll_to_file(ThunarWindow *window,
-                                  ThunarFile *file,
-                                  gboolean select,
-                                  gboolean use_align,
-                                  gfloat row_align,
-                                  gfloat col_align);
+void window_scroll_to_file(AppWindow *window, ThunarFile *file, gboolean select,
+                           gboolean use_align, gfloat row_align, gfloat col_align);
 
-gchar** window_get_directories(ThunarWindow *window,
-                                      gint *active_page);
-gboolean window_set_directories(ThunarWindow *window,
-                                       gchar **uris,
-                                       gint active_page);
+gchar** window_get_directories(AppWindow *window, gint *active_page);
+gboolean window_set_directories(AppWindow *window, gchar **uris, gint active_page);
 
-void window_update_directories(ThunarWindow *window,
-                                      ThunarFile *old_directory,
-                                      ThunarFile *new_directory);
+void window_update_directories(AppWindow *window, ThunarFile *old_directory,
+                               ThunarFile *new_directory);
 
-gboolean window_has_shortcut_sidepane(ThunarWindow *window);
-GtkWidget* window_get_sidepane(ThunarWindow *window);
-ThunarLauncher* window_get_launcher(ThunarWindow *window);
+gboolean window_has_shortcut_sidepane(AppWindow *window);
+GtkWidget* window_get_sidepane(AppWindow *window);
+ThunarLauncher* window_get_launcher(AppWindow *window);
 
-void window_redirect_menu_tooltips_to_statusbar(ThunarWindow *window,
-                                                       GtkMenu *menu);
+void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);
 
-const XfceGtkActionEntry* window_get_action_entry(ThunarWindow *window,
-                                                         AppWindowAction action);
+const XfceGtkActionEntry* window_get_action_entry(AppWindow *window,
+                                                  WindowAction action);
 
-GtkWidget* window_get_focused_tree_view(ThunarWindow *window);
+GtkWidget* window_get_focused_tree_view(AppWindow *window);
 
 G_END_DECLS
 
-#endif // __THUNAR_WINDOW_H__
+#endif // __APPWINDOW_H__
 
 

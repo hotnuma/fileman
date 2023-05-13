@@ -293,7 +293,7 @@ static XfceGtkActionEntry _launcher_actions[] =
      G_CALLBACK(_launcher_action_delete)},
 
     {LAUNCHER_ACTION_EMPTY_TRASH,
-     "<Actions>/ThunarWindow/empty-trash",
+     "<Actions>/AppWindow/empty-trash",
      "",
      XFCE_GTK_IMAGE_MENU_ITEM,
      N_("_Empty Trash"),
@@ -1956,9 +1956,9 @@ static void _launcher_action_trash_delete(ThunarLauncher *launcher)
 static void _launcher_action_key_trash_delete(ThunarLauncher *launcher)
 {
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
-    e_return_if_fail(THUNAR_IS_WINDOW(launcher->widget));
+    e_return_if_fail(IS_APPWINDOW(launcher->widget));
 
-    ThunarWindow *window = THUNAR_WINDOW(launcher->widget);
+    AppWindow *window = APPWINDOW(launcher->widget);
     GtkWidget *tree_view = window_get_focused_tree_view(window);
 
     if (!tree_view)
@@ -2181,7 +2181,7 @@ void launcher_action_rename(ThunarLauncher *launcher)
 
 static void _launcher_action_key_rename(ThunarLauncher *launcher)
 {
-    ThunarWindow *window = THUNAR_WINDOW(launcher->widget);
+    AppWindow *window = APPWINDOW(launcher->widget);
     GtkWidget *tree_view = window_get_focused_tree_view(window);
 
     if (!tree_view)

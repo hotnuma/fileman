@@ -697,7 +697,7 @@ GtkWidget* application_open_window(Application *application, ThunarFile *directo
     gchar *role = g_strdup_printf("Fileman-%u-%u",
                                   (guint) time(NULL), (guint) g_random_int());
 
-    GtkWidget *window = g_object_new(THUNAR_TYPE_WINDOW,
+    GtkWidget *window = g_object_new(TYPE_APPWINDOW,
                                      "role", role,
                                      "screen", screen,
                                      NULL);
@@ -715,7 +715,7 @@ GtkWidget* application_open_window(Application *application, ThunarFile *directo
 
     // change the directory
     if (directory != NULL)
-        window_set_current_directory(THUNAR_WINDOW(window), directory);
+        window_set_current_directory(APPWINDOW(window), directory);
 
     return window;
 }
