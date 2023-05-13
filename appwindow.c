@@ -19,7 +19,7 @@
  */
 
 #include <config.h>
-#include <window.h>
+#include <appwindow.h>
 #include <marshal.h>
 
 #include <locationentry.h>

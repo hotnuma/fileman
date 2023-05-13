@@ -22,7 +22,7 @@
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
 
-#include <window.h>
+#include <appwindow.h>
 
 G_BEGIN_DECLS
 

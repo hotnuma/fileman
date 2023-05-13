@@ -12,6 +12,7 @@ PKGCONFIG += libxfce4ui-2
 
 HEADERS = \
     appmenu.h \
+    appwindow.h \
     core/clipboard.h \
     core/devmonitor.h \
     core/dnd.h \
@@ -73,12 +74,12 @@ HEADERS = \
     debug.h \
     marshal.h \
     preferences.h \
-    widget/th_image.h \
-    window.h
+    widget/th_image.h
 
 SOURCES = \
     0Temp.c \
     appmenu.c \
+    appwindow.c \
     core/clipboard.c \
     core/devmonitor.c \
     core/dnd.c \
@@ -139,8 +140,7 @@ SOURCES = \
     main.c \
     marshal.c \
     preferences.c \
-    widget/th_image.c \
-    window.c
+    widget/th_image.c
 
 DISTFILES = \
     deps_search.txt \

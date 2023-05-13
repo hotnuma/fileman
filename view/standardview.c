@@ -28,7 +28,7 @@
 #include <appmenu.h>
 #include <dnd.h>
 
-#include <window.h>
+#include <appwindow.h>
 #include <dialogs.h>
 #include <utils.h>
 #include <gio_ext.h>

@@ -20,7 +20,7 @@
 #include <detailview.h>
 
 #include <standardview.h>
-#include <window.h>
+#include <appwindow.h>
 #include <exotreeview.h>
 #include <columnmodel.h>
 #include <launcher.h>

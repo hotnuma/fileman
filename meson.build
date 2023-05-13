@@ -96,11 +96,11 @@ app_sources = [
     'widget/statusbar.c',
     'application.c',
     'appmenu.c',
+    'appwindow.c',
     'launcher.c',
     'main.c',
     'marshal.c',
     'preferences.c',
-    'window.c',
 ]
 
 executable(
