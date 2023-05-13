@@ -22,20 +22,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _AppMenuClass AppMenuClass;
-typedef struct _AppMenu      AppMenu;
-
-#define TYPE_APPMENU (appmenu_get_type())
-#define APPMENU(obj)            \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_APPMENU, AppMenu))
-#define APPMENU_CLASS(klass)    \
-    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_APPMENU, AppMenuClass))
-#define IS_APPMENU(obj)         \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_APPMENU))
-#define IS_APPMENU_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_APPMENU))
-#define APPMENU_GET_CLASS(obj)  \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_APPMENU, AppMenu))
+// ----------------------------------------------------------------------------
 
 // For window menu, some items are shown insensitive, instead of hidden
 typedef enum
@@ -67,6 +54,23 @@ typedef enum
     MENU_SECTION_PROPERTIES       = 1 << 13,
 
 } MenuSections;
+
+// AppMenu --------------------------------------------------------------------
+
+typedef struct _AppMenuClass AppMenuClass;
+typedef struct _AppMenu      AppMenu;
+
+#define TYPE_APPMENU (appmenu_get_type())
+#define APPMENU(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPMENU, AppMenu))
+#define APPMENU_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_APPMENU, AppMenuClass))
+#define IS_APPMENU(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_APPMENU))
+#define IS_APPMENU_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPMENU))
+#define APPMENU_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPMENU, AppMenu))
 
 GType appmenu_get_type() G_GNUC_CONST;
 gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections);

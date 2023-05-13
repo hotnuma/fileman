@@ -21,61 +21,37 @@
 #include <config.h>
 #include <treeview.h>
 
-#include <navigator.h>
-
-#include <utils.h>
-#include <th_folder.h>
 #include <application.h>
-#include <clipboard.h>
-#include <th_device.h>
-#include <dialogs.h>
-#include <dnd.h>
-#include <gio_ext.h>
-#include <gtk_ext.h>
-#include <marshal.h>
 #include <appmenu.h>
-#include <propsdlg.h>
-#include <shortrender.h>
-#include <simplejob.h>
+#include <navigator.h>
+#include <clipboard.h>
+#include <dnd.h>
+#include <th_device.h>
+#include <th_folder.h>
 #include <treemodel.h>
-
-#include <gdk/gdkkeysyms.h>
+#include <shortrender.h>
+#include <gtk_ext.h>
+#include <utils.h>
 
 // drag dest expand timeout
 #define TREEVIEW_EXPAND_TIMEOUT 750
 
-// Identifiers for DnD target types
-enum
-{
-    TARGET_TEXT_URI_LIST,
-};
-
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_CURRENT_DIRECTORY,
-    PROP_SHOW_HIDDEN,
-};
+// TreeView -------------------------------------------------------------------
 
 static void treeview_navigator_init(ThunarNavigatorIface *iface);
 static void treeview_finalize(GObject *object);
-static void treeview_get_property(GObject *object,
-                                          guint prop_id,
-                                          GValue *value,
-                                          GParamSpec *pspec);
-static void treeview_set_property(GObject *object,
-                                          guint prop_id,
-                                          const GValue *value,
-                                          GParamSpec *pspec);
-
-static ThunarFile *treeview_get_current_directory(ThunarNavigator *navigator);
-static void treeview_set_current_directory(ThunarNavigator *navigator,
-                                                   ThunarFile *current_directory);
-
 static void treeview_realize(GtkWidget *widget);
 static void treeview_unrealize(GtkWidget *widget);
 
+// Properties -----------------------------------------------------------------
+
+static void treeview_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec);
+static void treeview_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec);
+static ThunarFile *treeview_get_current_directory(ThunarNavigator *navigator);
+static void treeview_set_current_directory(ThunarNavigator *navigator,
+                                                   ThunarFile *current_directory);
 
 static void _treeview_action_open(TreeView *view);
 static void _treeview_open_selection(TreeView *view);
@@ -166,6 +142,22 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(
 static void _treeview_action_unlink_selected_folder(TreeView *view,
                                                            gboolean permanently);
 
+// DnD target -----------------------------------------------------------------
+
+enum
+{
+    TARGET_TEXT_URI_LIST,
+};
+
+// Properties -----------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_CURRENT_DIRECTORY,
+    PROP_SHOW_HIDDEN,
+};
+
 // Allocation -----------------------------------------------------------------
 
 struct _TreeViewClass
@@ -232,11 +224,6 @@ G_DEFINE_TYPE_WITH_CODE(TreeView,
                         GTK_TYPE_TREE_VIEW,
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
                                               treeview_navigator_init))
-
-GtkWidget* treeview_new()
-{
-    return g_object_new(TYPE_TREEVIEW, NULL);
-}
 
 static void treeview_class_init(TreeViewClass *klass)
 {
@@ -562,7 +549,6 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
     g_object_notify(G_OBJECT(view), "current-directory");
 }
 
-
 // Show Hidden ----------------------------------------------------------------
 
 static gboolean _treeview_get_show_hidden(TreeView *view)
@@ -595,10 +581,16 @@ static void _treeview_set_show_hidden(TreeView *view,
     }
 }
 
+// Public ---------------------------------------------------------------------
+
+GtkWidget* treeview_new()
+{
+    return g_object_new(TYPE_TREEVIEW, NULL);
+}
+
 // Events ---------------------------------------------------------------------
 
-static gboolean treeview_button_press_event(GtkWidget      *widget,
-                                                    GdkEventButton *event)
+static gboolean treeview_button_press_event(GtkWidget *widget, GdkEventButton *event)
 {
     TreeView    *view = TREEVIEW(widget);
     ThunarDevice      *device = NULL;
@@ -695,8 +687,7 @@ static gboolean treeview_button_press_event(GtkWidget      *widget,
     return result;
 }
 
-static gboolean treeview_button_release_event(GtkWidget      *widget,
-                                                      GdkEventButton *event)
+static gboolean treeview_button_release_event(GtkWidget *widget, GdkEventButton *event)
 {
     TreeView *view = TREEVIEW(widget);
 
@@ -730,8 +721,7 @@ static gboolean treeview_button_release_event(GtkWidget      *widget,
     return GTK_WIDGET_CLASS(treeview_parent_class)->button_release_event(widget, event);
 }
 
-static gboolean _treeview_key_press_event(GtkWidget   *widget,
-                                                 GdkEventKey *event)
+static gboolean _treeview_key_press_event(GtkWidget *widget, GdkEventKey *event)
 {
     TreeView *view = TREEVIEW(widget);
     ThunarDevice   *device = NULL;

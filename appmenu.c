@@ -21,16 +21,18 @@
 #include <launcher.h>
 #include <libxfce4ui/libxfce4ui.h>
 
-/*
- * AppMenu is a GtkMenu which provides a unified menu-creation
- * service for different thunar widgets.
- *
- * Based on the passed flags and selected sections, it fills itself
- * with the requested menu-items by creating them with ThunarLauncher.
- */
+// AppMenu --------------------------------------------------------------------
 
-// ----------------------------------------------------------------------------
+/* AppMenu is a GtkMenu which provides a unified menu-creation service for
+ * different widgets. Based on the passed flags and selected sections, it
+ * fills itself with the requested menu-items by creating them with
+ * ThunarLauncher. */
 
+static void appmenu_finalize(GObject *object);
+static void appmenu_get_property(GObject *object, guint prop_id,
+                                 GValue *value, GParamSpec *pspec);
+static void appmenu_set_property(GObject *object, guint prop_uid,
+                                 const GValue *value, GParamSpec *pspec);
 enum
 {
     PROP_0,
@@ -39,12 +41,6 @@ enum
     PROP_FORCE_SECTION_OPEN,
     PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
 };
-
-static void appmenu_finalize(GObject *object);
-static void appmenu_get_property(GObject *object, guint prop_id,
-                                 GValue *value, GParamSpec *pspec);
-static void appmenu_set_property(GObject *object, guint prop_uid,
-                                 const GValue *value, GParamSpec *pspec);
 
 // Allocation -----------------------------------------------------------------
 

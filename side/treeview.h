@@ -28,15 +28,15 @@ typedef struct _TreeView      TreeView;
 
 #define TYPE_TREEVIEW (treeview_get_type())
 #define TREEVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TREEVIEW, TreeView))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_TREEVIEW, TreeView))
 #define TREEVIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_TREEVIEW, TreeViewClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_TREEVIEW, TreeViewClass))
 #define IS_TREEVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_TREEVIEW))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_TREEVIEW))
 #define IS_TREEVIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_TREEVIEW))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_TREEVIEW))
 #define TREEVIEW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_TREEVIEW, TreeViewClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_TREEVIEW, TreeViewClass))
 
 GType treeview_get_type() G_GNUC_CONST;
 
