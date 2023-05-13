@@ -24,22 +24,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarLauncherClass ThunarLauncherClass;
-typedef struct _ThunarLauncher      ThunarLauncher;
-
-#define THUNAR_TYPE_LAUNCHER (launcher_get_type())
-#define THUNAR_LAUNCHER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), THUNAR_TYPE_LAUNCHER, ThunarLauncher))
-#define THUNAR_LAUNCHER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
-#define THUNAR_IS_LAUNCHER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), THUNAR_TYPE_LAUNCHER))
-#define THUNAR_IS_LAUNCHER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass), THUNAR_TYPE_LAUNCHER))
-#define THUNAR_LAUNCHER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
-
-//  Action Entrys provided by this widget
+// Action ---------------------------------------------------------------------
 
 typedef enum
 {
@@ -57,7 +42,6 @@ typedef enum
     LAUNCHER_ACTION_PASTE_INTO_FOLDER,
     LAUNCHER_ACTION_PASTE,
 
-    //LAUNCHER_ACTION_TRASH_DELETE,
     LAUNCHER_ACTION_MOVE_TO_TRASH,
     LAUNCHER_ACTION_DELETE,
     LAUNCHER_ACTION_EMPTY_TRASH,
@@ -66,7 +50,6 @@ typedef enum
     LAUNCHER_ACTION_DUPLICATE,
     LAUNCHER_ACTION_MAKE_LINK,
     LAUNCHER_ACTION_RENAME,
-    //LAUNCHER_ACTION_KEY_RENAME,
 
     LAUNCHER_ACTION_TERMINAL,
     LAUNCHER_ACTION_EXTRACT,
@@ -87,28 +70,48 @@ typedef enum
 
 } FolderOpenAction;
 
-GType       launcher_get_type() G_GNUC_CONST;
+// Launcher -------------------------------------------------------------------
 
-void        launcher_activate_selected_files(ThunarLauncher *launcher,
-                                             FolderOpenAction action,
-                                             GAppInfo *app_info);
-void        launcher_open_selected_folders(ThunarLauncher *launcher);
+typedef struct _ThunarLauncherClass ThunarLauncherClass;
+typedef struct _ThunarLauncher      ThunarLauncher;
 
-void        launcher_set_widget(ThunarLauncher *launcher,
-                                GtkWidget *widget);
-GtkWidget*  launcher_get_widget(ThunarLauncher *launcher);
+#define THUNAR_TYPE_LAUNCHER (launcher_get_type())
+#define THUNAR_LAUNCHER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  THUNAR_TYPE_LAUNCHER, ThunarLauncher))
+#define THUNAR_LAUNCHER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
+#define THUNAR_IS_LAUNCHER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  THUNAR_TYPE_LAUNCHER))
+#define THUNAR_IS_LAUNCHER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   THUNAR_TYPE_LAUNCHER))
+#define THUNAR_LAUNCHER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
 
-void        launcher_append_accelerators(ThunarLauncher *launcher,
-                                         GtkAccelGroup *accel_group);
-GtkWidget*  launcher_append_menu_item(ThunarLauncher *launcher,
+GType launcher_get_type() G_GNUC_CONST;
+
+// Properties -----------------------------------------------------------------
+
+GtkWidget* launcher_get_widget(ThunarLauncher *launcher);
+void launcher_set_widget(ThunarLauncher *launcher, GtkWidget *widget);
+
+// Build Menu -----------------------------------------------------------------
+
+void launcher_append_accelerators(ThunarLauncher *launcher,
+                                  GtkAccelGroup *accel_group);
+GtkWidget* launcher_append_menu_item(ThunarLauncher *launcher,
+                                     GtkMenuShell *menu,
+                                     LauncherAction action,
+                                     gboolean force);
+gboolean launcher_append_open_section(ThunarLauncher *launcher,
                                       GtkMenuShell *menu,
-                                      LauncherAction action,
+                                      gboolean support_tabs,
+                                      gboolean support_change_directory,
                                       gboolean force);
-gboolean    launcher_append_open_section(ThunarLauncher *launcher,
-                                         GtkMenuShell *menu,
-                                         gboolean support_tabs,
-                                         gboolean support_change_directory,
-                                         gboolean force);
+
+void launcher_activate_selected_files(ThunarLauncher *launcher,
+                                      FolderOpenAction action,
+                                      GAppInfo *app_info);
+void launcher_open_selected_folders(ThunarLauncher *launcher);
 
 void launcher_action_mount(ThunarLauncher *launcher);
 void launcher_action_unmount(ThunarLauncher *launcher);
