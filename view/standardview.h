@@ -19,9 +19,9 @@
 #ifndef __STANDARDVIEW_H__
 #define __STANDARDVIEW_H__
 
+#include <history.h>
 #include <listmodel.h>
 #include <iconfactory.h>
-#include <history.h>
 
 G_BEGIN_DECLS
 
@@ -131,18 +131,16 @@ struct _StandardView
 
 GType standardview_get_type() G_GNUC_CONST;
 
-// history
 ThunarHistory* standardview_get_history(StandardView *standard_view);
 void standardview_set_history(StandardView *standard_view,
                               ThunarHistory *history);
-
-void standardview_context_menu(StandardView *standard_view);
+void standardview_selection_changed(StandardView *standard_view);
 
 // for detailview
 void standardview_queue_popup(StandardView *standard_view,
                               GdkEventButton *event);
 
-void standardview_selection_changed(StandardView *standard_view);
+void standardview_context_menu(StandardView *standard_view);
 
 G_END_DECLS
 
