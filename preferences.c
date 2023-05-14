@@ -3,9 +3,6 @@
 
 #include <cfile.h>
 #include <cinifile.h>
-#include <libpath.h>
-
-#include <glib.h>
 
 static Preferences _prefs;
 

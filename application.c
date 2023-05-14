@@ -34,12 +34,20 @@
 #define ACCEL_MAP_PATH "Fileman/accels.scm"
 #endif
 
+// Globals --------------------------------------------------------------------
+
 // option entries
 static const GOptionEntry _option_entries[] =
 {
-    {"daemon", 0, 0, G_OPTION_ARG_NONE, NULL, N_("Run in daemon mode"), NULL},
-    {"quit", 'q', 0, G_OPTION_ARG_NONE, NULL, N_("Quit a running Thunar instance"), NULL},
-    {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, NULL, NULL, NULL},
+    {"daemon", 0, 0, G_OPTION_ARG_NONE,
+     NULL, N_("Run in daemon mode"), NULL},
+
+    {"quit", 'q', 0, G_OPTION_ARG_NONE,
+     NULL, N_("Quit a running Thunar instance"), NULL},
+
+    {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY,
+     NULL, NULL, NULL},
+
     {NULL, 0, 0, 0, NULL, NULL, NULL},
 };
 
@@ -47,12 +55,6 @@ static const GOptionEntry _option_entries[] =
 typedef ThunarJob* (*LauncherFunc) (GList *source_path_list, GList *target_path_list);
 
 // Application ----------------------------------------------------------------
-
-enum
-{
-    PROP_0,
-    PROP_DAEMON,
-};
 
 static void application_finalize(GObject *object);
 static void application_get_property(GObject *object, guint prop_id,
@@ -112,6 +114,12 @@ static void _application_process_files_finish(ThunarBrowser *browser, ThunarFile
                                               gpointer unused);
 
 // Application ----------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_DAEMON,
+};
 
 struct _ApplicationClass
 {
@@ -442,16 +450,17 @@ void application_set_daemon(Application *application, gboolean daemonize)
 {
     e_return_if_fail(IS_APPLICATION(application));
 
-    if (application->daemon != daemonize)
-    {
-        application->daemon = daemonize;
-        g_object_notify(G_OBJECT(application), "daemon");
+    if (application->daemon == daemonize)
+        return;
 
-        if (daemonize)
-            g_application_hold(G_APPLICATION(application));
-        else
-            g_application_release(G_APPLICATION(application));
-    }
+    application->daemon = daemonize;
+
+    g_object_notify(G_OBJECT(application), "daemon");
+
+    if (daemonize)
+        g_application_hold(G_APPLICATION(application));
+    else
+        g_application_release(G_APPLICATION(application));
 }
 
 // Public ---------------------------------------------------------------------
@@ -474,24 +483,6 @@ Application* application_get()
     }
 }
 
-/**
- * application_process_filenames:
- * @application       : a #Application.
- * @working_directory : the working directory relative to which the @filenames should
- *                      be interpreted.
- * @filenames         : a list of supported URIs or filenames. If a filename is specified
- *                      it can be either an absolute path or a path relative to the
- *                      @working_directory.
- * @screen            : the #GdkScreen on which to process the @filenames, or %NULL to
- *                      use the default screen.
- * @startup_id        : startup id to finish startup notification and properly focus the
- *                      window when focus stealing is enabled or %NULL.
- * @error             : return location for errors or %NULL.
- *
- * Tells @application to process the given @filenames and launch them appropriately.
- *
- * Return value: %TRUE on success, %FALSE if @error is set.
- **/
 gboolean application_process_filenames(Application *application,
                                        const gchar *working_directory,
                                        gchar       **filenames,
@@ -738,31 +729,13 @@ void application_take_window(Application *application, GtkWindow *window)
 
 // Actions --------------------------------------------------------------------
 
-/**
- * application_copy_into:
- * @application       : a #Application.
- * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
- * @source_file_list  : the list of #GFile<!---->s that should be copied.
- * @target_file       : the #GFile to the target directory.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Copies all files referenced by the @source_file_list to the directory
- * referenced by @target_file. This method takes care of all user interaction.
- **/
-void application_copy_into(Application *application,
-                           gpointer    parent,
-                           GList       *source_file_list,
-                           GFile       *target_file,
-                           GClosure    *new_files_closure)
+void application_copy_into(Application *application, gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure)
 {
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(G_IS_FILE(target_file));
-
-    //g_print("application_copy_into\n");
 
     // generate a title for the progress dialog
     gchar *display_name = th_file_cached_display_name(target_file);
@@ -770,7 +743,6 @@ void application_copy_into(Application *application,
                                    display_name);
     g_free(display_name);
 
-    // collect the target files and launch the job
     _application_collect_and_launch(application,
                                     parent,
                                     "edit-copy",
@@ -781,26 +753,9 @@ void application_copy_into(Application *application,
                                     FALSE,
                                     TRUE,
                                     new_files_closure);
-
-    // free the title
     g_free(title);
 }
 
-/**
- * application_link_into:
- * @application       : a #Application.
- * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
- * @source_file_list  : the list of #GFile<!---->s that should be symlinked.
- * @target_file       : the target directory.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Symlinks all files referenced by the @source_file_list to the directory
- * referenced by @target_file. This method takes care of all user
- * interaction.
- **/
 void application_link_into(Application *application, gpointer parent,
                            GList *source_file_list, GFile *target_file,
                            GClosure *new_files_closure)
@@ -815,37 +770,22 @@ void application_link_into(Application *application, gpointer parent,
     title = g_strdup_printf(_("Creating symbolic links in \"%s\"..."), display_name);
     g_free(display_name);
 
-    // collect the target files and launch the job
-    _application_collect_and_launch(application, parent, "insert-link",
-                                           title, io_link_files,
-                                           source_file_list, target_file,
-                                           FALSE, TRUE,
-                                           new_files_closure);
-
-    // free the title
+    _application_collect_and_launch(application,
+                                    parent,
+                                    "insert-link",
+                                    title,
+                                    io_link_files,
+                                    source_file_list,
+                                    target_file,
+                                    FALSE,
+                                    TRUE,
+                                    new_files_closure);
     g_free(title);
 }
 
-/**
- * application_move_into:
- * @application       : a #Application.
- * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
- * @source_file_list  : the list of #GFile<!---->s that should be moved.
- * @target_file       : the target directory.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Moves all files referenced by the @source_file_list to the directory
- * referenced by @target_file. This method takes care of all user
- * interaction.
- **/
-void application_move_into(Application *application,
-                           gpointer           parent,
-                           GList             *source_file_list,
-                           GFile             *target_file,
-                           GClosure          *new_files_closure)
+void application_move_into(Application *application, gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure)
 {
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
@@ -855,59 +795,39 @@ void application_move_into(Application *application,
     if (e_file_is_trashed(target_file))
     {
         application_trash(application, parent, source_file_list);
+        return;
     }
-    else
-    {
-        // generate a title for the progress dialog
-        gchar *display_name = th_file_cached_display_name(target_file);
-        gchar *title = g_strdup_printf(_("Moving files into \"%s\"..."),
-                                       display_name);
-        g_free(display_name);
 
-        // collect the target files and launch the job
-        _application_collect_and_launch(application,
-                                        parent,
-                                        "stock_folder-move",
-                                        title,
-                                        io_move_files,
-                                        source_file_list,
-                                        target_file,
-                                        TRUE,
-                                        TRUE,
-                                        new_files_closure);
+    // generate a title for the progress dialog
+    gchar *display_name = th_file_cached_display_name(target_file);
+    gchar *title = g_strdup_printf(_("Moving files into \"%s\"..."),
+                                   display_name);
+    g_free(display_name);
 
-        // free the title
-        g_free(title);
-    }
+    _application_collect_and_launch(application,
+                                    parent,
+                                    "stock_folder-move",
+                                    title,
+                                    io_move_files,
+                                    source_file_list,
+                                    target_file,
+                                    TRUE,
+                                    TRUE,
+                                    new_files_closure);
+    g_free(title);
 }
 
-/**
- * application_unlink_files:
- * @application : a #Application.
- * @parent      : a #GdkScreen, a #GtkWidget or %NULL.
- * @file_list   : the list of #ThunarFile<!---->s that should be deleted.
- * @permanently : whether to unlink the files permanently.
- *
- * Deletes all files in the @file_list and takes care of all user interaction.
- *
- * If the user pressed the shift key while triggering the delete action,
- * the files will be deleted permanently(after confirming the action),
- * otherwise the files will be moved to the trash.
- **/
-void application_unlink_files(Application *application,
-                              gpointer    parent,
-                              GList       *file_list,
-                              gboolean    permanently)
+void application_unlink_files(Application *application, gpointer parent,
+                              GList *file_list, gboolean permanently)
 {
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
 
-    GList     *lp;
-    guint      n_path_list = 0;
-    GList     *path_list = NULL;
+    GList *path_list = NULL;
+    guint n_path_list = 0;
 
     // determine the paths for the files
-    for (lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
+    for (GList *lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
     {
         // prepend the path to the path list
         path_list = e_list_prepend_ref(path_list, th_file_get_file(lp->data));
@@ -924,77 +844,76 @@ void application_unlink_files(Application *application,
         return;
 
     // ask the user to confirm if deleting permanently
-    if (G_UNLIKELY(permanently))
+    if (G_LIKELY(permanently == false))
     {
-        // parse the parent pointer
-        GtkWindow *window;
-        GdkScreen *screen = util_parse_parent(parent, &window);
+        application_trash(application, parent, path_list);
+        e_list_free(path_list);
 
-        gchar     *message;
+        return;
+    }
 
-        // generate the question to confirm the delete operation
-        if (G_LIKELY(n_path_list == 1))
-        {
-            message = g_strdup_printf(
-            _("Are you sure that you want to\npermanently delete \"%s\"?"),
-            th_file_get_display_name(THUNAR_FILE(file_list->data)));
-        }
-        else
-        {
-            message = g_strdup_printf(ngettext("Are you sure that you want to permanently\ndelete the selected file?",
-                                                 "Are you sure that you want to permanently\ndelete the %u selected files?",
-                                                 n_path_list),
-                                       n_path_list);
-        }
+    gchar *message;
 
-        // ask the user to confirm the delete operation
-        GtkWidget *dialog = gtk_message_dialog_new(window,
-                                         GTK_DIALOG_MODAL
-                                         | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                         GTK_MESSAGE_QUESTION,
-                                         GTK_BUTTONS_NONE,
-                                         "%s", message);
-
-        if (G_UNLIKELY(window == NULL && screen != NULL))
-            gtk_window_set_screen(GTK_WINDOW(dialog), screen);
-
-        gtk_dialog_add_buttons(GTK_DIALOG(dialog),
-                                _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                _("_Delete"), GTK_RESPONSE_YES,
-                                NULL);
-
-        gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-                            _("If you delete a file, it is permanently lost."));
-
-        gint response = gtk_dialog_run(GTK_DIALOG(dialog));
-
-        gtk_widget_destroy(dialog);
-        g_free(message);
-
-        // perform the delete operation
-        if (G_LIKELY(response == GTK_RESPONSE_YES))
-        {
-            // launch the "Delete" operation
-            _application_launch(application,
-                                parent,
-                                "edit-delete",
-                                _("Deleting files..."),
-                                unlink_stub,
-                                path_list,
-                                path_list,
-                                TRUE,
-                                FALSE,
-                                NULL);
-        }
+    // generate the question to confirm the delete operation
+    if (G_LIKELY(n_path_list == 1))
+    {
+        message = g_strdup_printf(
+        _("Are you sure that you want to\npermanently delete \"%s\"?"),
+        th_file_get_display_name(THUNAR_FILE(file_list->data)));
     }
     else
     {
-        // launch the "Move to Trash" operation
-        application_trash(application, parent, path_list);
+        message = g_strdup_printf(
+        ngettext("Are you sure that you want to permanently\ndelete the selected file?",
+        "Are you sure that you want to permanently\ndelete the %u selected files?",
+        n_path_list),
+        n_path_list);
     }
 
-    // release the path list
+    // parse the parent pointer
+    GtkWindow *window;
+    GdkScreen *screen = util_parse_parent(parent, &window);
+
+    // ask the user to confirm the delete operation
+    GtkWidget *dialog = gtk_message_dialog_new(window,
+                                     GTK_DIALOG_MODAL
+                                     | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                     GTK_MESSAGE_QUESTION,
+                                     GTK_BUTTONS_NONE,
+                                     "%s", message);
+
+    if (G_UNLIKELY(window == NULL && screen != NULL))
+        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("_Cancel"), GTK_RESPONSE_CANCEL,
+                           _("_Delete"), GTK_RESPONSE_YES,
+                           NULL);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                        _("If you delete a file, it is permanently lost."));
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    gtk_widget_destroy(dialog);
+    g_free(message);
+
+    // perform the delete operation
+    if (G_LIKELY(response == GTK_RESPONSE_YES))
+    {
+        _application_launch(application,
+                            parent,
+                            "edit-delete",
+                            _("Deleting files..."),
+                            unlink_stub,
+                            path_list,
+                            path_list,
+                            TRUE,
+                            FALSE,
+                            NULL);
+    }
+
     e_list_free(path_list);
 }
 
@@ -1009,8 +928,7 @@ void application_trash(Application *application, gpointer parent,
                        GList *file_list)
 {
     e_return_if_fail(parent == NULL
-                     || GDK_IS_SCREEN(parent)
-                     || GTK_IS_WIDGET(parent));
+                     || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(file_list != NULL);
 
@@ -1033,33 +951,18 @@ static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
     return io_trash_files(source_file_list);
 }
 
-/**
- * application_creat:
- * @application       : a #Application.
- * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
- * @file_list         : the list of files to create.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Creates empty files for all #GFile<!---->s listed in @file_list. This
- * method takes care of all user interaction.
- **/
 void application_creat(Application *application, gpointer parent, GList *file_list,
                        GFile *template_file, GClosure *new_files_closure)
 {
     GList template_list;
 
     e_return_if_fail(parent == NULL
-                     || GDK_IS_SCREEN(parent)
-                     || GTK_IS_WIDGET(parent));
+                     || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
 
     template_list.next = template_list.prev = NULL;
     template_list.data = template_file;
 
-    // launch the operation
     _application_launch(application,
                         parent,
                         "document-new",
@@ -1080,37 +983,13 @@ static ThunarJob* creat_stub(GList *template_file, GList *target_path_list)
     return io_create_files(target_path_list, template_file->data);
 }
 
-static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list)
-{
-    (void) target_path_list;
-
-    return io_make_directories(source_path_list);
-}
-
-/**
- * application_mkdir:
- * @application       : a #Application.
- * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
- * @file_list         : the list of directories to create.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Creates all directories referenced by the @file_list. This method takes care of all user
- * interaction.
- **/
-void application_mkdir(Application *application,
-                              gpointer           parent,
-                              GList             *file_list,
-                              GClosure          *new_files_closure)
+void application_mkdir(Application *application, gpointer parent,
+                       GList *file_list, GClosure *new_files_closure)
 {
     e_return_if_fail(parent == NULL
-                     || GDK_IS_SCREEN(parent)
-                     || GTK_IS_WIDGET(parent));
+                     || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
 
-    // launch the operation
     _application_launch(application,
                         parent,
                         "folder-new",
@@ -1123,16 +1002,13 @@ void application_mkdir(Application *application,
                         new_files_closure);
 }
 
-/**
- * application_empty_trash:
- * @application : a #Application.
- * @parent      : the parent, which can either be the associated
- *                #GtkWidget, the screen on which display the
- *                progress and the confirmation, or %NULL.
- *
- * Deletes all files and folders in the Trash after asking
- * the user to confirm the operation.
- **/
+static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list)
+{
+    (void) target_path_list;
+
+    return io_make_directories(source_path_list);
+}
+
 void application_empty_trash(Application *application, gpointer parent,
                              const gchar *startup_id)
 {
@@ -1145,12 +1021,12 @@ void application_empty_trash(Application *application, gpointer parent,
 
     // ask the user to confirm the operation
     GtkWidget *dialog = gtk_message_dialog_new(
-                        window,
-                        GTK_DIALOG_MODAL
-                        | GTK_DIALOG_DESTROY_WITH_PARENT,
-                        GTK_MESSAGE_QUESTION,
-                        GTK_BUTTONS_NONE,
-                        _("Remove all files and folders from the Trash?"));
+                                window,
+                                GTK_DIALOG_MODAL
+                                | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                GTK_MESSAGE_QUESTION,
+                                GTK_BUTTONS_NONE,
+                                _("Remove all files and folders from the Trash?"));
 
     if (G_UNLIKELY(window == NULL && screen != NULL))
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
@@ -1162,10 +1038,11 @@ void application_empty_trash(Application *application, gpointer parent,
                            _("_Empty Trash"), GTK_RESPONSE_YES,
                            NULL);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
+
     gtk_message_dialog_format_secondary_text(
-                GTK_MESSAGE_DIALOG(dialog),
-            _("If you choose to empty the Trash, all items in it will be permanently lost. "
-              "Please note that you can also delete them separately."));
+        GTK_MESSAGE_DIALOG(dialog),
+        _("If you choose to empty the Trash, all items in it will be permanently "
+          "lost. Please note that you can also delete them separately."));
 
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
 
@@ -1200,50 +1077,34 @@ void application_empty_trash(Application *application, gpointer parent,
     }
 }
 
-/**
- * application_restore_files:
- * @application       : a #Application.
- * @parent            : a #GdkScreen, a #GtkWidget or %NULL.
- * @trash_file_list   : a #GList of #ThunarFile<!---->s in the trash.
- * @new_files_closure : a #GClosure to connect to the job's "new-files" signal,
- *                      which will be emitted when the job finishes with the
- *                      list of #GFile<!---->s created by the job, or
- *                      %NULL if you're not interested in the signal.
- *
- * Restores all #ThunarFile<!---->s in the @trash_file_list to their original
- * location.
- **/
-void application_restore_files(Application *application,
-                               gpointer    parent,
-                               GList       *trash_file_list,
-                               GClosure    *new_files_closure)
+void application_restore_files(Application *application, gpointer parent,
+                               GList *trash_file_list, GClosure *new_files_closure)
 {
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(parent == NULL
                      || GDK_IS_SCREEN(parent)
                      || GTK_IS_WIDGET(parent));
 
-    GList *lp;
+    GList *lp = NULL;
     GError *err = NULL;
     GList *source_path_list = NULL;
     GList *target_path_list = NULL;
 
     for (lp = trash_file_list; lp != NULL; lp = lp->next)
     {
-        const gchar *original_uri;
-        GFile       *target_path;
-        original_uri = th_file_get_original_path(lp->data);
+        const gchar *original_uri = th_file_get_original_path(lp->data);
+
         if (G_UNLIKELY(original_uri == NULL))
         {
             // no OriginalPath, impossible to continue
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL,
-                         _("Failed to determine the original path for \"%s\""),
-                         th_file_get_display_name(lp->data));
+                        _("Failed to determine the original path for \"%s\""),
+                        th_file_get_display_name(lp->data));
             break;
         }
 
         // TODO we might have to distinguish between URIs and paths here
-        target_path = g_file_new_for_commandline_arg(original_uri);
+        GFile *target_path = g_file_new_for_commandline_arg(original_uri);
 
         source_path_list = e_list_append_ref(source_path_list, th_file_get_file(lp->data));
         target_path_list = e_list_append_ref(target_path_list, target_path);
@@ -1253,30 +1114,29 @@ void application_restore_files(Application *application,
 
     if (G_UNLIKELY(err != NULL))
     {
-        // display an error dialog
         dialog_error(parent,
                      err,
                      _("Could not restore \"%s\""),
                      th_file_get_display_name(lp->data));
 
         g_error_free(err);
-    }
-    else
-    {
-        // launch the operation
-        _application_launch(application,
-                            parent,
-                            "stock_folder-move",
-                            _("Restoring files..."),
-                            io_restore_files,
-                            source_path_list,
-                            target_path_list,
-                            TRUE,
-                            TRUE,
-                            new_files_closure);
+        e_list_free(source_path_list);
+        e_list_free(target_path_list);
+
+        return;
     }
 
-    // free path lists
+    _application_launch(application,
+                        parent,
+                        "stock_folder-move",
+                        _("Restoring files..."),
+                        io_restore_files,
+                        source_path_list,
+                        target_path_list,
+                        TRUE,
+                        TRUE,
+                        new_files_closure);
+
     e_list_free(source_path_list);
     e_list_free(target_path_list);
 }
@@ -1303,7 +1163,7 @@ static void _application_collect_and_launch(Application  *application,
 
     // generate the target path list
     for (GList *lp = g_list_last(source_file_list);
-                            err == NULL && lp != NULL; lp = lp->prev)
+                                    err == NULL && lp != NULL; lp = lp->prev)
     {
         // verify that we're not trying to collect a root node
         if (G_UNLIKELY(e_file_is_root(lp->data)))
@@ -1331,36 +1191,36 @@ static void _application_collect_and_launch(Application  *application,
 
         // release the error
         g_error_free(err);
-    }
-    else
-    {
-        // launch the operation
-        _application_launch(application,
-                            parent,
-                            icon_name,
-                            title,
-                            launcher,
-                            source_file_list,
-                            target_file_list,
-                            update_source_folders,
-                            update_target_folders,
-                            new_files_closure);
+        e_list_free(target_file_list);
+
+        return;
     }
 
-    // release the target path list
+    // launch the operation
+    _application_launch(application,
+                        parent,
+                        icon_name,
+                        title,
+                        launcher,
+                        source_file_list,
+                        target_file_list,
+                        update_source_folders,
+                        update_target_folders,
+                        new_files_closure);
+
     e_list_free(target_file_list);
 }
 
-static void _application_launch(Application *application,
-                                gpointer           parent,
-                                const gchar       *icon_name,
-                                const gchar       *title,
-                                LauncherFunc      launcher,
-                                GList             *source_file_list,
-                                GList             *target_file_list,
-                                gboolean           update_source_folders,
-                                gboolean           update_target_folders,
-                                GClosure          *new_files_closure)
+static void _application_launch(Application  *application,
+                                gpointer     parent,
+                                const gchar  *icon_name,
+                                const gchar  *title,
+                                LauncherFunc launcher,
+                                GList        *source_file_list,
+                                GList        *target_file_list,
+                                gboolean     update_source_folders,
+                                gboolean     update_target_folders,
+                                GClosure     *new_files_closure)
 {
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
 
@@ -1405,23 +1265,23 @@ static void _application_launch(Application *application,
     {
         // show the dialog immediately
         _application_show_dialogs(application);
-    }
-    else
-    {
-        /* Set up a timer to show the dialog, to make sure we don't
-         * just popup and destroy a dialog for a very short job. */
-        if (G_LIKELY(application->show_dialogs_timer_id == 0))
-        {
-            application->show_dialogs_timer_id =
-                gdk_threads_add_timeout_full(G_PRIORITY_DEFAULT,
-                                             750,
-                                             _application_show_dialogs,
-                                             application,
-                                             _application_show_dialogs_destroy);
-        }
+        g_object_unref(job);
+
+        return;
     }
 
-    // drop our reference on the job
+    /* Set up a timer to show the dialog, to make sure we don't
+     * just popup and destroy a dialog for a very short job. */
+    if (G_LIKELY(application->show_dialogs_timer_id == 0))
+    {
+        application->show_dialogs_timer_id =
+            gdk_threads_add_timeout_full(G_PRIORITY_DEFAULT,
+                                         750,
+                                         _application_show_dialogs,
+                                         application,
+                                         _application_show_dialogs_destroy);
+    }
+
     g_object_unref(job);
 }
 

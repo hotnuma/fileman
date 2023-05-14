@@ -48,13 +48,13 @@ G_LOCK_DEFINE_STATIC(_file_rename_mutex);
     (file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); \
     }G_STMT_END
 
-// Allocation -----------------------------------------------------------------
+// ThunarFile -----------------------------------------------------------------
 
 static void th_fileinfo_init(FileInfoIface *iface);
 static void th_file_dispose(GObject *object);
 static void th_file_finalize(GObject *object);
 
-// FileInfo ------------------------------------------------------------
+// FileInfo -------------------------------------------------------------------
 
 static gchar* th_fileinfo_get_name(FileInfo *file_info);
 static gchar* th_fileinfo_get_uri(FileInfo *file_info);
@@ -128,8 +128,6 @@ _th_file_dirs[] =
     {G_USER_DIRECTORY_VIDEOS,       "folder-videos"}
 };
 
-// ----------------------------------------------------------------------------
-
 typedef enum
 {
     // storage for ThunarFileThumbState
@@ -158,7 +156,7 @@ typedef struct
 
 } ThunarFileGetData;
 
-// Allocation -----------------------------------------------------------------
+// ThunarFile -----------------------------------------------------------------
 
 enum
 {
