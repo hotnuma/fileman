@@ -311,7 +311,7 @@ static void th_folder_get_property(GObject *object, guint prop_id,
 }
 
 static void th_folder_set_property(GObject *object, guint prop_id,
-                                   const GValue *value, GParamSpec   *pspec)
+                                   const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 

@@ -975,7 +975,7 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     names_string = g_string_new(NULL);
 
     // collect data of the selected files
-    for(lp = dialog->files; lp != NULL; lp = lp->next)
+    for (lp = dialog->files; lp != NULL; lp = lp->next)
     {
         e_assert(THUNAR_IS_FILE(lp->data));
         file = THUNAR_FILE(lp->data);
@@ -1115,15 +1115,15 @@ static void _propsdlg_update(PropertiesDialog *dialog)
 
         // update the properties for a dialog showing 1 file
         _propsdlg_update_single(dialog);
-    }
-    else
-    {
-        // show multiple files box
-        gtk_widget_hide(dialog->single_box);
 
-        // update the properties for a dialog showing multiple files
-        _propsdlg_update_multiple(dialog);
+        return;
     }
+
+    // show multiple files box
+    gtk_widget_hide(dialog->single_box);
+
+    // update the properties for a dialog showing multiple files
+    _propsdlg_update_multiple(dialog);
 }
 
 GtkWidget* propsdlg_new(GtkWindow *parent)
@@ -1138,22 +1138,22 @@ GtkWidget* propsdlg_new(GtkWindow *parent)
 static GList* _propsdlg_get_files(PropertiesDialog *dialog)
 {
     e_return_val_if_fail(IS_PROPERTIES_DIALOG(dialog), NULL);
+
     return dialog->files;
 }
 
 void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
 {
-    GList      *lp;
-    ThunarFile *file;
-
     e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
 
     // check if the same lists are used(or null)
     if (G_UNLIKELY(dialog->files == files))
         return;
 
+    ThunarFile *file;
+
     // disconnect from any previously set files
-    for(lp = dialog->files; lp != NULL; lp = lp->next)
+    for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
     {
         file = THUNAR_FILE(lp->data);
 
@@ -1172,7 +1172,7 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
     dialog->files = g_list_copy(files);
 
     // connect to the new files
-    for(lp = dialog->files; lp != NULL; lp = lp->next)
+    for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
     {
         e_assert(THUNAR_IS_FILE(lp->data));
         file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
@@ -1181,8 +1181,10 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
         th_file_watch(file);
 
         // install signal handlers
-        g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(_propsdlg_update), dialog);
-        g_signal_connect_swapped(G_OBJECT(file), "destroy", G_CALLBACK(gtk_widget_destroy), dialog);
+        g_signal_connect_swapped(G_OBJECT(file), "changed",
+                                 G_CALLBACK(_propsdlg_update), dialog);
+        g_signal_connect_swapped(G_OBJECT(file), "destroy",
+                                 G_CALLBACK(gtk_widget_destroy), dialog);
     }
 
     // update the dialog contents
@@ -1201,24 +1203,22 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
 
 void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
 {
-    GList foo;
-
     e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
     e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     if (file == NULL)
     {
         propsdlg_set_files(dialog, NULL);
+        return;
     }
-    else
-    {
-        // create a fake list
-        foo.next = NULL;
-        foo.prev = NULL;
-        foo.data = file;
 
-        propsdlg_set_files(dialog, &foo);
-    }
+    // create a fake list
+    GList foo;
+    foo.next = NULL;
+    foo.prev = NULL;
+    foo.data = file;
+
+    propsdlg_set_files(dialog, &foo);
 }
 
 

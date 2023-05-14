@@ -1022,7 +1022,9 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
         gtk_tree_view_set_model(GTK_TREE_VIEW(dialog->tree_view), NULL);
 
         // disconnect us from the file
-        g_signal_handlers_disconnect_by_func(G_OBJECT(dialog->file), gtk_widget_destroy, dialog);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(dialog->file),
+                                             gtk_widget_destroy,
+                                             dialog);
         th_file_unwatch(THUNAR_FILE(dialog->file));
         g_object_unref(G_OBJECT(dialog->file));
     }

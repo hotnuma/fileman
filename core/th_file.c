@@ -143,18 +143,18 @@ typedef enum
 
 typedef struct
 {
+    ThunarFileGetFunc   func;
+    gpointer            user_data;
+    GCancellable        *cancellable;
+
+} ThunarFileGetData;
+
+typedef struct
+{
     GFileMonitor    *monitor;
     guint           watch_count;
 
 } ThunarFileWatch;
-
-typedef struct
-{
-    ThunarFileGetFunc func;
-    gpointer        user_data;
-    GCancellable    *cancellable;
-
-} ThunarFileGetData;
 
 // ThunarFile -----------------------------------------------------------------
 
@@ -2846,20 +2846,22 @@ void th_file_reload_idle_unref(ThunarFile *file)
  **/
 void th_file_watch(ThunarFile *file)
 {
-    ThunarFileWatch *file_watch;
     GError          *error = NULL;
 
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    file_watch = g_object_get_qdata(G_OBJECT(file), _file_watch_quark);
+    ThunarFileWatch *file_watch = g_object_get_qdata(G_OBJECT(file), _file_watch_quark);
+
     if (file_watch == NULL)
     {
         file_watch = g_slice_new(ThunarFileWatch);
         file_watch->watch_count = 1;
 
         // create a file or directory monitor
-        file_watch->monitor = g_file_monitor(file->gfile, G_FILE_MONITOR_WATCH_MOUNTS |
-                                              G_FILE_MONITOR_WATCH_MOVES, NULL, &error);
+        file_watch->monitor = g_file_monitor(file->gfile,
+                                             G_FILE_MONITOR_WATCH_MOUNTS
+                                             | G_FILE_MONITOR_WATCH_MOVES,
+                                             NULL, &error);
 
         if (G_UNLIKELY(file_watch->monitor == NULL))
         {
@@ -2875,13 +2877,16 @@ void th_file_watch(ThunarFile *file)
         }
 
         // attach to file
-        g_object_set_qdata_full(G_OBJECT(file), _file_watch_quark,
-                                file_watch, _th_file_watch_destroyed);
+        g_object_set_qdata_full(G_OBJECT(file),
+                                _file_watch_quark,
+                                file_watch,
+                                _th_file_watch_destroyed);
     }
     else if (G_LIKELY(!file->no_file_watch))
     {
         // increase watch count
         e_return_if_fail(G_IS_FILE_MONITOR(file_watch->monitor));
+
         file_watch->watch_count++;
     }
 }
