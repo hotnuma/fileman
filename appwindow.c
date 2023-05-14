@@ -130,9 +130,9 @@ static void _window_action_back(AppWindow *window);
 static void _window_action_forward(AppWindow *window);
 static void _window_action_go_up(AppWindow *window);
 static void _window_action_open_home(AppWindow *window);
-static void _window_action_show_hidden(AppWindow *window);
 static void _window_action_key_reload(AppWindow *window, GtkWidget *menu_item);
 static void _window_action_key_rename(AppWindow *window);
+static void _window_action_key_show_hidden(AppWindow *window);
 static void _window_action_key_trash(AppWindow *window);
 static void _window_action_debug(AppWindow *window, GtkWidget *menu_item);
 
@@ -185,15 +185,6 @@ static XfceGtkActionEntry _window_actions[] =
      "go-home-symbolic",
      G_CALLBACK(_window_action_open_home)},
 
-    {WINDOW_ACTION_SHOW_HIDDEN,
-     "<Actions>/AppWindow/show-hidden",
-     "<Primary>h",
-     XFCE_GTK_CHECK_MENU_ITEM,
-     N_("Show _Hidden Files"),
-     N_("Toggles the display of hidden files in the current window"),
-     NULL,
-     G_CALLBACK(_window_action_show_hidden)},
-
     {WINDOW_ACTION_KEY_RELOAD,
      "<Actions>/AppWindow/key-reload",
      "F5",
@@ -211,6 +202,15 @@ static XfceGtkActionEntry _window_actions[] =
      NULL,
      NULL,
      G_CALLBACK(_window_action_key_rename)},
+
+    {WINDOW_ACTION_KEY_SHOW_HIDDEN,
+     "<Actions>/AppWindow/show-hidden",
+     "<Primary>h",
+     0,     //XFCE_GTK_CHECK_MENU_ITEM,
+     NULL,  // N_("Show _Hidden Files"),
+     NULL,   // N_("Toggles the display of hidden files in the current window"),
+     NULL,
+     G_CALLBACK(_window_action_key_show_hidden)},
 
     {WINDOW_ACTION_KEY_TRASH,
      "<Actions>/StandardView/key-trash",
@@ -856,11 +856,6 @@ ThunarFile* window_get_current_directory(AppWindow *window)
     return window->current_directory;
 }
 
-/**
- * window_set_current_directory:
- * @window            : a #AppWindow instance.
- * @current_directory : the new directory or %NULL.
- **/
 void window_set_current_directory(AppWindow *window, ThunarFile *current_directory)
 {
 //  DPRINT("enter : window_set_current_directory\n");
@@ -922,6 +917,109 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
      * state already while the folder view is loading. */
 
     g_object_notify(G_OBJECT(window), "current-directory");
+}
+
+static void _window_create_view(AppWindow *window, GtkWidget *view,
+                                GType view_type)
+{
+    e_return_if_fail(view_type != G_TYPE_NONE);
+    e_assert(view == NULL);
+
+    ThunarFile     *file = NULL;
+    ThunarFile     *current_directory = NULL;
+    GtkWidget      *new_view;
+    ThunarHistory  *history = NULL;
+    GList          *selected_files = NULL;
+    gint            page_num;
+
+    if (view != NULL)
+        return;
+
+    //DPRINT("enter : window_create_view\n");
+
+    /* if we have not got a current directory from the old view, use the
+     *  window's current directory */
+    if (current_directory == NULL && window->current_directory != NULL)
+        current_directory = g_object_ref(window->current_directory);
+
+    e_assert(current_directory != NULL);
+
+    page_num = -1;
+
+    // insert the new view
+    new_view = _window_notebook_insert(window, current_directory, view_type, page_num + 1, history);
+
+    // switch to the new view
+    page_num = gtk_notebook_page_num(GTK_NOTEBOOK(window->notebook), new_view);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook), page_num);
+
+    // take focus on the new view
+    gtk_widget_grab_focus(new_view);
+
+    // scroll to the previously visible file in the old view
+    if (G_UNLIKELY(file != NULL))
+        baseview_scroll_to_file(BASEVIEW(new_view), file, FALSE, TRUE, 0.0f, 0.0f);
+
+    // restore the file selection
+    component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
+    e_list_free(selected_files);
+
+    // release the file references
+    if (G_UNLIKELY(file != NULL))
+        g_object_unref(G_OBJECT(file));
+
+    if (G_UNLIKELY(current_directory != NULL))
+        g_object_unref(G_OBJECT(current_directory));
+
+    // connect to the new history if this is the active view
+    history = standardview_get_history(STANDARD_VIEW(new_view));
+
+    window->signal_handler_id_history_changed =
+        g_signal_connect_swapped(G_OBJECT(history),
+                                 "history-changed",
+                                 G_CALLBACK(_window_history_changed),
+                                 window);
+}
+
+static void _window_current_directory_changed(ThunarFile *current_directory,
+                                              AppWindow *window)
+{
+    e_return_if_fail(IS_APPWINDOW(window));
+    e_return_if_fail(THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(window->current_directory == current_directory);
+
+    gboolean show_full_path = false;
+    gchar *parse_name = NULL;
+    const gchar *name;
+
+    if (G_UNLIKELY(show_full_path))
+        name = parse_name = g_file_get_parse_name(th_file_get_file(current_directory));
+    else
+        name = th_file_get_display_name(current_directory);
+
+    // set window title
+    gtk_window_set_title(GTK_WINDOW(window), name);
+    g_free(parse_name);
+
+    // set window icon
+    _window_update_window_icon(window);
+}
+
+static void _window_update_window_icon(AppWindow *window)
+{
+    const gchar *icon_name = "folder";
+
+    gboolean change_window_icon = true;
+
+    if (change_window_icon)
+    {
+        GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(gtk_window_get_screen(GTK_WINDOW(window)));
+        icon_name = th_file_get_icon_name(window->current_directory,
+                                               THUNAR_FILE_ICON_STATE_DEFAULT,
+                                               icon_theme);
+    }
+
+    gtk_window_set_icon_name(GTK_WINDOW(window), icon_name);
 }
 
 static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level)
@@ -1008,11 +1106,9 @@ static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
 }
 
 static void _window_device_changed(DeviceMonitor *device_monitor,
-                                   ThunarDevice  *device,
-                                   AppWindow  *window)
+                                   ThunarDevice *device,
+                                   AppWindow *window)
 {
-    GFile *root_file;
-
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(window->device_monitor == device_monitor);
     e_return_if_fail(THUNAR_IS_DEVICE(device));
@@ -1021,12 +1117,13 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
     if (th_device_is_mounted(device))
         return;
 
-    root_file = th_device_get_root(device);
-    if (root_file != NULL)
-    {
-        _window_device_pre_unmount(device_monitor, device, root_file, window);
-        g_object_unref(root_file);
-    }
+    GFile *root_file = th_device_get_root(device);
+
+    if (root_file == NULL)
+        return;
+
+    _window_device_pre_unmount(device_monitor, device, root_file, window);
+    g_object_unref(root_file);
 }
 
 static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_event,
@@ -1050,19 +1147,15 @@ static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_eve
     return GDK_EVENT_PROPAGATE;
 }
 
-/**
- * window_select_files:
- * @window            : a #AppWindow instance.
- * @files_to_selected : a list of #GFile<!---->s
- *
- * Visually selects the files, given by the list
- **/
 static void _window_select_files(AppWindow *window, GList *files_to_selected)
 {
     e_return_if_fail(IS_APPWINDOW(window));
 
-    // If possible, reload the current directory to make sure new files got added to the view
+    /* If possible, reload the current directory to make sure new files
+     * got added to the view */
+
     ThunarFolder *thunar_folder = th_folder_get_for_file(window->current_directory);
+
     if (thunar_folder != NULL)
     {
         th_folder_load(thunar_folder, FALSE);
@@ -1083,21 +1176,20 @@ static void _window_select_files(AppWindow *window, GList *files_to_selected)
 static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
                                         GtkWidget *data)
 {
-    ThunarHistory *history;
-    AppWindow  *window;
-
     e_return_val_if_fail(IS_APPWINDOW(data), FALSE);
 
-    window = APPWINDOW(data);
+    AppWindow *window = APPWINDOW(data);
 
     if (event->button == 3)
     {
-        history = standardview_get_history(STANDARD_VIEW(window->view));
+        ThunarHistory *history = standardview_get_history(STANDARD_VIEW(window->view));
 
         if (button == window->toolbar_item_back)
             history_show_menu(history, THUNAR_HISTORY_MENU_BACK, button);
+
         else if (button == window->toolbar_item_forward)
             history_show_menu(history, THUNAR_HISTORY_MENU_FORWARD, button);
+
         else
             g_warning("This button is not able to spawn a history menu");
     }
@@ -1361,13 +1453,55 @@ static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
     //DPRINT("enter : window_notebook_page_added\n");
 
     // connect signals
-    g_signal_connect(G_OBJECT(page), "notify::loading", G_CALLBACK(_window_notify_loading), window);
-    g_signal_connect_swapped(G_OBJECT(page), "start-open-location", G_CALLBACK(_window_start_open_location), window);
-    g_signal_connect_swapped(G_OBJECT(page), "change-directory", G_CALLBACK(window_set_current_directory), window);
+    g_signal_connect(G_OBJECT(page), "notify::loading",
+                     G_CALLBACK(_window_notify_loading), window);
+
+    g_signal_connect_swapped(G_OBJECT(page), "start-open-location",
+                             G_CALLBACK(_window_start_open_location), window);
+
+    g_signal_connect_swapped(G_OBJECT(page), "change-directory",
+                             G_CALLBACK(window_set_current_directory), window);
 
     // update tab visibility
     //window_notebook_show_tabs(window);
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(window->notebook), FALSE);
+}
+
+static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
+                                   AppWindow *window)
+{
+    e_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    (void) pspec;
+
+    GdkCursor *cursor;
+
+    if (gtk_widget_get_realized(GTK_WIDGET(window))
+            && window->view == GTK_WIDGET(view))
+    {
+        // setup the proper cursor
+        if (baseview_get_loading(view))
+        {
+            cursor = gdk_cursor_new_for_display(gtk_widget_get_display(GTK_WIDGET(view)), GDK_WATCH);
+            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), cursor);
+            g_object_unref(cursor);
+        }
+        else
+        {
+            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), NULL);
+        }
+    }
+}
+
+static void _window_start_open_location(AppWindow *window,
+                                        const gchar *initial_text)
+{
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    // temporary show the location toolbar, even if it is normally hidden
+    gtk_widget_show(window->toolbar);
+    locbar_request_entry(LOCATIONBAR(window->location_bar), initial_text);
 }
 
 static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
@@ -1427,8 +1561,15 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     label_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
 
     label = gtk_label_new(NULL);
-    g_object_bind_property(G_OBJECT(view), "display-name", G_OBJECT(label), "label", G_BINDING_SYNC_CREATE);
-    g_object_bind_property(G_OBJECT(view), "tooltip-text", G_OBJECT(label), "tooltip-text", G_BINDING_SYNC_CREATE);
+
+    g_object_bind_property(G_OBJECT(view), "display-name",
+                           G_OBJECT(label), "label",
+                           G_BINDING_SYNC_CREATE);
+
+    g_object_bind_property(G_OBJECT(view), "tooltip-text",
+                           G_OBJECT(label), "tooltip-text",
+                           G_BINDING_SYNC_CREATE);
+
     gtk_widget_set_has_tooltip(label, TRUE);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
     gtk_widget_set_margin_start(GTK_WIDGET(label), 3);
@@ -1446,7 +1587,8 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     gtk_widget_set_focus_on_click(button, FALSE);
     gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
     gtk_widget_set_tooltip_text(button, _("Close tab"));
-    g_signal_connect_swapped(G_OBJECT(button), "clicked", G_CALLBACK(gtk_widget_destroy), view);
+    g_signal_connect_swapped(G_OBJECT(button), "clicked",
+                             G_CALLBACK(gtk_widget_destroy), view);
     gtk_widget_show(button);
 
     icon = gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
@@ -1464,6 +1606,8 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     return view;
 }
 
+// Public ---------------------------------------------------------------------
+
 void window_update_directories(AppWindow *window, ThunarFile *old_directory,
                                ThunarFile *new_directory)
 {
@@ -1471,27 +1615,29 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
     e_return_if_fail(THUNAR_IS_FILE(old_directory));
     e_return_if_fail(THUNAR_IS_FILE(new_directory));
 
-    GtkWidget  *view;
-    ThunarFile *directory;
-    gint        n;
-    gint        n_pages;
-    gint        active_page;
 
+    gint n_pages;
     n_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook));
+
     if (G_UNLIKELY(n_pages == 0))
         return;
 
+    gint active_page;
     active_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(window->notebook));
 
-    for(n = 0; n < n_pages; n++)
+    for (gint n = 0; n < n_pages; n++)
     {
         // get the view
+        GtkWidget *view;
         view = gtk_notebook_get_nth_page(GTK_NOTEBOOK(window->notebook), n);
+
         if (! THUNAR_IS_NAVIGATOR(view))
             continue;
 
         // get the directory of the view
+        ThunarFile *directory;
         directory = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+
         if (! THUNAR_IS_FILE(directory))
             continue;
 
@@ -1506,111 +1652,38 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
     }
 }
 
-static void _window_update_window_icon(AppWindow *window)
+GtkWidget* window_get_focused_tree_view(AppWindow *window)
 {
-    const gchar *icon_name = "folder";
+    e_return_val_if_fail(IS_APPWINDOW(window), NULL);
 
-    gboolean change_window_icon = true;
+    GtkWidget *tree_view = GTK_WIDGET(treepane_get_view(
+                                     TREEPANE(window->sidepane)));
 
-    if (change_window_icon)
-    {
-        GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(gtk_window_get_screen(GTK_WINDOW(window)));
-        icon_name = th_file_get_icon_name(window->current_directory,
-                                               THUNAR_FILE_ICON_STATE_DEFAULT,
-                                               icon_theme);
-    }
+    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
 
-    gtk_window_set_icon_name(GTK_WINDOW(window), icon_name);
-}
-
-static void _window_start_open_location(AppWindow *window,
-                                        const gchar *initial_text)
-{
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    // temporary show the location toolbar, even if it is normally hidden
-    gtk_widget_show(window->toolbar);
-    locbar_request_entry(LOCATIONBAR(window->location_bar), initial_text);
+    return (tree_view == focused) ? tree_view : NULL;
 }
 
 // Actions --------------------------------------------------------------------
 
-static void _window_action_key_reload(AppWindow *window, GtkWidget *menu_item)
+static void _window_action_back(AppWindow *window)
 {
+    ThunarHistory *history;
+
     e_return_if_fail(IS_APPWINDOW(window));
 
-    (void) menu_item;
-
-    gboolean result;
-
-    // force the view to reload
-    g_signal_emit(G_OBJECT(window), _window_signals[RELOAD], 0, TRUE, &result);
-
-    // update the location bar to show the current directory
-    if (window->location_bar != NULL)
-        g_object_notify(G_OBJECT(window->location_bar), "current-directory");
+    history = standardview_get_history(STANDARD_VIEW(window->view));
+    history_action_back(history);
 }
 
-static void _window_create_view(AppWindow *window, GtkWidget *view,
-                                GType view_type)
+static void _window_action_forward(AppWindow *window)
 {
-    e_return_if_fail(view_type != G_TYPE_NONE);
-    e_assert(view == NULL);
+    ThunarHistory *history;
 
-    ThunarFile     *file = NULL;
-    ThunarFile     *current_directory = NULL;
-    GtkWidget      *new_view;
-    ThunarHistory  *history = NULL;
-    GList          *selected_files = NULL;
-    gint            page_num;
+    e_return_if_fail(IS_APPWINDOW(window));
 
-    if (view != NULL)
-        return;
-
-    //DPRINT("enter : window_create_view\n");
-
-    /* if we have not got a current directory from the old view, use the
-     *  window's current directory */
-    if (current_directory == NULL && window->current_directory != NULL)
-        current_directory = g_object_ref(window->current_directory);
-
-    e_assert(current_directory != NULL);
-
-    page_num = -1;
-
-    // insert the new view
-    new_view = _window_notebook_insert(window, current_directory, view_type, page_num + 1, history);
-
-    // switch to the new view
-    page_num = gtk_notebook_page_num(GTK_NOTEBOOK(window->notebook), new_view);
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook), page_num);
-
-    // take focus on the new view
-    gtk_widget_grab_focus(new_view);
-
-    // scroll to the previously visible file in the old view
-    if (G_UNLIKELY(file != NULL))
-        baseview_scroll_to_file(BASEVIEW(new_view), file, FALSE, TRUE, 0.0f, 0.0f);
-
-    // restore the file selection
-    component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
-    e_list_free(selected_files);
-
-    // release the file references
-    if (G_UNLIKELY(file != NULL))
-        g_object_unref(G_OBJECT(file));
-
-    if (G_UNLIKELY(current_directory != NULL))
-        g_object_unref(G_OBJECT(current_directory));
-
-    // connect to the new history if this is the active view
-    history = standardview_get_history(STANDARD_VIEW(new_view));
-
-    window->signal_handler_id_history_changed =
-        g_signal_connect_swapped(G_OBJECT(history),
-                                 "history-changed",
-                                 G_CALLBACK(_window_history_changed),
-                                 window);
+    history = standardview_get_history(STANDARD_VIEW(window->view));
+    history_action_forward(history);
 }
 
 static void _window_action_go_up(AppWindow *window)
@@ -1637,65 +1710,52 @@ static void _window_action_go_up(AppWindow *window)
     }
 }
 
-static void _window_action_back(AppWindow *window)
-{
-    ThunarHistory *history;
-
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    history = standardview_get_history(STANDARD_VIEW(window->view));
-    history_action_back(history);
-}
-
-static void _window_action_forward(AppWindow *window)
-{
-    ThunarHistory *history;
-
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    history = standardview_get_history(STANDARD_VIEW(window->view));
-    history_action_forward(history);
-}
-
 static void _window_action_open_home(AppWindow *window)
 {
-    GFile         *home;
-    ThunarFile    *home_file;
-    GError        *error = NULL;
-
     e_return_if_fail(IS_APPWINDOW(window));
 
     // determine the path to the home directory
-    home = e_file_new_for_home();
+    GFile *home = e_file_new_for_home();
 
     // determine the file for the home directory
-    home_file = th_file_get(home, &error);
+    GError *error = NULL;
+
+    ThunarFile *home_file = th_file_get(home, &error);
+
     if (G_UNLIKELY(home_file == NULL))
     {
         // display an error to the user
-        dialog_error(GTK_WIDGET(window), error, _("Failed to open the home folder"));
+        dialog_error(GTK_WIDGET(window),
+                     error,
+                     _("Failed to open the home folder"));
         g_error_free(error);
+        g_object_unref(home);
+
+        return;
     }
-    else
-    {
-        // open the home folder
-        window_set_current_directory(window, home_file);
-        g_object_unref(G_OBJECT(home_file));
-    }
+
+    // open the home folder
+    window_set_current_directory(window, home_file);
+    g_object_unref(G_OBJECT(home_file));
 
     // release our reference on the home path
     g_object_unref(home);
 }
 
-static void _window_action_show_hidden(AppWindow *window)
+static void _window_action_key_reload(AppWindow *window, GtkWidget *menu_item)
 {
     e_return_if_fail(IS_APPWINDOW(window));
 
-    window->show_hidden = !window->show_hidden;
-    gtk_container_foreach(GTK_CONTAINER(window->notebook),(GtkCallback)(void(*)(void)) baseview_set_show_hidden, GINT_TO_POINTER(window->show_hidden));
+    (void) menu_item;
 
-    if (G_LIKELY(window->sidepane != NULL))
-        sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
+    gboolean result;
+
+    // force the view to reload
+    g_signal_emit(G_OBJECT(window), _window_signals[RELOAD], 0, TRUE, &result);
+
+    // update the location bar to show the current directory
+    if (window->location_bar != NULL)
+        g_object_notify(G_OBJECT(window->location_bar), "current-directory");
 }
 
 static void _window_action_key_rename(AppWindow *window)
@@ -1709,6 +1769,17 @@ static void _window_action_key_rename(AppWindow *window)
     }
 
     launcher_action_rename(window->launcher);
+}
+
+static void _window_action_key_show_hidden(AppWindow *window)
+{
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    window->show_hidden = !window->show_hidden;
+    gtk_container_foreach(GTK_CONTAINER(window->notebook),(GtkCallback)(void(*)(void)) baseview_set_show_hidden, GINT_TO_POINTER(window->show_hidden));
+
+    if (G_LIKELY(window->sidepane != NULL))
+        sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
 }
 
 static void _window_action_key_trash(AppWindow *window)
@@ -1739,96 +1810,7 @@ static void _window_action_debug(AppWindow *window, GtkWidget *menu_item)
     syslog(LOG_INFO, "focused widget = %s\n", name);
 }
 
-// ----------------------------------------------------------------------------
-
-static void _window_current_directory_changed(ThunarFile *current_directory,
-                                              AppWindow *window)
-{
-    e_return_if_fail(IS_APPWINDOW(window));
-    e_return_if_fail(THUNAR_IS_FILE(current_directory));
-    e_return_if_fail(window->current_directory == current_directory);
-
-    gboolean show_full_path = false;
-    gchar *parse_name = NULL;
-    const gchar *name;
-
-    if (G_UNLIKELY(show_full_path))
-        name = parse_name = g_file_get_parse_name(th_file_get_file(current_directory));
-    else
-        name = th_file_get_display_name(current_directory);
-
-    // set window title
-    gtk_window_set_title(GTK_WINDOW(window), name);
-    g_free(parse_name);
-
-    // set window icon
-    _window_update_window_icon(window);
-}
-
-static void _window_menu_item_selected(AppWindow *window, GtkWidget *menu_item)
-{
-    gchar *tooltip;
-    gint   id;
-
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    // we can only display tooltips if we have a statusbar
-    if (G_LIKELY(window->statusbar != NULL))
-    {
-        tooltip = gtk_widget_get_tooltip_text(menu_item);
-        if (G_LIKELY(tooltip != NULL))
-        {
-            // push to the statusbar
-            id = gtk_statusbar_get_context_id(GTK_STATUSBAR(window->statusbar), "Menu tooltip");
-            gtk_statusbar_push(GTK_STATUSBAR(window->statusbar), id, tooltip);
-            g_free(tooltip);
-        }
-    }
-}
-
-static void _window_menu_item_deselected(AppWindow *window,
-                                         GtkWidget *menu_item)
-{
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    (void) menu_item;
-    gint id;
-
-    // we can only undisplay tooltips if we have a statusbar
-    if (G_LIKELY(window->statusbar != NULL))
-    {
-        // drop the last tooltip from the statusbar
-        id = gtk_statusbar_get_context_id(GTK_STATUSBAR(window->statusbar), "Menu tooltip");
-        gtk_statusbar_pop(GTK_STATUSBAR(window->statusbar), id);
-    }
-}
-
-static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
-                                   AppWindow *window)
-{
-    e_return_if_fail(THUNAR_IS_VIEW(view));
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    (void) pspec;
-
-    GdkCursor *cursor;
-
-    if (gtk_widget_get_realized(GTK_WIDGET(window))
-            && window->view == GTK_WIDGET(view))
-    {
-        // setup the proper cursor
-        if (baseview_get_loading(view))
-        {
-            cursor = gdk_cursor_new_for_display(gtk_widget_get_display(GTK_WIDGET(view)), GDK_WATCH);
-            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), cursor);
-            g_object_unref(cursor);
-        }
-        else
-        {
-            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), NULL);
-        }
-    }
-}
+// Public ---------------------------------------------------------------------
 
 /**
  * window_scroll_to_file:
@@ -1842,19 +1824,20 @@ static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
  * Tells the @window to scroll to the @file
  * in the current view.
  **/
-void window_scroll_to_file(AppWindow *window,
-                           ThunarFile   *file,
-                           gboolean      select_file,
-                           gboolean      use_align,
-                           gfloat        row_align,
-                           gfloat        col_align)
+void window_scroll_to_file(AppWindow *window, ThunarFile *file, gboolean select_file,
+                           gboolean use_align, gfloat row_align, gfloat col_align)
 {
     e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(THUNAR_IS_FILE(file));
 
     // verify that we have a valid view
     if (G_LIKELY(window->view != NULL))
-        baseview_scroll_to_file(BASEVIEW(window->view), file, select_file, use_align, row_align, col_align);
+    {
+        baseview_scroll_to_file(BASEVIEW(window->view),
+                                file,
+                                select_file,
+                                use_align, row_align, col_align);
+    }
 }
 
 gchar** window_get_directories(AppWindow *window, gint *active_page)
@@ -1960,7 +1943,8 @@ void window_redirect_tooltips(AppWindow *window,
     e_return_if_fail(GTK_IS_MENU(menu));
 
     gtk_container_foreach(GTK_CONTAINER(menu),
-                          (GtkCallback)(void(*)(void)) _window_redirect_tooltips_r, window);
+                          (GtkCallback) _window_redirect_tooltips_r,
+                          window);
 }
 
 static void _window_redirect_tooltips_r(GtkWidget *menu_item,AppWindow *window)
@@ -1969,10 +1953,13 @@ static void _window_redirect_tooltips_r(GtkWidget *menu_item,AppWindow *window)
         return;
 
     GtkWidget *submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu_item));
+
     if (submenu != NULL)
+    {
         gtk_container_foreach(GTK_CONTAINER(submenu),
                               (GtkCallback) _window_redirect_tooltips_r,
                               window);
+    }
 
     // this disables to show the tooltip on hover
     gtk_widget_set_has_tooltip(menu_item, FALSE);
@@ -1984,16 +1971,42 @@ static void _window_redirect_tooltips_r(GtkWidget *menu_item,AppWindow *window)
                              G_CALLBACK(_window_menu_item_deselected), window);
 }
 
-GtkWidget* window_get_focused_tree_view(AppWindow *window)
+static void _window_menu_item_selected(AppWindow *window, GtkWidget *menu_item)
 {
-    e_return_val_if_fail(IS_APPWINDOW(window), NULL);
+    e_return_if_fail(IS_APPWINDOW(window));
 
-    GtkWidget *tree_view = GTK_WIDGET(treepane_get_view(
-                                     TREEPANE(window->sidepane)));
+    // we can only display tooltips if we have a statusbar
+    if (G_UNLIKELY(window->statusbar == NULL))
+        return;
 
-    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
+    gchar *tooltip = gtk_widget_get_tooltip_text(menu_item);
 
-    return (tree_view == focused) ? tree_view : NULL;
+    if (G_UNLIKELY(tooltip == NULL))
+        return;
+
+    // push to the statusbar
+    gint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(window->statusbar),
+                                           "Menu tooltip");
+    gtk_statusbar_push(GTK_STATUSBAR(window->statusbar), id, tooltip);
+
+    g_free(tooltip);
+}
+
+static void _window_menu_item_deselected(AppWindow *window, GtkWidget *menu_item)
+{
+    (void) menu_item;
+
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    // we can only undisplay tooltips if we have a statusbar
+    if (G_UNLIKELY(window->statusbar == NULL))
+        return;
+
+    // drop the last tooltip from the statusbar
+    gint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(window->statusbar),
+                                           "Menu tooltip");
+
+    gtk_statusbar_pop(GTK_STATUSBAR(window->statusbar), id);
 }
 
 
