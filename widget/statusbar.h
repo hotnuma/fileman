@@ -16,34 +16,38 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_STATUSBAR_H__
-#define __THUNAR_STATUSBAR_H__
+#ifndef __STATUSBAR_H__
+#define __STATUSBAR_H__
 
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarStatusbarClass ThunarStatusbarClass;
-typedef struct _ThunarStatusbar      ThunarStatusbar;
+// Statusbar ------------------------------------------------------------------
 
-#define THUNAR_TYPE_STATUSBAR (thunar_statusbar_get_type ())
-#define THUNAR_STATUSBAR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_STATUSBAR, ThunarStatusbar))
-#define THUNAR_STATUSBAR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_STATUSBAR, ThunarStatusbarClass))
-#define THUNAR_IS_STATUSBAR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_STATUSBAR))
-#define THUNAR_IS_STATUSBAR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_STATUSBAR))
-#define THUNAR_STATUSBAR_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_STATUSBAR, ThunarStatusbarClass))
+typedef struct _StatusbarClass StatusbarClass;
+typedef struct _Statusbar      Statusbar;
 
-GType thunar_statusbar_get_type() G_GNUC_CONST;
+#define TYPE_STATUSBAR (statusbar_get_type ())
+#define STATUSBAR(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_STATUSBAR, Statusbar))
+#define STATUSBAR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_STATUSBAR, StatusbarClass))
+#define IS_STATUSBAR(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_STATUSBAR))
+#define IS_STATUSBAR_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_STATUSBAR))
+#define STATUSBAR_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_STATUSBAR, StatusbarClass))
 
-GtkWidget* thunar_statusbar_new();
+GType statusbar_get_type() G_GNUC_CONST;
+
+// Public ---------------------------------------------------------------------
+
+GtkWidget* statusbar_new();
 
 G_END_DECLS
 
-#endif // !__THUNAR_STATUSBAR_H__
+#endif // __STATUSBAR_H__
 
 

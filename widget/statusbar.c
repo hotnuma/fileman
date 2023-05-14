@@ -21,48 +21,38 @@
 #include <config.h>
 #include <statusbar.h>
 
+static void statusbar_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec);
+static void _statusbar_set_text(Statusbar *statusbar, const gchar *text);
+
+// Statusbar ------------------------------------------------------------------
+
 enum
 {
     PROP_0,
     PROP_TEXT,
 };
 
-static void thunar_statusbar_set_property(GObject *object,
-                                          guint prop_id,
-                                          const GValue *value,
-                                          GParamSpec *pspec);
-
-static void _thunar_statusbar_set_text(ThunarStatusbar *statusbar, const gchar *text);
-
-
-struct _ThunarStatusbarClass
+struct _StatusbarClass
 {
     GtkStatusbarClass __parent__;
 };
 
-struct _ThunarStatusbar
+struct _Statusbar
 {
     GtkStatusbar __parent__;
     guint        context_id;
 };
 
-G_DEFINE_TYPE(ThunarStatusbar, thunar_statusbar, GTK_TYPE_STATUSBAR)
+G_DEFINE_TYPE(Statusbar, statusbar, GTK_TYPE_STATUSBAR)
 
-static void thunar_statusbar_class_init(ThunarStatusbarClass *klass)
+static void statusbar_class_init(StatusbarClass *klass)
 {
     static gboolean style_initialized = FALSE;
 
-    GObjectClass *gobject_class;
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->set_property = statusbar_set_property;
 
-    gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->set_property = thunar_statusbar_set_property;
-
-    /**
-     * ThunarStatusbar:text:
-     *
-     * The main text to be displayed in the statusbar. This property
-     * can only be written.
-     **/
     g_object_class_install_property(gobject_class,
                                     PROP_TEXT,
                                     g_param_spec_string("text",
@@ -83,28 +73,27 @@ static void thunar_statusbar_class_init(ThunarStatusbarClass *klass)
     }
 }
 
-static void thunar_statusbar_init(ThunarStatusbar *statusbar)
+static void statusbar_init(Statusbar *statusbar)
 {
-    statusbar->context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar), "Main text");
+    statusbar->context_id =
+        gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar), "Main text");
 
     // make the status thinner
     gtk_widget_set_margin_top(GTK_WIDGET(statusbar), 0);
     gtk_widget_set_margin_bottom(GTK_WIDGET(statusbar), 0);
 }
 
-static void thunar_statusbar_set_property(GObject      *object,
-                                          guint         prop_id,
-                                          const GValue *value,
-                                          GParamSpec   *pspec)
+static void statusbar_set_property(GObject *object, guint prop_id,
+                                   const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
-    ThunarStatusbar *statusbar = THUNAR_STATUSBAR(object);
+    Statusbar *statusbar = STATUSBAR(object);
 
     switch (prop_id)
     {
     case PROP_TEXT:
-        _thunar_statusbar_set_text(statusbar, g_value_get_string(value));
+        _statusbar_set_text(statusbar, g_value_get_string(value));
         break;
 
     default:
@@ -113,33 +102,20 @@ static void thunar_statusbar_set_property(GObject      *object,
     }
 }
 
-/**
- * thunar_statusbar_set_text:
- * @statusbar : a #ThunarStatusbar instance.
- * @text      : the main text to be displayed in @statusbar.
- *
- * Sets up a new main text for @statusbar.
- **/
-static void _thunar_statusbar_set_text(ThunarStatusbar *statusbar, const gchar *text)
+static void _statusbar_set_text(Statusbar *statusbar, const gchar *text)
 {
-    e_return_if_fail(THUNAR_IS_STATUSBAR(statusbar));
+    e_return_if_fail(IS_STATUSBAR(statusbar));
     e_return_if_fail(text != NULL);
 
     gtk_statusbar_pop(GTK_STATUSBAR(statusbar), statusbar->context_id);
     gtk_statusbar_push(GTK_STATUSBAR(statusbar), statusbar->context_id, text);
 }
 
-/**
- * thunar_statusbar_new:
- *
- * Allocates a new #ThunarStatusbar instance with no
- * text set.
- *
- * Return value: the newly allocated #ThunarStatusbar instance.
- **/
-GtkWidget* thunar_statusbar_new()
+// Public ---------------------------------------------------------------------
+
+GtkWidget* statusbar_new()
 {
-    return g_object_new(THUNAR_TYPE_STATUSBAR, NULL);
+    return g_object_new(TYPE_STATUSBAR, NULL);
 }
 
 

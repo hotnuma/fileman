@@ -51,7 +51,7 @@ static void window_set_property(GObject *object, guint prop_id,
 
 // ----------------------------------------------------------------------------
 
-static gboolean _window_delete(GtkWidget *widget, GdkEvent *event, gpointer data);
+static gboolean _window_delete(AppWindow *window, GdkEvent *event, gpointer data);
 
 static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
                                    gpointer userdata);
@@ -681,7 +681,7 @@ static void window_init(AppWindow *window)
     gtk_widget_set_can_focus(window->notebook, FALSE);
 
     // setup a new statusbar
-    window->statusbar = thunar_statusbar_new();
+    window->statusbar = statusbar_new();
     gtk_widget_set_hexpand(window->statusbar, TRUE);
     gtk_grid_attach(GTK_GRID(window->view_box), window->statusbar, 0, 2, 1, 1);
 
@@ -849,19 +849,10 @@ static void window_set_property(GObject *object, guint prop_id,
     }
 }
 
-/**
- * window_get_current_directory:
- * @window : a #AppWindow instance.
- *
- * Queries the #ThunarFile instance, which represents the directory
- * currently displayed within @window. %NULL is returned if @window
- * is not currently associated with any directory.
- *
- * Return value: the directory currently displayed within @window or %NULL.
- **/
 ThunarFile* window_get_current_directory(AppWindow *window)
 {
     e_return_val_if_fail(IS_APPWINDOW(window), NULL);
+
     return window->current_directory;
 }
 
@@ -870,8 +861,7 @@ ThunarFile* window_get_current_directory(AppWindow *window)
  * @window            : a #AppWindow instance.
  * @current_directory : the new directory or %NULL.
  **/
-void window_set_current_directory(AppWindow *window,
-                                  ThunarFile   *current_directory)
+void window_set_current_directory(AppWindow *window, ThunarFile *current_directory)
 {
 //  DPRINT("enter : window_set_current_directory\n");
 
@@ -887,7 +877,9 @@ void window_set_current_directory(AppWindow *window,
     {
         // disconnect signals and release reference
         g_signal_handlers_disconnect_by_func(G_OBJECT(window->current_directory),
-                                             _window_current_directory_changed, window);
+                                             _window_current_directory_changed,
+                                             window);
+
         g_object_unref(G_OBJECT(window->current_directory));
     }
 
@@ -920,6 +912,7 @@ void window_set_current_directory(AppWindow *window,
         }
 
         _window_history_changed(window);
+
         gtk_widget_set_sensitive(window->toolbar_item_parent,
                                  !e_file_is_root(th_file_get_file(current_directory)));
     }
@@ -931,27 +924,20 @@ void window_set_current_directory(AppWindow *window,
     g_object_notify(G_OBJECT(window), "current-directory");
 }
 
-/**
- * window_set_zoom_level:
- * @window     : a #AppWindow instance.
- * @zoom_level : the new zoom level for @window.
- *
- * Sets the zoom level for @window to @zoom_level.
- **/
 static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level)
 {
     e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
     // check if we have a new zoom level
-    if (G_LIKELY(window->zoom_level != zoom_level))
-    {
-        // remember the new zoom level
-        window->zoom_level = zoom_level;
+    if (G_LIKELY(window->zoom_level == zoom_level))
+        return;
 
-        // notify listeners
-        g_object_notify(G_OBJECT(window), "zoom-level");
-    }
+    // remember the new zoom level
+    window->zoom_level = zoom_level;
+
+    // notify listeners
+    g_object_notify(G_OBJECT(window), "zoom-level");
 }
 
 // Events ---------------------------------------------------------------------
@@ -971,28 +957,27 @@ static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
     gtk_widget_set_visual(GTK_WIDGET(widget), visual);
 }
 
-static gboolean _window_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
+static gboolean _window_delete(AppWindow *window, GdkEvent *event, gpointer data)
 {
-    (void) widget;
     (void) event;
     (void) data;
 
+    GtkWidget *widget = GTK_WIDGET(window);
+
+    if (gtk_widget_get_visible(widget) == false)
+        return false;
+
+    GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(widget));
+
     Preferences *prefs = get_preferences();
-    GtkWindow *window = GTK_WINDOW(widget);
+    prefs->window_maximized = ((state & (GDK_WINDOW_STATE_MAXIMIZED
+                                         | GDK_WINDOW_STATE_FULLSCREEN)) != 0);
 
-    if (gtk_widget_get_visible(GTK_WIDGET(widget)))
+    if (!prefs->window_maximized)
     {
-        GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(widget));
-
-        prefs->window_maximized = ((state & (GDK_WINDOW_STATE_MAXIMIZED
-                                             | GDK_WINDOW_STATE_FULLSCREEN)) != 0);
-
-        if (!prefs->window_maximized)
-        {
-            gtk_window_get_size(window,
-                                &prefs->window_width,
-                                &prefs->window_height);
-        }
+        gtk_window_get_size(GTK_WINDOW(window),
+                            &prefs->window_width,
+                            &prefs->window_height);
     }
 
     return false;
@@ -1001,7 +986,7 @@ static gboolean _window_delete(GtkWidget *widget, GdkEvent *event, gpointer data
 static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
                                        ThunarDevice  *device,
                                        GFile         *root_file,
-                                       AppWindow  *window)
+                                       AppWindow     *window)
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(window->device_monitor == device_monitor);
