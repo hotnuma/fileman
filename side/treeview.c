@@ -326,8 +326,10 @@ static void treeview_init(TreeView *view)
     g_closure_ref(view->new_files_closure);
     g_closure_sink(view->new_files_closure);
 
-    view->launcher =  g_object_new(THUNAR_TYPE_LAUNCHER, "widget", GTK_WIDGET(view),
-                                   "select-files-closure", view->new_files_closure, NULL);
+    view->launcher =  g_object_new(THUNAR_TYPE_LAUNCHER,
+                                   "widget", GTK_WIDGET(view),
+                                   "select-files-closure", view->new_files_closure,
+                                   NULL);
 
     g_signal_connect_swapped(G_OBJECT(view->launcher), "change-directory",
                              G_CALLBACK(_treeview_action_open), view);
@@ -827,6 +829,149 @@ static gboolean _treeview_key_press_event(GtkWidget *widget, GdkEventKey *event)
     return stopPropagation;
 }
 
+// TreeViewClass --------------------------------------------------------------
+
+static void treeview_row_activated(GtkTreeView *tree_view, GtkTreePath *path,
+                                   GtkTreeViewColumn *column)
+{
+    // call the parent's "row-activated" handler
+    if (GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated != NULL)
+        GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated(
+                    tree_view,
+                    path,
+                    column);
+
+    // toggle the expanded state of the activated row...
+    if (gtk_tree_view_row_expanded(tree_view, path))
+    {
+        gtk_tree_view_collapse_row(tree_view, path);
+    }
+    else
+    {
+        // expand the row, but open it if mounted
+        if (gtk_tree_view_expand_row(tree_view, path, FALSE))
+        {
+            // ...open the selected folder
+            _treeview_action_open(TREEVIEW(tree_view));
+        }
+    }
+}
+
+static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
+                                         GtkTreeIter *iter,
+                                         GtkTreePath *path)
+{
+    (void) path;
+
+    TreeView *view = TREEVIEW(tree_view);
+
+    // determine the device for the iterator
+
+    ThunarDevice *device;
+
+    gtk_tree_model_get(GTK_TREE_MODEL(view->model),
+                       iter,
+                       TREEMODEL_COLUMN_DEVICE, &device,
+                       -1);
+
+    gboolean expandable = TRUE;
+
+    // check if we have a device
+    if (G_UNLIKELY(device != NULL))
+    {
+        // check if we need to mount the device first
+        if (!th_device_is_mounted(device))
+        {
+            // we need to mount the device before we can expand the row
+            expandable = FALSE;
+
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-device", device,
+                         NULL);
+
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-files", NULL,
+                         "current-directory", NULL,
+                         NULL);
+
+            // The closure will expand the row after the mount operation finished
+            launcher_action_mount(view->launcher);
+        }
+
+        // release the device
+        g_object_unref(G_OBJECT(device));
+    }
+
+    // cancel the cursor idle source if not expandable
+    if (!expandable && view->cursor_idle_id != 0)
+        g_source_remove(view->cursor_idle_id);
+
+    return !expandable;
+}
+
+static void treeview_row_collapsed(GtkTreeView *tree_view,
+                                           GtkTreeIter *iter,
+                                           GtkTreePath *path)
+{
+    (void) iter;
+    (void) path;
+
+    // schedule a cleanup of the tree model
+    treemodel_cleanup(TREEVIEW(tree_view)->model);
+}
+
+// Open -----------------------------------------------------------------------
+
+static void _treeview_action_open(TreeView *view)
+{
+    ThunarDevice *device = _treeview_get_selected_device(view);
+    ThunarFile *file = _treeview_get_selected_file(view);
+
+    if (device != NULL)
+    {
+        if (th_device_is_mounted(device))
+            _treeview_open_selection(view);
+        else
+        {
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-device", device,
+                         NULL);
+
+            g_object_set(G_OBJECT(view->launcher),
+                         "selected-files", NULL,
+                         "current-directory", NULL,
+                         NULL);
+
+            launcher_action_mount(view->launcher);
+        }
+    }
+    else if (file != NULL)
+    {
+        _treeview_open_selection(view);
+    }
+
+    if (device != NULL)
+        g_object_unref(device);
+
+    if (file != NULL)
+        g_object_unref(file);
+}
+
+static void _treeview_open_selection(TreeView *view)
+{
+    e_return_if_fail(IS_TREEVIEW(view));
+
+    // determine the selected file
+    ThunarFile *file = _treeview_get_selected_file(view);
+
+    if (G_LIKELY(file != NULL))
+    {
+        // open that folder in the main view
+        navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+        g_object_unref(file);
+    }
+}
+
 // Popup Menu -----------------------------------------------------------------
 
 static gboolean treeview_popup_menu(GtkWidget *widget)
@@ -971,154 +1116,6 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
         g_object_unref(G_OBJECT(file));
 }
 
-// Open -----------------------------------------------------------------------
-
-static void _treeview_action_open(TreeView *view)
-{
-    ThunarDevice *device = _treeview_get_selected_device(view);
-    ThunarFile *file = _treeview_get_selected_file(view);
-
-    if (device != NULL)
-    {
-        if (th_device_is_mounted(device))
-            _treeview_open_selection(view);
-        else
-        {
-            g_object_set(G_OBJECT(view->launcher),
-                         "selected-device", device,
-                         NULL);
-
-            g_object_set(G_OBJECT(view->launcher),
-                         "selected-files", NULL,
-                         "current-directory", NULL,
-                         NULL);
-
-            launcher_action_mount(view->launcher);
-        }
-    }
-    else if (file != NULL)
-    {
-        _treeview_open_selection(view);
-    }
-
-    if (device != NULL)
-        g_object_unref(device);
-
-    if (file != NULL)
-        g_object_unref(file);
-}
-
-static void _treeview_open_selection(TreeView *view)
-{
-    e_return_if_fail(IS_TREEVIEW(view));
-
-    // determine the selected file
-    ThunarFile *file = _treeview_get_selected_file(view);
-
-    if (G_LIKELY(file != NULL))
-    {
-        // open that folder in the main view
-        navigator_change_directory(THUNAR_NAVIGATOR(view), file);
-        g_object_unref(file);
-    }
-}
-
-
-
-// ----------------------------------------------------------------------------
-
-static void treeview_row_activated(GtkTreeView       *tree_view,
-                                   GtkTreePath       *path,
-                                   GtkTreeViewColumn *column)
-{
-    // call the parent's "row-activated" handler
-    if (GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated != NULL)
-        GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated(
-                    tree_view,
-                    path,
-                    column);
-
-    // toggle the expanded state of the activated row...
-    if (gtk_tree_view_row_expanded(tree_view, path))
-    {
-        gtk_tree_view_collapse_row(tree_view, path);
-    }
-    else
-    {
-        // expand the row, but open it if mounted
-        if (gtk_tree_view_expand_row(tree_view, path, FALSE))
-        {
-            // ...open the selected folder
-            _treeview_action_open(TREEVIEW(tree_view));
-        }
-    }
-}
-
-
-
-static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
-                                         GtkTreeIter *iter,
-                                         GtkTreePath *path)
-{
-    (void) path;
-
-    TreeView *view = TREEVIEW(tree_view);
-
-    // determine the device for the iterator
-
-    ThunarDevice *device;
-
-    gtk_tree_model_get(GTK_TREE_MODEL(view->model),
-                       iter,
-                       TREEMODEL_COLUMN_DEVICE, &device,
-                       -1);
-
-    gboolean expandable = TRUE;
-
-    // check if we have a device
-    if (G_UNLIKELY(device != NULL))
-    {
-        // check if we need to mount the device first
-        if (!th_device_is_mounted(device))
-        {
-            // we need to mount the device before we can expand the row
-            expandable = FALSE;
-
-            g_object_set(G_OBJECT(view->launcher),
-                         "selected-device", device,
-                         NULL);
-
-            g_object_set(G_OBJECT(view->launcher),
-                         "selected-files", NULL,
-                         "current-directory", NULL,
-                         NULL);
-
-            // The closure will expand the row after the mount operation finished
-            launcher_action_mount(view->launcher);
-        }
-
-        // release the device
-        g_object_unref(G_OBJECT(device));
-    }
-
-    // cancel the cursor idle source if not expandable
-    if (!expandable && view->cursor_idle_id != 0)
-        g_source_remove(view->cursor_idle_id);
-
-    return !expandable;
-}
-
-static void treeview_row_collapsed(GtkTreeView *tree_view,
-                                           GtkTreeIter *iter,
-                                           GtkTreePath *path)
-{
-    (void) iter;
-    (void) path;
-
-    // schedule a cleanup of the tree model
-    treemodel_cleanup(TREEVIEW(tree_view)->model);
-}
-
 
 
 
@@ -1163,8 +1160,7 @@ gboolean treeview_delete_selected_files(TreeView *view)
     return TRUE;
 }
 
-static void _treeview_action_unlink_selected_folder(TreeView *view,
-                                                    gboolean permanently)
+static void _treeview_action_unlink_selected_folder(TreeView *view, gboolean permanently)
 {
     e_return_if_fail(IS_TREEVIEW(view));
 
@@ -1224,11 +1220,6 @@ void treeview_rename_selected(TreeView *view)
     return;
 }
 
-
-
-
-
-
 // Selections -----------------------------------------------------------------
 
 static ThunarFile* _treeview_get_selected_file(TreeView *view)
@@ -1267,11 +1258,8 @@ static ThunarDevice* _treeview_get_selected_device(TreeView *view)
     return device;
 }
 
-static void _treeview_select_files(TreeView *view,
-                                          GList          *files_to_selected)
+static void _treeview_select_files(TreeView *view, GList *files_to_selected)
 {
-    ThunarFile *file = NULL;
-
     e_return_if_fail(IS_TREEVIEW(view));
 
     // check if we have exactly one new path
@@ -1279,44 +1267,48 @@ static void _treeview_select_files(TreeView *view,
         return;
 
     // determine the file for the first path
-    file = th_file_get(G_FILE(files_to_selected->data), NULL);
-    if (G_LIKELY(file != NULL))
-    {
-        if (G_LIKELY(th_file_is_directory(file)))
-            navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+    ThunarFile *file = th_file_get(G_FILE(files_to_selected->data), NULL);
 
-        g_object_unref(file);
-    }
+    if (G_UNLIKELY(file == NULL))
+        return;
+
+    if (G_LIKELY(th_file_is_directory(file)))
+        navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+
+    g_object_unref(file);
 }
 
-static gboolean _treeview_visible_func(TreeModel *model,
-                                              ThunarFile      *file,
-                                              gpointer         user_data)
+static gboolean _treeview_visible_func(TreeModel *model, ThunarFile *file,
+                                       gpointer user_data)
 {
-    TreeView *view;
-    gboolean        visible = TRUE;
-
     e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
     e_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
     e_return_val_if_fail(IS_TREEVIEW(user_data), FALSE);
 
     // if show_hidden is TRUE, nothing is filtered
-    view = TREEVIEW(user_data);
+    TreeView *view = TREEVIEW(user_data);
+
+    gboolean visible = TRUE;
+
     if (G_LIKELY(!view->show_hidden))
     {
-        // we display all non-hidden file and hidden files that are ancestors of the current directory
-        visible = !th_file_is_hidden(file) ||(view->current_directory == file)
-                  ||(view->current_directory != NULL && th_file_is_ancestor(view->current_directory, file));
+        /* we display all non-hidden file and hidden files that are ancestors
+         * of the current directory */
+
+        visible = !th_file_is_hidden(file)
+                  || (view->current_directory == file)
+                  || (view->current_directory != NULL
+                      && th_file_is_ancestor(view->current_directory, file));
     }
 
     return visible;
 }
 
 static gboolean _treeview_selection_func(GtkTreeSelection *selection,
-                                                GtkTreeModel     *model,
-                                                GtkTreePath      *path,
-                                                gboolean          path_currently_selected,
-                                                gpointer          user_data)
+                                         GtkTreeModel     *model,
+                                         GtkTreePath      *path,
+                                         gboolean         path_currently_selected,
+                                         gpointer         user_data)
 {
     (void) selection;
     (void) user_data;
@@ -1504,8 +1496,6 @@ static void _treeview_cursor_idle_destroy(gpointer user_data)
     TREEVIEW(user_data)->cursor_idle_id = 0;
 }
 
-
-
 static GtkTreePath* _treeview_get_preferred_toplevel_path(TreeView   *view,
                                                           ThunarFile *file)
 {
@@ -1623,8 +1613,6 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(TreeView   *view,
 
     return path;
 }
-
-
 
 // DnD ------------------------------------------------------------------------
 

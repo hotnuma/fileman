@@ -111,6 +111,7 @@ static void _window_binding_create(AppWindow *window,
                                    gpointer dst_object,
                                    const gchar *dst_prop,
                                    GBindingFlags flags);
+static void _window_binding_destroyed(gpointer data, GObject *binding);
 static gboolean _window_history_clicked(GtkWidget *button,
                                         GdkEventButton *event,
                                         GtkWidget *window);
@@ -500,13 +501,15 @@ static void window_init(AppWindow *window)
     window->show_hidden = false;
 
     // update the visual on screen_changed events
-    g_signal_connect(window, "screen-changed", G_CALLBACK(_window_screen_changed), NULL);
+    g_signal_connect(window, "screen-changed",
+                     G_CALLBACK(_window_screen_changed), NULL);
 
     // invoke the window_screen_changed function to initially set the best possible visual.
     _window_screen_changed(GTK_WIDGET(window), NULL, NULL);
 
     // set up a handler to confirm exit when there are multiple tabs open 
-    g_signal_connect(window, "delete-event", G_CALLBACK(_window_delete), NULL);
+    g_signal_connect(window, "delete-event",
+                     G_CALLBACK(_window_delete), NULL);
 
     // connect to the volume monitor
     window->device_monitor = devmon_get();
@@ -773,6 +776,32 @@ static void window_unrealize(GtkWidget *widget)
     g_object_unref(G_OBJECT(window->clipboard));
 }
 
+static gboolean window_reload(AppWindow *window, gboolean reload_info)
+{
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
+
+    // force the view to reload
+    if (G_LIKELY(window->view != NULL))
+    {
+        baseview_reload(BASEVIEW(window->view), reload_info);
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gboolean window_tab_change(AppWindow *window,
+                                         gint          nth)
+{
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
+
+    // Alt+0 is 10th tab
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook),
+                                   nth == -1 ? 9 : nth);
+
+    return TRUE;
+}
+
 // Properties -----------------------------------------------------------------
 
 static void window_get_property(GObject *object, guint prop_id,
@@ -925,78 +954,7 @@ static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-static gboolean window_reload(AppWindow *window, gboolean reload_info)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
-
-    // force the view to reload
-    if (G_LIKELY(window->view != NULL))
-    {
-        baseview_reload(BASEVIEW(window->view), reload_info);
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
-/**
- * window_has_shortcut_sidepane:
- * @window : a #AppWindow instance.
- *
- * Return value: True, if this window is running a shortcut sidepane
- **/
-gboolean window_has_shortcut_sidepane(AppWindow *window)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
-
-    return FALSE;
-}
-
-/**
- * window_get_sidepane:
- * @window : a #AppWindow instance.
- *
- * Return value:(transfer none): The #SidePane of this window, or NULL if not available
- **/
-GtkWidget* window_get_sidepane(AppWindow *window)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
-    return GTK_WIDGET(window->sidepane);
-}
-
-static gboolean window_tab_change(AppWindow *window,
-                                         gint          nth)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
-
-    // Alt+0 is 10th tab
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook),
-                                   nth == -1 ? 9 : nth);
-
-    return TRUE;
-}
-
-
-
-
-
-
-
-
-
-
-
+// Events ---------------------------------------------------------------------
 
 static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
                                    gpointer userdata)
@@ -1011,6 +969,100 @@ static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
         visual = gdk_screen_get_system_visual(screen);
 
     gtk_widget_set_visual(GTK_WIDGET(widget), visual);
+}
+
+static gboolean _window_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+    (void) widget;
+    (void) event;
+    (void) data;
+
+    Preferences *prefs = get_preferences();
+    GtkWindow *window = GTK_WINDOW(widget);
+
+    if (gtk_widget_get_visible(GTK_WIDGET(widget)))
+    {
+        GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(widget));
+
+        prefs->window_maximized = ((state & (GDK_WINDOW_STATE_MAXIMIZED
+                                             | GDK_WINDOW_STATE_FULLSCREEN)) != 0);
+
+        if (!prefs->window_maximized)
+        {
+            gtk_window_get_size(window,
+                                &prefs->window_width,
+                                &prefs->window_height);
+        }
+    }
+
+    return false;
+}
+
+static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
+                                       ThunarDevice  *device,
+                                       GFile         *root_file,
+                                       AppWindow  *window)
+{
+    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
+    e_return_if_fail(window->device_monitor == device_monitor);
+    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(G_IS_FILE(root_file));
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    // nothing to do if we don't have a current directory
+    if (G_UNLIKELY(window->current_directory == NULL))
+        return;
+
+    // check if the file is the current directory or an ancestor of the current directory
+    if (g_file_equal(th_file_get_file(window->current_directory), root_file)
+            || th_file_is_gfile_ancestor(window->current_directory, root_file))
+    {
+        // change to the home folder
+        _window_action_open_home(window);
+    }
+}
+
+static void _window_device_changed(DeviceMonitor *device_monitor,
+                                   ThunarDevice  *device,
+                                   AppWindow  *window)
+{
+    GFile *root_file;
+
+    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
+    e_return_if_fail(window->device_monitor == device_monitor);
+    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    if (th_device_is_mounted(device))
+        return;
+
+    root_file = th_device_get_root(device);
+    if (root_file != NULL)
+    {
+        _window_device_pre_unmount(device_monitor, device, root_file, window);
+        g_object_unref(root_file);
+    }
+}
+
+static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_event,
+                                            gpointer user_data)
+{
+    e_return_val_if_fail(IS_APPWINDOW(window), GDK_EVENT_PROPAGATE);
+
+    (void) user_data;
+
+    GtkWidget *focused_widget = gtk_window_get_focus(window);
+
+    /* Turn the accelerator priority around globally,
+     * so that the focused widget always gets the accels first.
+     * Implementing this cleanly while maintaining some wanted accels
+     * (like Ctrl+N and exo accels) is a lot of work. So we resort to
+     * only priorize GtkEditable, because that is the easiest way to
+     * fix the right-ahead problem. */
+    if (focused_widget != NULL && GTK_IS_EDITABLE(focused_widget))
+        return gtk_window_propagate_key_event(window,(GdkEventKey *) key_event);
+
+    return GDK_EVENT_PROPAGATE;
 }
 
 /**
@@ -1043,33 +1095,146 @@ static void _window_select_files(AppWindow *window, GList *files_to_selected)
     g_list_free_full(thunar_files, g_object_unref);
 }
 
-static gboolean _window_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
+static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
+                                        GtkWidget *data)
 {
-    (void) widget;
-    (void) event;
-    (void) data;
+    ThunarHistory *history;
+    AppWindow  *window;
 
-    Preferences *prefs = get_preferences();
-    GtkWindow *window = GTK_WINDOW(widget);
+    e_return_val_if_fail(IS_APPWINDOW(data), FALSE);
 
-    if (gtk_widget_get_visible(GTK_WIDGET(widget)))
+    window = APPWINDOW(data);
+
+    if (event->button == 3)
     {
-        GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(widget));
+        history = standardview_get_history(STANDARD_VIEW(window->view));
 
-        prefs->window_maximized = ((state & (GDK_WINDOW_STATE_MAXIMIZED
-                                             | GDK_WINDOW_STATE_FULLSCREEN)) != 0);
-
-        if (!prefs->window_maximized)
-        {
-            gtk_window_get_size(window,
-                                &prefs->window_width,
-                                &prefs->window_height);
-        }
+        if (button == window->toolbar_item_back)
+            history_show_menu(history, THUNAR_HISTORY_MENU_BACK, button);
+        else if (button == window->toolbar_item_forward)
+            history_show_menu(history, THUNAR_HISTORY_MENU_FORWARD, button);
+        else
+            g_warning("This button is not able to spawn a history menu");
     }
 
+    return FALSE;
+}
+
+static gboolean _window_button_press_event(GtkWidget *view, GdkEventButton *event,
+                                           AppWindow *window)
+{
+    (void) view;
+
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
+
+    if (event->type != GDK_BUTTON_PRESS)
+        return GDK_EVENT_PROPAGATE;
+
+    const XfceGtkActionEntry* action_entry;
+
+    if (G_UNLIKELY(event->button == 8))
+    {
+        action_entry = get_action_entry(WINDOW_ACTION_BACK);
+
+        ((void(*)(GtkWindow*))action_entry->callback)(GTK_WINDOW(window));
+
+        return GDK_EVENT_STOP;
+    }
+
+    else if (G_UNLIKELY(event->button == 9))
+    {
+        action_entry = get_action_entry(WINDOW_ACTION_FORWARD);
+
+        ((void(*)(GtkWindow*))action_entry->callback)(GTK_WINDOW(window));
+
+        return GDK_EVENT_STOP;
+    }
+
+    return GDK_EVENT_PROPAGATE;
+}
+
+static void _window_handle_reload_request(AppWindow *window)
+{
+    gboolean result;
+
+    // force the view to reload
+    g_signal_emit(G_OBJECT(window), _window_signals[RELOAD], 0, TRUE, &result);
+
+}
+
+static void _window_update_location_bar_visible(AppWindow *window)
+{
+    gtk_widget_show(window->toolbar);
+}
+
+static gboolean _window_save_paned(AppWindow *window)
+{
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
+
+    Preferences *prefs = get_preferences();
+    prefs->separator_position = gtk_paned_get_position(GTK_PANED(window->paned));
+
+    // for button release event
     return false;
 }
 
+// Side Pane ------------------------------------------------------------------
+
+static void _window_install_sidepane(AppWindow *window, GType type)
+{
+    e_return_if_fail(type == G_TYPE_NONE || g_type_is_a(type, TYPE_SIDEPANE));
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    GtkStyleContext *context;
+
+    // drop the previous side pane(if any)
+    if (G_UNLIKELY(window->sidepane != NULL))
+    {
+        gtk_widget_destroy(window->sidepane);
+        window->sidepane = NULL;
+    }
+
+    // check if we have a new sidepane widget
+    if (G_LIKELY(type != G_TYPE_NONE))
+    {
+        // allocate the new side pane widget
+        window->sidepane = g_object_new(type, NULL);
+        gtk_widget_set_size_request(window->sidepane, 0, -1);
+        g_object_bind_property(G_OBJECT(window), "current-directory",
+                               G_OBJECT(window->sidepane), "current-directory",
+                               G_BINDING_SYNC_CREATE);
+        g_signal_connect_swapped(G_OBJECT(window->sidepane), "change-directory",
+                                 G_CALLBACK(window_set_current_directory), window);
+        context = gtk_widget_get_style_context(window->sidepane);
+        gtk_style_context_add_class(context, "sidebar");
+        gtk_paned_pack1(GTK_PANED(window->paned), window->sidepane, FALSE, FALSE);
+        gtk_widget_show(window->sidepane);
+
+        // connect the side pane widget to the view(if any)
+        if (G_LIKELY(window->view != NULL))
+            _window_binding_create(window, window->view, "selected-files", window->sidepane, "selected-files", G_BINDING_SYNC_CREATE);
+
+        // apply show_hidden config to tree pane
+        if (type == TYPE_TREEPANE)
+            sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
+    }
+}
+
+static void _window_binding_create(AppWindow *window, gpointer src_object,
+                                   const gchar *src_prop, gpointer dst_object,
+                                   const gchar *dst_prop, GBindingFlags flags)
+{
+    e_return_if_fail(G_IS_OBJECT(src_object));
+    e_return_if_fail(G_IS_OBJECT(dst_object));
+
+    GBinding *binding = g_object_bind_property(
+                                    G_OBJECT(src_object), src_prop,
+                                    G_OBJECT(dst_object), dst_prop,
+                                    flags);
+
+    g_object_weak_ref(G_OBJECT(binding), _window_binding_destroyed, window);
+    window->view_bindings = g_slist_prepend(window->view_bindings, binding);
+}
 
 static void _window_binding_destroyed(gpointer data, GObject *binding)
 {
@@ -1077,26 +1242,6 @@ static void _window_binding_destroyed(gpointer data, GObject *binding)
 
     if (window->view_bindings != NULL)
         window->view_bindings = g_slist_remove(window->view_bindings, binding);
-}
-
-static void _window_binding_create(AppWindow *window,
-                                   gpointer src_object,
-                                   const gchar *src_prop,
-                                   gpointer dst_object,
-                                   const gchar *dst_prop,
-                                   GBindingFlags flags)
-{
-    GBinding *binding;
-
-    e_return_if_fail(G_IS_OBJECT(src_object));
-    e_return_if_fail(G_IS_OBJECT(dst_object));
-
-    binding = g_object_bind_property(G_OBJECT(src_object), src_prop,
-                                      G_OBJECT(dst_object), dst_prop,
-                                      flags);
-
-    g_object_weak_ref(G_OBJECT(binding), _window_binding_destroyed, window);
-    window->view_bindings = g_slist_prepend(window->view_bindings, binding);
 }
 
 // Notebook functions ---------------------------------------------------------
@@ -1187,7 +1332,9 @@ static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
     history = standardview_get_history(STANDARD_VIEW(window->view));
     if (history != NULL)
     {
-        window->signal_handler_id_history_changed = g_signal_connect_swapped(G_OBJECT(history), "history-changed", G_CALLBACK(_window_history_changed), window);
+        window->signal_handler_id_history_changed =
+            g_signal_connect_swapped(G_OBJECT(history), "history-changed",
+                                     G_CALLBACK(_window_history_changed), window);
         _window_history_changed(window);
     }
 
@@ -1374,11 +1521,6 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
     }
 }
 
-static void _window_update_location_bar_visible(AppWindow *window)
-{
-    gtk_widget_show(window->toolbar);
-}
-
 static void _window_update_window_icon(AppWindow *window)
 {
     const gchar *icon_name = "folder";
@@ -1394,52 +1536,6 @@ static void _window_update_window_icon(AppWindow *window)
     }
 
     gtk_window_set_icon_name(GTK_WINDOW(window), icon_name);
-}
-
-static void _window_handle_reload_request(AppWindow *window)
-{
-    gboolean result;
-
-    // force the view to reload
-    g_signal_emit(G_OBJECT(window), _window_signals[RELOAD], 0, TRUE, &result);
-
-}
-
-static void _window_install_sidepane(AppWindow *window, GType type)
-{
-    e_return_if_fail(type == G_TYPE_NONE || g_type_is_a(type, TYPE_SIDEPANE));
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    GtkStyleContext *context;
-
-    // drop the previous side pane(if any)
-    if (G_UNLIKELY(window->sidepane != NULL))
-    {
-        gtk_widget_destroy(window->sidepane);
-        window->sidepane = NULL;
-    }
-
-    // check if we have a new sidepane widget
-    if (G_LIKELY(type != G_TYPE_NONE))
-    {
-        // allocate the new side pane widget
-        window->sidepane = g_object_new(type, NULL);
-        gtk_widget_set_size_request(window->sidepane, 0, -1);
-        g_object_bind_property(G_OBJECT(window), "current-directory", G_OBJECT(window->sidepane), "current-directory", G_BINDING_SYNC_CREATE);
-        g_signal_connect_swapped(G_OBJECT(window->sidepane), "change-directory", G_CALLBACK(window_set_current_directory), window);
-        context = gtk_widget_get_style_context(window->sidepane);
-        gtk_style_context_add_class(context, "sidebar");
-        gtk_paned_pack1(GTK_PANED(window->paned), window->sidepane, FALSE, FALSE);
-        gtk_widget_show(window->sidepane);
-
-        // connect the side pane widget to the view(if any)
-        if (G_LIKELY(window->view != NULL))
-            _window_binding_create(window, window->view, "selected-files", window->sidepane, "selected-files", G_BINDING_SYNC_CREATE);
-
-        // apply show_hidden config to tree pane
-        if (type == TYPE_TREEPANE)
-            sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
-    }
 }
 
 static void _window_start_open_location(AppWindow *window,
@@ -1606,27 +1702,6 @@ static void _window_action_open_home(AppWindow *window)
     g_object_unref(home);
 }
 
-static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_event,
-                                            gpointer user_data)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), GDK_EVENT_PROPAGATE);
-
-    (void) user_data;
-
-    GtkWidget *focused_widget = gtk_window_get_focus(window);
-
-    /* Turn the accelerator priority around globally,
-     * so that the focused widget always gets the accels first.
-     * Implementing this cleanly while maintaining some wanted accels
-     * (like Ctrl+N and exo accels) is a lot of work. So we resort to
-     * only priorize GtkEditable, because that is the easiest way to
-     * fix the right-ahead problem. */
-    if (focused_widget != NULL && GTK_IS_EDITABLE(focused_widget))
-        return gtk_window_propagate_key_event(window,(GdkEventKey *) key_event);
-
-    return GDK_EVENT_PROPAGATE;
-}
-
 static void _window_action_show_hidden(AppWindow *window)
 {
     e_return_if_fail(IS_APPWINDOW(window));
@@ -1768,63 +1843,6 @@ static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
             gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), NULL);
         }
     }
-}
-
-static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
-                                       ThunarDevice  *device,
-                                       GFile         *root_file,
-                                       AppWindow  *window)
-{
-    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
-    e_return_if_fail(window->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
-    e_return_if_fail(G_IS_FILE(root_file));
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    // nothing to do if we don't have a current directory
-    if (G_UNLIKELY(window->current_directory == NULL))
-        return;
-
-    // check if the file is the current directory or an ancestor of the current directory
-    if (g_file_equal(th_file_get_file(window->current_directory), root_file)
-            || th_file_is_gfile_ancestor(window->current_directory, root_file))
-    {
-        // change to the home folder
-        _window_action_open_home(window);
-    }
-}
-
-static void _window_device_changed(DeviceMonitor *device_monitor,
-                                   ThunarDevice  *device,
-                                   AppWindow  *window)
-{
-    GFile *root_file;
-
-    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
-    e_return_if_fail(window->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    if (th_device_is_mounted(device))
-        return;
-
-    root_file = th_device_get_root(device);
-    if (root_file != NULL)
-    {
-        _window_device_pre_unmount(device_monitor, device, root_file, window);
-        g_object_unref(root_file);
-    }
-}
-
-static gboolean _window_save_paned(AppWindow *window)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
-
-    Preferences *prefs = get_preferences();
-    prefs->separator_position = gtk_paned_get_position(GTK_PANED(window->paned));
-
-    // for button release event
-    return false;
 }
 
 /**
@@ -1979,60 +1997,6 @@ static void _window_redirect_tooltips_r(GtkWidget *menu_item,AppWindow *window)
                              G_CALLBACK(_window_menu_item_selected), window);
     g_signal_connect_swapped(G_OBJECT(menu_item), "deselect",
                              G_CALLBACK(_window_menu_item_deselected), window);
-}
-
-static gboolean _window_button_press_event(GtkWidget      *view,
-                                           GdkEventButton *event,
-                                           AppWindow   *window)
-{
-    (void) view;
-
-    const XfceGtkActionEntry* action_entry;
-
-    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
-
-    if (event->type == GDK_BUTTON_PRESS)
-    {
-        if (G_UNLIKELY(event->button == 8))
-        {
-            action_entry = get_action_entry(WINDOW_ACTION_BACK);
-           ((void(*)(GtkWindow*))action_entry->callback)(GTK_WINDOW(window));
-            return GDK_EVENT_STOP;
-        }
-        if (G_UNLIKELY(event->button == 9))
-        {
-            action_entry = get_action_entry(WINDOW_ACTION_FORWARD);
-           ((void(*)(GtkWindow*))action_entry->callback)(GTK_WINDOW(window));
-            return GDK_EVENT_STOP;
-        }
-    }
-
-    return GDK_EVENT_PROPAGATE;
-}
-
-static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
-                                        GtkWidget *data)
-{
-    ThunarHistory *history;
-    AppWindow  *window;
-
-    e_return_val_if_fail(IS_APPWINDOW(data), FALSE);
-
-    window = APPWINDOW(data);
-
-    if (event->button == 3)
-    {
-        history = standardview_get_history(STANDARD_VIEW(window->view));
-
-        if (button == window->toolbar_item_back)
-            history_show_menu(history, THUNAR_HISTORY_MENU_BACK, button);
-        else if (button == window->toolbar_item_forward)
-            history_show_menu(history, THUNAR_HISTORY_MENU_FORWARD, button);
-        else
-            g_warning("This button is not able to spawn a history menu");
-    }
-
-    return FALSE;
 }
 
 GtkWidget* window_get_focused_tree_view(AppWindow *window)

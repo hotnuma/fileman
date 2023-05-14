@@ -69,8 +69,6 @@ gboolean window_set_directories(AppWindow *window, gchar **uris, gint active_pag
 void window_update_directories(AppWindow *window, ThunarFile *old_directory,
                                ThunarFile *new_directory);
 
-gboolean window_has_shortcut_sidepane(AppWindow *window);
-GtkWidget* window_get_sidepane(AppWindow *window);
 ThunarLauncher* window_get_launcher(AppWindow *window);
 
 void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);

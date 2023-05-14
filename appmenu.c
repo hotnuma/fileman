@@ -48,7 +48,7 @@ static GQuark _appmenu_handler_quark;
 
 struct _AppMenuClass
 {
-    GtkMenuClass __parent__;
+    GtkMenuClass    __parent__;
 };
 
 struct _AppMenu
