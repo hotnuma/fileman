@@ -1,7 +1,9 @@
 
 #### 20 Biggest files
 
+```
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -20
+
 122377	./view/standardview.c
 101484	./core/th_file.c
 95295	./launcher.c
@@ -22,6 +24,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -20
 30090	./core/th_folder.c
 28649	./misc/iconfactory.c
 27652	./view/columnmodel.c
+```
 
 
 #### TODO
