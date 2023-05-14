@@ -31,10 +31,10 @@
 #include <dialogs.h>
 #include <preferences.h>
 
-#include <browser.h>
 #include <clipboard.h>
-#include <component.h>
 #include <devmonitor.h>
+#include <browser.h>
+#include <component.h>
 
 #include <syslog.h>
 
@@ -44,85 +44,62 @@ static void window_dispose(GObject *object);
 static void window_finalize(GObject *object);
 static void window_realize(GtkWidget *widget);
 static void window_unrealize(GtkWidget *widget);
+static gboolean window_reload(AppWindow *window, gboolean reload_info);
+static gboolean window_tab_change(AppWindow *window, gint nth);
 static void window_get_property(GObject *object, guint prop_id,
                                 GValue *value, GParamSpec *pspec);
 static void window_set_property(GObject *object, guint prop_id,
                                 const GValue *value, GParamSpec *pspec);
+static void _window_create_view(AppWindow *window, GtkWidget *view,
+                                GType view_type);
+static void _window_current_directory_changed(ThunarFile *current_directory,
+                                              AppWindow *window);
+static void _window_update_window_icon(AppWindow *window);
+static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level);
 
-// ----------------------------------------------------------------------------
-
-static gboolean _window_delete(AppWindow *window, GdkEvent *event, gpointer data);
+// Events ---------------------------------------------------------------------
 
 static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
                                    gpointer userdata);
-
-
-static gboolean window_reload(AppWindow *window, gboolean reload_info);
-static gboolean window_tab_change(AppWindow *window, gint nth);
+static gboolean _window_delete(AppWindow *window, GdkEvent *event, gpointer data);
+static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
+                                       ThunarDevice *device, GFile *root_file,
+                                       AppWindow *window);
+static void _window_device_changed(DeviceMonitor *device_monitor,
+                                   ThunarDevice *device, AppWindow *window);
+static gboolean _window_propagate_key_event(GtkWindow *window, GdkEvent *key_event,
+                                            gpointer user_data);
+static void _window_select_files(AppWindow *window, GList *path_list);
+static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
+                                        GtkWidget *window);
+static gboolean _window_button_press_event(GtkWidget *view,
+                                           GdkEventButton *event,
+                                           AppWindow *window);
+static void _window_handle_reload_request(AppWindow *window);
+static void _window_update_location_bar_visible(AppWindow *window);
+static gboolean _window_save_paned(AppWindow *window);
+static void _window_install_sidepane(AppWindow *window, GType type);
+static void _window_binding_create(AppWindow *window, gpointer src_object,
+                                   const gchar *src_prop, gpointer dst_object,
+                                   const gchar *dst_prop, GBindingFlags flags);
+static void _window_binding_destroyed(gpointer data, GObject *binding);
 
 // Notebook -------------------------------------------------------------------
 
 static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
                                          guint page_num, AppWindow *window);
+static void _window_history_changed(AppWindow *window);
+static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
+                                   AppWindow *window);
+static void _window_start_open_location(AppWindow *window,
+                                        const gchar *initial_text);
 static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
                                         guint page_num, AppWindow *window);
 static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
                                           guint page_num, AppWindow *window);
-static GtkWidget*_window_notebook_insert(AppWindow  *window,
-                                         ThunarFile    *directory,
-                                         GType         view_type,
-                                         gint          position,
+static GtkWidget*_window_notebook_insert(AppWindow *window, ThunarFile *directory,
+                                         GType view_type, gint position,
                                          ThunarHistory *history);
-
-static void _window_update_location_bar_visible(AppWindow *window);
-static void _window_handle_reload_request(AppWindow *window);
-static void _window_install_sidepane(AppWindow *window, GType type);
-static void _window_start_open_location(AppWindow *window,
-                                        const gchar *initial_text);
-
-// ----------------------------------------------------------------------------
-
-static gboolean _window_propagate_key_event(GtkWindow *window,
-                                            GdkEvent *key_event,
-                                            gpointer user_data);
-static void _window_current_directory_changed(ThunarFile *current_directory,
-                                              AppWindow *window);
-static void _window_menu_item_selected(AppWindow *window,
-                                       GtkWidget *menu_item);
-static void _window_menu_item_deselected(AppWindow *window,
-                                         GtkWidget *menu_item);
-static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
-                                   AppWindow *window);
-static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
-                                       ThunarDevice *device,
-                                       GFile *root_file,
-                                       AppWindow *window);
-static void _window_device_changed(DeviceMonitor *device_monitor,
-                                   ThunarDevice *device,
-                                   AppWindow *window);
-static gboolean _window_save_paned(AppWindow *window);
-static void _window_set_zoom_level(AppWindow *window,
-                                   ThunarZoomLevel zoom_level);
-static void _window_update_window_icon(AppWindow *window);
-static void _window_select_files(AppWindow *window, GList *path_list);
-static void _window_binding_create(AppWindow *window,
-                                   gpointer src_object,
-                                   const gchar *src_prop,
-                                   gpointer dst_object,
-                                   const gchar *dst_prop,
-                                   GBindingFlags flags);
-static void _window_binding_destroyed(gpointer data, GObject *binding);
-static gboolean _window_history_clicked(GtkWidget *button,
-                                        GdkEventButton *event,
-                                        GtkWidget *window);
-static void _window_redirect_tooltips_r(GtkWidget *menu_item,
-                                        AppWindow *window);
-static gboolean _window_button_press_event(GtkWidget *view,
-                                           GdkEventButton *event,
-                                           AppWindow *window);
-static void _window_history_changed(AppWindow *window);
-static void _window_create_view(AppWindow *window, GtkWidget *view,
-                                GType view_type);
 
 // Actions --------------------------------------------------------------------
 
@@ -135,6 +112,13 @@ static void _window_action_key_rename(AppWindow *window);
 static void _window_action_key_show_hidden(AppWindow *window);
 static void _window_action_key_trash(AppWindow *window);
 static void _window_action_debug(AppWindow *window, GtkWidget *menu_item);
+
+// Public ---------------------------------------------------------------------
+
+// window_redirect_tooltips
+static void _window_redirect_tooltips_r(GtkWidget *menu_item, AppWindow *window);
+static void _window_menu_item_selected(AppWindow *window, GtkWidget *menu_item);
+static void _window_menu_item_deselected(AppWindow *window, GtkWidget *menu_item);
 
 // Actions --------------------------------------------------------------------
 
@@ -331,9 +315,7 @@ struct _AppWindow
     GClosure        *select_files_closure;
 };
 
-G_DEFINE_TYPE_WITH_CODE(AppWindow,
-                        window,
-                        GTK_TYPE_WINDOW,
+G_DEFINE_TYPE_WITH_CODE(AppWindow, window, GTK_TYPE_WINDOW,
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER, NULL))
 
 static void window_class_init(AppWindowClass *klass)
@@ -364,8 +346,8 @@ static void window_class_init(AppWindowClass *klass)
      * or %NULL.
      **/
     g_object_class_install_property(gobject_class,
-                                     PROP_CURRENT_DIRECTORY,
-                                     g_param_spec_object("current-directory",
+                                    PROP_CURRENT_DIRECTORY,
+                                    g_param_spec_object("current-directory",
                                              "current-directory",
                                              "current-directory",
                                              THUNAR_TYPE_FILE,
@@ -378,8 +360,8 @@ static void window_class_init(AppWindowClass *klass)
      * shown within this window.
      **/
     g_object_class_install_property(gobject_class,
-                                     PROP_ZOOM_LEVEL,
-                                     g_param_spec_enum("zoom-level",
+                                    PROP_ZOOM_LEVEL,
+                                    g_param_spec_enum("zoom-level",
                                              "zoom-level",
                                              "zoom-level",
                                              THUNAR_TYPE_ZOOM_LEVEL,
@@ -395,13 +377,13 @@ static void window_class_init(AppWindowClass *klass)
      **/
     _window_signals[RELOAD] =
         g_signal_new(I_("reload"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                      G_STRUCT_OFFSET(AppWindowClass, reload),
-                      g_signal_accumulator_true_handled, NULL,
-                      _thunar_marshal_BOOLEAN__BOOLEAN,
-                      G_TYPE_BOOLEAN, 1,
-                      G_TYPE_BOOLEAN);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+                     G_STRUCT_OFFSET(AppWindowClass, reload),
+                     g_signal_accumulator_true_handled, NULL,
+                     _thunar_marshal_BOOLEAN__BOOLEAN,
+                     G_TYPE_BOOLEAN, 1,
+                     G_TYPE_BOOLEAN);
 
     /**
      * AppWindow::zoom-in:
@@ -412,12 +394,12 @@ static void window_class_init(AppWindowClass *klass)
      **/
     _window_signals[ZOOM_IN] =
         g_signal_new(I_("zoom-in"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                      G_STRUCT_OFFSET(AppWindowClass, zoom_in),
-                      g_signal_accumulator_true_handled, NULL,
-                      _thunar_marshal_BOOLEAN__VOID,
-                      G_TYPE_BOOLEAN, 0);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+                     G_STRUCT_OFFSET(AppWindowClass, zoom_in),
+                     g_signal_accumulator_true_handled, NULL,
+                     _thunar_marshal_BOOLEAN__VOID,
+                     G_TYPE_BOOLEAN, 0);
 
     /**
      * AppWindow::zoom-out:
@@ -428,12 +410,12 @@ static void window_class_init(AppWindowClass *klass)
      **/
     _window_signals[ZOOM_OUT] =
         g_signal_new(I_("zoom-out"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                      G_STRUCT_OFFSET(AppWindowClass, zoom_out),
-                      g_signal_accumulator_true_handled, NULL,
-                      _thunar_marshal_BOOLEAN__VOID,
-                      G_TYPE_BOOLEAN, 0);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+                     G_STRUCT_OFFSET(AppWindowClass, zoom_out),
+                     g_signal_accumulator_true_handled, NULL,
+                     _thunar_marshal_BOOLEAN__VOID,
+                     G_TYPE_BOOLEAN, 0);
 
     /**
      * AppWindow::zoom-reset:
@@ -444,12 +426,12 @@ static void window_class_init(AppWindowClass *klass)
      **/
     _window_signals[ZOOM_RESET] =
         g_signal_new(I_("zoom-reset"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                      G_STRUCT_OFFSET(AppWindowClass, zoom_reset),
-                      g_signal_accumulator_true_handled, NULL,
-                      _thunar_marshal_BOOLEAN__VOID,
-                      G_TYPE_BOOLEAN, 0);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+                     G_STRUCT_OFFSET(AppWindowClass, zoom_reset),
+                     g_signal_accumulator_true_handled, NULL,
+                     _thunar_marshal_BOOLEAN__VOID,
+                     G_TYPE_BOOLEAN, 0);
 
     /**
      * AppWindow::tab-change:
@@ -461,13 +443,13 @@ static void window_class_init(AppWindowClass *klass)
      **/
     _window_signals[TAB_CHANGE] =
         g_signal_new(I_("tab-change"),
-                      G_TYPE_FROM_CLASS(klass),
-                      G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                      G_STRUCT_OFFSET(AppWindowClass, tab_change),
-                      g_signal_accumulator_true_handled, NULL,
-                      _thunar_marshal_BOOLEAN__INT,
-                      G_TYPE_BOOLEAN, 1,
-                      G_TYPE_INT);
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+                     G_STRUCT_OFFSET(AppWindowClass, tab_change),
+                     g_signal_accumulator_true_handled, NULL,
+                     _thunar_marshal_BOOLEAN__INT,
+                     G_TYPE_BOOLEAN, 1,
+                     G_TYPE_INT);
 
     GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
 
@@ -513,10 +495,13 @@ static void window_init(AppWindow *window)
 
     // connect to the volume monitor
     window->device_monitor = devmon_get();
+
     g_signal_connect(window->device_monitor, "device-pre-unmount",
                      G_CALLBACK(_window_device_pre_unmount), window);
+
     g_signal_connect(window->device_monitor, "device-removed",
                      G_CALLBACK(_window_device_changed), window);
+
     g_signal_connect(window->device_monitor, "device-changed",
                      G_CALLBACK(_window_device_changed), window);
 
@@ -525,6 +510,7 @@ static void window_init(AppWindow *window)
     // Catch key events before accelerators get processed
     g_signal_connect(window, "key-press-event",
                      G_CALLBACK(_window_propagate_key_event), NULL);
+
     g_signal_connect(window, "key-release-event",
                      G_CALLBACK(_window_propagate_key_event), NULL);
 
@@ -542,8 +528,10 @@ static void window_init(AppWindow *window)
     g_object_bind_property(G_OBJECT(window), "current-directory",
                            G_OBJECT(window->launcher), "current-directory",
                            G_BINDING_SYNC_CREATE);
+
     g_signal_connect_swapped(G_OBJECT(window->launcher), "change-directory",
                              G_CALLBACK(window_set_current_directory), window);
+
     launcher_append_accelerators(window->launcher, window->accel_group);
 
     gtk_window_set_default_size(GTK_WINDOW(window),
@@ -614,6 +602,7 @@ static void window_init(AppWindow *window)
     gtk_toolbar_set_show_arrow(GTK_TOOLBAR(window->toolbar), FALSE);
 
     window->location_bar = locbar_new();
+
     g_object_bind_property(G_OBJECT(window), "current-directory",
                            G_OBJECT(window->location_bar), "current-directory",
                            G_BINDING_SYNC_CREATE);
@@ -790,14 +779,13 @@ static gboolean window_reload(AppWindow *window, gboolean reload_info)
     return FALSE;
 }
 
-static gboolean window_tab_change(AppWindow *window,
-                                         gint          nth)
+static gboolean window_tab_change(AppWindow *window, gint nth)
 {
     e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
 
     // Alt+0 is 10th tab
     gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook),
-                                   nth == -1 ? 9 : nth);
+                                  nth == -1 ? 9 : nth);
 
     return TRUE;
 }

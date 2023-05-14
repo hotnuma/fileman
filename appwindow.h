@@ -25,6 +25,23 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+    WINDOW_ACTION_BACK,
+    WINDOW_ACTION_KEY_BACK,
+    WINDOW_ACTION_FORWARD,
+    WINDOW_ACTION_OPEN_PARENT,
+    WINDOW_ACTION_OPEN_HOME,
+    WINDOW_ACTION_KEY_RELOAD,
+    WINDOW_ACTION_KEY_RENAME,
+    WINDOW_ACTION_KEY_TRASH,
+    WINDOW_ACTION_KEY_SHOW_HIDDEN,
+    WINDOW_ACTION_DEBUG,
+
+} WindowAction;
+
+// AppWindow ------------------------------------------------------------------
+
 typedef struct _AppWindowClass AppWindowClass;
 typedef struct _AppWindow      AppWindow;
 
@@ -42,41 +59,28 @@ typedef struct _AppWindow      AppWindow;
 
 GType window_get_type() G_GNUC_CONST;
 
-typedef enum
-{
-    WINDOW_ACTION_BACK,
-    WINDOW_ACTION_KEY_BACK,
-    WINDOW_ACTION_FORWARD,
-    WINDOW_ACTION_OPEN_PARENT,
-    WINDOW_ACTION_OPEN_HOME,
-    WINDOW_ACTION_KEY_RELOAD,
-    WINDOW_ACTION_KEY_RENAME,
-    WINDOW_ACTION_KEY_TRASH,
-    WINDOW_ACTION_KEY_SHOW_HIDDEN,
-    WINDOW_ACTION_DEBUG,
-
-} WindowAction;
+// Properties -----------------------------------------------------------------
 
 ThunarFile* window_get_current_directory(AppWindow *window);
 void window_set_current_directory(AppWindow *window, ThunarFile *current_directory);
 
-void window_scroll_to_file(AppWindow *window, ThunarFile *file, gboolean select,
-                           gboolean use_align, gfloat row_align, gfloat col_align);
+// Directories ----------------------------------------------------------------
 
 gchar** window_get_directories(AppWindow *window, gint *active_page);
 gboolean window_set_directories(AppWindow *window, gchar **uris, gint active_page);
-
 void window_update_directories(AppWindow *window, ThunarFile *old_directory,
                                ThunarFile *new_directory);
 
-ThunarLauncher* window_get_launcher(AppWindow *window);
-
-void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);
+// Get ------------------------------------------------------------------------
 
 const XfceGtkActionEntry* window_get_action_entry(AppWindow *window,
                                                   WindowAction action);
-
 GtkWidget* window_get_focused_tree_view(AppWindow *window);
+ThunarLauncher* window_get_launcher(AppWindow *window);
+
+void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);
+void window_scroll_to_file(AppWindow *window, ThunarFile *file, gboolean select,
+                           gboolean use_align, gfloat row_align, gfloat col_align);
 
 G_END_DECLS
 
