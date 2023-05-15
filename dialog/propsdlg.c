@@ -21,33 +21,23 @@
 
 #include <config.h>
 #include <propsdlg.h>
+#include <marshal.h>
 
-#include <memory.h>
-#include <string.h>
-
-#include <gdk/gdkkeysyms.h>
-
-#include <utils.h>
-
-#include <libxfce4ui/libxfce4ui.h>
-
-#include <application.h>
 #include <appcombo.h>
-#include <dialogs.h>
-#include <gio_ext.h>
-#include <gtk_ext.h>
 #include <iconfactory.h>
 #include <th_image.h>
-#include <io_jobs.h>
-#include <job.h>
-#include <marshal.h>
-#include <pango_ext.h>
-#include <permbox.h>
 #include <sizelabel.h>
+#include <permbox.h>
 
-#include <fileinfo.h>
+#include <dialogs.h>
+#include <io_jobs.h>
+#include <pango_ext.h>
+#include <gio_ext.h>
+#include <utils.h>
+#include <libxfce4ui/libxfce4ui.h>
 
-// Property identifiers
+// PropertiesDialog -----------------------------------------------------------
+
 enum
 {
     PROP_0,
@@ -55,7 +45,6 @@ enum
     PROP_FILE_SIZE_BINARY,
 };
 
-// Signal identifiers
 enum
 {
     RELOAD,
@@ -64,24 +53,17 @@ enum
 
 static void propsdlg_dispose(GObject *object);
 static void propsdlg_finalize(GObject *object);
-static void propsdlg_get_property(GObject *object,
-                                                  guint prop_id,
-                                                  GValue *value,
-                                                  GParamSpec *pspec);
-static void propsdlg_set_property(GObject *object,
-                                                  guint prop_id,
-                                                  const GValue *value,
-                                                  GParamSpec *pspec);
-static void propsdlg_response(GtkDialog *dialog,
-                                              gint response);
+static void propsdlg_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec);
+static void propsdlg_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec);
+static void propsdlg_response(GtkDialog *dialog, gint response);
 static gboolean propsdlg_reload(PropertiesDialog *dialog);
 
-static void _propsdlg_name_activate(GtkWidget *entry,
-                                                   PropertiesDialog *dialog);
-static gboolean _propsdlg_name_focus_out_event(
-                                                GtkWidget *entry,
-                                                GdkEventFocus *event,
-                                                PropertiesDialog *dialog);
+static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog);
+static gboolean _propsdlg_name_focus_out_event(GtkWidget *entry,
+                                               GdkEventFocus *event,
+                                               PropertiesDialog *dialog);
 static void _propsdlg_update(PropertiesDialog *dialog);
 static GList* _propsdlg_get_files(PropertiesDialog *dialog);
 
@@ -89,13 +71,12 @@ struct _PropertiesDialogClass
 {
     GtkDialogClass __parent__;
 
-    // signals
     gboolean (*reload) (PropertiesDialog *dialog);
 };
 
 struct _PropertiesDialog
 {
-    GtkDialog    __parent__;
+    GtkDialog   __parent__;
 
     GList       *files;
     gboolean    file_size_binary;
@@ -174,9 +155,10 @@ static void propsdlg_class_init(PropertiesDialogClass *klass)
 static void propsdlg_init(PropertiesDialog *dialog)
 {
     gtk_dialog_add_buttons(GTK_DIALOG(dialog),
-                            _("_Help"), GTK_RESPONSE_HELP,
-                            _("_Close"), GTK_RESPONSE_CLOSE,
-                            NULL);
+                           _("_Help"), GTK_RESPONSE_HELP,
+                           _("_Close"), GTK_RESPONSE_CLOSE,
+                           NULL);
+
     gtk_window_set_default_size(GTK_WINDOW(dialog), 400, 450);
 
     dialog->notebook = gtk_notebook_new();
@@ -184,18 +166,18 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), dialog->notebook, TRUE, TRUE, 0);
     gtk_widget_show(dialog->notebook);
 
-    GtkWidget *grid;
-    grid = gtk_grid_new();
-    GtkWidget *label;
-    label = gtk_label_new(_("General"));
+    GtkWidget *grid = gtk_grid_new();
+    gtk_widget_show(grid);
+
     gtk_grid_set_column_spacing(GTK_GRID(grid), 12);
     gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
     gtk_container_set_border_width(GTK_CONTAINER(grid), 12);
+
+    GtkWidget *label = gtk_label_new(_("General"));
     gtk_notebook_append_page(GTK_NOTEBOOK(dialog->notebook), grid, label);
     gtk_widget_show(label);
-    gtk_widget_show(grid);
 
-    guint      row = 0;
+    guint row = 0;
 
     // First box(icon, name) for 1 file
 
@@ -238,7 +220,6 @@ static void propsdlg_init(PropertiesDialog *dialog)
 
     ++row;
 
-
     /*
        First box(icon, name) for multiple files
      */
@@ -251,7 +232,6 @@ static void propsdlg_init(PropertiesDialog *dialog)
                            G_OBJECT(box),
                            "visible",
                            G_BINDING_INVERT_BOOLEAN | G_BINDING_SYNC_CREATE);
-
 
     GtkWidget *image;
     image = gtk_image_new_from_icon_name("text-x-generic", GTK_ICON_SIZE_DIALOG);
@@ -272,9 +252,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
     gtk_label_set_selectable(GTK_LABEL(dialog->names_label), TRUE);
     g_object_bind_property(G_OBJECT(box), "visible", G_OBJECT(dialog->names_label), "visible", G_BINDING_SYNC_CREATE);
 
-
     ++row;
-
 
     /*
        Second box(kind, open with, link target)
@@ -365,14 +343,12 @@ static void propsdlg_init(PropertiesDialog *dialog)
 
     ++row;
 
-
     GtkWidget *spacer;
     spacer = g_object_new(GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "height-request", 12, NULL);
     gtk_grid_attach(GTK_GRID(grid), spacer, 0, row, 2, 1);
     gtk_widget_show(spacer);
 
     ++row;
-
 
     /*
        Third box(deleted, modified, accessed)
@@ -422,13 +398,11 @@ static void propsdlg_init(PropertiesDialog *dialog)
 
     ++row;
 
-
     spacer = g_object_new(GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_VERTICAL, "height-request", 12, NULL);
     gtk_grid_attach(GTK_GRID(grid), spacer, 0, row, 2, 1);
     g_object_bind_property(G_OBJECT(dialog->accessed_label), "visible", G_OBJECT(spacer), "visible", G_BINDING_SYNC_CREATE);
 
     ++row;
-
 
     /*
        Fourth box(size, volume, free space)
@@ -516,7 +490,7 @@ static void propsdlg_init(PropertiesDialog *dialog)
 
 static void propsdlg_dispose(GObject *object)
 {
-    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
+    PropertiesDialog *dialog = PROPERTIESDIALOG(object);
 
     // reset the file displayed by the dialog
     propsdlg_set_files(dialog, NULL);
@@ -526,7 +500,7 @@ static void propsdlg_dispose(GObject *object)
 
 static void propsdlg_finalize(GObject *object)
 {
-    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
+    PropertiesDialog *dialog = PROPERTIESDIALOG(object);
     e_return_if_fail(dialog->files == NULL);
 
     G_OBJECT_CLASS(propsdlg_parent_class)->finalize(object);
@@ -537,7 +511,7 @@ static void propsdlg_get_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
+    PropertiesDialog *dialog = PROPERTIESDIALOG(object);
 
     switch (prop_id)
     {
@@ -560,7 +534,7 @@ static void propsdlg_set_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    PropertiesDialog *dialog = PROPERTIES_DIALOG(object);
+    PropertiesDialog *dialog = PROPERTIESDIALOG(object);
 
     switch (prop_id)
     {
@@ -612,7 +586,7 @@ static void _propsdlg_rename_error(ExoJob *job, GError *error,
 {
     e_return_if_fail(EXO_IS_JOB(job));
     e_return_if_fail(error != NULL);
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
 
     /* reset the entry display name to the original name, so the focus
@@ -629,7 +603,7 @@ static void _propsdlg_rename_error(ExoJob *job, GError *error,
 static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
 {
     e_return_if_fail(EXO_IS_JOB(job));
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
 
     g_signal_handlers_disconnect_matched(job,
@@ -643,7 +617,7 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 {
     (void) entry;
 
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
 
     // check if we still have a valid file and if the user is allowed to rename
     if (G_UNLIKELY(!gtk_widget_get_sensitive(GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)))
@@ -706,7 +680,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     guint64            fs_size;
     gdouble            fs_fraction = 0.0;
 
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
     e_return_if_fail(THUNAR_IS_FILE(dialog->files->data));
 
@@ -957,7 +931,7 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     ThunarFile  *tmp_parent;
     gboolean     has_trashed_files = FALSE;
 
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) > 1);
 
     // update the properties dialog title
@@ -1105,7 +1079,7 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
 
 static void _propsdlg_update(PropertiesDialog *dialog)
 {
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(dialog->files != NULL);
 
     if (dialog->files->next == NULL)
@@ -1126,10 +1100,12 @@ static void _propsdlg_update(PropertiesDialog *dialog)
     _propsdlg_update_multiple(dialog);
 }
 
+// Public ---------------------------------------------------------------------
+
 GtkWidget* propsdlg_new(GtkWindow *parent)
 {
     e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), NULL);
-    return g_object_new(TYPE_PROPERTIES_DIALOG,
+    return g_object_new(TYPE_PROPERTIESDIALOG,
                          "transient-for", parent,
                          "destroy-with-parent", parent != NULL,
                          NULL);
@@ -1137,14 +1113,14 @@ GtkWidget* propsdlg_new(GtkWindow *parent)
 
 static GList* _propsdlg_get_files(PropertiesDialog *dialog)
 {
-    e_return_val_if_fail(IS_PROPERTIES_DIALOG(dialog), NULL);
+    e_return_val_if_fail(IS_PROPERTIESDIALOG(dialog), NULL);
 
     return dialog->files;
 }
 
 void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
 {
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
 
     // check if the same lists are used(or null)
     if (G_UNLIKELY(dialog->files == files))
@@ -1203,7 +1179,7 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
 
 void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
 {
-    e_return_if_fail(IS_PROPERTIES_DIALOG(dialog));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
 
     if (file == NULL)

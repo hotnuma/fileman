@@ -16,27 +16,29 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __PROPERTIES_DIALOG_H__
-#define __PROPERTIES_DIALOG_H__
+#ifndef __PROPERTIESDIALOG_H__
+#define __PROPERTIESDIALOG_H__
 
 #include <th_file.h>
 
 G_BEGIN_DECLS
 
+// PropertiesDialog -----------------------------------------------------------
+
 typedef struct _PropertiesDialogClass PropertiesDialogClass;
 typedef struct _PropertiesDialog      PropertiesDialog;
 
-#define TYPE_PROPERTIES_DIALOG (propsdlg_get_type())
-#define PROPERTIES_DIALOG(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_PROPERTIES_DIALOG, PropertiesDialog))
-#define PROPERTIES_DIALOG_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_PROPERTIES_DIALOG, PropertiesDialogClass))
-#define IS_PROPERTIES_DIALOG(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_PROPERTIES_DIALOG))
-#define IS_PROPERTIES_DIALOG_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_PROPERTIES_DIALOG))
-#define PROPERTIES_DIALOG_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_PROPERTIES_DIALOG, PropertiesDialog))
+#define TYPE_PROPERTIESDIALOG (propsdlg_get_type())
+#define PROPERTIESDIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PROPERTIESDIALOG, PropertiesDialog))
+#define PROPERTIESDIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_PROPERTIESDIALOG, PropertiesDialogClass))
+#define IS_PROPERTIESDIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_PROPERTIESDIALOG))
+#define IS_PROPERTIESDIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_PROPERTIESDIALOG))
+#define PROPERTIESDIALOG_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_PROPERTIESDIALOG, PropertiesDialog))
 
 GType propsdlg_get_type() G_GNUC_CONST;
 
@@ -46,6 +48,6 @@ void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file);
 
 G_END_DECLS
 
-#endif // __PROPERTIES_DIALOG_H__
+#endif // __PROPERTIESDIALOG_H__
 
 

@@ -2618,13 +2618,13 @@ static void _launcher_action_properties(ThunarLauncher *launcher)
         if (launcher->files_to_process == NULL)
         {
             // if we don't have any files selected, we just popup the properties dialog for the current folder.
-            propsdlg_set_file(PROPERTIES_DIALOG(dialog),
+            propsdlg_set_file(PROPERTIESDIALOG(dialog),
                               launcher->current_directory);
         }
         else
         {
             // popup the properties dialog for all file(s)
-            propsdlg_set_files(PROPERTIES_DIALOG(dialog),
+            propsdlg_set_files(PROPERTIESDIALOG(dialog),
                                launcher->files_to_process);
         }
 
