@@ -39,6 +39,7 @@ static void pathentry_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec);
 static void pathentry_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);
+static void _pathentry_update_icon(PathEntry *path_entry);
 static gboolean pathentry_focus(GtkWidget *widget, GtkDirectionType direction);
 static gboolean pathentry_motion_notify_event(GtkWidget *widget,
                                               GdkEventMotion *event);
@@ -48,6 +49,8 @@ static void pathentry_drag_data_get(GtkWidget *widget,
                                     guint info,
                                     guint timestamp);
 static void pathentry_activate(GtkEntry *entry);
+
+// GtkEditable ----------------------------------------------------------------
 
 static void pathentry_editable_init(GtkEditableInterface *iface);
 static void pathentry_changed(GtkEditable *editable);
@@ -59,6 +62,8 @@ static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
                                       const gchar *key,
                                       GtkTreeIter *iter,
                                       gpointer user_data);
+static gboolean _pathentry_has_prefix_casefolded(const gchar *string,
+                                                 const gchar *prefix);
 static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
                                           GtkTreeModel *model,
                                           GtkTreeIter *iter,
@@ -75,7 +80,6 @@ static void _pathentry_icon_release_event(GtkEntry *entry,
                                           gpointer user_data);
 
 
-static void _pathentry_update_icon(PathEntry *path_entry);
 static void _pathentry_common_prefix_append(PathEntry *path_entry,
                                             gboolean highlight);
 static void _pathentry_common_prefix_lookup(PathEntry *path_entry,
@@ -378,6 +382,50 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
     gtk_widget_queue_draw(GTK_WIDGET(path_entry));
 }
 
+static void _pathentry_update_icon(PathEntry *path_entry)
+{
+    GdkPixbuf          *icon = NULL;
+    GtkIconTheme       *icon_theme;
+    gint                icon_size;
+
+    if (path_entry->icon_factory == NULL)
+    {
+        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(path_entry)));
+        path_entry->icon_factory = iconfact_get_for_icon_theme(icon_theme);
+    }
+
+    gtk_widget_style_get(GTK_WIDGET(path_entry), "icon-size", &icon_size, NULL);
+
+    if (G_UNLIKELY(path_entry->current_file != NULL))
+    {
+        icon = iconfact_load_file_icon(path_entry->icon_factory,
+                path_entry->current_file,
+                THUNAR_FILE_ICON_STATE_DEFAULT,
+                icon_size);
+    }
+    else if (G_LIKELY(path_entry->current_folder != NULL))
+    {
+        icon = iconfact_load_file_icon(path_entry->icon_factory,
+                path_entry->current_folder,
+                THUNAR_FILE_ICON_STATE_DEFAULT,
+                icon_size);
+    }
+
+    if (icon != NULL)
+    {
+        gtk_entry_set_icon_from_pixbuf(GTK_ENTRY(path_entry),
+                                        GTK_ENTRY_ICON_PRIMARY,
+                                        icon);
+        g_object_unref(icon);
+    }
+    else
+    {
+        gtk_entry_set_icon_from_icon_name(GTK_ENTRY(path_entry),
+                                           GTK_ENTRY_ICON_PRIMARY,
+                                           "dialog-error-symbolic");
+    }
+}
+
 static gboolean pathentry_focus(GtkWidget *widget, GtkDirectionType direction)
 {
     PathEntry *path_entry = PATHENTRY(widget);
@@ -489,72 +537,7 @@ static void pathentry_activate(GtkEntry *entry)
    GTK_ENTRY_CLASS(pathentry_parent_class)->activate(entry);
 }
 
-
-
-
-// ----------------------------------------------------------------------------
-
-
-
-
-
-static void _pathentry_icon_press_event(GtkEntry             *entry,
-                                        GtkEntryIconPosition icon_pos,
-                                        GdkEventButton       *event,
-                                        gpointer             userdata)
-{
-    (void) userdata;
-
-    PathEntry *path_entry = PATHENTRY(entry);
-
-    if (event->button == 1 && icon_pos == GTK_ENTRY_ICON_PRIMARY)
-    {
-        // consume the event
-        path_entry->drag_button = event->button;
-        path_entry->drag_x = event->x;
-        path_entry->drag_y = event->y;
-    }
-}
-
-static void _pathentry_icon_release_event(GtkEntry             *entry,
-                                          GtkEntryIconPosition icon_pos,
-                                          GdkEventButton       *event,
-                                          gpointer             user_data)
-{
-    (void) user_data;
-
-    PathEntry *path_entry = PATHENTRY(entry);
-
-    if (event->button == path_entry->drag_button && icon_pos == GTK_ENTRY_ICON_PRIMARY)
-    {
-        // reset the drag button state
-        path_entry->drag_button = 0;
-    }
-}
-
-static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event)
-{
-    PathEntry *path_entry = PATHENTRY(widget);
-
-    // check if we have a tab key press here and control is not pressed
-    if (G_UNLIKELY(event->keyval == GDK_KEY_Tab &&(event->state & GDK_CONTROL_MASK) == 0))
-    {
-        // if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix
-        if (!path_entry->has_completion && gtk_editable_get_position(GTK_EDITABLE(path_entry)) == gtk_entry_get_text_length(GTK_ENTRY(path_entry)))
-            _pathentry_common_prefix_append(path_entry, FALSE);
-
-        // place the cursor at the end
-        gtk_editable_set_position(GTK_EDITABLE(path_entry), gtk_entry_get_text_length(GTK_ENTRY(path_entry)));
-
-        // emit "changed", so the completion window is popped up
-        g_signal_emit_by_name(G_OBJECT(path_entry), "changed", 0);
-
-        // we handled the event
-        return TRUE;
-    }
-
-    return FALSE;
-}
+// GtkEditable ----------------------------------------------------------------
 
 static void pathentry_changed(GtkEditable *editable)
 {
@@ -696,54 +679,8 @@ static void pathentry_changed(GtkEditable *editable)
         g_object_unref(file_path);
 }
 
-static void _pathentry_update_icon(PathEntry *path_entry)
-{
-    GdkPixbuf          *icon = NULL;
-    GtkIconTheme       *icon_theme;
-    gint                icon_size;
-
-    if (path_entry->icon_factory == NULL)
-    {
-        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(path_entry)));
-        path_entry->icon_factory = iconfact_get_for_icon_theme(icon_theme);
-    }
-
-    gtk_widget_style_get(GTK_WIDGET(path_entry), "icon-size", &icon_size, NULL);
-
-    if (G_UNLIKELY(path_entry->current_file != NULL))
-    {
-        icon = iconfact_load_file_icon(path_entry->icon_factory,
-                path_entry->current_file,
-                THUNAR_FILE_ICON_STATE_DEFAULT,
-                icon_size);
-    }
-    else if (G_LIKELY(path_entry->current_folder != NULL))
-    {
-        icon = iconfact_load_file_icon(path_entry->icon_factory,
-                path_entry->current_folder,
-                THUNAR_FILE_ICON_STATE_DEFAULT,
-                icon_size);
-    }
-
-    if (icon != NULL)
-    {
-        gtk_entry_set_icon_from_pixbuf(GTK_ENTRY(path_entry),
-                                        GTK_ENTRY_ICON_PRIMARY,
-                                        icon);
-        g_object_unref(icon);
-    }
-    else
-    {
-        gtk_entry_set_icon_from_icon_name(GTK_ENTRY(path_entry),
-                                           GTK_ENTRY_ICON_PRIMARY,
-                                           "dialog-error-symbolic");
-    }
-}
-
-static void pathentry_do_insert_text(GtkEditable *editable,
-                                     const gchar *new_text,
-                                     gint        new_text_length,
-                                     gint        *position)
+static void pathentry_do_insert_text(GtkEditable *editable, const gchar *new_text,
+                                     gint new_text_length, gint *position)
 {
     PathEntry *path_entry = PATHENTRY(editable);
 
@@ -755,173 +692,7 @@ static void pathentry_do_insert_text(GtkEditable *editable,
         _pathentry_queue_check_completion(path_entry);
 }
 
-static void _pathentry_clear_completion(PathEntry *path_entry)
-{
-    // reset the completion and apply the new text
-    if (G_UNLIKELY(path_entry->has_completion))
-    {
-        path_entry->has_completion = FALSE;
-        pathentry_changed(GTK_EDITABLE(path_entry));
-    }
-}
-
-static void _pathentry_common_prefix_append(PathEntry *path_entry,
-                                            gboolean  highlight)
-{
-    const gchar *last_slash;
-    const gchar *text;
-    ThunarFile  *file;
-    gchar       *prefix;
-    gchar       *tmp;
-    gint         prefix_length;
-    gint         text_length;
-    gint         offset;
-    gint         base;
-
-    // determine the common prefix
-    _pathentry_common_prefix_lookup(path_entry, &prefix, &file);
-
-    // check if we should append a slash to the prefix
-    if (G_LIKELY(file != NULL))
-    {
-        // we only append slashes for directories
-        if (th_file_is_directory(file) && file != path_entry->current_file)
-        {
-            tmp = g_strconcat(prefix, G_DIR_SEPARATOR_S, NULL);
-            g_free(prefix);
-            prefix = tmp;
-        }
-
-        // release the file
-        g_object_unref(G_OBJECT(file));
-    }
-
-    // check if we have a common prefix
-    if (G_LIKELY(prefix != NULL))
-    {
-        // determine the UTF-8 length of the entry text
-        text = gtk_entry_get_text(GTK_ENTRY(path_entry));
-        last_slash = g_utf8_strrchr(text, -1, G_DIR_SEPARATOR);
-        if (G_LIKELY(last_slash != NULL))
-            offset = g_utf8_strlen(text, last_slash - text) + 1;
-        else
-            offset = 0;
-        text_length = g_utf8_strlen(text, -1) - offset;
-
-        // determine the UTF-8 length of the prefix
-        prefix_length = g_utf8_strlen(prefix, -1);
-
-        // append only if the prefix is longer than the already entered text
-        if (G_LIKELY(prefix_length > text_length))
-        {
-            // remember the base offset
-            base = offset;
-
-            // insert the prefix
-            path_entry->in_change = TRUE;
-            gtk_editable_delete_text(GTK_EDITABLE(path_entry), offset, -1);
-            gtk_editable_insert_text(GTK_EDITABLE(path_entry), prefix, -1, &offset);
-            path_entry->in_change = FALSE;
-
-            // highlight the prefix if requested
-            if (G_LIKELY(highlight))
-            {
-                gtk_editable_select_region(GTK_EDITABLE(path_entry), base + text_length, base + prefix_length);
-                path_entry->has_completion = TRUE;
-            }
-        }
-
-        // cleanup
-        g_free(prefix);
-    }
-}
-
-static gboolean _pathentry_has_prefix_casefolded(const gchar *string,
-                                                 const gchar *prefix)
-{
-    gchar *string_casefolded;
-    gchar *prefix_casefolded;
-    gboolean has_prefix;
-
-    if (string == NULL || prefix == NULL)
-        return FALSE;
-
-    string_casefolded = g_utf8_casefold(string, -1);
-    prefix_casefolded = g_utf8_casefold(prefix, -1);
-
-    has_prefix = g_str_has_prefix(string_casefolded, prefix_casefolded);
-
-    g_free(string_casefolded);
-    g_free(prefix_casefolded);
-
-    return has_prefix;
-}
-
-static void _pathentry_common_prefix_lookup(PathEntry  *path_entry,
-                                            gchar      **prefix_return,
-                                            ThunarFile **file_return)
-{
-    GtkTreeModel *model;
-    GtkTreeIter   iter;
-    const gchar  *text;
-    const gchar  *s;
-    gchar        *name;
-    gchar        *t;
-
-    *prefix_return = NULL;
-    *file_return = NULL;
-
-    // lookup the last slash character in the entry text
-    text = gtk_entry_get_text(GTK_ENTRY(path_entry));
-    s = strrchr(text, G_DIR_SEPARATOR);
-    if (G_UNLIKELY(s != NULL && s[1] == '\0'))
-        return;
-    else if (G_LIKELY(s != NULL))
-        text = s + 1;
-
-    // check all items in the model
-    model = gtk_entry_completion_get_model(gtk_entry_get_completion(GTK_ENTRY(path_entry)));
-    if (gtk_tree_model_get_iter_first(model, &iter))
-    {
-        do
-        {
-            // determine the real file name for the iter
-            gtk_tree_model_get(model, &iter, THUNAR_COLUMN_FILE_NAME, &name, -1);
-
-            // check if we have a valid prefix here
-            if (_pathentry_has_prefix_casefolded(name, text))
-            {
-                // check if we're the first to match
-                if (*prefix_return == NULL)
-                {
-                    // remember the prefix
-                    *prefix_return = g_strdup(name);
-
-                    // determine the file for the iter
-                    gtk_tree_model_get(model, &iter, THUNAR_COLUMN_FILE, file_return, -1);
-                }
-                else
-                {
-                    // we already have another prefix, so determine the common part
-                    for(s = name, t = *prefix_return; *s != '\0' && *s == *t; ++s, ++t)
-                        ;
-                    *t = '\0';
-
-                    // release the file, since it's not a unique match
-                    if (G_LIKELY(*file_return != NULL))
-                    {
-                        g_object_unref(G_OBJECT(*file_return));
-                        *file_return = NULL;
-                    }
-                }
-            }
-
-            // cleanup
-            g_free(name);
-        }
-        while(gtk_tree_model_iter_next(model, &iter));
-    }
-}
+// GtkEntry -------------------------------------------------------------------
 
 static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
                                       const gchar        *key,
@@ -996,6 +767,27 @@ static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
     return matched;
 }
 
+static gboolean _pathentry_has_prefix_casefolded(const gchar *string,
+                                                 const gchar *prefix)
+{
+    gchar *string_casefolded;
+    gchar *prefix_casefolded;
+    gboolean has_prefix;
+
+    if (string == NULL || prefix == NULL)
+        return FALSE;
+
+    string_casefolded = g_utf8_casefold(string, -1);
+    prefix_casefolded = g_utf8_casefold(prefix, -1);
+
+    has_prefix = g_str_has_prefix(string_casefolded, prefix_casefolded);
+
+    g_free(string_casefolded);
+    g_free(prefix_casefolded);
+
+    return has_prefix;
+}
+
 static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
                                           GtkTreeModel       *model,
                                           GtkTreeIter        *iter,
@@ -1047,6 +839,213 @@ static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
     g_free(real_name);
 
     return TRUE;
+}
+
+static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event)
+{
+    PathEntry *path_entry = PATHENTRY(widget);
+
+    // check if we have a tab key press here and control is not pressed
+    if (G_UNLIKELY(event->keyval == GDK_KEY_Tab &&(event->state & GDK_CONTROL_MASK) == 0))
+    {
+        // if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix
+        if (!path_entry->has_completion && gtk_editable_get_position(GTK_EDITABLE(path_entry)) == gtk_entry_get_text_length(GTK_ENTRY(path_entry)))
+            _pathentry_common_prefix_append(path_entry, FALSE);
+
+        // place the cursor at the end
+        gtk_editable_set_position(GTK_EDITABLE(path_entry), gtk_entry_get_text_length(GTK_ENTRY(path_entry)));
+
+        // emit "changed", so the completion window is popped up
+        g_signal_emit_by_name(G_OBJECT(path_entry), "changed", 0);
+
+        // we handled the event
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void _pathentry_clear_completion(PathEntry *path_entry)
+{
+    // reset the completion and apply the new text
+    if (G_UNLIKELY(path_entry->has_completion))
+    {
+        path_entry->has_completion = FALSE;
+        pathentry_changed(GTK_EDITABLE(path_entry));
+    }
+}
+
+static void _pathentry_icon_press_event(GtkEntry             *entry,
+                                        GtkEntryIconPosition icon_pos,
+                                        GdkEventButton       *event,
+                                        gpointer             userdata)
+{
+    (void) userdata;
+
+    PathEntry *path_entry = PATHENTRY(entry);
+
+    if (event->button == 1 && icon_pos == GTK_ENTRY_ICON_PRIMARY)
+    {
+        // consume the event
+        path_entry->drag_button = event->button;
+        path_entry->drag_x = event->x;
+        path_entry->drag_y = event->y;
+    }
+}
+
+static void _pathentry_icon_release_event(GtkEntry             *entry,
+                                          GtkEntryIconPosition icon_pos,
+                                          GdkEventButton       *event,
+                                          gpointer             user_data)
+{
+    (void) user_data;
+
+    PathEntry *path_entry = PATHENTRY(entry);
+
+    if (event->button == path_entry->drag_button && icon_pos == GTK_ENTRY_ICON_PRIMARY)
+    {
+        // reset the drag button state
+        path_entry->drag_button = 0;
+    }
+}
+
+// Completion -----------------------------------------------------------------
+
+static void _pathentry_common_prefix_append(PathEntry *path_entry,
+                                            gboolean  highlight)
+{
+    const gchar *last_slash;
+    const gchar *text;
+    ThunarFile  *file;
+    gchar       *prefix;
+    gchar       *tmp;
+    gint         prefix_length;
+    gint         text_length;
+    gint         offset;
+    gint         base;
+
+    // determine the common prefix
+    _pathentry_common_prefix_lookup(path_entry, &prefix, &file);
+
+    // check if we should append a slash to the prefix
+    if (G_LIKELY(file != NULL))
+    {
+        // we only append slashes for directories
+        if (th_file_is_directory(file) && file != path_entry->current_file)
+        {
+            tmp = g_strconcat(prefix, G_DIR_SEPARATOR_S, NULL);
+            g_free(prefix);
+            prefix = tmp;
+        }
+
+        // release the file
+        g_object_unref(G_OBJECT(file));
+    }
+
+    // check if we have a common prefix
+    if (G_LIKELY(prefix != NULL))
+    {
+        // determine the UTF-8 length of the entry text
+        text = gtk_entry_get_text(GTK_ENTRY(path_entry));
+        last_slash = g_utf8_strrchr(text, -1, G_DIR_SEPARATOR);
+        if (G_LIKELY(last_slash != NULL))
+            offset = g_utf8_strlen(text, last_slash - text) + 1;
+        else
+            offset = 0;
+        text_length = g_utf8_strlen(text, -1) - offset;
+
+        // determine the UTF-8 length of the prefix
+        prefix_length = g_utf8_strlen(prefix, -1);
+
+        // append only if the prefix is longer than the already entered text
+        if (G_LIKELY(prefix_length > text_length))
+        {
+            // remember the base offset
+            base = offset;
+
+            // insert the prefix
+            path_entry->in_change = TRUE;
+            gtk_editable_delete_text(GTK_EDITABLE(path_entry), offset, -1);
+            gtk_editable_insert_text(GTK_EDITABLE(path_entry), prefix, -1, &offset);
+            path_entry->in_change = FALSE;
+
+            // highlight the prefix if requested
+            if (G_LIKELY(highlight))
+            {
+                gtk_editable_select_region(GTK_EDITABLE(path_entry), base + text_length, base + prefix_length);
+                path_entry->has_completion = TRUE;
+            }
+        }
+
+        // cleanup
+        g_free(prefix);
+    }
+}
+
+static void _pathentry_common_prefix_lookup(PathEntry  *path_entry,
+                                            gchar      **prefix_return,
+                                            ThunarFile **file_return)
+{
+    GtkTreeModel *model;
+    GtkTreeIter   iter;
+    const gchar  *text;
+    const gchar  *s;
+    gchar        *name;
+    gchar        *t;
+
+    *prefix_return = NULL;
+    *file_return = NULL;
+
+    // lookup the last slash character in the entry text
+    text = gtk_entry_get_text(GTK_ENTRY(path_entry));
+    s = strrchr(text, G_DIR_SEPARATOR);
+    if (G_UNLIKELY(s != NULL && s[1] == '\0'))
+        return;
+    else if (G_LIKELY(s != NULL))
+        text = s + 1;
+
+    // check all items in the model
+    model = gtk_entry_completion_get_model(gtk_entry_get_completion(GTK_ENTRY(path_entry)));
+    if (gtk_tree_model_get_iter_first(model, &iter))
+    {
+        do
+        {
+            // determine the real file name for the iter
+            gtk_tree_model_get(model, &iter, THUNAR_COLUMN_FILE_NAME, &name, -1);
+
+            // check if we have a valid prefix here
+            if (_pathentry_has_prefix_casefolded(name, text))
+            {
+                // check if we're the first to match
+                if (*prefix_return == NULL)
+                {
+                    // remember the prefix
+                    *prefix_return = g_strdup(name);
+
+                    // determine the file for the iter
+                    gtk_tree_model_get(model, &iter, THUNAR_COLUMN_FILE, file_return, -1);
+                }
+                else
+                {
+                    // we already have another prefix, so determine the common part
+                    for(s = name, t = *prefix_return; *s != '\0' && *s == *t; ++s, ++t)
+                        ;
+                    *t = '\0';
+
+                    // release the file, since it's not a unique match
+                    if (G_LIKELY(*file_return != NULL))
+                    {
+                        g_object_unref(G_OBJECT(*file_return));
+                        *file_return = NULL;
+                    }
+                }
+            }
+
+            // cleanup
+            g_free(name);
+        }
+        while(gtk_tree_model_iter_next(model, &iter));
+    }
 }
 
 static gboolean _pathentry_parse(PathEntry *path_entry,
@@ -1151,6 +1150,8 @@ static void _pathentry_check_completion_idle_destroy(gpointer user_data)
 {
     PATHENTRY(user_data)->check_completion_idle_id = 0;
 }
+
+// Public ---------------------------------------------------------------------
 
 GtkWidget* pathentry_new()
 {
