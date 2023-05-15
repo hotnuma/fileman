@@ -19,19 +19,25 @@
 #include <config.h>
 #include <detailview.h>
 
-#include <standardview.h>
 #include <appwindow.h>
+#include <standardview.h>
 #include <exotreeview.h>
 #include <columnmodel.h>
 #include <launcher.h>
+
+// DetailView -----------------------------------------------------------------
 
 static void detailview_finalize(GObject *object);
 static void detailview_get_property(GObject *object, guint prop_id,
                                     GValue *value, GParamSpec *pspec);
 static void detailview_set_property(GObject *object, guint prop_id,
                                     const GValue *value, GParamSpec *pspec);
+static gboolean _detailview_get_fixed_columns(DetailView *details_view);
+static void _detailview_set_fixed_columns(DetailView *details_view,
+                                          gboolean fixed_columns);
 
 static AtkObject* detailview_get_accessible(GtkWidget *widget);
+
 static GList* detailview_get_selected_items(StandardView *standard_view);
 static void detailview_select_all(StandardView *standard_view);
 static void detailview_unselect_all(StandardView *standard_view);
@@ -54,11 +60,18 @@ static gboolean detailview_get_visible_range(StandardView *standard_view,
                                              GtkTreePath **end_path);
 static void detailview_highlight_path(StandardView *standard_view,
                                       GtkTreePath *path);
+static void detailview_append_menu_items(StandardView *standard_view,
+                                         GtkMenu *menu,
+                                         GtkAccelGroup *accel_group);
+static void detailview_connect_accelerators(StandardView *standard_view,
+                                            GtkAccelGroup *accel_group);
+static void detailview_disconnect_accelerators(StandardView *standard_view,
+                                               GtkAccelGroup *accel_group);
 
+// Events ---------------------------------------------------------------------
+
+static void _detailview_zoom_level_changed(DetailView *details_view);
 static void _detailview_notify_model(GtkTreeView *tree_view,
-                                     GParamSpec *pspec,
-                                     DetailView *details_view);
-static void _detailview_notify_width(GtkTreeViewColumn *tree_view_column,
                                      GParamSpec *pspec,
                                      DetailView *details_view);
 static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
@@ -67,42 +80,28 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
 static gboolean _detailview_key_press_event(GtkTreeView *tree_view,
                                             GdkEventKey *event,
                                             DetailView *details_view);
-
 static void _detailview_row_activated(GtkTreeView *tree_view,
                                       GtkTreePath *path,
                                       GtkTreeViewColumn *column,
                                       DetailView *details_view);
-
 static gboolean _detailview_select_cursor_row(GtkTreeView *tree_view,
                                               gboolean editing,
                                               DetailView *details_view);
+static void _detailview_columns_changed(ColumnModel *column_model,
+                                        DetailView *details_view);
 static void _detailview_row_changed(GtkTreeView *tree_view,
                                     GtkTreePath *path,
                                     GtkTreeViewColumn *column,
                                     DetailView *details_view);
-static void _detailview_columns_changed(ColumnModel *column_model,
-                                        DetailView *details_view);
-static void _detailview_zoom_level_changed(DetailView *details_view);
-static gboolean _detailview_get_fixed_columns(DetailView *details_view);
-static void _detailview_set_fixed_columns(DetailView *details_view,
-                                          gboolean fixed_columns);
+static void _detailview_notify_width(GtkTreeViewColumn *tree_view_column,
+                                     GParamSpec *pspec,
+                                     DetailView *details_view);
 
-static void detailview_connect_accelerators(StandardView *standard_view,
-                                            GtkAccelGroup *accel_group);
-static void detailview_disconnect_accelerators(StandardView *standard_view,
-                                               GtkAccelGroup *accel_group);
-static void detailview_append_menu_items(StandardView *standard_view,
-                                         GtkMenu *menu,
-                                         GtkAccelGroup *accel_group);
+// Column Editor Dialog -------------------------------------------------------
 
-// Popup action ---------------------------------------------------------------
+static void _detailview_show_column_editor(gpointer parent);
 
-static void _detailview_show_column_editor(gpointer parent)
-{
-    (void) parent;
-
-    return;
-}
+// DetailView -----------------------------------------------------------------
 
 static XfceGtkActionEntry _detailview_actions[] =
 {
@@ -120,7 +119,6 @@ static XfceGtkActionEntry _detailview_actions[] =
     xfce_gtk_get_action_entry_by_id(_detailview_actions, \
                                     G_N_ELEMENTS(_detailview_actions), \
                                     id)
-
 enum
 {
     PROP_0,
@@ -249,7 +247,8 @@ static void detailview_init(DetailView *details_view)
         gtk_tree_view_column_set_title(details_view->columns[column], column_model_get_column_name(details_view->column_model, column));
 
         // stay informed whenever the width of the column is changed
-        g_signal_connect(G_OBJECT(details_view->columns[column]), "notify::width", G_CALLBACK(_detailview_notify_width), details_view);
+        g_signal_connect(G_OBJECT(details_view->columns[column]), "notify::width",
+                         G_CALLBACK(_detailview_notify_width), details_view);
 
         // name column gets special renderers
         if (G_UNLIKELY(column == THUNAR_COLUMN_NAME))
@@ -989,6 +988,15 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
         // notify listeners
         g_object_notify(G_OBJECT(details_view), "fixed-columns");
     }
+}
+
+// Popup action ---------------------------------------------------------------
+
+static void _detailview_show_column_editor(gpointer parent)
+{
+    (void) parent;
+
+    return;
 }
 
 

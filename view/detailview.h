@@ -23,28 +23,28 @@
 
 G_BEGIN_DECLS
 
-typedef struct _DetailViewClass DetailViewClass;
-typedef struct _DetailView      DetailView;
-
-#define TYPE_DETAILVIEW (detailview_get_type ())
-#define DETAILVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_DETAILVIEW, DetailView))
-#define DETAILVIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_DETAILVIEW, DetailViewClass))
-#define IS_DETAILVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_DETAILVIEW))
-#define IS_DETAILVIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_DETAILVIEW))
-#define DETAILVIEW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_DETAILVIEW, DetailViewClass))
-
-// Action Entrys provided by this widget
-
 typedef enum
 {
     DETAILVIEW_ACTION_CONFIGURE_COLUMNS,
 
 } DetailViewAction;
+
+// DetailView -----------------------------------------------------------------
+
+typedef struct _DetailViewClass DetailViewClass;
+typedef struct _DetailView      DetailView;
+
+#define TYPE_DETAILVIEW (detailview_get_type())
+#define DETAILVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_DETAILVIEW, DetailView))
+#define DETAILVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_DETAILVIEW, DetailViewClass))
+#define IS_DETAILVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_DETAILVIEW))
+#define IS_DETAILVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_DETAILVIEW))
+#define DETAILVIEW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_DETAILVIEW, DetailViewClass))
 
 GType detailview_get_type() G_GNUC_CONST;
 
