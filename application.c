@@ -70,13 +70,24 @@ static void application_activate(GApplication *application);
 static int application_command_line(GApplication *application,
                                     GApplicationCommandLine *command_line);
 
+// Public ---------------------------------------------------------------------
+
+// application_process_filenames
+static void _application_process_files(Application *application);
+static void _application_process_files_finish(ThunarBrowser *browser, ThunarFile *file,
+                                              ThunarFile *target_file, GError *error,
+                                              gpointer unused);
+
 // Actions --------------------------------------------------------------------
 
+// application_unlink_files
 static ThunarJob* unlink_stub(GList *source_path_list, GList *target_path_list);
+// application_trash
 static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list);
+// application_creat
 static ThunarJob* creat_stub(GList *template_file, GList *target_path_list);
+// application_mkdir
 static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list);
-
 
 // Launch ---------------------------------------------------------------------
 
@@ -90,8 +101,6 @@ static void _application_collect_and_launch(Application *application,
                                             gboolean update_source_folders,
                                             gboolean update_target_folders,
                                             GClosure *new_files_closure);
-static void _application_launch_finished(ThunarJob *job,
-                                         GList *containing_folders);
 static void _application_launch(Application *application,
                                 gpointer parent,
                                 const gchar *icon_name,
@@ -102,16 +111,14 @@ static void _application_launch(Application *application,
                                 gboolean update_source_folders,
                                 gboolean update_target_folders,
                                 GClosure *new_files_closure);
-static void _application_show_dialogs_destroy(gpointer user_data);
+static void _application_launch_finished(ThunarJob *job,
+                                         GList *containing_folders);
 
-// Dialogs --------------------------------------------------------------------
+// Progress Dialog ------------------------------------------------------------
 
-static gboolean _application_show_dialogs(gpointer user_data);
 static GtkWidget* _application_get_progress_dialog(Application *application);
-static void _application_process_files(Application *application);
-static void _application_process_files_finish(ThunarBrowser *browser, ThunarFile *file,
-                                              ThunarFile *target_file, GError *error,
-                                              gpointer unused);
+static gboolean _application_show_dialogs(gpointer user_data);
+static void _application_show_dialogs_destroy(gpointer user_data);
 
 // Application ----------------------------------------------------------------
 
@@ -164,8 +171,8 @@ static void application_class_init(ApplicationClass *klass)
 
     GApplicationClass *gapplication_class = G_APPLICATION_CLASS(klass);
     gapplication_class->startup = application_startup;
-    gapplication_class->activate = application_activate;
     gapplication_class->shutdown = application_shutdown;
+    gapplication_class->activate = application_activate;
     gapplication_class->command_line = application_command_line;
 
     g_object_class_install_property(gobject_class,
@@ -398,9 +405,6 @@ out:
     g_error_free(error);
     return EXIT_FAILURE;
 }
-
-// Properties -----------------------------------------------------------------
-
 static void application_get_property(GObject *object, guint prop_id,
                                      GValue *value, GParamSpec *pspec)
 {
@@ -1322,7 +1326,7 @@ static void _application_launch_finished(ThunarJob *job, GList *containing_folde
     }
 }
 
-// Dialogs --------------------------------------------------------------------
+// Progress Dialog ------------------------------------------------------------
 
 static GtkWidget* _application_get_progress_dialog(Application *application)
 {

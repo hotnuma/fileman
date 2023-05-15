@@ -12,8 +12,8 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -20
 +   68489	./appwindow.c
 +   65727	./job/transferjob.c
     59398	./side/treemodel.c
-    50502	./dialog/permbox.c
-    47095	./application.c
++   50502	./dialog/permbox.c
++   47095	./application.c
     43814	./dialog/appchooser.c
     43513	./dialog/propsdlg.c
     42679	./job/io_jobs.c
