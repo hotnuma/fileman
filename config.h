@@ -71,13 +71,14 @@
 #define HAVE_PREAD
 #define HAVE_PWRITE
 #define HAVE_SCHED_YIELD
-//#define HAVE_SETGROUPENT
-//#define HAVE_SETPASSENT
 #define HAVE_STRCOLL
-//#define HAVE_STRLCPY
 #define HAVE_STRPTIME
 #define HAVE_SYMLINK
 #define HAVE_ATEXIT
+
+//#define HAVE_STRLCPY
+//#define HAVE_SETGROUPENT
+//#define HAVE_SETPASSENT
 
 #endif // CONFIG_H
 

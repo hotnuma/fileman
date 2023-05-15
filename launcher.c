@@ -38,9 +38,9 @@
 #include <appchooser.h>
 #include <propsdlg.h>
 
-// Launcher -------------------------------------------------------------------
-
 typedef struct _LauncherPokeData LauncherPokeData;
+
+// Launcher -------------------------------------------------------------------
 
 enum
 {

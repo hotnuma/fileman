@@ -19,24 +19,26 @@
 #ifndef __PERMISSIONBOX_H__
 #define __PERMISSIONBOX_H__
 
-#include <th_file.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+// PermissionBox --------------------------------------------------------------
 
 typedef struct _PermissionBoxClass PermissionBoxClass;
 typedef struct _PermissionBox      PermissionBox;
 
-#define TYPE_PERMISSIONBOX (permbox_get_type ())
+#define TYPE_PERMISSIONBOX (permbox_get_type())
 #define PERMISSIONBOX(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_PERMISSIONBOX, PermissionBox))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PERMISSIONBOX, PermissionBox))
 #define PERMISSIONBOX_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_PERMISSIONBOX, PermissionBoxClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_PERMISSIONBOX, PermissionBoxClass))
 #define IS_PERMISSIONBOX(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_PERMISSIONBOX))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_PERMISSIONBOX))
 #define IS_PERMISSIONBOX_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_PERMISSIONBOX))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_PERMISSIONBOX))
 #define PERMISSIONBOX_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_PERMISSIONBOX, PermissionBoxClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_PERMISSIONBOX, PermissionBoxClass))
 
 GType permbox_get_type() G_GNUC_CONST;
 
