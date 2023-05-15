@@ -20,42 +20,46 @@
 #include <config.h>
 #include <io_jobs.h>
 
-#include <application.h>
-#include <enumtypes.h>
-#include <gio_ext.h>
 #include <io_scandir.h>
-#include <jobutils.h>
-#include <simplejob.h>
-#include <transferjob.h>
+#include <gio_ext.h>
 
-#include <errno.h>
-#include <gio/gio.h>
+#include <transferjob.h>
+#include <simplejob.h>
+#include <jobutils.h>
 #include <glib/gstdio.h>
 
+// io_list_directory
 static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error);
 
+// io_make_directories
 static gboolean _io_mkdir(ThunarJob *job, GArray *param_values, GError **error);
 static gboolean _io_delete_file(GFile *file, GCancellable *cancellable,
                                 GError **error);
-
+// io_create_files
 static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error);
 
+// io_unlink_files
 static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error);
 static GList* _io_collect_nofollow(ThunarJob *job, GList *base_file_list,
                                    gboolean unlinking, GError **error);
-
+// io_link_files
 static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error);
 static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
                             GFile *target_file, GError **error);
-
+// io_trash_files
 static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error);
 
+// io_rename_file
 static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error);
 static gboolean _io_rename_notify(ThunarFile *file);
 
+// io_change_group
 static gboolean _io_chown(ThunarJob *job, GArray *param_values, GError **error);
+
+// io_change_mode
 static gboolean _io_chmod(ThunarJob *job, GArray *param_values, GError **error);
 
+// Jobs -----------------------------------------------------------------------
 
 ThunarJob* io_list_directory(GFile *directory)
 {
@@ -126,7 +130,6 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
 
     return TRUE;
 }
-
 
 ThunarJob* io_make_directories(GList *file_list)
 {
@@ -280,7 +283,6 @@ static gboolean _io_delete_file(GFile *file, GCancellable *cancellable,
     g_free(path);
     return FALSE;
 }
-
 
 ThunarJob* io_create_files(GList *file_list, GFile *template_file)
 {
@@ -451,7 +453,6 @@ again:
     return TRUE;
 }
 
-
 ThunarJob* io_unlink_files(GList *file_list)
 {
     return simplejob_launch(_io_unlink, 1,
@@ -613,7 +614,6 @@ static GList* _io_collect_nofollow(ThunarJob *job, GList *base_file_list,
     return file_list;
 }
 
-
 ThunarJob* io_move_files(GList *source_file_list, GList *target_file_list)
 {
     ThunarJob *job;
@@ -646,7 +646,6 @@ ThunarJob* io_copy_files(GList *source_file_list, GList *target_file_list)
 
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
 }
-
 
 ThunarJob* io_link_files(GList *source_file_list, GList *target_file_list)
 {
@@ -844,7 +843,6 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
     return NULL;
 }
 
-
 ThunarJob* io_trash_files(GList *file_list)
 {
     e_return_val_if_fail(file_list != NULL, NULL);
@@ -901,7 +899,6 @@ static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error)
     }
 }
 
-
 ThunarJob* io_restore_files(GList *source_file_list, GList *target_file_list)
 {
     ThunarJob *job;
@@ -910,12 +907,10 @@ ThunarJob* io_restore_files(GList *source_file_list, GList *target_file_list)
     e_return_val_if_fail(target_file_list != NULL, NULL);
     e_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
-    job = transferjob_new(source_file_list, target_file_list,
-                                  TRANSFERJOB_MOVE);
+    job = transferjob_new(source_file_list, target_file_list, TRANSFERJOB_MOVE);
 
     return THUNAR_JOB(exo_job_launch(EXO_JOB(job)));
 }
-
 
 ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
 {
