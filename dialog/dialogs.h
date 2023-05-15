@@ -23,21 +23,25 @@
 
 G_BEGIN_DECLS
 
-// generic dialog error message
-void dialog_error(gpointer parent, const GError *error,
-                  const gchar *format, ...) G_GNUC_PRINTF(3, 4);
+// Launcher -------------------------------------------------------------------
 
-// th_file
-gboolean dialog_insecure_program(gpointer parent, const gchar *title,
-                                 ThunarFile *file, const gchar *command);
-
-// launcher
 gchar* dialog_file_create(gpointer parent, const gchar *content_type,
                           const gchar *filename, const gchar *title);
 ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file);
 gboolean dialog_folder_trash(GtkWindow *window);
 
-// permbox, progressview
+// ThunarFile -----------------------------------------------------------------
+
+gboolean dialog_insecure_program(gpointer parent, const gchar *title,
+                                 ThunarFile *file, const gchar *command);
+
+// Error ----------------------------------------------------------------------
+
+void dialog_error(gpointer parent, const GError *error,
+                  const gchar *format, ...) G_GNUC_PRINTF(3, 4);
+
+// PermissionBox, ProgressView ------------------------------------------------
+
 ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
                                  ThunarJobResponse choices);
 ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
