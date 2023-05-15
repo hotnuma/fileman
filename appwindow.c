@@ -1779,7 +1779,7 @@ static void _window_action_key_trash(AppWindow *window)
         if (dialog_folder_trash(GTK_WINDOW(window)) == FALSE)
             return;
 
-        treeview_delete_selected_files(TREEVIEW(tree_view));
+        treeview_delete_selected(TREEVIEW(tree_view));
         return;
     }
 

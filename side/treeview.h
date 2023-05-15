@@ -42,7 +42,7 @@ GType treeview_get_type() G_GNUC_CONST;
 
 GtkWidget* treeview_new() G_GNUC_MALLOC;
 
-gboolean treeview_delete_selected_files(TreeView *view);
+gboolean treeview_delete_selected(TreeView *view);
 void treeview_rename_selected(TreeView *view);
 
 G_END_DECLS
