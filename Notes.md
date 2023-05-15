@@ -10,7 +10,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -20
 +   70862	./view/listmodel.c
 +   68975	./side/treeview.c
 +   68489	./appwindow.c
-    65727	./job/transferjob.c
++   65727	./job/transferjob.c
     59398	./side/treemodel.c
     50502	./dialog/permbox.c
     47095	./application.c

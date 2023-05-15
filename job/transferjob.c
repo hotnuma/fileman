@@ -21,20 +21,20 @@
 #include <config.h>
 #include <transferjob.h>
 
-#include <gio_ext.h>
-#include <io_scandir.h>
 #include <jobutils.h>
+#include <io_scandir.h>
+#include <gio_ext.h>
 #include <syslog.h>
 
 // 10 seconds before we show the transfer rate + remaining time
 #define MINIMUM_TRANSFER_TIME (10 * G_USEC_PER_SEC)
 
-// ----------------------------------------------------------------------------
+// TransferNode ---------------------------------------------------------------
 
 typedef struct _TransferNode TransferNode;
 static void _transfernode_free(gpointer data);
 
-// ----------------------------------------------------------------------------
+// TransferJob ----------------------------------------------------------------
 
 static void transferjob_finalize(GObject *object);
 static void transferjob_get_property(GObject *object, guint prop_id,
@@ -42,32 +42,12 @@ static void transferjob_get_property(GObject *object, guint prop_id,
 static void transferjob_set_property(GObject *object, guint prop_id,
                                      const GValue *value, GParamSpec *pspec);
 
-// ----------------------------------------------------------------------------
+// Job Execute function -------------------------------------------------------
 
 static gboolean transferjob_execute(ExoJob *job, GError **error);
 static void _transferjob_check_pause(TransferJob *job);
 static gboolean _transferjob_verify_destination(TransferJob *transfer_job,
                                                 GError **error);
-
-// ----------------------------------------------------------------------------
-
-static gboolean _transferjob_prepare_untrash_file(ExoJob    *job,
-                                                  GFileInfo *info,
-                                                  GFile     *file,
-                                                  GError    **error);
-static gboolean _transferjob_move_file(ExoJob         *job,
-                                       GFileInfo      *info,
-                                       GList          *sp,
-                                       TransferNode   *node,
-                                       GList          *tp,
-                                       GFileCopyFlags move_flags,
-                                       GList          **new_files_list_p,
-                                       GError         **error);
-static gboolean _transferjob_move_file_with_rename(ExoJob         *job,
-                                                   TransferNode   *node,
-                                                   GList          *tp,
-                                                   GFileCopyFlags flags,
-                                                   GError         **error);
 static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
                                           GError **error);
 static void _transferjob_copy_node(TransferJob  *job,
@@ -76,41 +56,50 @@ static void _transferjob_copy_node(TransferJob  *job,
                                    GFile        *target_parent_file,
                                    GList        **target_file_list_return,
                                    GError       **error);
-static GFile* _transferjob_copy_file(TransferJob *job,
-                                     GFile       *source_file,
-                                     GFile       *target_file,
-                                     gboolean    replace_confirmed,
-                                     gboolean    rename_confirmed,
-                                     GError      **error);
-static gboolean _transferjob_copy_file_real(TransferJob    *job,
-                                            GFile          *source_file,
-                                            GFile          *target_file,
-                                            GFileCopyFlags copy_flags,
-                                            gboolean       merge_directories,
-                                            GError         **error);
-static void _transferjob_progress(goffset current_num_bytes,
-                                  goffset total_num_bytes,
-                                  gpointer user_data);
-
-// ----------------------------------------------------------------------------
-
 static void _transferjob_freeze_optional(TransferJob *transfer_job);
 static void _transferjob_fill_source_device_info(TransferJob *transfer_job,
-                                                 GFile       *file);
+                                                 GFile *file);
 static void _transferjob_fill_target_device_info(TransferJob *transfer_job,
-                                                 GFile       *file);
+                                                 GFile *file);
 static gboolean _transferjob_is_file_on_local_device(GFile *file);
 static void _transferjob_determine_copy_behavior(
                                 TransferJob *transfer_job,
-                                gboolean    *freeze_if_src_busy_p,
-                                gboolean    *freeze_if_tgt_busy_p,
-                                gboolean    *always_parallel_copy_p,
-                                gboolean    *should_freeze_on_any_other_job_p);
+                                gboolean *freeze_if_src_busy_p,
+                                gboolean *freeze_if_tgt_busy_p,
+                                gboolean *always_parallel_copy_p,
+                                gboolean *should_freeze_on_any_other_job_p);
 static GList* _transferjob_filter_running_jobs(GList *jobs, ThunarJob *own_job);
 static gboolean _transferjob_device_id_in_job_list(const char *device_fs_id,
-                                                   GList      *jobs);
+                                                   GList *jobs);
 
-// ----------------------------------------------------------------------------
+// Actions --------------------------------------------------------------------
+
+static gboolean _transferjob_prepare_untrash_file(ExoJob *job, GFileInfo *info,
+                                                  GFile *file, GError **error);
+static gboolean _transferjob_move_file(ExoJob *job, GFileInfo *info, GList *sp,
+                                       TransferNode *node, GList *tp,
+                                       GFileCopyFlags move_flags,
+                                       GList **new_files_list_p,
+                                       GError **error);
+static gboolean _transferjob_move_file_with_rename(ExoJob *job,
+                                                   TransferNode *node,
+                                                   GList *tp,
+                                                   GFileCopyFlags flags,
+                                                   GError **error);
+static GFile* _transferjob_copy_file(TransferJob *job,
+                                     GFile *source_file, GFile *target_file,
+                                     gboolean replace_confirmed,
+                                     gboolean rename_confirmed, GError **error);
+static gboolean _transferjob_copy_file_real(TransferJob *job,
+                                            GFile *source_file,
+                                            GFile *target_file,
+                                            GFileCopyFlags copy_flags,
+                                            gboolean merge_directories,
+                                            GError **error);
+static void _transferjob_progress(goffset current_num_bytes,
+                                  goffset total_num_bytes, gpointer user_data);
+
+// TransferNode ---------------------------------------------------------------
 
 struct _TransferNode
 {
@@ -146,7 +135,7 @@ static void _transfernode_free(gpointer data)
     }
 }
 
-// ----------------------------------------------------------------------------
+// TransferJob ----------------------------------------------------------------
 
 enum
 {
@@ -298,116 +287,6 @@ static void transferjob_set_property(GObject *object, guint prop_id,
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
     }
-}
-
-// ----------------------------------------------------------------------------
-
-ThunarJob* transferjob_new(GList *source_node_list, GList *target_file_list,
-                           TransferJobType type)
-{
-    TransferNode *node;
-    TransferJob  *job;
-    GList              *sp;
-    GList              *tp;
-
-    e_return_val_if_fail(source_node_list != NULL, NULL);
-    e_return_val_if_fail(target_file_list != NULL, NULL);
-    e_return_val_if_fail(g_list_length(source_node_list) == g_list_length(target_file_list), NULL);
-
-    job = g_object_new(TYPE_TRANSFERJOB, NULL);
-    job->type = type;
-
-    // add a transfer node for each source path and a matching target parent path
-    for(sp = source_node_list, tp = target_file_list;
-            sp != NULL;
-            sp = sp->next, tp = tp->next)
-    {
-        // make sure we don't transfer root directories. this should be prevented in the GUI
-        if (G_UNLIKELY(e_file_is_root(sp->data) || e_file_is_root(tp->data)))
-            continue;
-
-        // only process non-equal pairs unless we're copying
-        if (G_LIKELY(type != TRANSFERJOB_MOVE || !g_file_equal(sp->data, tp->data)))
-        {
-            // append transfer node for this source file
-            node = g_slice_new0(TransferNode);
-            node->source_file = g_object_ref(sp->data);
-            node->replace_confirmed = FALSE;
-            node->rename_confirmed = FALSE;
-            job->source_node_list = g_list_append(job->source_node_list, node);
-
-            // append target file
-            job->target_file_list = e_list_append_ref(job->target_file_list, tp->data);
-        }
-    }
-
-    // make sure we didn't mess things up
-    e_assert(g_list_length(job->source_node_list) == g_list_length(job->target_file_list));
-
-    return THUNAR_JOB(job);
-}
-
-gchar* transferjob_get_status(TransferJob *job)
-{
-    gchar             *total_size_str;
-    gchar             *total_progress_str;
-    gchar             *transfer_rate_str;
-    GString           *status;
-    gulong             remaining_time;
-
-    e_return_val_if_fail(IS_TRANSFERJOB(job), NULL);
-
-    status = g_string_sized_new(100);
-
-    // transfer status like "22.6MB of 134.1MB"
-    total_size_str = g_format_size_full(job->total_size, job->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
-    total_progress_str = g_format_size_full(job->total_progress, job->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
-    g_string_append_printf(status, _("%s of %s"), total_progress_str, total_size_str);
-    g_free(total_size_str);
-    g_free(total_progress_str);
-
-    // show time and transfer rate after 10 seconds
-    if (job->transfer_rate > 0
-            &&(job->last_update_time - job->start_time) > MINIMUM_TRANSFER_TIME)
-    {
-        // remaining time based on the transfer speed
-        transfer_rate_str = g_format_size_full(job->transfer_rate, job->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
-        remaining_time =(job->total_size - job->total_progress) / job->transfer_rate;
-
-        if (remaining_time > 0)
-        {
-            // insert long dash
-            g_string_append(status, " \xE2\x80\x94 ");
-
-            if (remaining_time > 60 * 60)
-            {
-                remaining_time =(gulong)(remaining_time /(60 * 60));
-                g_string_append_printf(status, ngettext("%lu hour remaining(%s/sec)",
-                                        "%lu hours remaining(%s/sec)",
-                                        remaining_time),
-                                        remaining_time, transfer_rate_str);
-            }
-            else if (remaining_time > 60)
-            {
-                remaining_time =(gulong)(remaining_time / 60);
-                g_string_append_printf(status, ngettext("%lu minute remaining(%s/sec)",
-                                        "%lu minutes remaining(%s/sec)",
-                                        remaining_time),
-                                        remaining_time, transfer_rate_str);
-            }
-            else
-            {
-                g_string_append_printf(status, ngettext("%lu second remaining(%s/sec)",
-                                        "%lu seconds remaining(%s/sec)",
-                                        remaining_time),
-                                        remaining_time, transfer_rate_str);
-            }
-        }
-
-        g_free(transfer_rate_str);
-    }
-
-    return g_string_free(status, FALSE);
 }
 
 // Job Execute function -------------------------------------------------------
@@ -642,10 +521,641 @@ static gboolean _transferjob_verify_destination(TransferJob *transfer_job,
     return succeed;
 }
 
-static gboolean _transferjob_prepare_untrash_file(ExoJob    *job,
-                                                  GFileInfo *info,
-                                                  GFile     *file,
-                                                  GError    **error)
+static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
+                                          GError **error)
+{
+    e_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
+    e_return_val_if_fail(node != NULL && G_IS_FILE(node->source_file), FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+
+    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+        return FALSE;
+
+    GError             *err = NULL;
+    GFileInfo *info = g_file_query_info(
+                                node->source_file,
+                                G_FILE_ATTRIBUTE_STANDARD_SIZE ","
+                                G_FILE_ATTRIBUTE_STANDARD_TYPE,
+                                G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                exo_job_get_cancellable(EXO_JOB(job)),
+                                &err);
+
+    if (G_UNLIKELY(info == NULL))
+        return FALSE;
+
+    job->total_size += g_file_info_get_size(info);
+
+    // check if we have a directory here
+    if (g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
+    {
+        // scan the directory for immediate children
+        GList *file_list = io_scan_directory(
+                                    THUNAR_JOB(job),
+                                    node->source_file,
+                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                    FALSE, FALSE, FALSE,
+                                    &err);
+
+        // add children to the transfer node
+        for (GList *lp = file_list; err == NULL && lp != NULL; lp = lp->next)
+        {
+            _transferjob_check_pause(job);
+
+            // allocate a new transfer node for the child
+            TransferNode *child_node = g_slice_new0(TransferNode);
+
+            child_node->source_file = g_object_ref(lp->data);
+            child_node->replace_confirmed = node->replace_confirmed;
+            child_node->rename_confirmed = FALSE;
+
+            // hook the child node into the child list
+            child_node->next = node->children;
+            node->children = child_node;
+
+            // collect the child node
+            _transferjob_collect_node(job, child_node, &err);
+        }
+
+        // release the child files
+        e_list_free(file_list);
+    }
+
+    // release file info
+    g_object_unref(info);
+
+    if (G_UNLIKELY(err != NULL))
+    {
+        g_propagate_error(error, err);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static void _transferjob_copy_node(TransferJob  *job,
+                                    TransferNode *node,
+                                    GFile        *target_file,
+                                    GFile        *target_parent_file,
+                                    GList        **target_file_list_return,
+                                    GError       **error)
+{
+    ThunarJobResponse     response;
+    GFileInfo            *info;
+    GError               *err = NULL;
+    GFile                *real_target_file = NULL;
+    gchar                *base_name;
+
+    e_return_if_fail(IS_TRANSFERJOB(job));
+    e_return_if_fail(node != NULL && G_IS_FILE(node->source_file));
+    e_return_if_fail(target_file == NULL || node->next == NULL);
+    e_return_if_fail((target_file == NULL && target_parent_file != NULL) ||(target_file != NULL && target_parent_file == NULL));
+    e_return_if_fail(error == NULL || *error == NULL);
+
+    /* The caller can either provide a target_file or a target_parent_file, but not both. The toplevel
+     * transfer_nodes(for which next is NULL) should be called with target_file, to get proper behavior
+     * wrt restoring files from the trash. Other transfer_nodes will be called with target_parent_file.
+     */
+
+    for (; err == NULL && node != NULL; node = node->next)
+    {
+        // guess the target file for this node(unless already provided)
+        if (G_LIKELY(target_file == NULL))
+        {
+            base_name = g_file_get_basename(node->source_file);
+            target_file = g_file_get_child(target_parent_file, base_name);
+            g_free(base_name);
+        }
+        else
+            target_file = g_object_ref(target_file);
+
+        // query file info
+        info = g_file_query_info(node->source_file,
+                                  G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                  exo_job_get_cancellable(EXO_JOB(job)),
+                                  &err);
+
+        // abort on error or cancellation
+        if (info == NULL)
+        {
+            g_object_unref(target_file);
+            break;
+        }
+
+        // update progress information
+        exo_job_info_message(EXO_JOB(job), "%s", g_file_info_get_display_name(info));
+
+retry_copy:
+        _transferjob_check_pause(job);
+
+        // copy the item specified by this node(not recursively)
+        real_target_file = _transferjob_copy_file(job, node->source_file,
+                           target_file,
+                           node->replace_confirmed,
+                           node->rename_confirmed,
+                           &err);
+
+        if (G_LIKELY(real_target_file != NULL))
+        {
+            // node->source_file == real_target_file means to skip the file
+            if (G_LIKELY(node->source_file != real_target_file))
+            {
+                // check if we have children to copy
+                if (node->children != NULL)
+                {
+                    // copy all children of this node
+                    _transferjob_copy_node(job, node->children, NULL, real_target_file, NULL, &err);
+
+                    // free resources allocted for the children
+                    _transfernode_free(node->children);
+                    node->children = NULL;
+                }
+
+                // check if the child copy failed
+                if (G_UNLIKELY(err != NULL))
+                {
+                    // outa here, freeing the target paths
+                    g_object_unref(real_target_file);
+                    g_object_unref(target_file);
+                    break;
+                }
+
+                // add the real target file to the return list
+                if (G_LIKELY(target_file_list_return != NULL))
+                {
+                    *target_file_list_return =
+                        e_list_prepend_ref(*target_file_list_return,
+                                                    real_target_file);
+                }
+
+retry_remove:
+                _transferjob_check_pause(job);
+
+                // try to remove the source directory if we are on copy+remove fallback for move
+                if (job->type == TRANSFERJOB_MOVE)
+                {
+                    if (!g_file_delete(node->source_file,
+                                        exo_job_get_cancellable(EXO_JOB(job)),
+                                        &err))
+                    {
+                        // ask the user to retry
+                        response = job_ask_skip(THUNAR_JOB(job), "%s",
+                                                        err->message);
+
+                        // reset the error
+                        g_clear_error(&err);
+
+                        // check whether to retry
+                        if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_RETRY))
+                            goto retry_remove;
+                    }
+                }
+            }
+
+            g_object_unref(real_target_file);
+        }
+        else if (err != NULL)
+        {
+            // we can only skip if there is space left on the device
+            if (err->domain != G_IO_ERROR || err->code != G_IO_ERROR_NO_SPACE)
+            {
+                // ask the user to skip this node and all subnodes
+                response = job_ask_skip(THUNAR_JOB(job), "%s", err->message);
+
+                // reset the error
+                g_clear_error(&err);
+
+                // check whether to retry
+                if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_RETRY))
+                    goto retry_copy;
+            }
+        }
+
+        // release the guessed target file
+        g_object_unref(target_file);
+        target_file = NULL;
+
+        // release file info
+        g_object_unref(info);
+    }
+
+    // propagate error if we failed or the job was cancelled
+    if (G_UNLIKELY(err != NULL))
+        g_propagate_error(error, err);
+}
+
+/**
+ * thunar_transferjob_freeze_optional:
+ * @job : a #TransferJob.
+ *
+ * Based on thunar setting, will block until all running jobs
+ * doing IO on the source files or target files devices are completed.
+ * The unblocking could be forced by the user in the UI.
+ *
+ **/
+static void _transferjob_freeze_optional(TransferJob *transfer_job)
+{
+    gboolean            freeze_if_src_busy;
+    gboolean            freeze_if_tgt_busy;
+    gboolean            always_parallel_copy;
+    gboolean            should_freeze_on_any_other_job;
+    gboolean            been_frozen;
+
+    e_return_if_fail(IS_TRANSFERJOB(transfer_job));
+
+    // no source node list nor target file list
+    if (transfer_job->source_node_list == NULL || transfer_job->target_file_list == NULL)
+        return;
+    // first source file
+    _transferjob_fill_source_device_info(transfer_job,
+                                         ((TransferNode*) transfer_job->source_node_list->data)->source_file);
+    // first target file
+    _transferjob_fill_target_device_info(transfer_job, G_FILE(transfer_job->target_file_list->data));
+    _transferjob_determine_copy_behavior(transfer_job,
+            &freeze_if_src_busy,
+            &freeze_if_tgt_busy,
+            &always_parallel_copy,
+            &should_freeze_on_any_other_job);
+    if (always_parallel_copy)
+        return;
+
+    been_frozen = FALSE; // this boolean can only take the TRUE value once.
+    while(TRUE)
+    {
+        GList *jobs = job_ask_jobs(THUNAR_JOB(transfer_job));
+        GList *other_jobs = _transferjob_filter_running_jobs(jobs, THUNAR_JOB(transfer_job));
+        g_list_free(g_steal_pointer(&jobs));
+        if
+       (
+            // should freeze because another job is running
+           (should_freeze_on_any_other_job && other_jobs != NULL) ||
+            // should freeze because source is busy and source device id appears in another job
+           (freeze_if_src_busy && _transferjob_device_id_in_job_list(transfer_job->source_device_fs_id, other_jobs)) ||
+            // should freeze because target is busy and target device id appears in another job
+           (freeze_if_tgt_busy && _transferjob_device_id_in_job_list(transfer_job->target_device_fs_id, other_jobs))
+        )
+            g_list_free(g_steal_pointer(&other_jobs));
+        else
+        {
+            g_list_free(g_steal_pointer(&other_jobs));
+            break;
+        }
+        if (exo_job_is_cancelled(EXO_JOB(transfer_job)))
+            break;
+        if (!job_is_frozen(THUNAR_JOB(transfer_job)))
+        {
+            if (been_frozen)
+                break; // cannot re-freeze. It means that the user force to unfreeze
+            else
+            {
+                been_frozen = TRUE; // first time here. The job needs to change to frozen state
+                job_freeze(THUNAR_JOB(transfer_job));
+            }
+        }
+        g_usleep(500 * 1000); // pause for 500ms
+    }
+    if (job_is_frozen(THUNAR_JOB(transfer_job)))
+        job_unfreeze(THUNAR_JOB(transfer_job));
+}
+
+static void _transferjob_fill_source_device_info(TransferJob *transfer_job,
+                                                 GFile       *file)
+{
+    /* query device filesystem id(unique string)
+     * The source exists and can be queried directly. */
+    GFileInfo *file_info = g_file_query_info(file,
+                           G_FILE_ATTRIBUTE_ID_FILESYSTEM,
+                           G_FILE_QUERY_INFO_NONE,
+                           exo_job_get_cancellable(EXO_JOB(transfer_job)),
+                           NULL);
+    if (file_info != NULL)
+    {
+        transfer_job->source_device_fs_id = g_strdup(g_file_info_get_attribute_string(file_info, G_FILE_ATTRIBUTE_ID_FILESYSTEM));
+        g_object_unref(file_info);
+    }
+    transfer_job->is_source_device_local = _transferjob_is_file_on_local_device(file);
+}
+
+static void _transferjob_fill_target_device_info(TransferJob *transfer_job,
+                                                  GFile       *file)
+{
+    /*
+     * To query the device id it should be done on an existing file/directory.
+     * Usually the target file does not exist yet and so the parent directory
+     * will be queried, and so on until reaching root directory if necessary.
+     * Normally it will end in the worst case to the mounted filesystem root,
+     * because that always exists. */
+    GFile     *target_file = g_object_ref(file); // start with target file
+    GFile     *target_parent;
+    GFileInfo *file_info;
+    while(target_file != NULL)
+    {
+        // query device id
+        file_info = g_file_query_info(target_file,
+                                       G_FILE_ATTRIBUTE_ID_FILESYSTEM,
+                                       G_FILE_QUERY_INFO_NONE,
+                                       exo_job_get_cancellable(EXO_JOB(transfer_job)),
+                                       NULL);
+        if (file_info != NULL)
+        {
+            transfer_job->target_device_fs_id = g_strdup(
+                        g_file_info_get_attribute_string(file_info,
+                                                         G_FILE_ATTRIBUTE_ID_FILESYSTEM));
+            g_object_unref(file_info);
+            break;
+        }
+        else // target file or parent directory does not exist(yet)
+        {
+            // query the parent directory
+            target_parent = g_file_get_parent(target_file);
+            g_object_unref(target_file);
+            target_file = target_parent;
+        }
+    }
+    g_object_unref(target_file);
+    transfer_job->is_target_device_local =
+            _transferjob_is_file_on_local_device(file);
+}
+
+/**
+ * thunar_transferjob_is_file_on_local_device:
+ * @file : the source or target #GFile to test.
+ *
+ * Tries to find if the @file is on a local device or not.
+ * Local device if (all conditions should match):
+ * - the file has a 'file' uri scheme.
+ * - the file is located on devices not handled by the #GVolumeMonitor(GVFS).
+ * - the device is handled by #GVolumeMonitor(GVFS) and cannot be unmounted
+ *  (USB key/disk, fuse mounts, Samba shares, PTP devices).
+ *
+ * The target @file may not exist yet when this function is used, so recurse
+ * the parent directory, possibly reaching the root mountpoint.
+ *
+ * This should be enough to determine if a @file is on a local device or not.
+ *
+ * Return value: %TRUE if #GFile @file is on a so-called local device.
+ **/
+static gboolean _transferjob_is_file_on_local_device(GFile *file)
+{
+    gboolean  is_local;
+    GFile    *target_file;
+    GFile    *target_parent;
+    GMount   *file_mount;
+
+    e_return_val_if_fail(file != NULL, TRUE);
+
+    if (g_file_has_uri_scheme(file, "file") == FALSE)
+        return FALSE;
+
+    target_file = g_object_ref(file); // start with file
+    is_local = FALSE;
+
+    while (target_file != NULL)
+    {
+        if (g_file_query_exists(target_file, NULL))
+        {
+            // file_mount will be NULL for local files on local partitions/devices
+            file_mount = g_file_find_enclosing_mount(target_file, NULL, NULL);
+
+            if (file_mount == NULL)
+                is_local = TRUE;
+            else
+            {
+                /* mountpoints which cannot be unmounted are local devices.
+                 * attached devices like USB key/disk, fuse mounts, Samba shares,
+                 * PTP devices can always be unmounted and are considered remote/slow. */
+                is_local = ! g_mount_can_unmount(file_mount);
+                g_object_unref(file_mount);
+            }
+            break;
+        }
+        else // file or parent directory does not exist(yet)
+        {
+            // query the parent directory
+            target_parent = g_file_get_parent(target_file);
+            g_object_unref(target_file);
+            target_file = target_parent;
+        }
+    }
+    g_object_unref(target_file);
+
+    return is_local;
+}
+
+static void _transferjob_determine_copy_behavior(
+                                    TransferJob *transfer_job,
+                                    gboolean *freeze_if_src_busy_p,
+                                    gboolean *freeze_if_tgt_busy_p,
+                                    gboolean *always_parallel_copy_p,
+                                    gboolean *should_freeze_on_any_other_job_p)
+{
+    *freeze_if_src_busy_p = FALSE;
+    *freeze_if_tgt_busy_p = FALSE;
+    *should_freeze_on_any_other_job_p = FALSE;
+    if (transfer_job->parallel_copy_mode == PARALLEL_COPY_MODE_ALWAYS)
+        // never freeze, always parallel copies
+        *always_parallel_copy_p = TRUE;
+    else if (transfer_job->parallel_copy_mode == PARALLEL_COPY_MODE_ONLY_LOCAL)
+    {
+        /* always parallel copy if:
+         * - source device is local
+         * AND
+         * - target device is local
+         */
+        *always_parallel_copy_p = transfer_job->is_source_device_local && transfer_job->is_target_device_local;
+        *freeze_if_src_busy_p = ! transfer_job->is_source_device_local;
+        *freeze_if_tgt_busy_p = ! transfer_job->is_target_device_local;
+    }
+    else if (transfer_job->parallel_copy_mode == PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES)
+    {
+        /* always parallel copy if:
+         * - source and target device fs are identical
+         * AND
+         * - source device is local
+         * AND
+         * - target device is local
+         */
+        /* freeze copy if
+         * - src device fs ≠ tgt device fs and src or tgt appears in another job
+         * OR
+         * - src device is not local and src device appears in another job
+         * OR
+         * - tgt device is not local and tgt device appears in another job
+         */
+        if (g_strcmp0(transfer_job->source_device_fs_id, transfer_job->target_device_fs_id) != 0)
+        {
+            *always_parallel_copy_p = FALSE;
+            // freeze when either src or tgt device appears on another job
+            *freeze_if_src_busy_p = TRUE;
+            *freeze_if_tgt_busy_p = TRUE;
+        }
+        else // same as PARALLEL_COPY_MODE_ONLY_LOCAL
+        {
+            *always_parallel_copy_p = transfer_job->is_source_device_local && transfer_job->is_target_device_local;
+            *freeze_if_src_busy_p = ! transfer_job->is_source_device_local;
+            *freeze_if_tgt_busy_p = ! transfer_job->is_target_device_local;
+        }
+    }
+    else // PARALLEL_COPY_MODE_NEVER
+    {
+        // freeze copy if another transfer job is running
+        *always_parallel_copy_p = FALSE;
+        *should_freeze_on_any_other_job_p = TRUE;
+    }
+}
+
+static GList* _transferjob_filter_running_jobs(GList *jobs, ThunarJob *own_job)
+{
+    ThunarJob *job;
+    GList     *run_jobs = NULL;
+
+    e_return_val_if_fail(IS_TRANSFERJOB(own_job), NULL);
+
+    for(GList *ljobs = jobs; ljobs != NULL; ljobs = ljobs->next)
+    {
+        job = ljobs->data;
+        if (job == own_job)
+            continue;
+        if (!exo_job_is_cancelled(EXO_JOB(job)) && !job_is_paused(job) && !job_is_frozen(job))
+        {
+            run_jobs = g_list_append(run_jobs, job);
+        }
+    }
+
+    return run_jobs;
+}
+
+static gboolean _transferjob_device_id_in_job_list(const char *device_fs_id,
+                                                   GList      *jobs)
+{
+    TransferJob *job;
+
+    for(GList *ljobs = jobs; device_fs_id != NULL && ljobs != NULL; ljobs = ljobs->next)
+    {
+        if (IS_TRANSFERJOB(ljobs->data))
+        {
+            job = TRANSFERJOB(ljobs->data);
+            if (g_strcmp0(device_fs_id, job->source_device_fs_id) == 0)
+                return TRUE;
+            if (g_strcmp0(device_fs_id, job->target_device_fs_id) == 0)
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+// Public ---------------------------------------------------------------------
+
+ThunarJob* transferjob_new(GList *source_node_list, GList *target_file_list,
+                           TransferJobType type)
+{
+    e_return_val_if_fail(source_node_list != NULL, NULL);
+    e_return_val_if_fail(target_file_list != NULL, NULL);
+    e_return_val_if_fail(g_list_length(source_node_list) == g_list_length(target_file_list), NULL);
+
+    TransferJob *job = g_object_new(TYPE_TRANSFERJOB, NULL);
+    job->type = type;
+
+    GList *sp;
+    GList *tp;
+
+    // add a transfer node for each source path and a matching target parent path
+    for (sp = source_node_list, tp = target_file_list;
+            sp != NULL;
+            sp = sp->next, tp = tp->next)
+    {
+        // make sure we don't transfer root directories. this should be prevented in the GUI
+        if (G_UNLIKELY(e_file_is_root(sp->data) || e_file_is_root(tp->data)))
+            continue;
+
+        // only process non-equal pairs unless we're copying
+        if (G_LIKELY(type != TRANSFERJOB_MOVE || !g_file_equal(sp->data, tp->data)))
+        {
+            // append transfer node for this source file
+            TransferNode *node = g_slice_new0(TransferNode);
+            node->source_file = g_object_ref(sp->data);
+            node->replace_confirmed = FALSE;
+            node->rename_confirmed = FALSE;
+            job->source_node_list = g_list_append(job->source_node_list, node);
+
+            // append target file
+            job->target_file_list = e_list_append_ref(job->target_file_list, tp->data);
+        }
+    }
+
+    // make sure we didn't mess things up
+    e_assert(g_list_length(job->source_node_list) == g_list_length(job->target_file_list));
+
+    return THUNAR_JOB(job);
+}
+
+gchar* transferjob_get_status(TransferJob *job)
+{
+    gchar             *total_size_str;
+    gchar             *total_progress_str;
+    gchar             *transfer_rate_str;
+    GString           *status;
+    gulong             remaining_time;
+
+    e_return_val_if_fail(IS_TRANSFERJOB(job), NULL);
+
+    status = g_string_sized_new(100);
+
+    // transfer status like "22.6MB of 134.1MB"
+    total_size_str = g_format_size_full(job->total_size, job->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
+    total_progress_str = g_format_size_full(job->total_progress, job->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
+    g_string_append_printf(status, _("%s of %s"), total_progress_str, total_size_str);
+    g_free(total_size_str);
+    g_free(total_progress_str);
+
+    // show time and transfer rate after 10 seconds
+    if (job->transfer_rate > 0
+            &&(job->last_update_time - job->start_time) > MINIMUM_TRANSFER_TIME)
+    {
+        // remaining time based on the transfer speed
+        transfer_rate_str = g_format_size_full(job->transfer_rate, job->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
+        remaining_time =(job->total_size - job->total_progress) / job->transfer_rate;
+
+        if (remaining_time > 0)
+        {
+            // insert long dash
+            g_string_append(status, " \xE2\x80\x94 ");
+
+            if (remaining_time > 60 * 60)
+            {
+                remaining_time =(gulong)(remaining_time /(60 * 60));
+                g_string_append_printf(status, ngettext("%lu hour remaining(%s/sec)",
+                                        "%lu hours remaining(%s/sec)",
+                                        remaining_time),
+                                        remaining_time, transfer_rate_str);
+            }
+            else if (remaining_time > 60)
+            {
+                remaining_time =(gulong)(remaining_time / 60);
+                g_string_append_printf(status, ngettext("%lu minute remaining(%s/sec)",
+                                        "%lu minutes remaining(%s/sec)",
+                                        remaining_time),
+                                        remaining_time, transfer_rate_str);
+            }
+            else
+            {
+                g_string_append_printf(status, ngettext("%lu second remaining(%s/sec)",
+                                        "%lu seconds remaining(%s/sec)",
+                                        remaining_time),
+                                        remaining_time, transfer_rate_str);
+            }
+        }
+
+        g_free(transfer_rate_str);
+    }
+
+    return g_string_free(status, FALSE);
+}
+
+// Actions --------------------------------------------------------------------
+
+static gboolean _transferjob_prepare_untrash_file(ExoJob *job, GFileInfo *info,
+                                                  GFile *file, GError **error)
 {
     ThunarJobResponse  response;
     GFile             *target_parent;
@@ -878,229 +1388,6 @@ static gboolean _transferjob_move_file_with_rename(ExoJob         *job,
 
         return move_rename_successful;
     }
-}
-
-static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
-                                          GError **error)
-{
-    e_return_val_if_fail(IS_TRANSFERJOB(job), FALSE);
-    e_return_val_if_fail(node != NULL && G_IS_FILE(node->source_file), FALSE);
-    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
-        return FALSE;
-
-    GError             *err = NULL;
-    GFileInfo *info = g_file_query_info(
-                                node->source_file,
-                                G_FILE_ATTRIBUTE_STANDARD_SIZE ","
-                                G_FILE_ATTRIBUTE_STANDARD_TYPE,
-                                G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                exo_job_get_cancellable(EXO_JOB(job)),
-                                &err);
-
-    if (G_UNLIKELY(info == NULL))
-        return FALSE;
-
-    job->total_size += g_file_info_get_size(info);
-
-    // check if we have a directory here
-    if (g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
-    {
-        // scan the directory for immediate children
-        GList *file_list = io_scan_directory(
-                                    THUNAR_JOB(job),
-                                    node->source_file,
-                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                    FALSE, FALSE, FALSE,
-                                    &err);
-
-        // add children to the transfer node
-        for (GList *lp = file_list; err == NULL && lp != NULL; lp = lp->next)
-        {
-            _transferjob_check_pause(job);
-
-            // allocate a new transfer node for the child
-            TransferNode *child_node = g_slice_new0(TransferNode);
-
-            child_node->source_file = g_object_ref(lp->data);
-            child_node->replace_confirmed = node->replace_confirmed;
-            child_node->rename_confirmed = FALSE;
-
-            // hook the child node into the child list
-            child_node->next = node->children;
-            node->children = child_node;
-
-            // collect the child node
-            _transferjob_collect_node(job, child_node, &err);
-        }
-
-        // release the child files
-        e_list_free(file_list);
-    }
-
-    // release file info
-    g_object_unref(info);
-
-    if (G_UNLIKELY(err != NULL))
-    {
-        g_propagate_error(error, err);
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-static void _transferjob_copy_node(TransferJob  *job,
-                                    TransferNode *node,
-                                    GFile        *target_file,
-                                    GFile        *target_parent_file,
-                                    GList        **target_file_list_return,
-                                    GError       **error)
-{
-    ThunarJobResponse     response;
-    GFileInfo            *info;
-    GError               *err = NULL;
-    GFile                *real_target_file = NULL;
-    gchar                *base_name;
-
-    e_return_if_fail(IS_TRANSFERJOB(job));
-    e_return_if_fail(node != NULL && G_IS_FILE(node->source_file));
-    e_return_if_fail(target_file == NULL || node->next == NULL);
-    e_return_if_fail((target_file == NULL && target_parent_file != NULL) ||(target_file != NULL && target_parent_file == NULL));
-    e_return_if_fail(error == NULL || *error == NULL);
-
-    /* The caller can either provide a target_file or a target_parent_file, but not both. The toplevel
-     * transfer_nodes(for which next is NULL) should be called with target_file, to get proper behavior
-     * wrt restoring files from the trash. Other transfer_nodes will be called with target_parent_file.
-     */
-
-    for (; err == NULL && node != NULL; node = node->next)
-    {
-        // guess the target file for this node(unless already provided)
-        if (G_LIKELY(target_file == NULL))
-        {
-            base_name = g_file_get_basename(node->source_file);
-            target_file = g_file_get_child(target_parent_file, base_name);
-            g_free(base_name);
-        }
-        else
-            target_file = g_object_ref(target_file);
-
-        // query file info
-        info = g_file_query_info(node->source_file,
-                                  G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
-                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                  exo_job_get_cancellable(EXO_JOB(job)),
-                                  &err);
-
-        // abort on error or cancellation
-        if (info == NULL)
-        {
-            g_object_unref(target_file);
-            break;
-        }
-
-        // update progress information
-        exo_job_info_message(EXO_JOB(job), "%s", g_file_info_get_display_name(info));
-
-retry_copy:
-        _transferjob_check_pause(job);
-
-        // copy the item specified by this node(not recursively)
-        real_target_file = _transferjob_copy_file(job, node->source_file,
-                           target_file,
-                           node->replace_confirmed,
-                           node->rename_confirmed,
-                           &err);
-
-        if (G_LIKELY(real_target_file != NULL))
-        {
-            // node->source_file == real_target_file means to skip the file
-            if (G_LIKELY(node->source_file != real_target_file))
-            {
-                // check if we have children to copy
-                if (node->children != NULL)
-                {
-                    // copy all children of this node
-                    _transferjob_copy_node(job, node->children, NULL, real_target_file, NULL, &err);
-
-                    // free resources allocted for the children
-                    _transfernode_free(node->children);
-                    node->children = NULL;
-                }
-
-                // check if the child copy failed
-                if (G_UNLIKELY(err != NULL))
-                {
-                    // outa here, freeing the target paths
-                    g_object_unref(real_target_file);
-                    g_object_unref(target_file);
-                    break;
-                }
-
-                // add the real target file to the return list
-                if (G_LIKELY(target_file_list_return != NULL))
-                {
-                    *target_file_list_return =
-                        e_list_prepend_ref(*target_file_list_return,
-                                                    real_target_file);
-                }
-
-retry_remove:
-                _transferjob_check_pause(job);
-
-                // try to remove the source directory if we are on copy+remove fallback for move
-                if (job->type == TRANSFERJOB_MOVE)
-                {
-                    if (!g_file_delete(node->source_file,
-                                        exo_job_get_cancellable(EXO_JOB(job)),
-                                        &err))
-                    {
-                        // ask the user to retry
-                        response = job_ask_skip(THUNAR_JOB(job), "%s",
-                                                        err->message);
-
-                        // reset the error
-                        g_clear_error(&err);
-
-                        // check whether to retry
-                        if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_RETRY))
-                            goto retry_remove;
-                    }
-                }
-            }
-
-            g_object_unref(real_target_file);
-        }
-        else if (err != NULL)
-        {
-            // we can only skip if there is space left on the device
-            if (err->domain != G_IO_ERROR || err->code != G_IO_ERROR_NO_SPACE)
-            {
-                // ask the user to skip this node and all subnodes
-                response = job_ask_skip(THUNAR_JOB(job), "%s", err->message);
-
-                // reset the error
-                g_clear_error(&err);
-
-                // check whether to retry
-                if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_RETRY))
-                    goto retry_copy;
-            }
-        }
-
-        // release the guessed target file
-        g_object_unref(target_file);
-        target_file = NULL;
-
-        // release file info
-        g_object_unref(info);
-    }
-
-    // propagate error if we failed or the job was cancelled
-    if (G_UNLIKELY(err != NULL))
-        g_propagate_error(error, err);
 }
 
 /**
@@ -1465,308 +1752,6 @@ static void _transferjob_progress(goffset current_num_bytes,
             job->last_total_progress = job->total_progress;
         }
     }
-}
-
-
-
-/**
- * thunar_transferjob_freeze_optional:
- * @job : a #TransferJob.
- *
- * Based on thunar setting, will block until all running jobs
- * doing IO on the source files or target files devices are completed.
- * The unblocking could be forced by the user in the UI.
- *
- **/
-static void _transferjob_freeze_optional(TransferJob *transfer_job)
-{
-    gboolean            freeze_if_src_busy;
-    gboolean            freeze_if_tgt_busy;
-    gboolean            always_parallel_copy;
-    gboolean            should_freeze_on_any_other_job;
-    gboolean            been_frozen;
-
-    e_return_if_fail(IS_TRANSFERJOB(transfer_job));
-
-    // no source node list nor target file list
-    if (transfer_job->source_node_list == NULL || transfer_job->target_file_list == NULL)
-        return;
-    // first source file
-    _transferjob_fill_source_device_info(transfer_job,
-                                         ((TransferNode*) transfer_job->source_node_list->data)->source_file);
-    // first target file
-    _transferjob_fill_target_device_info(transfer_job, G_FILE(transfer_job->target_file_list->data));
-    _transferjob_determine_copy_behavior(transfer_job,
-            &freeze_if_src_busy,
-            &freeze_if_tgt_busy,
-            &always_parallel_copy,
-            &should_freeze_on_any_other_job);
-    if (always_parallel_copy)
-        return;
-
-    been_frozen = FALSE; // this boolean can only take the TRUE value once.
-    while(TRUE)
-    {
-        GList *jobs = job_ask_jobs(THUNAR_JOB(transfer_job));
-        GList *other_jobs = _transferjob_filter_running_jobs(jobs, THUNAR_JOB(transfer_job));
-        g_list_free(g_steal_pointer(&jobs));
-        if
-       (
-            // should freeze because another job is running
-           (should_freeze_on_any_other_job && other_jobs != NULL) ||
-            // should freeze because source is busy and source device id appears in another job
-           (freeze_if_src_busy && _transferjob_device_id_in_job_list(transfer_job->source_device_fs_id, other_jobs)) ||
-            // should freeze because target is busy and target device id appears in another job
-           (freeze_if_tgt_busy && _transferjob_device_id_in_job_list(transfer_job->target_device_fs_id, other_jobs))
-        )
-            g_list_free(g_steal_pointer(&other_jobs));
-        else
-        {
-            g_list_free(g_steal_pointer(&other_jobs));
-            break;
-        }
-        if (exo_job_is_cancelled(EXO_JOB(transfer_job)))
-            break;
-        if (!job_is_frozen(THUNAR_JOB(transfer_job)))
-        {
-            if (been_frozen)
-                break; // cannot re-freeze. It means that the user force to unfreeze
-            else
-            {
-                been_frozen = TRUE; // first time here. The job needs to change to frozen state
-                job_freeze(THUNAR_JOB(transfer_job));
-            }
-        }
-        g_usleep(500 * 1000); // pause for 500ms
-    }
-    if (job_is_frozen(THUNAR_JOB(transfer_job)))
-        job_unfreeze(THUNAR_JOB(transfer_job));
-}
-
-static void _transferjob_fill_source_device_info(TransferJob *transfer_job,
-                                                 GFile       *file)
-{
-    /* query device filesystem id(unique string)
-     * The source exists and can be queried directly. */
-    GFileInfo *file_info = g_file_query_info(file,
-                           G_FILE_ATTRIBUTE_ID_FILESYSTEM,
-                           G_FILE_QUERY_INFO_NONE,
-                           exo_job_get_cancellable(EXO_JOB(transfer_job)),
-                           NULL);
-    if (file_info != NULL)
-    {
-        transfer_job->source_device_fs_id = g_strdup(g_file_info_get_attribute_string(file_info, G_FILE_ATTRIBUTE_ID_FILESYSTEM));
-        g_object_unref(file_info);
-    }
-    transfer_job->is_source_device_local = _transferjob_is_file_on_local_device(file);
-}
-
-static void _transferjob_fill_target_device_info(TransferJob *transfer_job,
-                                                  GFile       *file)
-{
-    /*
-     * To query the device id it should be done on an existing file/directory.
-     * Usually the target file does not exist yet and so the parent directory
-     * will be queried, and so on until reaching root directory if necessary.
-     * Normally it will end in the worst case to the mounted filesystem root,
-     * because that always exists. */
-    GFile     *target_file = g_object_ref(file); // start with target file
-    GFile     *target_parent;
-    GFileInfo *file_info;
-    while(target_file != NULL)
-    {
-        // query device id
-        file_info = g_file_query_info(target_file,
-                                       G_FILE_ATTRIBUTE_ID_FILESYSTEM,
-                                       G_FILE_QUERY_INFO_NONE,
-                                       exo_job_get_cancellable(EXO_JOB(transfer_job)),
-                                       NULL);
-        if (file_info != NULL)
-        {
-            transfer_job->target_device_fs_id = g_strdup(
-                        g_file_info_get_attribute_string(file_info,
-                                                         G_FILE_ATTRIBUTE_ID_FILESYSTEM));
-            g_object_unref(file_info);
-            break;
-        }
-        else // target file or parent directory does not exist(yet)
-        {
-            // query the parent directory
-            target_parent = g_file_get_parent(target_file);
-            g_object_unref(target_file);
-            target_file = target_parent;
-        }
-    }
-    g_object_unref(target_file);
-    transfer_job->is_target_device_local =
-            _transferjob_is_file_on_local_device(file);
-}
-
-/**
- * thunar_transferjob_is_file_on_local_device:
- * @file : the source or target #GFile to test.
- *
- * Tries to find if the @file is on a local device or not.
- * Local device if (all conditions should match):
- * - the file has a 'file' uri scheme.
- * - the file is located on devices not handled by the #GVolumeMonitor(GVFS).
- * - the device is handled by #GVolumeMonitor(GVFS) and cannot be unmounted
- *  (USB key/disk, fuse mounts, Samba shares, PTP devices).
- *
- * The target @file may not exist yet when this function is used, so recurse
- * the parent directory, possibly reaching the root mountpoint.
- *
- * This should be enough to determine if a @file is on a local device or not.
- *
- * Return value: %TRUE if #GFile @file is on a so-called local device.
- **/
-static gboolean _transferjob_is_file_on_local_device(GFile *file)
-{
-    gboolean  is_local;
-    GFile    *target_file;
-    GFile    *target_parent;
-    GMount   *file_mount;
-
-    e_return_val_if_fail(file != NULL, TRUE);
-
-    if (g_file_has_uri_scheme(file, "file") == FALSE)
-        return FALSE;
-
-    target_file = g_object_ref(file); // start with file
-    is_local = FALSE;
-
-    while (target_file != NULL)
-    {
-        if (g_file_query_exists(target_file, NULL))
-        {
-            // file_mount will be NULL for local files on local partitions/devices
-            file_mount = g_file_find_enclosing_mount(target_file, NULL, NULL);
-
-            if (file_mount == NULL)
-                is_local = TRUE;
-            else
-            {
-                /* mountpoints which cannot be unmounted are local devices.
-                 * attached devices like USB key/disk, fuse mounts, Samba shares,
-                 * PTP devices can always be unmounted and are considered remote/slow. */
-                is_local = ! g_mount_can_unmount(file_mount);
-                g_object_unref(file_mount);
-            }
-            break;
-        }
-        else // file or parent directory does not exist(yet)
-        {
-            // query the parent directory
-            target_parent = g_file_get_parent(target_file);
-            g_object_unref(target_file);
-            target_file = target_parent;
-        }
-    }
-    g_object_unref(target_file);
-
-    return is_local;
-}
-
-static void _transferjob_determine_copy_behavior(
-                                    TransferJob *transfer_job,
-                                    gboolean    *freeze_if_src_busy_p,
-                                    gboolean    *freeze_if_tgt_busy_p,
-                                    gboolean    *always_parallel_copy_p,
-                                    gboolean    *should_freeze_on_any_other_job_p)
-{
-    *freeze_if_src_busy_p = FALSE;
-    *freeze_if_tgt_busy_p = FALSE;
-    *should_freeze_on_any_other_job_p = FALSE;
-    if (transfer_job->parallel_copy_mode == PARALLEL_COPY_MODE_ALWAYS)
-        // never freeze, always parallel copies
-        *always_parallel_copy_p = TRUE;
-    else if (transfer_job->parallel_copy_mode == PARALLEL_COPY_MODE_ONLY_LOCAL)
-    {
-        /* always parallel copy if:
-         * - source device is local
-         * AND
-         * - target device is local
-         */
-        *always_parallel_copy_p = transfer_job->is_source_device_local && transfer_job->is_target_device_local;
-        *freeze_if_src_busy_p = ! transfer_job->is_source_device_local;
-        *freeze_if_tgt_busy_p = ! transfer_job->is_target_device_local;
-    }
-    else if (transfer_job->parallel_copy_mode == PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES)
-    {
-        /* always parallel copy if:
-         * - source and target device fs are identical
-         * AND
-         * - source device is local
-         * AND
-         * - target device is local
-         */
-        /* freeze copy if
-         * - src device fs ≠ tgt device fs and src or tgt appears in another job
-         * OR
-         * - src device is not local and src device appears in another job
-         * OR
-         * - tgt device is not local and tgt device appears in another job
-         */
-        if (g_strcmp0(transfer_job->source_device_fs_id, transfer_job->target_device_fs_id) != 0)
-        {
-            *always_parallel_copy_p = FALSE;
-            // freeze when either src or tgt device appears on another job
-            *freeze_if_src_busy_p = TRUE;
-            *freeze_if_tgt_busy_p = TRUE;
-        }
-        else // same as PARALLEL_COPY_MODE_ONLY_LOCAL
-        {
-            *always_parallel_copy_p = transfer_job->is_source_device_local && transfer_job->is_target_device_local;
-            *freeze_if_src_busy_p = ! transfer_job->is_source_device_local;
-            *freeze_if_tgt_busy_p = ! transfer_job->is_target_device_local;
-        }
-    }
-    else // PARALLEL_COPY_MODE_NEVER
-    {
-        // freeze copy if another transfer job is running
-        *always_parallel_copy_p = FALSE;
-        *should_freeze_on_any_other_job_p = TRUE;
-    }
-}
-
-static GList* _transferjob_filter_running_jobs(GList *jobs, ThunarJob *own_job)
-{
-    ThunarJob *job;
-    GList     *run_jobs = NULL;
-
-    e_return_val_if_fail(IS_TRANSFERJOB(own_job), NULL);
-
-    for(GList *ljobs = jobs; ljobs != NULL; ljobs = ljobs->next)
-    {
-        job = ljobs->data;
-        if (job == own_job)
-            continue;
-        if (!exo_job_is_cancelled(EXO_JOB(job)) && !job_is_paused(job) && !job_is_frozen(job))
-        {
-            run_jobs = g_list_append(run_jobs, job);
-        }
-    }
-
-    return run_jobs;
-}
-
-static gboolean _transferjob_device_id_in_job_list(const char *device_fs_id,
-                                                   GList      *jobs)
-{
-    TransferJob *job;
-
-    for(GList *ljobs = jobs; device_fs_id != NULL && ljobs != NULL; ljobs = ljobs->next)
-    {
-        if (IS_TRANSFERJOB(ljobs->data))
-        {
-            job = TRANSFERJOB(ljobs->data);
-            if (g_strcmp0(device_fs_id, job->source_device_fs_id) == 0)
-                return TRUE;
-            if (g_strcmp0(device_fs_id, job->target_device_fs_id) == 0)
-                return TRUE;
-        }
-    }
-    return FALSE;
 }
 
 

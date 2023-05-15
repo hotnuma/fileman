@@ -33,6 +33,8 @@ typedef enum
 
 } TransferJobType;
 
+// TransferJob ----------------------------------------------------------------
+
 typedef struct _TransferJobPrivate TransferJobPrivate;
 typedef struct _TransferJobClass   TransferJobClass;
 typedef struct _TransferJob        TransferJob;
