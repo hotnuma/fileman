@@ -24,63 +24,37 @@
 #include <config.h>
 #include <pathentry.h>
 
-#include <errno.h>
-#include <memory.h>
-#include <string.h>
-
-#include <gdk/gdkkeysyms.h>
-
-#include <utils.h>
-
 #include <iconfactory.h>
 #include <iconrender.h>
 #include <listmodel.h>
-
 #include <gio_ext.h>
+#include <utils.h>
 
 #define ICON_MARGIN (2)
 
-enum
-{
-    PROP_0,
-    PROP_CURRENT_FILE,
-};
+// PathEntry ------------------------------------------------------------------
 
-static void pathentry_editable_init(GtkEditableInterface *iface);
 static void pathentry_finalize(GObject *object);
 static void pathentry_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec);
 static void pathentry_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);
 static gboolean pathentry_focus(GtkWidget *widget, GtkDirectionType direction);
-
-static void _pathentry_icon_press_event(GtkEntry *entry,
-                                        GtkEntryIconPosition icon_pos,
-                                        GdkEventButton *event,
-                                        gpointer userdata);
-static void _pathentry_icon_release_event(GtkEntry *entry,
-                                          GtkEntryIconPosition icon_pos,
-                                          GdkEventButton *event,
-                                          gpointer user_data);
 static gboolean pathentry_motion_notify_event(GtkWidget *widget,
                                               GdkEventMotion *event);
-static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event);
 static void pathentry_drag_data_get(GtkWidget *widget,
                                     GdkDragContext *context,
                                     GtkSelectionData *selection_data,
                                     guint info,
                                     guint timestamp);
 static void pathentry_activate(GtkEntry *entry);
+
+static void pathentry_editable_init(GtkEditableInterface *iface);
 static void pathentry_changed(GtkEditable *editable);
-static void _pathentry_update_icon(PathEntry *path_entry);
 static void pathentry_do_insert_text(GtkEditable *editable, const gchar *new_text,
                                      gint new_text_length, gint *position);
-static void _pathentry_clear_completion(PathEntry *path_entry);
-static void _pathentry_common_prefix_append(PathEntry *path_entry,
-                                            gboolean highlight);
-static void _pathentry_common_prefix_lookup(PathEntry *path_entry,
-                                            gchar **prefix_return,
-                                            ThunarFile **file_return);
+
+// pathentry_init
 static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
                                       const gchar *key,
                                       GtkTreeIter *iter,
@@ -89,6 +63,24 @@ static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
                                           GtkTreeModel *model,
                                           GtkTreeIter *iter,
                                           gpointer user_data);
+static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event);
+static void _pathentry_clear_completion(PathEntry *path_entry);
+static void _pathentry_icon_press_event(GtkEntry *entry,
+                                        GtkEntryIconPosition icon_pos,
+                                        GdkEventButton *event,
+                                        gpointer userdata);
+static void _pathentry_icon_release_event(GtkEntry *entry,
+                                          GtkEntryIconPosition icon_pos,
+                                          GdkEventButton *event,
+                                          gpointer user_data);
+
+
+static void _pathentry_update_icon(PathEntry *path_entry);
+static void _pathentry_common_prefix_append(PathEntry *path_entry,
+                                            gboolean highlight);
+static void _pathentry_common_prefix_lookup(PathEntry *path_entry,
+                                            gchar **prefix_return,
+                                            ThunarFile **file_return);
 static gboolean _pathentry_parse(PathEntry *path_entry,
                                  gchar **folder_part,
                                  gchar **file_part,
@@ -97,6 +89,13 @@ static void _pathentry_queue_check_completion(PathEntry *path_entry);
 static gboolean _pathentry_check_completion_idle(gpointer user_data);
 static void _pathentry_check_completion_idle_destroy(gpointer user_data);
 
+// PathEntry ------------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_CURRENT_FILE,
+};
 
 struct _PathEntryClass
 {
@@ -137,7 +136,7 @@ G_DEFINE_TYPE_WITH_CODE(PathEntry,
 
 static void pathentry_class_init(PathEntryClass *klass)
 {
-    GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = pathentry_finalize;
     gobject_class->get_property = pathentry_get_property;
     gobject_class->set_property = pathentry_set_property;
@@ -147,7 +146,7 @@ static void pathentry_class_init(PathEntryClass *klass)
     gtkwidget_class->motion_notify_event = pathentry_motion_notify_event;
     gtkwidget_class->drag_data_get = pathentry_drag_data_get;
 
-    GtkEntryClass  *gtkentry_class = GTK_ENTRY_CLASS(klass);
+    GtkEntryClass *gtkentry_class = GTK_ENTRY_CLASS(klass);
     gtkentry_class->activate = pathentry_activate;
 
     g_object_class_install_property(gobject_class,
@@ -298,6 +297,87 @@ static void pathentry_set_property(GObject *object, guint prop_id,
     }
 }
 
+ThunarFile* pathentry_get_current_file(PathEntry *path_entry)
+{
+    e_return_val_if_fail(IS_PATHENTRY(path_entry), NULL);
+    return path_entry->current_file;
+}
+
+void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
+{
+    e_return_if_fail(IS_PATHENTRY(path_entry));
+    e_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
+
+    GFile *file = (current_file != NULL) ? th_file_get_file(current_file) : NULL;
+
+    gchar    *text;
+    gboolean  is_uri = FALSE;
+
+    if (G_UNLIKELY(file == NULL))
+    {
+        // invalid file
+        text = g_strdup("");
+    }
+    else
+    {
+        // check if the file is native to the platform
+        if (g_file_is_native(file))
+        {
+            // it is, try the local path first
+            text = g_file_get_path(file);
+
+            // if there is no local path, use the URI(which always works)
+            if (text == NULL)
+            {
+                text = g_file_get_uri(file);
+                is_uri = TRUE;
+            }
+        }
+        else
+        {
+            // not a native file, use the URI
+            text = g_file_get_uri(file);
+            is_uri = TRUE;
+        }
+
+        gchar *tmp;
+
+        /* if the file is a directory, end with a / to avoid loading the parent
+         * directory which is probably not something the user wants */
+        if (th_file_is_directory(current_file)
+                && !g_str_has_suffix(text, "/"))
+        {
+            tmp = g_strconcat(text, "/", NULL);
+            g_free(text);
+            text = tmp;
+        }
+
+        // convert filename into valid UTF-8 string for display
+        tmp = text;
+        text = g_filename_display_name(tmp);
+        g_free(tmp);
+    }
+
+    gchar *unescaped;
+
+    if (is_uri)
+        unescaped = g_uri_unescape_string(text, NULL);
+    else
+        unescaped = g_strdup(text);
+    g_free(text);
+
+    // setup the entry text
+    gtk_entry_set_text(GTK_ENTRY(path_entry), unescaped);
+    g_free(unescaped);
+
+    // update the icon
+    _pathentry_update_icon(path_entry);
+
+    gtk_editable_set_position(GTK_EDITABLE(path_entry), -1);
+
+    gtk_widget_queue_draw(GTK_WIDGET(path_entry));
+}
+
 static gboolean pathentry_focus(GtkWidget *widget, GtkDirectionType direction)
 {
     PathEntry *path_entry = PATHENTRY(widget);
@@ -321,40 +401,6 @@ static gboolean pathentry_focus(GtkWidget *widget, GtkDirectionType direction)
     }
     else
         return GTK_WIDGET_CLASS(pathentry_parent_class)->focus(widget, direction);
-}
-
-static void _pathentry_icon_press_event(GtkEntry             *entry,
-                                        GtkEntryIconPosition icon_pos,
-                                        GdkEventButton       *event,
-                                        gpointer             userdata)
-{
-    (void) userdata;
-
-    PathEntry *path_entry = PATHENTRY(entry);
-
-    if (event->button == 1 && icon_pos == GTK_ENTRY_ICON_PRIMARY)
-    {
-        // consume the event
-        path_entry->drag_button = event->button;
-        path_entry->drag_x = event->x;
-        path_entry->drag_y = event->y;
-    }
-}
-
-static void _pathentry_icon_release_event(GtkEntry             *entry,
-                                          GtkEntryIconPosition icon_pos,
-                                          GdkEventButton       *event,
-                                          gpointer             user_data)
-{
-    (void) user_data;
-
-    PathEntry *path_entry = PATHENTRY(entry);
-
-    if (event->button == path_entry->drag_button && icon_pos == GTK_ENTRY_ICON_PRIMARY)
-    {
-        // reset the drag button state
-        path_entry->drag_button = 0;
-    }
 }
 
 static gboolean pathentry_motion_notify_event(GtkWidget *widget,
@@ -401,30 +447,6 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
     return GTK_WIDGET_CLASS(pathentry_parent_class)->motion_notify_event(widget, event);
 }
 
-static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event)
-{
-    PathEntry *path_entry = PATHENTRY(widget);
-
-    // check if we have a tab key press here and control is not pressed
-    if (G_UNLIKELY(event->keyval == GDK_KEY_Tab &&(event->state & GDK_CONTROL_MASK) == 0))
-    {
-        // if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix
-        if (!path_entry->has_completion && gtk_editable_get_position(GTK_EDITABLE(path_entry)) == gtk_entry_get_text_length(GTK_ENTRY(path_entry)))
-            _pathentry_common_prefix_append(path_entry, FALSE);
-
-        // place the cursor at the end
-        gtk_editable_set_position(GTK_EDITABLE(path_entry), gtk_entry_get_text_length(GTK_ENTRY(path_entry)));
-
-        // emit "changed", so the completion window is popped up
-        g_signal_emit_by_name(G_OBJECT(path_entry), "changed", 0);
-
-        // we handled the event
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
 static void pathentry_drag_data_get(GtkWidget        *widget,
                                     GdkDragContext   *context,
                                     GtkSelectionData *selection_data,
@@ -465,6 +487,73 @@ static void pathentry_activate(GtkEntry *entry)
 
     // emit the "activate" signal
    GTK_ENTRY_CLASS(pathentry_parent_class)->activate(entry);
+}
+
+
+
+
+// ----------------------------------------------------------------------------
+
+
+
+
+
+static void _pathentry_icon_press_event(GtkEntry             *entry,
+                                        GtkEntryIconPosition icon_pos,
+                                        GdkEventButton       *event,
+                                        gpointer             userdata)
+{
+    (void) userdata;
+
+    PathEntry *path_entry = PATHENTRY(entry);
+
+    if (event->button == 1 && icon_pos == GTK_ENTRY_ICON_PRIMARY)
+    {
+        // consume the event
+        path_entry->drag_button = event->button;
+        path_entry->drag_x = event->x;
+        path_entry->drag_y = event->y;
+    }
+}
+
+static void _pathentry_icon_release_event(GtkEntry             *entry,
+                                          GtkEntryIconPosition icon_pos,
+                                          GdkEventButton       *event,
+                                          gpointer             user_data)
+{
+    (void) user_data;
+
+    PathEntry *path_entry = PATHENTRY(entry);
+
+    if (event->button == path_entry->drag_button && icon_pos == GTK_ENTRY_ICON_PRIMARY)
+    {
+        // reset the drag button state
+        path_entry->drag_button = 0;
+    }
+}
+
+static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event)
+{
+    PathEntry *path_entry = PATHENTRY(widget);
+
+    // check if we have a tab key press here and control is not pressed
+    if (G_UNLIKELY(event->keyval == GDK_KEY_Tab &&(event->state & GDK_CONTROL_MASK) == 0))
+    {
+        // if we don't have a completion and the cursor is at the end of the line, we just insert the common prefix
+        if (!path_entry->has_completion && gtk_editable_get_position(GTK_EDITABLE(path_entry)) == gtk_entry_get_text_length(GTK_ENTRY(path_entry)))
+            _pathentry_common_prefix_append(path_entry, FALSE);
+
+        // place the cursor at the end
+        gtk_editable_set_position(GTK_EDITABLE(path_entry), gtk_entry_get_text_length(GTK_ENTRY(path_entry)));
+
+        // emit "changed", so the completion window is popped up
+        g_signal_emit_by_name(G_OBJECT(path_entry), "changed", 0);
+
+        // we handled the event
+        return TRUE;
+    }
+
+    return FALSE;
 }
 
 static void pathentry_changed(GtkEditable *editable)
@@ -1066,87 +1155,6 @@ static void _pathentry_check_completion_idle_destroy(gpointer user_data)
 GtkWidget* pathentry_new()
 {
     return g_object_new(TYPE_PATHENTRY, NULL);
-}
-
-ThunarFile* pathentry_get_current_file(PathEntry *path_entry)
-{
-    e_return_val_if_fail(IS_PATHENTRY(path_entry), NULL);
-    return path_entry->current_file;
-}
-
-void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
-{
-    e_return_if_fail(IS_PATHENTRY(path_entry));
-    e_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
-
-    GFile *file = (current_file != NULL) ? th_file_get_file(current_file) : NULL;
-
-    gchar    *text;
-    gboolean  is_uri = FALSE;
-
-    if (G_UNLIKELY(file == NULL))
-    {
-        // invalid file
-        text = g_strdup("");
-    }
-    else
-    {
-        // check if the file is native to the platform
-        if (g_file_is_native(file))
-        {
-            // it is, try the local path first
-            text = g_file_get_path(file);
-
-            // if there is no local path, use the URI(which always works)
-            if (text == NULL)
-            {
-                text = g_file_get_uri(file);
-                is_uri = TRUE;
-            }
-        }
-        else
-        {
-            // not a native file, use the URI
-            text = g_file_get_uri(file);
-            is_uri = TRUE;
-        }
-
-        gchar *tmp;
-
-        /* if the file is a directory, end with a / to avoid loading the parent
-         * directory which is probably not something the user wants */
-        if (th_file_is_directory(current_file)
-                && !g_str_has_suffix(text, "/"))
-        {
-            tmp = g_strconcat(text, "/", NULL);
-            g_free(text);
-            text = tmp;
-        }
-
-        // convert filename into valid UTF-8 string for display
-        tmp = text;
-        text = g_filename_display_name(tmp);
-        g_free(tmp);
-    }
-
-    gchar *unescaped;
-
-    if (is_uri)
-        unescaped = g_uri_unescape_string(text, NULL);
-    else
-        unescaped = g_strdup(text);
-    g_free(text);
-
-    // setup the entry text
-    gtk_entry_set_text(GTK_ENTRY(path_entry), unescaped);
-    g_free(unescaped);
-
-    // update the icon
-    _pathentry_update_icon(path_entry);
-
-    gtk_editable_set_position(GTK_EDITABLE(path_entry), -1);
-
-    gtk_widget_queue_draw(GTK_WIDGET(path_entry));
 }
 
 void pathentry_set_working_directory(PathEntry *path_entry,

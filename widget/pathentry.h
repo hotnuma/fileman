@@ -25,6 +25,8 @@
 
 G_BEGIN_DECLS
 
+// PathEntry ------------------------------------------------------------------
+
 typedef struct _PathEntryClass PathEntryClass;
 typedef struct _PathEntry      PathEntry;
 
@@ -46,6 +48,7 @@ GtkWidget* pathentry_new();
 
 ThunarFile* pathentry_get_current_file(PathEntry *path_entry);
 void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file);
+
 void pathentry_set_working_directory(PathEntry *path_entry, ThunarFile *directory);
 
 G_END_DECLS
