@@ -44,8 +44,7 @@ void dialog_error(gpointer parent, const GError *error,
 
 ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
                                  ThunarJobResponse choices);
-ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
-                                         ThunarFile *src_file,
+ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file,
                                          ThunarFile *dst_file);
 void dialog_job_error(GtkWindow *parent, GError *error);
 

@@ -27,168 +27,13 @@
 #include <pango_ext.h>
 #include <libxfce4ui/libxfce4ui.h>
 
+// dialog_file_rename
 static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);
+
+// dialog_job_ask_replace
 static void _dialog_job_ask_replace_callback(GtkWidget *button, gpointer user_data);
 
-// ----------------------------------------------------------------------------
-
-void dialog_error(gpointer parent, const GError *error, const gchar  *format, ...)
-{
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
-
-    // do not display error dialog for already handled errors
-    if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
-        return;
-
-    // parse the parent pointer
-    GtkWindow *window;
-    GdkScreen *screen;
-    screen = util_parse_parent(parent, &window);
-
-    // determine the primary error text
-    va_list    args;
-    va_start(args, format);
-    gchar     *primary_text;
-    primary_text = g_strdup_vprintf(format, args);
-    va_end(args);
-
-    // allocate the error dialog
-    GtkWidget *dialog;
-    dialog = gtk_message_dialog_new(window,
-                                     GTK_DIALOG_DESTROY_WITH_PARENT
-                                     | GTK_DIALOG_MODAL,
-                                     GTK_MESSAGE_ERROR,
-                                     GTK_BUTTONS_CLOSE,
-                                     "%s.", primary_text);
-
-    // move the dialog to the appropriate screen
-    if (G_UNLIKELY(window == NULL && screen != NULL))
-        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
-
-    // set secondary text if an error is provided
-    if (G_LIKELY(error != NULL))
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s.", error->message);
-
-    GList *children = gtk_container_get_children(
-                            GTK_CONTAINER(gtk_message_dialog_get_message_area(
-                                                      GTK_MESSAGE_DIALOG(dialog))));
-    // enable wrap for labels
-    for (GList *lp = children; lp != NULL; lp = lp->next)
-    {
-        if (GTK_IS_LABEL(lp->data))
-            gtk_label_set_line_wrap_mode(GTK_LABEL(lp->data), PANGO_WRAP_WORD_CHAR);
-    }
-
-    // display the dialog
-    gtk_dialog_run(GTK_DIALOG(dialog));
-
-    // cleanup
-    gtk_widget_destroy(dialog);
-
-    g_free(primary_text);
-    g_list_free(children);
-}
-
-// ----------------------------------------------------------------------------
-
-gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFile *file,
-                                 const gchar *command)
-{
-    GdkScreen      *screen;
-    GtkWindow      *window;
-    gint            response;
-    GtkWidget      *dialog;
-    GString        *secondary;
-    ThunarFileMode  old_mode;
-    ThunarFileMode  new_mode;
-    GFileInfo      *info;
-    GError         *err = NULL;
-
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    e_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
-
-    // parse the parent window and screen
-    screen = util_parse_parent(parent, &window);
-
-    // secondary text
-    secondary = g_string_new(NULL);
-    g_string_append_printf(secondary, _("The desktop file \"%s\" is in an insecure location "
-                                         "and not marked as executable. If you do not trust "
-                                         "this program, click Cancel."),
-                            th_file_get_display_name(file));
-    g_string_append(secondary, "\n\n");
-    if (g_uri_is_valid(command, G_URI_FLAGS_NONE, NULL))
-        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
-    else
-        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);
-
-    // allocate and display the error message dialog
-    dialog = gtk_message_dialog_new(window,
-                                     GTK_DIALOG_MODAL |
-                                     GTK_DIALOG_DESTROY_WITH_PARENT,
-                                     GTK_MESSAGE_WARNING,
-                                     GTK_BUTTONS_NONE,
-                                     "%s", primary);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Launch Anyway"), GTK_RESPONSE_OK);
-    if (th_file_is_chmodable(file))
-        gtk_dialog_add_button(GTK_DIALOG(dialog), _("Mark _Executable"), GTK_RESPONSE_APPLY);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
-    if (screen != NULL && window == NULL)
-        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary->str);
-    g_string_free(secondary, TRUE);
-    response = gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-
-    // check if we should make the file executable
-    if (response == GTK_RESPONSE_APPLY)
-    {
-        // try to query information about the file
-        info = g_file_query_info(th_file_get_file(file),
-                                  G_FILE_ATTRIBUTE_UNIX_MODE,
-                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                  NULL, &err);
-
-        if (G_LIKELY(info != NULL))
-        {
-            if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_UNIX_MODE))
-            {
-                // determine the current mode
-                old_mode = g_file_info_get_attribute_uint32(info, G_FILE_ATTRIBUTE_UNIX_MODE);
-
-                // generate the new mode
-                new_mode = old_mode | THUNAR_FILE_MODE_USR_EXEC | THUNAR_FILE_MODE_GRP_EXEC | THUNAR_FILE_MODE_OTH_EXEC;
-
-                if (old_mode != new_mode)
-                {
-                    g_file_set_attribute_uint32(th_file_get_file(file),
-                                                 G_FILE_ATTRIBUTE_UNIX_MODE, new_mode,
-                                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                                 NULL, &err);
-                }
-            }
-            else
-            {
-                g_warning("No %s attribute found", G_FILE_ATTRIBUTE_UNIX_MODE);
-            }
-
-            g_object_unref(info);
-        }
-
-        if (err != NULL)
-        {
-            dialog_error(parent, err,("Unable to mark launcher executable"));
-            g_error_free(err);
-        }
-
-        // just launch
-        response = GTK_RESPONSE_OK;
-    }
-
-    return (response == GTK_RESPONSE_OK);
-}
-
+// Launcher -------------------------------------------------------------------
 
 gchar* dialog_file_create(gpointer parent, const gchar *content_type,
                           const gchar *filename, const gchar *title)
@@ -482,7 +327,6 @@ static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file)
         gtk_editable_select_region(GTK_EDITABLE(entry), 0, offset);
 }
 
-
 gboolean dialog_folder_trash(GtkWindow *window)
 {
     //GdkScreen *screen = thunar_util_parse_parent(parent, &window);
@@ -520,7 +364,166 @@ gboolean dialog_folder_trash(GtkWindow *window)
     return (response == GTK_RESPONSE_YES);
 }
 
-// ----------------------------------------------------------------------------
+// ThunarFile -----------------------------------------------------------------
+
+gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFile *file,
+                                 const gchar *command)
+{
+    GdkScreen      *screen;
+    GtkWindow      *window;
+    gint            response;
+    GtkWidget      *dialog;
+    GString        *secondary;
+    ThunarFileMode  old_mode;
+    ThunarFileMode  new_mode;
+    GFileInfo      *info;
+    GError         *err = NULL;
+
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
+
+    // parse the parent window and screen
+    screen = util_parse_parent(parent, &window);
+
+    // secondary text
+    secondary = g_string_new(NULL);
+    g_string_append_printf(secondary, _("The desktop file \"%s\" is in an insecure location "
+                                         "and not marked as executable. If you do not trust "
+                                         "this program, click Cancel."),
+                            th_file_get_display_name(file));
+    g_string_append(secondary, "\n\n");
+    if (g_uri_is_valid(command, G_URI_FLAGS_NONE, NULL))
+        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
+    else
+        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);
+
+    // allocate and display the error message dialog
+    dialog = gtk_message_dialog_new(window,
+                                     GTK_DIALOG_MODAL |
+                                     GTK_DIALOG_DESTROY_WITH_PARENT,
+                                     GTK_MESSAGE_WARNING,
+                                     GTK_BUTTONS_NONE,
+                                     "%s", primary);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Launch Anyway"), GTK_RESPONSE_OK);
+    if (th_file_is_chmodable(file))
+        gtk_dialog_add_button(GTK_DIALOG(dialog), _("Mark _Executable"), GTK_RESPONSE_APPLY);
+    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    if (screen != NULL && window == NULL)
+        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary->str);
+    g_string_free(secondary, TRUE);
+    response = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    // check if we should make the file executable
+    if (response == GTK_RESPONSE_APPLY)
+    {
+        // try to query information about the file
+        info = g_file_query_info(th_file_get_file(file),
+                                  G_FILE_ATTRIBUTE_UNIX_MODE,
+                                  G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                  NULL, &err);
+
+        if (G_LIKELY(info != NULL))
+        {
+            if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_UNIX_MODE))
+            {
+                // determine the current mode
+                old_mode = g_file_info_get_attribute_uint32(info, G_FILE_ATTRIBUTE_UNIX_MODE);
+
+                // generate the new mode
+                new_mode = old_mode | THUNAR_FILE_MODE_USR_EXEC | THUNAR_FILE_MODE_GRP_EXEC | THUNAR_FILE_MODE_OTH_EXEC;
+
+                if (old_mode != new_mode)
+                {
+                    g_file_set_attribute_uint32(th_file_get_file(file),
+                                                 G_FILE_ATTRIBUTE_UNIX_MODE, new_mode,
+                                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                                 NULL, &err);
+                }
+            }
+            else
+            {
+                g_warning("No %s attribute found", G_FILE_ATTRIBUTE_UNIX_MODE);
+            }
+
+            g_object_unref(info);
+        }
+
+        if (err != NULL)
+        {
+            dialog_error(parent, err,("Unable to mark launcher executable"));
+            g_error_free(err);
+        }
+
+        // just launch
+        response = GTK_RESPONSE_OK;
+    }
+
+    return (response == GTK_RESPONSE_OK);
+}
+
+// Error ----------------------------------------------------------------------
+
+void dialog_error(gpointer parent, const GError *error, const gchar  *format, ...)
+{
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+
+    // do not display error dialog for already handled errors
+    if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
+        return;
+
+    // parse the parent pointer
+    GtkWindow *window;
+    GdkScreen *screen;
+    screen = util_parse_parent(parent, &window);
+
+    // determine the primary error text
+    va_list    args;
+    va_start(args, format);
+    gchar     *primary_text;
+    primary_text = g_strdup_vprintf(format, args);
+    va_end(args);
+
+    // allocate the error dialog
+    GtkWidget *dialog;
+    dialog = gtk_message_dialog_new(window,
+                                     GTK_DIALOG_DESTROY_WITH_PARENT
+                                     | GTK_DIALOG_MODAL,
+                                     GTK_MESSAGE_ERROR,
+                                     GTK_BUTTONS_CLOSE,
+                                     "%s.", primary_text);
+
+    // move the dialog to the appropriate screen
+    if (G_UNLIKELY(window == NULL && screen != NULL))
+        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
+    // set secondary text if an error is provided
+    if (G_LIKELY(error != NULL))
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s.", error->message);
+
+    GList *children = gtk_container_get_children(
+                            GTK_CONTAINER(gtk_message_dialog_get_message_area(
+                                                      GTK_MESSAGE_DIALOG(dialog))));
+    // enable wrap for labels
+    for (GList *lp = children; lp != NULL; lp = lp->next)
+    {
+        if (GTK_IS_LABEL(lp->data))
+            gtk_label_set_line_wrap_mode(GTK_LABEL(lp->data), PANGO_WRAP_WORD_CHAR);
+    }
+
+    // display the dialog
+    gtk_dialog_run(GTK_DIALOG(dialog));
+
+    // cleanup
+    gtk_widget_destroy(dialog);
+
+    g_free(primary_text);
+    g_list_free(children);
+}
+
+// PermissionBox, ProgressView ------------------------------------------------
 
 ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
                                  ThunarJobResponse choices)
@@ -905,7 +908,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
 }
 
 static void _dialog_job_ask_replace_callback(GtkWidget *button,
-                                                         gpointer user_data)
+                                             gpointer user_data)
 {
     gint response;
 
