@@ -332,7 +332,7 @@ static void _appcombo_chooser_dialog(AppCombo *chooser_button)
         return;
 
     // popup the application chooser dialog
-    dialog = g_object_new(TYPE_APPCHOOSER_DIALOG, "open", FALSE, NULL);
+    dialog = g_object_new(TYPE_APPCHOOSERDIALOG, "open", FALSE, NULL);
 
     //exo_binding_new(G_OBJECT(chooser_button), "file",
     //                G_OBJECT(dialog), "file");

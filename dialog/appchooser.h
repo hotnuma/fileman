@@ -16,27 +16,29 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __APPCHOOSER_DIALOG_H__
-#define __APPCHOOSER_DIALOG_H__
+#ifndef __APPCHOOSERDIALOG_H__
+#define __APPCHOOSERDIALOG_H__
 
 #include <th_file.h>
 
 G_BEGIN_DECLS
 
+// AppChooserDialog -----------------------------------------------------------
+
 typedef struct _AppChooserDialogClass AppChooserDialogClass;
 typedef struct _AppChooserDialog      AppChooserDialog;
 
-#define TYPE_APPCHOOSER_DIALOG (appchooser_get_type())
-#define APPCHOOSER_DIALOG(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_APPCHOOSER_DIALOG, AppChooserDialog))
-#define APPCHOOSER_DIALOG_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_APPCHOOSER_DIALOG, AppChooserDialogClass))
-#define IS_APPCHOOSER_DIALOG(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_APPCHOOSER_DIALOG))
-#define IS_APPCHOOSER_DIALOG_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_APPCHOOSER_DIALOG))
-#define APPCHOOSER_DIALOG_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_APPCHOOSER_DIALOG, AppChooserDialogClass))
+#define TYPE_APPCHOOSERDIALOG (appchooser_get_type())
+#define APPCHOOSERDIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPCHOOSERDIALOG, AppChooserDialog))
+#define APPCHOOSERDIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_APPCHOOSERDIALOG, AppChooserDialogClass))
+#define IS_APPCHOOSERDIALOG(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_APPCHOOSERDIALOG))
+#define IS_APPCHOOSERDIALOG_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPCHOOSERDIALOG))
+#define APPCHOOSERDIALOG_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPCHOOSERDIALOG, AppChooserDialogClass))
 
 GType appchooser_get_type() G_GNUC_CONST;
 
@@ -44,6 +46,6 @@ void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open);
 
 G_END_DECLS
 
-#endif // __APPCHOOSER_DIALOG_H__
+#endif // __APPCHOOSERDIALOG_H__
 
 

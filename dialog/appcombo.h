@@ -28,15 +28,15 @@ typedef struct _AppCombo      AppCombo;
 
 #define TYPE_APPCOMBO (appcombo_get_type())
 #define APPCOMBO(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_APPCOMBO, AppCombo))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPCOMBO, AppCombo))
 #define APPCOMBO_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_APPCOMBO, AppComboClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_APPCOMBO, AppComboClass))
 #define IS_APPCOMBO(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_APPCOMBO))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_APPCOMBO))
 #define IS_APPCOMBO_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_APPCOMBO))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPCOMBO))
 #define APPCOMBO_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_APPCOMBO, AppComboClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPCOMBO, AppComboClass))
 
 GType appcombo_get_type() G_GNUC_CONST;
 
