@@ -57,15 +57,22 @@ static void propsdlg_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec);
 static void propsdlg_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
+static GList* _propsdlg_get_files(PropertiesDialog *dialog);
 static void propsdlg_response(GtkDialog *dialog, gint response);
 static gboolean propsdlg_reload(PropertiesDialog *dialog);
 
+// Events ---------------------------------------------------------------------
+
 static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog);
+static void _propsdlg_rename_error(ExoJob *job, GError *error,
+                                   PropertiesDialog *dialog);
+static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog);
 static gboolean _propsdlg_name_focus_out_event(GtkWidget *entry,
                                                GdkEventFocus *event,
                                                PropertiesDialog *dialog);
 static void _propsdlg_update(PropertiesDialog *dialog);
-static GList* _propsdlg_get_files(PropertiesDialog *dialog);
+static void _propsdlg_update_single(PropertiesDialog *dialog);
+static void _propsdlg_update_multiple(PropertiesDialog *dialog);
 
 struct _PropertiesDialogClass
 {
@@ -552,6 +559,73 @@ static void propsdlg_set_property(GObject *object, guint prop_id,
     }
 }
 
+static GList* _propsdlg_get_files(PropertiesDialog *dialog)
+{
+    e_return_val_if_fail(IS_PROPERTIESDIALOG(dialog), NULL);
+
+    return dialog->files;
+}
+
+void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
+{
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
+
+    // check if the same lists are used(or null)
+    if (G_UNLIKELY(dialog->files == files))
+        return;
+
+    ThunarFile *file;
+
+    // disconnect from any previously set files
+    for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
+    {
+        file = THUNAR_FILE(lp->data);
+
+        // unregister our file watch
+        th_file_unwatch(file);
+
+        // unregister handlers
+        g_signal_handlers_disconnect_by_func(G_OBJECT(file), _propsdlg_update, dialog);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(file), gtk_widget_destroy, dialog);
+
+        g_object_unref(G_OBJECT(file));
+    }
+
+    g_list_free(dialog->files);
+
+    // activate the new list
+    dialog->files = g_list_copy(files);
+
+    // connect to the new files
+    for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
+    {
+        e_assert(THUNAR_IS_FILE(lp->data));
+        file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
+
+        // watch the file for changes
+        th_file_watch(file);
+
+        // install signal handlers
+        g_signal_connect_swapped(G_OBJECT(file), "changed",
+                                 G_CALLBACK(_propsdlg_update), dialog);
+        g_signal_connect_swapped(G_OBJECT(file), "destroy",
+                                 G_CALLBACK(gtk_widget_destroy), dialog);
+    }
+
+    // update the dialog contents
+    if (dialog->files != NULL)
+    {
+        // update the UI for the new file
+        _propsdlg_update(dialog);
+
+        // update the provider property pages
+        //thunar_properties_dialog_update_providers(dialog);
+    }
+
+    // tell everybody that we have a new file here
+    g_object_notify(G_OBJECT(dialog), "files");
+}
+
 static void propsdlg_response(GtkDialog *dialog, gint response)
 {
     if (response == GTK_RESPONSE_CLOSE)
@@ -578,40 +652,7 @@ static gboolean propsdlg_reload(PropertiesDialog *dialog)
     return dialog->files != NULL;
 }
 
-
-// ----------------------------------------------------------------------------
-
-static void _propsdlg_rename_error(ExoJob *job, GError *error,
-                                   PropertiesDialog *dialog)
-{
-    e_return_if_fail(EXO_IS_JOB(job));
-    e_return_if_fail(error != NULL);
-    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
-    e_return_if_fail(g_list_length(dialog->files) == 1);
-
-    /* reset the entry display name to the original name, so the focus
-       out event does not trigger the rename again by calling
-       thunar_properties_dialog_name_activate */
-    gtk_entry_set_text(GTK_ENTRY(xfce_filename_input_get_entry(dialog->name_entry)),
-                        th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
-
-    // display an error message
-    dialog_error(GTK_WIDGET(dialog), error, _("Failed to rename \"%s\""),
-                               th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
-}
-
-static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
-{
-    e_return_if_fail(EXO_IS_JOB(job));
-    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
-    e_return_if_fail(g_list_length(dialog->files) == 1);
-
-    g_signal_handlers_disconnect_matched(job,
-                                         G_SIGNAL_MATCH_DATA,
-                                         0, 0, NULL, NULL,
-                                         dialog);
-    g_object_unref(job);
-}
+// Events ---------------------------------------------------------------------
 
 static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 {
@@ -646,14 +687,73 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
                      G_CALLBACK(_propsdlg_rename_finished), dialog);
 }
 
-static gboolean _propsdlg_name_focus_out_event(GtkWidget     *entry,
+static void _propsdlg_rename_error(ExoJob *job, GError *error,
+                                   PropertiesDialog *dialog)
+{
+    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(error != NULL);
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
+    e_return_if_fail(g_list_length(dialog->files) == 1);
+
+    /* reset the entry display name to the original name, so the focus
+       out event does not trigger the rename again by calling
+       thunar_properties_dialog_name_activate */
+    gtk_entry_set_text(GTK_ENTRY(xfce_filename_input_get_entry(dialog->name_entry)),
+                        th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
+
+    // display an error message
+    dialog_error(GTK_WIDGET(dialog), error, _("Failed to rename \"%s\""),
+                               th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
+}
+
+static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
+{
+    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
+    e_return_if_fail(g_list_length(dialog->files) == 1);
+
+    g_signal_handlers_disconnect_matched(job,
+                                         G_SIGNAL_MATCH_DATA,
+                                         0, 0, NULL, NULL,
+                                         dialog);
+    g_object_unref(job);
+}
+
+static gboolean _propsdlg_name_focus_out_event(GtkWidget *entry,
                                                GdkEventFocus *event,
                                                PropertiesDialog *dialog)
 {
     (void) event;
+
     _propsdlg_name_activate(entry, dialog);
 
     return FALSE;
+}
+
+// Public ---------------------------------------------------------------------
+
+// propsdlg_set_files
+static void _propsdlg_update(PropertiesDialog *dialog)
+{
+    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
+    e_return_if_fail(dialog->files != NULL);
+
+    if (dialog->files->next == NULL)
+    {
+        // show single file name box
+        gtk_widget_show(dialog->single_box);
+
+        // update the properties for a dialog showing 1 file
+        _propsdlg_update_single(dialog);
+
+        return;
+    }
+
+    // show multiple files box
+    gtk_widget_hide(dialog->single_box);
+
+    // update the properties for a dialog showing multiple files
+    _propsdlg_update_multiple(dialog);
 }
 
 static void _propsdlg_update_single(PropertiesDialog *dialog)
@@ -1077,29 +1177,6 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     }
 }
 
-static void _propsdlg_update(PropertiesDialog *dialog)
-{
-    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
-    e_return_if_fail(dialog->files != NULL);
-
-    if (dialog->files->next == NULL)
-    {
-        // show single file name box
-        gtk_widget_show(dialog->single_box);
-
-        // update the properties for a dialog showing 1 file
-        _propsdlg_update_single(dialog);
-
-        return;
-    }
-
-    // show multiple files box
-    gtk_widget_hide(dialog->single_box);
-
-    // update the properties for a dialog showing multiple files
-    _propsdlg_update_multiple(dialog);
-}
-
 // Public ---------------------------------------------------------------------
 
 GtkWidget* propsdlg_new(GtkWindow *parent)
@@ -1109,72 +1186,6 @@ GtkWidget* propsdlg_new(GtkWindow *parent)
                          "transient-for", parent,
                          "destroy-with-parent", parent != NULL,
                          NULL);
-}
-
-static GList* _propsdlg_get_files(PropertiesDialog *dialog)
-{
-    e_return_val_if_fail(IS_PROPERTIESDIALOG(dialog), NULL);
-
-    return dialog->files;
-}
-
-void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
-{
-    e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
-
-    // check if the same lists are used(or null)
-    if (G_UNLIKELY(dialog->files == files))
-        return;
-
-    ThunarFile *file;
-
-    // disconnect from any previously set files
-    for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
-    {
-        file = THUNAR_FILE(lp->data);
-
-        // unregister our file watch
-        th_file_unwatch(file);
-
-        // unregister handlers
-        g_signal_handlers_disconnect_by_func(G_OBJECT(file), _propsdlg_update, dialog);
-        g_signal_handlers_disconnect_by_func(G_OBJECT(file), gtk_widget_destroy, dialog);
-
-        g_object_unref(G_OBJECT(file));
-    }
-    g_list_free(dialog->files);
-
-    // activate the new list
-    dialog->files = g_list_copy(files);
-
-    // connect to the new files
-    for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
-    {
-        e_assert(THUNAR_IS_FILE(lp->data));
-        file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
-
-        // watch the file for changes
-        th_file_watch(file);
-
-        // install signal handlers
-        g_signal_connect_swapped(G_OBJECT(file), "changed",
-                                 G_CALLBACK(_propsdlg_update), dialog);
-        g_signal_connect_swapped(G_OBJECT(file), "destroy",
-                                 G_CALLBACK(gtk_widget_destroy), dialog);
-    }
-
-    // update the dialog contents
-    if (dialog->files != NULL)
-    {
-        // update the UI for the new file
-        _propsdlg_update(dialog);
-
-        // update the provider property pages
-        //thunar_properties_dialog_update_providers(dialog);
-    }
-
-    // tell everybody that we have a new file here
-    g_object_notify(G_OBJECT(dialog), "files");
 }
 
 void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
