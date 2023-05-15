@@ -20,7 +20,7 @@
 #include <config.h>
 #include <exotreeview.h>
 
-/**
+/*
  * SECTION: exo-tree-view
  * @title: ExoTreeView
  * @short_description: An improved version of #GtkTreeView
@@ -31,22 +31,15 @@
  * the default double button clicks. It also works around a few shortcomings
  * of #GtkTreeView, i.e. #ExoTreeView allows the user to drag around multiple
  * selected rows.
- **/
+ */
 
-/* resurrect dead gdk apis for Gtk3
- * This is easier than using #ifs everywhere */
+// resurrect dead gdk apis for Gtk3, this is easier than using #ifs everywhere
 #ifdef gdk_cursor_unref
 #undef gdk_cursor_unref
 #endif
 #define gdk_cursor_unref(cursor) g_object_unref(cursor)
 
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_SINGLE_CLICK,
-    PROP_SINGLE_CLICK_TIMEOUT,
-};
+// ExoTreeView ----------------------------------------------------------------
 
 static void exo_treeview_finalize(GObject *object);
 static void exo_treeview_get_property(GObject *object, guint prop_id,
@@ -55,29 +48,33 @@ static void exo_treeview_set_property(GObject *object, guint prop_id,
                                       const GValue *value, GParamSpec *pspec);
 static gboolean exo_treeview_button_press_event(GtkWidget *widget,
                                                 GdkEventButton *event);
+static gboolean _select_false(GtkTreeSelection *selection, GtkTreeModel *model,
+                              GtkTreePath *path,
+                              gboolean path_currently_selected, gpointer data);
+static gboolean _select_true(GtkTreeSelection *selection, GtkTreeModel *model,
+                             GtkTreePath *path,
+                             gboolean path_currently_selected, gpointer data);
 static gboolean exo_treeview_button_release_event(GtkWidget *widget,
                                                   GdkEventButton *event);
 static gboolean exo_treeview_motion_notify_event(GtkWidget *widget,
                                                  GdkEventMotion *event);
+static gboolean _exo_treeview_single_click_timeout(gpointer user_data);
+static void _exo_treeview_single_click_timeout_destroy(gpointer user_data);
 static gboolean exo_treeview_leave_notify_event(GtkWidget *widget,
                                                 GdkEventCrossing *event);
 static void exo_treeview_drag_begin(GtkWidget *widget, GdkDragContext *context);
 static gboolean exo_treeview_move_cursor(GtkTreeView *view,
                                          GtkMovementStep step,
                                          gint count);
-static gboolean exo_treeview_single_click_timeout(gpointer user_data);
-static void exo_treeview_single_click_timeout_destroy(gpointer user_data);
 
-static gboolean select_true(GtkTreeSelection *selection,
-                            GtkTreeModel *model,
-                            GtkTreePath *path,
-                            gboolean path_currently_selected,
-                            gpointer data);
-static gboolean select_false(GtkTreeSelection *selection,
-                             GtkTreeModel *model,
-                             GtkTreePath *path,
-                             gboolean path_currently_selected,
-                             gpointer data);
+// ExoTreeView ----------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_SINGLE_CLICK,
+    PROP_SINGLE_CLICK_TIMEOUT,
+};
 
 struct _ExoTreeViewPrivate
 {
@@ -165,7 +162,7 @@ static void exo_treeview_init(ExoTreeView *tree_view)
 
 static void exo_treeview_finalize(GObject *object)
 {
-    ExoTreeView *tree_view = EXO_TREE_VIEW(object);
+    ExoTreeView *tree_view = EXOTREEVIEW(object);
 
     // be sure to cancel any single-click timeout
     if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
@@ -183,7 +180,7 @@ static void exo_treeview_get_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    ExoTreeView *tree_view = EXO_TREE_VIEW(object);
+    ExoTreeView *tree_view = EXOTREEVIEW(object);
 
     switch (prop_id)
     {
@@ -206,7 +203,7 @@ static void exo_treeview_set_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    ExoTreeView *tree_view = EXO_TREE_VIEW(object);
+    ExoTreeView *tree_view = EXOTREEVIEW(object);
 
     switch (prop_id)
     {
@@ -224,11 +221,73 @@ static void exo_treeview_set_property(GObject *object, guint prop_id,
     }
 }
 
+gboolean exo_treeview_get_single_click(const ExoTreeView *tree_view)
+{
+    g_return_val_if_fail(IS_EXOTREEVIEW(tree_view), FALSE);
+
+    return tree_view->priv->single_click;
+}
+
+void exo_treeview_set_single_click(ExoTreeView *tree_view, gboolean single_click)
+{
+    g_return_if_fail(IS_EXOTREEVIEW(tree_view));
+
+    if (tree_view->priv->single_click != !!single_click)
+    {
+        tree_view->priv->single_click = !!single_click;
+
+        g_object_notify(G_OBJECT(tree_view), "single-click");
+    }
+}
+
+guint exo_treeview_get_single_click_timeout(const ExoTreeView *tree_view)
+{
+    g_return_val_if_fail(IS_EXOTREEVIEW(tree_view), 0u);
+
+    return tree_view->priv->single_click_timeout;
+}
+
+/*
+ * exo_treeview_set_single_click_timeout:
+ * @tree_view            : a #ExoTreeView.
+ * @single_click_timeout : the new timeout or %0 to disable.
+ *
+ * If @single_click_timeout is a value greater than zero, it specifies
+ * the amount of time in milliseconds after which the item under the
+ * mouse cursor will be selected automatically in single click mode.
+ * A value of %0 for @single_click_timeout disables the autoselection
+ * for @tree_view.
+ *
+ * This setting does not have any effect unless the @tree_view is in
+ * single-click mode, see exo_treeview_set_single_click().
+ *
+ * Since: 0.3.1.5
+ */
+void exo_treeview_set_single_click_timeout(ExoTreeView *tree_view,
+                                           guint single_click_timeout)
+{
+    g_return_if_fail(IS_EXOTREEVIEW(tree_view));
+
+    // check if we have a new setting
+    if (tree_view->priv->single_click_timeout == single_click_timeout)
+        return;
+
+    // apply the new setting
+    tree_view->priv->single_click_timeout = single_click_timeout;
+
+    // be sure to cancel any pending single click timeout
+    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+        g_source_remove(tree_view->priv->single_click_timeout_id);
+
+    // notify listeners
+    g_object_notify(G_OBJECT(tree_view), "single-click-timeout");
+}
+
 static gboolean exo_treeview_button_press_event(GtkWidget *widget,
                                                 GdkEventButton *event)
 {
     GtkTreeSelection *selection;
-    ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
+    ExoTreeView *tree_view = EXOTREEVIEW(widget);
     GtkTreePath *path = NULL;
     gboolean result;
     gpointer drag_data;
@@ -271,9 +330,9 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
     }
 
     /* Rubberbanding in GtkTreeView 2.9.0 and above is rather buggy, unfortunately, and
-    * doesn't interact properly with GTKs own DnD mechanism. So we need to block all
-    * dragging here when pressing the mouse button on a not yet selected row if
-    * rubberbanding is active, or disable rubberbanding when starting a drag. */
+     * doesn't interact properly with GTKs own DnD mechanism. So we need to block all
+     * dragging here when pressing the mouse button on a not yet selected row if
+     * rubberbanding is active, or disable rubberbanding when starting a drag. */
     if (gtk_tree_selection_get_mode(selection) == GTK_SELECTION_MULTIPLE && gtk_tree_view_get_rubber_banding(GTK_TREE_VIEW(tree_view)) && event->button == 1 && event->type == GDK_BUTTON_PRESS)
     {
         // check if clicked on empty area or on a not yet selected row
@@ -307,7 +366,7 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
      * So we temporary disable selection updates if the path is still selected */
     if (event->type == GDK_BUTTON_PRESS && (event->state & gtk_accelerator_get_default_mod_mask()) == 0 && path != NULL && gtk_tree_selection_path_is_selected(selection, path))
     {
-        gtk_tree_selection_set_select_function(selection, select_false, NULL, NULL);
+        gtk_tree_selection_set_select_function(selection, _select_false, NULL, NULL);
     }
 
     // call the parent's button press handler
@@ -320,9 +379,9 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
     if (GTK_IS_TREE_SELECTION(selection))
     {
         // Re-enable selection updates
-        if (G_LIKELY(gtk_tree_selection_get_select_function(selection) == select_false))
+        if (G_LIKELY(gtk_tree_selection_get_select_function(selection) == _select_false))
         {
-            gtk_tree_selection_set_select_function(selection, select_true, NULL, NULL);
+            gtk_tree_selection_set_select_function(selection, _select_true, NULL, NULL);
         }
     }
 
@@ -333,13 +392,39 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
     return result;
 }
 
+static gboolean _select_false(GtkTreeSelection *selection, GtkTreeModel *model,
+                              GtkTreePath *path,
+                              gboolean path_currently_selected, gpointer data)
+{
+    (void) selection;
+    (void) model;
+    (void) path;
+    (void) path_currently_selected;
+    (void) data;
+
+    return FALSE;
+}
+
+static gboolean _select_true(GtkTreeSelection *selection, GtkTreeModel *model,
+                             GtkTreePath *path,
+                             gboolean path_currently_selected, gpointer data)
+{
+    (void) selection;
+    (void) model;
+    (void) path;
+    (void) path_currently_selected;
+    (void) data;
+
+    return TRUE;
+}
+
 static gboolean exo_treeview_button_release_event(GtkWidget *widget,
                                                   GdkEventButton *event)
 {
     GtkTreeViewColumn *column;
     GtkTreeSelection *selection;
     GtkTreePath *path;
-    ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
+    ExoTreeView *tree_view = EXOTREEVIEW(widget);
     gpointer drag_data;
 
     // verify that the release event is for the internal tree view window
@@ -410,10 +495,10 @@ static gboolean exo_treeview_button_release_event(GtkWidget *widget,
     return (*GTK_WIDGET_CLASS(exo_treeview_parent_class)->button_release_event)(widget, event);
 }
 
-static gboolean exo_treeview_motion_notify_event(GtkWidget      *widget,
+static gboolean exo_treeview_motion_notify_event(GtkWidget *widget,
                                                  GdkEventMotion *event)
 {
-    ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
+    ExoTreeView *tree_view = EXOTREEVIEW(widget);
     GtkTreePath *path;
     GdkCursor *cursor;
 
@@ -470,9 +555,13 @@ static gboolean exo_treeview_motion_notify_event(GtkWidget      *widget,
                     tree_view->priv->single_click_timeout_state = event->state;
 
                     // schedule a new single-click timeout
-                    tree_view->priv->single_click_timeout_id = gdk_threads_add_timeout_full(G_PRIORITY_LOW, tree_view->priv->single_click_timeout,
-                                                                                            exo_treeview_single_click_timeout, tree_view,
-                                                                                            exo_treeview_single_click_timeout_destroy);
+                    tree_view->priv->single_click_timeout_id =
+                            gdk_threads_add_timeout_full(
+                                    G_PRIORITY_LOW,
+                                    tree_view->priv->single_click_timeout,
+                                    _exo_treeview_single_click_timeout,
+                                    tree_view,
+                                    _exo_treeview_single_click_timeout_destroy);
                 }
             }
             else
@@ -488,76 +577,14 @@ static gboolean exo_treeview_motion_notify_event(GtkWidget      *widget,
     return (*GTK_WIDGET_CLASS(exo_treeview_parent_class)->motion_notify_event)(widget, event);
 }
 
-static gboolean exo_treeview_leave_notify_event(GtkWidget        *widget,
-                                                GdkEventCrossing *event)
-{
-    ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
-
-    // be sure to cancel any pending single-click timeout
-    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
-        g_source_remove(tree_view->priv->single_click_timeout_id);
-
-    // release and reset the hover path (if any)
-    if (tree_view->priv->hover_path != NULL)
-    {
-        gtk_tree_path_free(tree_view->priv->hover_path);
-        tree_view->priv->hover_path = NULL;
-    }
-
-    // reset the cursor for the tree view internal window
-    if (gtk_widget_get_realized(GTK_WIDGET(tree_view)))
-        gdk_window_set_cursor(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view)), NULL);
-
-    // the next button-release-event should not activate
-    tree_view->priv->button_release_activates = FALSE;
-
-    // call the parent's leave notify handler
-    return (*GTK_WIDGET_CLASS(exo_treeview_parent_class)->leave_notify_event)(widget, event);
-}
-
-static void exo_treeview_drag_begin(GtkWidget *widget, GdkDragContext *context)
-{
-    ExoTreeView *tree_view = EXO_TREE_VIEW(widget);
-
-    // the next button-release-event should not activate
-    tree_view->priv->button_release_activates = FALSE;
-
-    // call the parent's drag begin handler
-    (*GTK_WIDGET_CLASS(exo_treeview_parent_class)->drag_begin)(widget, context);
-}
-
-static gboolean exo_treeview_move_cursor(GtkTreeView *view, GtkMovementStep step,
-                                         gint count)
-{
-    ExoTreeView *tree_view = EXO_TREE_VIEW(view);
-
-    // be sure to cancel any pending single-click timeout
-    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
-        g_source_remove(tree_view->priv->single_click_timeout_id);
-
-    // release and reset the hover path (if any)
-    if (tree_view->priv->hover_path != NULL)
-    {
-        gtk_tree_path_free(tree_view->priv->hover_path);
-        tree_view->priv->hover_path = NULL;
-    }
-
-    // reset the cursor for the tree view internal window
-    if (gtk_widget_get_realized(GTK_WIDGET(tree_view)))
-        gdk_window_set_cursor(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view)), NULL);
-
-    // call the parent's handler
-    return (*GTK_TREE_VIEW_CLASS(exo_treeview_parent_class)->move_cursor)(view, step, count);
-}
-
-static gboolean exo_treeview_single_click_timeout(gpointer user_data)
+static gboolean _exo_treeview_single_click_timeout(gpointer user_data)
 {
     GtkTreeViewColumn *cursor_column;
     GtkTreeSelection *selection;
     GtkTreeModel *model;
     GtkTreePath *cursor_path;
     GtkTreeIter iter;
-    ExoTreeView *tree_view = EXO_TREE_VIEW(user_data);
+    ExoTreeView *tree_view = EXOTREEVIEW(user_data);
     gboolean hover_path_selected;
     GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(tree_view));
 
@@ -611,13 +638,13 @@ static gboolean exo_treeview_single_click_timeout(gpointer user_data)
                 // check if the hover path is selected (as it will be selected after the set_cursor() call)
                 hover_path_selected = gtk_tree_selection_path_is_selected(selection, tree_view->priv->hover_path);
                 // disable selection updates if the path is still selected
-                gtk_tree_selection_set_select_function(selection, select_false, NULL, NULL);
+                gtk_tree_selection_set_select_function(selection, _select_false, NULL, NULL);
 
                 // place the cursor on the hover row
                 gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree_view), tree_view->priv->hover_path, cursor_column, FALSE);
 
                 // re-enable selection updates
-                gtk_tree_selection_set_select_function(selection, select_true, NULL, NULL);
+                gtk_tree_selection_set_select_function(selection, _select_true, NULL, NULL);
 
                 // check what to do
                 if ((gtk_tree_selection_get_mode(selection) == GTK_SELECTION_MULTIPLE ||
@@ -649,149 +676,78 @@ static gboolean exo_treeview_single_click_timeout(gpointer user_data)
     return FALSE;
 }
 
-static void exo_treeview_single_click_timeout_destroy(gpointer user_data)
+static void _exo_treeview_single_click_timeout_destroy(gpointer user_data)
 {
-    EXO_TREE_VIEW(user_data)->priv->single_click_timeout_id = -1;
+    EXOTREEVIEW(user_data)->priv->single_click_timeout_id = -1;
 }
 
-/**
- * exo_treeview_new:
- *
- * Allocates a new #ExoTreeView instance.
- *
- * Returns: the newly allocated #ExoTreeView.
- *
- * Since: 0.3.1.3
- **/
+static gboolean exo_treeview_leave_notify_event(GtkWidget *widget,
+                                                GdkEventCrossing *event)
+{
+    ExoTreeView *tree_view = EXOTREEVIEW(widget);
+
+    // be sure to cancel any pending single-click timeout
+    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+        g_source_remove(tree_view->priv->single_click_timeout_id);
+
+    // release and reset the hover path (if any)
+    if (tree_view->priv->hover_path != NULL)
+    {
+        gtk_tree_path_free(tree_view->priv->hover_path);
+        tree_view->priv->hover_path = NULL;
+    }
+
+    // reset the cursor for the tree view internal window
+    if (gtk_widget_get_realized(GTK_WIDGET(tree_view)))
+        gdk_window_set_cursor(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view)), NULL);
+
+    // the next button-release-event should not activate
+    tree_view->priv->button_release_activates = FALSE;
+
+    // call the parent's leave notify handler
+    return GTK_WIDGET_CLASS(exo_treeview_parent_class)->leave_notify_event(widget, event);
+}
+
+static void exo_treeview_drag_begin(GtkWidget *widget, GdkDragContext *context)
+{
+    ExoTreeView *tree_view = EXOTREEVIEW(widget);
+
+    // the next button-release-event should not activate
+    tree_view->priv->button_release_activates = FALSE;
+
+    // call the parent's drag begin handler
+    GTK_WIDGET_CLASS(exo_treeview_parent_class)->drag_begin(widget, context);
+}
+
+static gboolean exo_treeview_move_cursor(GtkTreeView *view, GtkMovementStep step,
+                                         gint count)
+{
+    ExoTreeView *tree_view = EXOTREEVIEW(view);
+
+    // be sure to cancel any pending single-click timeout
+    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+        g_source_remove(tree_view->priv->single_click_timeout_id);
+
+    // release and reset the hover path (if any)
+    if (tree_view->priv->hover_path != NULL)
+    {
+        gtk_tree_path_free(tree_view->priv->hover_path);
+        tree_view->priv->hover_path = NULL;
+    }
+
+    // reset the cursor for the tree view internal window
+    if (gtk_widget_get_realized(GTK_WIDGET(tree_view)))
+        gdk_window_set_cursor(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view)), NULL);
+
+    // call the parent's handler
+    return GTK_TREE_VIEW_CLASS(exo_treeview_parent_class)->move_cursor(view, step, count);
+}
+
+// Public ---------------------------------------------------------------------
+
 GtkWidget* exo_treeview_new()
 {
-    return g_object_new(EXO_TYPE_TREE_VIEW, NULL);
-}
-
-/**
- * exo_treeview_get_single_click:
- * @tree_view : an #ExoTreeView.
- *
- * Returns %TRUE if @tree_view is in single-click mode, else %FALSE.
- *
- * Returns: whether @tree_view is in single-click mode.
- *
- * Since: 0.3.1.3
- **/
-gboolean exo_treeview_get_single_click(const ExoTreeView *tree_view)
-{
-    g_return_val_if_fail(EXO_IS_TREE_VIEW(tree_view), FALSE);
-
-    return tree_view->priv->single_click;
-}
-
-/**
- * exo_treeview_set_single_click:
- * @tree_view    : an #ExoTreeView.
- * @single_click : %TRUE to use single-click for @tree_view, %FALSE otherwise.
- *
- * If @single_click is %TRUE, @tree_view will use single-click mode, else
- * the default double-click mode will be used.
- *
- * Since: 0.3.1.3
- **/
-void exo_treeview_set_single_click(ExoTreeView *tree_view, gboolean single_click)
-{
-    g_return_if_fail(EXO_IS_TREE_VIEW(tree_view));
-
-    if (tree_view->priv->single_click != !!single_click)
-    {
-        tree_view->priv->single_click = !!single_click;
-
-        g_object_notify(G_OBJECT(tree_view), "single-click");
-    }
-}
-
-/**
- * exo_treeview_get_single_click_timeout:
- * @tree_view : a #ExoTreeView.
- *
- * Returns the amount of time in milliseconds after which the
- * item under the mouse cursor will be selected automatically
- * in single click mode. A value of %0 means that the behavior
- * is disabled and the user must alter the selection manually.
- *
- * Returns: the single click autoselect timeout or %0 if
- *               the behavior is disabled.
- *
- * Since: 0.3.1.5
- **/
-guint exo_treeview_get_single_click_timeout(const ExoTreeView *tree_view)
-{
-    g_return_val_if_fail(EXO_IS_TREE_VIEW(tree_view), 0u);
-
-    return tree_view->priv->single_click_timeout;
-}
-
-/**
- * exo_treeview_set_single_click_timeout:
- * @tree_view            : a #ExoTreeView.
- * @single_click_timeout : the new timeout or %0 to disable.
- *
- * If @single_click_timeout is a value greater than zero, it specifies
- * the amount of time in milliseconds after which the item under the
- * mouse cursor will be selected automatically in single click mode.
- * A value of %0 for @single_click_timeout disables the autoselection
- * for @tree_view.
- *
- * This setting does not have any effect unless the @tree_view is in
- * single-click mode, see exo_treeview_set_single_click().
- *
- * Since: 0.3.1.5
- **/
-void exo_treeview_set_single_click_timeout(ExoTreeView *tree_view,
-                                           guint single_click_timeout)
-{
-    g_return_if_fail(EXO_IS_TREE_VIEW(tree_view));
-
-    // check if we have a new setting
-    if (tree_view->priv->single_click_timeout != single_click_timeout)
-    {
-        // apply the new setting
-        tree_view->priv->single_click_timeout = single_click_timeout;
-
-        // be sure to cancel any pending single click timeout
-        if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
-            g_source_remove(tree_view->priv->single_click_timeout_id);
-
-        // notify listeners
-        g_object_notify(G_OBJECT(tree_view), "single-click-timeout");
-    }
-}
-
-static gboolean select_true(GtkTreeSelection *selection,
-                            GtkTreeModel     *model,
-                            GtkTreePath      *path,
-                            gboolean         path_currently_selected,
-                            gpointer         data)
-{
-    (void) selection;
-    (void) model;
-    (void) path;
-    (void) path_currently_selected;
-    (void) data;
-
-    return TRUE;
-}
-
-static gboolean select_false(GtkTreeSelection *selection,
-                             GtkTreeModel     *model,
-                             GtkTreePath      *path,
-                             gboolean         path_currently_selected,
-                             gpointer         data)
-{
-    (void) selection;
-    (void) model;
-    (void) path;
-    (void) path_currently_selected;
-    (void) data;
-
-    return FALSE;
+    return g_object_new(TYPE_EXOTREEVIEW, NULL);
 }
 
 

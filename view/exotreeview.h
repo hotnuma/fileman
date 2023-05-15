@@ -24,21 +24,23 @@
 
 G_BEGIN_DECLS
 
+// ExoTreeView ----------------------------------------------------------------
+
 typedef struct _ExoTreeViewPrivate  ExoTreeViewPrivate;
 typedef struct _ExoTreeViewClass    ExoTreeViewClass;
 typedef struct _ExoTreeView         ExoTreeView;
 
-#define EXO_TYPE_TREE_VIEW (exo_treeview_get_type())
-#define EXO_TREE_VIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  EXO_TYPE_TREE_VIEW, ExoTreeView))
-#define EXO_TREE_VIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   EXO_TYPE_TREE_VIEW, ExoTreeViewClass))
-#define EXO_IS_TREE_VIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  EXO_TYPE_TREE_VIEW))
-#define EXO_IS_TREE_VIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   EXO_TYPE_TREE_VIEW))
-#define EXO_TREE_VIEW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   EXO_TYPE_TREE_VIEW, ExoTreeViewClass))
+#define TYPE_EXOTREEVIEW (exo_treeview_get_type())
+#define EXOTREEVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_EXOTREEVIEW, ExoTreeView))
+#define EXOTREEVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_EXOTREEVIEW, ExoTreeViewClass))
+#define IS_EXOTREEVIEW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_EXOTREEVIEW))
+#define IS_EXOTREEVIEW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_EXOTREEVIEW))
+#define EXOTREEVIEW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_EXOTREEVIEW, ExoTreeViewClass))
 
 struct _ExoTreeViewClass
 {
