@@ -25,6 +25,8 @@
 
 G_BEGIN_DECLS
 
+// StandardView ---------------------------------------------------------------
+
 typedef struct _StandardViewPrivate StandardViewPrivate;
 typedef struct _StandardViewClass   StandardViewClass;
 typedef struct _StandardView        StandardView;
@@ -80,29 +82,25 @@ struct _StandardViewClass
 
     // Returns the visible range
     gboolean (*get_visible_range) (StandardView *view,
-                                   GtkTreePath  **start_path,
-                                   GtkTreePath  **end_path);
+                                   GtkTreePath **start_path,
+                                   GtkTreePath **end_path);
 
     /* Sets the item/row that is highlighted for feedback. NULL is
      * passed for path to disable the highlighting. */
-    void (*highlight_path) (StandardView *view,
-                            GtkTreePath  *path);
+    void (*highlight_path) (StandardView *view, GtkTreePath  *path);
 
     // external signals
-    void (*start_open_location) (StandardView *view,
-                                 const gchar  *initial_text);
+    void (*start_open_location) (StandardView *view, const gchar  *initial_text);
 
     // Appends view-specific menu items to the given menu
-    void (*append_menu_items) (StandardView *view, GtkMenu *menu,
-                               GtkAccelGroup *accel_group);
+    void (*append_menu_items) (StandardView *view,
+                               GtkMenu *menu, GtkAccelGroup *accel_group);
 
     // Connects view-specific accelerators to the given accelGroup
-    void (*connect_accelerators) (StandardView *view,
-                                  GtkAccelGroup *accel_group);
+    void (*connect_accelerators) (StandardView *view, GtkAccelGroup *accel_group);
 
     // Disconnects view-specific accelerators to the given accelGroup
-    void (*disconnect_accelerators) (StandardView *view,
-                                     GtkAccelGroup *accel_group);
+    void (*disconnect_accelerators) (StandardView *view, GtkAccelGroup *accel_group);
 
     // Internal action signals
     gboolean (*delete_selected_files) (StandardView *view);
@@ -114,17 +112,17 @@ struct _StandardViewClass
 
 struct _StandardView
 {
-    GtkScrolledWindow __parent__;
+    GtkScrolledWindow   __parent__;
 
-    ListModel       *model;
+    ListModel           *model;
 
-    IconFactory     *icon_factory;
-    GtkCellRenderer *icon_renderer;
-    GtkCellRenderer *name_renderer;
+    IconFactory         *icon_factory;
+    GtkCellRenderer     *icon_renderer;
+    GtkCellRenderer     *name_renderer;
 
-    GBinding        *loading_binding;
-    gboolean        loading;
-    GtkAccelGroup   *accel_group;
+    GBinding            *loading_binding;
+    gboolean            loading;
+    GtkAccelGroup       *accel_group;
 
     StandardViewPrivate *priv;
 };
@@ -132,13 +130,11 @@ struct _StandardView
 GType standardview_get_type() G_GNUC_CONST;
 
 ThunarHistory* standardview_get_history(StandardView *standard_view);
-void standardview_set_history(StandardView *standard_view,
-                              ThunarHistory *history);
+void standardview_set_history(StandardView *standard_view, ThunarHistory *history);
 void standardview_selection_changed(StandardView *standard_view);
 
 // for detailview
-void standardview_queue_popup(StandardView *standard_view,
-                              GdkEventButton *event);
+void standardview_queue_popup(StandardView *standard_view, GdkEventButton *event);
 
 void standardview_context_menu(StandardView *standard_view);
 

@@ -23,13 +23,13 @@
 
 #include <application.h>
 #include <appmenu.h>
+#include <treemodel.h>
+#include <shortrender.h>
+#include <th_device.h>
+#include <th_folder.h>
 #include <navigator.h>
 #include <clipboard.h>
 #include <dnd.h>
-#include <th_device.h>
-#include <th_folder.h>
-#include <treemodel.h>
-#include <shortrender.h>
 #include <gtk_ext.h>
 #include <utils.h>
 
@@ -51,105 +51,78 @@ static void treeview_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
 static ThunarFile *treeview_get_current_directory(ThunarNavigator *navigator);
 static void treeview_set_current_directory(ThunarNavigator *navigator,
-                                                   ThunarFile *current_directory);
+                                           ThunarFile *current_directory);
+static gboolean _treeview_get_show_hidden(TreeView *view);
+static void _treeview_set_show_hidden(TreeView *view, gboolean show_hidden);
+
+// GtkWidget ------------------------------------------------------------------
+
+static gboolean treeview_button_press_event(GtkWidget *widget,
+                                            GdkEventButton *event);
+static gboolean treeview_button_release_event(GtkWidget *widget,
+                                              GdkEventButton *event);
+static gboolean treeview_popup_menu(GtkWidget *widget);
+
+// GtkTreeView ----------------------------------------------------------------
+
+static void treeview_row_activated(GtkTreeView *tree_view, GtkTreePath *path,
+                                   GtkTreeViewColumn *column);
+static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
+                                         GtkTreeIter *iter, GtkTreePath *path);
+static void treeview_row_collapsed(GtkTreeView *tree_view, GtkTreeIter *iter,
+                                   GtkTreePath *path);
+
+// ----------------------------------------------------------------------------
 
 static void _treeview_action_open(TreeView *view);
 static void _treeview_open_selection(TreeView *view);
-
-static void _treeview_select_files(TreeView *view,
-                                          GList *files_to_selected);
-
-static gboolean treeview_button_press_event(GtkWidget *widget,
-                                                    GdkEventButton *event);
-static gboolean treeview_button_release_event(GtkWidget *widget,
-                                                      GdkEventButton *event);
-static gboolean _treeview_key_press_event(GtkWidget *widget,
-                                                 GdkEventKey *event);
-
-static void treeview_drag_data_received(GtkWidget *widget,
-                                                GdkDragContext *context,
-                                                gint x,
-                                                gint y,
-                                                GtkSelectionData *selection_data,
-                                                guint info,
-                                                guint time);
-static gboolean treeview_drag_drop(GtkWidget *widget,
-                                           GdkDragContext *context,
-                                           gint x,
-                                           gint y,
-                                           guint time);
-static gboolean treeview_drag_motion(GtkWidget *widget,
-                                             GdkDragContext *context,
-                                             gint x,
-                                             gint y,
-                                             guint time);
-static void treeview_drag_leave(GtkWidget *widget,
-                                        GdkDragContext *context,
-                                        guint time);
-
-static gboolean treeview_popup_menu(GtkWidget *widget);
-
-static void treeview_row_activated(GtkTreeView *tree_view,
-                                           GtkTreePath *path,
-                                           GtkTreeViewColumn *column);
-static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
-                                                 GtkTreeIter *iter,
-                                                 GtkTreePath *path);
-static void treeview_row_collapsed(GtkTreeView *tree_view,
-                                           GtkTreeIter *iter,
-                                           GtkTreePath *path);
-
-static void _treeview_context_menu(TreeView *view,
-                                          GtkTreeModel *model,
-                                          GtkTreeIter *iter);
-
+static void _treeview_select_files(TreeView *view, GList *files_to_selected);
+static gboolean _treeview_key_press_event(GtkWidget *widget, GdkEventKey *event);
+static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
+                                   GtkTreeIter *iter);
 static GdkDragAction _treeview_get_dest_actions(TreeView *view,
-                                                       GdkDragContext *context,
-                                                       gint x,
-                                                       gint y,
-                                                       guint time,
-                                                       ThunarFile **file_return);
-
+                                                GdkDragContext *context,
+                                                gint x, gint y, guint time,
+                                                ThunarFile **file_return);
 static ThunarFile* _treeview_get_selected_file(TreeView *view);
 static ThunarDevice* _treeview_get_selected_device(TreeView *view);
-
-static gboolean _treeview_visible_func(TreeModel *model,
-                                              ThunarFile *file,
-                                              gpointer user_data);
+static gboolean _treeview_visible_func(TreeModel *model, ThunarFile *file,
+                                       gpointer user_data);
 static gboolean _treeview_selection_func(GtkTreeSelection *selection,
-                                                GtkTreeModel *model,
-                                                GtkTreePath *path,
-                                                gboolean path_currently_selected,
-                                                gpointer user_data);
-
+                                         GtkTreeModel *model,
+                                         GtkTreePath *path,
+                                         gboolean path_currently_selected,
+                                         gpointer user_data);
 static gboolean _treeview_cursor_idle(gpointer user_data);
 static void _treeview_cursor_idle_destroy(gpointer user_data);
-
 static gboolean _treeview_drag_scroll_timer(gpointer user_data);
 static void _treeview_drag_scroll_timer_destroy(gpointer user_data);
-
 static gboolean _treeview_expand_timer(gpointer user_data);
 static void _treeview_expand_timer_destroy(gpointer user_data);
-
-static gboolean _treeview_get_show_hidden(TreeView *view);
-static void _treeview_set_show_hidden(TreeView *view,
-                                             gboolean show_hidden);
-
-static GtkTreePath* _treeview_get_preferred_toplevel_path(
-                                                        TreeView *view,
-                                                        ThunarFile *file);
-
+static GtkTreePath* _treeview_get_preferred_toplevel_path(TreeView *view,
+                                                          ThunarFile *file);
 static void _treeview_action_unlink_selected_folder(TreeView *view,
-                                                           gboolean permanently);
+                                                    gboolean permanently);
 
-// DnD target -----------------------------------------------------------------
+// Dnd ------------------------------------------------------------------------
+
+static void treeview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
+                                        gint x, gint y,
+                                        GtkSelectionData *selection_data,
+                                        guint info, guint time);
+static gboolean treeview_drag_drop(GtkWidget *widget, GdkDragContext *context,
+                                   gint x, gint y, guint time);
+static gboolean treeview_drag_motion(GtkWidget *widget, GdkDragContext *context,
+                                     gint x, gint y, guint time);
+static void treeview_drag_leave(GtkWidget *widget, GdkDragContext *context,
+                                guint time);
+
+// TreeView -------------------------------------------------------------------
 
 enum
 {
     TARGET_TEXT_URI_LIST,
 };
-
-// Properties -----------------------------------------------------------------
 
 enum
 {
@@ -157,8 +130,6 @@ enum
     PROP_CURRENT_DIRECTORY,
     PROP_SHOW_HIDDEN,
 };
-
-// Allocation -----------------------------------------------------------------
 
 struct _TreeViewClass
 {
@@ -339,6 +310,8 @@ static void treeview_init(TreeView *view)
                            G_BINDING_SYNC_CREATE);
 }
 
+// TreeView -------------------------------------------------------------------
+
 static void treeview_finalize(GObject *object)
 {
     TreeView *view = TREEVIEW(object);
@@ -449,8 +422,6 @@ static void treeview_set_property(GObject *object, guint prop_id,
     }
 }
 
-// Current Directory ----------------------------------------------------------
-
 static ThunarFile* treeview_get_current_directory(ThunarNavigator *navigator)
 {
     return TREEVIEW(navigator)->current_directory;
@@ -550,8 +521,6 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
     // notify listeners
     g_object_notify(G_OBJECT(view), "current-directory");
 }
-
-// Show Hidden ----------------------------------------------------------------
 
 static gboolean _treeview_get_show_hidden(TreeView *view)
 {

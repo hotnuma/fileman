@@ -294,7 +294,7 @@ static const GtkTargetEntry _drop_targets[] =
     {"_NETSCAPE_URL",   0, TARGET_NETSCAPE_URL},
 };
 
-// Allocation -----------------------------------------------------------------
+// StandardView ---------------------------------------------------------------
 
 enum
 {
@@ -2752,6 +2752,7 @@ static gboolean _standardview_drag_motion(GtkWidget      *widget,
 static gboolean _standardview_drag_scroll_timer(gpointer user_data)
 {
     StandardView *view = STANDARD_VIEW(user_data);
+
     UTIL_THREADS_ENTER
 
     // verify that we are realized
@@ -3096,11 +3097,15 @@ static void _standardview_drag_data_received(GtkWidget        *widget,
             // determine the drop position
             actions = _standardview_get_dest_actions(view, context, x, y, timestamp, &file);
 
-            if (G_LIKELY((actions & (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK)) != 0))
+            if (G_LIKELY((actions & (GDK_ACTION_COPY
+                                     | GDK_ACTION_MOVE
+                                     | GDK_ACTION_LINK)) != 0))
             {
                 // ask the user what to do with the drop data
                 action = (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
-                         ? dnd_ask(GTK_WIDGET(view), file, view->priv->drop_file_list, actions)
+                         ? dnd_ask(GTK_WIDGET(view),
+                                   file,
+                                   view->priv->drop_file_list, actions)
                          : gdk_drag_context_get_selected_action(context);
 
                 // perform the requested action
@@ -3108,6 +3113,7 @@ static void _standardview_drag_data_received(GtkWidget        *widget,
                 {
                     // look if we can find the drag source widget
                     source_widget = gtk_drag_get_source_widget(context);
+
                     if (source_widget != NULL)
                     {
                         /* if this is a source view, attach it to the view receiving
@@ -3139,8 +3145,7 @@ static void _standardview_drag_data_received(GtkWidget        *widget,
     }
 }
 
-static void _standardview_reload_directory(GPid pid, gint status,
-                                           gpointer user_data)
+static void _standardview_reload_directory(GPid pid, gint status, gpointer user_data)
 {
     (void) pid;
     (void) status;
@@ -3150,6 +3155,7 @@ static void _standardview_reload_directory(GPid pid, gint status,
 
     // schedule a changed event for the directory
     GFileMonitor *monitor = g_file_monitor(file, G_FILE_MONITOR_NONE, NULL, NULL);
+
     if (monitor != NULL)
     {
         g_file_monitor_emit_event(monitor, file, NULL, G_FILE_MONITOR_EVENT_CHANGED);
@@ -3160,7 +3166,7 @@ static void _standardview_reload_directory(GPid pid, gint status,
 }
 
 static GClosure* _standardview_new_files_closure(StandardView *view,
-                                                 GtkWidget    *source_view)
+                                                 GtkWidget *source_view)
 {
     e_return_val_if_fail(source_view == NULL || THUNAR_IS_VIEW(source_view), NULL);
 
@@ -3186,8 +3192,7 @@ static GClosure* _standardview_new_files_closure(StandardView *view,
 }
 
 static ThunarFile* _standardview_get_drop_file(StandardView *view,
-                                               gint         x,
-                                               gint         y,
+                                               gint x, gint y,
                                                GtkTreePath  **path_return)
 {
     // determine the path for the given coordinates
@@ -3220,6 +3225,7 @@ static ThunarFile* _standardview_get_drop_file(StandardView *view,
     {
         // determine the current directory
         file = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+
         if (G_LIKELY(file != NULL))
             g_object_ref(G_OBJECT(file));
     }
@@ -3233,12 +3239,11 @@ static ThunarFile* _standardview_get_drop_file(StandardView *view,
     return file;
 }
 
-static GdkDragAction _standardview_get_dest_actions(StandardView   *view,
+static GdkDragAction _standardview_get_dest_actions(StandardView *view,
                                                     GdkDragContext *context,
-                                                    gint           x,
-                                                    gint           y,
-                                                    guint          timestamp,
-                                                    ThunarFile     **file_return)
+                                                    gint x, gint y,
+                                                    guint timestamp,
+                                                    ThunarFile **file_return)
 {
     // determine the file and path for the given coordinates
     GtkTreePath *path;
@@ -3290,6 +3295,7 @@ static GdkDragAction _standardview_get_dest_actions(StandardView   *view,
     // clean up
     if (G_LIKELY(file != NULL))
         g_object_unref(G_OBJECT(file));
+
     if (G_LIKELY(path != NULL))
         gtk_tree_path_free(path);
 

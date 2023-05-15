@@ -156,6 +156,20 @@ typedef struct
 
 } ThunarFileWatch;
 
+static GWeakRef* weak_ref_new(GObject *obj)
+{
+    GWeakRef *ref = g_slice_new(GWeakRef);
+    g_weak_ref_init(ref, obj);
+
+    return ref;
+}
+
+static void weak_ref_free(GWeakRef *ref)
+{
+    g_weak_ref_clear(ref);
+    g_slice_free(GWeakRef, ref);
+}
+
 // ThunarFile -----------------------------------------------------------------
 
 enum
@@ -163,7 +177,6 @@ enum
     DESTROY,
     LAST_SIGNAL,
 };
-
 static guint _file_signals[LAST_SIGNAL];
 
 struct _ThunarFileClass
@@ -206,20 +219,6 @@ G_DEFINE_TYPE_WITH_CODE(ThunarFile,
                         G_TYPE_OBJECT,
                         G_IMPLEMENT_INTERFACE(TYPE_FILEINFO,
                                               th_fileinfo_init))
-
-static GWeakRef* weak_ref_new(GObject *obj)
-{
-    GWeakRef *ref = g_slice_new(GWeakRef);
-    g_weak_ref_init(ref, obj);
-
-    return ref;
-}
-
-static void weak_ref_free(GWeakRef *ref)
-{
-    g_weak_ref_clear(ref);
-    g_slice_free(GWeakRef, ref);
-}
 
 static void th_file_class_init(ThunarFileClass *klass)
 {
@@ -265,8 +264,6 @@ static void th_file_class_init(ThunarFileClass *klass)
                      G_TYPE_NONE, 0);
 }
 
-// Interfaces -----------------------------------------------------------------
-
 static void th_fileinfo_init(FileInfoIface *iface)
 {
     iface->get_name = th_fileinfo_get_name;
@@ -282,12 +279,12 @@ static void th_fileinfo_init(FileInfoIface *iface)
     iface->changed = th_fileinfo_changed;
 }
 
-// Init -----------------------------------------------------------------------
-
 static void th_file_init(ThunarFile *file)
 {
     (void) file;
 }
+
+// GObject --------------------------------------------------------------------
 
 static void th_file_dispose(GObject *object)
 {

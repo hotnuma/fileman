@@ -529,6 +529,8 @@ static void launcher_init(ThunarLauncher *launcher)
     launcher->device_to_process = NULL;
 }
 
+// GObject --------------------------------------------------------------------
+
 static void launcher_dispose(GObject *object)
 {
     ThunarLauncher *launcher = THUNAR_LAUNCHER(object);

@@ -152,7 +152,7 @@ static gchar* _listmodel_get_statusbar_text_for_files(
                                         GList *files,
                                         gboolean show_file_size_binary_format);
 
-// Allocation -----------------------------------------------------------------
+// ListModel ------------------------------------------------------------------
 
 enum
 {
@@ -320,8 +320,6 @@ static void listmodel_class_init(ListModelClass *klass)
                      G_TYPE_POINTER);
 }
 
-// Interfaces -----------------------------------------------------------------
-
 static void listmodel_tree_model_init(GtkTreeModelIface *iface)
 {
     iface->get_flags        = listmodel_get_flags;
@@ -353,8 +351,6 @@ static void listmodel_sortable_init(GtkTreeSortableIface *iface)
     iface->has_default_sort_func  = listmodel_has_default_sort_func;
 }
 
-// Init -----------------------------------------------------------------------
-
 static void listmodel_init(ListModel *store)
 {
 #ifndef NDEBUG
@@ -378,6 +374,8 @@ static void listmodel_init(ListModel *store)
     g_signal_connect(G_OBJECT(store->file_monitor), "file-changed",
                      G_CALLBACK(_listmodel_file_changed), store);
 }
+
+// GObject --------------------------------------------------------------------
 
 static void listmodel_dispose(GObject *object)
 {
@@ -581,7 +579,6 @@ static void _listmodel_set_date_custom_style(ListModel *store,
                 ETMFOREACHFUNC gtk_tree_model_row_changed,
                 NULL);
 }
-
 
 ThunarFolder* listmodel_get_folder(ListModel *store)
 {
