@@ -45,37 +45,39 @@ static ThunarFile* _appchooser_get_file(AppChooserDialog *dialog);
 static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file);
 static gboolean _appchooser_get_open(AppChooserDialog *dialog);
 static void _appchooser_set_open(AppChooserDialog *dialog, gboolean open);
-
-// GtkDialog ------------------------------------------------------------------
-
+static void _appchooser_update_header(AppChooserDialog *dialog);
+static void _appchooser_expand(AppChooserDialog *dialog);
+// GtkDialog
 static void appchooser_response(GtkDialog *widget, gint response);
 
-// ----------------------------------------------------------------------------
+// Events ---------------------------------------------------------------------
 
+// appchooser_init
 static gboolean _appchooser_selection_func(GtkTreeSelection *selection,
                                            GtkTreeModel *model,
                                            GtkTreePath *path,
                                            gboolean path_currently_selected,
                                            gpointer user_data);
-static gboolean _appchooser_context_menu(AppChooserDialog *dialog);
-static void _appchooser_update_accept(AppChooserDialog *dialog);
-static void _appchooser_update_header(AppChooserDialog *dialog);
-static void _appchooser_action_remove(AppChooserDialog *dialog);
-static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dialog);
 static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
                                                GdkEventButton *event,
                                                AppChooserDialog *dialog);
-static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec,
-                                        AppChooserDialog *dialog);
-static void _appchooser_expand(AppChooserDialog *dialog);
-static gboolean _appchooser_popup_menu(GtkWidget *tree_view,
-                                       AppChooserDialog *dialog);
 static void _appchooser_row_activated(GtkTreeView *treeview,
                                       GtkTreePath *path,
                                       GtkTreeViewColumn *column,
                                       AppChooserDialog *dialog);
+static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec,
+                                        AppChooserDialog *dialog);
+static void _appchooser_update_accept(AppChooserDialog *dialog);
+static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dialog);
 static void _appchooser_selection_changed(GtkTreeSelection *selection,
                                           AppChooserDialog *dialog);
+
+// Popup ----------------------------------------------------------------------
+
+static gboolean _appchooser_popup_menu(GtkWidget *tree_view,
+                                       AppChooserDialog *dialog);
+static gboolean _appchooser_context_menu(AppChooserDialog *dialog);
+static void _appchooser_action_remove(AppChooserDialog *dialog);
 
 // AppChooserDialog -----------------------------------------------------------
 
@@ -454,6 +456,90 @@ static void _appchooser_set_open(AppChooserDialog *dialog, gboolean open)
     g_object_notify(G_OBJECT(dialog), "open");
 }
 
+static void _appchooser_update_header(AppChooserDialog *dialog)
+{
+    const gchar *content_type;
+    GIcon       *icon;
+    gchar       *description;
+    gchar       *text;
+
+    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
+    e_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
+
+    // check if we have a valid file set
+    if (G_UNLIKELY(dialog->file == NULL))
+    {
+        gtk_image_clear(GTK_IMAGE(dialog->header_image));
+        gtk_label_set_text(GTK_LABEL(dialog->header_label), NULL);
+    }
+    else
+    {
+        content_type = th_file_get_content_type(dialog->file);
+        description = g_content_type_get_description(content_type);
+
+        icon = g_content_type_get_icon(content_type);
+        gtk_image_set_from_gicon(GTK_IMAGE(dialog->header_image), icon, GTK_ICON_SIZE_DIALOG);
+        g_object_unref(icon);
+
+        // update the header label
+        text = g_strdup_printf(_("Open <i>%s</i> and other files of type \"%s\" with:"),
+                                th_file_get_display_name(dialog->file),
+                                description);
+        gtk_label_set_markup(GTK_LABEL(dialog->header_label), text);
+        g_free(text);
+
+        // update the "Browse..." tooltip
+        etk_widget_set_tooltip(dialog->custom_button,
+                                       _("Browse the file system to select an "
+                                         "application to open files of type \"%s\"."),
+                                       description);
+
+        // update the "Use as default for this kind of file" tooltip
+        etk_widget_set_tooltip(dialog->default_button,
+                                       _("Change the default application for files "
+                                         "of type \"%s\" to the selected application."),
+                                       description);
+
+        // cleanup
+        g_free(description);
+    }
+}
+
+static void _appchooser_expand(AppChooserDialog *dialog)
+{
+    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
+
+    GtkTreeModel *model;
+    GtkTreePath  *path;
+    GtkTreeIter   iter;
+
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(dialog->tree_view));
+
+    // expand the first tree view row(the recommended applications)
+    if (G_LIKELY(gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter)))
+    {
+        path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
+        gtk_tree_view_expand_to_path(GTK_TREE_VIEW(dialog->tree_view), path);
+        gtk_tree_path_free(path);
+    }
+
+    // expand the second tree view row(the other applications)
+    if (G_LIKELY(gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter)))
+    {
+        path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
+        gtk_tree_view_expand_to_path(GTK_TREE_VIEW(dialog->tree_view), path);
+        gtk_tree_path_free(path);
+    }
+
+    // reset the cursor
+    if (G_LIKELY(gtk_widget_get_realized(GTK_WIDGET(dialog))))
+        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(dialog)), NULL);
+
+    // grab focus to the tree view widget
+    if (G_LIKELY(gtk_widget_get_realized(dialog->tree_view)))
+        gtk_widget_grab_focus(dialog->tree_view);
+}
+
 // GtkDialog ------------------------------------------------------------------
 
 static void appchooser_response(GtkDialog *widget, gint response)
@@ -597,29 +683,13 @@ static void appchooser_response(GtkDialog *widget, gint response)
     g_object_unref(app_info);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// GtkTreeSelection -----------------------------------------------------------
 
 static gboolean _appchooser_selection_func(GtkTreeSelection *selection,
                                            GtkTreeModel *model,
                                            GtkTreePath  *path,
-                                           gboolean     path_currently_selected,
-                                           gpointer     user_data)
+                                           gboolean path_currently_selected,
+                                           gpointer user_data)
 {
     (void) selection;
     (void) user_data;
@@ -639,6 +709,19 @@ static gboolean _appchooser_selection_func(GtkTreeSelection *selection,
     }
 
     return permitted;
+}
+
+// Popup ----------------------------------------------------------------------
+
+static gboolean _appchooser_popup_menu(GtkWidget *tree_view,
+                                       AppChooserDialog *dialog)
+{
+    e_return_val_if_fail(IS_APPCHOOSERDIALOG(dialog), FALSE);
+    e_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    e_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+
+    // popup the context menu
+    return _appchooser_context_menu(dialog);
 }
 
 static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
@@ -668,7 +751,8 @@ static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
     // append the "Remove Launcher" item
     item = gtk_menu_item_new_with_mnemonic(_("_Remove Launcher"));
     gtk_widget_set_sensitive(item, g_app_info_can_delete(app_info));
-    g_signal_connect_swapped(G_OBJECT(item), "activate", G_CALLBACK(_appchooser_action_remove), dialog);
+    g_signal_connect_swapped(G_OBJECT(item), "activate",
+                             G_CALLBACK(_appchooser_action_remove), dialog);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
     gtk_widget_show(item);
 
@@ -679,88 +763,6 @@ static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
     g_object_unref(app_info);
 
     return TRUE;
-}
-
-static void _appchooser_update_accept(AppChooserDialog *dialog)
-{
-    GtkTreeSelection *selection;
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-    const gchar      *text;
-    gboolean          sensitive = FALSE;
-    GValue            value = { 0, };
-
-    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
-
-    if (gtk_expander_get_expanded(GTK_EXPANDER(dialog->custom_expander)))
-    {
-        // check if the user entered a valid custom command
-        text = gtk_entry_get_text(GTK_ENTRY(dialog->custom_entry));
-        sensitive =(text != NULL && *text != '\0');
-    }
-    else
-    {
-        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
-        if (gtk_tree_selection_get_selected(selection, &model, &iter))
-        {
-            // check if the selected row refers to a valid application
-            gtk_tree_model_get_value(model, &iter, APPCHOOSER_COLUMN_APPLICATION, &value);
-            sensitive =(g_value_get_object(&value) != NULL);
-            g_value_unset(&value);
-        }
-    }
-
-    // update the "Ok"/"Open" button sensitivity
-    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT, sensitive);
-}
-
-static void _appchooser_update_header(AppChooserDialog *dialog)
-{
-    const gchar *content_type;
-    GIcon       *icon;
-    gchar       *description;
-    gchar       *text;
-
-    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
-    e_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
-
-    // check if we have a valid file set
-    if (G_UNLIKELY(dialog->file == NULL))
-    {
-        gtk_image_clear(GTK_IMAGE(dialog->header_image));
-        gtk_label_set_text(GTK_LABEL(dialog->header_label), NULL);
-    }
-    else
-    {
-        content_type = th_file_get_content_type(dialog->file);
-        description = g_content_type_get_description(content_type);
-
-        icon = g_content_type_get_icon(content_type);
-        gtk_image_set_from_gicon(GTK_IMAGE(dialog->header_image), icon, GTK_ICON_SIZE_DIALOG);
-        g_object_unref(icon);
-
-        // update the header label
-        text = g_strdup_printf(_("Open <i>%s</i> and other files of type \"%s\" with:"),
-                                th_file_get_display_name(dialog->file),
-                                description);
-        gtk_label_set_markup(GTK_LABEL(dialog->header_label), text);
-        g_free(text);
-
-        // update the "Browse..." tooltip
-        etk_widget_set_tooltip(dialog->custom_button,
-                                       _("Browse the file system to select an "
-                                         "application to open files of type \"%s\"."),
-                                       description);
-
-        // update the "Use as default for this kind of file" tooltip
-        etk_widget_set_tooltip(dialog->default_button,
-                                       _("Change the default application for files "
-                                         "of type \"%s\" to the selected application."),
-                                       description);
-
-        // cleanup
-        g_free(description);
-    }
 }
 
 static void _appchooser_action_remove(AppChooserDialog *dialog)
@@ -831,6 +833,137 @@ static void _appchooser_action_remove(AppChooserDialog *dialog)
 
     // cleanup
     g_object_unref(app_info);
+}
+
+static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
+                                               GdkEventButton *event,
+                                               AppChooserDialog *dialog)
+{
+    GtkTreeSelection *selection;
+    GtkTreePath      *path;
+
+    e_return_val_if_fail(IS_APPCHOOSERDIALOG(dialog), FALSE);
+    e_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
+    e_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
+
+    // check if we should popup the context menu
+    if (G_LIKELY(event->button == 3 && event->type == GDK_BUTTON_PRESS))
+    {
+        // determine the path for the clicked row
+        if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), event->x, event->y, &path, NULL, NULL, NULL))
+        {
+            // be sure to select exactly this row...
+            selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view));
+            gtk_tree_selection_unselect_all(selection);
+            gtk_tree_selection_select_path(selection, path);
+            gtk_tree_path_free(path);
+
+            // ...and popup the context menu
+            return _appchooser_context_menu(dialog);
+        }
+    }
+
+    return FALSE;
+}
+
+static void _appchooser_row_activated(GtkTreeView *treeview,
+                                      GtkTreePath *path,
+                                      GtkTreeViewColumn *column,
+                                      AppChooserDialog *dialog)
+{
+    (void) column;
+
+    GtkTreeModel *model;
+    GtkTreeIter   iter;
+    GValue        value = { 0, };
+
+    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
+    e_return_if_fail(GTK_IS_TREE_VIEW(treeview));
+
+    // determine the current chooser model
+    model = gtk_tree_view_get_model(treeview);
+    if (G_UNLIKELY(model == NULL))
+        return;
+
+    // determine the application for the tree path
+    gtk_tree_model_get_iter(model, &iter, path);
+    gtk_tree_model_get_value(model, &iter, APPCHOOSER_COLUMN_APPLICATION, &value);
+
+    // check if the row refers to a valid application
+    if (G_LIKELY(g_value_get_object(&value) != NULL))
+    {
+        // emit the accept dialog response
+        gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
+    }
+    else if (gtk_tree_view_row_expanded(treeview, path))
+    {
+        // collapse the path that were double clicked
+        gtk_tree_view_collapse_row(treeview, path);
+    }
+    else
+    {
+        // expand the path that were double clicked
+        gtk_tree_view_expand_to_path(treeview, path);
+    }
+
+    // cleanup
+    g_value_unset(&value);
+}
+
+static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec,
+                                        AppChooserDialog *dialog)
+{
+    e_return_if_fail(GTK_IS_EXPANDER(expander));
+    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
+
+    (void) pspec;
+
+    GtkTreeSelection *selection;
+
+    /* clear the application selection whenever the expander
+     * is expanded to avoid confusion for the user.
+     */
+    if (gtk_expander_get_expanded(expander))
+    {
+        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
+        gtk_tree_selection_unselect_all(selection);
+    }
+
+    // update the sensitivity of the "Ok"/"Open" button
+    _appchooser_update_accept(dialog);
+}
+
+static void _appchooser_update_accept(AppChooserDialog *dialog)
+{
+    GtkTreeSelection *selection;
+    GtkTreeModel     *model;
+    GtkTreeIter       iter;
+    const gchar      *text;
+    gboolean          sensitive = FALSE;
+    GValue            value = { 0, };
+
+    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
+
+    if (gtk_expander_get_expanded(GTK_EXPANDER(dialog->custom_expander)))
+    {
+        // check if the user entered a valid custom command
+        text = gtk_entry_get_text(GTK_ENTRY(dialog->custom_entry));
+        sensitive =(text != NULL && *text != '\0');
+    }
+    else
+    {
+        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
+        if (gtk_tree_selection_get_selected(selection, &model, &iter))
+        {
+            // check if the selected row refers to a valid application
+            gtk_tree_model_get_value(model, &iter, APPCHOOSER_COLUMN_APPLICATION, &value);
+            sensitive =(g_value_get_object(&value) != NULL);
+            g_value_unset(&value);
+        }
+    }
+
+    // update the "Ok"/"Open" button sensitivity
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT, sensitive);
 }
 
 static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dialog)
@@ -946,150 +1079,6 @@ static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dial
     gtk_widget_destroy(chooser);
 }
 
-static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
-                                               GdkEventButton *event,
-                                               AppChooserDialog *dialog)
-{
-    GtkTreeSelection *selection;
-    GtkTreePath      *path;
-
-    e_return_val_if_fail(IS_APPCHOOSERDIALOG(dialog), FALSE);
-    e_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    e_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
-
-    // check if we should popup the context menu
-    if (G_LIKELY(event->button == 3 && event->type == GDK_BUTTON_PRESS))
-    {
-        // determine the path for the clicked row
-        if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), event->x, event->y, &path, NULL, NULL, NULL))
-        {
-            // be sure to select exactly this row...
-            selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view));
-            gtk_tree_selection_unselect_all(selection);
-            gtk_tree_selection_select_path(selection, path);
-            gtk_tree_path_free(path);
-
-            // ...and popup the context menu
-            return _appchooser_context_menu(dialog);
-        }
-    }
-
-    return FALSE;
-}
-
-static void _appchooser_notify_expanded(GtkExpander *expander, GParamSpec *pspec,
-                                        AppChooserDialog *dialog)
-{
-    e_return_if_fail(GTK_IS_EXPANDER(expander));
-    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
-
-    (void) pspec;
-
-    GtkTreeSelection *selection;
-
-    /* clear the application selection whenever the expander
-     * is expanded to avoid confusion for the user.
-     */
-    if (gtk_expander_get_expanded(expander))
-    {
-        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(dialog->tree_view));
-        gtk_tree_selection_unselect_all(selection);
-    }
-
-    // update the sensitivity of the "Ok"/"Open" button
-    _appchooser_update_accept(dialog);
-}
-
-static void _appchooser_expand(AppChooserDialog *dialog)
-{
-    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
-
-    GtkTreeModel *model;
-    GtkTreePath  *path;
-    GtkTreeIter   iter;
-
-    model = gtk_tree_view_get_model(GTK_TREE_VIEW(dialog->tree_view));
-
-    // expand the first tree view row(the recommended applications)
-    if (G_LIKELY(gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter)))
-    {
-        path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
-        gtk_tree_view_expand_to_path(GTK_TREE_VIEW(dialog->tree_view), path);
-        gtk_tree_path_free(path);
-    }
-
-    // expand the second tree view row(the other applications)
-    if (G_LIKELY(gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter)))
-    {
-        path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
-        gtk_tree_view_expand_to_path(GTK_TREE_VIEW(dialog->tree_view), path);
-        gtk_tree_path_free(path);
-    }
-
-    // reset the cursor
-    if (G_LIKELY(gtk_widget_get_realized(GTK_WIDGET(dialog))))
-        gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(dialog)), NULL);
-
-    // grab focus to the tree view widget
-    if (G_LIKELY(gtk_widget_get_realized(dialog->tree_view)))
-        gtk_widget_grab_focus(dialog->tree_view);
-}
-
-static gboolean _appchooser_popup_menu(GtkWidget *tree_view,
-                                       AppChooserDialog *dialog)
-{
-    e_return_val_if_fail(IS_APPCHOOSERDIALOG(dialog), FALSE);
-    e_return_val_if_fail(dialog->tree_view == tree_view, FALSE);
-    e_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
-
-    // popup the context menu
-    return _appchooser_context_menu(dialog);
-}
-
-static void _appchooser_row_activated(GtkTreeView         *treeview,
-                                      GtkTreePath         *path,
-                                      GtkTreeViewColumn   *column,
-                                      AppChooserDialog *dialog)
-{
-    (void) column;
-
-    GtkTreeModel *model;
-    GtkTreeIter   iter;
-    GValue        value = { 0, };
-
-    e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
-    e_return_if_fail(GTK_IS_TREE_VIEW(treeview));
-
-    // determine the current chooser model
-    model = gtk_tree_view_get_model(treeview);
-    if (G_UNLIKELY(model == NULL))
-        return;
-
-    // determine the application for the tree path
-    gtk_tree_model_get_iter(model, &iter, path);
-    gtk_tree_model_get_value(model, &iter, APPCHOOSER_COLUMN_APPLICATION, &value);
-
-    // check if the row refers to a valid application
-    if (G_LIKELY(g_value_get_object(&value) != NULL))
-    {
-        // emit the accept dialog response
-        gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
-    }
-    else if (gtk_tree_view_row_expanded(treeview, path))
-    {
-        // collapse the path that were double clicked
-        gtk_tree_view_collapse_row(treeview, path);
-    }
-    else
-    {
-        // expand the path that were double clicked
-        gtk_tree_view_expand_to_path(treeview, path);
-    }
-
-    // cleanup
-    g_value_unset(&value);
-}
-
 static void _appchooser_selection_changed(GtkTreeSelection *selection,
                                           AppChooserDialog *dialog)
 {
@@ -1119,6 +1108,8 @@ static void _appchooser_selection_changed(GtkTreeSelection *selection,
     // update the sensitivity of the "Ok"/"Open" button
     _appchooser_update_accept(dialog);
 }
+
+// Public ---------------------------------------------------------------------
 
 /**
  * thunar_show_chooser_dialog:
