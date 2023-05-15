@@ -22,6 +22,11 @@
 #include <appwindow.h>
 #include <marshal.h>
 
+#include <clipboard.h>
+#include <devmonitor.h>
+#include <browser.h>
+#include <component.h>
+
 #include <locationentry.h>
 #include <treepane.h>
 #include <baseview.h>
@@ -30,11 +35,6 @@
 #include <statusbar.h>
 #include <dialogs.h>
 #include <preferences.h>
-
-#include <clipboard.h>
-#include <devmonitor.h>
-#include <browser.h>
-#include <component.h>
 
 #include <syslog.h>
 
@@ -50,6 +50,7 @@ static void window_get_property(GObject *object, guint prop_id,
                                 GValue *value, GParamSpec *pspec);
 static void window_set_property(GObject *object, guint prop_id,
                                 const GValue *value, GParamSpec *pspec);
+// window_set_current_directory
 static void _window_create_view(AppWindow *window, GtkWidget *view,
                                 GType view_type);
 static void _window_current_directory_changed(ThunarFile *current_directory,
@@ -57,7 +58,7 @@ static void _window_current_directory_changed(ThunarFile *current_directory,
 static void _window_update_window_icon(AppWindow *window);
 static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level);
 
-// Events ---------------------------------------------------------------------
+// Window Init ----------------------------------------------------------------
 
 static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
                                    gpointer userdata);
@@ -70,10 +71,10 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
 static gboolean _window_propagate_key_event(GtkWindow *window, GdkEvent *key_event,
                                             gpointer user_data);
 static void _window_select_files(AppWindow *window, GList *path_list);
+// toolbar
 static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
                                         GtkWidget *window);
-static gboolean _window_button_press_event(GtkWidget *view,
-                                           GdkEventButton *event,
+static gboolean _window_button_press_event(GtkWidget *view, GdkEventButton *event,
                                            AppWindow *window);
 static void _window_handle_reload_request(AppWindow *window);
 static void _window_update_location_bar_visible(AppWindow *window);
@@ -86,6 +87,11 @@ static void _window_binding_destroyed(gpointer data, GObject *binding);
 
 // Notebook -------------------------------------------------------------------
 
+// _window_create_view
+static GtkWidget*_window_notebook_insert(AppWindow *window, ThunarFile *directory,
+                                         GType view_type, gint position,
+                                         ThunarHistory *history);
+// window_init
 static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
                                          guint page_num, AppWindow *window);
 static void _window_history_changed(AppWindow *window);
@@ -97,9 +103,6 @@ static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
                                         guint page_num, AppWindow *window);
 static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
                                           guint page_num, AppWindow *window);
-static GtkWidget*_window_notebook_insert(AppWindow *window, ThunarFile *directory,
-                                         GType view_type, gint position,
-                                         ThunarHistory *history);
 
 // Actions --------------------------------------------------------------------
 
@@ -331,11 +334,10 @@ static void window_class_init(AppWindowClass *klass)
     gtkwidget_class->unrealize = window_unrealize;
 
     klass->reload = window_reload;
+    klass->tab_change = window_tab_change;
     klass->zoom_in = NULL;
     klass->zoom_out = NULL;
     klass->zoom_reset = NULL;
-
-    klass->tab_change = window_tab_change;
 
     xfce_gtk_translate_action_entries(_window_actions, G_N_ELEMENTS(_window_actions));
 
@@ -1069,6 +1071,7 @@ static gboolean _window_delete(AppWindow *window, GdkEvent *event, gpointer data
     return false;
 }
 
+// Monitor
 static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
                                        ThunarDevice  *device,
                                        GFile         *root_file,
@@ -1311,6 +1314,82 @@ static void _window_binding_destroyed(gpointer data, GObject *binding)
 
 // Notebook functions ---------------------------------------------------------
 
+static GtkWidget* _window_notebook_insert(AppWindow  *window,
+                                          ThunarFile    *directory,
+                                          GType         view_type,
+                                          gint          position,
+                                          ThunarHistory *history)
+{
+    e_return_val_if_fail(IS_APPWINDOW(window), NULL);
+    e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
+    e_return_val_if_fail(view_type != G_TYPE_NONE, NULL);
+    e_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
+
+    //DPRINT("enter : window_notebook_insert\n");
+
+    GtkWidget      *view;
+    GtkWidget      *label;
+    GtkWidget      *label_box;
+    GtkWidget      *button;
+    GtkWidget      *icon;
+
+    // allocate and setup a new view
+    view = g_object_new(view_type, "current-directory", directory, NULL);
+    baseview_set_show_hidden(BASEVIEW(view), window->show_hidden);
+    gtk_widget_show(view);
+
+    // set the history of the view if a history is provided
+    if (history != NULL)
+        standardview_set_history(STANDARD_VIEW(view), history);
+
+    label_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+
+    label = gtk_label_new(NULL);
+
+    g_object_bind_property(G_OBJECT(view), "display-name",
+                           G_OBJECT(label), "label",
+                           G_BINDING_SYNC_CREATE);
+
+    g_object_bind_property(G_OBJECT(view), "tooltip-text",
+                           G_OBJECT(label), "tooltip-text",
+                           G_BINDING_SYNC_CREATE);
+
+    gtk_widget_set_has_tooltip(label, TRUE);
+    gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
+    gtk_widget_set_margin_start(GTK_WIDGET(label), 3);
+    gtk_widget_set_margin_end(GTK_WIDGET(label), 3);
+    gtk_widget_set_margin_top(GTK_WIDGET(label), 3);
+    gtk_widget_set_margin_bottom(GTK_WIDGET(label), 3);
+    gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_END);
+    gtk_label_set_single_line_mode(GTK_LABEL(label), TRUE);
+    gtk_box_pack_start(GTK_BOX(label_box), label, TRUE, TRUE, 0);
+    gtk_widget_show(label);
+
+    button = gtk_button_new();
+    gtk_box_pack_start(GTK_BOX(label_box), button, FALSE, FALSE, 0);
+    gtk_widget_set_can_default(button, FALSE);
+    gtk_widget_set_focus_on_click(button, FALSE);
+    gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
+    gtk_widget_set_tooltip_text(button, _("Close tab"));
+    g_signal_connect_swapped(G_OBJECT(button), "clicked",
+                             G_CALLBACK(gtk_widget_destroy), view);
+    gtk_widget_show(button);
+
+    icon = gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
+    gtk_container_add(GTK_CONTAINER(button), icon);
+    gtk_widget_show(icon);
+
+    // insert the new page
+    gtk_notebook_insert_page(GTK_NOTEBOOK(window->notebook), view, label_box, position);
+
+    // set tab child properties
+    gtk_container_child_set(GTK_CONTAINER(window->notebook), view, "tab-expand", TRUE, NULL);
+    gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(window->notebook), view, TRUE);
+    gtk_notebook_set_tab_detachable(GTK_NOTEBOOK(window->notebook), view, TRUE);
+
+    return view;
+}
+
 static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
                                          guint page_num, AppWindow *window)
 {
@@ -1516,82 +1595,6 @@ static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
         // destroy the window
         gtk_widget_destroy(GTK_WIDGET(window));
     }
-}
-
-static GtkWidget* _window_notebook_insert(AppWindow  *window,
-                                          ThunarFile    *directory,
-                                          GType         view_type,
-                                          gint          position,
-                                          ThunarHistory *history)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), NULL);
-    e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
-    e_return_val_if_fail(view_type != G_TYPE_NONE, NULL);
-    e_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
-
-    //DPRINT("enter : window_notebook_insert\n");
-
-    GtkWidget      *view;
-    GtkWidget      *label;
-    GtkWidget      *label_box;
-    GtkWidget      *button;
-    GtkWidget      *icon;
-
-    // allocate and setup a new view
-    view = g_object_new(view_type, "current-directory", directory, NULL);
-    baseview_set_show_hidden(BASEVIEW(view), window->show_hidden);
-    gtk_widget_show(view);
-
-    // set the history of the view if a history is provided
-    if (history != NULL)
-        standardview_set_history(STANDARD_VIEW(view), history);
-
-    label_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-
-    label = gtk_label_new(NULL);
-
-    g_object_bind_property(G_OBJECT(view), "display-name",
-                           G_OBJECT(label), "label",
-                           G_BINDING_SYNC_CREATE);
-
-    g_object_bind_property(G_OBJECT(view), "tooltip-text",
-                           G_OBJECT(label), "tooltip-text",
-                           G_BINDING_SYNC_CREATE);
-
-    gtk_widget_set_has_tooltip(label, TRUE);
-    gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
-    gtk_widget_set_margin_start(GTK_WIDGET(label), 3);
-    gtk_widget_set_margin_end(GTK_WIDGET(label), 3);
-    gtk_widget_set_margin_top(GTK_WIDGET(label), 3);
-    gtk_widget_set_margin_bottom(GTK_WIDGET(label), 3);
-    gtk_label_set_ellipsize(GTK_LABEL(label), PANGO_ELLIPSIZE_END);
-    gtk_label_set_single_line_mode(GTK_LABEL(label), TRUE);
-    gtk_box_pack_start(GTK_BOX(label_box), label, TRUE, TRUE, 0);
-    gtk_widget_show(label);
-
-    button = gtk_button_new();
-    gtk_box_pack_start(GTK_BOX(label_box), button, FALSE, FALSE, 0);
-    gtk_widget_set_can_default(button, FALSE);
-    gtk_widget_set_focus_on_click(button, FALSE);
-    gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
-    gtk_widget_set_tooltip_text(button, _("Close tab"));
-    g_signal_connect_swapped(G_OBJECT(button), "clicked",
-                             G_CALLBACK(gtk_widget_destroy), view);
-    gtk_widget_show(button);
-
-    icon = gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
-    gtk_container_add(GTK_CONTAINER(button), icon);
-    gtk_widget_show(icon);
-
-    // insert the new page
-    gtk_notebook_insert_page(GTK_NOTEBOOK(window->notebook), view, label_box, position);
-
-    // set tab child properties
-    gtk_container_child_set(GTK_CONTAINER(window->notebook), view, "tab-expand", TRUE, NULL);
-    gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(window->notebook), view, TRUE);
-    gtk_notebook_set_tab_detachable(GTK_NOTEBOOK(window->notebook), view, TRUE);
-
-    return view;
 }
 
 // Public ---------------------------------------------------------------------

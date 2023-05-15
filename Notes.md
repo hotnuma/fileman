@@ -5,11 +5,11 @@
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -20
 
 +   122377	./view/standardview.c
-+   101484	./core/th_file.c
+    101484	./core/th_file.c
 +   95295	./launcher.c
 +   70862	./view/listmodel.c
-    68975	./side/treeview.c
-    68489	./appwindow.c
++   68975	./side/treeview.c
++   68489	./appwindow.c
     65727	./job/transferjob.c
     59398	./side/treemodel.c
     50502	./dialog/permbox.c
@@ -29,7 +29,6 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -20
 
 #### TODO
 
-TreeView
 TreeModel
 
 
