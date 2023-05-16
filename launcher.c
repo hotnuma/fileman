@@ -447,7 +447,7 @@ struct _ThunarLauncher
 G_DEFINE_TYPE_WITH_CODE(ThunarLauncher,
                         launcher,
                         G_TYPE_OBJECT,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER, NULL)
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER, NULL)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
                                               launcher_navigator_init)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
@@ -1574,7 +1574,7 @@ static void _launcher_poke(ThunarLauncher *launcher,
 
     if (launcher->device_to_process != NULL)
     {
-        browser_poke_device(THUNAR_BROWSER(launcher),
+        browser_poke_device(THUNARBROWSER(launcher),
                                    launcher->device_to_process,
                                    launcher->widget,
                                    _launcher_poke_device_finish,
@@ -1585,7 +1585,7 @@ static void _launcher_poke(ThunarLauncher *launcher,
         // We will only poke one file at a time,
         // in order to dont use all available CPU's
         // TODO: Check if that could cause slowness
-        browser_poke_file(THUNAR_BROWSER(launcher),
+        browser_poke_file(THUNARBROWSER(launcher),
                                  poke_data->files_to_poke->data,
                                  launcher->widget,
                                  _launcher_poke_files_finish,

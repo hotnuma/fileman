@@ -23,7 +23,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   38465	./dialog/dialogs.c
 +   31068	./view/exotreeview.c
 +   29289	./core/th_folder.c
-    26339	./libext/utils.c
++   26339	./libext/utils.c
     25407	./misc/browser.c
 
 +   25336	./view/columnmodel.c

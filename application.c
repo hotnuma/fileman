@@ -155,7 +155,7 @@ G_DEFINE_TYPE_EXTENDED(Application,
                        application,
                        GTK_TYPE_APPLICATION,
                        0,
-                       G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER, NULL))
+                       G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER, NULL))
 
 static void application_class_init(ApplicationClass *klass)
 {
@@ -592,7 +592,7 @@ static void _application_process_files(Application *application)
 
     // resolve the file and/or mount its enclosing volume
     // before handling it in the callback
-    browser_poke_file(THUNAR_BROWSER(application),
+    browser_poke_file(THUNARBROWSER(application),
                       file,
                       screen,
                       _application_process_files_finish,

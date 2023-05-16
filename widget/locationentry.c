@@ -78,7 +78,7 @@ struct _LocationEntry
 };
 
 G_DEFINE_TYPE_WITH_CODE(LocationEntry, locentry, GTK_TYPE_BOX,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER,
                                               NULL)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
                                               locentry_navigator_init))
@@ -362,7 +362,7 @@ static void locentry_activate(GtkWidget     *path_entry,
     if (G_UNLIKELY(file == NULL))
         return;
 
-    browser_poke_file(THUNAR_BROWSER(location_entry),
+    browser_poke_file(THUNARBROWSER(location_entry),
                       file,
                       path_entry,
                       locentry_poke_file_finish,

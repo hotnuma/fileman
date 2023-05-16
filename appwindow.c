@@ -319,7 +319,7 @@ struct _AppWindow
 };
 
 G_DEFINE_TYPE_WITH_CODE(AppWindow, window, GTK_TYPE_WINDOW,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_BROWSER, NULL))
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER, NULL))
 
 static void window_class_init(AppWindowClass *klass)
 {
