@@ -16,32 +16,34 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_HISTORY_H__
-#define __THUNAR_HISTORY_H__
+#ifndef __THUNARHISTORY_H__
+#define __THUNARHISTORY_H__
 
 #include <th_file.h>
 
 G_BEGIN_DECLS
 
+// ThunarHistory --------------------------------------------------------------
+
 typedef struct _ThunarHistoryClass ThunarHistoryClass;
 typedef struct _ThunarHistory      ThunarHistory;
 
-#define THUNAR_TYPE_HISTORY (history_get_type ())
-#define THUNAR_HISTORY(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_HISTORY, ThunarHistory))
-#define THUNAR_HISTORY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass), THUNAR_TYPE_HISTORY, ThunarHistoryClass))
-#define THUNAR_IS_HISTORY(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_HISTORY))
-#define THUNAR_IS_HISTORY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass), THUNAR_TYPE_HISTORY))
-#define THUNAR_HISTORY_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj), THUNAR_TYPE_HISTORY, ThunarHistoryClass))
+#define TYPE_THUNARHISTORY (history_get_type())
+#define THUNARHISTORY(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARHISTORY, ThunarHistory))
+#define THUNARHISTORY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_THUNARHISTORY, ThunarHistoryClass))
+#define IS_THUNARHISTORY(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_THUNARHISTORY))
+#define IS_THUNARHISTORY_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_THUNARHISTORY))
+#define THUNARHISTORY_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARHISTORY, ThunarHistoryClass))
 
 typedef enum
 {
-    THUNAR_HISTORY_MENU_BACK,
-    THUNAR_HISTORY_MENU_FORWARD,
+    THUNARHISTORY_MENU_BACK,
+    THUNARHISTORY_MENU_FORWARD,
 
 } ThunarHistoryMenuType;
 
@@ -53,21 +55,20 @@ struct _ThunarHistoryClass
     void (*history_changed) (ThunarHistory *history, const gchar *initial_text);
 };
 
-GType           history_get_type() G_GNUC_CONST;
+GType history_get_type() G_GNUC_CONST;
 
-ThunarHistory*  history_copy(ThunarHistory *history);
-gboolean        history_has_back(ThunarHistory *history);
-gboolean        history_has_forward(ThunarHistory *history);
-ThunarFile*     history_peek_back(ThunarHistory *history);
-ThunarFile*     history_peek_forward(ThunarHistory *history);
-void            history_action_back(ThunarHistory *history);
-void            history_action_forward(ThunarHistory *history);
-void            history_show_menu(ThunarHistory  *history,
-                                  ThunarHistoryMenuType  type,
-                                  GtkWidget      *parent);
+ThunarHistory* history_copy(ThunarHistory *history);
+gboolean history_has_back(ThunarHistory *history);
+gboolean history_has_forward(ThunarHistory *history);
+ThunarFile* history_peek_back(ThunarHistory *history);
+ThunarFile* history_peek_forward(ThunarHistory *history);
+void history_action_back(ThunarHistory *history);
+void history_action_forward(ThunarHistory *history);
+void history_show_menu(ThunarHistory *history, ThunarHistoryMenuType type,
+                       GtkWidget *parent);
 
 G_END_DECLS
 
-#endif // __THUNAR_HISTORY_H__
+#endif // __THUNARHISTORY_H__
 
 

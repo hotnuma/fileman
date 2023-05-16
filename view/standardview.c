@@ -980,7 +980,7 @@ static void standardview_init(StandardView *view)
                                         GTK_SHADOW_IN);
 
     // setup the history support
-    view->priv->history = g_object_new(THUNAR_TYPE_HISTORY, NULL);
+    view->priv->history = g_object_new(TYPE_THUNARHISTORY, NULL);
     g_signal_connect_swapped(G_OBJECT(view->priv->history),
                              "change-directory",
                              G_CALLBACK(navigator_change_directory),
@@ -2134,7 +2134,7 @@ ThunarHistory* standardview_get_history(StandardView *view)
 void standardview_set_history(StandardView *view, ThunarHistory *history)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(history == NULL || THUNAR_IS_HISTORY(history));
+    e_return_if_fail(history == NULL || IS_THUNARHISTORY(history));
 
     // set the new history
     g_object_unref(view->priv->history);

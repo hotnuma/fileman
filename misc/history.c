@@ -19,30 +19,15 @@
 #include <config.h>
 #include <history.h>
 
-#include <gtk_ext.h>
-#include <iconfactory.h>
 #include <navigator.h>
+#include <iconfactory.h>
 #include <dialogs.h>
 #include <libxfce4ui/libxfce4ui.h>
 #include <gio_ext.h>
-
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_CURRENT_DIRECTORY,
-};
-
-// Signal identifiers
-enum
-{
-    HISTORY_CHANGED,
-    LAST_SIGNAL,
-};
+#include <gtk_ext.h>
 
 static void history_navigator_init(ThunarNavigatorIface *iface);
 static void history_finalize(GObject *object);
-
 static void history_get_property(GObject *object,
                                  guint prop_id,
                                  GValue *value,
@@ -51,7 +36,6 @@ static void history_set_property(GObject *object,
                                  guint prop_id,
                                  const GValue *value,
                                  GParamSpec *pspec);
-
 static ThunarFile* history_get_current_directory(ThunarNavigator *navigator);
 static void history_set_current_directory(ThunarNavigator *navigator,
                                           ThunarFile *current_directory);
@@ -60,6 +44,20 @@ static void _history_go_back(ThunarHistory *history, GFile *goto_file);
 static void _history_go_forward(ThunarHistory *history, GFile *goto_file);
 static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history);
 static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history);
+
+// ThunarHistory --------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_CURRENT_DIRECTORY,
+};
+
+enum
+{
+    HISTORY_CHANGED,
+    LAST_SIGNAL,
+};
 
 struct _ThunarHistory
 {
@@ -126,7 +124,7 @@ static void history_init(ThunarHistory *history)
 
 static void history_finalize(GObject *object)
 {
-    ThunarHistory *history = THUNAR_HISTORY(object);
+    ThunarHistory *history = THUNARHISTORY(object);
 
     // release the "forward" and "back" lists
     g_slist_free_full(history->forward_list, g_object_unref);
@@ -140,7 +138,7 @@ static void history_get_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    ThunarHistory *history = THUNAR_HISTORY(object);
+    ThunarHistory *history = THUNARHISTORY(object);
 
     switch (prop_id)
     {
@@ -158,7 +156,7 @@ static void history_set_property(GObject *object, guint prop_id,
                                  const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
-    ThunarHistory *history = THUNAR_HISTORY(object);
+    ThunarHistory *history = THUNARHISTORY(object);
 
     switch (prop_id)
     {
@@ -174,7 +172,7 @@ static void history_set_property(GObject *object, guint prop_id,
 
 static ThunarFile* history_get_current_directory(ThunarNavigator *navigator)
 {
-    return THUNAR_HISTORY(navigator)->current_directory;
+    return THUNARHISTORY(navigator)->current_directory;
 }
 
 static GFile* _history_get_gfile(ThunarFile *file)
@@ -196,7 +194,7 @@ static GFile* _history_get_gfile(ThunarFile *file)
 static void history_set_current_directory(ThunarNavigator *navigator,
                                           ThunarFile      *current_directory)
 {
-    ThunarHistory *history = THUNAR_HISTORY(navigator);
+    ThunarHistory *history = THUNARHISTORY(navigator);
     GFile         *gfile;
 
     // verify that we don't already use that directory
@@ -275,7 +273,7 @@ static void _history_go_back(ThunarHistory *history, GFile *goto_file)
     GSList     *lnext;
     ThunarFile *directory;
 
-    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_THUNARHISTORY(history));
     e_return_if_fail(G_IS_FILE(goto_file));
 
     // check if the directory still exists
@@ -345,7 +343,7 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
     GSList     *lp;
     ThunarFile *directory;
 
-    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_THUNARHISTORY(history));
     e_return_if_fail(G_IS_FILE(goto_file));
 
     // check if the directory still exists
@@ -408,7 +406,7 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
 
 void history_action_back(ThunarHistory *history)
 {
-    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_THUNARHISTORY(history));
 
     // go back one step
     if (history->back_list != NULL)
@@ -420,7 +418,7 @@ static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
     GFile *file;
 
     e_return_if_fail(GTK_IS_MENU_ITEM(item));
-    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_THUNARHISTORY(history));
 
     file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
     if (G_LIKELY(file != NULL))
@@ -429,7 +427,7 @@ static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
 
 void history_action_forward(ThunarHistory *history)
 {
-    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_THUNARHISTORY(history));
 
     // go forward one step
     if (history->forward_list != NULL)
@@ -441,7 +439,7 @@ static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history)
     GFile *file;
 
     e_return_if_fail(GTK_IS_MENU_ITEM(item));
-    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_THUNARHISTORY(history));
 
     file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
     if (G_LIKELY(file != NULL))
@@ -466,7 +464,7 @@ void history_show_menu(ThunarHistory         *history,
     gchar             *parse_name;
 
     e_return_if_fail(GTK_IS_WIDGET(parent));
-    e_return_if_fail(THUNAR_IS_HISTORY(history));
+    e_return_if_fail(IS_THUNARHISTORY(history));
 
     menu = gtk_menu_new();
 
@@ -475,7 +473,7 @@ void history_show_menu(ThunarHistory         *history,
     icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
     // check if we have "Back" or "Forward" here
-    if (type == THUNAR_HISTORY_MENU_BACK)
+    if (type == THUNARHISTORY_MENU_BACK)
     {
         // display the "back" list
         lp = history->back_list;
@@ -546,12 +544,12 @@ ThunarHistory* history_copy(ThunarHistory *history)
     ThunarHistory *copy;
     GSList        *lp;
 
-    e_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(history == NULL || IS_THUNARHISTORY(history), NULL);
 
     if (G_UNLIKELY(history == NULL))
         return NULL;
 
-    copy = g_object_new(THUNAR_TYPE_HISTORY, NULL);
+    copy = g_object_new(TYPE_THUNARHISTORY, NULL);
 
     // take a ref on the current directory
     copy->current_directory = g_object_ref(history->current_directory);
@@ -575,7 +573,7 @@ ThunarHistory* history_copy(ThunarHistory *history)
  **/
 gboolean history_has_back(ThunarHistory *history)
 {
-    e_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
+    e_return_val_if_fail(IS_THUNARHISTORY(history), FALSE);
 
     return history->back_list != NULL;
 }
@@ -589,7 +587,7 @@ gboolean history_has_back(ThunarHistory *history)
  **/
 gboolean history_has_forward(ThunarHistory *history)
 {
-    e_return_val_if_fail(THUNAR_IS_HISTORY(history), FALSE);
+    e_return_val_if_fail(IS_THUNARHISTORY(history), FALSE);
 
     return history->forward_list != NULL;
 }
@@ -608,7 +606,7 @@ ThunarFile* history_peek_back(ThunarHistory *history)
 {
     ThunarFile *result = NULL;
 
-    e_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(IS_THUNARHISTORY(history), NULL);
 
     // pick the first(conceptually the last) file in the back list, if there are any
     if (history->back_list != NULL)
@@ -632,7 +630,7 @@ ThunarFile* history_peek_forward(ThunarHistory *history)
 {
     ThunarFile *result = NULL;
 
-    e_return_val_if_fail(THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(IS_THUNARHISTORY(history), NULL);
 
     // pick the first file in the forward list, if there are any
     if (history->forward_list != NULL)

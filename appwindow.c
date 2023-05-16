@@ -1176,10 +1176,10 @@ static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event
         ThunarHistory *history = standardview_get_history(STANDARD_VIEW(window->view));
 
         if (button == window->toolbar_item_back)
-            history_show_menu(history, THUNAR_HISTORY_MENU_BACK, button);
+            history_show_menu(history, THUNARHISTORY_MENU_BACK, button);
 
         else if (button == window->toolbar_item_forward)
-            history_show_menu(history, THUNAR_HISTORY_MENU_FORWARD, button);
+            history_show_menu(history, THUNARHISTORY_MENU_FORWARD, button);
 
         else
             g_warning("This button is not able to spawn a history menu");
@@ -1323,7 +1323,7 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     e_return_val_if_fail(IS_APPWINDOW(window), NULL);
     e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
     e_return_val_if_fail(view_type != G_TYPE_NONE, NULL);
-    e_return_val_if_fail(history == NULL || THUNAR_IS_HISTORY(history), NULL);
+    e_return_val_if_fail(history == NULL || IS_THUNARHISTORY(history), NULL);
 
     //DPRINT("enter : window_notebook_insert\n");
 
