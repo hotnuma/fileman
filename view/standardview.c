@@ -2585,7 +2585,7 @@ static void _standardview_drag_data_get(GtkWidget        *widget,
     // set the URI list for the drag selection
     if (view->priv->drag_g_file_list != NULL)
     {
-        gchar **uris = e_filelist_to_stringv(view->priv->drag_g_file_list);
+        gchar **uris = e_list_to_stringv(view->priv->drag_g_file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
     }
@@ -2943,7 +2943,7 @@ static void _standardview_drag_data_received(GtkWidget        *widget,
             && gtk_selection_data_get_format(selection_data) == 8
             && gtk_selection_data_get_length(selection_data) > 0)
             view->priv->drop_file_list =
-                    e_filelist_new_from_string((gchar*) gtk_selection_data_get_data(
+                    e_list_new_from_string((gchar*) gtk_selection_data_get_data(
                                                     selection_data));
 
         // reset the state

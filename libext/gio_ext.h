@@ -24,6 +24,13 @@
 
 G_BEGIN_DECLS
 
+// GAppInfo -------------------------------------------------------------------
+
+gboolean e_app_info_launch(GAppInfo *info, GFile *working_directory,
+                           GList *path_list, GAppLaunchContext *context,
+                           GError **error);
+gboolean e_app_info_should_show(GAppInfo *info);
+
 // GFile ----------------------------------------------------------------------
 
 GFile* e_file_new_for_home();
@@ -57,14 +64,14 @@ gboolean e_file_move(GFile                  *source,
 GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
                                 GError **error);
 
-// File List ------------------------------------------------------------------
+// GList ------------------------------------------------------------------
 
-#define TYPE_EFILELIST (e_filelist_get_type())
-GType e_filelist_get_type();
+#define TYPE_EFILELIST (e_list_get_type())
+GType e_list_get_type();
 
-GList* e_filelist_new_from_string(const gchar *string);
-gchar** e_filelist_to_stringv(GList *list);
-GList* e_filelist_get_parents(GList *list);
+GList* e_list_new_from_string(const gchar *string);
+gchar** e_list_to_stringv(GList *list);
+GList* e_list_get_parents(GList *list);
 
 GList* e_list_copy(GList *list);
 void e_list_free(GList *list);
@@ -74,14 +81,6 @@ void e_list_free(GList *list);
     g_list_append(list, g_object_ref(G_OBJECT(object)))
 #define e_list_prepend_ref(list, object) \
     g_list_prepend(list, g_object_ref(G_OBJECT(object)))
-
-// App Info -------------------------------------------------------------------
-
-gboolean e_app_info_launch(GAppInfo *info, GFile *working_directory,
-                           GList *path_list, GAppLaunchContext *context,
-                           GError **error);
-
-gboolean e_app_info_should_show(GAppInfo *info);
 
 // VFS ------------------------------------------------------------------------
 

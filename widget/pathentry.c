@@ -517,7 +517,7 @@ static void pathentry_drag_data_get(GtkWidget        *widget,
         file_list.data = th_file_get_file(path_entry->current_file);
 
         // setup the uri list for the drag selection
-        uris = e_filelist_to_stringv(&file_list);
+        uris = e_list_to_stringv(&file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
     }

@@ -1238,11 +1238,11 @@ static void _application_launch(Application  *application,
 
     if (update_source_folders)
         parent_folder_list = g_list_concat(parent_folder_list,
-                                           e_filelist_get_parents(source_file_list));
+                                           e_list_get_parents(source_file_list));
 
     if (update_target_folders)
         parent_folder_list = g_list_concat(parent_folder_list,
-                                           e_filelist_get_parents(target_file_list));
+                                           e_list_get_parents(target_file_list));
 
     /* connect a callback to instantly refresh the parent folders after
      * the operation finished */

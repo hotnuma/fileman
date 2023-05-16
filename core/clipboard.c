@@ -442,7 +442,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
     switch (target_info)
     {
     case TARGET_TEXT_URI_LIST:
-        uris = e_filelist_to_stringv(file_list);
+        uris = e_list_to_stringv(file_list);
         gtk_selection_data_set_uris(selection_data, uris);
         g_strfreev(uris);
         break;
@@ -587,7 +587,7 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
         }
 
         // determine the path list stored with the selection
-        file_list = e_filelist_new_from_string(data);
+        file_list = e_list_new_from_string(data);
     }
 
     // perform the action if possible
