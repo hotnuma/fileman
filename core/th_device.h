@@ -64,6 +64,7 @@ GFile* th_device_get_root(const ThunarDevice *device);
 gboolean th_device_can_eject(const ThunarDevice *device);
 gboolean th_device_can_mount(const ThunarDevice *device);
 gboolean th_device_can_unmount(const ThunarDevice *device);
+
 gboolean th_device_is_mounted(const ThunarDevice *device);
 
 void th_device_reload_file(ThunarDevice *device);
