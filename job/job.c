@@ -21,7 +21,23 @@
 #include <job.h>
 #include <marshal.h>
 
-// Signal identifiers
+static gboolean _job_ask_accumulator(GSignalInvocationHint *ihint,
+                                     GValue *return_accu,
+                                     const GValue *handler_return,
+                                     gpointer data);
+static void job_finalize(GObject *object);
+static ThunarJobResponse job_real_ask(ThunarJob *job, const gchar *message,
+                                      ThunarJobResponse choices);
+static ThunarJobResponse job_real_ask_replace(ThunarJob *job,
+                                              ThunarFile *source_file,
+                                              ThunarFile *target_file);
+
+static ThunarJobResponse _job_ask_valist(ThunarJob *job, const gchar *format,
+                                         va_list var_args, const gchar *question,
+                                         ThunarJobResponse choices);
+
+// ThunarJob ------------------------------------------------------------------
+
 enum
 {
     ASK,
@@ -33,40 +49,26 @@ enum
     UNFROZEN,
     LAST_SIGNAL,
 };
+static guint _job_signals[LAST_SIGNAL];
 
-static void job_finalize(GObject *object);
-static ThunarJobResponse job_real_ask(ThunarJob *job, const gchar *message,
-                                      ThunarJobResponse choices);
-static ThunarJobResponse job_real_ask_replace(ThunarJob *job,
-                                              ThunarFile *source_file,
-                                              ThunarFile *target_file);
 struct _ThunarJobPrivate
 {
     ThunarJobResponse earlier_ask_create_response;
     ThunarJobResponse earlier_ask_overwrite_response;
     ThunarJobResponse earlier_ask_delete_response;
     ThunarJobResponse earlier_ask_skip_response;
-    GList       *total_files;
-    guint       n_total_files;
+
+    GList   *total_files;
+    guint   n_total_files;
+
     gboolean    pausable;
-    gboolean    paused; // the job has been manually paused using the UI
-    gboolean    frozen; // the job has been automaticaly paused regarding some parallel copy behavior
+    // the job has been manually paused using the UI
+    gboolean    paused;
+    // the job has been automaticaly paused regarding some parallel copy behavior
+    gboolean    frozen;
 };
 
-static guint _job_signals[LAST_SIGNAL];
-
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(ThunarJob, job, EXO_TYPE_JOB)
-
-static gboolean _job_ask_accumulator(GSignalInvocationHint *ihint,
-                                            GValue          *return_accu,
-                                            const GValue    *handler_return,
-                                            gpointer        data)
-{
-    (void) ihint;
-    (void) data;
-    g_value_copy(handler_return, return_accu);
-    return FALSE;
-}
 
 static void job_class_init(ThunarJobClass *klass)
 {
@@ -216,6 +218,19 @@ static void job_class_init(ThunarJobClass *klass)
                      G_TYPE_NONE, 0);
 }
 
+static gboolean _job_ask_accumulator(GSignalInvocationHint *ihint,
+                                     GValue *return_accu,
+                                     const GValue *handler_return,
+                                     gpointer data)
+{
+    (void) ihint;
+    (void) data;
+
+    g_value_copy(handler_return, return_accu);
+
+    return FALSE;
+}
+
 static void job_init(ThunarJob *job)
 {
     job->priv = job_get_instance_private(job);
@@ -234,11 +249,11 @@ static void job_finalize(GObject *object)
     G_OBJECT_CLASS(job_parent_class)->finalize(object);
 }
 
-static ThunarJobResponse job_real_ask(ThunarJob   *job,
-                                             const gchar *message,
-                                             ThunarJobResponse choices)
+static ThunarJobResponse job_real_ask(ThunarJob *job, const gchar *message,
+                                      ThunarJobResponse choices)
 {
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+
     ThunarJobResponse response;
 
     g_signal_emit(job, _job_signals[ASK], 0, message, choices, &response);
@@ -246,66 +261,37 @@ static ThunarJobResponse job_real_ask(ThunarJob   *job,
     return response;
 }
 
-static ThunarJobResponse job_real_ask_replace(ThunarJob  *job,
-                                                     ThunarFile *source_file,
-                                                     ThunarFile *target_file)
+static ThunarJobResponse job_real_ask_replace(ThunarJob *job,
+                                              ThunarFile *source_file,
+                                              ThunarFile *target_file)
 {
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_FILE(source_file), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_FILE(target_file), THUNAR_JOB_RESPONSE_CANCEL);
 
-    ThunarJobResponse response;
     gchar *message = g_strdup_printf(
         _("The file \"%s\" already exists. Would you like to replace it?\n\n"
         "If you replace an existing file, its contents will be overwritten."),
         th_file_get_display_name(source_file));
 
-    g_signal_emit(job, _job_signals[ASK], 0, message,
-                   THUNAR_JOB_RESPONSE_REPLACE
-                   | THUNAR_JOB_RESPONSE_REPLACE_ALL
-                   | THUNAR_JOB_RESPONSE_RENAME
-                   | THUNAR_JOB_RESPONSE_RENAME_ALL
-                   | THUNAR_JOB_RESPONSE_SKIP
-                   | THUNAR_JOB_RESPONSE_SKIP_ALL
-                   | THUNAR_JOB_RESPONSE_CANCEL,
-                   &response);
-
-    // clean up
-    g_free(message);
-
-    return response;
-}
-
-static ThunarJobResponse _job_ask_valist(ThunarJob        *job,
-                                         const gchar      *format,
-                                         va_list           var_args,
-                                         const gchar      *question,
-                                         ThunarJobResponse choices)
-{
     ThunarJobResponse response;
-    gchar            *text;
-    gchar            *message;
 
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(g_utf8_validate(format, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    g_signal_emit(job, _job_signals[ASK], 0, message,
+                  THUNAR_JOB_RESPONSE_REPLACE
+                  | THUNAR_JOB_RESPONSE_REPLACE_ALL
+                  | THUNAR_JOB_RESPONSE_RENAME
+                  | THUNAR_JOB_RESPONSE_RENAME_ALL
+                  | THUNAR_JOB_RESPONSE_SKIP
+                  | THUNAR_JOB_RESPONSE_SKIP_ALL
+                  | THUNAR_JOB_RESPONSE_CANCEL,
+                  &response);
 
-    // generate the dialog message
-    text = g_strdup_vprintf(format, var_args);
-    message =(question != NULL)
-              ? g_strconcat(text, ".\n\n", question, NULL)
-              : g_strconcat(text, ".", NULL);
-    g_free(text);
-
-    // send the question and wait for the answer
-    exo_job_emit(EXO_JOB(job), _job_signals[ASK], 0, message, choices, &response);
     g_free(message);
-
-    // cancel the job as per users request
-    if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_CANCEL))
-        exo_job_cancel(EXO_JOB(job));
 
     return response;
 }
+
+// ----------------------------------------------------------------------------
 
 ThunarJobResponse job_ask_overwrite(ThunarJob *job, const gchar *format, ...)
 {
@@ -510,121 +496,7 @@ ThunarJobResponse job_ask_replace(ThunarJob *job, GFile *source_path,
     return response;
 }
 
-ThunarJobResponse job_ask_skip(ThunarJob *job, const gchar *format, ...)
-{
-    ThunarJobResponse response;
-    va_list           var_args;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
-
-    // check if the user already cancelled the job
-    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
-        return THUNAR_JOB_RESPONSE_CANCEL;
-
-    // check if the user said "Skip All" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_skip_response == THUNAR_JOB_RESPONSE_SKIP_ALL))
-        return THUNAR_JOB_RESPONSE_SKIP;
-
-    // ask the user what he wants to do
-    va_start(var_args, format);
-    response = _job_ask_valist(job, format, var_args,
-                                       _("Do you want to skip it?"),
-                                       THUNAR_JOB_RESPONSE_SKIP
-                                       | THUNAR_JOB_RESPONSE_SKIP_ALL
-                                       | THUNAR_JOB_RESPONSE_CANCEL
-                                       | THUNAR_JOB_RESPONSE_RETRY);
-    va_end(var_args);
-
-    // remember the response
-    job->priv->earlier_ask_skip_response = response;
-
-    // translate the response
-    switch(response)
-    {
-    case THUNAR_JOB_RESPONSE_SKIP_ALL:
-        response = THUNAR_JOB_RESPONSE_SKIP;
-        break;
-
-    case THUNAR_JOB_RESPONSE_SKIP:
-    case THUNAR_JOB_RESPONSE_CANCEL:
-    case THUNAR_JOB_RESPONSE_RETRY:
-        break;
-
-    default:
-        e_assert_not_reached();
-    }
-
-    return response;
-}
-
-gboolean job_ask_no_size(ThunarJob *job, const gchar *format, ...)
-{
-    ThunarJobResponse response;
-    va_list           var_args;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
-
-    // check if the user already cancelled the job
-    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
-        return THUNAR_JOB_RESPONSE_CANCEL;
-
-    // ask the user what he wants to do
-    va_start(var_args, format);
-    response = _job_ask_valist(job, format, var_args,
-                                       _("There is not enough space on the destination. Try to remove files to make space."),
-                                       THUNAR_JOB_RESPONSE_FORCE
-                                       | THUNAR_JOB_RESPONSE_CANCEL);
-    va_end(var_args);
-
-    return(response == THUNAR_JOB_RESPONSE_FORCE);
-}
-
-gboolean job_files_ready(ThunarJob *job, GList *file_list)
-{
-    gboolean handled = FALSE;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-
-    exo_job_emit(EXO_JOB(job), _job_signals[FILES_READY], 0, file_list, &handled);
-    return handled;
-}
-
-void job_new_files(ThunarJob   *job, const GList *file_list)
-{
-    ThunarFile  *file;
-    const GList *lp;
-
-    e_return_if_fail(THUNAR_IS_JOB(job));
-
-    // check if we have any files
-    if (G_LIKELY(file_list != NULL))
-    {
-        // schedule a reload of cached files when idle
-        for(lp = file_list; lp != NULL; lp = lp->next)
-        {
-            file = th_file_cache_lookup(lp->data);
-            if (file != NULL)
-            {
-                th_file_reload_idle_unref(file);
-            }
-        }
-
-        // emit the "new-files" signal
-        exo_job_emit(EXO_JOB(job), _job_signals[NEW_FILES], 0, file_list);
-    }
-}
-
-GList* job_ask_jobs(ThunarJob *job)
-{
-    GList* jobs = NULL;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
-
-    g_signal_emit(EXO_JOB(job), _job_signals[ASK_JOBS], 0, &jobs);
-    return jobs;
-}
+// Public ---------------------------------------------------------------------
 
 void job_set_total_files(ThunarJob *job, GList *total_files)
 {
@@ -710,6 +582,158 @@ void job_processing_file(ThunarJob *job,
     // verify that we have total files set
     if (G_LIKELY(job->priv->n_total_files > 0))
         exo_job_percent(EXO_JOB(job),(n_processed * 100.0) / job->priv->n_total_files);
+}
+
+// Ask ------------------------------------------------------------------------
+
+ThunarJobResponse job_ask_skip(ThunarJob *job, const gchar *format, ...)
+{
+    ThunarJobResponse response;
+    va_list           var_args;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+
+    // check if the user already cancelled the job
+    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+        return THUNAR_JOB_RESPONSE_CANCEL;
+
+    // check if the user said "Skip All" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_skip_response == THUNAR_JOB_RESPONSE_SKIP_ALL))
+        return THUNAR_JOB_RESPONSE_SKIP;
+
+    // ask the user what he wants to do
+    va_start(var_args, format);
+    response = _job_ask_valist(job, format, var_args,
+                                       _("Do you want to skip it?"),
+                                       THUNAR_JOB_RESPONSE_SKIP
+                                       | THUNAR_JOB_RESPONSE_SKIP_ALL
+                                       | THUNAR_JOB_RESPONSE_CANCEL
+                                       | THUNAR_JOB_RESPONSE_RETRY);
+    va_end(var_args);
+
+    // remember the response
+    job->priv->earlier_ask_skip_response = response;
+
+    // translate the response
+    switch(response)
+    {
+    case THUNAR_JOB_RESPONSE_SKIP_ALL:
+        response = THUNAR_JOB_RESPONSE_SKIP;
+        break;
+
+    case THUNAR_JOB_RESPONSE_SKIP:
+    case THUNAR_JOB_RESPONSE_CANCEL:
+    case THUNAR_JOB_RESPONSE_RETRY:
+        break;
+
+    default:
+        e_assert_not_reached();
+    }
+
+    return response;
+}
+
+gboolean job_ask_no_size(ThunarJob *job, const gchar *format, ...)
+{
+    ThunarJobResponse response;
+    va_list           var_args;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+
+    // check if the user already cancelled the job
+    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+        return THUNAR_JOB_RESPONSE_CANCEL;
+
+    // ask the user what he wants to do
+    va_start(var_args, format);
+    response = _job_ask_valist(job, format, var_args,
+    _("There is not enough space on the destination. Try to remove files to make space."),
+    THUNAR_JOB_RESPONSE_FORCE
+    | THUNAR_JOB_RESPONSE_CANCEL);
+    va_end(var_args);
+
+    return (response == THUNAR_JOB_RESPONSE_FORCE);
+}
+
+static ThunarJobResponse _job_ask_valist(ThunarJob *job, const gchar *format,
+                                         va_list var_args, const gchar *question,
+                                         ThunarJobResponse choices)
+{
+    ThunarJobResponse response;
+    gchar            *text;
+    gchar            *message;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(g_utf8_validate(format, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+
+    // generate the dialog message
+    text = g_strdup_vprintf(format, var_args);
+    message =(question != NULL)
+              ? g_strconcat(text, ".\n\n", question, NULL)
+              : g_strconcat(text, ".", NULL);
+    g_free(text);
+
+    // send the question and wait for the answer
+    exo_job_emit(EXO_JOB(job), _job_signals[ASK], 0, message, choices, &response);
+    g_free(message);
+
+    // cancel the job as per users request
+    if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_CANCEL))
+        exo_job_cancel(EXO_JOB(job));
+
+    return response;
+}
+
+
+
+
+
+
+gboolean job_files_ready(ThunarJob *job, GList *file_list)
+{
+    gboolean handled = FALSE;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+
+    exo_job_emit(EXO_JOB(job), _job_signals[FILES_READY], 0, file_list, &handled);
+    return handled;
+}
+
+void job_new_files(ThunarJob   *job, const GList *file_list)
+{
+    ThunarFile  *file;
+    const GList *lp;
+
+    e_return_if_fail(THUNAR_IS_JOB(job));
+
+    // check if we have any files
+    if (G_LIKELY(file_list != NULL))
+    {
+        // schedule a reload of cached files when idle
+        for(lp = file_list; lp != NULL; lp = lp->next)
+        {
+            file = th_file_cache_lookup(lp->data);
+            if (file != NULL)
+            {
+                th_file_reload_idle_unref(file);
+            }
+        }
+
+        // emit the "new-files" signal
+        exo_job_emit(EXO_JOB(job), _job_signals[NEW_FILES], 0, file_list);
+    }
+}
+
+GList* job_ask_jobs(ThunarJob *job)
+{
+    GList* jobs = NULL;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
+
+    g_signal_emit(EXO_JOB(job), _job_signals[ASK_JOBS], 0, &jobs);
+    return jobs;
 }
 
 

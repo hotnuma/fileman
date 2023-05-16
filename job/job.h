@@ -24,6 +24,8 @@
 #include <exo_job.h>
 #include <th_file.h>
 
+// ThunarJob ------------------------------------------------------------------
+
 G_BEGIN_DECLS
 
 typedef struct _ThunarJobPrivate ThunarJobPrivate;
@@ -56,32 +58,37 @@ struct _ThunarJobClass
 struct _ThunarJob
 {
     ExoJob __parent__;
+
     ThunarJobPrivate *priv;
 };
 
-GType       job_get_type() G_GNUC_CONST;
-void        job_set_total_files(ThunarJob *job, GList *total_files);
-void        job_set_pausable(ThunarJob *job, gboolean pausable);
-gboolean    job_is_pausable(ThunarJob *job);
-void        job_pause(ThunarJob *job);
-void        job_resume(ThunarJob *job);
-void        job_freeze(ThunarJob *job);
-void        job_unfreeze(ThunarJob *job);
-gboolean    job_is_paused(ThunarJob *job);
-gboolean    job_is_frozen(ThunarJob *job);
-void        job_processing_file(ThunarJob *job, GList *current_file,
-                                guint n_processed);
+GType job_get_type() G_GNUC_CONST;
+
+void job_set_total_files(ThunarJob *job, GList *total_files);
+void job_set_pausable(ThunarJob *job, gboolean pausable);
+gboolean job_is_pausable(ThunarJob *job);
+void job_pause(ThunarJob *job);
+void job_resume(ThunarJob *job);
+void job_freeze(ThunarJob *job);
+void job_unfreeze(ThunarJob *job);
+gboolean job_is_paused(ThunarJob *job);
+gboolean job_is_frozen(ThunarJob *job);
+void job_processing_file(ThunarJob *job, GList *current_file,
+                         guint n_processed);
+
+// Ask ------------------------------------------------------------------------
 
 ThunarJobResponse job_ask_create(ThunarJob *job, const gchar *format, ...);
-ThunarJobResponse job_ask_overwrite(ThunarJob *job, const gchar *format, ...);
 ThunarJobResponse job_ask_delete(ThunarJob *job, const gchar *format, ...);
+gboolean job_ask_no_size(ThunarJob *job, const gchar *format, ...);
+ThunarJobResponse job_ask_overwrite(ThunarJob *job, const gchar *format, ...);
 ThunarJobResponse job_ask_replace(ThunarJob *job, GFile *source_path,
                                   GFile *target_path, GError **error);
 ThunarJobResponse job_ask_skip(ThunarJob *job, const gchar *format, ...);
-gboolean    job_ask_no_size(ThunarJob *job, const gchar *format, ...);
-gboolean    job_files_ready(ThunarJob *job, GList *file_list);
-void        job_new_files(ThunarJob *job, const GList *file_list);
-GList*      job_ask_jobs(ThunarJob *job);
+
+gboolean job_files_ready(ThunarJob *job, GList *file_list);
+void job_new_files(ThunarJob *job, const GList *file_list);
+GList* job_ask_jobs(ThunarJob *job);
 
 G_END_DECLS
 
