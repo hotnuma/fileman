@@ -24,20 +24,16 @@
 
 #include <appchooser.h>
 #include <dialogs.h>
-#include <gtk_ext.h>
-#include <pango_ext.h>
-#include <iconfactory.h>
-
-#include <th_file.h>
 #include <gio_ext.h>
+#include <gtk_ext.h>
 
 static void appcombo_finalize(GObject *object);
 static void appcombo_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec);
 static void appcombo_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
-
 static gboolean appcombo_scroll_event(GtkWidget *widget, GdkEventScroll *event);
+
 static void _appcombo_changed(GtkComboBox *combo_box);
 static void _appcombo_popup(AppCombo *chooser_button);
 static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b);
@@ -46,7 +42,8 @@ static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
 static void _appcombo_chooser_dialog(AppCombo *chooser_button);
 static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file);
 
-// Property identifiers
+// AppCombo -------------------------------------------------------------------
+
 enum
 {
     PROP_0,
@@ -70,11 +67,11 @@ struct _AppComboClass
 
 struct _AppCombo
 {
-    GtkComboBox   __parent__;
+    GtkComboBox __parent__;
 
     GtkListStore *store;
-    ThunarFile   *file;
-    gboolean      has_default_application;
+    ThunarFile  *file;
+    gboolean    has_default_application;
 };
 
 G_DEFINE_TYPE(AppCombo, appcombo, GTK_TYPE_COMBO_BOX)
@@ -224,6 +221,46 @@ static gboolean appcombo_scroll_event(GtkWidget *widget, GdkEventScroll *event)
 
     return GTK_WIDGET_CLASS(appcombo_parent_class)->scroll_event(widget, event);
 }
+
+// Properties -----------------------------------------------------------------
+
+void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
+{
+    e_return_if_fail(IS_APPCOMBO(chooser_button));
+    e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+
+    // check if we already use that file
+    if (G_UNLIKELY(chooser_button->file == file))
+        return;
+
+    // disconnect from the previous file
+    if (G_UNLIKELY(chooser_button->file != NULL))
+    {
+        g_signal_handlers_disconnect_by_func(G_OBJECT(chooser_button->file), _appcombo_file_changed, chooser_button);
+        g_object_unref(G_OBJECT(chooser_button->file));
+    }
+
+    // activate the new file
+    chooser_button->file = file;
+
+    // connect to the new file
+    if (G_LIKELY(file != NULL))
+    {
+        // take a reference
+        g_object_ref(G_OBJECT(file));
+
+        // stay informed about changes
+        g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(_appcombo_file_changed), chooser_button);
+
+        // update our state now
+        _appcombo_file_changed(chooser_button, file);
+    }
+
+    // notify listeners
+    g_object_notify(G_OBJECT(chooser_button), "file");
+}
+
+// ----------------------------------------------------------------------------
 
 static void _appcombo_changed(GtkComboBox *combo_box)
 {
@@ -469,42 +506,6 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
 GtkWidget* appcombo_new()
 {
     return g_object_new(TYPE_APPCOMBO, NULL);
-}
-
-void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
-{
-    e_return_if_fail(IS_APPCOMBO(chooser_button));
-    e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
-
-    // check if we already use that file
-    if (G_UNLIKELY(chooser_button->file == file))
-        return;
-
-    // disconnect from the previous file
-    if (G_UNLIKELY(chooser_button->file != NULL))
-    {
-        g_signal_handlers_disconnect_by_func(G_OBJECT(chooser_button->file), _appcombo_file_changed, chooser_button);
-        g_object_unref(G_OBJECT(chooser_button->file));
-    }
-
-    // activate the new file
-    chooser_button->file = file;
-
-    // connect to the new file
-    if (G_LIKELY(file != NULL))
-    {
-        // take a reference
-        g_object_ref(G_OBJECT(file));
-
-        // stay informed about changes
-        g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(_appcombo_file_changed), chooser_button);
-
-        // update our state now
-        _appcombo_file_changed(chooser_button, file);
-    }
-
-    // notify listeners
-    g_object_notify(G_OBJECT(chooser_button), "file");
 }
 
 

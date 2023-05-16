@@ -22,7 +22,7 @@
 
 #include <glib-object.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 #ifndef NO_DPRINT
 #define DPRINT g_print
@@ -79,7 +79,7 @@ G_STMT_START{                                                 \
 }G_STMT_END
 #endif
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif // __APP_DEBUG_H__
 

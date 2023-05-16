@@ -21,7 +21,9 @@
 
 #include <th_file.h>
 
-G_BEGIN_DECLS;
+// AppCombo -------------------------------------------------------------------
+
+G_BEGIN_DECLS
 
 typedef struct _AppComboClass AppComboClass;
 typedef struct _AppCombo      AppCombo;
@@ -43,7 +45,7 @@ GType appcombo_get_type() G_GNUC_CONST;
 GtkWidget* appcombo_new() G_GNUC_MALLOC;
 void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file);
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif // __APPCOMBO_H__
 
