@@ -25,20 +25,22 @@
 
 G_BEGIN_DECLS
 
+// ProgressView ---------------------------------------------------------------
+
 typedef struct _ProgressViewClass ProgressViewClass;
 typedef struct _ProgressView      ProgressView;
 
 #define TYPE_PROGRESSVIEW (progressview_get_type())
 #define PROGRESSVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_PROGRESSVIEW, ProgressView))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PROGRESSVIEW, ProgressView))
 #define PROGRESSVIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), TYPE_PROGRESSVIEW, ProgressViewClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_PROGRESSVIEW, ProgressViewClass))
 #define IS_PROGRESSVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_PROGRESSVIEW))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_PROGRESSVIEW))
 #define IS_PROGRESSVIEW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_PROGRESSVIEW))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_PROGRESSVIEW))
 #define PROGRESSVIEW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_PROGRESSVIEW, ProgressViewClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_PROGRESSVIEW, ProgressViewClass))
 
 GType progressview_get_type() G_GNUC_CONST;
 
