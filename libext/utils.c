@@ -44,7 +44,7 @@
  *
  * Return value: (transfer full): The new string. Has to be freed with g_free after usage.
  **/
-gchar *util_strescape(const gchar *source)
+gchar *util_str_escape(const gchar *source)
 {
     gchar *g_escaped;
     gchar *result;
@@ -579,25 +579,18 @@ gchar *util_strdup_strftime(const gchar *format, const struct tm *tm)
     return result;
 }
 
+/* Determines the screen for the parent and returns that GdkScreen.
+ * If window_return is not NULL, the pointer to the GtkWindow is
+ * placed into it, or NULL if the window could not be determined. */
 
-/**
- * thunar_util_parse_parent:
- * @parent        : a #GtkWidget, a #GdkScreen or %NULL.
- * @window_return : return location for the toplevel #GtkWindow or
- *                  %NULL.
- *
- * Determines the screen for the @parent and returns that #GdkScreen.
- * If @window_return is not %NULL, the pointer to the #GtkWindow is
- * placed into it, or %NULL if the window could not be determined.
- *
- * Return value: the #GdkScreen for the @parent.
- **/
-GdkScreen *util_parse_parent(gpointer parent, GtkWindow **window_return)
+GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
 {
+    e_return_val_if_fail(parent == NULL
+                         || GDK_IS_SCREEN(parent)
+                         || GTK_IS_WIDGET(parent), NULL);
+
     GdkScreen *screen;
     GtkWidget *window = NULL;
-
-    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), NULL);
 
     // determine the proper parent
     if (parent == NULL)
@@ -720,7 +713,7 @@ gchar *util_change_working_directory(const gchar *new_directory)
 }
 
 // standard_view g_spaw_async exo-desktop-item-edit
-void util_setup_display_cb(gpointer data)
+void util_set_display_env(gpointer data)
 {
     g_setenv("DISPLAY", (char*) data, TRUE);
 }
@@ -769,26 +762,23 @@ gchar* util_str_replace(const gchar *str, const gchar *pattern,
 
 // Desktop Entry ---------------------------------------------------------------
 
-gchar *util_expand_field_codes(const gchar *command,
-                               GSList *uri_list,
-                               const gchar *icon,
-                               const gchar *name,
-                               const gchar *uri,
-                               gboolean requires_terminal)
+gchar *util_expand_field_codes(const gchar *command, GSList *uri_list,
+                               const gchar *icon, const gchar *name,
+                               const gchar *uri, gboolean requires_terminal)
 {
-    const gchar *p;
-    gchar *filename;
-    GString *string;
-    GSList *li;
-    GFile *file;
-
     if (G_UNLIKELY(command == NULL))
         return NULL;
 
+    GString *string;
     string = g_string_sized_new(strlen(command));
 
     if (requires_terminal)
         g_string_append(string, "exo-open --launch TerminalEmulator ");
+
+    const gchar *p;
+    GSList *li;
+    GFile *file;
+    gchar *filename;
 
     for (p = command; *p != '\0'; ++p)
     {

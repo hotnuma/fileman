@@ -1070,7 +1070,7 @@ static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dial
     if (gtk_dialog_run(GTK_DIALOG(chooser)) == GTK_RESPONSE_ACCEPT)
     {
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
-        filename_escaped = util_strescape(filename);
+        filename_escaped = util_str_escape(filename);
         gtk_entry_set_text(GTK_ENTRY(dialog->custom_entry), filename_escaped);
         g_free(filename_escaped);
         g_free(filename);

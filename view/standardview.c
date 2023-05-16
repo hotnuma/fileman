@@ -3060,7 +3060,7 @@ static void _standardview_drag_data_received(GtkWidget        *widget,
                             // try to run exo-desktop-item-edit
                             succeed = g_spawn_async(working_directory, argv, NULL,
                                                      G_SPAWN_DO_NOT_REAP_CHILD | G_SPAWN_SEARCH_PATH,
-                                                     util_setup_display_cb, display, &pid, &error);
+                                                     util_set_display_env, display, &pid, &error);
 
                             if (G_UNLIKELY(!succeed))
                             {
