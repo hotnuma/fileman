@@ -30,20 +30,19 @@ GFile* e_file_new_for_home();
 GFile* e_file_new_for_root();
 GFile* e_file_new_for_trash();
 
-gboolean e_file_is_root(GFile *file);
-gboolean e_file_is_trashed(GFile *file);
-gboolean e_file_is_home(GFile *file);
-gboolean e_file_is_trash(GFile *file);
-gboolean e_file_is_computer(GFile *file);
-gboolean e_file_is_network(GFile *file);
-
-gchar* e_file_get_location(GFile *file);
 gchar* e_file_get_display_name(GFile *file);
 gchar* e_file_get_display_name_remote(GFile *file);
-
 gboolean e_file_get_free_space(GFile *file, guint64 *fs_free_return,
                                guint64 *fs_size_return);
 gchar* e_file_get_free_space_string(GFile *file, gboolean file_size_binary);
+gchar* e_file_get_location(GFile *file);
+
+gboolean e_file_is_computer(GFile *file);
+gboolean e_file_is_home(GFile *file);
+gboolean e_file_is_network(GFile *file);
+gboolean e_file_is_root(GFile *file);
+gboolean e_file_is_trash(GFile *file);
+gboolean e_file_is_trashed(GFile *file);
 
 gboolean e_file_move(GFile                  *source,
                      GFile                  *destination,
@@ -53,22 +52,22 @@ gboolean e_file_move(GFile                  *source,
                      gpointer               progress_callback_data,
                      GError                 **error);
 
-// ----------------------------------------------------------------------------
+// GKeyFile -------------------------------------------------------------------
 
 GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
                                 GError **error);
 
 // File List ------------------------------------------------------------------
 
-#define TYPE_EFILELIST (e_file_list_get_type())
-GType e_file_list_get_type();
+#define TYPE_EFILELIST (e_filelist_get_type())
+GType e_filelist_get_type();
+
+GList* e_filelist_new_from_string(const gchar *string);
+gchar** e_filelist_to_stringv(GList *list);
+GList* e_filelist_get_parents(GList *list);
 
 GList* e_list_copy(GList *list);
 void e_list_free(GList *list);
-
-GList*  e_file_list_new_from_string(const gchar *string);
-gchar** e_file_list_to_stringv(GList *list);
-GList*  e_file_list_get_parents(GList *list);
 
 // deep copy jobs for GLists
 #define e_list_append_ref(list, object) \

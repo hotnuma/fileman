@@ -424,7 +424,7 @@ gchar* e_file_get_free_space_string(GFile *file, gboolean file_size_binary)
     return fs_string;
 }
 
-GType e_file_list_get_type()
+GType e_filelist_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
@@ -463,7 +463,7 @@ void e_list_free(GList *list)
  *
  * Return value: the list of #GFile<!---->s or %NULL.
  **/
-GList* e_file_list_new_from_string(const gchar *string)
+GList* e_filelist_new_from_string(const gchar *string)
 {
     GList  *list = NULL;
     gchar **uris;
@@ -488,7 +488,7 @@ GList* e_file_list_new_from_string(const gchar *string)
  *
  * Return value: and array of uris.
  **/
-gchar** e_file_list_to_stringv(GList *list)
+gchar** e_filelist_to_stringv(GList *list)
 {
     gchar **uris;
     guint   n;
@@ -525,7 +525,7 @@ gchar** e_file_list_to_stringv(GList *list)
  *
  * Return value: A list of #GFile<!---->s of all parent folders. Free the returned list with calling g_object_unref() on each element
  **/
-GList* e_file_list_get_parents(GList *file_list)
+GList* e_filelist_get_parents(GList *file_list)
 {
     GList    *lp_file_list;
     GList    *lp_parent_folder_list;

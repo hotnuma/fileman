@@ -1615,7 +1615,7 @@ static void treeview_drag_data_received(GtkWidget        *widget,
     {
         // extract the URI list from the selection data(if valid)
         if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0)
-            view->drop_file_list = e_file_list_new_from_string((const gchar *) gtk_selection_data_get_data(selection_data));
+            view->drop_file_list = e_filelist_new_from_string((const gchar *) gtk_selection_data_get_data(selection_data));
 
         // reset the state
         view->drop_data_ready = TRUE;
