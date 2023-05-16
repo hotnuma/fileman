@@ -291,211 +291,6 @@ static ThunarJobResponse job_real_ask_replace(ThunarJob *job,
     return response;
 }
 
-// ----------------------------------------------------------------------------
-
-ThunarJobResponse job_ask_overwrite(ThunarJob *job, const gchar *format, ...)
-{
-    ThunarJobResponse response;
-    va_list           var_args;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
-
-    // check if the user already cancelled the job
-    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
-        return THUNAR_JOB_RESPONSE_CANCEL;
-
-    // check if the user said "Overwrite All" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_REPLACE_ALL))
-        return THUNAR_JOB_RESPONSE_REPLACE;
-
-    // check if the user said "Overwrite None" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_SKIP_ALL))
-        return THUNAR_JOB_RESPONSE_SKIP;
-
-    // ask the user what he wants to do
-    va_start(var_args, format);
-    response = _job_ask_valist(job, format, var_args,
-                                       _("Do you want to overwrite it?"),
-                                       THUNAR_JOB_RESPONSE_REPLACE
-                                       | THUNAR_JOB_RESPONSE_REPLACE_ALL
-                                       | THUNAR_JOB_RESPONSE_SKIP
-                                       | THUNAR_JOB_RESPONSE_SKIP_ALL
-                                       | THUNAR_JOB_RESPONSE_CANCEL);
-    va_end(var_args);
-
-    // remember response for later
-    job->priv->earlier_ask_overwrite_response = response;
-
-    // translate response
-    switch(response)
-    {
-    case THUNAR_JOB_RESPONSE_REPLACE_ALL:
-        response = THUNAR_JOB_RESPONSE_REPLACE;
-        break;
-
-    case THUNAR_JOB_RESPONSE_SKIP_ALL:
-        response = THUNAR_JOB_RESPONSE_SKIP;
-        break;
-
-    default:
-        break;
-    }
-
-    return response;
-}
-
-ThunarJobResponse job_ask_delete(ThunarJob *job, const gchar *format, ...)
-{
-    ThunarJobResponse response;
-    va_list           var_args;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
-
-    // check if the user already cancelled the job
-    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
-        return THUNAR_JOB_RESPONSE_CANCEL;
-
-    // check if the user said "Delete All" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_delete_response == THUNAR_JOB_RESPONSE_YES_ALL))
-        return THUNAR_JOB_RESPONSE_YES;
-
-    // check if the user said "Delete None" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_delete_response == THUNAR_JOB_RESPONSE_NO_ALL))
-        return THUNAR_JOB_RESPONSE_NO;
-
-    // ask the user what he wants to do
-    va_start(var_args, format);
-    response = _job_ask_valist(job, format, var_args,
-                                      _("Do you want to permanently delete it?"),
-                                      THUNAR_JOB_RESPONSE_YES
-                                      | THUNAR_JOB_RESPONSE_YES_ALL
-                                      | THUNAR_JOB_RESPONSE_NO
-                                      | THUNAR_JOB_RESPONSE_NO_ALL
-                                      | THUNAR_JOB_RESPONSE_CANCEL);
-    va_end(var_args);
-
-    // remember response for later
-    job->priv->earlier_ask_delete_response = response;
-
-    // translate response
-    switch(response)
-    {
-    case THUNAR_JOB_RESPONSE_YES_ALL:
-        response = THUNAR_JOB_RESPONSE_YES;
-        break;
-
-    case THUNAR_JOB_RESPONSE_NO_ALL:
-        response = THUNAR_JOB_RESPONSE_NO;
-        break;
-
-    default:
-        break;
-    }
-
-    return response;
-}
-
-ThunarJobResponse job_ask_create(ThunarJob *job, const gchar *format, ...)
-{
-    ThunarJobResponse response;
-    va_list           var_args;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-
-    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
-        return THUNAR_JOB_RESPONSE_CANCEL;
-
-    // check if the user said "Create All" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_create_response == THUNAR_JOB_RESPONSE_YES_ALL))
-        return THUNAR_JOB_RESPONSE_YES;
-
-    // check if the user said "Create None" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_create_response == THUNAR_JOB_RESPONSE_NO_ALL))
-        return THUNAR_JOB_RESPONSE_NO;
-
-    va_start(var_args, format);
-    response = _job_ask_valist(job, format, var_args,
-                                       _("Do you want to create it?"),
-                                       THUNAR_JOB_RESPONSE_YES
-                                       | THUNAR_JOB_RESPONSE_CANCEL);
-    va_end(var_args);
-
-    job->priv->earlier_ask_create_response = response;
-
-    // translate the response
-    if (response == THUNAR_JOB_RESPONSE_YES_ALL)
-        response = THUNAR_JOB_RESPONSE_YES;
-    else if (response == THUNAR_JOB_RESPONSE_NO_ALL)
-        response = THUNAR_JOB_RESPONSE_NO;
-    else if (response == THUNAR_JOB_RESPONSE_CANCEL)
-        exo_job_cancel(EXO_JOB(job));
-
-    return response;
-}
-
-ThunarJobResponse job_ask_replace(ThunarJob *job, GFile *source_path,
-                                  GFile *target_path, GError **error)
-{
-    ThunarJobResponse response;
-    ThunarFile       *source_file;
-    ThunarFile       *target_file;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(G_IS_FILE(source_path), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(G_IS_FILE(target_path), THUNAR_JOB_RESPONSE_CANCEL);
-
-    if (G_UNLIKELY(exo_job_set_error_if_cancelled(EXO_JOB(job), error)))
-        return THUNAR_JOB_RESPONSE_CANCEL;
-
-    // check if the user said "Overwrite All" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_REPLACE_ALL))
-        return THUNAR_JOB_RESPONSE_REPLACE;
-
-    // check if the user said "Rename All" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_RENAME_ALL))
-        return THUNAR_JOB_RESPONSE_RENAME;
-
-    // check if the user said "Overwrite None" earlier
-    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_SKIP_ALL))
-        return THUNAR_JOB_RESPONSE_SKIP;
-
-    source_file = th_file_get(source_path, error);
-
-    if (G_UNLIKELY(source_file == NULL))
-        return THUNAR_JOB_RESPONSE_SKIP;
-
-    target_file = th_file_get(target_path, error);
-
-    if (G_UNLIKELY(target_file == NULL))
-    {
-        g_object_unref(source_file);
-        return THUNAR_JOB_RESPONSE_SKIP;
-    }
-
-    exo_job_emit(EXO_JOB(job), _job_signals[ASK_REPLACE], 0,
-                  source_file, target_file, &response);
-
-    g_object_unref(source_file);
-    g_object_unref(target_file);
-
-    // remember the response for later
-    job->priv->earlier_ask_overwrite_response = response;
-
-    // translate the response
-    if (response == THUNAR_JOB_RESPONSE_REPLACE_ALL)
-        response = THUNAR_JOB_RESPONSE_REPLACE;
-    else if (response == THUNAR_JOB_RESPONSE_RENAME_ALL)
-        response = THUNAR_JOB_RESPONSE_RENAME;
-    else if (response == THUNAR_JOB_RESPONSE_SKIP_ALL)
-        response = THUNAR_JOB_RESPONSE_SKIP;
-    else if (response == THUNAR_JOB_RESPONSE_CANCEL)
-        exo_job_cancel(EXO_JOB(job));
-
-    return response;
-}
-
 // Public ---------------------------------------------------------------------
 
 void job_set_total_files(ThunarJob *job, GList *total_files)
@@ -586,6 +381,232 @@ void job_processing_file(ThunarJob *job,
 
 // Ask ------------------------------------------------------------------------
 
+ThunarJobResponse job_ask_create(ThunarJob *job, const gchar *format, ...)
+{
+    ThunarJobResponse response;
+    va_list           var_args;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+
+    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+        return THUNAR_JOB_RESPONSE_CANCEL;
+
+    // check if the user said "Create All" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_create_response == THUNAR_JOB_RESPONSE_YES_ALL))
+        return THUNAR_JOB_RESPONSE_YES;
+
+    // check if the user said "Create None" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_create_response == THUNAR_JOB_RESPONSE_NO_ALL))
+        return THUNAR_JOB_RESPONSE_NO;
+
+    va_start(var_args, format);
+    response = _job_ask_valist(job, format, var_args,
+                                       _("Do you want to create it?"),
+                                       THUNAR_JOB_RESPONSE_YES
+                                       | THUNAR_JOB_RESPONSE_CANCEL);
+    va_end(var_args);
+
+    job->priv->earlier_ask_create_response = response;
+
+    // translate the response
+    if (response == THUNAR_JOB_RESPONSE_YES_ALL)
+        response = THUNAR_JOB_RESPONSE_YES;
+    else if (response == THUNAR_JOB_RESPONSE_NO_ALL)
+        response = THUNAR_JOB_RESPONSE_NO;
+    else if (response == THUNAR_JOB_RESPONSE_CANCEL)
+        exo_job_cancel(EXO_JOB(job));
+
+    return response;
+}
+
+ThunarJobResponse job_ask_delete(ThunarJob *job, const gchar *format, ...)
+{
+    ThunarJobResponse response;
+    va_list           var_args;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+
+    // check if the user already cancelled the job
+    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+        return THUNAR_JOB_RESPONSE_CANCEL;
+
+    // check if the user said "Delete All" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_delete_response == THUNAR_JOB_RESPONSE_YES_ALL))
+        return THUNAR_JOB_RESPONSE_YES;
+
+    // check if the user said "Delete None" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_delete_response == THUNAR_JOB_RESPONSE_NO_ALL))
+        return THUNAR_JOB_RESPONSE_NO;
+
+    // ask the user what he wants to do
+    va_start(var_args, format);
+    response = _job_ask_valist(job, format, var_args,
+                                      _("Do you want to permanently delete it?"),
+                                      THUNAR_JOB_RESPONSE_YES
+                                      | THUNAR_JOB_RESPONSE_YES_ALL
+                                      | THUNAR_JOB_RESPONSE_NO
+                                      | THUNAR_JOB_RESPONSE_NO_ALL
+                                      | THUNAR_JOB_RESPONSE_CANCEL);
+    va_end(var_args);
+
+    // remember response for later
+    job->priv->earlier_ask_delete_response = response;
+
+    // translate response
+    switch(response)
+    {
+    case THUNAR_JOB_RESPONSE_YES_ALL:
+        response = THUNAR_JOB_RESPONSE_YES;
+        break;
+
+    case THUNAR_JOB_RESPONSE_NO_ALL:
+        response = THUNAR_JOB_RESPONSE_NO;
+        break;
+
+    default:
+        break;
+    }
+
+    return response;
+}
+
+gboolean job_ask_no_size(ThunarJob *job, const gchar *format, ...)
+{
+    ThunarJobResponse response;
+    va_list           var_args;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+
+    // check if the user already cancelled the job
+    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+        return THUNAR_JOB_RESPONSE_CANCEL;
+
+    // ask the user what he wants to do
+    va_start(var_args, format);
+    response = _job_ask_valist(job, format, var_args,
+    _("There is not enough space on the destination. Try to remove files to make space."),
+    THUNAR_JOB_RESPONSE_FORCE
+    | THUNAR_JOB_RESPONSE_CANCEL);
+    va_end(var_args);
+
+    return (response == THUNAR_JOB_RESPONSE_FORCE);
+}
+
+ThunarJobResponse job_ask_overwrite(ThunarJob *job, const gchar *format, ...)
+{
+    ThunarJobResponse response;
+    va_list           var_args;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
+
+    // check if the user already cancelled the job
+    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
+        return THUNAR_JOB_RESPONSE_CANCEL;
+
+    // check if the user said "Overwrite All" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_REPLACE_ALL))
+        return THUNAR_JOB_RESPONSE_REPLACE;
+
+    // check if the user said "Overwrite None" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_SKIP_ALL))
+        return THUNAR_JOB_RESPONSE_SKIP;
+
+    // ask the user what he wants to do
+    va_start(var_args, format);
+    response = _job_ask_valist(job, format, var_args,
+                                       _("Do you want to overwrite it?"),
+                                       THUNAR_JOB_RESPONSE_REPLACE
+                                       | THUNAR_JOB_RESPONSE_REPLACE_ALL
+                                       | THUNAR_JOB_RESPONSE_SKIP
+                                       | THUNAR_JOB_RESPONSE_SKIP_ALL
+                                       | THUNAR_JOB_RESPONSE_CANCEL);
+    va_end(var_args);
+
+    // remember response for later
+    job->priv->earlier_ask_overwrite_response = response;
+
+    // translate response
+    switch(response)
+    {
+    case THUNAR_JOB_RESPONSE_REPLACE_ALL:
+        response = THUNAR_JOB_RESPONSE_REPLACE;
+        break;
+
+    case THUNAR_JOB_RESPONSE_SKIP_ALL:
+        response = THUNAR_JOB_RESPONSE_SKIP;
+        break;
+
+    default:
+        break;
+    }
+
+    return response;
+}
+
+ThunarJobResponse job_ask_replace(ThunarJob *job, GFile *source_path,
+                                  GFile *target_path, GError **error)
+{
+    ThunarJobResponse response;
+    ThunarFile       *source_file;
+    ThunarFile       *target_file;
+
+    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(G_IS_FILE(source_path), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(G_IS_FILE(target_path), THUNAR_JOB_RESPONSE_CANCEL);
+
+    if (G_UNLIKELY(exo_job_set_error_if_cancelled(EXO_JOB(job), error)))
+        return THUNAR_JOB_RESPONSE_CANCEL;
+
+    // check if the user said "Overwrite All" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_REPLACE_ALL))
+        return THUNAR_JOB_RESPONSE_REPLACE;
+
+    // check if the user said "Rename All" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_RENAME_ALL))
+        return THUNAR_JOB_RESPONSE_RENAME;
+
+    // check if the user said "Overwrite None" earlier
+    if (G_UNLIKELY(job->priv->earlier_ask_overwrite_response == THUNAR_JOB_RESPONSE_SKIP_ALL))
+        return THUNAR_JOB_RESPONSE_SKIP;
+
+    source_file = th_file_get(source_path, error);
+
+    if (G_UNLIKELY(source_file == NULL))
+        return THUNAR_JOB_RESPONSE_SKIP;
+
+    target_file = th_file_get(target_path, error);
+
+    if (G_UNLIKELY(target_file == NULL))
+    {
+        g_object_unref(source_file);
+        return THUNAR_JOB_RESPONSE_SKIP;
+    }
+
+    exo_job_emit(EXO_JOB(job), _job_signals[ASK_REPLACE], 0,
+                  source_file, target_file, &response);
+
+    g_object_unref(source_file);
+    g_object_unref(target_file);
+
+    // remember the response for later
+    job->priv->earlier_ask_overwrite_response = response;
+
+    // translate the response
+    if (response == THUNAR_JOB_RESPONSE_REPLACE_ALL)
+        response = THUNAR_JOB_RESPONSE_REPLACE;
+    else if (response == THUNAR_JOB_RESPONSE_RENAME_ALL)
+        response = THUNAR_JOB_RESPONSE_RENAME;
+    else if (response == THUNAR_JOB_RESPONSE_SKIP_ALL)
+        response = THUNAR_JOB_RESPONSE_SKIP;
+    else if (response == THUNAR_JOB_RESPONSE_CANCEL)
+        exo_job_cancel(EXO_JOB(job));
+
+    return response;
+}
+
 ThunarJobResponse job_ask_skip(ThunarJob *job, const gchar *format, ...)
 {
     ThunarJobResponse response;
@@ -634,29 +655,6 @@ ThunarJobResponse job_ask_skip(ThunarJob *job, const gchar *format, ...)
     return response;
 }
 
-gboolean job_ask_no_size(ThunarJob *job, const gchar *format, ...)
-{
-    ThunarJobResponse response;
-    va_list           var_args;
-
-    e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(format != NULL, THUNAR_JOB_RESPONSE_CANCEL);
-
-    // check if the user already cancelled the job
-    if (G_UNLIKELY(exo_job_is_cancelled(EXO_JOB(job))))
-        return THUNAR_JOB_RESPONSE_CANCEL;
-
-    // ask the user what he wants to do
-    va_start(var_args, format);
-    response = _job_ask_valist(job, format, var_args,
-    _("There is not enough space on the destination. Try to remove files to make space."),
-    THUNAR_JOB_RESPONSE_FORCE
-    | THUNAR_JOB_RESPONSE_CANCEL);
-    va_end(var_args);
-
-    return (response == THUNAR_JOB_RESPONSE_FORCE);
-}
-
 static ThunarJobResponse _job_ask_valist(ThunarJob *job, const gchar *format,
                                          va_list var_args, const gchar *question,
                                          ThunarJobResponse choices)
@@ -686,10 +684,7 @@ static ThunarJobResponse _job_ask_valist(ThunarJob *job, const gchar *format,
     return response;
 }
 
-
-
-
-
+// ----------------------------------------------------------------------------
 
 gboolean job_files_ready(ThunarJob *job, GList *file_list)
 {
@@ -733,6 +728,7 @@ GList* job_ask_jobs(ThunarJob *job)
     e_return_val_if_fail(THUNAR_IS_JOB(job), NULL);
 
     g_signal_emit(EXO_JOB(job), _job_signals[ASK_JOBS], 0, &jobs);
+
     return jobs;
 }
 
