@@ -304,7 +304,7 @@ GList* progressdlg_list_jobs(ProgressDialog *dialog)
     {
         view = PROGRESSVIEW(l->data);
         job = progressview_get_job(view);
-        if (job != NULL && !exo_job_is_cancelled(EXO_JOB(job)))
+        if (job != NULL && !exo_job_is_cancelled(EXOJOB(job)))
         {
             jobs = g_list_append(jobs, job);
         }

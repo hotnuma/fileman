@@ -37,7 +37,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   19960	./misc/history.c
 +   19153	./misc/enumtypes.c
 
-    17838	./dialog/appcombo.c
++   17838	./dialog/appcombo.c
     17783	./job/exo_job.c
     15866	./misc/iconrender.c
     14876	./widget/sizelabel.c

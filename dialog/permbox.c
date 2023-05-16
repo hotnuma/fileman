@@ -410,7 +410,7 @@ static void permbox_finalize(GObject *object)
     if (G_UNLIKELY(permbox->job != NULL))
     {
         // cancel the job(if not already done)
-        exo_job_cancel(EXO_JOB(permbox->job));
+        exo_job_cancel(EXOJOB(permbox->job));
 
         // disconnect from the job
         g_signal_handlers_disconnect_matched(permbox->job,
@@ -997,7 +997,7 @@ static void _permbox_job_cancel(PermissionBox *permbox)
         return;
 
     // cancel the job(if not already done)
-    exo_job_cancel(EXO_JOB(permbox->job));
+    exo_job_cancel(EXOJOB(permbox->job));
 
     // disconnect from the job
     g_signal_handlers_disconnect_matched(permbox->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, permbox);

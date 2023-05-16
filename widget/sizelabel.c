@@ -147,7 +147,7 @@ static void szlabel_finalize(GObject *object)
     if (G_UNLIKELY(size_label->job != NULL))
     {
         g_signal_handlers_disconnect_matched(G_OBJECT(size_label->job), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
-        exo_job_cancel(EXO_JOB(size_label->job));
+        exo_job_cancel(EXOJOB(size_label->job));
         g_object_unref(size_label->job);
     }
 
@@ -219,7 +219,7 @@ static gboolean _szlabel_button_press_event(GtkWidget       *ebox,
             g_signal_handlers_disconnect_matched(
                         size_label->job, G_SIGNAL_MATCH_DATA,
                         0, 0, NULL, NULL, size_label);
-            exo_job_cancel(EXO_JOB(size_label->job));
+            exo_job_cancel(EXOJOB(size_label->job));
             g_object_unref(size_label->job);
             size_label->job = NULL;
         }
@@ -248,7 +248,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
     if (G_UNLIKELY(size_label->job != NULL))
     {
         g_signal_handlers_disconnect_matched(size_label->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
-        exo_job_cancel(EXO_JOB(size_label->job));
+        exo_job_cancel(EXOJOB(size_label->job));
         g_object_unref(size_label->job);
         size_label->job = NULL;
     }
@@ -269,7 +269,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
         gtk_widget_show(size_label->spinner);
 
         // launch the job
-        exo_job_launch(EXO_JOB(size_label->job));
+        exo_job_launch(EXOJOB(size_label->job));
     }
     else
     {

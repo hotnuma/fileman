@@ -81,7 +81,7 @@ static void dcjob_class_init(DeepCountJobClass *klass)
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = dcjob_finalize;
 
-    ExoJobClass *job_class = EXO_JOB_CLASS(klass);
+    ExoJobClass *job_class = EXOJOB_CLASS(klass);
     job_class->execute = dcjob_execute;
 
     /**
@@ -127,7 +127,7 @@ static void _dcjob_status_update(DeepCountJob *job)
 {
     e_return_if_fail(IS_DEEPCOUNTJOB(job));
 
-    exo_job_emit(EXO_JOB(job),
+    exo_job_emit(EXOJOB(job),
                  deep_count_signals[STATUS_UPDATE],
                  0,
                  job->total_size,

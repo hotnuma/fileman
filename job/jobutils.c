@@ -66,14 +66,14 @@ GFile* jobutil_next_duplicate_file(ThunarJob *job,
     e_return_val_if_fail(!e_file_is_root(file), NULL);
 
     // abort on cancellation
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+    if (exo_job_set_error_if_cancelled(EXOJOB(job), error))
         return NULL;
 
     // query the source file info / display name
     info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_TYPE ","
                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                              exo_job_get_cancellable(EXO_JOB(job)), &err);
+                              exo_job_get_cancellable(EXOJOB(job)), &err);
 
     // abort on error
     if (info == NULL)
@@ -171,14 +171,14 @@ GFile* jobutil_next_renamed_file(ThunarJob *job,
     e_return_val_if_fail(!e_file_is_root(tgt_file), NULL);
 
     // abort on cancellation
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+    if (exo_job_set_error_if_cancelled(EXOJOB(job), error))
         return NULL;
 
     // query the source file info / display name
     info = g_file_query_info(src_file, G_FILE_ATTRIBUTE_STANDARD_TYPE ","
                               G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                               G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                              exo_job_get_cancellable(EXO_JOB(job)), &err);
+                              exo_job_get_cancellable(EXOJOB(job)), &err);
 
     // abort on error
     if (info == NULL)

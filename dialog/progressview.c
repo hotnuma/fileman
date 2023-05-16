@@ -252,7 +252,7 @@ static void progressview_dispose(GObject *object)
     // disconnect from the job (if any)
     if (view->job != NULL)
     {
-        exo_job_cancel(EXO_JOB(view->job));
+        exo_job_cancel(EXOJOB(view->job));
         _progressview_set_job(view, NULL);
     }
 
@@ -410,7 +410,7 @@ static void _progressview_cancel_job(ProgressView *view)
     if (view->job != NULL)
     {
         // cancel the job
-        exo_job_cancel(EXO_JOB(view->job));
+        exo_job_cancel(EXOJOB(view->job));
 
         // don't listen to frozen/unfrozen states updates any more
         g_signal_handlers_disconnect_matched(view->job, G_SIGNAL_MATCH_FUNC, 0, 0, NULL,

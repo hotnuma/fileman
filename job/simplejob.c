@@ -48,7 +48,7 @@ static void simplejob_class_init(SimpleJobClass *klass)
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = simplejob_finalize;
 
-    ExoJobClass *exojob_class = EXO_JOB_CLASS(klass);
+    ExoJobClass *exojob_class = EXOJOB_CLASS(klass);
     exojob_class->execute = simplejob_execute;
 }
 
@@ -134,7 +134,7 @@ ThunarJob* simplejob_launch(SimpleJobFunc func, guint n_param_values, ...)
     va_end(var_args);
 
     // launch the job
-    return THUNAR_JOB(exo_job_launch(EXO_JOB(simple_job)));
+    return THUNAR_JOB(exo_job_launch(EXOJOB(simple_job)));
 }
 
 static gboolean simplejob_execute(ExoJob *job, GError **error)

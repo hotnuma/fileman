@@ -2384,7 +2384,7 @@ static void _launcher_action_make_link(ThunarLauncher *launcher)
 
 static void _launcher_rename_finished(ExoJob *job, GtkWidget *widget)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
 
     // destroy the job
     g_signal_handlers_disconnect_matched(job,
@@ -2397,7 +2397,7 @@ static void _launcher_rename_finished(ExoJob *job, GtkWidget *widget)
 
 static void _launcher_rename_error(ExoJob *job, GError *error, GtkWidget *widget)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
     e_return_if_fail(error != NULL);
 
     GArray *param_values = simplejob_get_param_values(THUNAR_SIMPLE_JOB(job));

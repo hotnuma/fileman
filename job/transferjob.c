@@ -185,7 +185,7 @@ static void transferjob_class_init(TransferJobClass *klass)
     gobject_class->get_property = transferjob_get_property;
     gobject_class->set_property = transferjob_set_property;
 
-    ExoJobClass *exojob_class = EXO_JOB_CLASS(klass);
+    ExoJobClass *exojob_class = EXOJOB_CLASS(klass);
     exojob_class->execute = transferjob_execute;
 
     g_object_class_install_property(gobject_class,
@@ -430,7 +430,7 @@ static void _transferjob_check_pause(TransferJob *job)
     e_return_if_fail(IS_TRANSFERJOB(job));
 
     while (job_is_paused(THUNAR_JOB(job))
-           && !exo_job_is_cancelled(EXO_JOB(job)))
+           && !exo_job_is_cancelled(EXOJOB(job)))
     {
         g_usleep(500 * 1000); // 500ms pause
     }
@@ -466,7 +466,7 @@ static gboolean _transferjob_verify_destination(TransferJob *transfer_job,
 
     // query information about the filesystem
     filesystem_info = g_file_query_filesystem_info(dest, FILESYSTEM_INFO_NAMESPACE,
-                      exo_job_get_cancellable(EXO_JOB(transfer_job)),
+                      exo_job_get_cancellable(EXOJOB(transfer_job)),
                       NULL);
 
     // unable to query the info, this could happen on some backends
@@ -478,7 +478,7 @@ static gboolean _transferjob_verify_destination(TransferJob *transfer_job,
 
     // some info about the file
     dest_info = g_file_query_info(dest, G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME, 0,
-                                   exo_job_get_cancellable(EXO_JOB(transfer_job)),
+                                   exo_job_get_cancellable(EXOJOB(transfer_job)),
                                    NULL);
     if (dest_info != NULL)
     {
@@ -528,7 +528,7 @@ static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
     e_return_val_if_fail(node != NULL && G_IS_FILE(node->source_file), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+    if (exo_job_set_error_if_cancelled(EXOJOB(job), error))
         return FALSE;
 
     GError             *err = NULL;
@@ -537,7 +537,7 @@ static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
                                 G_FILE_ATTRIBUTE_STANDARD_SIZE ","
                                 G_FILE_ATTRIBUTE_STANDARD_TYPE,
                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                exo_job_get_cancellable(EXO_JOB(job)),
+                                exo_job_get_cancellable(EXOJOB(job)),
                                 &err);
 
     if (G_UNLIKELY(info == NULL))
@@ -632,7 +632,7 @@ static void _transferjob_copy_node(TransferJob  *job,
         info = g_file_query_info(node->source_file,
                                   G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                                   G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                  exo_job_get_cancellable(EXO_JOB(job)),
+                                  exo_job_get_cancellable(EXOJOB(job)),
                                   &err);
 
         // abort on error or cancellation
@@ -643,7 +643,7 @@ static void _transferjob_copy_node(TransferJob  *job,
         }
 
         // update progress information
-        exo_job_info_message(EXO_JOB(job), "%s", g_file_info_get_display_name(info));
+        exo_job_info_message(EXOJOB(job), "%s", g_file_info_get_display_name(info));
 
 retry_copy:
         _transferjob_check_pause(job);
@@ -695,7 +695,7 @@ retry_remove:
                 if (job->type == TRANSFERJOB_MOVE)
                 {
                     if (!g_file_delete(node->source_file,
-                                        exo_job_get_cancellable(EXO_JOB(job)),
+                                        exo_job_get_cancellable(EXOJOB(job)),
                                         &err))
                     {
                         // ask the user to retry
@@ -800,7 +800,7 @@ static void _transferjob_freeze_optional(TransferJob *transfer_job)
             g_list_free(g_steal_pointer(&other_jobs));
             break;
         }
-        if (exo_job_is_cancelled(EXO_JOB(transfer_job)))
+        if (exo_job_is_cancelled(EXOJOB(transfer_job)))
             break;
         if (!job_is_frozen(THUNAR_JOB(transfer_job)))
         {
@@ -826,7 +826,7 @@ static void _transferjob_fill_source_device_info(TransferJob *transfer_job,
     GFileInfo *file_info = g_file_query_info(file,
                            G_FILE_ATTRIBUTE_ID_FILESYSTEM,
                            G_FILE_QUERY_INFO_NONE,
-                           exo_job_get_cancellable(EXO_JOB(transfer_job)),
+                           exo_job_get_cancellable(EXOJOB(transfer_job)),
                            NULL);
     if (file_info != NULL)
     {
@@ -854,7 +854,7 @@ static void _transferjob_fill_target_device_info(TransferJob *transfer_job,
         file_info = g_file_query_info(target_file,
                                        G_FILE_ATTRIBUTE_ID_FILESYSTEM,
                                        G_FILE_QUERY_INFO_NONE,
-                                       exo_job_get_cancellable(EXO_JOB(transfer_job)),
+                                       exo_job_get_cancellable(EXOJOB(transfer_job)),
                                        NULL);
         if (file_info != NULL)
         {
@@ -1016,7 +1016,7 @@ static GList* _transferjob_filter_running_jobs(GList *jobs, ThunarJob *own_job)
         job = ljobs->data;
         if (job == own_job)
             continue;
-        if (!exo_job_is_cancelled(EXO_JOB(job)) && !job_is_paused(job) && !job_is_frozen(job))
+        if (!exo_job_is_cancelled(EXOJOB(job)) && !job_is_paused(job) && !job_is_frozen(job))
         {
             run_jobs = g_list_append(run_jobs, job);
         }
@@ -1436,7 +1436,7 @@ static GFile* _transferjob_copy_file(TransferJob *job,
     e_return_val_if_fail(error == NULL || *error == NULL, NULL);
 
     // abort on cancellation
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+    if (exo_job_set_error_if_cancelled(EXOJOB(job), error))
         return NULL;
 
     // various attempts to copy the file
@@ -1564,7 +1564,7 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
     job->file_progress = 0;
 
     // source type
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+    if (exo_job_set_error_if_cancelled(EXOJOB(job), error))
         return FALSE;
 
     _transferjob_check_pause(job);
@@ -1572,10 +1572,10 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
     GFileType source_type = g_file_query_file_type(
                                     source_file,
                                     G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                    exo_job_get_cancellable(EXO_JOB(job)));
+                                    exo_job_get_cancellable(EXOJOB(job)));
 
     // target type
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+    if (exo_job_set_error_if_cancelled(EXOJOB(job), error))
         return FALSE;
 
     _transferjob_check_pause(job);
@@ -1583,9 +1583,9 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
     GFileType target_type = g_file_query_file_type(
                                     target_file,
                                     G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                    exo_job_get_cancellable(EXO_JOB(job)));
+                                    exo_job_get_cancellable(EXOJOB(job)));
 
-    if (exo_job_set_error_if_cancelled(EXO_JOB(job), error))
+    if (exo_job_set_error_if_cancelled(EXOJOB(job), error))
         return FALSE;
 
     _transferjob_check_pause(job);
@@ -1597,7 +1597,7 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
         && (copy_flags & G_FILE_COPY_OVERWRITE) != 0)
     {
         if (!g_file_delete(target_file,
-                           exo_job_get_cancellable(EXO_JOB(job)),
+                           exo_job_get_cancellable(EXOJOB(job)),
                            &err))
         {
             g_propagate_error(error, err);
@@ -1608,7 +1608,7 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
     g_file_copy(source_file,
                 target_file,
                 copy_flags,
-                exo_job_get_cancellable(EXO_JOB(job)),
+                exo_job_get_cancellable(EXOJOB(job)),
                 _transferjob_progress,
                 job,
                 &err);
@@ -1665,17 +1665,17 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
 
             gboolean target_exists = g_file_query_exists(
                                         target_file,
-                                        exo_job_get_cancellable(EXO_JOB(job)));
+                                        exo_job_get_cancellable(EXOJOB(job)));
 
             // abort on cancellation, continue otherwise
-            if (!exo_job_set_error_if_cancelled(EXO_JOB(job), &err))
+            if (!exo_job_set_error_if_cancelled(EXOJOB(job), &err))
             {
                 if (target_exists)
                 {
                     /* the target still exists and thus is not a directory.
                      *  try to remove it */
                     g_file_delete(target_file,
-                                  exo_job_get_cancellable(EXO_JOB(job)),
+                                  exo_job_get_cancellable(EXOJOB(job)),
                                   &err);
                 }
 
@@ -1684,7 +1684,7 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
                 {
                     // now try to create the directory
                     g_file_make_directory(target_file,
-                                          exo_job_get_cancellable(EXO_JOB(job)),
+                                          exo_job_get_cancellable(EXOJOB(job)),
                                           &err);
                 }
             }
@@ -1745,7 +1745,7 @@ static void _transferjob_progress(goffset current_num_bytes,
                 job->transfer_rate = transfer_rate;
 
             // emit the percent signal
-            exo_job_percent(EXO_JOB(job), new_percentage);
+            exo_job_percent(EXOJOB(job), new_percentage);
 
             // update internals
             job->last_update_time = current_time;

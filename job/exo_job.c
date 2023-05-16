@@ -40,7 +40,8 @@ static void exo_job_finalize(GObject *object);
 static void exo_job_error(ExoJob *job, const GError *error);
 static void exo_job_finished(ExoJob *job);
 
-// Signal identifiers
+// ExoJob ---------------------------------------------------------------------
+
 enum
 {
     ERROR,
@@ -183,7 +184,7 @@ static void exo_job_init(ExoJob *job)
 
 static void exo_job_finalize(GObject *object)
 {
-    ExoJob *job = EXO_JOB(object);
+    ExoJob *job = EXOJOB(object);
 
     if (job->priv->running)
         exo_job_cancel(job);
@@ -210,9 +211,9 @@ static void exo_job_finalize(GObject *object)
  **/
 static gboolean exo_job_async_ready(gpointer user_data)
 {
-    ExoJob *job = EXO_JOB(user_data);
+    ExoJob *job = EXOJOB(user_data);
 
-    e_return_val_if_fail(EXO_IS_JOB(job), FALSE);
+    e_return_val_if_fail(IS_EXOJOB(job), FALSE);
 
     if (job->priv->failed)
     {
@@ -250,17 +251,17 @@ static gboolean exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
                                            GCancellable    *cancellable,
                                            gpointer        user_data)
 {
-    ExoJob   *job = EXO_JOB(user_data);
+    ExoJob   *job = EXOJOB(user_data);
     GError   *error = NULL;
     gboolean  success;
     GSource  *source;
 
-    e_return_val_if_fail(EXO_IS_JOB(job), FALSE);
+    e_return_val_if_fail(IS_EXOJOB(job), FALSE);
     e_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
 
     job->priv->scheduler_job = scheduler_job;
 
-    success = EXO_JOB_GET_CLASS(job)->execute(job, &error);
+    success = EXOJOB_GET_CLASS(job)->execute(job, &error);
 
     if (!success)
     {
@@ -323,7 +324,7 @@ static void exo_job_emit_valist(ExoJob *job, guint signal_id,
 {
     ExoJobSignalData data;
 
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
     e_return_if_fail(job->priv->scheduler_job != NULL);
 
     data.instance = job;
@@ -354,7 +355,7 @@ static void exo_job_emit_valist(ExoJob *job, guint signal_id,
  **/
 static void exo_job_error(ExoJob *job, const GError *error)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
     e_return_if_fail(error != NULL);
 
     g_signal_emit(job, _exo_job_signals[ERROR], 0, error);
@@ -372,7 +373,7 @@ static void exo_job_error(ExoJob *job, const GError *error)
  **/
 static void exo_job_finished(ExoJob *job)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
     g_signal_emit(job, _exo_job_signals[FINISHED], 0);
 }
 
@@ -389,9 +390,9 @@ static void exo_job_finished(ExoJob *job)
  **/
 ExoJob* exo_job_launch(ExoJob *job)
 {
-    e_return_val_if_fail(EXO_IS_JOB(job), NULL);
+    e_return_val_if_fail(IS_EXOJOB(job), NULL);
     e_return_val_if_fail(!job->priv->running, NULL);
-    e_return_val_if_fail(EXO_JOB_GET_CLASS(job)->execute != NULL, NULL);
+    e_return_val_if_fail(EXOJOB_GET_CLASS(job)->execute != NULL, NULL);
 
     // mark the job as running
     job->priv->running = TRUE;
@@ -421,7 +422,7 @@ ExoJob* exo_job_launch(ExoJob *job)
  **/
 void exo_job_cancel(ExoJob *job)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
 
     if (job->priv->running)
         g_cancellable_cancel(job->priv->cancellable);
@@ -438,7 +439,7 @@ void exo_job_cancel(ExoJob *job)
  **/
 gboolean exo_job_is_cancelled(const ExoJob *job)
 {
-    e_return_val_if_fail(EXO_IS_JOB(job), FALSE);
+    e_return_val_if_fail(IS_EXOJOB(job), FALSE);
     return g_cancellable_is_cancelled(job->priv->cancellable);
 }
 
@@ -453,7 +454,7 @@ gboolean exo_job_is_cancelled(const ExoJob *job)
  **/
 GCancellable* exo_job_get_cancellable(const ExoJob *job)
 {
-    e_return_val_if_fail(EXO_IS_JOB(job), NULL);
+    e_return_val_if_fail(IS_EXOJOB(job), NULL);
     return job->priv->cancellable;
 }
 
@@ -475,7 +476,7 @@ GCancellable* exo_job_get_cancellable(const ExoJob *job)
  **/
 gboolean exo_job_set_error_if_cancelled(ExoJob *job, GError **error)
 {
-    e_return_val_if_fail(EXO_IS_JOB(job), FALSE);
+    e_return_val_if_fail(IS_EXOJOB(job), FALSE);
     return g_cancellable_set_error_if_cancelled(job->priv->cancellable, error);
 }
 
@@ -496,7 +497,7 @@ void exo_job_emit(ExoJob *job, guint signal_id, GQuark signal_detail, ...)
 {
     va_list var_args;
 
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
 
     va_start(var_args, signal_detail);
     exo_job_emit_valist(job, signal_id, signal_detail, var_args);
@@ -517,7 +518,7 @@ void exo_job_info_message(ExoJob *job, const gchar *format, ...)
     va_list var_args;
     gchar  *message;
 
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
     e_return_if_fail(format != NULL);
 
     va_start(var_args, format);
@@ -539,7 +540,7 @@ void exo_job_info_message(ExoJob *job, const gchar *format, ...)
  **/
 void exo_job_percent(ExoJob *job, gdouble percent)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
 
     percent = CLAMP(percent, 0.0, 100.0);
     exo_job_emit(job, _exo_job_signals[PERCENT], 0, percent);
@@ -562,7 +563,7 @@ gboolean exo_job_send_to_mainloop(ExoJob         *job,
                                   gpointer       user_data,
                                   GDestroyNotify destroy_notify)
 {
-    e_return_val_if_fail(EXO_IS_JOB(job), FALSE);
+    e_return_val_if_fail(IS_EXOJOB(job), FALSE);
     e_return_val_if_fail(job->priv->scheduler_job != NULL, FALSE);
 
     G_GNUC_BEGIN_IGNORE_DEPRECATIONS

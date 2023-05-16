@@ -690,7 +690,7 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 static void _propsdlg_rename_error(ExoJob *job, GError *error,
                                    PropertiesDialog *dialog)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
     e_return_if_fail(error != NULL);
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
@@ -708,7 +708,7 @@ static void _propsdlg_rename_error(ExoJob *job, GError *error,
 
 static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
 {
-    e_return_if_fail(EXO_IS_JOB(job));
+    e_return_if_fail(IS_EXOJOB(job));
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
 

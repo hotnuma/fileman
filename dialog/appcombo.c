@@ -33,14 +33,15 @@ static void appcombo_get_property(GObject *object, guint prop_id,
 static void appcombo_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
 static gboolean appcombo_scroll_event(GtkWidget *widget, GdkEventScroll *event);
+static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
+                                        gpointer data);
 
 static void _appcombo_changed(GtkComboBox *combo_box);
 static void _appcombo_popup(AppCombo *chooser_button);
-static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b);
-static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
-                                        gpointer data);
 static void _appcombo_chooser_dialog(AppCombo *chooser_button);
+
 static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file);
+static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b);
 
 // AppCombo -------------------------------------------------------------------
 
@@ -222,6 +223,23 @@ static gboolean appcombo_scroll_event(GtkWidget *widget, GdkEventScroll *event)
     return GTK_WIDGET_CLASS(appcombo_parent_class)->scroll_event(widget, event);
 }
 
+static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
+                                        gpointer data)
+{
+    (void) data;
+    gchar *name;
+
+    // determine the value of the "name" column
+    gtk_tree_model_get(model, iter, APPCOMBO_STORE_COLUMN_NAME, &name, -1);
+    if (G_LIKELY(name != NULL))
+    {
+        g_free(name);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 // Properties -----------------------------------------------------------------
 
 void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
@@ -250,7 +268,8 @@ void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
         g_object_ref(G_OBJECT(file));
 
         // stay informed about changes
-        g_signal_connect_swapped(G_OBJECT(file), "changed", G_CALLBACK(_appcombo_file_changed), chooser_button);
+        g_signal_connect_swapped(G_OBJECT(file), "changed",
+                                 G_CALLBACK(_appcombo_file_changed), chooser_button);
 
         // update our state now
         _appcombo_file_changed(chooser_button, file);
@@ -260,7 +279,7 @@ void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
     g_object_notify(G_OBJECT(chooser_button), "file");
 }
 
-// ----------------------------------------------------------------------------
+// Events ---------------------------------------------------------------------
 
 static void _appcombo_changed(GtkComboBox *combo_box)
 {
@@ -328,32 +347,6 @@ static void _appcombo_popup(AppCombo *chooser_button)
         // open the chooser dialog if the filetype has no default action
         _appcombo_chooser_dialog(chooser_button);
     }
-}
-
-static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b)
-{
-    e_return_val_if_fail(G_IS_APP_INFO(a), -1);
-    e_return_val_if_fail(G_IS_APP_INFO(b), -1);
-
-    return g_utf8_collate(g_app_info_get_name(G_APP_INFO(a)),
-                           g_app_info_get_name(G_APP_INFO(b)));
-}
-
-static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
-                                        gpointer data)
-{
-    (void) data;
-    gchar *name;
-
-    // determine the value of the "name" column
-    gtk_tree_model_get(model, iter, APPCOMBO_STORE_COLUMN_NAME, &name, -1);
-    if (G_LIKELY(name != NULL))
-    {
-        g_free(name);
-        return FALSE;
-    }
-
-    return TRUE;
 }
 
 static void _appcombo_chooser_dialog(AppCombo *chooser_button)
@@ -502,6 +495,17 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
                                        _appcombo_changed,
                                        NULL);
 }
+
+static gint _appcombo_sort_applications(gconstpointer a, gconstpointer b)
+{
+    e_return_val_if_fail(G_IS_APP_INFO(a), -1);
+    e_return_val_if_fail(G_IS_APP_INFO(b), -1);
+
+    return g_utf8_collate(g_app_info_get_name(G_APP_INFO(a)),
+                           g_app_info_get_name(G_APP_INFO(b)));
+}
+
+// Public ---------------------------------------------------------------------
 
 GtkWidget* appcombo_new()
 {
