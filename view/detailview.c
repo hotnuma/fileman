@@ -223,7 +223,7 @@ static void detailview_init(DetailView *details_view)
     gtk_tree_view_set_rubber_banding(GTK_TREE_VIEW(tree_view), TRUE);
 
     // connect to the default column model
-    details_view->column_model = column_model_get_default();
+    details_view->column_model = colmodel_get_default();
     g_signal_connect(G_OBJECT(details_view->column_model), "columns-changed", G_CALLBACK(_detailview_columns_changed), details_view);
     g_signal_connect_after(G_OBJECT(STANDARD_VIEW(details_view)->model), "row-changed",
                             G_CALLBACK(_detailview_row_changed), details_view);
@@ -249,7 +249,7 @@ static void detailview_init(DetailView *details_view)
         gtk_tree_view_column_set_min_width(details_view->columns[column], 50);
         gtk_tree_view_column_set_resizable(details_view->columns[column], TRUE);
         gtk_tree_view_column_set_sort_column_id(details_view->columns[column], column);
-        gtk_tree_view_column_set_title(details_view->columns[column], column_model_get_column_name(details_view->column_model, column));
+        gtk_tree_view_column_set_title(details_view->columns[column], colmodel_get_column_name(details_view->column_model, column));
 
         // stay informed whenever the width of the column is changed
         g_signal_connect(G_OBJECT(details_view->columns[column]), "notify::width",
@@ -311,7 +311,7 @@ static void detailview_init(DetailView *details_view)
         {
             gtk_tree_view_column_set_fixed_width(
                 details_view->columns[column],
-                column_model_get_column_width(details_view->column_model,
+                colmodel_get_column_width(details_view->column_model,
                                               column));
         }
     }
@@ -415,7 +415,7 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
                 // apply "width" as "fixed-width" for fixed columns mode
                 width = gtk_tree_view_column_get_width(details_view->columns[column]);
                 if (G_UNLIKELY(width <= 0))
-                    width = column_model_get_column_width(details_view->column_model, column);
+                    width = colmodel_get_column_width(details_view->column_model, column);
                 gtk_tree_view_column_set_fixed_width(details_view->columns[column], MAX(width, 1));
 
                 // set column to fixed width
@@ -939,13 +939,13 @@ static void _detailview_columns_changed(ColumnModel *column_model,
     e_return_if_fail(details_view->column_model == column_model);
 
     // determine the new column order
-    column_order = column_model_get_column_order(column_model);
+    column_order = colmodel_get_column_order(column_model);
 
     // apply new order and visibility
     for(column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
     {
         // apply the new visibility for the tree view column
-        gtk_tree_view_column_set_visible(details_view->columns[column], column_model_get_column_visible(column_model, column));
+        gtk_tree_view_column_set_visible(details_view->columns[column], colmodel_get_column_visible(column_model, column));
 
         // change the order of the column relative to its predecessor
         if (G_LIKELY(column > 0))
@@ -986,7 +986,7 @@ static void _detailview_notify_width(GtkTreeViewColumn *tree_view_column,
         if (details_view->columns[column] == tree_view_column)
         {
             // save the new width as default fixed width
-            column_model_set_column_width(details_view->column_model,
+            colmodel_set_column_width(details_view->column_model,
                                                  column,
                                                  gtk_tree_view_column_get_width(
                                                      tree_view_column));
