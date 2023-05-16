@@ -58,14 +58,17 @@ struct _ThunarHistoryClass
 GType history_get_type() G_GNUC_CONST;
 
 ThunarHistory* history_copy(ThunarHistory *history);
-gboolean history_has_back(ThunarHistory *history);
-gboolean history_has_forward(ThunarHistory *history);
-ThunarFile* history_peek_back(ThunarHistory *history);
-ThunarFile* history_peek_forward(ThunarHistory *history);
-void history_action_back(ThunarHistory *history);
-void history_action_forward(ThunarHistory *history);
 void history_show_menu(ThunarHistory *history, ThunarHistoryMenuType type,
                        GtkWidget *parent);
+
+void history_action_back(ThunarHistory *history);
+void history_action_forward(ThunarHistory *history);
+
+gboolean history_has_back(ThunarHistory *history);
+ThunarFile* history_peek_back(ThunarHistory *history);
+
+gboolean history_has_forward(ThunarHistory *history);
+ThunarFile* history_peek_forward(ThunarHistory *history);
 
 G_END_DECLS
 

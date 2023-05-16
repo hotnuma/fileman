@@ -39,11 +39,17 @@ static void history_set_property(GObject *object,
 static ThunarFile* history_get_current_directory(ThunarNavigator *navigator);
 static void history_set_current_directory(ThunarNavigator *navigator,
                                           ThunarFile *current_directory);
+static GFile* _history_get_gfile(ThunarFile *file);
+
+// Public ---------------------------------------------------------------------
+
+// history_show_menu
+static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history);
+static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history);
 
 static void _history_go_back(ThunarHistory *history, GFile *goto_file);
 static void _history_go_forward(ThunarHistory *history, GFile *goto_file);
-static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history);
-static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history);
+static void _history_error_not_found(GFile *goto_file, gpointer parent);
 
 // ThunarHistory --------------------------------------------------------------
 
@@ -58,6 +64,7 @@ enum
     HISTORY_CHANGED,
     LAST_SIGNAL,
 };
+static guint _history_signals[LAST_SIGNAL];
 
 struct _ThunarHistory
 {
@@ -69,11 +76,7 @@ struct _ThunarHistory
     GSList      *forward_list;
 };
 
-static guint _history_signals[LAST_SIGNAL];
-
-G_DEFINE_TYPE_WITH_CODE(ThunarHistory,
-                        history,
-                        G_TYPE_OBJECT,
+G_DEFINE_TYPE_WITH_CODE(ThunarHistory, history, G_TYPE_OBJECT,
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
                                               history_navigator_init))
 
@@ -82,9 +85,7 @@ static GQuark _history_gfile_quark;
 
 static void history_class_init(ThunarHistoryClass *klass)
 {
-    GObjectClass *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = history_finalize;
     gobject_class->get_property = history_get_property;
     gobject_class->set_property = history_set_property;
@@ -98,8 +99,8 @@ static void history_class_init(ThunarHistoryClass *klass)
      * Inherited from #ThunarNavigator.
      **/
     g_object_class_override_property(gobject_class,
-                                      PROP_CURRENT_DIRECTORY,
-                                      "current-directory");
+                                     PROP_CURRENT_DIRECTORY,
+                                     "current-directory");
 
     _history_signals[HISTORY_CHANGED] =
         g_signal_new(I_("history-changed"),
@@ -175,22 +176,6 @@ static ThunarFile* history_get_current_directory(ThunarNavigator *navigator)
     return THUNARHISTORY(navigator)->current_directory;
 }
 
-static GFile* _history_get_gfile(ThunarFile *file)
-{
-    GFile       *gfile;
-    const gchar *display_name;
-
-    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-
-    gfile = th_file_get_file(file);
-
-    display_name = th_file_get_display_name(file);
-    g_object_set_qdata_full(G_OBJECT(gfile), _history_display_name_quark,
-                            g_strdup(display_name), g_free);
-
-    return g_object_ref(gfile);
-}
-
 static void history_set_current_directory(ThunarNavigator *navigator,
                                           ThunarFile      *current_directory)
 {
@@ -241,209 +226,48 @@ static void history_set_current_directory(ThunarNavigator *navigator,
     }
 }
 
-static void _history_error_not_found(GFile *goto_file, gpointer parent)
+static GFile* _history_get_gfile(ThunarFile *file)
 {
-    gchar  *parse_name;
-    gchar  *path;
-    GError *error = NULL;
+    GFile       *gfile;
+    const gchar *display_name;
 
-    g_set_error_literal(&error, G_FILE_ERROR, G_FILE_ERROR_EXIST,
-                         _("The item will be removed from the history"));
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
 
-    path = g_file_get_path(goto_file);
-    if (path == NULL)
-    {
-        path = g_file_get_uri(goto_file);
-        parse_name = g_uri_unescape_string(path, NULL);
-        g_free(path);
-    }
-    else
-        parse_name = g_file_get_parse_name(goto_file);
+    gfile = th_file_get_file(file);
 
-    dialog_error(parent, error, _("Could not find \"%s\""), parse_name);
-    g_free(parse_name);
+    display_name = th_file_get_display_name(file);
+    g_object_set_qdata_full(G_OBJECT(gfile), _history_display_name_quark,
+                            g_strdup(display_name), g_free);
 
-    g_error_free(error);
+    return g_object_ref(gfile);
 }
 
-static void _history_go_back(ThunarHistory *history, GFile *goto_file)
+// Public ---------------------------------------------------------------------
+
+ThunarHistory* history_copy(ThunarHistory *history)
 {
-    GFile      *gfile;
-    GSList     *lp;
-    GSList     *lnext;
-    ThunarFile *directory;
+    ThunarHistory *copy;
+    GSList        *lp;
 
-    e_return_if_fail(IS_THUNARHISTORY(history));
-    e_return_if_fail(G_IS_FILE(goto_file));
+    e_return_val_if_fail(history == NULL || IS_THUNARHISTORY(history), NULL);
 
-    // check if the directory still exists
-    directory = th_file_get(goto_file, NULL);
-    if (directory == NULL || ! th_file_is_mounted(directory))
-    {
-        _history_error_not_found(goto_file, NULL);
+    if (G_UNLIKELY(history == NULL))
+        return NULL;
 
-        // delete item from the history
-        lp = g_slist_find(history->back_list, goto_file);
-        if (lp != NULL)
-        {
-            g_object_unref(lp->data);
-            history->back_list = g_slist_delete_link(history->back_list, lp);
-        }
-        return;
-    }
+    copy = g_object_new(TYPE_THUNARHISTORY, NULL);
 
-    // prepend the previous current directory to the "forward" list
-    if (G_LIKELY(history->current_directory != NULL))
-    {
-        gfile = _history_get_gfile(history->current_directory);
-        history->forward_list = g_slist_prepend(history->forward_list, gfile);
+    // take a ref on the current directory
+    copy->current_directory = g_object_ref(history->current_directory);
 
-        g_object_unref(history->current_directory);
-        history->current_directory = NULL;
-    }
+    // copy the back list
+    for(lp = history->back_list; lp != NULL; lp = lp->next)
+        copy->back_list = g_slist_append(copy->back_list, g_object_ref(G_OBJECT(lp->data)));
 
-    /* add all the items of the back list to the "forward" list until
-     * the target file is reached  */
-    for(lp = history->back_list; lp != NULL; lp = lnext)
-    {
-        lnext = lp->next;
+    // copy the forward list
+    for(lp = history->forward_list; lp != NULL; lp = lp->next)
+        copy->forward_list = g_slist_append(copy->forward_list, g_object_ref(G_OBJECT(lp->data)));
 
-        if (g_file_equal(goto_file, G_FILE(lp->data)))
-        {
-            if (directory != NULL)
-                history->current_directory = g_object_ref(directory);
-
-            // remove the new directory from the list
-            g_object_unref(lp->data);
-            history->back_list = g_slist_delete_link(history->back_list, lp);
-
-            break;
-        }
-
-        // remove item from the list
-        history->back_list = g_slist_remove_link(history->back_list, lp);
-
-        // prepend element to the other list
-        lp->next = history->forward_list;
-        history->forward_list = lp;
-    }
-
-    if (directory != NULL)
-        g_object_unref(directory);
-
-    // tell the other modules to change the current directory
-    if (G_LIKELY(history->current_directory != NULL))
-        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
-}
-
-static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
-{
-    GFile      *gfile;
-    GSList     *lnext;
-    GSList     *lp;
-    ThunarFile *directory;
-
-    e_return_if_fail(IS_THUNARHISTORY(history));
-    e_return_if_fail(G_IS_FILE(goto_file));
-
-    // check if the directory still exists
-    directory = th_file_get(goto_file, NULL);
-    if (directory == NULL || ! th_file_is_mounted(directory))
-    {
-        _history_error_not_found(goto_file, NULL);
-
-        // delete item from the history
-        lp = g_slist_find(history->forward_list, goto_file);
-        if (lp != NULL)
-        {
-            g_object_unref(lp->data);
-            history->forward_list = g_slist_delete_link(history->forward_list, lp);
-        }
-        return;
-    }
-
-    // prepend the previous current directory to the "back" list
-    if (G_LIKELY(history->current_directory != NULL))
-    {
-        gfile = _history_get_gfile(history->current_directory);
-        history->back_list = g_slist_prepend(history->back_list, gfile);
-
-        g_object_unref(history->current_directory);
-        history->current_directory = NULL;
-    }
-
-    for (lp = history->forward_list; lp != NULL; lp = lnext)
-    {
-        lnext = lp->next;
-
-        if (g_file_equal(goto_file, G_FILE(lp->data)))
-        {
-            if (directory != NULL)
-                history->current_directory = g_object_ref(directory);
-
-            // remove the new dirctory from the list
-            g_object_unref(lp->data);
-            history->forward_list = g_slist_delete_link(history->forward_list, lp);
-
-            break;
-        }
-
-        // remove item from the list
-        history->forward_list = g_slist_remove_link(history->forward_list, lp);
-
-        // prepend item to the back list
-        lp->next = history->back_list;
-        history->back_list = lp;
-    }
-
-    if (directory != NULL)
-        g_object_unref(directory);
-
-    // tell the other modules to change the current directory
-    if (G_LIKELY(history->current_directory != NULL))
-        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
-}
-
-void history_action_back(ThunarHistory *history)
-{
-    e_return_if_fail(IS_THUNARHISTORY(history));
-
-    // go back one step
-    if (history->back_list != NULL)
-        _history_go_back(history, history->back_list->data);
-}
-
-static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
-{
-    GFile *file;
-
-    e_return_if_fail(GTK_IS_MENU_ITEM(item));
-    e_return_if_fail(IS_THUNARHISTORY(history));
-
-    file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
-    if (G_LIKELY(file != NULL))
-        _history_go_back(history, file);
-}
-
-void history_action_forward(ThunarHistory *history)
-{
-    e_return_if_fail(IS_THUNARHISTORY(history));
-
-    // go forward one step
-    if (history->forward_list != NULL)
-        _history_go_forward(history, history->forward_list->data);
-}
-
-static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history)
-{
-    GFile *file;
-
-    e_return_if_fail(GTK_IS_MENU_ITEM(item));
-    e_return_if_fail(IS_THUNARHISTORY(history));
-
-    file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
-    if (G_LIKELY(file != NULL))
-        _history_go_forward(history, file);
+    return copy;
 }
 
 void history_show_menu(ThunarHistory         *history,
@@ -539,30 +363,211 @@ void history_show_menu(ThunarHistory         *history,
     etk_menu_run(GTK_MENU(menu));
 }
 
-ThunarHistory* history_copy(ThunarHistory *history)
+// Actions --------------------------------------------------------------------
+
+static void _history_action_back_nth(GtkWidget *item, ThunarHistory *history)
 {
-    ThunarHistory *copy;
-    GSList        *lp;
+    GFile *file;
 
-    e_return_val_if_fail(history == NULL || IS_THUNARHISTORY(history), NULL);
+    e_return_if_fail(GTK_IS_MENU_ITEM(item));
+    e_return_if_fail(IS_THUNARHISTORY(history));
 
-    if (G_UNLIKELY(history == NULL))
-        return NULL;
+    file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
+    if (G_LIKELY(file != NULL))
+        _history_go_back(history, file);
+}
 
-    copy = g_object_new(TYPE_THUNARHISTORY, NULL);
+void history_action_back(ThunarHistory *history)
+{
+    e_return_if_fail(IS_THUNARHISTORY(history));
 
-    // take a ref on the current directory
-    copy->current_directory = g_object_ref(history->current_directory);
+    // go back one step
+    if (history->back_list != NULL)
+        _history_go_back(history, history->back_list->data);
+}
 
-    // copy the back list
-    for(lp = history->back_list; lp != NULL; lp = lp->next)
-        copy->back_list = g_slist_append(copy->back_list, g_object_ref(G_OBJECT(lp->data)));
+static void _history_go_back(ThunarHistory *history, GFile *goto_file)
+{
+    GFile      *gfile;
+    GSList     *lp;
+    GSList     *lnext;
+    ThunarFile *directory;
 
-    // copy the forward list
-    for(lp = history->forward_list; lp != NULL; lp = lp->next)
-        copy->forward_list = g_slist_append(copy->forward_list, g_object_ref(G_OBJECT(lp->data)));
+    e_return_if_fail(IS_THUNARHISTORY(history));
+    e_return_if_fail(G_IS_FILE(goto_file));
 
-    return copy;
+    // check if the directory still exists
+    directory = th_file_get(goto_file, NULL);
+    if (directory == NULL || ! th_file_is_mounted(directory))
+    {
+        _history_error_not_found(goto_file, NULL);
+
+        // delete item from the history
+        lp = g_slist_find(history->back_list, goto_file);
+        if (lp != NULL)
+        {
+            g_object_unref(lp->data);
+            history->back_list = g_slist_delete_link(history->back_list, lp);
+        }
+        return;
+    }
+
+    // prepend the previous current directory to the "forward" list
+    if (G_LIKELY(history->current_directory != NULL))
+    {
+        gfile = _history_get_gfile(history->current_directory);
+        history->forward_list = g_slist_prepend(history->forward_list, gfile);
+
+        g_object_unref(history->current_directory);
+        history->current_directory = NULL;
+    }
+
+    /* add all the items of the back list to the "forward" list until
+     * the target file is reached  */
+    for(lp = history->back_list; lp != NULL; lp = lnext)
+    {
+        lnext = lp->next;
+
+        if (g_file_equal(goto_file, G_FILE(lp->data)))
+        {
+            if (directory != NULL)
+                history->current_directory = g_object_ref(directory);
+
+            // remove the new directory from the list
+            g_object_unref(lp->data);
+            history->back_list = g_slist_delete_link(history->back_list, lp);
+
+            break;
+        }
+
+        // remove item from the list
+        history->back_list = g_slist_remove_link(history->back_list, lp);
+
+        // prepend element to the other list
+        lp->next = history->forward_list;
+        history->forward_list = lp;
+    }
+
+    if (directory != NULL)
+        g_object_unref(directory);
+
+    // tell the other modules to change the current directory
+    if (G_LIKELY(history->current_directory != NULL))
+        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
+}
+
+static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history)
+{
+    GFile *file;
+
+    e_return_if_fail(GTK_IS_MENU_ITEM(item));
+    e_return_if_fail(IS_THUNARHISTORY(history));
+
+    file = g_object_get_qdata(G_OBJECT(item), _history_gfile_quark);
+    if (G_LIKELY(file != NULL))
+        _history_go_forward(history, file);
+}
+
+void history_action_forward(ThunarHistory *history)
+{
+    e_return_if_fail(IS_THUNARHISTORY(history));
+
+    // go forward one step
+    if (history->forward_list != NULL)
+        _history_go_forward(history, history->forward_list->data);
+}
+
+static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
+{
+    GFile      *gfile;
+    GSList     *lnext;
+    GSList     *lp;
+    ThunarFile *directory;
+
+    e_return_if_fail(IS_THUNARHISTORY(history));
+    e_return_if_fail(G_IS_FILE(goto_file));
+
+    // check if the directory still exists
+    directory = th_file_get(goto_file, NULL);
+    if (directory == NULL || ! th_file_is_mounted(directory))
+    {
+        _history_error_not_found(goto_file, NULL);
+
+        // delete item from the history
+        lp = g_slist_find(history->forward_list, goto_file);
+        if (lp != NULL)
+        {
+            g_object_unref(lp->data);
+            history->forward_list = g_slist_delete_link(history->forward_list, lp);
+        }
+        return;
+    }
+
+    // prepend the previous current directory to the "back" list
+    if (G_LIKELY(history->current_directory != NULL))
+    {
+        gfile = _history_get_gfile(history->current_directory);
+        history->back_list = g_slist_prepend(history->back_list, gfile);
+
+        g_object_unref(history->current_directory);
+        history->current_directory = NULL;
+    }
+
+    for (lp = history->forward_list; lp != NULL; lp = lnext)
+    {
+        lnext = lp->next;
+
+        if (g_file_equal(goto_file, G_FILE(lp->data)))
+        {
+            if (directory != NULL)
+                history->current_directory = g_object_ref(directory);
+
+            // remove the new dirctory from the list
+            g_object_unref(lp->data);
+            history->forward_list = g_slist_delete_link(history->forward_list, lp);
+
+            break;
+        }
+
+        // remove item from the list
+        history->forward_list = g_slist_remove_link(history->forward_list, lp);
+
+        // prepend item to the back list
+        lp->next = history->back_list;
+        history->back_list = lp;
+    }
+
+    if (directory != NULL)
+        g_object_unref(directory);
+
+    // tell the other modules to change the current directory
+    if (G_LIKELY(history->current_directory != NULL))
+        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
+}
+
+static void _history_error_not_found(GFile *goto_file, gpointer parent)
+{
+    gchar  *parse_name;
+    gchar  *path;
+    GError *error = NULL;
+
+    g_set_error_literal(&error, G_FILE_ERROR, G_FILE_ERROR_EXIST,
+                         _("The item will be removed from the history"));
+
+    path = g_file_get_path(goto_file);
+    if (path == NULL)
+    {
+        path = g_file_get_uri(goto_file);
+        parse_name = g_uri_unescape_string(path, NULL);
+        g_free(path);
+    }
+    else
+        parse_name = g_file_get_parse_name(goto_file);
+
+    dialog_error(parent, error, _("Could not find \"%s\""), parse_name);
+    g_free(parse_name);
+
+    g_error_free(error);
 }
 
 /**
@@ -576,20 +581,6 @@ gboolean history_has_back(ThunarHistory *history)
     e_return_val_if_fail(IS_THUNARHISTORY(history), FALSE);
 
     return history->back_list != NULL;
-}
-
-
-/**
- * thunar_history_has_forward:
- * @history : a #ThunarHistory.
- *
- * Return value: TRUE if there is a forward history
- **/
-gboolean history_has_forward(ThunarHistory *history)
-{
-    e_return_val_if_fail(IS_THUNARHISTORY(history), FALSE);
-
-    return history->forward_list != NULL;
 }
 
 /**
@@ -613,6 +604,19 @@ ThunarFile* history_peek_back(ThunarHistory *history)
         result = th_file_get(history->back_list->data, NULL);
 
     return result;
+}
+
+/**
+ * thunar_history_has_forward:
+ * @history : a #ThunarHistory.
+ *
+ * Return value: TRUE if there is a forward history
+ **/
+gboolean history_has_forward(ThunarHistory *history)
+{
+    e_return_val_if_fail(IS_THUNARHISTORY(history), FALSE);
+
+    return history->forward_list != NULL;
 }
 
 /**
