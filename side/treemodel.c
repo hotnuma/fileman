@@ -438,7 +438,7 @@ static GType treemodel_get_column_type(GtkTreeModel *tree_model, gint column)
         return PANGO_TYPE_ATTR_LIST;
 
     case TREEMODEL_COLUMN_DEVICE:
-        return THUNAR_TYPE_DEVICE;
+        return TYPE_THUNARDEVICE;
 
     default:
         e_assert_not_reached();
@@ -579,7 +579,7 @@ static void treemodel_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
         break;
 
     case TREEMODEL_COLUMN_DEVICE:
-        g_value_init(value, THUNAR_TYPE_DEVICE);
+        g_value_init(value, TYPE_THUNARDEVICE);
         g_value_set_object(value,(item != NULL) ? item->device : NULL);
         break;
 
@@ -898,7 +898,7 @@ static void _treemodel_device_changed(DeviceMonitor *device_monitor,
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(model->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     GNode *node;
@@ -964,7 +964,7 @@ static void _treemodel_device_pre_unmount(DeviceMonitor *device_monitor,
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(model->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(G_IS_FILE(root_file));
     e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
@@ -999,13 +999,13 @@ static void _treemodel_device_added(DeviceMonitor *device_monitor,
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(model->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     GNode *node;
 
     // check if the new node should be inserted after "File System" or "Network"
-    if (model->network && th_device_get_kind(device) == THUNAR_DEVICE_KIND_MOUNT_REMOTE)
+    if (model->network && th_device_get_kind(device) == THUNARDEVICE_KIND_MOUNT_REMOTE)
         node = model->network;
     else
         node = model->file_system;
@@ -1054,7 +1054,7 @@ static void _treemodel_device_removed(DeviceMonitor *device_monitor,
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(model->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
     GNode *node;
@@ -1095,7 +1095,7 @@ static TreeModelItem* _treeitem_new_with_device(TreeModel *model,
     GFile               *mount_point;
 
     item = g_slice_new0(TreeModelItem);
-    item->device = THUNAR_DEVICE(g_object_ref(G_OBJECT(device)));
+    item->device = THUNARDEVICE(g_object_ref(G_OBJECT(device)));
     item->model = model;
 
     // check if the volume is mounted
@@ -1162,7 +1162,7 @@ static void _treeitem_reset(TreeModelItem *item)
 
 static void _treeitem_load_folder(TreeModelItem *item)
 {
-    e_return_if_fail(THUNAR_IS_FILE(item->file) || THUNAR_IS_DEVICE(item->device));
+    e_return_if_fail(THUNAR_IS_FILE(item->file) || IS_THUNARDEVICE(item->device));
 
     // schedule the "load" idle source(if not already done)
     if (G_LIKELY(item->load_idle_id == 0 && item->folder == NULL))

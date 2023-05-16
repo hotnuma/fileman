@@ -1274,7 +1274,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
     case LAUNCHER_ACTION_EJECT:
         if (launcher->device_to_process == NULL
-            || th_device_get_kind(launcher->device_to_process) != THUNAR_DEVICE_KIND_VOLUME)
+            || th_device_get_kind(launcher->device_to_process) != THUNARDEVICE_KIND_VOLUME)
             return NULL;
         item = xfce_gtk_menu_item_new_from_action_entry(action_entry,
                                                         G_OBJECT(launcher),
@@ -2508,7 +2508,7 @@ static void _launcher_action_eject_finish(ThunarDevice *device, const GError *er
 {
     ThunarLauncher *launcher = THUNAR_LAUNCHER(user_data);
 
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     // check if there was an error
@@ -2581,7 +2581,7 @@ static void _launcher_action_unmount_finish(ThunarDevice *device,
 {
     ThunarLauncher *launcher = THUNAR_LAUNCHER(user_data);
 
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     // check if there was an error

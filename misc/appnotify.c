@@ -136,7 +136,7 @@ static gboolean _app_notify_device_readonly(ThunarDevice *device)
 
 void app_notify_unmount(ThunarDevice *device)
 {
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
 
     if (!app_notify_init())
         return;
@@ -170,7 +170,7 @@ void app_notify_unmount(ThunarDevice *device)
 
 void app_notify_eject(ThunarDevice *device)
 {
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
 
     if (!app_notify_init())
         return;
@@ -203,7 +203,7 @@ void app_notify_eject(ThunarDevice *device)
 
 void app_notify_finish(ThunarDevice *device)
 {
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
 
     NotifyNotification *notification;
     notification = g_object_get_data(G_OBJECT(device), I_("thunar-notification"));

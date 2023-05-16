@@ -84,7 +84,7 @@ static void shrender_class_init(ShortcutRendererClass *klass)
                                         "device",
                                         "device",
                                         "device",
-                                        THUNAR_TYPE_DEVICE,
+                                        TYPE_THUNARDEVICE,
                                         E_PARAM_READWRITE));
 
     /**

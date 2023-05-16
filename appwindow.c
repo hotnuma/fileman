@@ -1079,7 +1079,7 @@ static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(window->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(G_IS_FILE(root_file));
     e_return_if_fail(IS_APPWINDOW(window));
 
@@ -1102,7 +1102,7 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(window->device_monitor == device_monitor);
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(IS_APPWINDOW(window));
 
     if (th_device_is_mounted(device))

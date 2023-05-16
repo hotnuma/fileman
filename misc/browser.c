@@ -25,14 +25,14 @@
 typedef struct _PokeFileData   PokeFileData;
 typedef struct _PokeDeviceData PokeDeviceData;
 
-static void _browser_poke_file_internal(ThunarBrowser    *browser,
-                                        GFile            *location,
-                                        ThunarFile       *source,
-                                        ThunarFile       *file,
-                                        gpointer         widget,
+static void _browser_poke_file_internal(ThunarBrowser *browser,
+                                        GFile *location,
+                                        ThunarFile *source,
+                                        ThunarFile *file,
+                                        gpointer widget,
                                         ThunarBrowserPokeFileFunc func,
                                         ThunarBrowserPokeLocationFunc location_func,
-                                        gpointer         user_data);
+                                        gpointer user_data);
 
 struct _PokeFileData
 {
@@ -138,7 +138,7 @@ static PokeDeviceData* _browser_poke_device_data_new(
     PokeDeviceData *poke_data;
 
     e_return_val_if_fail(THUNAR_IS_BROWSER(browser), NULL);
-    e_return_val_if_fail(THUNAR_IS_DEVICE(device), NULL);
+    e_return_val_if_fail(IS_THUNARDEVICE(device), NULL);
 
     poke_data = g_slice_new0(PokeDeviceData);
     poke_data->browser = g_object_ref(browser);
@@ -153,7 +153,7 @@ static void _browser_poke_device_data_free(PokeDeviceData *poke_data)
 {
     e_return_if_fail(poke_data != NULL);
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
-    e_return_if_fail(THUNAR_IS_DEVICE(poke_data->device));
+    e_return_if_fail(IS_THUNARDEVICE(poke_data->device));
 
     g_object_unref(poke_data->browser);
     g_object_unref(poke_data->device);
@@ -528,7 +528,7 @@ static void _browser_poke_device_file_finish(GFile      *location,
     e_return_if_fail(G_IS_FILE(location));
     e_return_if_fail(user_data != NULL);
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
-    e_return_if_fail(THUNAR_IS_DEVICE(poke_data->device));
+    e_return_if_fail(IS_THUNARDEVICE(poke_data->device));
 
     if (poke_data->func != NULL)
     {
@@ -547,10 +547,10 @@ static void _browser_poke_device_finish(ThunarDevice *device,
     GFile          *mount_point = NULL;
     gboolean        cancelled = FALSE;
 
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(user_data != NULL);
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
-    e_return_if_fail(THUNAR_IS_DEVICE(poke_data->device));
+    e_return_if_fail(IS_THUNARDEVICE(poke_data->device));
     e_return_if_fail(device == poke_data->device);
 
     if (error == NULL)
@@ -611,7 +611,7 @@ void browser_poke_device(ThunarBrowser   *browser,
     GFile           *mount_point;
 
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
-    e_return_if_fail(THUNAR_DEVICE(device));
+    e_return_if_fail(THUNARDEVICE(device));
 
     if (th_device_is_mounted(device))
     {

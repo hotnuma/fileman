@@ -270,7 +270,7 @@ static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data)
 {
     (void) key;
 
-    ThunarDevice *device = THUNAR_DEVICE(value);
+    ThunarDevice *device = THUNARDEVICE(value);
     DeviceMonitor *monitor = DEVICE_MONITOR(data);
 
     // get state of the device
@@ -357,7 +357,7 @@ static void _devmon_volume_removed(GVolumeMonitor *volume_monitor,
         device = g_hash_table_lookup(monitor->devices, volume);
 
         // meh
-        e_return_if_fail(THUNAR_IS_DEVICE(device));
+        e_return_if_fail(IS_THUNARDEVICE(device));
         if (G_UNLIKELY(device == NULL))
             return;
 
@@ -389,9 +389,9 @@ static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
         monitor->hidden_volumes = g_list_delete_link(monitor->hidden_volumes, lp);
 
         // create a new device for this volume
-        device = g_object_new(THUNAR_TYPE_DEVICE,
+        device = g_object_new(TYPE_THUNARDEVICE,
                                "device", volume,
-                               "kind", THUNAR_DEVICE_KIND_VOLUME,
+                               "kind", THUNARDEVICE_KIND_VOLUME,
                                NULL);
 
         // set visibility
@@ -413,7 +413,7 @@ static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
         device = g_hash_table_lookup(monitor->devices, volume);
 
         // meh
-        e_return_if_fail(THUNAR_IS_DEVICE(device));
+        e_return_if_fail(IS_THUNARDEVICE(device));
         if (G_UNLIKELY(device == NULL))
             return;
 
@@ -428,7 +428,7 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
 {
     ThunarDevice     *device;
     GFile            *location;
-    ThunarDeviceKind  kind = THUNAR_DEVICE_KIND_MOUNT_LOCAL;
+    ThunarDeviceKind  kind = THUNARDEVICE_KIND_MOUNT_LOCAL;
     GVolume          *volume;
     gchar            *id;
 
@@ -463,14 +463,14 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
 
         if (g_file_has_uri_scheme(location, "file")
                 || g_file_has_uri_scheme(location, "archive"))
-            kind = THUNAR_DEVICE_KIND_MOUNT_LOCAL;
+            kind = THUNARDEVICE_KIND_MOUNT_LOCAL;
         else
-            kind = THUNAR_DEVICE_KIND_MOUNT_REMOTE;
+            kind = THUNARDEVICE_KIND_MOUNT_REMOTE;
 
         g_object_unref(location);
 
         // create a new device for this mount
-        device = g_object_new(THUNAR_TYPE_DEVICE,
+        device = g_object_new(TYPE_THUNARDEVICE,
                                "device", mount,
                                "kind", kind,
                                NULL);
@@ -607,7 +607,7 @@ static void _devmon_mount_pre_unmount(GVolumeMonitor *volume_monitor,
 
 static void _devmon_list_prepend(gpointer key, gpointer value, gpointer user_data)
 {
-    e_return_if_fail(THUNAR_IS_DEVICE(value));
+    e_return_if_fail(IS_THUNARDEVICE(value));
 
     (void) key;
 
@@ -653,7 +653,7 @@ void devmon_set_hidden(DeviceMonitor *monitor, ThunarDevice *device,
     guint   pos;
 
     e_return_if_fail(IS_DEVICE_MONITOR(monitor));
-    e_return_if_fail(THUNAR_IS_DEVICE(device));
+    e_return_if_fail(IS_THUNARDEVICE(device));
 
     id = th_device_get_identifier(device);
     if (id == NULL)
