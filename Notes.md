@@ -31,7 +31,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   24509	./core/th_device.c
 +   24204	./job/job.c
 +   22375	./core/devmonitor.c
-    21561	./dialog/progressview.c
++   21561	./dialog/progressview.c
     21334	./core/clipboard.c
     19749	./libext/gio_ext.c
     19628	./misc/history.c
