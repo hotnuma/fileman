@@ -28,6 +28,33 @@
 #include <memory.h>
 #include <gio_ext.h>
 
+static void clipman_finalize(GObject *object);
+static void clipman_dispose(GObject *object);
+static void clipman_get_property(GObject *object, guint prop_id,
+                                 GValue *value, GParamSpec *pspec);
+
+// Public ---------------------------------------------------------------------
+
+static void _clipman_owner_changed(GtkClipboard *clipboard,
+                                   GdkEventOwnerChange *event,
+                                   ClipboardManager *manager);
+static void _clipman_targets_received(GtkClipboard *clipboard,
+                                      GtkSelectionData *selection_data,
+                                      gpointer user_data);
+static void _clipman_transfer_files(ClipboardManager *manager, gboolean copy,
+                                    GList *files);
+static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager);
+static void _clipman_get_callback(GtkClipboard *clipboard,
+                                  GtkSelectionData *selection_data,
+                                  guint info,
+                                  gpointer user_data);
+static gchar* _clipman_file_list_to_string(GList *list, const gchar *prefix,
+                                           gboolean format_for_text, gsize *len);
+static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data);
+static void _clipman_contents_received(GtkClipboard *clipboard,
+                                       GtkSelectionData *selection_data,
+                                       gpointer user_data);
+
 enum
 {
     PROP_0,
@@ -46,35 +73,6 @@ enum
     TARGET_GNOME_COPIED_FILES,
     TARGET_UTF8_STRING,
 };
-
-static void clipman_finalize(GObject *object);
-static void clipman_dispose(GObject *object);
-static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
-                                 GParamSpec *pspec);
-
-// Public ---------------------------------------------------------------------
-
-static void _clipman_owner_changed(GtkClipboard *clipboard,
-                                   GdkEventOwnerChange *event,
-                                   ClipboardManager *manager);
-static void _clipman_targets_received(GtkClipboard *clipboard,
-                                      GtkSelectionData *selection_data,
-                                      gpointer user_data);
-
-static void _clipman_transfer_files(ClipboardManager *manager, gboolean copy,
-                                    GList *files);
-static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager);
-static void _clipman_get_callback(GtkClipboard *clipboard,
-                                  GtkSelectionData *selection_data,
-                                  guint info,
-                                  gpointer user_data);
-static gchar* _clipman_file_list_to_string(GList *list, const gchar *prefix,
-                                           gboolean format_for_text, gsize *len);
-static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data);
-
-static void _clipman_contents_received(GtkClipboard *clipboard,
-                                       GtkSelectionData *selection_data,
-                                       gpointer user_data);
 
 struct _ClipboardManagerClass
 {
@@ -165,7 +163,7 @@ static void clipman_init(ClipboardManager *manager)
 
 static void clipman_dispose(GObject *object)
 {
-    ClipboardManager *manager = CLIPBOARD_MANAGER(object);
+    ClipboardManager *manager = CLIPBOARDMANAGER(object);
 
     /* store the clipboard if we still own it and a clipboard
      * manager is running(gtk_clipboard_store checks this) */
@@ -184,7 +182,7 @@ static void clipman_dispose(GObject *object)
 
 static void clipman_finalize(GObject *object)
 {
-    ClipboardManager *manager = CLIPBOARD_MANAGER(object);
+    ClipboardManager *manager = CLIPBOARDMANAGER(object);
 
     // release any pending files
     for (GList *lp = manager->files; lp != NULL; lp = lp->next)
@@ -210,7 +208,7 @@ static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
 {
     (void) pspec;
 
-    ClipboardManager *manager = CLIPBOARD_MANAGER(object);
+    ClipboardManager *manager = CLIPBOARDMANAGER(object);
 
     switch (prop_id)
     {
@@ -224,6 +222,12 @@ static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
     }
 }
 
+gboolean clipman_can_paste(ClipboardManager *manager)
+{
+    e_return_val_if_fail(IS_CLIPBOARDMANAGER(manager), FALSE);
+
+    return manager->can_paste;
+}
 
 // Public ---------------------------------------------------------------------
 
@@ -262,7 +266,7 @@ ClipboardManager* clipman_get_for_display(GdkDisplay *display)
     }
 
     // allocate a new manager
-    manager = g_object_new(TYPE_CLIPBOARD_MANAGER, NULL);
+    manager = g_object_new(TYPE_CLIPBOARDMANAGER, NULL);
     manager->clipboard = GTK_CLIPBOARD(g_object_ref(G_OBJECT(clipboard)));
     g_object_set_qdata(G_OBJECT(clipboard), _clipman_quark, manager);
 
@@ -281,7 +285,7 @@ static void _clipman_owner_changed(GtkClipboard        *clipboard,
                                    ClipboardManager    *manager)
 {
     e_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
     e_return_if_fail(manager->clipboard == clipboard);
 
     (void) event;
@@ -302,10 +306,10 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
                                       GtkSelectionData *selection_data,
                                       gpointer         user_data)
 {
-    ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
+    ClipboardManager *manager = CLIPBOARDMANAGER(user_data);
 
     e_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
     e_return_if_fail(manager->clipboard == clipboard);
 
     // reset the "can-paste" state
@@ -337,16 +341,9 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
     g_object_unref(manager);
 }
 
-gboolean clipman_can_paste(ClipboardManager *manager)
-{
-    e_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
-
-    return manager->can_paste;
-}
-
 gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *file)
 {
-    e_return_val_if_fail(IS_CLIPBOARD_MANAGER(manager), FALSE);
+    e_return_val_if_fail(IS_CLIPBOARDMANAGER(manager), FALSE);
     e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
 
     return (manager->files_cutted && g_list_find(manager->files, file) != NULL);
@@ -354,14 +351,14 @@ gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *fi
 
 void clipman_copy_files(ClipboardManager *manager, GList *files)
 {
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
 
     _clipman_transfer_files(manager, TRUE, files);
 }
 
 void clipman_cut_files(ClipboardManager *manager, GList *files)
 {
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
 
     _clipman_transfer_files(manager, FALSE, files);
 }
@@ -410,7 +407,7 @@ static void _clipman_transfer_files(ClipboardManager *manager,
 
 static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager)
 {
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
     e_return_if_fail(g_list_find(manager->files, file) != NULL);
 
     // remove the file from our list
@@ -430,9 +427,9 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
 {
     e_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
 
-    ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
+    ClipboardManager *manager = CLIPBOARDMANAGER(user_data);
     e_return_if_fail(manager->clipboard == clipboard);
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
 
     // determine the path list from the file list
     GList *file_list = th_filelist_to_thunar_g_file_list(manager->files);
@@ -505,10 +502,10 @@ static gchar* _clipman_file_list_to_string(GList *list, const gchar *prefix,
 
 static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data)
 {
-    ClipboardManager *manager = CLIPBOARD_MANAGER(user_data);
+    ClipboardManager *manager = CLIPBOARDMANAGER(user_data);
 
     e_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
     e_return_if_fail(manager->clipboard == clipboard);
 
     // release the pending files
@@ -527,13 +524,13 @@ static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data)
 void clipman_paste_files(ClipboardManager *manager, GFile *target_file,
                          GtkWidget *widget, GClosure *new_files_closure)
 {
-    e_return_if_fail(IS_CLIPBOARD_MANAGER(manager));
+    e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
     e_return_if_fail(widget == NULL || GTK_IS_WIDGET(widget));
 
     // prepare the paste request
     ClipboardPasteRequest *request = g_slice_new0(ClipboardPasteRequest);
 
-    request->manager = CLIPBOARD_MANAGER(g_object_ref(G_OBJECT(manager)));
+    request->manager = CLIPBOARDMANAGER(g_object_ref(G_OBJECT(manager)));
     request->target_file = g_object_ref(target_file);
     request->widget = widget;
 
@@ -565,7 +562,7 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     (void) clipboard;
 
     ClipboardPasteRequest *request = user_data;
-    ClipboardManager *manager = CLIPBOARD_MANAGER(request->manager);
+    ClipboardManager *manager = CLIPBOARDMANAGER(request->manager);
     gboolean path_copy = TRUE;
     GList *file_list = NULL;
 
