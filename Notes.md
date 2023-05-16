@@ -35,7 +35,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   21334	./core/clipboard.c
 +   19749	./libext/gio_ext.c
 +   19628	./misc/history.c
-    18359	./misc/enumtypes.c
++   18359	./misc/enumtypes.c
 ```
 
 

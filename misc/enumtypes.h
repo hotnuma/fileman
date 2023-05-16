@@ -24,55 +24,10 @@
 
 G_BEGIN_DECLS
 
-// ----------------------------------------------------------------------------
+// ThunarColumn ---------------------------------------------------------------
 
-#define THUNAR_TYPE_DATE_STYLE (thunar_date_style_get_type ())
+#define THUNAR_TYPE_COLUMN (thunar_column_get_type())
 
-/**
- * ThunarDateStyle:
- * @THUNAR_DATE_STYLE_SIMPLE : display only the date.
- * @THUNAR_DATE_STYLE_SHORT  : display date and time in a short manner.
- * @THUNAR_DATE_STYLE_LONG   : display date and time in a long manner.
- * @THUNAR_DATE_STYLE_ISO    : display date and time in ISO standard form.
- *
- * The style used to display dates (e.g. modification dates) to the user.
- **/
-typedef enum
-{
-    THUNAR_DATE_STYLE_YYYYMMDD,
-    THUNAR_DATE_STYLE_SIMPLE,
-    THUNAR_DATE_STYLE_SHORT,
-    THUNAR_DATE_STYLE_LONG,
-    THUNAR_DATE_STYLE_MMDDYYYY,
-    THUNAR_DATE_STYLE_DDMMYYYY,
-    THUNAR_DATE_STYLE_CUSTOM,
-
-} ThunarDateStyle;
-
-GType thunar_date_style_get_type() G_GNUC_CONST;
-
-// ----------------------------------------------------------------------------
-
-#define THUNAR_TYPE_COLUMN (thunar_column_get_type ())
-
-/**
- * ThunarColumn:
- * @THUNAR_COLUMN_DATE_ACCESSED : last access time.
- * @THUNAR_COLUMN_DATE_MODIFIED : last modification time.
- * @THUNAR_COLUMN_GROUP         : group's name.
- * @THUNAR_COLUMN_MIME_TYPE     : mime type (e.g. "text/plain").
- * @THUNAR_COLUMN_NAME          : display name.
- * @THUNAR_COLUMN_OWNER         : owner's name.
- * @THUNAR_COLUMN_PERMISSIONS   : permissions bits.
- * @THUNAR_COLUMN_SIZE          : file size.
- * @THUNAR_COLUMN_SIZE_IN_BYTES : file size in bytes.
- * @THUNAR_COLUMN_TYPE          : file type (e.g. 'plain text document').
- * @THUNAR_COLUMN_FILE          : #ThunarFile object.
- * @THUNAR_COLUMN_FILE_NAME     : real file name.
- *
- * Columns exported by #ListModel using the #GtkTreeModel
- * interface.
- **/
 typedef enum
 {
     // visible columns
@@ -100,153 +55,57 @@ typedef enum
 } ThunarColumn;
 
 GType thunar_column_get_type() G_GNUC_CONST;
+
 const gchar* thunar_column_string_from_value(ThunarColumn value);
 gboolean thunar_column_value_from_string(const gchar *value_string, gint *value);
 
-// ----------------------------------------------------------------------------
+// ThunarDateStyle ------------------------------------------------------------
 
-#define THUNAR_TYPE_ICON_SIZE (thunar_icon_size_get_type ())
+#define THUNAR_TYPE_DATE_STYLE (thunar_date_style_get_type())
 
-/**
- * ThunarIconSize:
- * Icon sizes matching the various #ThunarZoomLevel<!---->s.
- **/
 typedef enum
 {
-    THUNAR_ICON_SIZE_16   =  16,
-    THUNAR_ICON_SIZE_24   =  24,
-    THUNAR_ICON_SIZE_32   =  32,
-    THUNAR_ICON_SIZE_48   =  48,
-    THUNAR_ICON_SIZE_64   =  64,
-    THUNAR_ICON_SIZE_96   =  96,
-    THUNAR_ICON_SIZE_128  = 128,
-    THUNAR_ICON_SIZE_160  = 160,
-    THUNAR_ICON_SIZE_192  = 192,
-    THUNAR_ICON_SIZE_256  = 256,
+    THUNAR_DATE_STYLE_YYYYMMDD,
+    THUNAR_DATE_STYLE_SIMPLE,
+    THUNAR_DATE_STYLE_SHORT,
+    THUNAR_DATE_STYLE_LONG,
+    THUNAR_DATE_STYLE_MMDDYYYY,
+    THUNAR_DATE_STYLE_DDMMYYYY,
+    THUNAR_DATE_STYLE_CUSTOM,
 
-} ThunarIconSize;
+} ThunarDateStyle;
 
-GType thunar_icon_size_get_type() G_GNUC_CONST;
+GType thunar_date_style_get_type() G_GNUC_CONST;
 
-// ----------------------------------------------------------------------------
+// ThunarFileMode -------------------------------------------------------------
 
-#define THUNAR_TYPE_THUMBNAIL_MODE (thunar_thumbnail_mode_get_type ())
+#define THUNAR_TYPE_FILE_MODE (thunar_file_mode_get_type())
 
-/**
- * ThunarThumbnailMode:
- * @THUNAR_THUMBNAIL_MODE_NEVER      : never show thumbnails.
- * @THUNAR_THUMBNAIL_MODE_ONLY_LOCAL : only show thumbnails on local filesystems.
- * @THUNAR_THUMBNAIL_MODE_ALWAYS     : always show thumbnails (everywhere).
- **/
 typedef enum
 {
-    THUNAR_THUMBNAIL_MODE_NEVER,
-    THUNAR_THUMBNAIL_MODE_ONLY_LOCAL,
-    THUNAR_THUMBNAIL_MODE_ALWAYS,
+    THUNAR_FILE_MODE_SUID       = 04000,
+    THUNAR_FILE_MODE_SGID       = 02000,
+    THUNAR_FILE_MODE_STICKY     = 01000,
+    THUNAR_FILE_MODE_USR_ALL    = 00700,
+    THUNAR_FILE_MODE_USR_READ   = 00400,
+    THUNAR_FILE_MODE_USR_WRITE  = 00200,
+    THUNAR_FILE_MODE_USR_EXEC   = 00100,
+    THUNAR_FILE_MODE_GRP_ALL    = 00070,
+    THUNAR_FILE_MODE_GRP_READ   = 00040,
+    THUNAR_FILE_MODE_GRP_WRITE  = 00020,
+    THUNAR_FILE_MODE_GRP_EXEC   = 00010,
+    THUNAR_FILE_MODE_OTH_ALL    = 00007,
+    THUNAR_FILE_MODE_OTH_READ   = 00004,
+    THUNAR_FILE_MODE_OTH_WRITE  = 00002,
+    THUNAR_FILE_MODE_OTH_EXEC   = 00001,
 
-} ThunarThumbnailMode;
+} ThunarFileMode;
 
-GType thunar_thumbnail_mode_get_type() G_GNUC_CONST;
+GType thunar_file_mode_get_type() G_GNUC_CONST;
 
-// ----------------------------------------------------------------------------
+// ThunarJobResponse ----------------------------------------------------------
 
-#define THUNAR_TYPE_THUMBNAIL_SIZE (thunar_thumbnail_size_get_type ())
-
-/**
- * ThunarThumbnailSize:
- * @THUNAR_THUMBNAIL_NORMAL      : max 128px x 128px
- * @THUNAR_THUMBNAIL_LARGE       : max 256px x 256px
- **/
-typedef enum
-{
-    THUNAR_THUMBNAIL_SIZE_NORMAL,
-    THUNAR_THUMBNAIL_SIZE_LARGE,
-
-} ThunarThumbnailSize;
-
-GType       thunar_thumbnail_size_get_type() G_GNUC_CONST;
-const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
-                                           G_GNUC_CONST;
-
-// ----------------------------------------------------------------------------
-
-#define TYPE_PARALLEL_COPY_MODE (parallel_copy_mode_get_type())
-
-/**
- * ParallelCopyMode:
- * @PARALLEL_COPY_MODE_NEVER                   : copies will be done consecutively, one after another.
- * @PARALLEL_COPY_MODE_ONLY_LOCAL              : only do parallel copies when source and destination are local files.
- * @PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES : same as only local, but only if source and destination devices are the same.
- * @PARALLEL_COPY_MODE_ALWAYS                  : all copies will be started immediately.
- **/
-typedef enum
-{
-    PARALLEL_COPY_MODE_NEVER,
-    PARALLEL_COPY_MODE_ONLY_LOCAL,
-    PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES,
-    PARALLEL_COPY_MODE_ALWAYS,
-
-} ParallelCopyMode;
-
-GType parallel_copy_mode_get_type() G_GNUC_CONST;
-
-// ----------------------------------------------------------------------------
-
-#define THUNAR_TYPE_RECURSIVE_PERMISSIONS (thunar_recursive_permissions_get_type ())
-
-/**
- * ThunarRecursivePermissionsMode:
- * @THUNAR_RECURSIVE_PERMISSIONS_ASK    : ask the user every time permissions are changed.
- * @THUNAR_RECURSIVE_PERMISSIONS_ALWAYS : always apply the change recursively.
- * @THUNAR_RECURSIVE_PERMISSIONS_NEVER  : never apply the change recursively.
- *
- * Modus operandi when changing permissions.
- **/
-typedef enum
-{
-    THUNAR_RECURSIVE_PERMISSIONS_ASK,
-    THUNAR_RECURSIVE_PERMISSIONS_ALWAYS,
-    THUNAR_RECURSIVE_PERMISSIONS_NEVER,
-
-} ThunarRecursivePermissionsMode;
-
-GType thunar_recursive_permissions_get_type() G_GNUC_CONST;
-
-// ----------------------------------------------------------------------------
-
-#define THUNAR_TYPE_ZOOM_LEVEL (thunar_zoom_level_get_type ())
-
-/**
- * ThunarZoomLevel:
- * Lists the various zoom levels supported by Thunar's
- * folder views.
- **/
-typedef enum
-{
-    THUNAR_ZOOM_LEVEL_25_PERCENT,
-    THUNAR_ZOOM_LEVEL_38_PERCENT,
-    THUNAR_ZOOM_LEVEL_50_PERCENT,
-    THUNAR_ZOOM_LEVEL_75_PERCENT,
-    THUNAR_ZOOM_LEVEL_100_PERCENT,
-    THUNAR_ZOOM_LEVEL_150_PERCENT,
-    THUNAR_ZOOM_LEVEL_200_PERCENT,
-    THUNAR_ZOOM_LEVEL_250_PERCENT,
-    THUNAR_ZOOM_LEVEL_300_PERCENT,
-    THUNAR_ZOOM_LEVEL_400_PERCENT,
-
-    THUNAR_ZOOM_N_LEVELS,
-
-} ThunarZoomLevel;
-
-GType thunar_zoom_level_get_type() G_GNUC_CONST;
-ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
-                                                        G_GNUC_CONST;
-
-// ----------------------------------------------------------------------------
-
-#define THUNAR_TYPE_JOB_RESPONSE (thunar_job_response_get_type ())
-
-// Possible responses for the ThunarJob::ask signal
+#define THUNAR_TYPE_JOB_RESPONSE (thunar_job_response_get_type())
 
 typedef enum
 {
@@ -270,36 +129,113 @@ typedef enum
 
 GType thunar_job_response_get_type() G_GNUC_CONST;
 
-// ----------------------------------------------------------------------------
+// ParallelCopyMode -----------------------------------------------------------
 
-#define THUNAR_TYPE_FILE_MODE (thunar_file_mode_get_type())
+#define TYPE_PARALLEL_COPY_MODE (parallel_copy_mode_get_type())
 
-/**
- * ThunarFileMode:
- *
- * Special flags and permissions of a filesystem entity.
- **/
-typedef enum //< flags >
+typedef enum
 {
-    THUNAR_FILE_MODE_SUID       = 04000,
-    THUNAR_FILE_MODE_SGID       = 02000,
-    THUNAR_FILE_MODE_STICKY     = 01000,
-    THUNAR_FILE_MODE_USR_ALL    = 00700,
-    THUNAR_FILE_MODE_USR_READ   = 00400,
-    THUNAR_FILE_MODE_USR_WRITE  = 00200,
-    THUNAR_FILE_MODE_USR_EXEC   = 00100,
-    THUNAR_FILE_MODE_GRP_ALL    = 00070,
-    THUNAR_FILE_MODE_GRP_READ   = 00040,
-    THUNAR_FILE_MODE_GRP_WRITE  = 00020,
-    THUNAR_FILE_MODE_GRP_EXEC   = 00010,
-    THUNAR_FILE_MODE_OTH_ALL    = 00007,
-    THUNAR_FILE_MODE_OTH_READ   = 00004,
-    THUNAR_FILE_MODE_OTH_WRITE  = 00002,
-    THUNAR_FILE_MODE_OTH_EXEC   = 00001,
+    PARALLEL_COPY_MODE_NEVER,
+    PARALLEL_COPY_MODE_ONLY_LOCAL,
+    PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES,
+    PARALLEL_COPY_MODE_ALWAYS,
 
-} ThunarFileMode;
+} ParallelCopyMode;
 
-GType thunar_file_mode_get_type() G_GNUC_CONST;
+GType parallel_copy_mode_get_type() G_GNUC_CONST;
+
+// ThunarRecursivePermissionsMode ---------------------------------------------
+
+#define THUNAR_TYPE_RECURSIVE_PERMISSIONS (thunar_recursive_permissions_get_type())
+
+typedef enum
+{
+    THUNAR_RECURSIVE_PERMISSIONS_ASK,
+    THUNAR_RECURSIVE_PERMISSIONS_ALWAYS,
+    THUNAR_RECURSIVE_PERMISSIONS_NEVER,
+
+} ThunarRecursivePermissionsMode;
+
+GType thunar_recursive_permissions_get_type() G_GNUC_CONST;
+
+// ThunarIconSize -------------------------------------------------------------
+
+#define THUNAR_TYPE_ICON_SIZE (thunar_icon_size_get_type())
+
+typedef enum
+{
+    THUNAR_ICON_SIZE_16   =  16,
+    THUNAR_ICON_SIZE_24   =  24,
+    THUNAR_ICON_SIZE_32   =  32,
+    THUNAR_ICON_SIZE_48   =  48,
+    THUNAR_ICON_SIZE_64   =  64,
+    THUNAR_ICON_SIZE_96   =  96,
+    THUNAR_ICON_SIZE_128  = 128,
+    THUNAR_ICON_SIZE_160  = 160,
+    THUNAR_ICON_SIZE_192  = 192,
+    THUNAR_ICON_SIZE_256  = 256,
+
+} ThunarIconSize;
+
+GType thunar_icon_size_get_type() G_GNUC_CONST;
+
+// ThunarZoomLevel ------------------------------------------------------------
+
+#define THUNAR_TYPE_ZOOM_LEVEL (thunar_zoom_level_get_type())
+
+typedef enum
+{
+    THUNAR_ZOOM_LEVEL_25_PERCENT,
+    THUNAR_ZOOM_LEVEL_38_PERCENT,
+    THUNAR_ZOOM_LEVEL_50_PERCENT,
+    THUNAR_ZOOM_LEVEL_75_PERCENT,
+    THUNAR_ZOOM_LEVEL_100_PERCENT,
+    THUNAR_ZOOM_LEVEL_150_PERCENT,
+    THUNAR_ZOOM_LEVEL_200_PERCENT,
+    THUNAR_ZOOM_LEVEL_250_PERCENT,
+    THUNAR_ZOOM_LEVEL_300_PERCENT,
+    THUNAR_ZOOM_LEVEL_400_PERCENT,
+
+    THUNAR_ZOOM_N_LEVELS,
+
+} ThunarZoomLevel;
+
+GType thunar_zoom_level_get_type() G_GNUC_CONST;
+
+
+
+// ============================================================================
+
+// ThunarThumbnailMode --------------------------------------------------------
+
+#define THUNAR_TYPE_THUMBNAIL_MODE (thunar_thumbnail_mode_get_type())
+
+typedef enum
+{
+    THUNAR_THUMBNAIL_MODE_NEVER,
+    THUNAR_THUMBNAIL_MODE_ONLY_LOCAL,
+    THUNAR_THUMBNAIL_MODE_ALWAYS,
+
+} ThunarThumbnailMode;
+
+GType thunar_thumbnail_mode_get_type() G_GNUC_CONST;
+
+// ThunarThumbnailSize --------------------------------------------------------
+
+#define THUNAR_TYPE_THUMBNAIL_SIZE (thunar_thumbnail_size_get_type())
+
+typedef enum
+{
+    THUNAR_THUMBNAIL_SIZE_NORMAL,
+    THUNAR_THUMBNAIL_SIZE_LARGE,
+
+} ThunarThumbnailSize;
+
+GType thunar_thumbnail_size_get_type() G_GNUC_CONST;
+const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
+                                           G_GNUC_CONST;
+ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
+                                                        G_GNUC_CONST;
 
 G_END_DECLS
 

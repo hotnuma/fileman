@@ -20,39 +20,11 @@
 #include <config.h>
 #include <enumtypes.h>
 
-static void thunar_icon_size_from_zoom_level(const GValue *src_value,
+static void _icon_size_from_zoom_level(const GValue *src_value,
                                              GValue *dst_value);
-static ThunarIconSize thunar_zoom_level_to_icon_size(ThunarZoomLevel zoom_level);
+static ThunarIconSize _zoom_level_to_icon_size(ThunarZoomLevel zoom_level);
 
-static ThunarThumbnailSize thunar_icon_size_to_thumbnail_size(ThunarIconSize icon_size);
-static void thunar_thumbnail_size_from_icon_size(const GValue *src_value,
-                                                 GValue *dst_value);
-
-GType thunar_date_style_get_type()
-{
-    static GType type = G_TYPE_INVALID;
-
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
-    {
-        static const GEnumValue values[] =
-        {
-            { THUNAR_DATE_STYLE_SIMPLE,   "THUNAR_DATE_STYLE_SIMPLE",   "simple",   },
-            { THUNAR_DATE_STYLE_SHORT,    "THUNAR_DATE_STYLE_SHORT",    "short",    },
-            { THUNAR_DATE_STYLE_LONG,     "THUNAR_DATE_STYLE_LONG",     "long",     },
-            { THUNAR_DATE_STYLE_YYYYMMDD, "THUNAR_DATE_STYLE_YYYYMMDD", "yyyymmdd", },
-            { THUNAR_DATE_STYLE_MMDDYYYY, "THUNAR_DATE_STYLE_MMDDYYYY", "mmddyyyy", },
-            { THUNAR_DATE_STYLE_DDMMYYYY, "THUNAR_DATE_STYLE_DDMMYYYY", "ddmmyyyy", },
-            { THUNAR_DATE_STYLE_CUSTOM,   "THUNAR_DATE_STYLE_CUSTOM",   "custom",   },
-            // to stay backward compartible
-            { THUNAR_DATE_STYLE_YYYYMMDD, "THUNAR_DATE_STYLE_ISO",      "iso",      },
-            { 0,                          NULL,                         NULL,       },
-        };
-
-        type = g_enum_register_static(I_("ThunarDateStyle"), values);
-    }
-
-    return type;
-}
+// ThunarColumn ---------------------------------------------------------------
 
 GType thunar_column_get_type(void)
 {
@@ -100,7 +72,7 @@ const gchar* thunar_column_string_from_value(ThunarColumn value)
 }
 
 gboolean thunar_column_value_from_string(const gchar *value_string,
-                                         gint        *value)
+                                         gint *value)
 {
     GEnumClass *enum_class;
     GEnumValue *enum_value;
@@ -116,6 +88,150 @@ gboolean thunar_column_value_from_string(const gchar *value_string,
     *value =  enum_value->value;
     return TRUE;
 }
+
+// ThunarDateStyle ------------------------------------------------------------
+
+GType thunar_date_style_get_type()
+{
+    static GType type = G_TYPE_INVALID;
+
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    {
+        static const GEnumValue values[] =
+        {
+            { THUNAR_DATE_STYLE_SIMPLE,   "THUNAR_DATE_STYLE_SIMPLE",   "simple",   },
+            { THUNAR_DATE_STYLE_SHORT,    "THUNAR_DATE_STYLE_SHORT",    "short",    },
+            { THUNAR_DATE_STYLE_LONG,     "THUNAR_DATE_STYLE_LONG",     "long",     },
+            { THUNAR_DATE_STYLE_YYYYMMDD, "THUNAR_DATE_STYLE_YYYYMMDD", "yyyymmdd", },
+            { THUNAR_DATE_STYLE_MMDDYYYY, "THUNAR_DATE_STYLE_MMDDYYYY", "mmddyyyy", },
+            { THUNAR_DATE_STYLE_DDMMYYYY, "THUNAR_DATE_STYLE_DDMMYYYY", "ddmmyyyy", },
+            { THUNAR_DATE_STYLE_CUSTOM,   "THUNAR_DATE_STYLE_CUSTOM",   "custom",   },
+            // to stay backward compartible
+            { THUNAR_DATE_STYLE_YYYYMMDD, "THUNAR_DATE_STYLE_ISO",      "iso",      },
+            { 0,                          NULL,                         NULL,       },
+        };
+
+        type = g_enum_register_static(I_("ThunarDateStyle"), values);
+    }
+
+    return type;
+}
+
+// ThunarFileMode -------------------------------------------------------------
+
+GType thunar_file_mode_get_type()
+{
+    static GType type = G_TYPE_INVALID;
+
+    if (type == G_TYPE_INVALID)
+    {
+        static const GFlagsValue values[] =
+        {
+            { THUNAR_FILE_MODE_SUID,      "THUNAR_FILE_MODE_SUID",      "suid"      },
+            { THUNAR_FILE_MODE_SGID,      "THUNAR_FILE_MODE_SGID",      "sgid"      },
+            { THUNAR_FILE_MODE_STICKY,    "THUNAR_FILE_MODE_STICKY",    "sticky"    },
+            { THUNAR_FILE_MODE_USR_ALL,   "THUNAR_FILE_MODE_USR_ALL",   "usr-all"   },
+            { THUNAR_FILE_MODE_USR_READ,  "THUNAR_FILE_MODE_USR_READ",  "usr-read"  },
+            { THUNAR_FILE_MODE_USR_WRITE, "THUNAR_FILE_MODE_USR_WRITE", "usr-write" },
+            { THUNAR_FILE_MODE_USR_EXEC,  "THUNAR_FILE_MODE_USR_EXEC",  "usr-exec"  },
+            { THUNAR_FILE_MODE_GRP_ALL,   "THUNAR_FILE_MODE_GRP_ALL",   "grp-all"   },
+            { THUNAR_FILE_MODE_GRP_READ,  "THUNAR_FILE_MODE_GRP_READ",  "grp-read"  },
+            { THUNAR_FILE_MODE_GRP_WRITE, "THUNAR_FILE_MODE_GRP_WRITE", "grp-write" },
+            { THUNAR_FILE_MODE_GRP_EXEC,  "THUNAR_FILE_MODE_GRP_EXEC",  "grp-exec"  },
+            { THUNAR_FILE_MODE_OTH_ALL,   "THUNAR_FILE_MODE_OTH_ALL",   "oth-all"   },
+            { THUNAR_FILE_MODE_OTH_READ,  "THUNAR_FILE_MODE_OTH_READ",  "oth-read"  },
+            { THUNAR_FILE_MODE_OTH_WRITE, "THUNAR_FILE_MODE_OTH_WRITE", "oth-write" },
+            { THUNAR_FILE_MODE_OTH_EXEC,  "THUNAR_FILE_MODE_OTH_EXEC",  "oth-exec"  },
+            { 0,                          NULL,                         NULL        }
+        };
+
+        type = g_flags_register_static("ThunarFileMode", values);
+    }
+
+    return type;
+}
+
+// ThunarJobResponse ----------------------------------------------------------
+
+GType thunar_job_response_get_type()
+{
+    static GType type = G_TYPE_INVALID;
+
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    {
+        static const GFlagsValue values[] =
+        {
+            { THUNAR_JOB_RESPONSE_YES,         "THUNAR_JOB_RESPONSE_YES",         "yes"         },
+            { THUNAR_JOB_RESPONSE_YES_ALL,     "THUNAR_JOB_RESPONSE_YES_ALL",     "yes-all"     },
+            { THUNAR_JOB_RESPONSE_NO,          "THUNAR_JOB_RESPONSE_NO",          "no"          },
+            { THUNAR_JOB_RESPONSE_CANCEL,      "THUNAR_JOB_RESPONSE_CANCEL",      "cancel"      },
+            { THUNAR_JOB_RESPONSE_NO_ALL,      "THUNAR_JOB_RESPONSE_NO_ALL",      "no-all"      },
+            { THUNAR_JOB_RESPONSE_RETRY,       "THUNAR_JOB_RESPONSE_RETRY",       "retry"       },
+            { THUNAR_JOB_RESPONSE_FORCE,       "THUNAR_JOB_RESPONSE_FORCE",       "force"       },
+            { THUNAR_JOB_RESPONSE_REPLACE,     "THUNAR_JOB_RESPONSE_REPLACE",     "replace"     },
+            { THUNAR_JOB_RESPONSE_REPLACE_ALL, "THUNAR_JOB_RESPONSE_REPLACE_ALL", "replace-all" },
+            { THUNAR_JOB_RESPONSE_SKIP,        "THUNAR_JOB_RESPONSE_SKIP",        "skip"        },
+            { THUNAR_JOB_RESPONSE_SKIP_ALL,    "THUNAR_JOB_RESPONSE_SKIP_ALL",    "skip-all"    },
+            { THUNAR_JOB_RESPONSE_RENAME,      "THUNAR_JOB_RESPONSE_RENAME",      "rename"      },
+            { THUNAR_JOB_RESPONSE_RENAME_ALL,  "THUNAR_JOB_RESPONSE_RENAME_ALL",  "rename-all " },
+            { 0,                               NULL,                              NULL          }
+        };
+
+        type = g_flags_register_static(I_("ThunarJobResponse"), values);
+    }
+
+    return type;
+}
+
+// ParallelCopyMode -----------------------------------------------------------
+
+GType parallel_copy_mode_get_type()
+{
+    static GType type = G_TYPE_INVALID;
+
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    {
+        static const GEnumValue values[] =
+        {
+            { PARALLEL_COPY_MODE_ALWAYS,                  "PARALLEL_COPY_MODE_ALWAYS",                  "always",                  },
+            { PARALLEL_COPY_MODE_ONLY_LOCAL,              "PARALLEL_COPY_MODE_ONLY_LOCAL",              "only-local",              },
+            { PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES, "PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES", "only-local-same-devices", },
+            { PARALLEL_COPY_MODE_NEVER,                   "PARALLEL_COPY_MODE_NEVER",                   "never",                   },
+            { 0,                                                 NULL,                                                NULL,                      },
+        };
+
+        type = g_enum_register_static(I_("ParallelCopyMode"), values);
+    }
+
+    return type;
+}
+
+// ThunarRecursivePermissionsMode ---------------------------------------------
+
+GType thunar_recursive_permissions_get_type(void)
+{
+    static GType type = G_TYPE_INVALID;
+
+    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    {
+        static const GEnumValue values[] =
+        {
+            { THUNAR_RECURSIVE_PERMISSIONS_ASK,    "THUNAR_RECURSIVE_PERMISSIONS_ASK",    "ask",    },
+            { THUNAR_RECURSIVE_PERMISSIONS_ALWAYS, "THUNAR_RECURSIVE_PERMISSIONS_ALWAYS", "always", },
+            { THUNAR_RECURSIVE_PERMISSIONS_NEVER,  "THUNAR_RECURSIVE_PERMISSIONS_NEVER",  "never",  },
+            { 0,                                   NULL,                                  NULL,     },
+        };
+
+        type = g_enum_register_static(I_("ThunarRecursivePermissions"), values);
+    }
+
+    return type;
+}
+
+// ThunarIconSize -------------------------------------------------------------
+
+static void _thumbnail_size_from_icon_size(const GValue *src_value,
+                                                 GValue *dst_value);
 
 GType thunar_icon_size_get_type()
 {
@@ -152,33 +268,50 @@ GType thunar_icon_size_get_type()
         type = g_enum_register_static(I_("ThunarIconSize"), values);
 
         // register transformation function for ThunarIconSize->ThunarThumbnailSize
-        g_value_register_transform_func(type, THUNAR_TYPE_THUMBNAIL_SIZE, thunar_thumbnail_size_from_icon_size);
+        g_value_register_transform_func(type, THUNAR_TYPE_THUMBNAIL_SIZE,
+                                        _thumbnail_size_from_icon_size);
     }
 
     return type;
 }
 
-GType thunar_recursive_permissions_get_type(void)
+static void _icon_size_from_zoom_level(const GValue *src_value, GValue *dst_value)
 {
-    static GType type = G_TYPE_INVALID;
-
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
-    {
-        static const GEnumValue values[] =
-        {
-            { THUNAR_RECURSIVE_PERMISSIONS_ASK,    "THUNAR_RECURSIVE_PERMISSIONS_ASK",    "ask",    },
-            { THUNAR_RECURSIVE_PERMISSIONS_ALWAYS, "THUNAR_RECURSIVE_PERMISSIONS_ALWAYS", "always", },
-            { THUNAR_RECURSIVE_PERMISSIONS_NEVER,  "THUNAR_RECURSIVE_PERMISSIONS_NEVER",  "never",  },
-            { 0,                                   NULL,                                  NULL,     },
-        };
-
-        type = g_enum_register_static(I_("ThunarRecursivePermissions"), values);
-    }
-
-    return type;
+    g_value_set_enum(dst_value, _zoom_level_to_icon_size(g_value_get_enum(src_value)));
 }
 
-GType thunar_zoom_level_get_type(void)
+static ThunarIconSize _zoom_level_to_icon_size(ThunarZoomLevel zoom_level)
+{
+    switch(zoom_level)
+    {
+    case THUNAR_ZOOM_LEVEL_25_PERCENT:
+        return THUNAR_ICON_SIZE_16;
+    case THUNAR_ZOOM_LEVEL_38_PERCENT:
+        return THUNAR_ICON_SIZE_24;
+    case THUNAR_ZOOM_LEVEL_50_PERCENT:
+        return THUNAR_ICON_SIZE_32;
+    case THUNAR_ZOOM_LEVEL_75_PERCENT:
+        return THUNAR_ICON_SIZE_48;
+    case THUNAR_ZOOM_LEVEL_100_PERCENT:
+        return THUNAR_ICON_SIZE_64;
+    case THUNAR_ZOOM_LEVEL_150_PERCENT:
+        return THUNAR_ICON_SIZE_96;
+    case THUNAR_ZOOM_LEVEL_200_PERCENT:
+        return THUNAR_ICON_SIZE_128;
+    case THUNAR_ZOOM_LEVEL_250_PERCENT:
+        return THUNAR_ICON_SIZE_160;
+    case THUNAR_ZOOM_LEVEL_300_PERCENT:
+        return THUNAR_ICON_SIZE_192;
+    case THUNAR_ZOOM_LEVEL_400_PERCENT:
+        return THUNAR_ICON_SIZE_256;
+    default:
+        return THUNAR_ICON_SIZE_64; // default = 100 %zoom
+    }
+}
+
+// ThunarZoomLevel ------------------------------------------------------------
+
+GType thunar_zoom_level_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
@@ -213,17 +346,17 @@ GType thunar_zoom_level_get_type(void)
         type = g_enum_register_static(I_("ThunarZoomLevel"), values);
 
         // register transformation function for ThunarZoomLevel->ThunarIconSize
-        g_value_register_transform_func(type, THUNAR_TYPE_ICON_SIZE, thunar_icon_size_from_zoom_level);
+        g_value_register_transform_func(type, THUNAR_TYPE_ICON_SIZE, _icon_size_from_zoom_level);
     }
 
     return type;
 }
 
-ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
-{
-    ThunarIconSize icon_size = thunar_zoom_level_to_icon_size(zoom_level);
-    return thunar_icon_size_to_thumbnail_size(icon_size);
-}
+
+
+// ============================================================================
+
+// ThunarThumbnailMode --------------------------------------------------------
 
 GType thunar_thumbnail_mode_get_type()
 {
@@ -244,6 +377,8 @@ GType thunar_thumbnail_mode_get_type()
 
     return type;
 }
+
+// ThunarThumbnailSize --------------------------------------------------------
 
 GType thunar_thumbnail_size_get_type()
 {
@@ -272,66 +407,16 @@ const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
     return thumbnail_size_enum_value->value_nick;
 }
 
-GType parallel_copy_mode_get_type()
+// ----------------------------------------------------------------------------
+
+static ThunarThumbnailSize _icon_size_to_thumbnail_size(ThunarIconSize icon_size);
+
+static void _thumbnail_size_from_icon_size(const GValue *src_value, GValue *dst_value)
 {
-    static GType type = G_TYPE_INVALID;
-
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
-    {
-        static const GEnumValue values[] =
-        {
-            { PARALLEL_COPY_MODE_ALWAYS,                  "PARALLEL_COPY_MODE_ALWAYS",                  "always",                  },
-            { PARALLEL_COPY_MODE_ONLY_LOCAL,              "PARALLEL_COPY_MODE_ONLY_LOCAL",              "only-local",              },
-            { PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES, "PARALLEL_COPY_MODE_ONLY_LOCAL_SAME_DEVICES", "only-local-same-devices", },
-            { PARALLEL_COPY_MODE_NEVER,                   "PARALLEL_COPY_MODE_NEVER",                   "never",                   },
-            { 0,                                                 NULL,                                                NULL,                      },
-        };
-
-        type = g_enum_register_static(I_("ParallelCopyMode"), values);
-    }
-
-    return type;
+    g_value_set_enum(dst_value, _icon_size_to_thumbnail_size(g_value_get_enum(src_value)));
 }
 
-
-/**
- * thunar_zoom_level_to_icon_size:
- * @zoom_level : a #ThunarZoomLevel.
- *
- * Returns the #ThunarIconSize corresponding to the @zoom_level.
- *
- * Return value: the #ThunarIconSize for @zoom_level.
- **/
-static ThunarIconSize thunar_zoom_level_to_icon_size(ThunarZoomLevel zoom_level)
-{
-    switch(zoom_level)
-    {
-    case THUNAR_ZOOM_LEVEL_25_PERCENT:
-        return THUNAR_ICON_SIZE_16;
-    case THUNAR_ZOOM_LEVEL_38_PERCENT:
-        return THUNAR_ICON_SIZE_24;
-    case THUNAR_ZOOM_LEVEL_50_PERCENT:
-        return THUNAR_ICON_SIZE_32;
-    case THUNAR_ZOOM_LEVEL_75_PERCENT:
-        return THUNAR_ICON_SIZE_48;
-    case THUNAR_ZOOM_LEVEL_100_PERCENT:
-        return THUNAR_ICON_SIZE_64;
-    case THUNAR_ZOOM_LEVEL_150_PERCENT:
-        return THUNAR_ICON_SIZE_96;
-    case THUNAR_ZOOM_LEVEL_200_PERCENT:
-        return THUNAR_ICON_SIZE_128;
-    case THUNAR_ZOOM_LEVEL_250_PERCENT:
-        return THUNAR_ICON_SIZE_160;
-    case THUNAR_ZOOM_LEVEL_300_PERCENT:
-        return THUNAR_ICON_SIZE_192;
-    case THUNAR_ZOOM_LEVEL_400_PERCENT:
-        return THUNAR_ICON_SIZE_256;
-    default:
-        return THUNAR_ICON_SIZE_64; // default = 100 %zoom
-    }
-}
-
-static ThunarThumbnailSize thunar_icon_size_to_thumbnail_size(ThunarIconSize icon_size)
+static ThunarThumbnailSize _icon_size_to_thumbnail_size(ThunarIconSize icon_size)
 {
     if (icon_size > THUNAR_ICON_SIZE_128)
         return THUNAR_THUMBNAIL_SIZE_LARGE;
@@ -339,76 +424,12 @@ static ThunarThumbnailSize thunar_icon_size_to_thumbnail_size(ThunarIconSize ico
     return THUNAR_THUMBNAIL_SIZE_NORMAL;
 }
 
-static void thunar_icon_size_from_zoom_level(const GValue *src_value, GValue *dst_value)
+// ----------------------------------------------------------------------------
+
+ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
 {
-    g_value_set_enum(dst_value, thunar_zoom_level_to_icon_size(g_value_get_enum(src_value)));
-}
-
-static void thunar_thumbnail_size_from_icon_size(const GValue *src_value, GValue *dst_value)
-{
-    g_value_set_enum(dst_value, thunar_icon_size_to_thumbnail_size(g_value_get_enum(src_value)));
-}
-
-GType thunar_job_response_get_type()
-{
-    static GType type = G_TYPE_INVALID;
-
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
-    {
-        static const GFlagsValue values[] =
-        {
-            { THUNAR_JOB_RESPONSE_YES,         "THUNAR_JOB_RESPONSE_YES",         "yes"         },
-            { THUNAR_JOB_RESPONSE_YES_ALL,     "THUNAR_JOB_RESPONSE_YES_ALL",     "yes-all"     },
-            { THUNAR_JOB_RESPONSE_NO,          "THUNAR_JOB_RESPONSE_NO",          "no"          },
-            { THUNAR_JOB_RESPONSE_CANCEL,      "THUNAR_JOB_RESPONSE_CANCEL",      "cancel"      },
-            { THUNAR_JOB_RESPONSE_NO_ALL,      "THUNAR_JOB_RESPONSE_NO_ALL",      "no-all"      },
-            { THUNAR_JOB_RESPONSE_RETRY,       "THUNAR_JOB_RESPONSE_RETRY",       "retry"       },
-            { THUNAR_JOB_RESPONSE_FORCE,       "THUNAR_JOB_RESPONSE_FORCE",       "force"       },
-            { THUNAR_JOB_RESPONSE_REPLACE,     "THUNAR_JOB_RESPONSE_REPLACE",     "replace"     },
-            { THUNAR_JOB_RESPONSE_REPLACE_ALL, "THUNAR_JOB_RESPONSE_REPLACE_ALL", "replace-all" },
-            { THUNAR_JOB_RESPONSE_SKIP,        "THUNAR_JOB_RESPONSE_SKIP",        "skip"        },
-            { THUNAR_JOB_RESPONSE_SKIP_ALL,    "THUNAR_JOB_RESPONSE_SKIP_ALL",    "skip-all"    },
-            { THUNAR_JOB_RESPONSE_RENAME,      "THUNAR_JOB_RESPONSE_RENAME",      "rename"      },
-            { THUNAR_JOB_RESPONSE_RENAME_ALL,  "THUNAR_JOB_RESPONSE_RENAME_ALL",  "rename-all " },
-            { 0,                               NULL,                              NULL          }
-        };
-
-        type = g_flags_register_static(I_("ThunarJobResponse"), values);
-    }
-
-    return type;
-}
-
-GType thunar_file_mode_get_type()
-{
-    static GType type = G_TYPE_INVALID;
-
-    if (type == G_TYPE_INVALID)
-    {
-        static const GFlagsValue values[] =
-        {
-            { THUNAR_FILE_MODE_SUID,      "THUNAR_FILE_MODE_SUID",      "suid"      },
-            { THUNAR_FILE_MODE_SGID,      "THUNAR_FILE_MODE_SGID",      "sgid"      },
-            { THUNAR_FILE_MODE_STICKY,    "THUNAR_FILE_MODE_STICKY",    "sticky"    },
-            { THUNAR_FILE_MODE_USR_ALL,   "THUNAR_FILE_MODE_USR_ALL",   "usr-all"   },
-            { THUNAR_FILE_MODE_USR_READ,  "THUNAR_FILE_MODE_USR_READ",  "usr-read"  },
-            { THUNAR_FILE_MODE_USR_WRITE, "THUNAR_FILE_MODE_USR_WRITE", "usr-write" },
-            { THUNAR_FILE_MODE_USR_EXEC,  "THUNAR_FILE_MODE_USR_EXEC",  "usr-exec"  },
-            { THUNAR_FILE_MODE_GRP_ALL,   "THUNAR_FILE_MODE_GRP_ALL",   "grp-all"   },
-            { THUNAR_FILE_MODE_GRP_READ,  "THUNAR_FILE_MODE_GRP_READ",  "grp-read"  },
-            { THUNAR_FILE_MODE_GRP_WRITE, "THUNAR_FILE_MODE_GRP_WRITE", "grp-write" },
-            { THUNAR_FILE_MODE_GRP_EXEC,  "THUNAR_FILE_MODE_GRP_EXEC",  "grp-exec"  },
-            { THUNAR_FILE_MODE_OTH_ALL,   "THUNAR_FILE_MODE_OTH_ALL",   "oth-all"   },
-            { THUNAR_FILE_MODE_OTH_READ,  "THUNAR_FILE_MODE_OTH_READ",  "oth-read"  },
-            { THUNAR_FILE_MODE_OTH_WRITE, "THUNAR_FILE_MODE_OTH_WRITE", "oth-write" },
-            { THUNAR_FILE_MODE_OTH_EXEC,  "THUNAR_FILE_MODE_OTH_EXEC",  "oth-exec"  },
-            { 0,                          NULL,                         NULL        }
-        };
-
-        type = g_flags_register_static("ThunarFileMode", values);
-    }
-
-    return type;
+    ThunarIconSize icon_size = _zoom_level_to_icon_size(zoom_level);
+    return _icon_size_to_thumbnail_size(icon_size);
 }
 
 
