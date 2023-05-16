@@ -21,7 +21,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -20
 +   39139	./view/detailview.c
 +   38349	./dialog/dialogs.c
 +   32298	./view/exotreeview.c
-    30090	./core/th_folder.c
++   30090	./core/th_folder.c
     28649	./misc/iconfactory.c
     27652	./view/columnmodel.c
 ```

@@ -16,40 +16,44 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_FOLDER_H__
-#define __THUNAR_FOLDER_H__
+#ifndef __THUNARFOLDER_H__
+#define __THUNARFOLDER_H__
 
 #include <th_file.h>
 
 G_BEGIN_DECLS
 
+// ThunarFolder ---------------------------------------------------------------
+
 typedef struct _ThunarFolderClass ThunarFolderClass;
 typedef struct _ThunarFolder      ThunarFolder;
 
-#define THUNAR_TYPE_FOLDER (th_folder_get_type())
-#define THUNAR_FOLDER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  THUNAR_TYPE_FOLDER, ThunarFolder))
-#define THUNAR_FOLDER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   THUNAR_TYPE_FOLDER, ThunarFolderClass))
-#define THUNAR_IS_FOLDER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  THUNAR_TYPE_FOLDER))
-#define THUNAR_IS_FOLDER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   THUNAR_TYPE_FOLDER))
-#define THUNAR_FOLDER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   THUNAR_TYPE_FOLDER, ThunarFolderClass))
+#define TYPE_THUNARFOLDER (th_folder_get_type())
+#define THUNARFOLDER(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARFOLDER, ThunarFolder))
+#define THUNARFOLDER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_THUNARFOLDER, ThunarFolderClass))
+#define IS_THUNARFOLDER(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_THUNARFOLDER))
+#define IS_THUNARFOLDER_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_THUNARFOLDER))
+#define THUNARFOLDER_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARFOLDER, ThunarFolderClass))
 
-GType           th_folder_get_type() G_GNUC_CONST;
+GType th_folder_get_type() G_GNUC_CONST;
 
-ThunarFolder*   th_folder_get_for_file(ThunarFile *file);
-ThunarFile*     th_folder_get_corresponding_file(const ThunarFolder *folder);
-GList*          th_folder_get_files(const ThunarFolder *folder);
-gboolean        th_folder_get_loading(const ThunarFolder *folder);
-gboolean        th_folder_has_folder_monitor(const ThunarFolder *folder);
+// Property
+gboolean th_folder_get_loading(const ThunarFolder *folder);
 
-void            th_folder_load(ThunarFolder *folder, gboolean reload_info);
+void th_folder_load(ThunarFolder *folder, gboolean reload_info);
+
+ThunarFolder* th_folder_get_for_file(ThunarFile *file);
+ThunarFile* th_folder_get_corresponding_file(const ThunarFolder *folder);
+GList* th_folder_get_files(const ThunarFolder *folder);
+gboolean th_folder_has_folder_monitor(const ThunarFolder *folder);
 
 G_END_DECLS
 
-#endif // __THUNAR_FOLDER_H__
+#endif // __THUNARFOLDER_H__
 
 

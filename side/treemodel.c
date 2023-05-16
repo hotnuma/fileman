@@ -1186,7 +1186,7 @@ static void _treeitem_files_added(TreeModelItem *item,
     GNode               *node = NULL;
     GList               *lp;
 
-    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(item->folder == folder);
     e_return_if_fail(model->visible_func != NULL);
 
@@ -1232,7 +1232,7 @@ static void _treeitem_files_removed(TreeModelItem *item,
     GList           *lp;
     GSList          *inv_link;
 
-    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(item->folder == folder);
 
     // determine the node for the folder
@@ -1294,7 +1294,7 @@ static void _treeitem_notify_loading(TreeModelItem *item,
     (void) pspec;
     GNode *node;
 
-    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(item->folder == folder);
     e_return_if_fail(THUNAR_IS_TREE_MODEL(item->model));
 

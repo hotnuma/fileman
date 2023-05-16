@@ -269,7 +269,7 @@ static void listmodel_class_init(ListModelClass *klass)
         g_param_spec_object("folder",
                             "folder",
                             "folder",
-                            THUNAR_TYPE_FOLDER,
+                            TYPE_THUNARFOLDER,
                             E_PARAM_READWRITE);
 
     _listmodel_props[PROP_FOLDERS_FIRST] =
@@ -590,7 +590,7 @@ ThunarFolder* listmodel_get_folder(ListModel *store)
 void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
 {
     e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(folder == NULL || THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(folder == NULL || IS_THUNARFOLDER(folder));
 
     if (G_UNLIKELY(store->folder == folder))
         return;
@@ -1708,7 +1708,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
 static void _listmodel_folder_destroy(ThunarFolder *folder, ListModel *store)
 {
     e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(IS_THUNARFOLDER(folder));
 
     listmodel_set_folder(store, NULL);
 
@@ -1719,7 +1719,7 @@ static void _listmodel_folder_error(ThunarFolder *folder, const GError *error,
                                     ListModel *store)
 {
     e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(THUNAR_IS_FOLDER(folder));
+    e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(error != NULL);
 
     // forward the error signal
