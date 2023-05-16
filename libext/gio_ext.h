@@ -59,19 +59,7 @@ gboolean e_file_move(GFile                  *source,
                      gpointer               progress_callback_data,
                      GError                 **error);
 
-// GKeyFile -------------------------------------------------------------------
-
-GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
-                                GError **error);
-
-// GList ------------------------------------------------------------------
-
-#define TYPE_EFILELIST (e_list_get_type())
-GType e_list_get_type();
-
-GList* e_list_new_from_string(const gchar *string);
-gchar** e_list_to_stringv(GList *list);
-GList* e_list_get_parents(GList *list);
+// GList ----------------------------------------------------------------------
 
 GList* e_list_copy(GList *list);
 void e_list_free(GList *list);
@@ -81,6 +69,20 @@ void e_list_free(GList *list);
     g_list_append(list, g_object_ref(G_OBJECT(object)))
 #define e_list_prepend_ref(list, object) \
     g_list_prepend(list, g_object_ref(G_OBJECT(object)))
+
+// EFileList ------------------------------------------------------------------
+
+#define TYPE_EFILELIST (e_filelist_get_type())
+GType e_filelist_get_type();
+
+GList* e_filelist_new_from_string(const gchar *string);
+gchar** e_filelist_to_stringv(GList *list);
+GList* e_filelist_get_parents(GList *list);
+
+// GKeyFile -------------------------------------------------------------------
+
+GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
+                                GError **error);
 
 // VFS ------------------------------------------------------------------------
 
