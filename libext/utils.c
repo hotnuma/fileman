@@ -21,95 +21,16 @@
 #include <config.h>
 #include <utils.h>
 
-#include <glib.h>
 #include <glib/gstdio.h>
-#include <memory.h>
 #include <pwd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/param.h>
-#include <sys/types.h>
-#include <time.h>
-#include <unistd.h>
+
+static inline gchar *_util_strrchr_offset(const gchar *str,
+                                          const gchar *offset, gchar c);
+
+// string functions  ----------------------------------------------------------
 
 /**
- * thunar_g_strescape
- * @source  : The string to escape
- *
- * Similar to g_strescape, but as well escapes SPACE
- *
- * Escapes the special characters '\b', '\f', '\n', '\r', '\t', '\v', '\' ' ' and '"' in the string source by inserting a '\' before them.
- * Additionally all characters in the range 0x01-0x1F (SPACE and everything below)
- * and in the range 0x7F-0xFF (all non-ASCII chars) are replaced with a '\' followed by their octal representation.
- *
- * Return value: (transfer full): The new string. Has to be freed with g_free after usage.
- **/
-gchar *util_str_escape(const gchar *source)
-{
-    gchar *g_escaped;
-    gchar *result;
-    unsigned int j = 0;
-    unsigned int new_size = 0;
-
-    // First apply the default escaping .. will escape everything, expect SPACE
-    g_escaped = g_strescape(source, NULL);
-
-    // calc required new size
-    for (unsigned int i = 0; i < strlen(g_escaped); i++)
-    {
-        if (g_escaped[i] == ' ')
-            new_size++;
-        new_size++;
-    }
-
-    // strlen() does not include the \0 character, add an extra slot for it
-    new_size++;
-    result = malloc(new_size * sizeof(gchar));
-
-    for (unsigned int i = 0; i < strlen(g_escaped); i++)
-    {
-        if (g_escaped[i] == ' ')
-        {
-            result[j] = '\\';
-            j++;
-        }
-        result[j] = g_escaped[i];
-        j++;
-    }
-    result[j] = '\0';
-    g_free(g_escaped);
-    return result;
-}
-
-/**
- * thunar_util_strrchr_offset:
- * @str:    haystack
- * @offset: pointer offset in @str
- * @c:      search needle
- *
- * Return the last occurrence of the character @c in
- * the string @str starting at @offset.
- *
- * There are also Glib functions for this like g_strrstr_len
- * and g_utf8_strrchr, but these work internally the same
- * as this function(tho, less efficient).
- *
- * Return value: pointer in @str or NULL.
- **/
-static inline gchar *_util_strrchr_offset(const gchar *str, const gchar *offset,
-                                          gchar c)
-{
-    const gchar *p;
-
-    for (p = offset; p > str; p--)
-        if (*p == c)
-            return (gchar *)p;
-
-    return NULL;
-}
-
-/**
- * thunar_util_str_get_extension
+ * util_str_get_extension
  * @filename : an UTF-8 filename
  *
  * Returns a pointer to the extension in @filename.
@@ -121,9 +42,10 @@ static inline gchar *_util_strrchr_offset(const gchar *str, const gchar *offset,
  * Return value: pointer to the extension in @filename
  *               or NULL.
 **/
-gchar *util_str_get_extension(const gchar *filename)
+gchar* util_str_get_extension(const gchar *filename)
 {
-    static const gchar *compressed[] = {"gz", "bz2", "lzma", "lrz", "rpm", "lzo", "xz", "z"};
+    static const gchar *compressed[] =
+                        {"gz", "bz2", "lzma", "lrz", "rpm", "lzo", "xz", "z"};
     gchar *dot;
     gchar *ext;
     guint i;
@@ -182,7 +104,125 @@ gchar *util_str_get_extension(const gchar *filename)
 }
 
 /**
- * thunar_util_expand_filename:
+ * _util_strrchr_offset:
+ * @str:    haystack
+ * @offset: pointer offset in @str
+ * @c:      search needle
+ *
+ * Return the last occurrence of the character @c in
+ * the string @str starting at @offset.
+ *
+ * There are also Glib functions for this like g_strrstr_len
+ * and g_utf8_strrchr, but these work internally the same
+ * as this function(tho, less efficient).
+ *
+ * Return value: pointer in @str or NULL.
+ **/
+static inline gchar* _util_strrchr_offset(const gchar *str, const gchar *offset,
+                                          gchar c)
+{
+    const gchar *p;
+
+    for (p = offset; p > str; --p)
+    {
+        if (*p == c)
+            return (gchar *)p;
+    }
+
+    return NULL;
+}
+
+/**
+ * util_str_escape
+ * @source  : The string to escape
+ *
+ * Similar to g_strescape, but as well escapes SPACE
+ *
+ * Escapes the special characters '\b', '\f', '\n', '\r', '\t', '\v', '\' ' ' and '"' in the string source by inserting a '\' before them.
+ * Additionally all characters in the range 0x01-0x1F (SPACE and everything below)
+ * and in the range 0x7F-0xFF (all non-ASCII chars) are replaced with a '\' followed by their octal representation.
+ *
+ * Return value: (transfer full): The new string. Has to be freed with g_free after usage.
+ **/
+gchar* util_str_escape(const gchar *source)
+{
+    gchar *g_escaped;
+    gchar *result;
+    unsigned int j = 0;
+    unsigned int new_size = 0;
+
+    // First apply the default escaping .. will escape everything, expect SPACE
+    g_escaped = g_strescape(source, NULL);
+
+    // calc required new size
+    for (unsigned int i = 0; i < strlen(g_escaped); i++)
+    {
+        if (g_escaped[i] == ' ')
+            new_size++;
+        new_size++;
+    }
+
+    // strlen() does not include the \0 character, add an extra slot for it
+    new_size++;
+    result = malloc(new_size * sizeof(gchar));
+
+    for (unsigned int i = 0; i < strlen(g_escaped); i++)
+    {
+        if (g_escaped[i] == ' ')
+        {
+            result[j] = '\\';
+            j++;
+        }
+        result[j] = g_escaped[i];
+        j++;
+    }
+    result[j] = '\0';
+    g_free(g_escaped);
+    return result;
+}
+
+gchar* util_str_replace(const gchar *str, const gchar *pattern,
+                        const gchar *replace)
+{
+    const gchar *s, *p;
+    GString *result;
+
+    /* an empty string or pattern is useless, so just
+     * return a copy of str */
+    if (G_UNLIKELY(!str || !*str || !pattern || !*pattern))
+        return g_strdup(str);
+
+    // allocate the result string
+    result = g_string_sized_new(strlen(str));
+
+    // process the input string
+    while (*str != '\0')
+    {
+        if (G_UNLIKELY(*str == *pattern))
+        {
+            // compare the pattern to the current string
+            for (p = pattern + 1, s = str + 1; *p == *s; ++s, ++p)
+                if (*p == '\0' || *s == '\0')
+                    break;
+
+            // check if the pattern fully matched
+            if (G_LIKELY(*p == '\0'))
+            {
+                if (G_LIKELY(replace != NULL && *replace != '\0'))
+                    g_string_append(result, replace);
+                str = s;
+                continue;
+            }
+        }
+
+        g_string_append_c(result, *str++);
+    }
+
+    return g_string_free(result, FALSE);
+}
+
+/**
+ * util_expand_filename:
  * @filename          : a local filename.
  * @working_directory : #GFile of the current working directory.
  * @error             : return location for errors or %NULL.
@@ -196,7 +236,7 @@ gchar *util_str_get_extension(const gchar *filename)
  *
  * Return value: the expanded @filename or %NULL on error.
  **/
-gchar *util_expand_filename(const gchar *filename, GFile *working_directory,
+gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
                             GError **error)
 {
     struct passwd *passwd;
@@ -310,8 +350,257 @@ gchar *util_expand_filename(const gchar *filename, GFile *working_directory,
     return g_strdup(filename);
 }
 
+// Desktop Entry --------------------------------------------------------------
+
+gchar* util_expand_field_codes(const gchar *command, GSList *uri_list,
+                               const gchar *icon, const gchar *name,
+                               const gchar *uri, gboolean requires_terminal)
+{
+    if (G_UNLIKELY(command == NULL))
+        return NULL;
+
+    GString *string;
+    string = g_string_sized_new(strlen(command));
+
+    if (requires_terminal)
+        g_string_append(string, "exo-open --launch TerminalEmulator ");
+
+    const gchar *p;
+    GSList *li;
+    GFile *file;
+    gchar *filename;
+
+    for (p = command; *p != '\0'; ++p)
+    {
+        if (G_UNLIKELY(p[0] == '%' && p[1] != '\0'))
+        {
+            switch (*++p)
+            {
+            case 'f':
+            case 'F':
+                for (li = uri_list; li != NULL; li = li->next)
+                {
+                    /* passing through a GFile seems necessary to properly handle
+                     * all URI schemes, in particular g_filename_from_uri() is not
+                     * able to do so */
+
+                    file = g_file_new_for_uri(li->data);
+                    filename = g_file_get_path(file);
+                    if (G_LIKELY(filename != NULL))
+                        util_append_quoted(string, filename);
+
+                    g_object_unref(file);
+                    g_free(filename);
+
+                    if (*p == 'f')
+                        break;
+                    if (li->next != NULL)
+                        g_string_append_c(string, ' ');
+                }
+                break;
+
+            case 'u':
+            case 'U':
+                for (li = uri_list; li != NULL; li = li->next)
+                {
+                    util_append_quoted(string, li->data);
+
+                    if (*p == 'u')
+                        break;
+                    if (li->next != NULL)
+                        g_string_append_c(string, ' ');
+                }
+                break;
+
+            case 'i':
+                if (icon != NULL && *icon != '\0')
+                {
+                    g_string_append(string, "--icon ");
+                    util_append_quoted(string, icon);
+                }
+                break;
+
+            case 'c':
+                if (name != NULL && *name != '\0')
+                    util_append_quoted(string, name);
+                break;
+
+            case 'k':
+                if (uri != NULL && *uri != '\0')
+                    util_append_quoted(string, uri);
+                break;
+
+            case '%':
+                g_string_append_c(string, '%');
+                break;
+            }
+        }
+        else
+        {
+            g_string_append_c(string, *p);
+        }
+    }
+
+    return g_string_free(string, FALSE);
+}
+
+// chdir ----------------------------------------------------------------------
+
+gchar* util_change_working_directory(const gchar *new_directory)
+{
+    gchar *old_directory;
+
+    e_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
+
+    // try to determine the current working directory
+    old_directory = g_get_current_dir();
+
+    // try switching to the new working directory
+    if (g_chdir(new_directory) != 0)
+    {
+        // switching failed, we don't need to return the old directory
+        g_free(old_directory);
+        old_directory = NULL;
+    }
+
+    return old_directory;
+}
+
+// GString --------------------------------------------------------------------
+
+void util_append_quoted(GString *string, const gchar *unquoted)
+{
+    gchar *quoted = g_shell_quote(unquoted);
+    g_string_append(string, quoted);
+    g_free(quoted);
+}
+
+// set display env ------------------------------------------------------------
+
+void util_set_display_env(gpointer data)
+{
+    g_setenv("DISPLAY", (char*) data, TRUE);
+}
+
+// parent screen --------------------------------------------------------------
+
+/* Determines the screen for the parent and returns that GdkScreen.
+ * If window_return is not NULL, the pointer to the GtkWindow is
+ * placed into it, or NULL if the window could not be determined. */
+
+GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
+{
+    e_return_val_if_fail(parent == NULL
+                         || GDK_IS_SCREEN(parent)
+                         || GTK_IS_WIDGET(parent), NULL);
+
+    GdkScreen *screen;
+    GtkWidget *window = NULL;
+
+    // determine the proper parent
+    if (parent == NULL)
+    {
+        // just use the default screen then
+        screen = gdk_screen_get_default();
+    }
+    else if (GDK_IS_SCREEN(parent))
+    {
+        // yep, that's a screen
+        screen = GDK_SCREEN(parent);
+    }
+    else
+    {
+        // parent is a widget, so let's determine the toplevel window
+        window = gtk_widget_get_toplevel(GTK_WIDGET(parent));
+        if (window != NULL && gtk_widget_is_toplevel(window))
+        {
+            // make sure the toplevel window is shown
+            gtk_widget_show_now(window);
+        }
+        else
+        {
+            // no toplevel, not usable then
+            window = NULL;
+        }
+
+        // determine the screen for the widget
+        screen = gtk_widget_get_screen(GTK_WIDGET(parent));
+    }
+
+    // check if we should return the window
+    if (G_LIKELY(window_return != NULL))
+        *window_return = (GtkWindow *)window;
+
+    return screen;
+}
+
+// time -----------------------------------------------------------------------
+
 /**
- * thunar_util_humanize_file_time:
+ * util_time_from_rfc3339:
+ * @date_string : an RFC 3339 encoded date string.
+ *
+ * Decodes the @date_string, which must be in the special RFC 3339
+ * format <literal>YYYY-MM-DDThh:mm:ss</literal>. This method is
+ * used to decode deletion dates of files in the trash. See the
+ * Trash Specification for details.
+ *
+ * Return value: the time value matching the @date_string or
+ *               %0 if the @date_string could not be parsed.
+ **/
+time_t util_time_from_rfc3339(const gchar *date_string)
+{
+    struct tm tm;
+
+#ifdef HAVE_STRPTIME
+    // using strptime() its easy to parse the date string
+    if (G_UNLIKELY(strptime(date_string, "%FT%T", &tm) == NULL))
+        return 0;
+#else
+    gulong val;
+
+    // be sure to start with a clean tm
+    memset(&tm, 0, sizeof(tm));
+
+    // parsing by hand is also doable for RFC 3339 dates
+    val = strtoul(date_string, (gchar **)&date_string, 10);
+    if (G_UNLIKELY(*date_string != '-'))
+        return 0;
+
+    // YYYY-MM-DD
+    tm.tm_year = val - 1900;
+    date_string++;
+    tm.tm_mon = strtoul(date_string, (gchar **)&date_string, 10) - 1;
+
+    if (G_UNLIKELY(*date_string++ != '-'))
+        return 0;
+
+    tm.tm_mday = strtoul(date_string, (gchar **)&date_string, 10);
+
+    if (G_UNLIKELY(*date_string++ != 'T'))
+        return 0;
+
+    val = strtoul(date_string, (gchar **)&date_string, 10);
+    if (G_UNLIKELY(*date_string != ':'))
+        return 0;
+
+    // hh:mm:ss
+    tm.tm_hour = val;
+    date_string++;
+    tm.tm_min = strtoul(date_string, (gchar **)&date_string, 10);
+
+    if (G_UNLIKELY(*date_string++ != ':'))
+        return 0;
+
+    tm.tm_sec = strtoul(date_string, (gchar **)&date_string, 10);
+#endif // !HAVE_STRPTIME
+
+    // translate tm to time_t
+    return mktime(&tm);
+}
+
+/**
+ * util_humanize_file_time:
  * @file_time         : a #guint64 timestamp.
  * @date_style        : the #ThunarDateFormat used to humanize the @file_time.
  * @date_custom_style : custom style to apply, if @date_style is set to custom
@@ -323,8 +612,7 @@ gchar *util_expand_filename(const gchar *filename, GFile *working_directory,
  * Return value: a human readable date representation of @file_time
  *               according to the @date_format.
  **/
-gchar *util_humanize_file_time(guint64 file_time,
-                               ThunarDateStyle date_style,
+gchar* util_humanize_file_time(guint64 file_time, ThunarDateStyle date_style,
                                const gchar *date_custom_style)
 {
     const gchar *date_format;
@@ -425,7 +713,7 @@ gchar *util_humanize_file_time(guint64 file_time,
     return g_strdup(_("Unknown"));
 }
 
-gchar *util_strdup_strftime(const gchar *format, const struct tm *tm)
+gchar* util_strdup_strftime(const gchar *format, const struct tm *tm)
 {
     static const gchar C_STANDARD_STRFTIME_CHARACTERS[] = "aAbBcCdeFgGhHIjklmMnprRsStTuUVwWxXyYzZ";
     static const gchar C_STANDARD_NUMERIC_STRFTIME_CHARACTERS[] = "CdegGHIjklmMsSuUVwWyY";
@@ -577,288 +865,6 @@ gchar *util_strdup_strftime(const gchar *format, const struct tm *tm)
     g_free(converted);
 
     return result;
-}
-
-/* Determines the screen for the parent and returns that GdkScreen.
- * If window_return is not NULL, the pointer to the GtkWindow is
- * placed into it, or NULL if the window could not be determined. */
-
-GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
-{
-    e_return_val_if_fail(parent == NULL
-                         || GDK_IS_SCREEN(parent)
-                         || GTK_IS_WIDGET(parent), NULL);
-
-    GdkScreen *screen;
-    GtkWidget *window = NULL;
-
-    // determine the proper parent
-    if (parent == NULL)
-    {
-        // just use the default screen then
-        screen = gdk_screen_get_default();
-    }
-    else if (GDK_IS_SCREEN(parent))
-    {
-        // yep, that's a screen
-        screen = GDK_SCREEN(parent);
-    }
-    else
-    {
-        // parent is a widget, so let's determine the toplevel window
-        window = gtk_widget_get_toplevel(GTK_WIDGET(parent));
-        if (window != NULL && gtk_widget_is_toplevel(window))
-        {
-            // make sure the toplevel window is shown
-            gtk_widget_show_now(window);
-        }
-        else
-        {
-            // no toplevel, not usable then
-            window = NULL;
-        }
-
-        // determine the screen for the widget
-        screen = gtk_widget_get_screen(GTK_WIDGET(parent));
-    }
-
-    // check if we should return the window
-    if (G_LIKELY(window_return != NULL))
-        *window_return = (GtkWindow *)window;
-
-    return screen;
-}
-
-/**
- * thunar_util_time_from_rfc3339:
- * @date_string : an RFC 3339 encoded date string.
- *
- * Decodes the @date_string, which must be in the special RFC 3339
- * format <literal>YYYY-MM-DDThh:mm:ss</literal>. This method is
- * used to decode deletion dates of files in the trash. See the
- * Trash Specification for details.
- *
- * Return value: the time value matching the @date_string or
- *               %0 if the @date_string could not be parsed.
- **/
-time_t util_time_from_rfc3339(const gchar *date_string)
-{
-    struct tm tm;
-
-#ifdef HAVE_STRPTIME
-    // using strptime() its easy to parse the date string
-    if (G_UNLIKELY(strptime(date_string, "%FT%T", &tm) == NULL))
-        return 0;
-#else
-    gulong val;
-
-    // be sure to start with a clean tm
-    memset(&tm, 0, sizeof(tm));
-
-    // parsing by hand is also doable for RFC 3339 dates
-    val = strtoul(date_string, (gchar **)&date_string, 10);
-    if (G_UNLIKELY(*date_string != '-'))
-        return 0;
-
-    // YYYY-MM-DD
-    tm.tm_year = val - 1900;
-    date_string++;
-    tm.tm_mon = strtoul(date_string, (gchar **)&date_string, 10) - 1;
-
-    if (G_UNLIKELY(*date_string++ != '-'))
-        return 0;
-
-    tm.tm_mday = strtoul(date_string, (gchar **)&date_string, 10);
-
-    if (G_UNLIKELY(*date_string++ != 'T'))
-        return 0;
-
-    val = strtoul(date_string, (gchar **)&date_string, 10);
-    if (G_UNLIKELY(*date_string != ':'))
-        return 0;
-
-    // hh:mm:ss
-    tm.tm_hour = val;
-    date_string++;
-    tm.tm_min = strtoul(date_string, (gchar **)&date_string, 10);
-
-    if (G_UNLIKELY(*date_string++ != ':'))
-        return 0;
-
-    tm.tm_sec = strtoul(date_string, (gchar **)&date_string, 10);
-#endif // !HAVE_STRPTIME
-
-    // translate tm to time_t
-    return mktime(&tm);
-}
-
-gchar *util_change_working_directory(const gchar *new_directory)
-{
-    gchar *old_directory;
-
-    e_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
-
-    // try to determine the current working directory
-    old_directory = g_get_current_dir();
-
-    // try switching to the new working directory
-    if (g_chdir(new_directory) != 0)
-    {
-        // switching failed, we don't need to return the old directory
-        g_free(old_directory);
-        old_directory = NULL;
-    }
-
-    return old_directory;
-}
-
-// standard_view g_spaw_async exo-desktop-item-edit
-void util_set_display_env(gpointer data)
-{
-    g_setenv("DISPLAY", (char*) data, TRUE);
-}
-
-// string functions ------------------------------------------------------------
-
-gchar* util_str_replace(const gchar *str, const gchar *pattern,
-                        const gchar *replace)
-{
-    const gchar *s, *p;
-    GString *result;
-
-    /* an empty string or pattern is useless, so just
-     * return a copy of str */
-    if (G_UNLIKELY(!str || !*str || !pattern || !*pattern))
-        return g_strdup(str);
-
-    // allocate the result string
-    result = g_string_sized_new(strlen(str));
-
-    // process the input string
-    while (*str != '\0')
-    {
-        if (G_UNLIKELY(*str == *pattern))
-        {
-            // compare the pattern to the current string
-            for (p = pattern + 1, s = str + 1; *p == *s; ++s, ++p)
-                if (*p == '\0' || *s == '\0')
-                    break;
-
-            // check if the pattern fully matched
-            if (G_LIKELY(*p == '\0'))
-            {
-                if (G_LIKELY(replace != NULL && *replace != '\0'))
-                    g_string_append(result, replace);
-                str = s;
-                continue;
-            }
-        }
-
-        g_string_append_c(result, *str++);
-    }
-
-    return g_string_free(result, FALSE);
-}
-
-// Desktop Entry ---------------------------------------------------------------
-
-gchar *util_expand_field_codes(const gchar *command, GSList *uri_list,
-                               const gchar *icon, const gchar *name,
-                               const gchar *uri, gboolean requires_terminal)
-{
-    if (G_UNLIKELY(command == NULL))
-        return NULL;
-
-    GString *string;
-    string = g_string_sized_new(strlen(command));
-
-    if (requires_terminal)
-        g_string_append(string, "exo-open --launch TerminalEmulator ");
-
-    const gchar *p;
-    GSList *li;
-    GFile *file;
-    gchar *filename;
-
-    for (p = command; *p != '\0'; ++p)
-    {
-        if (G_UNLIKELY(p[0] == '%' && p[1] != '\0'))
-        {
-            switch (*++p)
-            {
-            case 'f':
-            case 'F':
-                for (li = uri_list; li != NULL; li = li->next)
-                {
-                    /* passing through a GFile seems necessary to properly handle
-                     * all URI schemes, in particular g_filename_from_uri() is not
-                     * able to do so */
-
-                    file = g_file_new_for_uri(li->data);
-                    filename = g_file_get_path(file);
-                    if (G_LIKELY(filename != NULL))
-                        util_append_quoted(string, filename);
-
-                    g_object_unref(file);
-                    g_free(filename);
-
-                    if (*p == 'f')
-                        break;
-                    if (li->next != NULL)
-                        g_string_append_c(string, ' ');
-                }
-                break;
-
-            case 'u':
-            case 'U':
-                for (li = uri_list; li != NULL; li = li->next)
-                {
-                    util_append_quoted(string, li->data);
-
-                    if (*p == 'u')
-                        break;
-                    if (li->next != NULL)
-                        g_string_append_c(string, ' ');
-                }
-                break;
-
-            case 'i':
-                if (icon != NULL && *icon != '\0')
-                {
-                    g_string_append(string, "--icon ");
-                    util_append_quoted(string, icon);
-                }
-                break;
-
-            case 'c':
-                if (name != NULL && *name != '\0')
-                    util_append_quoted(string, name);
-                break;
-
-            case 'k':
-                if (uri != NULL && *uri != '\0')
-                    util_append_quoted(string, uri);
-                break;
-
-            case '%':
-                g_string_append_c(string, '%');
-                break;
-            }
-        }
-        else
-        {
-            g_string_append_c(string, *p);
-        }
-    }
-
-    return g_string_free(string, FALSE);
-}
-
-void util_append_quoted(GString *string, const gchar *unquoted)
-{
-    gchar *quoted = g_shell_quote(unquoted);
-    g_string_append(string, quoted);
-    g_free(quoted);
 }
 
 
