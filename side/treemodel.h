@@ -59,8 +59,9 @@ GType treemodel_get_type() G_GNUC_CONST;
 
 void treemodel_set_visible_func(TreeModel *model, TreeModelVisibleFunc func,
                                 gpointer data);
-void treemodel_refilter(TreeModel *model);
 void treemodel_cleanup(TreeModel *model);
+void treemodel_refilter(TreeModel *model);
+
 void treemodel_add_child(TreeModel *model, GNode *node, ThunarFile *file);
 
 G_END_DECLS

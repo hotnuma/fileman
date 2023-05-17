@@ -107,6 +107,9 @@ static void _treemodel_device_changed(DeviceMonitor *device_monitor,
                                       ThunarDevice *device,
                                       TreeModel *model);
 
+// Public ---------------------------------------------------------------------
+
+// treemodel_cleanup
 static gboolean _treemodel_cleanup_idle(gpointer user_data);
 static void _treemodel_cleanup_idle_destroy(gpointer user_data);
 
@@ -114,25 +117,18 @@ static void _treemodel_sort(TreeModel *model, GNode *node);
 static gint _treemodel_cmp_array(gconstpointer a, gconstpointer b,
                                  gpointer user_data);
 
-// GNode ----------------------------------------------------------------------
+// Tree Node ------------------------------------------------------------------
 
-static void _treemodel_node_insert_dummy(GNode *parent, TreeModel *model);
-static void _treemodel_node_drop_dummy(GNode *node, TreeModel *model);
-static gboolean _treemodel_node_traverse_cleanup(GNode *node, gpointer user_data);
-static gboolean _treemodel_node_traverse_changed(GNode *node, gpointer user_data);
-static gboolean _treemodel_node_traverse_remove(GNode *node, gpointer user_data);
-static gboolean _treemodel_node_traverse_sort(GNode *node, gpointer user_data);
-static gboolean _treemodel_node_traverse_free(GNode *node, gpointer user_data);
-static gboolean _treemodel_node_traverse_visible(GNode *node, gpointer user_data);
+static void _treenode_insert_dummy(GNode *parent, TreeModel *model);
+static void _treenode_drop_dummy(GNode *node, TreeModel *model);
+static gboolean _treenode_traverse_cleanup(GNode *node, gpointer user_data);
+static gboolean _treenode_traverse_free(GNode *node, gpointer user_data);
+static gboolean _treenode_traverse_changed(GNode *node, gpointer user_data);
+static gboolean _treenode_traverse_remove(GNode *node, gpointer user_data);
+static gboolean _treenode_traverse_sort(GNode *node, gpointer user_data);
+static gboolean _treenode_traverse_visible(GNode *node, gpointer user_data);
 
 // Globals --------------------------------------------------------------------
-
-typedef struct
-{
-    gint    offset;
-    GNode   *node;
-
-} SortTuple;
 
 struct _TreeModelItem
 {
@@ -147,6 +143,13 @@ struct _TreeModelItem
      * not visible in the treeview */
     GSList          *invisible_children;
 };
+
+typedef struct
+{
+    gint    offset;
+    GNode   *node;
+
+} SortTuple;
 
 // TreeModel ------------------------------------------------------------------
 
@@ -360,7 +363,7 @@ static void treemodel_finalize(GObject *object)
     g_object_unref(model->file_monitor);
 
     // release all resources allocated to the model
-    g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_ALL, -1, _treemodel_node_traverse_free, NULL);
+    g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_ALL, -1, _treenode_traverse_free, NULL);
     g_node_destroy(model->root);
 
     // disconnect from the volume monitor
@@ -773,7 +776,7 @@ static void _treemodel_set_case_sensitive(TreeModel *model, gboolean case_sensit
         model->sort_case_sensitive = case_sensitive;
 
         // resort the model with the new setting
-        g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_NON_LEAVES, -1, _treemodel_node_traverse_sort, model);
+        g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_NON_LEAVES, -1, _treenode_traverse_sort, model);
 
         // notify listeners
         g_object_notify(G_OBJECT(model), "case-sensitive");
@@ -858,26 +861,6 @@ static gint _treemodel_cmp_array(gconstpointer a, gconstpointer b,
                                         TREEMODEL(user_data)->sort_case_sensitive);
 }
 
-static gboolean _treemodel_cleanup_idle(gpointer user_data)
-{
-    TreeModel *model = TREEMODEL(user_data);
-
-    UTIL_THREADS_ENTER
-
-    // walk through the tree and release all the nodes with a ref count of 0
-    g_node_traverse(model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
-                    _treemodel_node_traverse_cleanup, model);
-
-    UTIL_THREADS_LEAVE
-
-    return FALSE;
-}
-
-static void _treemodel_cleanup_idle_destroy(gpointer user_data)
-{
-    TREEMODEL(user_data)->cleanup_idle_id = 0;
-}
-
 static void _treemodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                                     TreeModel *model)
 {
@@ -889,7 +872,7 @@ static void _treemodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
     // traverse the model and emit "row-changed" for the file's nodes
     if (th_file_is_directory(file))
         g_node_traverse(model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
-                        _treemodel_node_traverse_changed, file);
+                        _treenode_traverse_changed, file);
 }
 
 static void _treemodel_device_changed(DeviceMonitor *device_monitor,
@@ -941,10 +924,10 @@ static void _treemodel_device_changed(DeviceMonitor *device_monitor,
         // release all child nodes
         while (node->children != NULL)
             g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
-                            _treemodel_node_traverse_remove, model);
+                            _treenode_traverse_remove, model);
 
         // append the dummy node
-        _treemodel_node_insert_dummy(node, model);
+        _treenode_insert_dummy(node, model);
     }
 
     // generate an iterator for the item
@@ -987,10 +970,10 @@ static void _treemodel_device_pre_unmount(DeviceMonitor *device_monitor,
     // remove all child nodes
     while (node->children != NULL)
         g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
-                        _treemodel_node_traverse_remove, model);
+                        _treenode_traverse_remove, model);
 
     // add the dummy node
-    _treemodel_node_insert_dummy(node, model);
+    _treenode_insert_dummy(node, model);
 }
 
 static void _treemodel_device_added(DeviceMonitor *device_monitor,
@@ -1045,7 +1028,7 @@ static void _treemodel_device_added(DeviceMonitor *device_monitor,
     gtk_tree_path_free(path);
 
     // add the dummy node
-    _treemodel_node_insert_dummy(node, model);
+    _treenode_insert_dummy(node, model);
 }
 
 static void _treemodel_device_removed(DeviceMonitor *device_monitor,
@@ -1072,10 +1055,155 @@ static void _treemodel_device_removed(DeviceMonitor *device_monitor,
 
     // drop the node from the model
     g_node_traverse(node, G_POST_ORDER, G_TRAVERSE_ALL, -1,
-                    _treemodel_node_traverse_remove, model);
+                    _treenode_traverse_remove, model);
 }
 
-// TreeModelItem --------------------------------------------------------------
+// Public ---------------------------------------------------------------------
+
+/**
+ * thunar_tree_model_set_visible_func:
+ * @model : a #TreeModel.
+ * @func  : a #TreeModelVisibleFunc, the visible function.
+ * @data  : User data to pass to the visible function, or %NULL.
+ *
+ * Sets the visible function used when filtering the #TreeModel.
+ * The function should return %TRUE if the given row should be visible
+ * and %FALSE otherwise.
+ **/
+void treemodel_set_visible_func(TreeModel *model, TreeModelVisibleFunc func,
+                                gpointer data)
+{
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    e_return_if_fail(func != NULL);
+
+    // set the new visiblity function and user data
+    model->visible_func = func;
+    model->visible_data = data;
+}
+
+/**
+ * thunar_tree_model_cleanup:
+ * @model : a #TreeModel.
+ *
+ * Walks all the folders in the #TreeModel and release them when
+ * they are unused by the treeview.
+ **/
+void treemodel_cleanup(TreeModel *model)
+{
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+
+    // schedule an idle cleanup, if not already done
+    if (model->cleanup_idle_id == 0)
+    {
+        model->cleanup_idle_id =
+            g_timeout_add_full(G_PRIORITY_LOW,
+                               500,
+                               _treemodel_cleanup_idle,
+                               model,
+                               _treemodel_cleanup_idle_destroy);
+    }
+}
+
+static gboolean _treemodel_cleanup_idle(gpointer user_data)
+{
+    TreeModel *model = TREEMODEL(user_data);
+
+    UTIL_THREADS_ENTER
+
+    // walk through the tree and release all the nodes with a ref count of 0
+    g_node_traverse(model->root,
+                    G_PRE_ORDER,
+                    G_TRAVERSE_ALL,
+                    -1,
+                    _treenode_traverse_cleanup,
+                    model);
+
+    UTIL_THREADS_LEAVE
+
+    return FALSE;
+}
+
+static void _treemodel_cleanup_idle_destroy(gpointer user_data)
+{
+    TREEMODEL(user_data)->cleanup_idle_id = 0;
+}
+
+/**
+ * thunar_tree_model_refilter:
+ * @model : a #TreeModel.
+ *
+ * Walks all the folders in the #TreeModel and updates their
+ * visibility.
+ **/
+void treemodel_refilter(TreeModel *model)
+{
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+
+    // traverse all nodes to update their visibility
+    g_node_traverse(model->root,
+                    G_PRE_ORDER,
+                    G_TRAVERSE_ALL,
+                    -1,
+                    _treenode_traverse_visible,
+                    model);
+}
+
+/**
+ * thunar_tree_model_add_child:
+ * @model : a #TreeModel.
+ * @node : GNode to add a child
+ * @file : #ThunarFile to be added
+ *
+ * Creates a new #TreeModelItem as a child of @node and stores a reference to the passed @file
+ * Automatically creates/removes dummy items if required
+ **/
+void treemodel_add_child(TreeModel *model, GNode *node, ThunarFile *file)
+{
+    TreeModelItem *child_item;
+    GNode               *child_node;
+    GtkTreeIter          child_iter;
+    GtkTreePath         *child_path;
+
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+    e_return_if_fail(THUNAR_IS_FILE(file));
+
+    // allocate a new item for the file
+    child_item = _treeitem_new_with_file(model, file);
+
+    // check if the node has only the dummy child
+    if (G_UNLIKELY(G_NODE_HAS_DUMMY(node)))
+    {
+        // replace the dummy node with the new node
+        child_node = g_node_first_child(node);
+        child_node->data = child_item;
+
+        // determine the tree iter for the child
+        GTK_TREE_ITER_INIT(child_iter, model->stamp, child_node);
+
+        // emit a "row-changed" for the new node
+        child_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &child_iter);
+        gtk_tree_model_row_changed(GTK_TREE_MODEL(model), child_path, &child_iter);
+        gtk_tree_path_free(child_path);
+    }
+    else
+    {
+        // insert a new item for the child
+        child_node = g_node_append_data(node, child_item);
+
+        // determine the tree iter for the child
+        GTK_TREE_ITER_INIT(child_iter, model->stamp, child_node);
+
+        // emit a "row-inserted" for the new node
+        child_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &child_iter);
+        gtk_tree_model_row_inserted(GTK_TREE_MODEL(model), child_path, &child_iter);
+        gtk_tree_path_free(child_path);
+    }
+
+    // add a dummy to the new child
+    _treenode_insert_dummy(child_node, model);
+}
+
+// TreeModelItem ==============================================================
 
 static TreeModelItem* _treeitem_new_with_file(TreeModel *model, ThunarFile *file)
 {
@@ -1089,7 +1217,7 @@ static TreeModelItem* _treeitem_new_with_file(TreeModel *model, ThunarFile *file
 }
 
 static TreeModelItem* _treeitem_new_with_device(TreeModel *model,
-                                                      ThunarDevice *device)
+                                                ThunarDevice *device)
 {
     TreeModelItem *item;
     GFile               *mount_point;
@@ -1252,7 +1380,7 @@ static void _treeitem_files_removed(TreeModelItem *item,
 
             // drop the child node(and all descendant nodes) from the model
             if (G_LIKELY(child_node != NULL))
-                g_node_traverse(child_node, G_POST_ORDER, G_TRAVERSE_ALL, -1, _treemodel_node_traverse_remove, model);
+                g_node_traverse(child_node, G_POST_ORDER, G_TRAVERSE_ALL, -1, _treenode_traverse_remove, model);
         }
 
         // check if all children of the node where dropped
@@ -1307,7 +1435,7 @@ static void _treeitem_notify_loading(TreeModelItem *item,
 
         // ...and drop the dummy for the node
         if (G_NODE_HAS_DUMMY(node))
-            _treemodel_node_drop_dummy(node, item->model);
+            _treenode_drop_dummy(node, item->model);
     }
 }
 
@@ -1374,8 +1502,9 @@ static gboolean _treeitem_load_idle(gpointer user_data)
     return FALSE;
 }
 
-static void _treemodel_node_insert_dummy(GNode           *parent,
-                                                TreeModel *model)
+// Tree Node ==================================================================
+
+static void _treenode_insert_dummy(GNode *parent, TreeModel *model)
 {
     GNode       *node;
     GtkTreeIter  iter;
@@ -1396,8 +1525,7 @@ static void _treemodel_node_insert_dummy(GNode           *parent,
     gtk_tree_path_free(path);
 }
 
-static void _treemodel_node_drop_dummy(GNode           *node,
-                                              TreeModel *model)
+static void _treenode_drop_dummy(GNode *node, TreeModel *model)
 {
     GtkTreePath *path;
     GtkTreeIter  iter;
@@ -1432,8 +1560,7 @@ static void _treemodel_node_drop_dummy(GNode           *node,
     }
 }
 
-static gboolean _treemodel_node_traverse_cleanup(GNode    *node,
-                                                        gpointer  user_data)
+static gboolean _treenode_traverse_cleanup(GNode *node, gpointer  user_data)
 {
     TreeModelItem *item = node->data;
     TreeModel     *model = TREEMODEL(user_data);
@@ -1448,17 +1575,16 @@ static gboolean _treemodel_node_traverse_cleanup(GNode    *node,
         // remove all the children of the node
         while(node->children)
             g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
-                             _treemodel_node_traverse_remove, model);
+                             _treenode_traverse_remove, model);
 
         // insert a dummy node
-        _treemodel_node_insert_dummy(node, model);
+        _treenode_insert_dummy(node, model);
     }
 
     return FALSE;
 }
 
-static gboolean _treemodel_node_traverse_changed(GNode   *node,
-                                                        gpointer user_data)
+static gboolean _treenode_traverse_changed(GNode *node, gpointer user_data)
 {
     TreeModel     *model;
     GtkTreePath         *path;
@@ -1499,8 +1625,7 @@ static gboolean _treemodel_node_traverse_changed(GNode   *node,
     return FALSE;
 }
 
-static gboolean _treemodel_node_traverse_remove(GNode   *node,
-                                                       gpointer user_data)
+static gboolean _treenode_traverse_remove(GNode *node, gpointer user_data)
 {
     TreeModel *model = TREEMODEL(user_data);
     GtkTreeIter      iter;
@@ -1519,7 +1644,7 @@ static gboolean _treemodel_node_traverse_remove(GNode   *node,
         gtk_tree_model_row_deleted(GTK_TREE_MODEL(model), path);
 
         // release the item for the node
-        _treemodel_node_traverse_free(node, user_data);
+        _treenode_traverse_free(node, user_data);
 
         // remove the node from the tree
         g_node_destroy(node);
@@ -1531,8 +1656,7 @@ static gboolean _treemodel_node_traverse_remove(GNode   *node,
     return FALSE;
 }
 
-static gboolean _treemodel_node_traverse_sort(GNode   *node,
-                                                     gpointer user_data)
+static gboolean _treenode_traverse_sort(GNode *node, gpointer user_data)
 {
     TreeModel *model = TREEMODEL(user_data);
 
@@ -1543,8 +1667,7 @@ static gboolean _treemodel_node_traverse_sort(GNode   *node,
     return FALSE;
 }
 
-static gboolean _treemodel_node_traverse_free(GNode   *node,
-                                                     gpointer user_data)
+static gboolean _treenode_traverse_free(GNode *node, gpointer user_data)
 {
     (void) user_data;
     if (G_LIKELY(node->data != NULL))
@@ -1552,8 +1675,7 @@ static gboolean _treemodel_node_traverse_free(GNode   *node,
     return FALSE;
 }
 
-static gboolean _treemodel_node_traverse_visible(GNode    *node,
-                                                        gpointer  user_data)
+static gboolean _treenode_traverse_visible(GNode *node, gpointer  user_data)
 {
     TreeModelItem *item = node->data;
     TreeModel     *model = TREEMODEL(user_data);
@@ -1575,7 +1697,7 @@ static gboolean _treemodel_node_traverse_visible(GNode    *node,
             // delete all the children of the node
             while(node->children)
                 g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
-                                 _treemodel_node_traverse_remove, model);
+                                 _treenode_traverse_remove, model);
 
             // generate an iterator for the item
             GTK_TREE_ITER_INIT(iter, model->stamp, node);
@@ -1629,7 +1751,7 @@ static gboolean _treemodel_node_traverse_visible(GNode    *node,
                     item->invisible_children = g_slist_delete_link(item->invisible_children, lp);
 
                     // insert dummy
-                    _treemodel_node_insert_dummy(child_node, model);
+                    _treenode_insert_dummy(child_node, model);
                 }
             }
 
@@ -1640,121 +1762,6 @@ static gboolean _treemodel_node_traverse_visible(GNode    *node,
     }
 
     return FALSE;
-}
-
-/**
- * thunar_tree_model_set_visible_func:
- * @model : a #TreeModel.
- * @func  : a #TreeModelVisibleFunc, the visible function.
- * @data  : User data to pass to the visible function, or %NULL.
- *
- * Sets the visible function used when filtering the #TreeModel.
- * The function should return %TRUE if the given row should be visible
- * and %FALSE otherwise.
- **/
-void treemodel_set_visible_func(TreeModel            *model,
-                                        TreeModelVisibleFunc  func,
-                                        gpointer                    data)
-{
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    e_return_if_fail(func != NULL);
-
-    // set the new visiblity function and user data
-    model->visible_func = func;
-    model->visible_data = data;
-}
-
-/**
- * thunar_tree_model_refilter:
- * @model : a #TreeModel.
- *
- * Walks all the folders in the #TreeModel and updates their
- * visibility.
- **/
-void treemodel_refilter(TreeModel *model)
-{
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-
-    // traverse all nodes to update their visibility
-    g_node_traverse(model->root, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
-                     _treemodel_node_traverse_visible, model);
-}
-
-/**
- * thunar_tree_model_cleanup:
- * @model : a #TreeModel.
- *
- * Walks all the folders in the #TreeModel and release them when
- * they are unused by the treeview.
- **/
-void treemodel_cleanup(TreeModel *model)
-{
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-
-    // schedule an idle cleanup, if not already done
-    if (model->cleanup_idle_id == 0)
-    {
-        model->cleanup_idle_id = g_timeout_add_full(G_PRIORITY_LOW, 500, _treemodel_cleanup_idle,
-                                 model, _treemodel_cleanup_idle_destroy);
-    }
-}
-
-
-/**
- * thunar_tree_model_add_child:
- * @model : a #TreeModel.
- * @node : GNode to add a child
- * @file : #ThunarFile to be added
- *
- * Creates a new #TreeModelItem as a child of @node and stores a reference to the passed @file
- * Automatically creates/removes dummy items if required
- **/
-void treemodel_add_child(TreeModel *model,
-                                 GNode           *node,
-                                 ThunarFile      *file)
-{
-    TreeModelItem *child_item;
-    GNode               *child_node;
-    GtkTreeIter          child_iter;
-    GtkTreePath         *child_path;
-
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    e_return_if_fail(THUNAR_IS_FILE(file));
-
-    // allocate a new item for the file
-    child_item = _treeitem_new_with_file(model, file);
-
-    // check if the node has only the dummy child
-    if (G_UNLIKELY(G_NODE_HAS_DUMMY(node)))
-    {
-        // replace the dummy node with the new node
-        child_node = g_node_first_child(node);
-        child_node->data = child_item;
-
-        // determine the tree iter for the child
-        GTK_TREE_ITER_INIT(child_iter, model->stamp, child_node);
-
-        // emit a "row-changed" for the new node
-        child_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &child_iter);
-        gtk_tree_model_row_changed(GTK_TREE_MODEL(model), child_path, &child_iter);
-        gtk_tree_path_free(child_path);
-    }
-    else
-    {
-        // insert a new item for the child
-        child_node = g_node_append_data(node, child_item);
-
-        // determine the tree iter for the child
-        GTK_TREE_ITER_INIT(child_iter, model->stamp, child_node);
-
-        // emit a "row-inserted" for the new node
-        child_path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &child_iter);
-        gtk_tree_model_row_inserted(GTK_TREE_MODEL(model), child_path, &child_iter);
-        gtk_tree_path_free(child_path);
-    }
-
-    // add a dummy to the new child
-    _treemodel_node_insert_dummy(child_node, model);
 }
 
 
