@@ -34,6 +34,7 @@
 
 // PathEntry ------------------------------------------------------------------
 
+static void pathentry_editable_init(GtkEditableInterface *iface);
 static void pathentry_finalize(GObject *object);
 static void pathentry_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec);
@@ -50,14 +51,14 @@ static void pathentry_drag_data_get(GtkWidget *widget,
                                     guint timestamp);
 static void pathentry_activate(GtkEntry *entry);
 
-// GtkEditable ----------------------------------------------------------------
+// GtkEditable Init -----------------------------------------------------------
 
-static void pathentry_editable_init(GtkEditableInterface *iface);
 static void pathentry_changed(GtkEditable *editable);
 static void pathentry_do_insert_text(GtkEditable *editable, const gchar *new_text,
                                      gint new_text_length, gint *position);
 
-// pathentry_init
+// PathEntry Init ----------------------------------------------------------------
+
 static gboolean _pathentry_match_func(GtkEntryCompletion *completion,
                                       const gchar *key,
                                       GtkTreeIter *iter,
@@ -79,19 +80,22 @@ static void _pathentry_icon_release_event(GtkEntry *entry,
                                           GdkEventButton *event,
                                           gpointer user_data);
 
+// ----------------------------------------------------------------------------
+
+static gboolean _pathentry_parse(PathEntry *path_entry,
+                                 gchar **folder_part,
+                                 gchar **file_part,
+                                 GError **error);
+
+static void _pathentry_queue_check_completion(PathEntry *path_entry);
+static gboolean _pathentry_check_completion_idle(gpointer user_data);
+static void _pathentry_check_completion_idle_destroy(gpointer user_data);
 
 static void _pathentry_common_prefix_append(PathEntry *path_entry,
                                             gboolean highlight);
 static void _pathentry_common_prefix_lookup(PathEntry *path_entry,
                                             gchar **prefix_return,
                                             ThunarFile **file_return);
-static gboolean _pathentry_parse(PathEntry *path_entry,
-                                 gchar **folder_part,
-                                 gchar **file_part,
-                                 GError **error);
-static void _pathentry_queue_check_completion(PathEntry *path_entry);
-static gboolean _pathentry_check_completion_idle(gpointer user_data);
-static void _pathentry_check_completion_idle_destroy(gpointer user_data);
 
 // PathEntry ------------------------------------------------------------------
 
@@ -911,6 +915,111 @@ static void _pathentry_icon_release_event(GtkEntry             *entry,
 
 // Completion -----------------------------------------------------------------
 
+// pathentry_changed
+static gboolean _pathentry_parse(PathEntry *path_entry,
+                                 gchar     **folder_part,
+                                 gchar     **file_part,
+                                 GError    **error)
+{
+    const gchar *last_slash;
+    gchar       *filename;
+    gchar       *path;
+
+    e_return_val_if_fail(IS_PATHENTRY(path_entry), FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    e_return_val_if_fail(folder_part != NULL, FALSE);
+    e_return_val_if_fail(file_part != NULL, FALSE);
+
+    // expand the filename
+    filename = util_expand_filename(gtk_entry_get_text(GTK_ENTRY(path_entry)),
+                                            path_entry->working_directory,
+                                            error);
+    if (G_UNLIKELY(filename == NULL))
+        return FALSE;
+
+    // lookup the last slash character in the filename
+    last_slash = strrchr(filename, G_DIR_SEPARATOR);
+    if (G_UNLIKELY(last_slash == NULL))
+    {
+        // no slash character, it's relative to the home dir
+        *file_part = g_filename_from_utf8(filename, -1, NULL, NULL, error);
+        if (G_LIKELY(*file_part != NULL))
+            *folder_part = g_strdup(g_get_home_dir());
+    }
+    else
+    {
+        if (G_LIKELY(last_slash != filename))
+            *folder_part = g_filename_from_utf8(filename, last_slash - filename, NULL, NULL, error);
+        else
+            *folder_part = g_strdup("/");
+
+        if (G_LIKELY(*folder_part != NULL))
+        {
+            // if folder_part doesn't start with '/', it's relative to the home dir
+            if (G_UNLIKELY(**folder_part != G_DIR_SEPARATOR))
+            {
+                path = g_build_filename(g_get_home_dir(), *folder_part, NULL);
+                g_free(*folder_part);
+                *folder_part = path;
+            }
+
+            // determine the file part
+            *file_part = g_filename_from_utf8(last_slash + 1, -1, NULL, NULL, error);
+            if (G_UNLIKELY(*file_part == NULL))
+            {
+                g_free(*folder_part);
+                *folder_part = NULL;
+            }
+        }
+        else
+        {
+            g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s", g_strerror(EINVAL));
+        }
+    }
+
+    // release the filename
+    g_free(filename);
+
+    return(*folder_part != NULL);
+}
+
+// pathentry_do_insert_text
+static void _pathentry_queue_check_completion(PathEntry *path_entry)
+{
+    if (G_LIKELY(path_entry->check_completion_idle_id == 0))
+    {
+        path_entry->check_completion_idle_id =
+                g_idle_add_full(G_PRIORITY_HIGH,
+                                _pathentry_check_completion_idle,
+                                path_entry,
+                                _pathentry_check_completion_idle_destroy);
+    }
+}
+
+static gboolean _pathentry_check_completion_idle(gpointer user_data)
+{
+    PathEntry *path_entry = PATHENTRY(user_data);
+
+    UTIL_THREADS_ENTER
+
+    // check if the user entered at least part of a filename
+    const gchar *text = gtk_entry_get_text(GTK_ENTRY(path_entry));
+    if (*text != '\0' && text[strlen(text) - 1] != '/')
+    {
+        // automatically insert the common prefix
+        _pathentry_common_prefix_append(path_entry, TRUE);
+    }
+
+    UTIL_THREADS_LEAVE
+
+    return FALSE;
+}
+
+static void _pathentry_check_completion_idle_destroy(gpointer user_data)
+{
+    PATHENTRY(user_data)->check_completion_idle_id = 0;
+}
+
 static void _pathentry_common_prefix_append(PathEntry *path_entry,
                                             gboolean  highlight)
 {
@@ -1046,109 +1155,6 @@ static void _pathentry_common_prefix_lookup(PathEntry  *path_entry,
         }
         while(gtk_tree_model_iter_next(model, &iter));
     }
-}
-
-static gboolean _pathentry_parse(PathEntry *path_entry,
-                                 gchar     **folder_part,
-                                 gchar     **file_part,
-                                 GError    **error)
-{
-    const gchar *last_slash;
-    gchar       *filename;
-    gchar       *path;
-
-    e_return_val_if_fail(IS_PATHENTRY(path_entry), FALSE);
-    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    e_return_val_if_fail(folder_part != NULL, FALSE);
-    e_return_val_if_fail(file_part != NULL, FALSE);
-
-    // expand the filename
-    filename = util_expand_filename(gtk_entry_get_text(GTK_ENTRY(path_entry)),
-                                            path_entry->working_directory,
-                                            error);
-    if (G_UNLIKELY(filename == NULL))
-        return FALSE;
-
-    // lookup the last slash character in the filename
-    last_slash = strrchr(filename, G_DIR_SEPARATOR);
-    if (G_UNLIKELY(last_slash == NULL))
-    {
-        // no slash character, it's relative to the home dir
-        *file_part = g_filename_from_utf8(filename, -1, NULL, NULL, error);
-        if (G_LIKELY(*file_part != NULL))
-            *folder_part = g_strdup(g_get_home_dir());
-    }
-    else
-    {
-        if (G_LIKELY(last_slash != filename))
-            *folder_part = g_filename_from_utf8(filename, last_slash - filename, NULL, NULL, error);
-        else
-            *folder_part = g_strdup("/");
-
-        if (G_LIKELY(*folder_part != NULL))
-        {
-            // if folder_part doesn't start with '/', it's relative to the home dir
-            if (G_UNLIKELY(**folder_part != G_DIR_SEPARATOR))
-            {
-                path = g_build_filename(g_get_home_dir(), *folder_part, NULL);
-                g_free(*folder_part);
-                *folder_part = path;
-            }
-
-            // determine the file part
-            *file_part = g_filename_from_utf8(last_slash + 1, -1, NULL, NULL, error);
-            if (G_UNLIKELY(*file_part == NULL))
-            {
-                g_free(*folder_part);
-                *folder_part = NULL;
-            }
-        }
-        else
-        {
-            g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s", g_strerror(EINVAL));
-        }
-    }
-
-    // release the filename
-    g_free(filename);
-
-    return(*folder_part != NULL);
-}
-
-static void _pathentry_queue_check_completion(PathEntry *path_entry)
-{
-    if (G_LIKELY(path_entry->check_completion_idle_id == 0))
-    {
-        path_entry->check_completion_idle_id =
-                g_idle_add_full(G_PRIORITY_HIGH,
-                                _pathentry_check_completion_idle,
-                                path_entry,
-                                _pathentry_check_completion_idle_destroy);
-    }
-}
-
-static gboolean _pathentry_check_completion_idle(gpointer user_data)
-{
-    PathEntry *path_entry = PATHENTRY(user_data);
-
-    UTIL_THREADS_ENTER
-
-    // check if the user entered at least part of a filename
-    const gchar *text = gtk_entry_get_text(GTK_ENTRY(path_entry));
-    if (*text != '\0' && text[strlen(text) - 1] != '/')
-    {
-        // automatically insert the common prefix
-        _pathentry_common_prefix_append(path_entry, TRUE);
-    }
-
-    UTIL_THREADS_LEAVE
-
-    return FALSE;
-}
-
-static void _pathentry_check_completion_idle_destroy(gpointer user_data)
-{
-    PATHENTRY(user_data)->check_completion_idle_id = 0;
 }
 
 // Public ---------------------------------------------------------------------

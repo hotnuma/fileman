@@ -18,7 +18,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   44614	./dialog/appchooser.c
 +   43540	./dialog/propsdlg.c
 +   42799	./job/io_jobs.c
-    41248	./widget/pathentry.c
++   41248	./widget/pathentry.c
 +   39800	./view/detailview.c
 +   38465	./dialog/dialogs.c
 +   31068	./view/exotreeview.c
