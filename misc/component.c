@@ -19,8 +19,8 @@
 #include <config.h>
 #include <component.h>
 
+#include <navigator.h>
 #include <gio_ext.h>
-
 
 /*
  * ThunarComponent:selected-files:
@@ -42,6 +42,8 @@
  */
 
 static void component_class_init(gpointer klass);
+
+// ThunarComponent ------------------------------------------------------------
 
 GType component_get_type()
 {
@@ -74,15 +76,17 @@ static void component_class_init(gpointer klass)
                                             "selected-files",
                                             "selected-files",
                                             "selected-files",
-                                            TYPE_FILEINFO_LIST,
+                                            TYPE_FILEINFOLIST,
                                             E_PARAM_READWRITE));
 }
 
+// Public ---------------------------------------------------------------------
+
 GList* component_get_selected_files(ThunarComponent *component)
 {
-    e_return_val_if_fail(THUNAR_IS_COMPONENT(component), NULL);
+    e_return_val_if_fail(IS_THUNARCOMPONENT(component), NULL);
 
-    ThunarComponentIface *iface = THUNAR_COMPONENT_GET_IFACE(component);
+    ThunarComponentIface *iface = THUNARCOMPONENT_GET_IFACE(component);
 
     if (iface->get_selected_files != NULL)
         return iface->get_selected_files(component);
@@ -91,23 +95,22 @@ GList* component_get_selected_files(ThunarComponent *component)
 }
 
 void component_set_selected_files(ThunarComponent *component,
-                                         GList    *selected_files)
+                                  GList *selected_files)
 {
-    e_return_if_fail(THUNAR_IS_COMPONENT(component));
+    e_return_if_fail(IS_THUNARCOMPONENT(component));
 
-    ThunarComponentIface *iface = THUNAR_COMPONENT_GET_IFACE(component);
+    ThunarComponentIface *iface = THUNARCOMPONENT_GET_IFACE(component);
 
     if (iface->set_selected_files != NULL)
         iface->set_selected_files(component, selected_files);
 }
 
-/***
- * Make sure that the @selected_files stay selected when a @component
- * updates. This may be necessary on row changes etc.
- */
+/* Make sure that the @selected_files stay selected when a @component
+ * updates. This may be necessary on row changes etc. */
+
 void component_restore_selection(ThunarComponent *component)
 {
-    e_return_if_fail(THUNAR_IS_COMPONENT(component));
+    e_return_if_fail(IS_THUNARCOMPONENT(component));
 
     GList *selected_files;
     selected_files = e_list_copy(component_get_selected_files(component));

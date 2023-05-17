@@ -23,6 +23,8 @@
 
 G_BEGIN_DECLS
 
+// SidePane -------------------------------------------------------------------
+
 typedef struct _SidePaneIface SidePaneIface;
 typedef struct _SidePane      SidePane;
 
@@ -40,13 +42,13 @@ struct _SidePaneIface
 
     // virtual methods
     gboolean (*get_show_hidden) (SidePane *side_pane);
-    void     (*set_show_hidden) (SidePane *side_pane, gboolean show_hidden);
+    void (*set_show_hidden) (SidePane *side_pane, gboolean show_hidden);
 };
 
-GType       sidepane_get_type() G_GNUC_CONST;
+GType sidepane_get_type() G_GNUC_CONST;
 
-gboolean    sidepane_get_show_hidden(SidePane *side_pane);
-void        sidepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden);
+gboolean sidepane_get_show_hidden(SidePane *side_pane);
+void sidepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden);
 
 G_END_DECLS
 

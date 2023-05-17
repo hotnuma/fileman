@@ -41,7 +41,7 @@ struct _StatusbarClass
 struct _Statusbar
 {
     GtkStatusbar __parent__;
-    guint        context_id;
+    guint context_id;
 };
 
 G_DEFINE_TYPE(Statusbar, statusbar, GTK_TYPE_STATUSBAR)

@@ -19,11 +19,6 @@
 #include <config.h>
 #include <gdk_ext.h>
 
-#include <stdlib.h>
-#include <string.h>
-#include <memory.h>
-#include <errno.h>
-
 static const cairo_user_data_key_t _cairo_key;
 
 static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf);
@@ -40,7 +35,7 @@ static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf);
  * the pixbufs using the icon cache.
  **/
 void edk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
-                                  gdouble pixbuf_x, gdouble pixbuf_y)
+                                 gdouble pixbuf_x, gdouble pixbuf_y)
 {
     cairo_surface_t *surface;
     static GQuark    surface_quark = 0;

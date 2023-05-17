@@ -17,36 +17,38 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __THUNAR_IMAGE_H__
-#define __THUNAR_IMAGE_H__
+#ifndef __THUNARIMAGE_H__
+#define __THUNARIMAGE_H__
 
 #include <th_file.h>
 
 G_BEGIN_DECLS
 
-#define THUNAR_TYPE_IMAGE (th_image_get_type())
-#define THUNAR_IMAGE(obj)            \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), THUNAR_TYPE_IMAGE, ThunarImage))
-#define THUNAR_IMAGE_CLASS(klass)    \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  THUNAR_TYPE_IMAGE, ThunarImageClass))
-#define THUNAR_IS_IMAGE(obj)         \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), THUNAR_TYPE_IMAGE))
-#define THUNAR_IS_IMAGE_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  THUNAR_TYPE_IMAGE)
-#define THUNAR_IMAGE_GET_CLASS(obj)  \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  THUNAR_TYPE_IMAGE, ThunarImageClass))
+// ThunarImage ----------------------------------------------------------------
 
 typedef struct _ThunarImagePrivate ThunarImagePrivate;
 typedef struct _ThunarImageClass   ThunarImageClass;
 typedef struct _ThunarImage        ThunarImage;
 
+#define TYPE_THUNARIMAGE (th_image_get_type())
+#define THUNARIMAGE(obj)            \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARIMAGE, ThunarImage))
+#define THUNARIMAGE_CLASS(klass)    \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_THUNARIMAGE, ThunarImageClass))
+#define IS_THUNARIMAGE(obj)         \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_THUNARIMAGE))
+#define IS_THUNARIMAGE_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_THUNARIMAGE)
+#define THUNARIMAGE_GET_CLASS(obj)  \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARIMAGE, ThunarImageClass))
+
 GType th_image_get_type() G_GNUC_CONST;
 
 GtkWidget* th_image_new() G_GNUC_MALLOC;
-void th_image_set_file(ThunarImage *image, ThunarFile  *file);
+void th_image_set_file(ThunarImage *image, ThunarFile *file);
 
 G_END_DECLS
 
-#endif // __THUNAR_IMAGE_H__
+#endif // __THUNARIMAGE_H__
 
 

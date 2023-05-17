@@ -22,21 +22,21 @@
 #include <launcher.h>
 
 #include <application.h>
-#include <treeview.h>
-#include <preferences.h>
-#include <component.h>
-#include <browser.h>
 #include <clipboard.h>
+#include <browser.h>
+#include <component.h>
+#include <navigator.h>
 #include <iconfactory.h>
-
-#include <simplejob.h>
-#include <io_scandir.h>
-#include <gtk_ext.h>
-#include <fnmatch.h>
-
+#include <treeview.h>
 #include <dialogs.h>
 #include <appchooser.h>
 #include <propsdlg.h>
+#include <preferences.h>
+
+#include <io_scandir.h>
+#include <simplejob.h>
+#include <gtk_ext.h>
+#include <fnmatch.h>
 
 typedef struct _LauncherPokeData LauncherPokeData;
 
@@ -450,7 +450,7 @@ G_DEFINE_TYPE_WITH_CODE(ThunarLauncher,
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER, NULL)
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               launcher_navigator_init)
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARCOMPONENT,
                                               launcher_component_init))
 
 static void launcher_class_init(ThunarLauncherClass *klass)
@@ -500,7 +500,7 @@ static void launcher_class_init(ThunarLauncherClass *klass)
                                                                "current-directory"));
 
     // Override ThunarComponent's properties
-    g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);
+    g_iface = g_type_default_interface_peek(TYPE_THUNARCOMPONENT);
     _launcher_props[PROP_SELECTED_FILES] =
         g_param_spec_override("selected-files",
                               g_object_interface_find_property(g_iface,
@@ -573,7 +573,7 @@ static void launcher_get_property(GObject *object, guint prop_id,
 
     case PROP_SELECTED_FILES:
         g_value_set_boxed(value,
-                          component_get_selected_files(THUNAR_COMPONENT(object)));
+                          component_get_selected_files(THUNARCOMPONENT(object)));
         break;
 
     default:
@@ -597,7 +597,7 @@ static void launcher_set_property(GObject *object, guint prop_id,
         break;
 
     case PROP_SELECTED_FILES:
-        component_set_selected_files(THUNAR_COMPONENT(object),
+        component_set_selected_files(THUNARCOMPONENT(object),
                                      g_value_get_boxed(value));
         break;
 
@@ -645,7 +645,7 @@ static void launcher_set_current_directory(ThunarNavigator *navigator,
 
         // update files_to_process if not initialized yet
         if (launcher->files_to_process == NULL)
-            launcher_set_selected_files(THUNAR_COMPONENT(navigator), NULL);
+            launcher_set_selected_files(THUNARCOMPONENT(navigator), NULL);
     }
 
     // notify listeners

@@ -19,11 +19,10 @@
 #include <config.h>
 #include <filemonitor.h>
 
-// Global monitor -------------------------------------------------------------
-
 static FileMonitor* _filemon_default;
 
-// Allocation -----------------------------------------------------------------
+// FileMonitor ----------------------------------------------------------------
+
 enum
 {
     FILE_CHANGED,
@@ -89,6 +88,8 @@ static void filemon_init(FileMonitor *monitor)
 {
     (void) monitor;
 }
+
+// Public ---------------------------------------------------------------------
 
 /**
  * thunar_file_monitor_get_default:

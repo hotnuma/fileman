@@ -51,78 +51,73 @@ G_BEGIN_DECLS
 #define FILESYSTEM_INFO_NAMESPACE \
   "filesystem::*"
 
+// FileInfo -------------------------------------------------------------------
+
 typedef struct _FileInfoIface FileInfoIface;
 typedef struct _FileInfo      FileInfo;
 
 #define TYPE_FILEINFO (fileinfo_get_type())
 #define FILEINFO(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),    TYPE_FILEINFO, FileInfo))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_FILEINFO, FileInfo))
 #define IS_FILEINFO(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),    TYPE_FILEINFO))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_FILEINFO))
 #define FILEINFO_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE((obj), TYPE_FILEINFO, FileInfoIface))
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_FILEINFO, FileInfoIface))
 
 struct _FileInfoIface
 {
     GTypeInterface __parent__;
 
     // virtual methods
-    gchar*      (*get_name) (FileInfo *file_info);
+    gchar* (*get_name) (FileInfo *file_info);
+    gchar* (*get_uri) (FileInfo *file_info);
+    gchar* (*get_parent_uri) (FileInfo *file_info);
+    gchar* (*get_uri_scheme) (FileInfo *file_info);
+    gchar* (*get_mime_type) (FileInfo *file_info);
+    gboolean (*has_mime_type) (FileInfo *file_info, const gchar *mime_type);
+    gboolean (*is_directory) (FileInfo *file_info);
+    GFileInfo* (*get_file_info) (FileInfo *file_info);
+    GFileInfo* (*get_filesystem_info) (FileInfo *file_info);
+    GFile* (*get_location) (FileInfo *file_info);
 
-    gchar*      (*get_uri) (FileInfo *file_info);
-    gchar*      (*get_parent_uri) (FileInfo *file_info);
-    gchar*      (*get_uri_scheme) (FileInfo *file_info);
-
-    gchar*      (*get_mime_type) (FileInfo *file_info);
-    gboolean    (*has_mime_type) (FileInfo *file_info,
-                                  const gchar     *mime_type);
-
-    gboolean    (*is_directory) (FileInfo *file_info);
-
-    GFileInfo*  (*get_file_info) (FileInfo *file_info);
-    GFileInfo*  (*get_filesystem_info) (FileInfo *file_info);
-    GFile*      (*get_location) (FileInfo *file_info);
-
-    void (*reserved0) (void);
-    void (*reserved1) (void);
-    void (*reserved2) (void);
-    void (*reserved3) (void);
-    void (*reserved4) (void);
-    void (*reserved5) (void);
+    void (*reserved0) ();
+    void (*reserved1) ();
+    void (*reserved2) ();
+    void (*reserved3) ();
+    void (*reserved4) ();
+    void (*reserved5) ();
     void (*reserved6) (void);
 
     // signals
     void (*changed) (FileInfo *file_info);
     void (*renamed) (FileInfo *file_info);
 
-    void (*reserved7) (void);
-    void (*reserved8) (void);
-    void (*reserved9) (void);
+    void (*reserved7) ();
+    void (*reserved8) ();
+    void (*reserved9) ();
 };
 
-GType       fileinfo_get_type() G_GNUC_CONST;
+GType fileinfo_get_type() G_GNUC_CONST;
 
-gchar*      fileinfo_get_name(FileInfo *file_info);
-gchar*      fileinfo_get_uri(FileInfo *file_info);
-gchar*      fileinfo_get_parent_uri(FileInfo *file_info);
-gchar*      fileinfo_get_uri_scheme(FileInfo *file_info);
+gchar* fileinfo_get_name(FileInfo *file_info);
+gchar* fileinfo_get_uri(FileInfo *file_info);
+gchar* fileinfo_get_parent_uri(FileInfo *file_info);
+gchar* fileinfo_get_uri_scheme(FileInfo *file_info);
+gchar* fileinfo_get_mime_type(FileInfo *file_info);
+gboolean fileinfo_has_mime_type(FileInfo *file_info, const gchar *mime_type);
+gboolean fileinfo_is_directory(FileInfo *file_info);
+GFileInfo* fileinfo_get_file_info(FileInfo *file_info);
+GFileInfo* fileinfo_get_filesystem_info(FileInfo *file_info);
+GFile* fileinfo_get_location(FileInfo *file_info);
 
-gchar*      fileinfo_get_mime_type(FileInfo *file_info);
-gboolean    fileinfo_has_mime_type(FileInfo *file_info,
-                                            const gchar *mime_type);
+void fileinfo_changed(FileInfo *file_info);
+void fileinfo_renamed(FileInfo *file_info);
 
-gboolean    fileinfo_is_directory(FileInfo *file_info);
+// FileInfoList ---------------------------------------------------------------
 
-GFileInfo*  fileinfo_get_file_info(FileInfo *file_info);
-GFileInfo*  fileinfo_get_filesystem_info(FileInfo *file_info);
-GFile*      fileinfo_get_location(FileInfo *file_info);
+#define TYPE_FILEINFOLIST (fileinfolist_get_type())
 
-void        fileinfo_changed(FileInfo *file_info);
-void        fileinfo_renamed(FileInfo *file_info);
-
-#define TYPE_FILEINFO_LIST (fileinfo_list_get_type())
-
-GType       fileinfo_list_get_type() G_GNUC_CONST;
+GType fileinfolist_get_type() G_GNUC_CONST;
 
 G_END_DECLS
 

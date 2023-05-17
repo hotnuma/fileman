@@ -133,7 +133,7 @@ static void propsdlg_class_init(PropertiesDialogClass *klass)
                                         "files",
                                         "files",
                                         "files",
-                                        TYPE_FILEINFO_LIST,
+                                        TYPE_FILEINFOLIST,
                                         E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,
@@ -800,7 +800,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     g_free(str);
 
     // update the preview image
-    th_image_set_file(THUNAR_IMAGE(dialog->icon_image), file);
+    th_image_set_file(THUNARIMAGE(dialog->icon_image), file);
 
     // check if the icon may be changed(only for writable .desktop files)
     g_object_ref(G_OBJECT(dialog->icon_image));

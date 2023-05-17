@@ -28,17 +28,17 @@ G_BEGIN_DECLS
 typedef struct _StatusbarClass StatusbarClass;
 typedef struct _Statusbar      Statusbar;
 
-#define TYPE_STATUSBAR (statusbar_get_type ())
+#define TYPE_STATUSBAR (statusbar_get_type())
 #define STATUSBAR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_STATUSBAR, Statusbar))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_STATUSBAR, Statusbar))
 #define STATUSBAR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_STATUSBAR, StatusbarClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_STATUSBAR, StatusbarClass))
 #define IS_STATUSBAR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_STATUSBAR))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_STATUSBAR))
 #define IS_STATUSBAR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_STATUSBAR))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_STATUSBAR))
 #define STATUSBAR_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_STATUSBAR, StatusbarClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_STATUSBAR, StatusbarClass))
 
 GType statusbar_get_type() G_GNUC_CONST;
 

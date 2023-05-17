@@ -36,30 +36,30 @@ G_BEGIN_DECLS
  *
  * Return value: %TRUE on success, %FALSE in case of an error.
  **/
-typedef gboolean (*SimpleJobFunc) (ThunarJob *job,
-                                   GArray    *param_values,
-                                   GError    **error);
+typedef gboolean (*SimpleJobFunc) (ThunarJob *job, GArray *param_values,
+                                   GError **error);
+
+// SimpleJob ------------------------------------------------------------------
 
 typedef struct _SimpleJobClass SimpleJobClass;
 typedef struct _SimpleJob      SimpleJob;
 
 #define TYPE_SIMPLEJOB (simplejob_get_type())
 #define THUNAR_SIMPLE_JOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_SIMPLEJOB, SimpleJob))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_SIMPLEJOB, SimpleJob))
 #define THUNAR_SIMPLE_JOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), TYPE_SIMPLEJOB, SimpleJobClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_SIMPLEJOB, SimpleJobClass))
 #define THUNAR_IS_SIMPLE_JOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_SIMPLEJOB))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_SIMPLEJOB))
 #define THUNAR_IS_SIMPLE_JOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass), TYPE_SIMPLEJOB))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_SIMPLEJOB))
 #define THUNAR_SIMPLE_JOB_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), TYPE_SIMPLEJOB, SimpleJobClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_SIMPLEJOB, SimpleJobClass))
 
 GType simplejob_get_type() G_GNUC_CONST;
 
 ThunarJob* simplejob_launch(SimpleJobFunc func, guint n_param_values, ...)
                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-
 GArray* simplejob_get_param_values(SimpleJob *job);
 
 G_END_DECLS

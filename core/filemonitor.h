@@ -23,20 +23,22 @@
 
 G_BEGIN_DECLS
 
+// FileMonitor ----------------------------------------------------------------
+
 typedef struct _FileMonitorClass FileMonitorClass;
 typedef struct _FileMonitor      FileMonitor;
 
 #define TYPE_FILEMONITOR (filemon_get_type())
 #define FILEMONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_FILEMONITOR, FileMonitor))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_FILEMONITOR, FileMonitor))
 #define FILEMONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_FILEMONITOR, FileMonitorClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_FILEMONITOR, FileMonitorClass))
 #define IS_FILEMONITOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_FILEMONITOR))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_FILEMONITOR))
 #define IS_FILEMONITOR_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_FILEMONITOR))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_FILEMONITOR))
 #define FILEMONITOR_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_FILEMONITOR, FileMonitorClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_FILEMONITOR, FileMonitorClass))
 
 GType filemon_get_type() G_GNUC_CONST;
 

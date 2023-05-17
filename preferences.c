@@ -6,6 +6,8 @@
 
 static Preferences _prefs;
 
+// Preferences ----------------------------------------------------------------
+
 Preferences* get_preferences()
 {
     return &_prefs;

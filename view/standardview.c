@@ -383,7 +383,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE(StandardView, standardview, GTK_TYPE_SCROLLED_W
                                      TYPE_THUNARNAVIGATOR,
                                      standardview_navigator_init)
                                  G_IMPLEMENT_INTERFACE(
-                                     THUNAR_TYPE_COMPONENT,
+                                     TYPE_THUNARCOMPONENT,
                                      standardview_component_init)
                                  G_IMPLEMENT_INTERFACE(
                                      TYPE_BASEVIEW,
@@ -450,7 +450,7 @@ static void standardview_class_init(StandardViewClass *klass)
                              E_PARAM_READWRITE);
 
     // override ThunarComponent's properties
-    gpointer g_iface = g_type_default_interface_peek(THUNAR_TYPE_COMPONENT);
+    gpointer g_iface = g_type_default_interface_peek(TYPE_THUNARCOMPONENT);
     _stdv_props[PROP_SELECTED_FILES] =
         g_param_spec_override("selected-files",
                               g_object_interface_find_property(g_iface,
@@ -781,7 +781,7 @@ static void standardview_get_property(GObject *object, guint prop_id,
         break;
 
     case PROP_SELECTED_FILES:
-        g_value_set_boxed(value, component_get_selected_files(THUNAR_COMPONENT(object)));
+        g_value_set_boxed(value, component_get_selected_files(THUNARCOMPONENT(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -822,7 +822,7 @@ static void standardview_set_property(GObject *object, guint prop_id,
         break;
 
     case PROP_SELECTED_FILES:
-        component_set_selected_files(THUNAR_COMPONENT(object),
+        component_set_selected_files(THUNARCOMPONENT(object),
                                      g_value_get_boxed(value));
         break;
 
@@ -1385,7 +1385,7 @@ static void _standardview_restore_selection_from_history(StandardView *view)
      * new current directory */
     if (selected_files.data != NULL)
     {
-        component_set_selected_files(THUNAR_COMPONENT(view), &selected_files);
+        component_set_selected_files(THUNARCOMPONENT(view), &selected_files);
         g_object_unref(G_OBJECT(selected_files.data));
     }
 }
@@ -1469,7 +1469,7 @@ static GList* standardview_get_selected_files_view(BaseView *baseview)
 static void standardview_set_selected_files_view(BaseView *baseview,
                                                  GList    *selected_files)
 {
-    standardview_set_selected_files_component(THUNAR_COMPONENT(baseview),
+    standardview_set_selected_files_component(THUNARCOMPONENT(baseview),
                                               selected_files);
 }
 
@@ -1602,7 +1602,7 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
         view->priv->selected_files = NULL;
 
         // and try setting the selected files again
-        component_set_selected_files(THUNAR_COMPONENT(view), selected_files);
+        component_set_selected_files(THUNARCOMPONENT(view), selected_files);
 
         // cleanup
         e_list_free(selected_files);
@@ -1658,7 +1658,7 @@ static void _standardview_new_files(StandardView *view, GList *path_list)
         if (G_LIKELY(file_list != NULL))
         {
             // select the files
-            component_set_selected_files(THUNAR_COMPONENT(view), file_list);
+            component_set_selected_files(THUNARCOMPONENT(view), file_list);
 
             // release the file list
             g_list_free_full(file_list, g_object_unref);
@@ -1831,7 +1831,7 @@ static void _standardview_sort_column_changed(GtkTreeSortable *tree_sortable,
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
     // keep the currently selected files selected after the change
-    component_restore_selection(THUNAR_COMPONENT(view));
+    component_restore_selection(THUNARCOMPONENT(view));
 
     GtkSortType sort_order;
     gint sort_column;
@@ -2036,7 +2036,7 @@ static gboolean _standardview_restore_selection_idle(StandardView *view)
                  NULL);
 
     // restore the selection
-    component_restore_selection(THUNAR_COMPONENT(view));
+    component_restore_selection(THUNARCOMPONENT(view));
     view->priv->restore_selection_idle_id = 0;
 
     // unfreeze the scroll position

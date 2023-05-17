@@ -94,7 +94,7 @@ static void szlabel_class_init(SizeLabelClass *klass)
                                         "files",
                                         "files",
                                         "files",
-                                        TYPE_FILEINFO_LIST,
+                                        TYPE_FILEINFOLIST,
                                         E_PARAM_READWRITE));
 
     /**

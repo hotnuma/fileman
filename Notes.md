@@ -60,17 +60,17 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   6613	./misc/appnotify.c
 
 +   5832	./libext/pango_ext.c
-    5587	./widget/th_image.c
-    5429	./job/io_scandir.c
-    5426	./job/simplejob.c
-    5425	./core/fileinfo.c
-    4992	./libext/gdk_ext.c
-    4950	./core/filemonitor.c
-    3949	./misc/component.c
-    3837	./widget/statusbar.c
-    2558	./preferences.c
++   5587	./widget/th_image.c
++   5429	./job/io_scandir.c
++   5426	./job/simplejob.c
++   5425	./core/fileinfo.c
++   4992	./libext/gdk_ext.c
++   4950	./core/filemonitor.c
++   3949	./misc/component.c
++   3837	./widget/statusbar.c
++   2558	./preferences.c
 
-    2365	./side/sidepane.c
++   2365	./side/sidepane.c
 +   1421	./main.c
 ```
 

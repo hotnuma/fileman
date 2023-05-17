@@ -3,6 +3,8 @@
 
 #include <cstringlist.h>
 
+// Preferences ----------------------------------------------------------------
+
 typedef struct
 {
     CString *filepath;

@@ -23,10 +23,10 @@
 
 #include <gobject/gvaluecollector.h>
 
-// ----------------------------------------------------------------------------
-
 static void simplejob_finalize(GObject *object);
 static gboolean simplejob_execute(ExoJob *job, GError **error);
+
+// SimpleJob ------------------------------------------------------------------
 
 struct _SimpleJobClass
 {
@@ -70,7 +70,41 @@ static void simplejob_finalize(GObject *object)
     G_OBJECT_CLASS(simplejob_parent_class)->finalize(object);
 }
 
-// ----------------------------------------------------------------------------
+static gboolean simplejob_execute(ExoJob *job, GError **error)
+{
+    SimpleJob *simple_job = THUNAR_SIMPLE_JOB(job);
+    gboolean         success = TRUE;
+    GError          *err = NULL;
+
+    e_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), FALSE);
+    e_return_val_if_fail(simple_job->func != NULL, FALSE);
+
+    // try to execute the job using the supplied function
+    success = simple_job->func(THUNAR_JOB(job), simple_job->param_values, &err);
+
+    if (!success)
+    {
+        g_assert(err != NULL || exo_job_is_cancelled(job));
+
+        /* set error if the job was cancelled. otherwise just propagate
+         * the results of the processing function */
+        if (exo_job_set_error_if_cancelled(job, error))
+        {
+            g_clear_error(&err);
+        }
+        else
+        {
+            if (err != NULL)
+                g_propagate_error(error, err);
+        }
+
+        return FALSE;
+    }
+    else
+        return TRUE;
+}
+
+// Public ---------------------------------------------------------------------
 
 /**
  * simplejob_launch:
@@ -135,40 +169,6 @@ ThunarJob* simplejob_launch(SimpleJobFunc func, guint n_param_values, ...)
 
     // launch the job
     return THUNAR_JOB(exo_job_launch(EXOJOB(simple_job)));
-}
-
-static gboolean simplejob_execute(ExoJob *job, GError **error)
-{
-    SimpleJob *simple_job = THUNAR_SIMPLE_JOB(job);
-    gboolean         success = TRUE;
-    GError          *err = NULL;
-
-    e_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), FALSE);
-    e_return_val_if_fail(simple_job->func != NULL, FALSE);
-
-    // try to execute the job using the supplied function
-    success = simple_job->func(THUNAR_JOB(job), simple_job->param_values, &err);
-
-    if (!success)
-    {
-        g_assert(err != NULL || exo_job_is_cancelled(job));
-
-        /* set error if the job was cancelled. otherwise just propagate
-         * the results of the processing function */
-        if (exo_job_set_error_if_cancelled(job, error))
-        {
-            g_clear_error(&err);
-        }
-        else
-        {
-            if (err != NULL)
-                g_propagate_error(error, err);
-        }
-
-        return FALSE;
-    }
-    else
-        return TRUE;
 }
 
 GArray* simplejob_get_param_values(SimpleJob *job)

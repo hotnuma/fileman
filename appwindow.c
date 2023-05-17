@@ -26,9 +26,11 @@
 #include <devmonitor.h>
 #include <browser.h>
 #include <component.h>
+#include <navigator.h>
 
 #include <locationbar.h>
 #include <locationentry.h>
+#include <sidepane.h>
 #include <treepane.h>
 #include <baseview.h>
 #include <standardview.h>
@@ -36,7 +38,6 @@
 #include <statusbar.h>
 #include <dialogs.h>
 #include <preferences.h>
-#include <sidepane.h>
 
 #include <syslog.h>
 
@@ -953,7 +954,7 @@ static void _window_create_view(AppWindow *window, GtkWidget *view,
         baseview_scroll_to_file(BASEVIEW(new_view), file, FALSE, TRUE, 0.0f, 0.0f);
 
     // restore the file selection
-    component_set_selected_files(THUNAR_COMPONENT(new_view), selected_files);
+    component_set_selected_files(THUNARCOMPONENT(new_view), selected_files);
     e_list_free(selected_files);
 
     // release the file references

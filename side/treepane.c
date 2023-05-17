@@ -21,6 +21,7 @@
 
 #include <sidepane.h>
 #include <component.h>
+#include <navigator.h>
 
 static void treepane_component_init(ThunarComponentIface *iface);
 static void treepane_navigator_init(ThunarNavigatorIface *iface);
@@ -65,7 +66,7 @@ G_DEFINE_TYPE_WITH_CODE(TreePane,
                         GTK_TYPE_SCROLLED_WINDOW,
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               treepane_navigator_init)
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARCOMPONENT,
                                               treepane_component_init)
                         G_IMPLEMENT_INTERFACE(TYPE_SIDEPANE,
                                               treepane_sidepane_init))
@@ -134,7 +135,7 @@ static void treepane_dispose(GObject *object)
     TreePane *tree_pane = TREEPANE(object);
 
     navigator_set_current_directory(THUNARNAVIGATOR(tree_pane), NULL);
-    component_set_selected_files(THUNAR_COMPONENT(tree_pane), NULL);
+    component_set_selected_files(THUNARCOMPONENT(tree_pane), NULL);
 
     G_OBJECT_CLASS(treepane_parent_class)->dispose(object);
 }
@@ -155,7 +156,7 @@ static void treepane_get_property(GObject    *object,
 
     case PROP_SELECTED_FILES:
         g_value_set_boxed(value,
-                          component_get_selected_files(THUNAR_COMPONENT(object)));
+                          component_get_selected_files(THUNARCOMPONENT(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -182,7 +183,7 @@ static void treepane_set_property(GObject *object, guint prop_id,
         break;
 
     case PROP_SELECTED_FILES:
-        component_set_selected_files(THUNAR_COMPONENT(object),
+        component_set_selected_files(THUNARCOMPONENT(object),
                                      g_value_get_boxed(value));
         break;
 

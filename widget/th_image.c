@@ -20,19 +20,8 @@
 #include <config.h>
 #include <th_image.h>
 
-#include <application.h>
-#include <filemonitor.h>
 #include <iconfactory.h>
-
-#include <glib.h>
-#include <glib-object.h>
-
-// Property identifiers
-enum
-{
-    PROP_0,
-    PROP_FILE,
-};
+#include <filemonitor.h>
 
 static void th_image_finalize(GObject *object);
 static void th_image_get_property(GObject *object, guint prop_id,
@@ -42,6 +31,15 @@ static void th_image_set_property(GObject *object, guint prop_id,
 
 static void _th_image_file_changed(FileMonitor *monitor, ThunarFile *file,
                                    ThunarImage *image);
+static void _th_image_update(ThunarImage *image);
+
+// ThunarImage ----------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_FILE,
+};
 
 struct _ThunarImageClass
 {
@@ -58,7 +56,7 @@ struct _ThunarImage
 struct _ThunarImagePrivate
 {
     FileMonitor *monitor;
-    ThunarFile        *file;
+    ThunarFile *file;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(ThunarImage, th_image, GTK_TYPE_IMAGE);
@@ -93,7 +91,7 @@ static void th_image_init(ThunarImage *image)
 
 static void th_image_finalize(GObject *object)
 {
-    ThunarImage *image = THUNAR_IMAGE(object);
+    ThunarImage *image = THUNARIMAGE(object);
 
     g_signal_handlers_disconnect_by_func(image->priv->monitor,
                                           _th_image_file_changed, image);
@@ -109,7 +107,7 @@ static void th_image_get_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    ThunarImage *image = THUNAR_IMAGE(object);
+    ThunarImage *image = THUNARIMAGE(object);
 
     switch (prop_id)
     {
@@ -127,7 +125,7 @@ static void th_image_set_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    ThunarImage *image = THUNAR_IMAGE(object);
+    ThunarImage *image = THUNARIMAGE(object);
 
     switch (prop_id)
     {
@@ -140,6 +138,17 @@ static void th_image_set_property(GObject *object, guint prop_id,
     }
 }
 
+static void _th_image_file_changed(FileMonitor *monitor, ThunarFile *file,
+                                   ThunarImage *image)
+{
+    e_return_if_fail(IS_FILEMONITOR(monitor));
+    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARIMAGE(image));
+
+    if (file == image->priv->file)
+        _th_image_update(image);
+}
+
 static void _th_image_update(ThunarImage *image)
 {
     IconFactory *icon_factory;
@@ -147,7 +156,7 @@ static void _th_image_update(ThunarImage *image)
     GdkPixbuf         *icon;
     GdkScreen         *screen;
 
-    e_return_if_fail(THUNAR_IS_IMAGE(image));
+    e_return_if_fail(IS_THUNARIMAGE(image));
 
     if (THUNAR_IS_FILE(image->priv->file))
     {
@@ -164,25 +173,16 @@ static void _th_image_update(ThunarImage *image)
     }
 }
 
-static void _th_image_file_changed(FileMonitor *monitor, ThunarFile *file,
-                                   ThunarImage *image)
-{
-    e_return_if_fail(IS_FILEMONITOR(monitor));
-    e_return_if_fail(THUNAR_IS_FILE(file));
-    e_return_if_fail(THUNAR_IS_IMAGE(image));
-
-    if (file == image->priv->file)
-        _th_image_update(image);
-}
+// Public ---------------------------------------------------------------------
 
 GtkWidget* th_image_new()
 {
-    return g_object_new(THUNAR_TYPE_IMAGE, NULL);
+    return g_object_new(TYPE_THUNARIMAGE, NULL);
 }
 
 void th_image_set_file(ThunarImage *image, ThunarFile *file)
 {
-    e_return_if_fail(THUNAR_IS_IMAGE(image));
+    e_return_if_fail(IS_THUNARIMAGE(image));
 
     if (image->priv->file != NULL)
     {

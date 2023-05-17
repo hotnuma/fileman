@@ -16,23 +16,25 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_COMPONENT_H__
-#define __THUNAR_COMPONENT_H__
+#ifndef __THUNARCOMPONENT_H__
+#define __THUNARCOMPONENT_H__
 
-#include <navigator.h>
+#include <gio/gio.h>
 
 G_BEGIN_DECLS
+
+// ThunarComponent ------------------------------------------------------------
 
 typedef struct _ThunarComponentIface ThunarComponentIface;
 typedef struct _ThunarComponent      ThunarComponent;
 
-#define THUNAR_TYPE_COMPONENT (component_get_type())
-#define THUNAR_COMPONENT(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),      THUNAR_TYPE_COMPONENT, ThunarComponent))
-#define THUNAR_IS_COMPONENT(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      THUNAR_TYPE_COMPONENT))
-#define THUNAR_COMPONENT_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   THUNAR_TYPE_COMPONENT, ThunarComponentIface))
+#define TYPE_THUNARCOMPONENT (component_get_type())
+#define THUNARCOMPONENT(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_THUNARCOMPONENT, ThunarComponent))
+#define IS_THUNARCOMPONENT(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_THUNARCOMPONENT))
+#define THUNARCOMPONENT_GET_IFACE(obj) \
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_THUNARCOMPONENT, ThunarComponentIface))
 
 struct _ThunarComponentIface
 {
@@ -41,7 +43,6 @@ struct _ThunarComponentIface
     // methods
     GList* (*get_selected_files) (ThunarComponent *component);
     void (*set_selected_files) (ThunarComponent *component, GList *selected_files);
-
 };
 
 GType component_get_type() G_GNUC_CONST;
@@ -49,11 +50,10 @@ GType component_get_type() G_GNUC_CONST;
 GList* component_get_selected_files(ThunarComponent *component);
 void component_set_selected_files(ThunarComponent *component,
                                   GList *selected_files);
-
 void component_restore_selection(ThunarComponent *component);
 
 G_END_DECLS
 
-#endif // __THUNAR_COMPONENT_H__
+#endif // __THUNARCOMPONENT_H__
 
 

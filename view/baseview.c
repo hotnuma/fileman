@@ -40,7 +40,7 @@ GType baseview_get_type()
             0);
 
         g_type_interface_add_prerequisite(type, GTK_TYPE_WIDGET);
-        g_type_interface_add_prerequisite(type, THUNAR_TYPE_COMPONENT);
+        g_type_interface_add_prerequisite(type, TYPE_THUNARCOMPONENT);
 
         g_once_init_leave(&type__volatile, type);
     }

@@ -23,14 +23,14 @@
 
 #include <gio_ext.h>
 
-// Signal identifiers
+// FileInfo -------------------------------------------------------------------
+
 enum
 {
     CHANGED,
     RENAMED,
     LAST_SIGNAL,
 };
-
 static guint _fileinfo_signals[LAST_SIGNAL];
 
 GType fileinfo_get_type()
@@ -172,7 +172,9 @@ void fileinfo_renamed(FileInfo *file_info)
     g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[RENAMED], 0);
 }
 
-GType fileinfo_list_get_type()
+// FileInfoList ---------------------------------------------------------------
+
+GType fileinfolist_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
