@@ -13,6 +13,7 @@ PKGCONFIG += libxfce4ui-2
 HEADERS = \
     appmenu.h \
     appwindow.h \
+    core/appnotify.h \
     core/clipboard.h \
     core/devmonitor.h \
     core/dnd.h \
@@ -45,7 +46,6 @@ HEADERS = \
     libext/pango_ext.h \
     libext/pixbuf_ext.h \
     libext/utils.h \
-    misc/appnotify.h \
     misc/browser.h \
     misc/component.h \
     misc/enumtypes.h \
@@ -80,6 +80,7 @@ SOURCES = \
     0Temp.c \
     appmenu.c \
     appwindow.c \
+    core/appnotify.c \
     core/clipboard.c \
     core/devmonitor.c \
     core/dnd.c \
@@ -112,7 +113,6 @@ SOURCES = \
     libext/pango_ext.c \
     libext/pixbuf_ext.c \
     libext/utils.c \
-    misc/appnotify.c \
     misc/browser.c \
     misc/component.c \
     misc/enumtypes.c \

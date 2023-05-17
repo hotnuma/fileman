@@ -38,6 +38,7 @@ app_deps = [
 ]
 
 app_sources = [
+    'core/appnotify.c',
     'core/clipboard.c',
     'core/devmonitor.c',
     'core/dnd.c',
@@ -69,7 +70,6 @@ app_sources = [
     'libext/pango_ext.c',
     'libext/pixbuf_ext.c',
     'libext/utils.c',
-    'misc/appnotify.c',
     'misc/browser.c',
     'misc/component.c',
     'misc/enumtypes.c',

@@ -57,7 +57,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   7519	./job/jobutils.c
 +   7190	./libext/gtk_ext.c
 +   6833	./misc/navigator.c
-+   6613	./misc/appnotify.c
++   6613	./core/appnotify.c
 
 +   5832	./libext/pango_ext.c
 +   5587	./widget/th_image.c
