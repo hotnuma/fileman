@@ -27,8 +27,9 @@
 #include <utils.h>
 
 // convenience macros
-#define G_NODE(node) ((GNode *)(node))
-#define TREEMODEL_ITEM(item) ((TreeModelItem *)(item))
+#define TREEMODEL_ITEM(item) ((TreeModelItem*)(item))
+
+#define G_NODE(node) ((GNode*)(node))
 #define G_NODE_HAS_DUMMY(node) (node->children != NULL \
                                 && node->children->data == NULL \
                                 && node->children->next == NULL)
@@ -71,31 +72,16 @@ static void treemodel_unref_node(GtkTreeModel *tree_model, GtkTreeIter *iter);
 static gboolean _treemodel_get_case_sensitive(TreeModel *model);
 static void _treemodel_set_case_sensitive(TreeModel *model, gboolean case_sensitive);
 
-// TreeModelItem --------------------------------------------------------------
-
-static TreeModelItem* _treeitem_new_with_file(TreeModel *model,
-                                              ThunarFile *file) G_GNUC_MALLOC;
-static TreeModelItem* _treeitem_new_with_device(TreeModel *model,
-                                                ThunarDevice *device) G_GNUC_MALLOC;
-static void _treeitem_free(TreeModelItem *item);
-static void _treeitem_reset(TreeModelItem *item);
-static void _treeitem_load_folder(TreeModelItem *item);
-static void _treeitem_files_added(TreeModelItem *item, GList *files,
-                                  ThunarFolder *folder);
-static void _treeitem_files_removed(TreeModelItem *item, GList *files,
-                                    ThunarFolder *folder);
-static gboolean _treeitem_load_idle(gpointer user_data);
-static void _treeitem_load_idle_destroy(gpointer user_data);
-static void _treeitem_notify_loading(TreeModelItem *item, GParamSpec *pspec,
-                                     ThunarFolder *folder);
-
-// ----------------------------------------------------------------------------
+// Monitor --------------------------------------------------------------------
 
 static void _treemodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                                     TreeModel *model);
 static void _treemodel_device_added(DeviceMonitor *device_monitor,
                                     ThunarDevice *device,
                                     TreeModel *model);
+static void _treemodel_device_changed(DeviceMonitor *device_monitor,
+                                      ThunarDevice *device,
+                                      TreeModel *model);
 static void _treemodel_device_pre_unmount(DeviceMonitor *device_monitor,
                                           ThunarDevice *device,
                                           GFile *root_file,
@@ -103,9 +89,26 @@ static void _treemodel_device_pre_unmount(DeviceMonitor *device_monitor,
 static void _treemodel_device_removed(DeviceMonitor *device_monitor,
                                       ThunarDevice *device,
                                       TreeModel *model);
-static void _treemodel_device_changed(DeviceMonitor *device_monitor,
-                                      ThunarDevice *device,
-                                      TreeModel *model);
+
+// TreeItem -------------------------------------------------------------------
+
+static TreeModelItem* _treeitem_new_with_device(TreeModel *model,
+                                                ThunarDevice *device) G_GNUC_MALLOC;
+static TreeModelItem* _treeitem_new_with_file(TreeModel *model,
+                                              ThunarFile *file) G_GNUC_MALLOC;
+static void _treeitem_free(TreeModelItem *item);
+static void _treeitem_reset(TreeModelItem *item);
+
+static void _treeitem_load_folder(TreeModelItem *item);
+static gboolean _treeitem_load_idle(gpointer user_data);
+static void _treeitem_load_idle_destroy(gpointer user_data);
+
+static void _treeitem_files_added(TreeModelItem *item, GList *files,
+                                  ThunarFolder *folder);
+static void _treeitem_files_removed(TreeModelItem *item, GList *files,
+                                    ThunarFolder *folder);
+static void _treeitem_notify_loading(TreeModelItem *item, GParamSpec *pspec,
+                                     ThunarFolder *folder);
 
 // Public ---------------------------------------------------------------------
 
@@ -123,6 +126,7 @@ static void _treenode_insert_dummy(GNode *parent, TreeModel *model);
 static void _treenode_drop_dummy(GNode *node, TreeModel *model);
 static gboolean _treenode_traverse_cleanup(GNode *node, gpointer user_data);
 static gboolean _treenode_traverse_free(GNode *node, gpointer user_data);
+
 static gboolean _treenode_traverse_changed(GNode *node, gpointer user_data);
 static gboolean _treenode_traverse_remove(GNode *node, gpointer user_data);
 static gboolean _treenode_traverse_sort(GNode *node, gpointer user_data);
