@@ -61,9 +61,7 @@ struct _TreePane
     gboolean    show_hidden;
 };
 
-G_DEFINE_TYPE_WITH_CODE(TreePane,
-                        treepane,
-                        GTK_TYPE_SCROLLED_WINDOW,
+G_DEFINE_TYPE_WITH_CODE(TreePane, treepane, GTK_TYPE_SCROLLED_WINDOW,
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               treepane_navigator_init)
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARCOMPONENT,

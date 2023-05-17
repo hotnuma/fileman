@@ -163,13 +163,14 @@ static void _browser_poke_device_data_free(PokeDeviceData *poke_data)
 
 static void _browser_poke_mountable_file_finish(GFile *location,
                                                 ThunarFile *file,
-                                                GError     *error,
-                                                gpointer    user_data)
+                                                GError *error,
+                                                gpointer user_data)
 {
-    PokeFileData *poke_data = user_data;
-
     e_return_if_fail(G_IS_FILE(location));
     e_return_if_fail(user_data != NULL);
+
+    PokeFileData *poke_data = user_data;
+
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
     e_return_if_fail(THUNAR_IS_FILE(poke_data->file));
     e_return_if_fail(THUNAR_IS_FILE(poke_data->source));
@@ -224,9 +225,10 @@ static void _browser_poke_mountable_finish(GObject      *object,
 
         /* resolve the ThunarFile for the target location asynchronously
          * and defer cleaning up the poke data until that has finished */
-        th_file_get_async(location, NULL,
-                               _browser_poke_mountable_file_finish,
-                               poke_data);
+        th_file_get_async(location,
+                          NULL,
+                          _browser_poke_mountable_file_finish,
+                          poke_data);
 
         g_object_unref(location);
     }
@@ -234,18 +236,21 @@ static void _browser_poke_mountable_finish(GObject      *object,
     {
         if (poke_data->location_func != NULL)
         {
-           (poke_data->location_func)(poke_data->browser,
-                                        poke_data->location,
-                                        poke_data->source,
-                                        NULL,
-                                        error,
-                                        poke_data->user_data);
+            (poke_data->location_func)(poke_data->browser,
+                                       poke_data->location,
+                                       poke_data->source,
+                                       NULL,
+                                       error,
+                                       poke_data->user_data);
         }
 
         if (poke_data->func != NULL)
         {
-           (poke_data->func)(poke_data->browser, poke_data->source, NULL, error,
-                               poke_data->user_data);
+            (poke_data->func)(poke_data->browser,
+                              poke_data->source,
+                              NULL,
+                              error,
+                              poke_data->user_data);
         }
 
         _browser_poke_file_data_free(poke_data);

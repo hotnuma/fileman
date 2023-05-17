@@ -157,6 +157,7 @@ static void history_set_property(GObject *object, guint prop_id,
                                  const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
+
     ThunarHistory *history = THUNARHISTORY(object);
 
     switch (prop_id)

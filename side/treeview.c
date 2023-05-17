@@ -23,13 +23,13 @@
 
 #include <application.h>
 #include <appmenu.h>
+#include <clipboard.h>
+#include <navigator.h>
+#include <dnd.h>
 #include <treemodel.h>
 #include <shortrender.h>
 #include <th_device.h>
 #include <th_folder.h>
-#include <navigator.h>
-#include <clipboard.h>
-#include <dnd.h>
 #include <gtk_ext.h>
 #include <utils.h>
 

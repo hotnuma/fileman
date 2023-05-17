@@ -378,17 +378,15 @@ struct _StandardViewPrivate
     gulong      row_changed_id;
 };
 
-G_DEFINE_ABSTRACT_TYPE_WITH_CODE(StandardView, standardview, GTK_TYPE_SCROLLED_WINDOW,
-                                 G_IMPLEMENT_INTERFACE(
-                                     TYPE_THUNARNAVIGATOR,
-                                     standardview_navigator_init)
-                                 G_IMPLEMENT_INTERFACE(
-                                     TYPE_THUNARCOMPONENT,
-                                     standardview_component_init)
-                                 G_IMPLEMENT_INTERFACE(
-                                     TYPE_BASEVIEW,
-                                     standardview_baseview_init)
-                                 G_ADD_PRIVATE(StandardView))
+G_DEFINE_ABSTRACT_TYPE_WITH_CODE(
+                    StandardView, standardview, GTK_TYPE_SCROLLED_WINDOW,
+                    G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
+                                          standardview_navigator_init)
+                    G_IMPLEMENT_INTERFACE(TYPE_THUNARCOMPONENT,
+                                          standardview_component_init)
+                    G_IMPLEMENT_INTERFACE(TYPE_BASEVIEW,
+                                          standardview_baseview_init)
+                    G_ADD_PRIVATE(StandardView))
 
 static void standardview_class_init(StandardViewClass *klass)
 {

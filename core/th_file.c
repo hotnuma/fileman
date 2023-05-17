@@ -22,9 +22,9 @@
 #include <th_file.h>
 
 #include <application.h>
+#include <appchooser.h>
 #include <filemonitor.h>
 #include <iconfactory.h>
-#include <appchooser.h>
 #include <dialogs.h>
 #include <gio_ext.h>
 #include <utils.h>
@@ -43,10 +43,12 @@ G_LOCK_DEFINE_STATIC(_file_rename_mutex);
 #define FLAG_UNSET(file, flag) G_STMT_START{((file)->flags &= ~(flag)); }G_STMT_END
 #define FLAG_IS_SET(file,flag) (((file)->flags &(flag)) != 0)
 
+#if 0
 #define FLAG_SET_THUMB_STATE(file, new_state) \
     G_STMT_START{ \
     (file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); \
     }G_STMT_END
+#endif
 
 // ThunarFile -----------------------------------------------------------------
 
@@ -62,7 +64,7 @@ static gchar* th_fileinfo_get_parent_uri(FileInfo *file_info);
 static gchar* th_fileinfo_get_uri_scheme(FileInfo *file_info);
 static gchar* th_fileinfo_get_mime_type(FileInfo *file_info);
 static gboolean th_fileinfo_has_mime_type(FileInfo *file_info,
-                                           const gchar *mime_type);
+                                          const gchar *mime_type);
 static gboolean th_fileinfo_is_directory(FileInfo *file_info);
 static GFileInfo* th_fileinfo_get_file_info(FileInfo *file_info);
 static GFileInfo* th_fileinfo_get_filesystem_info(FileInfo *file_info);
@@ -80,6 +82,7 @@ static void _th_file_info_clear(ThunarFile *file);
 // th_file_get_async
 static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
                                       gpointer user_data);
+
 // th_file_get_icon_name
 static const gchar* _th_file_get_icon_name_for_state(
                                             const gchar *icon_name,
@@ -105,10 +108,10 @@ static void _th_file_reload_parent(ThunarFile *file);
 
 // Globals --------------------------------------------------------------------
 
-static UserManager  *_user_manager;
-static GHashTable   *_file_cache;
-static guint32      _effective_user_id;
-static GQuark       _file_watch_quark;
+static UserManager *_user_manager;
+static GHashTable *_file_cache;
+static guint32 _effective_user_id;
+static GQuark _file_watch_quark;
 
 // user directories
 static struct
@@ -436,47 +439,13 @@ static void th_fileinfo_changed(FileInfo *file_info)
 
     ThunarFile *file = THUNAR_FILE(file_info);
 
-    FLAG_SET_THUMB_STATE(file, 0);
+    //FLAG_SET_THUMB_STATE(file, 0);
 
     // tell the file monitor that this file has changed
     filemon_file_changed(file);
 }
 
 // Public ---------------------------------------------------------------------
-
-/**
- * th_file_destroy:
- * @file : a #ThunarFile instance.
- *
- * Emits the ::destroy signal notifying all reference holders
- * that they should release their references to the @file.
- *
- * This method is very similar to what gtk_object_destroy()
- * does for #GtkObject<!---->s.
- **/
-void th_file_destroy(ThunarFile *file)
-{
-    e_return_if_fail(THUNAR_IS_FILE(file));
-
-    if (!FLAG_IS_SET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION))
-    {
-        /* take an additional reference on the file, as the file-destroyed
-         * invocation may already release the last reference.
-         */
-        g_object_ref(G_OBJECT(file));
-
-        // tell the file monitor that this file was destroyed
-        filemon_file_destroyed(file);
-
-        // run the dispose handler
-        g_object_run_dispose(G_OBJECT(file));
-
-        // release our reference
-        g_object_unref(G_OBJECT(file));
-    }
-}
-
-// Get ------------------------------------------------------------------------
 
 ThunarFile* th_file_get(GFile *gfile, GError **error)
 {
@@ -494,6 +463,7 @@ ThunarFile* th_file_get(GFile *gfile, GError **error)
     file = g_object_new(THUNAR_TYPE_FILE, NULL);
     file->gfile = g_object_ref(gfile);
 
+    // load file
     if (!_th_file_load(file, NULL, error))
     {
         g_object_unref(file);
@@ -501,13 +471,10 @@ ThunarFile* th_file_get(GFile *gfile, GError **error)
     }
 
     // insert into the cache
-
     G_LOCK(_file_cache_mutex);
-
     g_hash_table_insert(_file_cache,
                         g_object_ref(file->gfile),
                         weak_ref_new(G_OBJECT(file)));
-
     G_UNLOCK(_file_cache_mutex);
 
     return file;
@@ -573,6 +540,190 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
     return TRUE;
 }
 
+ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
+{
+    // g_object_unref
+
+    e_return_val_if_fail(uri != NULL, NULL);
+    e_return_val_if_fail(error == NULL || *error == NULL, NULL);
+
+    GFile *path = g_file_new_for_commandline_arg(uri);
+
+    ThunarFile *file = th_file_get(path, error);
+
+    g_object_unref(path);
+
+    return file;
+}
+
+ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error)
+{
+    // You may want to call th_file_has_parent() first
+    // g_object_unref
+
+    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(error == NULL || *error == NULL, NULL);
+
+    GFile *parent_file = g_file_get_parent(file->gfile);
+
+    if (parent_file == NULL)
+    {
+        g_set_error(error,
+                    G_FILE_ERROR,
+                    G_FILE_ERROR_NOENT,
+                    _("The root folder has no parent"));
+
+        return NULL;
+    }
+
+    ThunarFile *parent = th_file_get(parent_file, error);
+    g_object_unref(parent_file);
+
+    return parent;
+}
+
+ThunarFile* th_file_get_with_info(GFile *gfile, GFileInfo *info, gboolean not_mounted)
+{
+    // g_object_unref
+
+    e_return_val_if_fail(G_IS_FILE(gfile), NULL);
+    e_return_val_if_fail(G_IS_FILE_INFO(info), NULL);
+
+    // check if we already have a cached version of that file
+    ThunarFile *file = th_file_cache_lookup(gfile);
+
+    if (G_UNLIKELY(file != NULL))
+        return file;
+
+    // allocate a new object
+    file = g_object_new(THUNAR_TYPE_FILE, NULL);
+    file->gfile = g_object_ref(gfile);
+
+    // reset the file
+    _th_file_info_clear(file);
+
+    // set the passed info
+    file->info = g_object_ref(info);
+
+    // update the file from the information
+    _th_file_info_load(file, NULL);
+
+    // update the mounted info
+    if (not_mounted)
+        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+
+    // setup lock until the file is inserted
+    G_LOCK(_file_cache_mutex);
+
+    // insert the file into the cache
+    g_hash_table_insert(_file_cache,
+                        g_object_ref(file->gfile),
+                        weak_ref_new(G_OBJECT(file)));
+
+    // done inserting in the cache
+    G_UNLOCK(_file_cache_mutex);
+
+    return file;
+}
+
+void th_file_get_async(GFile *location, GCancellable *cancellable,
+                       ThunarFileGetFunc func, gpointer user_data)
+{
+    e_return_if_fail(G_IS_FILE(location));
+    e_return_if_fail(func != NULL);
+
+    // check if we already have a cached version of that file
+    ThunarFile *file = th_file_cache_lookup(location);
+
+    if (G_UNLIKELY(file != NULL))
+    {
+        // call the return function with the file from the cache
+        (func) (location, file, NULL, user_data);
+        g_object_unref(file);
+
+        return;
+    }
+
+    // allocate get data
+    ThunarFileGetData *data = g_slice_new0(ThunarFileGetData);
+    data->user_data = user_data;
+    data->func = func;
+
+    if (cancellable != NULL)
+        data->cancellable = g_object_ref(cancellable);
+
+    // load the file information asynchronously
+    g_file_query_info_async(location,
+                            FILEINFO_NAMESPACE,
+                            G_FILE_QUERY_INFO_NONE,
+                            G_PRIORITY_DEFAULT,
+                            cancellable,
+                            _th_file_get_async_finish,
+                            data);
+}
+
+static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
+                                      gpointer user_data)
+{
+    GFile *location = G_FILE(object);
+
+    e_return_if_fail(G_IS_FILE(location));
+    e_return_if_fail(G_IS_ASYNC_RESULT(result));
+
+
+    // finish querying the file information
+    GError *error = NULL;
+    GFileInfo *file_info = g_file_query_info_finish(location, result, &error);
+
+    // allocate a new file object
+    ThunarFile *file = g_object_new(THUNAR_TYPE_FILE, NULL);
+    file->gfile = g_object_ref(location);
+
+    // reset the file
+    _th_file_info_clear(file);
+
+    // set the file information
+    file->info = file_info;
+
+    ThunarFileGetData *data = user_data;
+
+    // update the file from the information
+    _th_file_info_load(file, data->cancellable);
+
+    // update the mounted info
+    if (error != NULL
+        && error->domain == G_IO_ERROR
+        && error->code == G_IO_ERROR_NOT_MOUNTED)
+    {
+        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+        g_clear_error(&error);
+    }
+
+    // insert the file into the cache
+    G_LOCK(_file_cache_mutex);
+    g_hash_table_insert(_file_cache,
+                        g_object_ref(file->gfile),
+                        weak_ref_new(G_OBJECT(file)));
+    G_UNLOCK(_file_cache_mutex);
+
+    // pass the loaded file and possible errors to the return function
+    (data->func) (location, file, error, data->user_data);
+
+    // release the file, see description in ThunarFileGetFunc
+    g_object_unref(file);
+
+    // free the error, if there is any
+    if (error != NULL)
+        g_error_free(error);
+
+    // release the get data
+    if (data->cancellable != NULL)
+        g_object_unref(data->cancellable);
+
+    g_slice_free(ThunarFileGetData, data);
+}
+
+// fileinfo
 static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
 {
     e_return_if_fail(THUNAR_IS_FILE(file));
@@ -748,188 +899,33 @@ static void _th_file_info_clear(ThunarFile *file)
     FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
 
     // set thumb state to unknown
-    FLAG_SET_THUMB_STATE(file, 0);
+    //FLAG_SET_THUMB_STATE(file, 0);
 }
 
-ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
+/* Emits the ::destroy signal notifying all reference holders
+ * that they should release their references to the file.
+ * This method is very similar to what gtk_object_destroy()
+ * does for GtkObjects. */
+void th_file_destroy(ThunarFile *file)
 {
-    // g_object_unref
+    e_return_if_fail(THUNAR_IS_FILE(file));
 
-    e_return_val_if_fail(uri != NULL, NULL);
-    e_return_val_if_fail(error == NULL || *error == NULL, NULL);
-
-    GFile *path = g_file_new_for_commandline_arg(uri);
-    ThunarFile *file = th_file_get(path, error);
-    g_object_unref(path);
-
-    return file;
-}
-
-ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error)
-{
-    // You may want to call th_file_has_parent() first
-    // g_object_unref
-
-    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
-    e_return_val_if_fail(error == NULL || *error == NULL, NULL);
-
-    GFile *parent_file = g_file_get_parent(file->gfile);
-
-    if (parent_file == NULL)
-    {
-        g_set_error(error,
-                    G_FILE_ERROR,
-                    G_FILE_ERROR_NOENT,
-                    _("The root folder has no parent"));
-
-        return NULL;
-    }
-
-    ThunarFile *parent = th_file_get(parent_file, error);
-    g_object_unref(parent_file);
-
-    return parent;
-}
-
-ThunarFile* th_file_get_with_info(GFile *gfile, GFileInfo *info, gboolean not_mounted)
-{
-    // g_object_unref
-
-    e_return_val_if_fail(G_IS_FILE(gfile), NULL);
-    e_return_val_if_fail(G_IS_FILE_INFO(info), NULL);
-
-    // check if we already have a cached version of that file
-    ThunarFile *file = th_file_cache_lookup(gfile);
-
-    if (G_UNLIKELY(file != NULL))
-        return file;
-
-    // allocate a new object
-    file = g_object_new(THUNAR_TYPE_FILE, NULL);
-    file->gfile = g_object_ref(gfile);
-
-    // reset the file
-    _th_file_info_clear(file);
-
-    // set the passed info
-    file->info = g_object_ref(info);
-
-    // update the file from the information
-    _th_file_info_load(file, NULL);
-
-    // update the mounted info
-    if (not_mounted)
-        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
-
-    // setup lock until the file is inserted
-    G_LOCK(_file_cache_mutex);
-
-    // insert the file into the cache
-    g_hash_table_insert(_file_cache,
-                        g_object_ref(file->gfile),
-                        weak_ref_new(G_OBJECT(file)));
-
-    // done inserting in the cache
-    G_UNLOCK(_file_cache_mutex);
-
-    return file;
-}
-
-void th_file_get_async(GFile *location, GCancellable *cancellable,
-                       ThunarFileGetFunc func, gpointer user_data)
-{
-    e_return_if_fail(G_IS_FILE(location));
-    e_return_if_fail(func != NULL);
-
-    // check if we already have a cached version of that file
-    ThunarFile *file = th_file_cache_lookup(location);
-
-    if (G_UNLIKELY(file != NULL))
-    {
-        // call the return function with the file from the cache
-        (func) (location, file, NULL, user_data);
-        g_object_unref(file);
-
+    if (FLAG_IS_SET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION))
         return;
-    }
 
-    // allocate get data
-    ThunarFileGetData *data = g_slice_new0(ThunarFileGetData);
-    data->user_data = user_data;
-    data->func = func;
+    /* take an additional reference on the file, as the file-destroyed
+     * invocation may already release the last reference.
+     */
+    g_object_ref(G_OBJECT(file));
 
-    if (cancellable != NULL)
-        data->cancellable = g_object_ref(cancellable);
+    // tell the file monitor that this file was destroyed
+    filemon_file_destroyed(file);
 
-    // load the file information asynchronously
-    g_file_query_info_async(location,
-                            FILEINFO_NAMESPACE,
-                            G_FILE_QUERY_INFO_NONE,
-                            G_PRIORITY_DEFAULT,
-                            cancellable,
-                            _th_file_get_async_finish,
-                            data);
-}
+    // run the dispose handler
+    g_object_run_dispose(G_OBJECT(file));
 
-static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
-                                      gpointer user_data)
-{
-    GFile *location = G_FILE(object);
-
-    e_return_if_fail(G_IS_FILE(location));
-    e_return_if_fail(G_IS_ASYNC_RESULT(result));
-
-
-    // finish querying the file information
-    GError *error = NULL;
-    GFileInfo *file_info = g_file_query_info_finish(location, result, &error);
-
-    // allocate a new file object
-    ThunarFile *file = g_object_new(THUNAR_TYPE_FILE, NULL);
-    file->gfile = g_object_ref(location);
-
-    // reset the file
-    _th_file_info_clear(file);
-
-    // set the file information
-    file->info = file_info;
-
-    ThunarFileGetData *data = user_data;
-
-    // update the file from the information
-    _th_file_info_load(file, data->cancellable);
-
-    // update the mounted info
-    if (error != NULL
-        && error->domain == G_IO_ERROR
-        && error->code == G_IO_ERROR_NOT_MOUNTED)
-    {
-        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
-        g_clear_error(&error);
-    }
-
-    // insert the file into the cache
-    G_LOCK(_file_cache_mutex);
-    g_hash_table_insert(_file_cache,
-                        g_object_ref(file->gfile),
-                        weak_ref_new(G_OBJECT(file)));
-    G_UNLOCK(_file_cache_mutex);
-
-    // pass the loaded file and possible errors to the return function
-    (data->func) (location, file, error, data->user_data);
-
-    // release the file, see description in ThunarFileGetFunc
-    g_object_unref(file);
-
-    // free the error, if there is any
-    if (error != NULL)
-        g_error_free(error);
-
-    // release the get data
-    if (data->cancellable != NULL)
-        g_object_unref(data->cancellable);
-
-    g_slice_free(ThunarFileGetData, data);
+    // release our reference
+    g_object_unref(G_OBJECT(file));
 }
 
 /**

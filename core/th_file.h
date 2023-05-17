@@ -27,8 +27,6 @@
 
 G_BEGIN_DECLS
 
-// Thunar File ----------------------------------------------------------------
-
 typedef enum
 {
     THUNAR_FILE_ICON_STATE_DEFAULT,
@@ -44,6 +42,8 @@ typedef enum
     THUNAR_FILE_DATE_MODIFIED,
 
 } ThunarFileDateType;
+
+// Thunar File ----------------------------------------------------------------
 
 typedef struct _ThunarFileClass ThunarFileClass;
 typedef struct _ThunarFile      ThunarFile;
@@ -66,21 +66,20 @@ GType th_file_get_type() G_GNUC_CONST;
  * the #ThunarFile, you need to ref it, else it will be destroyed. */
 typedef void (*ThunarFileGetFunc) (GFile *location, ThunarFile *file,
                                    GError *error, gpointer user_data);
-
-void th_file_destroy(ThunarFile *file);
-
-// Get ------------------------------------------------------------------------
-
+// allocate
 ThunarFile* th_file_get(GFile *file, GError **error);
 ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error);
 ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error);
 ThunarFile* th_file_get_with_info(GFile *file, GFileInfo *info,
                                   gboolean not_mounted);
+void th_file_get_async(GFile *location, GCancellable *cancellable,
+                       ThunarFileGetFunc func, gpointer user_data);
+// destroy
+void th_file_destroy(ThunarFile *file);
 
 #define th_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))
 
-void th_file_get_async(GFile *location, GCancellable *cancellable,
-                       ThunarFileGetFunc func, gpointer user_data);
+// get
 GAppInfo* th_file_get_default_handler(const ThunarFile *file);
 guint64 th_file_get_date(const ThunarFile *file,
                          ThunarFileDateType date_type) G_GNUC_PURE;
@@ -95,6 +94,7 @@ GFile* th_file_get_target_location(const ThunarFile *file);
 ThunarUser* th_file_get_user(const ThunarFile *file);
 GVolume* th_file_get_volume(const ThunarFile *file);
 
+// get string
 gchar* th_file_get_deletion_date(const ThunarFile *file,
                                  ThunarDateStyle date_style,
                                  const gchar *date_custom_style)
@@ -112,7 +112,7 @@ gchar* th_file_get_size_string_formatted(const ThunarFile *file,
                                          const gboolean file_size_binary);
 gchar* th_file_get_size_string_long(const ThunarFile *file,
                                     const gboolean file_size_binary);
-
+// get const string
 const gchar* th_file_get_basename(const ThunarFile *file) G_GNUC_CONST;
 const gchar* th_file_get_content_type(ThunarFile *file);
 const gchar* th_file_get_custom_icon(const ThunarFile *file);
@@ -128,7 +128,6 @@ const gchar* th_file_get_symlink_target(const ThunarFile *file);
 GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *path_list,
                                    GdkDragContext *context,
                                    GdkDragAction *suggested_action_return);
-
 gboolean th_file_can_be_trashed(const ThunarFile *file);
 gboolean th_file_check_loaded(ThunarFile *file);
 gboolean th_file_exists(const ThunarFile *file);
