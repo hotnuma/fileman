@@ -5,7 +5,7 @@
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 
 +   121412	./view/standardview.c
-    101402	./core/th_file.c
++   101402	./core/th_file.c
 +   95368	./launcher.c
 +   70776	./view/listmodel.c
 +   68525	./appwindow.c
