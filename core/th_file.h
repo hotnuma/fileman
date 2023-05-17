@@ -173,15 +173,15 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name,
                         GCancellable *cancellable, gboolean called_from_job,
                         GError **error);
 
-// Cache ----------------------------------------------------------------------
-
-ThunarFile* th_file_cache_lookup(const GFile *file);
-gchar* th_file_cached_display_name(const GFile *file);
-
 // Reload ---------------------------------------------------------------------
 
 gboolean th_file_reload(ThunarFile *file);
 void th_file_reload_idle_unref(ThunarFile *file);
+
+// Cache ----------------------------------------------------------------------
+
+ThunarFile* th_file_cache_lookup(const GFile *file);
+gchar* th_file_cached_display_name(const GFile *file);
 
 // Watch ----------------------------------------------------------------------
 

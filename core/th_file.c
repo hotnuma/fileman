@@ -2693,6 +2693,61 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name, GCancellable *cance
     return TRUE;
 }
 
+// Reload ---------------------------------------------------------------------
+
+/**
+ * th_file_reload:
+ * @file : a #ThunarFile instance.
+ *
+ * Tells @file to reload its internal state, e.g. by reacquiring
+ * the file info from the underlying media.
+ *
+ * You must be able to handle the case that @file is
+ * destroyed during the reload call.
+ *
+ * Return value: As this function can be used as a callback function
+ * for th_file_reload_idle, it will always return FALSE to prevent
+ * being called repeatedly.
+ **/
+gboolean th_file_reload(ThunarFile *file)
+{
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+
+    // clear file pxmap cache
+    iconfact_clear_pixmap_cache(file);
+
+    if (!_th_file_load(file, NULL, NULL))
+    {
+        // destroy the file if we cannot query any file information
+        th_file_destroy(file);
+        return FALSE;
+    }
+
+    // ... and tell others
+    th_file_changed(file);
+
+    return FALSE;
+}
+
+/**
+ * th_file_reload_idle_unref:
+ * @file : a #ThunarFile instance.
+ *
+ * Schedules a reload of the @file by calling th_file_reload
+ * when idle. When scheduled function returns @file object will be
+ * unreferenced.
+ *
+ **/
+void th_file_reload_idle_unref(ThunarFile *file)
+{
+    e_return_if_fail(THUNAR_IS_FILE(file));
+
+    g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
+                    (GSourceFunc) th_file_reload,
+                     file,
+                    (GDestroyNotify) g_object_unref);
+}
+
 // Cache ----------------------------------------------------------------------
 
 /**
@@ -2762,61 +2817,6 @@ gchar* th_file_cached_display_name(const GFile *file)
     }
 
     return display_name;
-}
-
-// Reload ---------------------------------------------------------------------
-
-/**
- * th_file_reload:
- * @file : a #ThunarFile instance.
- *
- * Tells @file to reload its internal state, e.g. by reacquiring
- * the file info from the underlying media.
- *
- * You must be able to handle the case that @file is
- * destroyed during the reload call.
- *
- * Return value: As this function can be used as a callback function
- * for th_file_reload_idle, it will always return FALSE to prevent
- * being called repeatedly.
- **/
-gboolean th_file_reload(ThunarFile *file)
-{
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-
-    // clear file pxmap cache
-    iconfact_clear_pixmap_cache(file);
-
-    if (!_th_file_load(file, NULL, NULL))
-    {
-        // destroy the file if we cannot query any file information
-        th_file_destroy(file);
-        return FALSE;
-    }
-
-    // ... and tell others
-    th_file_changed(file);
-
-    return FALSE;
-}
-
-/**
- * th_file_reload_idle_unref:
- * @file : a #ThunarFile instance.
- *
- * Schedules a reload of the @file by calling th_file_reload
- * when idle. When scheduled function returns @file object will be
- * unreferenced.
- *
- **/
-void th_file_reload_idle_unref(ThunarFile *file)
-{
-    e_return_if_fail(THUNAR_IS_FILE(file));
-
-    g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
-                    (GSourceFunc) th_file_reload,
-                     file,
-                    (GDestroyNotify) g_object_unref);
 }
 
 // File Monitor ---------------------------------------------------------------
