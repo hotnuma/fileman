@@ -36,9 +36,24 @@
  * applications based on GObject.
  **/
 
+// ExoJob ---------------------------------------------------------------------
+
 static void exo_job_finalize(GObject *object);
-static void exo_job_error(ExoJob *job, const GError *error);
-static void exo_job_finished(ExoJob *job);
+
+// Public ---------------------------------------------------------------------
+
+// exo_job_launch
+static gboolean _exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
+                                            GCancellable    *cancellable,
+                                            gpointer        user_data);
+static gboolean _exo_job_async_ready(gpointer user_data);
+static void _exo_job_error(ExoJob *job, const GError *error);
+static void _exo_job_finished(ExoJob *job);
+
+// exo_job_emit
+static void _exo_job_emit_valist(ExoJob *job, guint signal_id,
+                                 GQuark signal_detail, va_list var_args);
+static gboolean _exo_job_emit_valist_in_mainloop(gpointer user_data);
 
 // ExoJob ---------------------------------------------------------------------
 
@@ -200,39 +215,37 @@ static void exo_job_finalize(GObject *object)
     G_OBJECT_CLASS(exo_job_parent_class)->finalize(object);
 }
 
+// Launch ---------------------------------------------------------------------
+
 /**
- * exo_job_async_ready:
- * @object : an #ExoJob.
- * @result : the #GAsyncResult of the job.
+ * exo_job_launch:
+ * @job : an #ExoJob.
  *
- * This function is called by the #GIOScheduler at the end of the
- * operation. It checks if there were errors during the operation
- * and emits "error" and "finished" signals.
+ * This functions schedules the @job to be run as soon as possible, in
+ * a separate thread. The caller can connect to signals of the @job prior
+ * or after this call in order to be notified on errors, progress updates
+ * and the end of the operation.
+ *
+ * Returns: the @job itself.
  **/
-static gboolean exo_job_async_ready(gpointer user_data)
+ExoJob* exo_job_launch(ExoJob *job)
 {
-    ExoJob *job = EXOJOB(user_data);
+    e_return_val_if_fail(IS_EXOJOB(job), NULL);
+    e_return_val_if_fail(!job->priv->running, NULL);
+    e_return_val_if_fail(EXOJOB_GET_CLASS(job)->execute != NULL, NULL);
 
-    e_return_val_if_fail(IS_EXOJOB(job), FALSE);
+    // mark the job as running
+    job->priv->running = TRUE;
 
-    if (job->priv->failed)
-    {
-        g_assert(job->priv->error != NULL);
+    job->priv->context = g_main_context_ref_thread_default();
 
-        // don't treat cancellation as an error
-        if (!g_error_matches(job->priv->error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-            exo_job_error(job, job->priv->error);
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    g_io_scheduler_push_job(_exo_job_scheduler_job_func, g_object_ref(job),
+                            (GDestroyNotify) g_object_unref,
+                             G_PRIORITY_HIGH, job->priv->cancellable);
+    G_GNUC_END_IGNORE_DEPRECATIONS
 
-        // cleanup
-        g_error_free(job->priv->error);
-        job->priv->error = NULL;
-    }
-
-    exo_job_finished(job);
-
-    job->priv->running = FALSE;
-
-    return FALSE;
+    return job;
 }
 
 /**
@@ -247,9 +260,9 @@ static gboolean exo_job_async_ready(gpointer user_data)
  *
  * Returns: %FALSE, to stop the thread at the end of the operation.
  **/
-static gboolean exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
-                                           GCancellable    *cancellable,
-                                           gpointer        user_data)
+static gboolean _exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
+                                            GCancellable    *cancellable,
+                                            gpointer        user_data)
 {
     ExoJob   *job = EXOJOB(user_data);
     GError   *error = NULL;
@@ -278,7 +291,7 @@ static gboolean exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
     // idle completion in the thread exo job was started from
     source = g_idle_source_new();
     g_source_set_priority(source, G_PRIORITY_DEFAULT);
-    g_source_set_callback(source, exo_job_async_ready, g_object_ref(job),
+    g_source_set_callback(source, _exo_job_async_ready, g_object_ref(job),
                            g_object_unref);
     g_source_attach(source, job->priv->context);
     g_source_unref(source);
@@ -287,59 +300,38 @@ static gboolean exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
 }
 
 /**
- * exo_job_emit_valist_in_mainloop:
- * @user_data : an #ExoJobSignalData.
+ * exo_job_async_ready:
+ * @object : an #ExoJob.
+ * @result : the #GAsyncResult of the job.
  *
- * Called from the main loop of the application to emit the signal
- * specified by the @user_data.
- *
- * Returns: %FALSE, to keep the function from being called
- *          multiple times in a row.
+ * This function is called by the #GIOScheduler at the end of the
+ * operation. It checks if there were errors during the operation
+ * and emits "error" and "finished" signals.
  **/
-static gboolean exo_job_emit_valist_in_mainloop(gpointer user_data)
+static gboolean _exo_job_async_ready(gpointer user_data)
 {
-    ExoJobSignalData *data = user_data;
+    ExoJob *job = EXOJOB(user_data);
 
-    g_signal_emit_valist(data->instance, data->signal_id, data->signal_detail,
-                          data->var_args);
+    e_return_val_if_fail(IS_EXOJOB(job), FALSE);
+
+    if (job->priv->failed)
+    {
+        g_assert(job->priv->error != NULL);
+
+        // don't treat cancellation as an error
+        if (!g_error_matches(job->priv->error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+            _exo_job_error(job, job->priv->error);
+
+        // cleanup
+        g_error_free(job->priv->error);
+        job->priv->error = NULL;
+    }
+
+    _exo_job_finished(job);
+
+    job->priv->running = FALSE;
 
     return FALSE;
-}
-
-/**
- * exo_job_emit_valist:
- * @job           : an #ExoJob.
- * @signal_id     : the signal id.
- * @signal_detail : the signal detail.
- * @var_args      : a list of parameters to be passed to the signal,
- *                  followed by a location for the return value. If the
- *                  return type of the signal is G_TYPE_NONE, the return
- *                  value location can be omitted.
- *
- * Sends a the signal with the given @signal_id and @signal_detail to the
- * main loop of the application and waits for listeners to handle it.
- **/
-static void exo_job_emit_valist(ExoJob *job, guint signal_id,
-                                GQuark signal_detail, va_list var_args)
-{
-    ExoJobSignalData data;
-
-    e_return_if_fail(IS_EXOJOB(job));
-    e_return_if_fail(job->priv->scheduler_job != NULL);
-
-    data.instance = job;
-    data.signal_id = signal_id;
-    data.signal_detail = signal_detail;
-
-    // copy the variable argument list
-    G_VA_COPY(data.var_args, var_args);
-
-    // emit the signal in the main loop
-    exo_job_send_to_mainloop(job,
-                              exo_job_emit_valist_in_mainloop,
-                              &data, NULL);
-
-    va_end(data.var_args);
 }
 
 /**
@@ -353,7 +345,7 @@ static void exo_job_emit_valist(ExoJob *job, guint signal_id,
  * This function should never be called from outside the application's
  * main loop.
  **/
-static void exo_job_error(ExoJob *job, const GError *error)
+static void _exo_job_error(ExoJob *job, const GError *error)
 {
     e_return_if_fail(IS_EXOJOB(job));
     e_return_if_fail(error != NULL);
@@ -371,42 +363,21 @@ static void exo_job_error(ExoJob *job, const GError *error)
  * This function should never be called from outside the application's
  * main loop.
  **/
-static void exo_job_finished(ExoJob *job)
+static void _exo_job_finished(ExoJob *job)
 {
     e_return_if_fail(IS_EXOJOB(job));
+
     g_signal_emit(job, _exo_job_signals[FINISHED], 0);
 }
 
-/**
- * exo_job_launch:
- * @job : an #ExoJob.
- *
- * This functions schedules the @job to be run as soon as possible, in
- * a separate thread. The caller can connect to signals of the @job prior
- * or after this call in order to be notified on errors, progress updates
- * and the end of the operation.
- *
- * Returns: the @job itself.
- **/
-ExoJob* exo_job_launch(ExoJob *job)
+GCancellable* exo_job_get_cancellable(const ExoJob *job)
 {
     e_return_val_if_fail(IS_EXOJOB(job), NULL);
-    e_return_val_if_fail(!job->priv->running, NULL);
-    e_return_val_if_fail(EXOJOB_GET_CLASS(job)->execute != NULL, NULL);
 
-    // mark the job as running
-    job->priv->running = TRUE;
-
-    job->priv->context = g_main_context_ref_thread_default();
-
-    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-    g_io_scheduler_push_job(exo_job_scheduler_job_func, g_object_ref(job),
-                            (GDestroyNotify) g_object_unref,
-                             G_PRIORITY_HIGH, job->priv->cancellable);
-    G_GNUC_END_IGNORE_DEPRECATIONS
-
-    return job;
+    return job->priv->cancellable;
 }
+
+// Cancel ---------------------------------------------------------------------
 
 /**
  * exo_job_cancel:
@@ -444,21 +415,6 @@ gboolean exo_job_is_cancelled(const ExoJob *job)
 }
 
 /**
- * exo_job_get_cancellable:
- * @job : an #ExoJob.
- *
- * Returns the #GCancellable that can be used to cancel the @job.
- *
- * Returns: the #GCancellable associated with the @job. It
- *          is owned by the @job and must not be released.
- **/
-GCancellable* exo_job_get_cancellable(const ExoJob *job)
-{
-    e_return_val_if_fail(IS_EXOJOB(job), NULL);
-    return job->priv->cancellable;
-}
-
-/**
  * exo_job_set_error_if_cancelled:
  * @job   : an #ExoJob.
  * @error : error to be set if the @job was cancelled.
@@ -480,29 +436,7 @@ gboolean exo_job_set_error_if_cancelled(ExoJob *job, GError **error)
     return g_cancellable_set_error_if_cancelled(job->priv->cancellable, error);
 }
 
-/**
- * exo_job_emit:
- * @job           : an #ExoJob.
- * @signal_id     : the signal id.
- * @signal_detail : the signal detail.
- * @...           : a list of parameters to be passed to the signal,
- *                  followed by a location for the return value. If the
- *                  return type of the signal is G_TYPE_NONE, the return
- *                  value location can be omitted.
- *
- * Sends the signal with @signal_id and @signal_detail to the application's
- * main loop and waits for listeners to handle it.
- **/
-void exo_job_emit(ExoJob *job, guint signal_id, GQuark signal_detail, ...)
-{
-    va_list var_args;
-
-    e_return_if_fail(IS_EXOJOB(job));
-
-    va_start(var_args, signal_detail);
-    exo_job_emit_valist(job, signal_id, signal_detail, var_args);
-    va_end(var_args);
-}
+// Emit -----------------------------------------------------------------------
 
 /**
  * exo_job_info_message:
@@ -544,6 +478,86 @@ void exo_job_percent(ExoJob *job, gdouble percent)
 
     percent = CLAMP(percent, 0.0, 100.0);
     exo_job_emit(job, _exo_job_signals[PERCENT], 0, percent);
+}
+
+/**
+ * exo_job_emit:
+ * @job           : an #ExoJob.
+ * @signal_id     : the signal id.
+ * @signal_detail : the signal detail.
+ * @...           : a list of parameters to be passed to the signal,
+ *                  followed by a location for the return value. If the
+ *                  return type of the signal is G_TYPE_NONE, the return
+ *                  value location can be omitted.
+ *
+ * Sends the signal with @signal_id and @signal_detail to the application's
+ * main loop and waits for listeners to handle it.
+ **/
+void exo_job_emit(ExoJob *job, guint signal_id, GQuark signal_detail, ...)
+{
+    va_list var_args;
+
+    e_return_if_fail(IS_EXOJOB(job));
+
+    va_start(var_args, signal_detail);
+    _exo_job_emit_valist(job, signal_id, signal_detail, var_args);
+    va_end(var_args);
+}
+
+/**
+ * exo_job_emit_valist:
+ * @job           : an #ExoJob.
+ * @signal_id     : the signal id.
+ * @signal_detail : the signal detail.
+ * @var_args      : a list of parameters to be passed to the signal,
+ *                  followed by a location for the return value. If the
+ *                  return type of the signal is G_TYPE_NONE, the return
+ *                  value location can be omitted.
+ *
+ * Sends a the signal with the given @signal_id and @signal_detail to the
+ * main loop of the application and waits for listeners to handle it.
+ **/
+static void _exo_job_emit_valist(ExoJob *job, guint signal_id,
+                                 GQuark signal_detail, va_list var_args)
+{
+    ExoJobSignalData data;
+
+    e_return_if_fail(IS_EXOJOB(job));
+    e_return_if_fail(job->priv->scheduler_job != NULL);
+
+    data.instance = job;
+    data.signal_id = signal_id;
+    data.signal_detail = signal_detail;
+
+    // copy the variable argument list
+    G_VA_COPY(data.var_args, var_args);
+
+    // emit the signal in the main loop
+    exo_job_send_to_mainloop(job,
+                             _exo_job_emit_valist_in_mainloop,
+                             &data, NULL);
+
+    va_end(data.var_args);
+}
+
+/**
+ * exo_job_emit_valist_in_mainloop:
+ * @user_data : an #ExoJobSignalData.
+ *
+ * Called from the main loop of the application to emit the signal
+ * specified by the @user_data.
+ *
+ * Returns: %FALSE, to keep the function from being called
+ *          multiple times in a row.
+ **/
+static gboolean _exo_job_emit_valist_in_mainloop(gpointer user_data)
+{
+    ExoJobSignalData *data = user_data;
+
+    g_signal_emit_valist(data->instance, data->signal_id, data->signal_detail,
+                          data->var_args);
+
+    return FALSE;
 }
 
 /**

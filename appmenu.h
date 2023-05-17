@@ -22,7 +22,7 @@
 
 G_BEGIN_DECLS
 
-// ----------------------------------------------------------------------------
+// Globals --------------------------------------------------------------------
 
 // For window menu, some items are shown insensitive, instead of hidden
 typedef enum
@@ -73,6 +73,7 @@ typedef struct _AppMenu      AppMenu;
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPMENU, AppMenu))
 
 GType appmenu_get_type() G_GNUC_CONST;
+
 gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections);
 void appmenu_hide_accel_labels(AppMenu *menu);
 

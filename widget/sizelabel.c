@@ -24,18 +24,13 @@
 #include <job.h>
 #include <dcountjob.h>
 
-enum
-{
-    PROP_0,
-    PROP_FILES,
-    PROP_FILE_SIZE_BINARY
-};
-
 static void szlabel_finalize(GObject *object);
 static void szlabel_get_property(GObject *object, guint prop_id,
                                  GValue *value, GParamSpec *pspec);
 static void szlabel_set_property(GObject *object, guint prop_id,
                                  const GValue *value, GParamSpec *pspec);
+static GList* _szlabel_get_files(SizeLabel *size_label);
+static void _szlabel_set_files(SizeLabel *size_label, GList *files);
 
 static gboolean _szlabel_button_press_event(GtkWidget *ebox,
                                             GdkEventButton *event,
@@ -50,8 +45,15 @@ static void _szlabel_status_update(DeepCountJob *job,
                                    guint directory_count,
                                    guint unreadable_directory_count,
                                    SizeLabel *size_label);
-static GList* _szlabel_get_files(SizeLabel *size_label);
-static void _szlabel_set_files(SizeLabel *size_label, GList *files);
+
+// SizeLabel ------------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_FILES,
+    PROP_FILE_SIZE_BINARY
+};
 
 struct _SizeLabelClass
 {
@@ -60,15 +62,15 @@ struct _SizeLabelClass
 
 struct _SizeLabel
 {
-    GtkBox             __parent__;
+    GtkBox      __parent__;
 
-    DeepCountJob  *job;
+    DeepCountJob *job;
 
-    GList               *files;
-    gboolean            file_size_binary;
+    GList       *files;
+    gboolean    file_size_binary;
 
-    GtkWidget           *label;
-    GtkWidget           *spinner;
+    GtkWidget   *label;
+    GtkWidget   *spinner;
 };
 
 G_DEFINE_TYPE(SizeLabel, szlabel, GTK_TYPE_BOX)
@@ -120,7 +122,8 @@ static void szlabel_init(SizeLabel *size_label)
     // add an evenbox for the spinner
     GtkWidget *ebox = gtk_event_box_new();
     gtk_event_box_set_visible_window(GTK_EVENT_BOX(ebox), FALSE);
-    g_signal_connect(G_OBJECT(ebox), "button-press-event", G_CALLBACK(_szlabel_button_press_event), size_label);
+    g_signal_connect(G_OBJECT(ebox), "button-press-event",
+                     G_CALLBACK(_szlabel_button_press_event), size_label);
     gtk_widget_set_tooltip_text(ebox, _("Click here to stop calculating the total size of the folder."));
     gtk_box_pack_start(GTK_BOX(size_label), ebox, FALSE, FALSE, 0);
 
@@ -203,7 +206,64 @@ static void szlabel_set_property(GObject *object, guint prop_id,
     }
 }
 
-static gboolean _szlabel_button_press_event(GtkWidget       *ebox,
+/**
+ * thunar_size_label_get_files:
+ * @size_label : a #SizeLabel.
+ *
+ * Get the files displayed by the @size_label.
+ **/
+static GList* _szlabel_get_files(SizeLabel *size_label)
+{
+    e_return_val_if_fail(IS_SIZELABEL(size_label), NULL);
+    return size_label->files;
+}
+
+/**
+ * thunar_size_label_set_files:
+ * @size_label : a #SizeLabel.
+ * @files      : a list of #ThunarFile's or %NULL.
+ *
+ * Sets @file as the #ThunarFile displayed by the @size_label.
+ **/
+static void _szlabel_set_files(SizeLabel *size_label, GList *files)
+{
+    GList *lp;
+
+    e_return_if_fail(IS_SIZELABEL(size_label));
+    e_return_if_fail(files == NULL || THUNAR_IS_FILE(files->data));
+
+    // disconnect from the previous files
+    for(lp = size_label->files; lp != NULL; lp = lp->next)
+    {
+        e_assert(THUNAR_IS_FILE(lp->data));
+
+        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _szlabel_files_changed, size_label);
+        g_object_unref(G_OBJECT(lp->data));
+    }
+    g_list_free(size_label->files);
+
+    size_label->files = g_list_copy(files);
+
+    // connect to the new file
+    for(lp = size_label->files; lp != NULL; lp = lp->next)
+    {
+        e_assert(THUNAR_IS_FILE(lp->data));
+
+        g_object_ref(G_OBJECT(lp->data));
+        g_signal_connect_swapped(G_OBJECT(lp->data), "changed",
+                                 G_CALLBACK(_szlabel_files_changed), size_label);
+    }
+
+    if (size_label->files != NULL)
+        _szlabel_files_changed(size_label);
+
+    // notify listeners
+    g_object_notify(G_OBJECT(size_label), "files");
+}
+
+// Events ---------------------------------------------------------------------
+
+static gboolean _szlabel_button_press_event(GtkWidget *ebox,
                                             GdkEventButton  *event,
                                             SizeLabel *size_label)
 {
@@ -319,10 +379,10 @@ static void _szlabel_finished(ExoJob *job, SizeLabel *size_label)
 }
 
 static void _szlabel_status_update(DeepCountJob *job,
-                                   guint64             total_size,
-                                   guint               file_count,
-                                   guint               directory_count,
-                                   guint               unreadable_directory_count,
+                                   guint64      total_size,
+                                   guint        file_count,
+                                   guint        directory_count,
+                                   guint        unreadable_directory_count,
                                    SizeLabel    *size_label)
 {
     gchar             *size_string;
@@ -363,59 +423,7 @@ static void _szlabel_status_update(DeepCountJob *job,
     }
 }
 
-/**
- * thunar_size_label_get_files:
- * @size_label : a #SizeLabel.
- *
- * Get the files displayed by the @size_label.
- **/
-static GList* _szlabel_get_files(SizeLabel *size_label)
-{
-    e_return_val_if_fail(IS_SIZELABEL(size_label), NULL);
-    return size_label->files;
-}
-
-/**
- * thunar_size_label_set_files:
- * @size_label : a #SizeLabel.
- * @files      : a list of #ThunarFile's or %NULL.
- *
- * Sets @file as the #ThunarFile displayed by the @size_label.
- **/
-static void _szlabel_set_files(SizeLabel *size_label, GList *files)
-{
-    GList *lp;
-
-    e_return_if_fail(IS_SIZELABEL(size_label));
-    e_return_if_fail(files == NULL || THUNAR_IS_FILE(files->data));
-
-    // disconnect from the previous files
-    for(lp = size_label->files; lp != NULL; lp = lp->next)
-    {
-        e_assert(THUNAR_IS_FILE(lp->data));
-
-        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _szlabel_files_changed, size_label);
-        g_object_unref(G_OBJECT(lp->data));
-    }
-    g_list_free(size_label->files);
-
-    size_label->files = g_list_copy(files);
-
-    // connect to the new file
-    for(lp = size_label->files; lp != NULL; lp = lp->next)
-    {
-        e_assert(THUNAR_IS_FILE(lp->data));
-
-        g_object_ref(G_OBJECT(lp->data));
-        g_signal_connect_swapped(G_OBJECT(lp->data), "changed", G_CALLBACK(_szlabel_files_changed), size_label);
-    }
-
-    if (size_label->files != NULL)
-        _szlabel_files_changed(size_label);
-
-    // notify listeners
-    g_object_notify(G_OBJECT(size_label), "files");
-}
+// Public ---------------------------------------------------------------------
 
 GtkWidget* szlabel_new()
 {

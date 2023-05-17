@@ -24,20 +24,22 @@
 
 G_BEGIN_DECLS
 
+// AppChooserModel ------------------------------------------------------------
+
 typedef struct _AppChooserModelClass AppChooserModelClass;
 typedef struct _AppChooserModel      AppChooserModel;
 
-#define TYPE_APPCHOOSER_MODEL (appmodel_get_type ())
+#define TYPE_APPCHOOSER_MODEL (appmodel_get_type())
 #define APPCHOOSER_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_APPCHOOSER_MODEL, AppChooserModel))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPCHOOSER_MODEL, AppChooserModel))
 #define APPCHOOSER_MODEL_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_APPCHOOSER_MODEL, AppChooserModelClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_APPCHOOSER_MODEL, AppChooserModelClass))
 #define IS_APPCHOOSER_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_APPCHOOSER_MODEL))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_APPCHOOSER_MODEL))
 #define IS_APPCHOOSER_MODEL_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_APPCHOOSER_MODEL))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPCHOOSER_MODEL))
 #define APPCHOOSER_MODEL_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_APPCHOOSER_MODEL, AppChooserModelClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPCHOOSER_MODEL, AppChooserModelClass))
 
 typedef enum
 {

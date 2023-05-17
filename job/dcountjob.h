@@ -24,21 +24,23 @@
 
 G_BEGIN_DECLS
 
+// DeepCountJob ---------------------------------------------------------------
+
 typedef struct _DeepCountJobPrivate DeepCountJobPrivate;
 typedef struct _DeepCountJobClass   DeepCountJobClass;
 typedef struct _DeepCountJob        DeepCountJob;
 
 #define TYPE_DEEPCOUNTJOB (dcjob_get_type())
 #define DEEPCOUNTJOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_DEEPCOUNTJOB, DeepCountJob))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_DEEPCOUNTJOB, DeepCountJob))
 #define DEEPCOUNTJOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_DEEPCOUNTJOB, DeepCountJobClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_DEEPCOUNTJOB, DeepCountJobClass))
 #define IS_DEEPCOUNTJOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_DEEPCOUNTJOB))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_DEEPCOUNTJOB))
 #define IS_DEEPCOUNTJOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_DEEPCOUNTJOB)
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_DEEPCOUNTJOB)
 #define DEEPCOUNTJOB_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_DEEPCOUNTJOB, DeepCountJobClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_DEEPCOUNTJOB, DeepCountJobClass))
 
 GType dcjob_get_type() G_GNUC_CONST;
 

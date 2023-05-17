@@ -23,6 +23,8 @@
 
 G_BEGIN_DECLS
 
+// SizeLabel ------------------------------------------------------------------
+
 typedef struct _SizeLabelClass SizeLabelClass;
 typedef struct _SizeLabel      SizeLabel;
 

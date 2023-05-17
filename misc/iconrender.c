@@ -17,13 +17,37 @@
  */
 
 #include <config.h>
+#include <iconrender.h>
 
+#include <iconfactory.h>
 #include <pixbuf_ext.h>
-
 #include <clipboard.h>
 #include <gdk_ext.h>
-#include <iconfactory.h>
-#include <iconrender.h>
+
+static void iconrender_finalize(GObject *object);
+static void iconrender_get_property(GObject *object, guint prop_id,
+                                    GValue *value, GParamSpec *pspec);
+static void iconrender_set_property(GObject *object, guint prop_id,
+                                    const GValue *value, GParamSpec *pspec);
+static void iconrender_get_preferred_width(GtkCellRenderer *renderer,
+                                           GtkWidget *widget,
+                                           gint *minimum,
+                                           gint *natural);
+static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
+                                            GtkWidget *widget,
+                                            gint *minimum,
+                                            gint *natural);
+static void iconrender_render(GtkCellRenderer *renderer,
+                              cairo_t *cr,
+                              GtkWidget *widget,
+                              const GdkRectangle *background_area,
+                              const GdkRectangle *cell_area,
+                              GtkCellRendererState flags);
+static void _iconrender_color_insensitive(cairo_t *cr, GtkWidget *widget);
+static void _iconrender_color_lighten(cairo_t *cr, GtkWidget *widget);
+static void _iconrender_color_selected(cairo_t *cr, GtkWidget *widget);
+
+// IconRenderer ---------------------------------------------------------------
 
 enum
 {
@@ -35,39 +59,16 @@ enum
     PROP_SIZE,
 };
 
-static void iconrender_finalize(GObject *object);
-static void iconrender_get_property(GObject *object, guint prop_id,
-                                   GValue *value, GParamSpec *pspec);
-static void iconrender_set_property(GObject *object, guint prop_id,
-                                   const GValue *value, GParamSpec *pspec);
-static void iconrender_get_preferred_width(GtkCellRenderer *renderer,
-                                          GtkWidget *widget,
-                                          gint *minimum,
-                                          gint *natural);
-static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
-                                           GtkWidget *widget,
-                                           gint *minimum,
-                                           gint *natural);
-static void iconrender_render(GtkCellRenderer *renderer,
-                             cairo_t *cr,
-                             GtkWidget *widget,
-                             const GdkRectangle *background_area,
-                             const GdkRectangle *cell_area,
-                             GtkCellRendererState flags);
-
 G_DEFINE_TYPE(IconRenderer, iconrender, GTK_TYPE_CELL_RENDERER)
 
 static void iconrender_class_init(IconRendererClass *klass)
 {
-    GtkCellRendererClass *gtkcell_renderer_class;
-    GObjectClass         *gobject_class;
-
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = iconrender_finalize;
     gobject_class->get_property = iconrender_get_property;
     gobject_class->set_property = iconrender_set_property;
 
-    gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
+    GtkCellRendererClass *gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
     gtkcell_renderer_class->get_preferred_width = iconrender_get_preferred_width;
     gtkcell_renderer_class->get_preferred_height = iconrender_get_preferred_height;
     gtkcell_renderer_class->render = iconrender_render;
@@ -162,6 +163,7 @@ static void iconrender_finalize(GObject *object)
     // free the icon data
     if (G_UNLIKELY(icon_renderer->drop_file != NULL))
         g_object_unref(G_OBJECT(icon_renderer->drop_file));
+
     if (G_LIKELY(icon_renderer->file != NULL))
         g_object_unref(G_OBJECT(icon_renderer->file));
 
@@ -169,7 +171,7 @@ static void iconrender_finalize(GObject *object)
 }
 
 static void iconrender_get_property(GObject *object, guint prop_id,
-                                   GValue *value, GParamSpec *pspec)
+                                    GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -204,7 +206,7 @@ static void iconrender_get_property(GObject *object, guint prop_id,
 }
 
 static void iconrender_set_property(GObject *object, guint prop_id,
-                                   const GValue *value, GParamSpec *pspec)
+                                    const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -243,9 +245,9 @@ static void iconrender_set_property(GObject *object, guint prop_id,
 }
 
 static void iconrender_get_preferred_width(GtkCellRenderer *renderer,
-                                          GtkWidget       *widget,
-                                          gint            *minimum,
-                                          gint            *natural)
+                                           GtkWidget       *widget,
+                                           gint            *minimum,
+                                           gint            *natural)
 {
     (void) widget;
 
@@ -259,9 +261,9 @@ static void iconrender_get_preferred_width(GtkCellRenderer *renderer,
 }
 
 static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
-                                           GtkWidget       *widget,
-                                           gint            *minimum,
-                                           gint            *natural)
+                                            GtkWidget       *widget,
+                                            gint            *minimum,
+                                            gint            *natural)
 {
     (void) widget;
 
@@ -274,67 +276,7 @@ static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
     if (G_LIKELY(natural)) *natural =(gint) ypad * 2 + icon_renderer->size;
 }
 
-static void _iconrender_color_insensitive(cairo_t *cr, GtkWidget *widget)
-{
-    cairo_pattern_t *source;
-    GdkRGBA          *color;
-    GtkStyleContext *context = gtk_widget_get_style_context(widget);
-
-    cairo_save(cr);
-
-    source = cairo_pattern_reference(cairo_get_source(cr));
-    gtk_style_context_get(context, GTK_STATE_FLAG_INSENSITIVE, GTK_STYLE_PROPERTY_COLOR, &color, NULL);
-    gdk_cairo_set_source_rgba(cr, color);
-    gdk_rgba_free(color);
-    cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);
-
-    cairo_mask(cr, source);
-
-    cairo_pattern_destroy(source);
-    cairo_restore(cr);
-}
-
-static void _iconrender_color_selected(cairo_t *cr, GtkWidget *widget)
-{
-    cairo_pattern_t *source;
-    GtkStateFlags   state;
-    GdkRGBA         *color;
-    GtkStyleContext *context = gtk_widget_get_style_context(widget);
-
-    cairo_save(cr);
-
-    source = cairo_pattern_reference(cairo_get_source(cr));
-    state = gtk_widget_has_focus(widget) ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_ACTIVE;
-    gtk_style_context_get(context, state, GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &color, NULL);
-    gdk_cairo_set_source_rgba(cr, color);
-    gdk_rgba_free(color);
-    cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);
-
-    cairo_mask(cr, source);
-
-    cairo_pattern_destroy(source);
-    cairo_restore(cr);
-}
-
-static void _iconrender_color_lighten(cairo_t *cr, GtkWidget *widget)
-{
-    (void) widget;
-
-    cairo_pattern_t *source;
-
-    cairo_save(cr);
-
-    source = cairo_pattern_reference(cairo_get_source(cr));
-    cairo_set_source_rgb(cr, .15, .15, .15);
-    cairo_set_operator(cr, CAIRO_OPERATOR_COLOR_DODGE);
-
-    cairo_mask(cr, source);
-
-    cairo_pattern_destroy(source);
-    cairo_restore(cr);
-}
-
-static void iconrender_render(GtkCellRenderer      *renderer,
+static void iconrender_render(GtkCellRenderer     *renderer,
                              cairo_t              *cr,
                              GtkWidget            *widget,
                              const GdkRectangle   *background_area,
@@ -454,6 +396,66 @@ static void iconrender_render(GtkCellRenderer      *renderer,
 
     // release our reference on the icon factory
     g_object_unref(G_OBJECT(icon_factory));
+}
+
+static void _iconrender_color_insensitive(cairo_t *cr, GtkWidget *widget)
+{
+    cairo_pattern_t *source;
+    GdkRGBA          *color;
+    GtkStyleContext *context = gtk_widget_get_style_context(widget);
+
+    cairo_save(cr);
+
+    source = cairo_pattern_reference(cairo_get_source(cr));
+    gtk_style_context_get(context, GTK_STATE_FLAG_INSENSITIVE, GTK_STYLE_PROPERTY_COLOR, &color, NULL);
+    gdk_cairo_set_source_rgba(cr, color);
+    gdk_rgba_free(color);
+    cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);
+
+    cairo_mask(cr, source);
+
+    cairo_pattern_destroy(source);
+    cairo_restore(cr);
+}
+
+static void _iconrender_color_lighten(cairo_t *cr, GtkWidget *widget)
+{
+    (void) widget;
+
+    cairo_pattern_t *source;
+
+    cairo_save(cr);
+
+    source = cairo_pattern_reference(cairo_get_source(cr));
+    cairo_set_source_rgb(cr, .15, .15, .15);
+    cairo_set_operator(cr, CAIRO_OPERATOR_COLOR_DODGE);
+
+    cairo_mask(cr, source);
+
+    cairo_pattern_destroy(source);
+    cairo_restore(cr);
+}
+
+static void _iconrender_color_selected(cairo_t *cr, GtkWidget *widget)
+{
+    cairo_pattern_t *source;
+    GtkStateFlags   state;
+    GdkRGBA         *color;
+    GtkStyleContext *context = gtk_widget_get_style_context(widget);
+
+    cairo_save(cr);
+
+    source = cairo_pattern_reference(cairo_get_source(cr));
+    state = gtk_widget_has_focus(widget) ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_ACTIVE;
+    gtk_style_context_get(context, state, GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &color, NULL);
+    gdk_cairo_set_source_rgba(cr, color);
+    gdk_rgba_free(color);
+    cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);
+
+    cairo_mask(cr, source);
+
+    cairo_pattern_destroy(source);
+    cairo_restore(cr);
 }
 
 GtkCellRenderer* iconrender_new()

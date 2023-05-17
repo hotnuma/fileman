@@ -21,8 +21,6 @@
 #include <launcher.h>
 #include <libxfce4ui/libxfce4ui.h>
 
-// AppMenu --------------------------------------------------------------------
-
 /* AppMenu is a GtkMenu which provides a unified menu-creation service for
  * different widgets. Based on the passed flags and selected sections, it
  * fills itself with the requested menu-items by creating them with
@@ -33,6 +31,9 @@ static void appmenu_get_property(GObject *object, guint prop_id,
                                  GValue *value, GParamSpec *pspec);
 static void appmenu_set_property(GObject *object, guint prop_uid,
                                  const GValue *value, GParamSpec *pspec);
+
+// AppMenu --------------------------------------------------------------------
+
 enum
 {
     PROP_0,
@@ -135,8 +136,6 @@ static void appmenu_finalize(GObject *object)
 
     G_OBJECT_CLASS(appmenu_parent_class)->finalize(object);
 }
-
-// Properties -----------------------------------------------------------------
 
 static void appmenu_get_property(GObject *object, guint prop_id,
                                  GValue *value, GParamSpec *pspec)

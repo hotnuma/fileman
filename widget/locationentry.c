@@ -20,18 +20,12 @@
 
 #include <config.h>
 #include <locationentry.h>
+#include <marshal.h>
 
 #include <pathentry.h>
 #include <browser.h>
-#include <marshal.h>
-#include <dialogs.h>
 #include <navigator.h>
-
-enum
-{
-    PROP_0,
-    PROP_CURRENT_DIRECTORY,
-};
+#include <dialogs.h>
 
 static void locentry_navigator_init(ThunarNavigatorIface *iface);
 static void locentry_finalize(GObject *object);
@@ -39,6 +33,7 @@ static void locentry_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec);
 static void locentry_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
+static gboolean locentry_reset(LocationEntry *location_entry);
 
 static ThunarFile* locentry_get_current_directory(ThunarNavigator *navigator);
 static void locentry_set_current_directory(ThunarNavigator *navigator,
@@ -46,14 +41,28 @@ static void locentry_set_current_directory(ThunarNavigator *navigator,
 
 static void locentry_activate(GtkWidget *path_entry,
                               LocationEntry *location_entry);
+static void locentry_poke_file_finish(ThunarBrowser *browser,
+                                      ThunarFile    *file,
+                                      ThunarFile    *target_file,
+                                      GError        *error,
+                                      gpointer      ignored);
+static void locentry_open_or_launch(LocationEntry *location_entry,
+                                    ThunarFile    *file);
+
+static void locentry_reload(GtkEntry *entry, GtkEntryIconPosition icon_pos,
+                            GdkEvent *event, LocationEntry *location_entry);
+static void locentry_emit_edit_done(LocationEntry *entry);
 static gboolean locentry_button_press_event(GtkWidget *path_entry,
                                             GdkEventButton *event,
                                             LocationEntry *location_entry);
 
-static gboolean locentry_reset(LocationEntry *location_entry);
-static void locentry_reload(GtkEntry *entry, GtkEntryIconPosition icon_pos,
-                            GdkEvent *event, LocationEntry *location_entry);
-static void locentry_emit_edit_done(LocationEntry *entry);
+// LocationEntry --------------------------------------------------------------
+
+enum
+{
+    PROP_0,
+    PROP_CURRENT_DIRECTORY,
+};
 
 struct _LocationEntryClass
 {
@@ -234,6 +243,19 @@ static void locentry_set_property(GObject *object, guint prop_id,
     }
 }
 
+static gboolean locentry_reset(LocationEntry *location_entry)
+{
+    // just reset the path entry to our current directory...
+    pathentry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
+
+    // ...and select the whole text again
+    gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);
+
+    locentry_emit_edit_done(location_entry);
+
+    return TRUE;
+}
+
 static ThunarFile* locentry_get_current_directory(ThunarNavigator *navigator)
 {
     return LOCATIONENTRY(navigator)->current_directory;
@@ -281,6 +303,52 @@ void locentry_accept_focus(LocationEntry *location_entry,
     }
 }
 
+// Events ---------------------------------------------------------------------
+
+static void locentry_activate(GtkWidget *path_entry, LocationEntry *location_entry)
+{
+    e_return_if_fail(IS_LOCATIONENTRY(location_entry));
+    e_return_if_fail(location_entry->path_entry == path_entry);
+
+    // determine the current file from the path entry
+    ThunarFile *file = pathentry_get_current_file(PATHENTRY(path_entry));
+
+    if (G_UNLIKELY(file == NULL))
+        return;
+
+    browser_poke_file(THUNARBROWSER(location_entry),
+                      file,
+                      path_entry,
+                      locentry_poke_file_finish,
+                      NULL);
+
+    locentry_emit_edit_done(location_entry);
+}
+
+static void locentry_poke_file_finish(ThunarBrowser *browser,
+                                      ThunarFile    *file,
+                                      ThunarFile    *target_file,
+                                      GError        *error,
+                                      gpointer      ignored)
+{
+    (void) ignored;
+
+    e_return_if_fail(IS_LOCATIONENTRY(browser));
+    e_return_if_fail(THUNAR_IS_FILE(file));
+
+    if (error != NULL)
+    {
+        // display an error explaining why we couldn't open/mount the file
+        dialog_error(LOCATIONENTRY(browser)->path_entry,
+                     error, _("Failed to open \"%s\""),
+                     th_file_get_display_name(file));
+        return;
+    }
+
+    // try to open or launch the target file
+    locentry_open_or_launch(LOCATIONENTRY(browser), target_file);
+}
+
 static void locentry_open_or_launch(LocationEntry *location_entry,
                                     ThunarFile    *file)
 {
@@ -326,81 +394,6 @@ static void locentry_open_or_launch(LocationEntry *location_entry,
     }
 }
 
-static void locentry_poke_file_finish(ThunarBrowser *browser,
-                                      ThunarFile    *file,
-                                      ThunarFile    *target_file,
-                                      GError        *error,
-                                      gpointer      ignored)
-{
-    (void) ignored;
-
-    e_return_if_fail(IS_LOCATIONENTRY(browser));
-    e_return_if_fail(THUNAR_IS_FILE(file));
-
-    if (error != NULL)
-    {
-        // display an error explaining why we couldn't open/mount the file
-        dialog_error(LOCATIONENTRY(browser)->path_entry,
-                     error, _("Failed to open \"%s\""),
-                     th_file_get_display_name(file));
-        return;
-    }
-
-    // try to open or launch the target file
-    locentry_open_or_launch(LOCATIONENTRY(browser), target_file);
-}
-
-static void locentry_activate(GtkWidget     *path_entry,
-                              LocationEntry *location_entry)
-{
-    e_return_if_fail(IS_LOCATIONENTRY(location_entry));
-    e_return_if_fail(location_entry->path_entry == path_entry);
-
-    // determine the current file from the path entry
-    ThunarFile *file = pathentry_get_current_file(PATHENTRY(path_entry));
-
-    if (G_UNLIKELY(file == NULL))
-        return;
-
-    browser_poke_file(THUNARBROWSER(location_entry),
-                      file,
-                      path_entry,
-                      locentry_poke_file_finish,
-                      NULL);
-
-    locentry_emit_edit_done(location_entry);
-}
-
-static gboolean locentry_button_press_event(GtkWidget      *path_entry,
-                                            GdkEventButton *event,
-                                            LocationEntry  *location_entry)
-{
-    (void) path_entry;
-
-    e_return_val_if_fail(IS_LOCATIONENTRY(location_entry), FALSE);
-
-    // check if the context menu was triggered
-    if (event->type == GDK_BUTTON_PRESS && event->button == 3)
-    {
-        location_entry->right_click_occurred = TRUE;
-    }
-
-    return FALSE;
-}
-
-static gboolean locentry_reset(LocationEntry *location_entry)
-{
-    // just reset the path entry to our current directory...
-    pathentry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
-
-    // ...and select the whole text again
-    gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);
-
-    locentry_emit_edit_done(location_entry);
-
-    return TRUE;
-}
-
 static void locentry_reload(GtkEntry *entry, GtkEntryIconPosition icon_pos,
                             GdkEvent *event, LocationEntry *location_entry)
 {
@@ -425,6 +418,23 @@ static void locentry_emit_edit_done(LocationEntry *entry)
     }
 
     entry->right_click_occurred = FALSE;
+}
+
+static gboolean locentry_button_press_event(GtkWidget      *path_entry,
+                                            GdkEventButton *event,
+                                            LocationEntry  *location_entry)
+{
+    (void) path_entry;
+
+    e_return_val_if_fail(IS_LOCATIONENTRY(location_entry), FALSE);
+
+    // check if the context menu was triggered
+    if (event->type == GDK_BUTTON_PRESS && event->button == 3)
+    {
+        location_entry->right_click_occurred = TRUE;
+    }
+
+    return FALSE;
 }
 
 

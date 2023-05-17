@@ -27,11 +27,19 @@
 
 static void progressdlg_dispose(GObject *object);
 static void progressdlg_finalize(GObject *object);
-static void progressdlg_shown(ProgressDialog *dialog);
-static gboolean progressdlg_closed(ProgressDialog *dialog);
-static gboolean progressdlg_toggled(ProgressDialog *dialog, GdkEventButton *button,
+static void _progressdlg_shown(ProgressDialog *dialog);
+static gboolean _progressdlg_toggled(ProgressDialog *dialog, GdkEventButton *button,
                                     GtkStatusIcon *status_icon);
-static void progressdlg_update_status_icon(ProgressDialog *dialog);
+static gboolean _progressdlg_closed(ProgressDialog *dialog);
+
+// progressdlg_add_job
+static void _progressdlg_view_needs_attention(ProgressDialog *dialog,
+                                             ProgressView *view);
+static void _progressdlg_job_finished(ProgressDialog *dialog, ProgressView *view);
+
+static void _progressdlg_update_status_icon(ProgressDialog *dialog);
+
+// ProgressDialog -------------------------------------------------------------
 
 struct _ProgressDialogClass
 {
@@ -40,7 +48,7 @@ struct _ProgressDialogClass
 
 struct _ProgressDialog
 {
-    GtkWindow      __parent__;
+    GtkWindow     __parent__;
 
     GtkStatusIcon *status_icon;
     GtkWidget     *scrollwin;
@@ -49,20 +57,18 @@ struct _ProgressDialog
 
     GList         *views;
 
-    gint           x;
-    gint           y;
+    gint          x;
+    gint          y;
 };
 
 G_DEFINE_TYPE(ProgressDialog, progressdlg, GTK_TYPE_WINDOW);
 
 static void progressdlg_class_init(ProgressDialogClass *klass)
 {
-    GObjectClass *gobject_class;
-
     // Determine parent type class
     progressdlg_parent_class = g_type_class_peek_parent(klass);
 
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = progressdlg_dispose;
     gobject_class->finalize = progressdlg_finalize;
 }
@@ -79,10 +85,10 @@ static void progressdlg_init(ProgressDialog *dialog)
     gtk_window_set_type_hint(GTK_WINDOW(dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
     g_signal_connect_swapped(dialog, "show",
-                              G_CALLBACK(progressdlg_shown), dialog);
+                              G_CALLBACK(_progressdlg_shown), dialog);
 
     g_signal_connect(dialog, "delete-event",
-                      G_CALLBACK(progressdlg_closed), dialog);
+                      G_CALLBACK(_progressdlg_closed), dialog);
 
     dialog->vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(dialog), dialog->vbox);
@@ -118,7 +124,7 @@ static void progressdlg_finalize(GObject *object)
     G_OBJECT_CLASS(progressdlg_parent_class)->finalize(object);
 }
 
-static void progressdlg_shown(ProgressDialog *dialog)
+static void _progressdlg_shown(ProgressDialog *dialog)
 {
     e_return_if_fail(IS_PROGRESSDIALOG(dialog));
 
@@ -129,28 +135,14 @@ static void progressdlg_shown(ProgressDialog *dialog)
         dialog->status_icon = gtk_status_icon_new_from_icon_name("edit-copy");
         G_GNUC_END_IGNORE_DEPRECATIONS
 
-        progressdlg_update_status_icon(dialog);
+        _progressdlg_update_status_icon(dialog);
         g_signal_connect_swapped(dialog->status_icon, "button-press-event",
-                                  G_CALLBACK(progressdlg_toggled),
+                                  G_CALLBACK(_progressdlg_toggled),
                                   GTK_WIDGET(dialog));
     }
 }
 
-static gboolean progressdlg_closed(ProgressDialog *dialog)
-{
-    e_return_val_if_fail(IS_PROGRESSDIALOG(dialog), FALSE);
-
-    // remember the position of the dialog
-    gtk_window_get_position(GTK_WINDOW(dialog), &dialog->x, &dialog->y);
-
-    // hide the progress dialog
-    gtk_widget_hide(GTK_WIDGET(dialog));
-
-    // don't destroy the dialog
-    return TRUE;
-}
-
-static gboolean progressdlg_toggled(ProgressDialog *dialog, GdkEventButton *event,
+static gboolean _progressdlg_toggled(ProgressDialog *dialog, GdkEventButton *event,
                                     GtkStatusIcon *status_icon)
 {
     e_return_val_if_fail(IS_PROGRESSDIALOG(dialog), FALSE);
@@ -182,101 +174,32 @@ static gboolean progressdlg_toggled(ProgressDialog *dialog, GdkEventButton *even
     return TRUE;
 }
 
-static void progressdlg_view_needs_attention(ProgressDialog *dialog,
-                                             ProgressView *view)
+static gboolean _progressdlg_closed(ProgressDialog *dialog)
 {
-    e_return_if_fail(IS_PROGRESSDIALOG(dialog));
-    e_return_if_fail(IS_PROGRESSVIEW(view));
+    e_return_val_if_fail(IS_PROGRESSDIALOG(dialog), FALSE);
 
-    // TODO scroll to the view
+    // remember the position of the dialog
+    gtk_window_get_position(GTK_WINDOW(dialog), &dialog->x, &dialog->y);
 
-    // raise the dialog
-    gtk_window_present(GTK_WINDOW(dialog));
+    // hide the progress dialog
+    gtk_widget_hide(GTK_WIDGET(dialog));
+
+    // don't destroy the dialog
+    return TRUE;
 }
 
-static void progressdlg_job_finished(ProgressDialog *dialog, ProgressView *view)
-{
-    guint n_views;
-
-    e_return_if_fail(IS_PROGRESSDIALOG(dialog));
-    e_return_if_fail(IS_PROGRESSVIEW(view));
-
-    // remove the view from the list
-    dialog->views = g_list_remove(dialog->views, view);
-
-    // destroy the widget
-    gtk_widget_destroy(GTK_WIDGET(view));
-
-    // determine the number of views left
-    n_views = g_list_length(dialog->views);
-
-    /* check if we've just removed the 4th view and are now left with
-     * SCROLLVIEW_THRESHOLD-1 of them, in which case we drop the scroll window */
-    if (n_views == SCROLLVIEW_THRESHOLD-1)
-    {
-        // reparent the content box
-
-#if LIBXFCE4UI_CHECK_VERSION(4, 13, 2)
-        xfce_widget_reparent(dialog->content_box, dialog->vbox);
-#else
-        gtk_widget_reparent(dialog->content_box, dialog->vbox);
-#endif
-
-        // destroy the scroll win
-        gtk_widget_destroy(dialog->scrollwin);
-    }
-
-    /* check if we have less than SCROLLVIEW_THRESHOLD views
-     * and need to shrink the window */
-    if (n_views < SCROLLVIEW_THRESHOLD)
-    {
-        // try to shrink the window
-        gtk_window_resize(GTK_WINDOW(dialog), 450, 10);
-    }
-
-    // check if we still have at least one view
-    if (dialog->views != NULL)
-    {
-        // update the status icon
-        if (dialog->status_icon != NULL)
-            progressdlg_update_status_icon(dialog);
-    }
-    else
-    {
-        // destroy the dialog as there are no views left
-        gtk_widget_destroy(GTK_WIDGET(dialog));
-    }
-}
-
-static void progressdlg_update_status_icon(ProgressDialog *dialog)
-{
-    gchar *tooltip_text;
-    guint  n_views;
-
-    e_return_if_fail(IS_PROGRESSDIALOG(dialog));
-    e_return_if_fail(GTK_IS_STATUS_ICON(dialog->status_icon));
-
-    // determine the number of views now being active
-    n_views = g_list_length(dialog->views);
-
-    // build the tooltip text
-    tooltip_text = g_strdup_printf(ngettext("%d file operation running",
-                                    "%d file operations running",
-                                    n_views),
-                                    n_views);
-
-    // update the tooltip
-    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-    gtk_status_icon_set_tooltip_text(dialog->status_icon, tooltip_text);
-    G_GNUC_END_IGNORE_DEPRECATIONS
-
-    // free the string
-    g_free(tooltip_text);
-}
+// Public ---------------------------------------------------------------------
 
 GtkWidget* progressdlg_new()
 {
     return g_object_new(TYPE_PROGRESSDIALOG, NULL);
+}
+
+gboolean progressdlg_has_jobs(ProgressDialog *dialog)
+{
+    e_return_val_if_fail(IS_PROGRESSDIALOG(dialog), FALSE);
+
+    return dialog->views != NULL;
 }
 
 /**
@@ -365,24 +288,109 @@ void progressdlg_add_job(ProgressDialog *dialog, ThunarJob *job,
     }
 
     g_signal_connect_swapped(view, "need-attention",
-                             G_CALLBACK(progressdlg_view_needs_attention),
+                             G_CALLBACK(_progressdlg_view_needs_attention),
                              dialog);
 
     g_signal_connect_swapped(view, "finished",
-                             G_CALLBACK(progressdlg_job_finished), dialog);
+                             G_CALLBACK(_progressdlg_job_finished), dialog);
 
     g_signal_connect_swapped(job, "ask-jobs",
                              G_CALLBACK(progressdlg_list_jobs), dialog);
 
     if (dialog->status_icon != NULL)
-        progressdlg_update_status_icon(dialog);
+        _progressdlg_update_status_icon(dialog);
 }
 
-gboolean progressdlg_has_jobs(ProgressDialog *dialog)
+static void _progressdlg_view_needs_attention(ProgressDialog *dialog,
+                                             ProgressView *view)
 {
-    e_return_val_if_fail(IS_PROGRESSDIALOG(dialog), FALSE);
+    e_return_if_fail(IS_PROGRESSDIALOG(dialog));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
 
-    return dialog->views != NULL;
+    // TODO scroll to the view
+
+    // raise the dialog
+    gtk_window_present(GTK_WINDOW(dialog));
+}
+
+static void _progressdlg_job_finished(ProgressDialog *dialog, ProgressView *view)
+{
+    guint n_views;
+
+    e_return_if_fail(IS_PROGRESSDIALOG(dialog));
+    e_return_if_fail(IS_PROGRESSVIEW(view));
+
+    // remove the view from the list
+    dialog->views = g_list_remove(dialog->views, view);
+
+    // destroy the widget
+    gtk_widget_destroy(GTK_WIDGET(view));
+
+    // determine the number of views left
+    n_views = g_list_length(dialog->views);
+
+    /* check if we've just removed the 4th view and are now left with
+     * SCROLLVIEW_THRESHOLD-1 of them, in which case we drop the scroll window */
+    if (n_views == SCROLLVIEW_THRESHOLD-1)
+    {
+        // reparent the content box
+
+#if LIBXFCE4UI_CHECK_VERSION(4, 13, 2)
+        xfce_widget_reparent(dialog->content_box, dialog->vbox);
+#else
+        gtk_widget_reparent(dialog->content_box, dialog->vbox);
+#endif
+
+        // destroy the scroll win
+        gtk_widget_destroy(dialog->scrollwin);
+    }
+
+    /* check if we have less than SCROLLVIEW_THRESHOLD views
+     * and need to shrink the window */
+    if (n_views < SCROLLVIEW_THRESHOLD)
+    {
+        // try to shrink the window
+        gtk_window_resize(GTK_WINDOW(dialog), 450, 10);
+    }
+
+    // check if we still have at least one view
+    if (dialog->views != NULL)
+    {
+        // update the status icon
+        if (dialog->status_icon != NULL)
+            _progressdlg_update_status_icon(dialog);
+    }
+    else
+    {
+        // destroy the dialog as there are no views left
+        gtk_widget_destroy(GTK_WIDGET(dialog));
+    }
+}
+
+static void _progressdlg_update_status_icon(ProgressDialog *dialog)
+{
+    gchar *tooltip_text;
+    guint  n_views;
+
+    e_return_if_fail(IS_PROGRESSDIALOG(dialog));
+    e_return_if_fail(GTK_IS_STATUS_ICON(dialog->status_icon));
+
+    // determine the number of views now being active
+    n_views = g_list_length(dialog->views);
+
+    // build the tooltip text
+    tooltip_text = g_strdup_printf(ngettext("%d file operation running",
+                                    "%d file operations running",
+                                    n_views),
+                                    n_views);
+
+    // update the tooltip
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+    gtk_status_icon_set_tooltip_text(dialog->status_icon, tooltip_text);
+    G_GNUC_END_IGNORE_DEPRECATIONS
+
+    // free the string
+    g_free(tooltip_text);
 }
 
 

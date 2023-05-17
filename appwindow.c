@@ -27,6 +27,7 @@
 #include <browser.h>
 #include <component.h>
 
+#include <locationbar.h>
 #include <locationentry.h>
 #include <treepane.h>
 #include <baseview.h>

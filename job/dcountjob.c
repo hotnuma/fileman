@@ -20,20 +20,9 @@
 
 #include <config.h>
 #include <dcountjob.h>
-
-#include <job.h>
 #include <marshal.h>
 
-#include <glib.h>
-#include <glib-object.h>
-#include <gio/gio.h>
-
-// Signal identifiers
-enum
-{
-    STATUS_UPDATE,
-    LAST_SIGNAL,
-};
+#include <job.h>
 
 #define DEEPCOUNT_FILEINFO_NAMESPACE \
     G_FILE_ATTRIBUTE_STANDARD_TYPE "," \
@@ -42,17 +31,27 @@ enum
 
 static void dcjob_finalize(GObject *object);
 static gboolean dcjob_execute(ExoJob *job, GError **error);
+static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
+                               const gchar *toplevel_fs_id, GError **error);
+static void _dcjob_status_update(DeepCountJob *job);
+
+// DeepCountJob ---------------------------------------------------------------
+
+enum
+{
+    STATUS_UPDATE,
+    LAST_SIGNAL,
+};
+static guint _dcjob_signals[LAST_SIGNAL];
 
 struct _DeepCountJobClass
 {
     ThunarJobClass __parent__;
 
     // signals
-    void (*status_update) (ThunarJob *job,
-                           guint64   total_size,
-                           guint     file_count,
-                           guint     directory_count,
-                           guint     unreadable_directory_count);
+    void (*status_update) (ThunarJob *job, guint64 total_size,
+                           guint file_count, guint directory_count,
+                           guint unreadable_directory_count);
 };
 
 struct _DeepCountJob
@@ -71,8 +70,6 @@ struct _DeepCountJob
     guint       directory_count;
     guint       unreadable_directory_count;
 };
-
-static guint deep_count_signals[LAST_SIGNAL];
 
 G_DEFINE_TYPE(DeepCountJob, dcjob, THUNAR_TYPE_JOB)
 
@@ -95,7 +92,7 @@ static void dcjob_class_init(DeepCountJobClass *klass)
      * Emitted by the @job to inform listeners about the number of files,
      * directories and bytes counted so far.
      **/
-    deep_count_signals[STATUS_UPDATE] =
+    _dcjob_signals[STATUS_UPDATE] =
         g_signal_new("status-update",
                      G_TYPE_FROM_CLASS(klass),
                      G_SIGNAL_NO_HOOKS,
@@ -123,24 +120,65 @@ static void dcjob_finalize(GObject *object)
     G_OBJECT_CLASS(dcjob_parent_class)->finalize(object);
 }
 
-static void _dcjob_status_update(DeepCountJob *job)
+static gboolean dcjob_execute(ExoJob *job, GError **error)
 {
-    e_return_if_fail(IS_DEEPCOUNTJOB(job));
+    DeepCountJob *count_job = DEEPCOUNTJOB(job);
+    gboolean            success = TRUE;
+    GError             *err = NULL;
+    GList              *lp;
+    GFile              *gfile;
 
-    exo_job_emit(EXOJOB(job),
-                 deep_count_signals[STATUS_UPDATE],
-                 0,
-                 job->total_size,
-                 job->file_count,
-                 job->directory_count,
-                 job->unreadable_directory_count);
+    e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+
+    // don't start the job if it was already cancelled
+    if (exo_job_set_error_if_cancelled(job, error))
+        return FALSE;
+
+    // reset counters
+    count_job->total_size = 0;
+    count_job->file_count = 0;
+    count_job->directory_count = 0;
+    count_job->unreadable_directory_count = 0;
+    count_job->last_time = 0;
+
+    // count files, directories and compute size of the job files
+    for(lp = count_job->files; lp != NULL; lp = lp->next)
+    {
+        gfile = th_file_get_file(THUNAR_FILE(lp->data));
+        success = _dcjob_process(job, gfile, NULL, NULL, &err);
+        if (G_UNLIKELY(!success))
+            break;
+    }
+
+    if (!success)
+    {
+        g_assert(err != NULL || exo_job_is_cancelled(job));
+
+        /* set error if the job was cancelled. otherwise just propagate
+         * the results of the processing function */
+        if (exo_job_set_error_if_cancelled(job, error))
+        {
+            if (err != NULL)
+                g_error_free(err);
+        }
+        else
+        {
+            if (err != NULL)
+                g_propagate_error(error, err);
+        }
+    }
+    else if (!exo_job_is_cancelled(job))
+    {
+        // emit final status update at the very end of the computation
+        _dcjob_status_update(count_job);
+    }
+
+    return success;
 }
 
-static gboolean _dcjob_process(ExoJob       *job,
-                               GFile        *file,
-                               GFileInfo    *file_info,
-                               const gchar  *toplevel_fs_id,
-                               GError      **error)
+static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
+                               const gchar *toplevel_fs_id, GError **error)
 {
     DeepCountJob *count_job = DEEPCOUNTJOB(job);
     GFileEnumerator    *enumerator;
@@ -301,70 +339,26 @@ static gboolean _dcjob_process(ExoJob       *job,
     return !exo_job_is_cancelled(job) && success;
 }
 
-static gboolean dcjob_execute(ExoJob *job, GError **error)
+static void _dcjob_status_update(DeepCountJob *job)
 {
-    DeepCountJob *count_job = DEEPCOUNTJOB(job);
-    gboolean            success = TRUE;
-    GError             *err = NULL;
-    GList              *lp;
-    GFile              *gfile;
+    e_return_if_fail(IS_DEEPCOUNTJOB(job));
 
-    e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
-    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-
-    // don't start the job if it was already cancelled
-    if (exo_job_set_error_if_cancelled(job, error))
-        return FALSE;
-
-    // reset counters
-    count_job->total_size = 0;
-    count_job->file_count = 0;
-    count_job->directory_count = 0;
-    count_job->unreadable_directory_count = 0;
-    count_job->last_time = 0;
-
-    // count files, directories and compute size of the job files
-    for(lp = count_job->files; lp != NULL; lp = lp->next)
-    {
-        gfile = th_file_get_file(THUNAR_FILE(lp->data));
-        success = _dcjob_process(job, gfile, NULL, NULL, &err);
-        if (G_UNLIKELY(!success))
-            break;
-    }
-
-    if (!success)
-    {
-        g_assert(err != NULL || exo_job_is_cancelled(job));
-
-        /* set error if the job was cancelled. otherwise just propagate
-         * the results of the processing function */
-        if (exo_job_set_error_if_cancelled(job, error))
-        {
-            if (err != NULL)
-                g_error_free(err);
-        }
-        else
-        {
-            if (err != NULL)
-                g_propagate_error(error, err);
-        }
-    }
-    else if (!exo_job_is_cancelled(job))
-    {
-        // emit final status update at the very end of the computation
-        _dcjob_status_update(count_job);
-    }
-
-    return success;
+    exo_job_emit(EXOJOB(job),
+                 _dcjob_signals[STATUS_UPDATE],
+                 0,
+                 job->total_size,
+                 job->file_count,
+                 job->directory_count,
+                 job->unreadable_directory_count);
 }
+
+// Public ---------------------------------------------------------------------
 
 DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
 {
-    DeepCountJob *job;
-
     e_return_val_if_fail(files != NULL, NULL);
 
-    job = g_object_new(TYPE_DEEPCOUNTJOB, NULL);
+    DeepCountJob *job = g_object_new(TYPE_DEEPCOUNTJOB, NULL);
     job->files = g_list_copy(files);
     job->query_flags = flags;
 

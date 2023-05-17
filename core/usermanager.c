@@ -21,19 +21,18 @@
 #include <config.h>
 #include <usermanager.h>
 
-#include <utils.h>
-
-#include <glib-object.h>
-#include <sys/types.h>
 #include <grp.h>
-#include <memory.h>
 #include <pwd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <utils.h>
 
 // the interval in which the user/group cache is flushed(in seconds)
 #define USER_MANAGER_FLUSH_INTERVAL (10 * 60)
+
+// User Manager ---------------------------------------------------------------
+
+static void _usermanager_finalize(GObject *object);
+static gboolean _usermanager_flush_timer(gpointer user_data);
+static void _usermanager_flush_timer_destroy(gpointer user_data);
 
 // Group ----------------------------------------------------------------------
 
@@ -49,10 +48,210 @@ static ThunarGroup* _user_get_primary_group(ThunarUser *user);
 
 // User Manager ---------------------------------------------------------------
 
-static void _usermanager_finalize(GObject *object);
-static gboolean _usermanager_flush_timer(gpointer user_data);
-static void _usermanager_flush_timer_destroy(gpointer user_data);
+struct _UserManagerClass
+{
+    GObjectClass __parent__;
+};
 
+struct _UserManager
+{
+    GObject __parent__;
+
+    GHashTable *groups;
+    GHashTable *users;
+
+    guint       flush_timer_id;
+};
+
+G_DEFINE_TYPE(UserManager, usermanager, G_TYPE_OBJECT)
+
+static void usermanager_class_init(UserManagerClass *klass)
+{
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    gobject_class->finalize = _usermanager_finalize;
+}
+
+static void usermanager_init(UserManager *manager)
+{
+    manager->groups = g_hash_table_new_full(g_direct_hash,
+                                            g_direct_equal,
+                                            NULL,
+                                            g_object_unref);
+    manager->users = g_hash_table_new_full(g_direct_hash,
+                                           g_direct_equal,
+                                           NULL,
+                                           g_object_unref);
+
+    // keep the groups file in memory if possible
+#ifdef HAVE_SETGROUPENT
+    setgroupent(TRUE);
+#endif
+
+    // keep the passwd file in memory if possible
+#ifdef HAVE_SETPASSENT
+    setpassent(TRUE);
+#endif
+
+    // start the flush timer
+    manager->flush_timer_id = g_timeout_add_seconds_full(
+                                            G_PRIORITY_LOW,
+                                            USER_MANAGER_FLUSH_INTERVAL,
+                                            _usermanager_flush_timer, manager,
+                                            _usermanager_flush_timer_destroy);
+}
+
+static void _usermanager_finalize(GObject *object)
+{
+    UserManager *manager = USERMANAGER(object);
+
+    // stop the flush timer
+    if (G_LIKELY(manager->flush_timer_id != 0))
+        g_source_remove(manager->flush_timer_id);
+
+    // destroy the hash tables
+    g_hash_table_destroy(manager->groups);
+    g_hash_table_destroy(manager->users);
+
+    // unload the groups file
+    endgrent();
+
+    // unload the passwd file
+    endpwent();
+
+    G_OBJECT_CLASS(usermanager_parent_class)->finalize(object);
+}
+
+static gboolean _usermanager_flush_timer(gpointer user_data)
+{
+    UserManager *manager = USERMANAGER(user_data);
+    guint size = 0;
+
+    UTIL_THREADS_ENTER
+
+    // drop all cached groups
+    size += g_hash_table_foreach_remove(manager->groups,
+                                        (GHRFunc)(void(*)(void)) gtk_true,
+                                        NULL);
+
+    // drop all cached users
+    size += g_hash_table_foreach_remove(manager->users,
+                                        (GHRFunc)(void(*)(void)) gtk_true,
+                                        NULL);
+
+    // reload groups and passwd files if we had cached entities
+    if (G_LIKELY(size > 0))
+    {
+        endgrent();
+        endpwent();
+
+#ifdef HAVE_SETGROUPENT
+        setgroupent(TRUE);
+#endif
+
+#ifdef HAVE_SETPASSENT
+        setpassent(TRUE);
+#endif
+    }
+
+    UTIL_THREADS_LEAVE
+
+    return TRUE;
+}
+
+static void _usermanager_flush_timer_destroy(gpointer user_data)
+{
+    USERMANAGER(user_data)->flush_timer_id = 0;
+}
+
+UserManager* usermanager_get_default()
+{
+    // g_object_unref
+
+    static UserManager *manager = NULL;
+
+    if (G_UNLIKELY(manager == NULL))
+    {
+        manager = g_object_new(TYPE_USERMANAGER, NULL);
+        g_object_add_weak_pointer(G_OBJECT(manager),(gpointer) &manager);
+    }
+    else
+    {
+        g_object_ref(G_OBJECT(manager));
+    }
+
+    return manager;
+}
+
+GList* usermanager_get_all_groups(UserManager *manager)
+{
+    // g_list_free_full(list, g_object_unref)
+
+    ThunarGroup  *group;
+    struct group *grp;
+    GList        *groups = NULL;
+
+    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
+
+    // make sure we reload the groups list
+    endgrent();
+
+    // iterate through all groups in the system
+    for (;;)
+    {
+        // lookup the next group
+        grp = getgrent();
+        if (G_UNLIKELY(grp == NULL))
+            break;
+
+        // lookup our version of the group
+        group = usermanager_get_group_by_id(manager, grp->gr_gid);
+        if (G_LIKELY(group != NULL))
+            groups = g_list_append(groups, group);
+    }
+
+    return groups;
+}
+
+ThunarGroup* usermanager_get_group_by_id(UserManager *manager,
+                                          guint32 id)
+{
+    // g_object_unref
+
+    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
+
+    // lookup/load the group corresponding to id
+    ThunarGroup *group = g_hash_table_lookup(manager->groups, GINT_TO_POINTER(id));
+    if (group == NULL)
+    {
+        group = _group_new(id);
+        g_hash_table_insert(manager->groups, GINT_TO_POINTER(id), group);
+    }
+
+    // take a reference for the caller
+    g_object_ref(G_OBJECT(group));
+
+    return group;
+}
+
+ThunarUser* usermanager_get_user_by_id(UserManager *manager, guint32 id)
+{
+    // g_object_unref
+
+    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
+
+    // lookup/load the user corresponding to id
+    ThunarUser *user = g_hash_table_lookup(manager->users, GINT_TO_POINTER(id));
+    if (user == NULL)
+    {
+        user = _user_new(id);
+        g_hash_table_insert(manager->users, GINT_TO_POINTER(id), user);
+    }
+
+    // take a reference for the caller
+    g_object_ref(G_OBJECT(user));
+
+    return user;
+}
 
 // Group ----------------------------------------------------------------------
 
@@ -127,8 +326,9 @@ const gchar* group_get_name(ThunarGroup *group)
     return group->name;
 }
 
-
 // User -----------------------------------------------------------------------
+
+static guint32 _user_effective_uid;
 
 struct _ThunarUserClass
 {
@@ -139,14 +339,12 @@ struct _ThunarUser
 {
     GObject __parent__;
 
-    GList       *groups;
+    GList   *groups;
     ThunarGroup *primary_group;
-    guint32      id;
-    gchar       *name;
-    gchar       *real_name;
+    guint32 id;
+    gchar   *name;
+    gchar   *real_name;
 };
-
-static guint32 _user_effective_uid;
 
 G_DEFINE_TYPE(ThunarUser, user, G_TYPE_OBJECT)
 
@@ -162,15 +360,13 @@ static ThunarUser* _user_new(guint32 id)
 
 static void user_class_init(ThunarUserClass *klass)
 {
-    GObjectClass *gobject_class;
-
     /* determine the current process' effective user id, we do
      * this only once to avoid the syscall overhead on every
      * is_me() invokation.
      */
     _user_effective_uid = geteuid();
 
-    gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = _user_finalize;
 }
 
@@ -335,213 +531,4 @@ gboolean user_is_me(ThunarUser *user)
 
     return (user->id == _user_effective_uid);
 }
-
-
-// User Manager ---------------------------------------------------------------
-
-struct _UserManagerClass
-{
-    GObjectClass __parent__;
-};
-
-struct _UserManager
-{
-    GObject __parent__;
-
-    GHashTable *groups;
-    GHashTable *users;
-
-    guint       flush_timer_id;
-};
-
-G_DEFINE_TYPE(UserManager, usermanager, G_TYPE_OBJECT)
-
-static void usermanager_class_init(UserManagerClass *klass)
-{
-    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = _usermanager_finalize;
-}
-
-static void usermanager_init(UserManager *manager)
-{
-    manager->groups = g_hash_table_new_full(g_direct_hash,
-                                            g_direct_equal,
-                                            NULL,
-                                            g_object_unref);
-    manager->users = g_hash_table_new_full(g_direct_hash,
-                                           g_direct_equal,
-                                           NULL,
-                                           g_object_unref);
-
-    // keep the groups file in memory if possible
-#ifdef HAVE_SETGROUPENT
-    setgroupent(TRUE);
-#endif
-
-    // keep the passwd file in memory if possible
-#ifdef HAVE_SETPASSENT
-    setpassent(TRUE);
-#endif
-
-    // start the flush timer
-    manager->flush_timer_id = g_timeout_add_seconds_full(
-                                            G_PRIORITY_LOW,
-                                            USER_MANAGER_FLUSH_INTERVAL,
-                                            _usermanager_flush_timer, manager,
-                                            _usermanager_flush_timer_destroy);
-}
-
-static void _usermanager_finalize(GObject *object)
-{
-    UserManager *manager = USERMANAGER(object);
-
-    // stop the flush timer
-    if (G_LIKELY(manager->flush_timer_id != 0))
-        g_source_remove(manager->flush_timer_id);
-
-    // destroy the hash tables
-    g_hash_table_destroy(manager->groups);
-    g_hash_table_destroy(manager->users);
-
-    // unload the groups file
-    endgrent();
-
-    // unload the passwd file
-    endpwent();
-
-    G_OBJECT_CLASS(usermanager_parent_class)->finalize(object);
-}
-
-static gboolean _usermanager_flush_timer(gpointer user_data)
-{
-    UserManager *manager = USERMANAGER(user_data);
-    guint size = 0;
-
-    UTIL_THREADS_ENTER
-
-    // drop all cached groups
-    size += g_hash_table_foreach_remove(manager->groups,
-                                        (GHRFunc)(void(*)(void)) gtk_true,
-                                        NULL);
-
-    // drop all cached users
-    size += g_hash_table_foreach_remove(manager->users,
-                                        (GHRFunc)(void(*)(void)) gtk_true,
-                                        NULL);
-
-    // reload groups and passwd files if we had cached entities
-    if (G_LIKELY(size > 0))
-    {
-        endgrent();
-        endpwent();
-
-#ifdef HAVE_SETGROUPENT
-        setgroupent(TRUE);
-#endif
-
-#ifdef HAVE_SETPASSENT
-        setpassent(TRUE);
-#endif
-    }
-
-    UTIL_THREADS_LEAVE
-
-    return TRUE;
-}
-
-static void _usermanager_flush_timer_destroy(gpointer user_data)
-{
-    USERMANAGER(user_data)->flush_timer_id = 0;
-}
-
-UserManager* usermanager_get_default()
-{
-    // g_object_unref
-
-    static UserManager *manager = NULL;
-
-    if (G_UNLIKELY(manager == NULL))
-    {
-        manager = g_object_new(TYPE_USERMANAGER, NULL);
-        g_object_add_weak_pointer(G_OBJECT(manager),(gpointer) &manager);
-    }
-    else
-    {
-        g_object_ref(G_OBJECT(manager));
-    }
-
-    return manager;
-}
-
-ThunarGroup* usermanager_get_group_by_id(UserManager *manager,
-                                          guint32 id)
-{
-    // g_object_unref
-
-    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
-
-    // lookup/load the group corresponding to id
-    ThunarGroup *group = g_hash_table_lookup(manager->groups, GINT_TO_POINTER(id));
-    if (group == NULL)
-    {
-        group = _group_new(id);
-        g_hash_table_insert(manager->groups, GINT_TO_POINTER(id), group);
-    }
-
-    // take a reference for the caller
-    g_object_ref(G_OBJECT(group));
-
-    return group;
-}
-
-ThunarUser* usermanager_get_user_by_id(UserManager *manager, guint32 id)
-{
-    // g_object_unref
-
-    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
-
-    // lookup/load the user corresponding to id
-    ThunarUser *user = g_hash_table_lookup(manager->users, GINT_TO_POINTER(id));
-    if (user == NULL)
-    {
-        user = _user_new(id);
-        g_hash_table_insert(manager->users, GINT_TO_POINTER(id), user);
-    }
-
-    // take a reference for the caller
-    g_object_ref(G_OBJECT(user));
-
-    return user;
-}
-
-GList* usermanager_get_all_groups(UserManager *manager)
-{
-    // g_list_free_full(list, g_object_unref)
-
-    ThunarGroup  *group;
-    struct group *grp;
-    GList        *groups = NULL;
-
-    g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
-
-    // make sure we reload the groups list
-    endgrent();
-
-    // iterate through all groups in the system
-    for (;;)
-    {
-        // lookup the next group
-        grp = getgrent();
-        if (G_UNLIKELY(grp == NULL))
-            break;
-
-        // lookup our version of the group
-        group = usermanager_get_group_by_id(manager, grp->gr_gid);
-        if (G_LIKELY(group != NULL))
-            groups = g_list_append(groups, group);
-    }
-
-    return groups;
-}
-
 

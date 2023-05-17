@@ -25,10 +25,12 @@
 
 G_BEGIN_DECLS
 
+// ProgressDialog -------------------------------------------------------------
+
 typedef struct _ProgressDialogClass ProgressDialogClass;
 typedef struct _ProgressDialog      ProgressDialog;
 
-#define TYPE_PROGRESSDIALOG (progressdlg_get_type ())
+#define TYPE_PROGRESSDIALOG (progressdlg_get_type())
 #define PROGRESSDIALOG(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PROGRESSDIALOG, ProgressDialog))
 #define PROGRESSDIALOG_CLASS(klass) \

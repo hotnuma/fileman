@@ -58,24 +58,30 @@ struct _ExoJobClass
 
 struct _ExoJob
 {
-    GObject     __parent__;
+    GObject __parent__;
 
     ExoJobPrivate *priv;
 };
 
 GType exo_job_get_type() G_GNUC_CONST;
 
+// Launch ---------------------------------------------------------------------
+
 ExoJob* exo_job_launch(ExoJob *job);
+GCancellable* exo_job_get_cancellable(const ExoJob *job);
+
+// Cancel ---------------------------------------------------------------------
 
 void exo_job_cancel(ExoJob *job);
 gboolean exo_job_is_cancelled(const ExoJob *job);
-GCancellable* exo_job_get_cancellable(const ExoJob *job);
 gboolean exo_job_set_error_if_cancelled (ExoJob *job, GError **error);
 
-void exo_job_emit(ExoJob *job, guint signal_id,
-                  GQuark signal_detail, ...);
+// Emit -----------------------------------------------------------------------
+
 void exo_job_info_message(ExoJob *job, const gchar *format, ...);
 void exo_job_percent(ExoJob *job, gdouble percent);
+void exo_job_emit(ExoJob *job, guint signal_id,
+                  GQuark signal_detail, ...);
 gboolean exo_job_send_to_mainloop(ExoJob *job, GSourceFunc func,
                                   gpointer user_data,
                                   GDestroyNotify destroy_notify);

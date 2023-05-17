@@ -38,17 +38,16 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   19153	./misc/enumtypes.c
 
 +   17838	./dialog/appcombo.c
-    17783	./job/exo_job.c
-    15866	./misc/iconrender.c
-    14876	./widget/sizelabel.c
-    14689	./widget/locationentry.c
-    14619	./appmenu.c
-    14348	./marshal.c
-    14026	./core/usermanager.c
-    13164	./dialog/appmodel.c
-    12377	./dialog/progressdlg.c
++   17783	./job/exo_job.c
++   15866	./misc/iconrender.c
++   14876	./widget/sizelabel.c
++   14689	./widget/locationentry.c
++   14619	./appmenu.c
++   14026	./core/usermanager.c
++   13164	./dialog/appmodel.c
++   12377	./dialog/progressdlg.c
++   11586	./job/dcountjob.c
 
-    11586	./job/dcountjob.c
     10380	./libext/pixbuf_ext.c
     9991	./view/baseview.c
     9657	./core/dnd.c
@@ -58,8 +57,8 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
     7519	./job/jobutils.c
     7190	./libext/gtk_ext.c
     6833	./misc/navigator.c
-
     6613	./misc/appnotify.c
+
     5832	./libext/pango_ext.c
     5587	./widget/th_image.c
     5429	./job/io_scandir.c
@@ -69,8 +68,8 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
     4950	./core/filemonitor.c
     3949	./misc/component.c
     3837	./widget/statusbar.c
-
     2558	./preferences.c
+
     2365	./side/sidepane.c
     1421	./main.c
 ```

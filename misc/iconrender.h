@@ -19,10 +19,12 @@
 #ifndef __ICONRENDERER_H__
 #define __ICONRENDERER_H__
 
-#include <enumtypes.h>
 #include <th_file.h>
+#include <enumtypes.h>
 
 G_BEGIN_DECLS
+
+// IconRenderer ---------------------------------------------------------------
 
 typedef struct _IconRendererClass IconRendererClass;
 typedef struct _IconRenderer      IconRenderer;
