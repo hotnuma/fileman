@@ -19,83 +19,8 @@
 #include <config.h>
 #include <pango_ext.h>
 
-#include <stdarg.h>
-
 static PangoAttrList* _e_pango_attr_list_wrap(PangoAttribute *attribute, ...)
                                               G_GNUC_MALLOC;
-
-static PangoAttrList* _e_pango_attr_list_wrap(PangoAttribute *attribute, ...)
-{
-    PangoAttrList *attr_list;
-    va_list        args;
-
-    // allocate a new attribute list
-    attr_list = pango_attr_list_new();
-
-    // add all specified attributes
-    va_start(args, attribute);
-    while (attribute != NULL)
-    {
-        attribute->start_index = 0;
-        attribute->end_index = -1;
-        pango_attr_list_insert(attr_list, attribute);
-        attribute = va_arg(args, PangoAttribute *);
-    }
-    va_end(args);
-
-    return attr_list;
-}
-
-/**
- * thunar_pango_attr_list_big:
- *
- * Returns a #PangoAttrList for rendering big text.
- * The returned list is owned by the callee and must
- * not be freed or modified by the caller.
- *
- * Return value: a #PangoAttrList for rendering big text.
- **/
-PangoAttrList* e_pango_attr_list_big()
-{
-    static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), NULL);
-    return attr_list;
-}
-
-/**
- * thunar_pango_attr_list_big_bold:
- *
- * Returns a #PangoAttrList for rendering big bold text.
- * The returned list is owned by the callee and must
- * not be freed or modified by the caller.
- *
- * Return value: a #PangoAttrList for rendering big bold text.
- **/
-PangoAttrList* e_pango_attr_list_big_bold()
-{
-    static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
-    return attr_list;
-}
-
-/**
- * thunar_pango_attr_list_bold:
- *
- * Returns a #PangoAttrList for rendering bold text.
- * The returned list is owned by the callee and must
- * not be freed or modified by the caller.
- *
- * Return value: a #PangoAttrList for rendering bold text.
- **/
-PangoAttrList* e_pango_attr_list_bold()
-{
-    static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _e_pango_attr_list_wrap(pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
-    return attr_list;
-}
 
 /**
  * e_pango_attr_disable_hyphens:
@@ -120,7 +45,58 @@ PangoAttrList* e_pango_attr_disable_hyphens()
 #endif
 
 /**
- * thunar_pango_attr_list_italic:
+ * e_pango_attr_list_big:
+ *
+ * Returns a #PangoAttrList for rendering big text.
+ * The returned list is owned by the callee and must
+ * not be freed or modified by the caller.
+ *
+ * Return value: a #PangoAttrList for rendering big text.
+ **/
+PangoAttrList* e_pango_attr_list_big()
+{
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), NULL);
+    return attr_list;
+}
+
+/**
+ * e_pango_attr_list_big_bold:
+ *
+ * Returns a #PangoAttrList for rendering big bold text.
+ * The returned list is owned by the callee and must
+ * not be freed or modified by the caller.
+ *
+ * Return value: a #PangoAttrList for rendering big bold text.
+ **/
+PangoAttrList* e_pango_attr_list_big_bold()
+{
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_LARGE), pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
+    return attr_list;
+}
+
+/**
+ * e_pango_attr_list_bold:
+ *
+ * Returns a #PangoAttrList for rendering bold text.
+ * The returned list is owned by the callee and must
+ * not be freed or modified by the caller.
+ *
+ * Return value: a #PangoAttrList for rendering bold text.
+ **/
+PangoAttrList* e_pango_attr_list_bold()
+{
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _e_pango_attr_list_wrap(pango_attr_weight_new(PANGO_WEIGHT_BOLD), NULL);
+    return attr_list;
+}
+
+/**
+ * e_pango_attr_list_italic:
  *
  * Returns a #PangoAttrList for rendering italic text.
  * The returned list is owned by the callee and must
@@ -137,24 +113,7 @@ PangoAttrList* e_pango_attr_list_italic()
 }
 
 /**
- * thunar_pango_attr_list_small_italic:
- *
- * Returns a #PangoAttrList for rendering small italic text.
- * The returned list is owned by the callee and must
- * not be freed or modified by the caller.
- *
- * Return value: a #PangoAttrList for rendering small italic text.
- **/
-PangoAttrList* e_pango_attr_list_small_italic()
-{
-    static PangoAttrList *attr_list = NULL;
-    if (G_UNLIKELY(attr_list == NULL))
-        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
-    return attr_list;
-}
-
-/**
- * thunar_pango_attr_list_small:
+ * e_pango_attr_list_small:
  *
  * Returns a #PangoAttrList for rendering small text.
  * The returned list is owned by the callee and must
@@ -171,7 +130,24 @@ PangoAttrList* e_pango_attr_list_small()
 }
 
 /**
- * thunar_pango_attr_list_underline_single:
+ * e_pango_attr_list_small_italic:
+ *
+ * Returns a #PangoAttrList for rendering small italic text.
+ * The returned list is owned by the callee and must
+ * not be freed or modified by the caller.
+ *
+ * Return value: a #PangoAttrList for rendering small italic text.
+ **/
+PangoAttrList* e_pango_attr_list_small_italic()
+{
+    static PangoAttrList *attr_list = NULL;
+    if (G_UNLIKELY(attr_list == NULL))
+        attr_list = _e_pango_attr_list_wrap(pango_attr_scale_new(PANGO_SCALE_SMALL), pango_attr_style_new(PANGO_STYLE_ITALIC), NULL);
+    return attr_list;
+}
+
+/**
+ * e_pango_attr_list_underline_single:
  *
  * Returns a #PangoAttrList for underlining text using a single line.
  * The returned list is owned by the callee and must not be freed
@@ -184,6 +160,28 @@ PangoAttrList* e_pango_attr_list_underline_single()
     static PangoAttrList *attr_list = NULL;
     if (G_UNLIKELY(attr_list == NULL))
         attr_list = _e_pango_attr_list_wrap(pango_attr_underline_new(PANGO_UNDERLINE_SINGLE), NULL);
+    return attr_list;
+}
+
+static PangoAttrList* _e_pango_attr_list_wrap(PangoAttribute *attribute, ...)
+{
+    PangoAttrList *attr_list;
+    va_list        args;
+
+    // allocate a new attribute list
+    attr_list = pango_attr_list_new();
+
+    // add all specified attributes
+    va_start(args, attribute);
+    while (attribute != NULL)
+    {
+        attribute->start_index = 0;
+        attribute->end_index = -1;
+        pango_attr_list_insert(attr_list, attribute);
+        attribute = va_arg(args, PangoAttribute *);
+    }
+    va_end(args);
+
     return attr_list;
 }
 

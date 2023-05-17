@@ -16,23 +16,25 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_NAVIGATOR_H__
-#define __THUNAR_NAVIGATOR_H__
+#ifndef __THUNARNAVIGATOR_H__
+#define __THUNARNAVIGATOR_H__
 
 #include <th_file.h>
 
 G_BEGIN_DECLS
 
+// ThunarNavigator ------------------------------------------------------------
+
 typedef struct _ThunarNavigatorIface ThunarNavigatorIface;
 typedef struct _ThunarNavigator      ThunarNavigator;
 
-#define THUNAR_TYPE_NAVIGATOR (navigator_get_type())
-#define THUNAR_NAVIGATOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj),     THUNAR_TYPE_NAVIGATOR, ThunarNavigator))
-#define THUNAR_IS_NAVIGATOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj),     THUNAR_TYPE_NAVIGATOR))
-#define THUNAR_NAVIGATOR_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE ((obj),  THUNAR_TYPE_NAVIGATOR, ThunarNavigatorIface))
+#define TYPE_THUNARNAVIGATOR (navigator_get_type())
+#define THUNARNAVIGATOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_THUNARNAVIGATOR, ThunarNavigator))
+#define IS_THUNARNAVIGATOR(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_THUNARNAVIGATOR))
+#define THUNARNAVIGATOR_GET_IFACE(obj) \
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_THUNARNAVIGATOR, ThunarNavigatorIface))
 
 struct _ThunarNavigatorIface
 {
@@ -57,6 +59,6 @@ void navigator_change_directory(ThunarNavigator *navigator, ThunarFile *director
 
 G_END_DECLS
 
-#endif // __THUNAR_NAVIGATOR_H__
+#endif // __THUNARNAVIGATOR_H__
 
 

@@ -77,7 +77,7 @@ struct _ThunarHistory
 };
 
 G_DEFINE_TYPE_WITH_CODE(ThunarHistory, history, G_TYPE_OBJECT,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               history_navigator_init))
 
 static GQuark _history_display_name_quark;
@@ -144,7 +144,7 @@ static void history_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(history)));
+        g_value_set_object(value, navigator_get_current_directory(THUNARNAVIGATOR(history)));
         break;
 
     default:
@@ -162,7 +162,7 @@ static void history_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(history), g_value_get_object(value));
+        navigator_set_current_directory(THUNARNAVIGATOR(history), g_value_get_object(value));
         break;
 
     default:
@@ -453,7 +453,7 @@ static void _history_go_back(ThunarHistory *history, GFile *goto_file)
 
     // tell the other modules to change the current directory
     if (G_LIKELY(history->current_directory != NULL))
-        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
+        navigator_change_directory(THUNARNAVIGATOR(history), history->current_directory);
 }
 
 static void _history_action_forward_nth(GtkWidget *item, ThunarHistory *history)
@@ -542,7 +542,7 @@ static void _history_go_forward(ThunarHistory *history, GFile *goto_file)
 
     // tell the other modules to change the current directory
     if (G_LIKELY(history->current_directory != NULL))
-        navigator_change_directory(THUNAR_NAVIGATOR(history), history->current_directory);
+        navigator_change_directory(THUNARNAVIGATOR(history), history->current_directory);
 }
 
 static void _history_error_not_found(GFile *goto_file, gpointer parent)

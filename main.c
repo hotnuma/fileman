@@ -19,6 +19,7 @@
  */
 
 #include <config.h>
+
 #include <application.h>
 #include <appnotify.h>
 

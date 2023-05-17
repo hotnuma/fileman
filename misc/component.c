@@ -59,7 +59,7 @@ GType component_get_type()
                     NULL,
                     0);
 
-        g_type_interface_add_prerequisite(type, THUNAR_TYPE_NAVIGATOR);
+        g_type_interface_add_prerequisite(type, TYPE_THUNARNAVIGATOR);
 
         g_once_init_leave(&type__volatile, type);
     }

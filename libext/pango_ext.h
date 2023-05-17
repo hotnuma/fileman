@@ -23,15 +23,15 @@
 
 G_BEGIN_DECLS
 
-PangoAttrList* e_pango_attr_list_big() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_big_bold() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_bold() G_GNUC_CONST;
 #if PANGO_VERSION_CHECK(1, 44, 0)
 PangoAttrList* e_pango_attr_disable_hyphens() G_GNUC_CONST;
 #endif
+PangoAttrList* e_pango_attr_list_big() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_big_bold() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_bold() G_GNUC_CONST;
 PangoAttrList* e_pango_attr_list_italic() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_small_italic() G_GNUC_CONST;
 PangoAttrList* e_pango_attr_list_small() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_small_italic() G_GNUC_CONST;
 PangoAttrList* e_pango_attr_list_underline_single() G_GNUC_CONST;
 
 G_END_DECLS

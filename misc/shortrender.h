@@ -19,9 +19,11 @@
 #ifndef __SHORTCUT_RENDERER_H__
 #define __SHORTCUT_RENDERER_H__
 
-#include <iconrender.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
+
+// ShortcutRenderer -----------------------------------------------------------
 
 typedef struct _ShortcutRendererClass ShortcutRendererClass;
 typedef struct _ShortcutRenderer      ShortcutRenderer;

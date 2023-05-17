@@ -36,6 +36,7 @@
 #include <statusbar.h>
 #include <dialogs.h>
 #include <preferences.h>
+#include <sidepane.h>
 
 #include <syslog.h>
 
@@ -1437,7 +1438,7 @@ static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
     g_slist_free_full(view_bindings, g_object_unref);
 
     // update the directory of the current window
-    current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(page));
+    current_directory = navigator_get_current_directory(THUNARNAVIGATOR(page));
     window_set_current_directory(window, current_directory);
 
     // add stock bindings
@@ -1623,12 +1624,12 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
         GtkWidget *view;
         view = gtk_notebook_get_nth_page(GTK_NOTEBOOK(window->notebook), n);
 
-        if (! THUNAR_IS_NAVIGATOR(view))
+        if (! IS_THUNARNAVIGATOR(view))
             continue;
 
         // get the directory of the view
         ThunarFile *directory;
-        directory = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+        directory = navigator_get_current_directory(THUNARNAVIGATOR(view));
 
         if (! THUNAR_IS_FILE(directory))
             continue;
@@ -1637,9 +1638,9 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
         if (directory == old_directory)
         {
             if (n == active_page)
-                navigator_change_directory(THUNAR_NAVIGATOR(view), new_directory);
+                navigator_change_directory(THUNARNAVIGATOR(view), new_directory);
             else
-                navigator_set_current_directory(THUNAR_NAVIGATOR(view), new_directory);
+                navigator_set_current_directory(THUNARNAVIGATOR(view), new_directory);
         }
     }
 }
@@ -1852,10 +1853,10 @@ gchar** window_get_directories(AppWindow *window, gint *active_page)
     {
         // get the view
         view = gtk_notebook_get_nth_page(GTK_NOTEBOOK(window->notebook), n);
-        e_return_val_if_fail(THUNAR_IS_NAVIGATOR(view), FALSE);
+        e_return_val_if_fail(IS_THUNARNAVIGATOR(view), FALSE);
 
         // get the directory of the view
-        directory = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+        directory = navigator_get_current_directory(THUNARNAVIGATOR(view));
         e_return_val_if_fail(THUNAR_IS_FILE(directory), FALSE);
 
         // add to array

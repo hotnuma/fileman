@@ -19,31 +19,25 @@
 #include <config.h>
 #include <treepane.h>
 
+#include <sidepane.h>
 #include <component.h>
 
 static void treepane_component_init(ThunarComponentIface *iface);
 static void treepane_navigator_init(ThunarNavigatorIface *iface);
 static void treepane_sidepane_init(SidePaneIface *iface);
-
 static void treepane_dispose(GObject *object);
-static void treepane_get_property(GObject *object,
-                                          guint prop_id,
-                                          GValue *value,
-                                          GParamSpec *pspec);
-static void treepane_set_property(GObject *object,
-                                          guint prop_id,
-                                          const GValue *value,
-                                          GParamSpec *pspec);
-
+static void treepane_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec);
+static void treepane_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec);
 static ThunarFile *treepane_get_current_directory(ThunarNavigator *navigator);
 static void treepane_set_current_directory(ThunarNavigator *navigator,
-                                                   ThunarFile *current_directory);
-
+                                           ThunarFile *current_directory);
 static gboolean treepane_get_show_hidden(SidePane *side_pane);
-static void treepane_set_show_hidden(SidePane *side_pane,
-                                             gboolean show_hidden);
+static void treepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden);
 
-// Property identifiers
+// TreePane -------------------------------------------------------------------
+
 enum
 {
     PROP_0,
@@ -69,7 +63,7 @@ struct _TreePane
 G_DEFINE_TYPE_WITH_CODE(TreePane,
                         treepane,
                         GTK_TYPE_SCROLLED_WINDOW,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               treepane_navigator_init)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
                                               treepane_component_init)
@@ -139,7 +133,7 @@ static void treepane_dispose(GObject *object)
 {
     TreePane *tree_pane = TREEPANE(object);
 
-    navigator_set_current_directory(THUNAR_NAVIGATOR(tree_pane), NULL);
+    navigator_set_current_directory(THUNARNAVIGATOR(tree_pane), NULL);
     component_set_selected_files(THUNAR_COMPONENT(tree_pane), NULL);
 
     G_OBJECT_CLASS(treepane_parent_class)->dispose(object);
@@ -156,7 +150,7 @@ static void treepane_get_property(GObject    *object,
     {
     case PROP_CURRENT_DIRECTORY:
         g_value_set_object(value,
-                           navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+                           navigator_get_current_directory(THUNARNAVIGATOR(object)));
         break;
 
     case PROP_SELECTED_FILES:
@@ -183,7 +177,7 @@ static void treepane_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+        navigator_set_current_directory(THUNARNAVIGATOR(object),
                                         g_value_get_object(value));
         break;
 
@@ -250,6 +244,8 @@ static void treepane_set_show_hidden(SidePane *side_pane,
         g_object_notify(G_OBJECT(tree_pane), "show-hidden");
     }
 }
+
+// Public ---------------------------------------------------------------------
 
 TreeView* treepane_get_view(TreePane *tree_pane)
 {

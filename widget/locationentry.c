@@ -89,7 +89,7 @@ struct _LocationEntry
 G_DEFINE_TYPE_WITH_CODE(LocationEntry, locentry, GTK_TYPE_BOX,
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER,
                                               NULL)
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               locentry_navigator_init))
 
 static void locentry_class_init(LocationEntryClass *klass)
@@ -199,7 +199,7 @@ static void locentry_init(LocationEntry *entry)
 static void locentry_finalize(GObject *object)
 {
     // disconnect from the current directory
-    navigator_set_current_directory(THUNAR_NAVIGATOR(object), NULL);
+    navigator_set_current_directory(THUNARNAVIGATOR(object), NULL);
 
     G_OBJECT_CLASS(locentry_parent_class)->finalize(object);
 }
@@ -212,7 +212,7 @@ static void locentry_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+        g_value_set_object(value, navigator_get_current_directory(THUNARNAVIGATOR(object)));
         break;
 
     default:
@@ -231,7 +231,7 @@ static void locentry_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+        navigator_set_current_directory(THUNARNAVIGATOR(object),
                                         g_value_get_object(value));
         pathentry_set_working_directory(PATHENTRY(entry->path_entry),
                                         entry->current_directory);
@@ -364,7 +364,7 @@ static void locentry_open_or_launch(LocationEntry *location_entry,
         if (th_file_is_directory(file))
         {
             // open the new directory
-            navigator_change_directory(THUNAR_NAVIGATOR(location_entry), file);
+            navigator_change_directory(THUNARNAVIGATOR(location_entry), file);
         }
         else
         {

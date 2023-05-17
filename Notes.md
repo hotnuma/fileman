@@ -48,18 +48,18 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   12377	./dialog/progressdlg.c
 +   11586	./job/dcountjob.c
 
-    10380	./libext/pixbuf_ext.c
-    9991	./view/baseview.c
-    9657	./core/dnd.c
-    9564	./misc/shortrender.c
-    9278	./widget/locationbar.c
-    8839	./side/treepane.c
-    7519	./job/jobutils.c
-    7190	./libext/gtk_ext.c
-    6833	./misc/navigator.c
-    6613	./misc/appnotify.c
++   10380	./libext/pixbuf_ext.c
++   9991	./view/baseview.c
++   9657	./core/dnd.c
++   9564	./misc/shortrender.c
++   9278	./widget/locationbar.c
++   8839	./side/treepane.c
++   7519	./job/jobutils.c
++   7190	./libext/gtk_ext.c
++   6833	./misc/navigator.c
++   6613	./misc/appnotify.c
 
-    5832	./libext/pango_ext.c
++   5832	./libext/pango_ext.c
     5587	./widget/th_image.c
     5429	./job/io_scandir.c
     5426	./job/simplejob.c
@@ -71,7 +71,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
     2558	./preferences.c
 
     2365	./side/sidepane.c
-    1421	./main.c
++   1421	./main.c
 ```
 
 

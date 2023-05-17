@@ -89,7 +89,8 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
             item = gtk_image_menu_item_new_with_mnemonic(_(dnd_action_names[n]));
             G_GNUC_END_IGNORE_DEPRECATIONS
             g_object_set_data(G_OBJECT(item), I_("dnd-action"), GUINT_TO_POINTER(dnd_action_items[n]));
-            g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(_dnd_action_selected), &dnd_action);
+            g_signal_connect(G_OBJECT(item), "activate",
+                             G_CALLBACK(_dnd_action_selected), &dnd_action);
             gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
             gtk_widget_show(item);
 

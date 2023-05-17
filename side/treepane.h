@@ -19,28 +19,30 @@
 #ifndef __TREEPANE_H__
 #define __TREEPANE_H__
 
-#include <sidepane.h>
 #include <treeview.h>
 
 G_BEGIN_DECLS
+
+// TreePane -------------------------------------------------------------------
 
 typedef struct _TreePaneClass TreePaneClass;
 typedef struct _TreePane      TreePane;
 
 #define TYPE_TREEPANE (treepane_get_type())
 #define TREEPANE(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TREEPANE, TreePane))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_TREEPANE, TreePane))
 #define TREEPANE_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST ((klass),  TYPE_TREEPANE, TreePaneClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_TREEPANE, TreePaneClass))
 #define IS_TREEPANE(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_TREEPANE))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_TREEPANE))
 #define IS_TREEPANE_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE ((klass),  TYPE_TREEPANE))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_TREEPANE))
 #define TREEPANE_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS ((obj),  TYPE_TREEPANE, TreePaneClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_TREEPANE, TreePaneClass))
 
-GType       treepane_get_type() G_GNUC_CONST;
-TreeView*   treepane_get_view(TreePane *tree_pane);
+GType treepane_get_type() G_GNUC_CONST;
+
+TreeView* treepane_get_view(TreePane *tree_pane);
 
 G_END_DECLS
 

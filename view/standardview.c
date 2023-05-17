@@ -380,7 +380,7 @@ struct _StandardViewPrivate
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(StandardView, standardview, GTK_TYPE_SCROLLED_WINDOW,
                                  G_IMPLEMENT_INTERFACE(
-                                     THUNAR_TYPE_NAVIGATOR,
+                                     TYPE_THUNARNAVIGATOR,
                                      standardview_navigator_init)
                                  G_IMPLEMENT_INTERFACE(
                                      THUNAR_TYPE_COMPONENT,
@@ -457,7 +457,7 @@ static void standardview_class_init(StandardViewClass *klass)
                                                                "selected-files"));
 
     // override ThunarNavigator's properties
-    g_iface = g_type_default_interface_peek(THUNAR_TYPE_NAVIGATOR);
+    g_iface = g_type_default_interface_peek(TYPE_THUNARNAVIGATOR);
     _stdv_props[PROP_CURRENT_DIRECTORY] =
         g_param_spec_override("current-directory",
                               g_object_interface_find_property(g_iface,
@@ -753,7 +753,7 @@ static void standardview_get_property(GObject *object, guint prop_id,
     case PROP_CURRENT_DIRECTORY:
         g_value_set_object(value,
                            navigator_get_current_directory(
-                                            THUNAR_NAVIGATOR(object)));
+                                            THUNARNAVIGATOR(object)));
         break;
 
     case PROP_LOADING:
@@ -762,7 +762,7 @@ static void standardview_get_property(GObject *object, guint prop_id,
 
     case PROP_DISPLAY_NAME:
         current_directory = navigator_get_current_directory(
-                                            THUNAR_NAVIGATOR(object));
+                                            THUNARNAVIGATOR(object));
         if (current_directory != NULL)
         {
             g_value_set_static_string(value,
@@ -771,7 +771,7 @@ static void standardview_get_property(GObject *object, guint prop_id,
         break;
 
     case PROP_TOOLTIP_TEXT:
-        current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(object));
+        current_directory = navigator_get_current_directory(THUNARNAVIGATOR(object));
         if (current_directory != NULL)
         {
             g_value_take_string(
@@ -813,7 +813,7 @@ static void standardview_set_property(GObject *object, guint prop_id,
     {
 
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+        navigator_set_current_directory(THUNARNAVIGATOR(object),
                                         g_value_get_object(value));
         break;
 
@@ -1143,7 +1143,7 @@ static void standardview_set_current_directory(ThunarNavigator *navigator,
                 0.0);
 
     // store the directory in the history
-    navigator_set_current_directory(THUNAR_NAVIGATOR(view->priv->history),
+    navigator_set_current_directory(THUNARNAVIGATOR(view->priv->history),
                                     current_directory);
 
     /* We drop the model from the view as a simple optimization to speed up
@@ -1560,7 +1560,7 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
         {
             // look for a first visible file in the hash table
             ThunarFile *current_directory;
-            current_directory = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+            current_directory = navigator_get_current_directory(THUNARNAVIGATOR(view));
             if (G_LIKELY(current_directory != NULL))
             {
                 GFile      *first_file;
@@ -2063,7 +2063,7 @@ static void _standardview_error(ListModel *model, const GError *error,
     e_return_if_fail(view->model == model);
 
     // determine the ThunarFile for the current directory
-    ThunarFile *file = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+    ThunarFile *file = navigator_get_current_directory(THUNARNAVIGATOR(view));
     if (G_UNLIKELY(file == NULL))
         return;
 
@@ -3224,7 +3224,7 @@ static ThunarFile* _standardview_get_drop_file(StandardView *view,
     if (G_UNLIKELY(path == NULL))
     {
         // determine the current directory
-        file = navigator_get_current_directory(THUNAR_NAVIGATOR(view));
+        file = navigator_get_current_directory(THUNARNAVIGATOR(view));
 
         if (G_LIKELY(file != NULL))
             g_object_ref(G_OBJECT(file));

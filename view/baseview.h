@@ -24,46 +24,44 @@
 
 G_BEGIN_DECLS
 
+// BaseView -------------------------------------------------------------------
+
 typedef struct _BaseViewIface BaseViewIface;
 typedef struct _BaseView      BaseView;
 
 #define TYPE_BASEVIEW (baseview_get_type())
 #define BASEVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST ((obj),     TYPE_BASEVIEW, BaseView))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_BASEVIEW, BaseView))
 #define THUNAR_IS_VIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE ((obj),     TYPE_BASEVIEW))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_BASEVIEW))
 #define BASEVIEW_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE ((obj),  TYPE_BASEVIEW, BaseViewIface))
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_BASEVIEW, BaseViewIface))
 
 struct _BaseViewIface
 {
     GTypeInterface  __parent__;
 
     // virtual methods
-    gboolean        (*get_loading)        (BaseView *view);
-    const gchar*    (*get_statusbar_text) (BaseView *view);
+    gboolean (*get_loading) (BaseView *view);
+    const gchar* (*get_statusbar_text) (BaseView *view);
 
-    gboolean        (*get_show_hidden)    (BaseView *view);
-    void            (*set_show_hidden)    (BaseView *view, gboolean show_hidden);
+    gboolean (*get_show_hidden) (BaseView *view);
+    void (*set_show_hidden) (BaseView *view, gboolean show_hidden);
 
-    ThunarZoomLevel (*get_zoom_level)     (BaseView *view);
-    void            (*set_zoom_level)     (BaseView *view, ThunarZoomLevel zoom_level);
+    ThunarZoomLevel (*get_zoom_level) (BaseView *view);
+    void (*set_zoom_level) (BaseView *view, ThunarZoomLevel zoom_level);
 
-    void            (*reload)             (BaseView *view, gboolean reload_info);
+    void (*reload) (BaseView *view, gboolean reload_info);
 
-    gboolean        (*get_visible_range)  (BaseView *view,
-                                           ThunarFile **start_file,
-                                           ThunarFile **end_file);
+    gboolean (*get_visible_range) (BaseView *view, ThunarFile **start_file,
+                                   ThunarFile **end_file);
 
-    void            (*scroll_to_file)     (BaseView *view,
-                                           ThunarFile *file,
-                                           gboolean   select,
-                                           gboolean   use_align,
-                                           gfloat     row_align,
-                                           gfloat     col_align);
+    void (*scroll_to_file) (BaseView *view, ThunarFile *file,
+                            gboolean select, gboolean use_align,
+                            gfloat row_align, gfloat col_align);
 
-    GList*          (*get_selected_files) (BaseView *view);
-    void            (*set_selected_files) (BaseView *view, GList *path_list);
+    GList* (*get_selected_files) (BaseView *view);
+    void (*set_selected_files) (BaseView *view, GList *path_list);
 };
 
 GType baseview_get_type() G_GNUC_CONST;
@@ -79,16 +77,12 @@ void baseview_set_zoom_level(BaseView *view, ThunarZoomLevel zoom_level);
 
 void baseview_reload(BaseView *view, gboolean reload_info);
 
-gboolean baseview_get_visible_range(BaseView *view,
-                                    ThunarFile **start_file,
+gboolean baseview_get_visible_range(BaseView *view, ThunarFile **start_file,
                                     ThunarFile **end_file);
 
-void baseview_scroll_to_file(BaseView *view,
-                             ThunarFile *file,
-                             gboolean select_file,
-                             gboolean use_align,
-                             gfloat row_align,
-                             gfloat col_align);
+void baseview_scroll_to_file(BaseView *view, ThunarFile *file,
+                             gboolean select_file, gboolean use_align,
+                             gfloat row_align, gfloat col_align);
 
 GList* baseview_get_selected_files(BaseView *view);
 void baseview_set_selected_files(BaseView *view, GList *path_list);

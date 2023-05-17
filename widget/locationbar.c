@@ -18,8 +18,13 @@
 
 #include <config.h>
 #include <locationbar.h>
+
 #include <locationentry.h>
 #include <navigator.h>
+
+static void _locbar_noop();
+
+// LocationBar ----------------------------------------------------------------
 
 struct _LocationBarClass
 {
@@ -46,29 +51,26 @@ enum
 
 static void locbar_navigator_init(ThunarNavigatorIface *iface);
 static void locbar_finalize(GObject *object);
-
 static void locbar_get_property(GObject *object, guint prop_id,
                                 GValue *value, GParamSpec *pspec);
 static void locbar_set_property(GObject *object, guint prop_id,
                                 const GValue *value, GParamSpec *pspec);
-
 static ThunarFile* locbar_get_current_directory(ThunarNavigator *navigator);
 static void locbar_set_current_directory(ThunarNavigator *navigator,
                                          ThunarFile *current_directory);
 
-static GtkWidget* locbar_install_widget(LocationBar *bar, GType type);
-static void locbar_reload_requested(LocationBar *bar);
-static gboolean locbar_settings_changed(LocationBar *bar);
+static gboolean _locbar_settings_changed(LocationBar *bar);
+static GtkWidget* _locbar_install_widget(LocationBar *bar, GType type);
+static void _locbar_reload_requested(LocationBar *bar);
+
+// Public ---------------------------------------------------------------------
+
 static void locbar_on_entry_edit_done(LocationEntry *entry, LocationBar *bar);
 
-G_DEFINE_TYPE_WITH_CODE(LocationBar, locbar, GTK_TYPE_BIN,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
-                                              locbar_navigator_init));
 
-GtkWidget* locbar_new()
-{
-    return gtk_widget_new(TYPE_LOCATIONBAR, NULL);
-}
+G_DEFINE_TYPE_WITH_CODE(LocationBar, locbar, GTK_TYPE_BIN,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
+                                              locbar_navigator_init));
 
 static void _locbar_noop()
 {
@@ -114,7 +116,7 @@ static void locbar_init(LocationBar *bar)
     bar->current_directory = NULL;
     bar->locationEntry = NULL;
 
-    locbar_settings_changed(bar);
+    _locbar_settings_changed(bar);
 }
 
 static void locbar_finalize(GObject *object)
@@ -126,7 +128,7 @@ static void locbar_finalize(GObject *object)
         g_object_unref(bar->locationEntry);
 
     // release from the current_directory
-    navigator_set_current_directory(THUNAR_NAVIGATOR(bar), NULL);
+    navigator_set_current_directory(THUNARNAVIGATOR(bar), NULL);
 
     G_OBJECT_CLASS(locbar_parent_class)->finalize(object);
 }
@@ -147,7 +149,7 @@ static void locbar_get_property(GObject *object, guint prop_id,
     case PROP_CURRENT_DIRECTORY:
         g_value_set_object(value,
                            navigator_get_current_directory(
-                                            THUNAR_NAVIGATOR(object)));
+                                            THUNARNAVIGATOR(object)));
         break;
 
     default:
@@ -164,7 +166,7 @@ static void locbar_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+        navigator_set_current_directory(THUNARNAVIGATOR(object),
                                         g_value_get_object(value));
         break;
 
@@ -193,19 +195,21 @@ static void locbar_set_current_directory(ThunarNavigator *navigator,
 
     GtkWidget *child = gtk_bin_get_child(GTK_BIN(bar));
 
-    if (child && THUNAR_IS_NAVIGATOR(child))
-        navigator_set_current_directory(THUNAR_NAVIGATOR(child),
+    if (child && IS_THUNARNAVIGATOR(child))
+        navigator_set_current_directory(THUNARNAVIGATOR(child),
                                         current_directory);
 
     g_object_notify(G_OBJECT(bar), "current-directory");
 }
 
-static void locbar_reload_requested(LocationBar *bar)
+static gboolean _locbar_settings_changed(LocationBar *bar)
 {
-    g_signal_emit_by_name(bar, "reload-requested");
+    _locbar_install_widget(bar, TYPE_LOCATIONENTRY);
+
+    return FALSE;
 }
 
-static GtkWidget* locbar_install_widget(LocationBar *bar, GType type)
+static GtkWidget* _locbar_install_widget(LocationBar *bar, GType type)
 {
     GtkWidget *child = gtk_bin_get_child(GTK_BIN(bar));
 
@@ -228,17 +232,17 @@ static GtkWidget* locbar_install_widget(LocationBar *bar, GType type)
             g_object_ref(bar->locationEntry);
 
             g_signal_connect_swapped(bar->locationEntry, "reload-requested",
-                                     G_CALLBACK(locbar_reload_requested), bar);
+                                     G_CALLBACK(_locbar_reload_requested), bar);
 
             g_signal_connect_swapped(bar->locationEntry, "change-directory",
                                      G_CALLBACK(navigator_change_directory),
-                                     THUNAR_NAVIGATOR(bar));
+                                     THUNARNAVIGATOR(bar));
         }
 
         widget = bar->locationEntry;
     }
 
-    navigator_set_current_directory(THUNAR_NAVIGATOR(widget),
+    navigator_set_current_directory(THUNARNAVIGATOR(widget),
                                     bar->current_directory);
 
     child = gtk_bin_get_child(GTK_BIN(bar));
@@ -252,27 +256,21 @@ static GtkWidget* locbar_install_widget(LocationBar *bar, GType type)
     return widget;
 }
 
-static void locbar_on_entry_edit_done(LocationEntry *entry, LocationBar *bar)
+// Events ---------------------------------------------------------------------
+
+static void _locbar_reload_requested(LocationBar *bar)
 {
-    g_signal_handlers_disconnect_by_func(entry, locbar_on_entry_edit_done, bar);
-
-    g_object_ref(bar);
-
-    g_idle_add_full(G_PRIORITY_HIGH_IDLE,
-                    (GSourceFunc)locbar_settings_changed,
-                    bar, g_object_unref);
-
-    g_signal_emit_by_name(bar, "entry-done");
+    g_signal_emit_by_name(bar, "reload-requested");
 }
 
-static gboolean locbar_settings_changed(LocationBar *bar)
-{
-    locbar_install_widget(bar, TYPE_LOCATIONENTRY);
 
-    return FALSE;
+// Public ---------------------------------------------------------------------
+
+GtkWidget* locbar_new()
+{
+    return gtk_widget_new(TYPE_LOCATIONBAR, NULL);
 }
 
-// Public members -------------------------------------------------------------
 /*
  * Makes the location bar display an entry with the given text and places the
  * cursor accordingly. If the currently displayed location widget is a path
@@ -293,13 +291,26 @@ void locbar_request_entry(LocationBar *bar, const gchar *initial_text)
     else
     {
         // not an entry => temporarily replace it
-        child = locbar_install_widget(bar, TYPE_LOCATIONENTRY);
+        child = _locbar_install_widget(bar, TYPE_LOCATIONENTRY);
 
         locentry_accept_focus(LOCATIONENTRY(child), initial_text);
     }
 
     g_signal_connect(child, "edit-done",
                      G_CALLBACK(locbar_on_entry_edit_done), bar);
+}
+
+static void locbar_on_entry_edit_done(LocationEntry *entry, LocationBar *bar)
+{
+    g_signal_handlers_disconnect_by_func(entry, locbar_on_entry_edit_done, bar);
+
+    g_object_ref(bar);
+
+    g_idle_add_full(G_PRIORITY_HIGH_IDLE,
+                    (GSourceFunc)_locbar_settings_changed,
+                    bar, g_object_unref);
+
+    g_signal_emit_by_name(bar, "entry-done");
 }
 
 

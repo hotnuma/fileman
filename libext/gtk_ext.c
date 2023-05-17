@@ -21,8 +21,106 @@
 
 #include <utils.h>
 
-#include <stdarg.h>
-#include <libxfce4ui/libxfce4ui.h>
+/**
+ * etk_mount_operation_new:
+ * @parent : a #GtkWindow or non-toplevel widget.
+ *
+ * Create a mount operation with some defaults.
+ **/
+GMountOperation* etk_mount_operation_new(gpointer parent)
+{
+    GtkWindow *window = NULL;
+    GdkScreen *screen = util_parse_parent(parent, &window);
+
+    GMountOperation *operation = gtk_mount_operation_new(window);
+    g_mount_operation_set_password_save(G_MOUNT_OPERATION(operation),
+                                        G_PASSWORD_SAVE_FOR_SESSION);
+
+    if (window == NULL && screen != NULL)
+        gtk_mount_operation_set_screen(GTK_MOUNT_OPERATION(operation), screen);
+
+    return operation;
+}
+
+/**
+ * thunar_gtk_get_focused_widget:
+ * Return value:(transfer none): currently focused widget or NULL, if there is none.
+ **/
+GtkWidget* etk_get_focused_widget()
+{
+    GtkApplication *app;
+    GtkWindow      *window;
+    app = GTK_APPLICATION(g_application_get_default());
+    if (NULL == app)
+        return NULL;
+
+    window = gtk_application_get_active_window(app);
+
+    return gtk_window_get_focus(window);
+}
+
+/**
+ * etk_widget_set_tooltip:
+ * @widget : a #GtkWidget for which to set the tooltip.
+ * @format : a printf(3)-style format string.
+ * @...    : additional arguments for @format.
+ *
+ * Sets the tooltip for the @widget to a string generated
+ * from the @format and the additional arguments in @...<!--->.
+ **/
+void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
+{
+    va_list  var_args;
+    gchar   *tooltip;
+
+    e_return_if_fail(GTK_IS_WIDGET(widget));
+    e_return_if_fail(g_utf8_validate(format, -1, NULL));
+
+    // determine the tooltip
+    va_start(var_args, format);
+    tooltip = g_strdup_vprintf(format, var_args);
+    va_end(var_args);
+
+    // setup the tooltip for the widget
+    gtk_widget_set_tooltip_text(widget, tooltip);
+
+    // release the tooltip
+    g_free(tooltip);
+}
+
+/**
+ * thunar_gtk_editable_can_cut:
+ *
+ * Return value: TRUE if it's possible to cut text off of a GtkEditable.
+ *               FALSE, otherwise.
+ **/
+gboolean etk_editable_can_cut(GtkEditable *editable)
+{
+    return gtk_editable_get_editable(editable)
+           && etk_editable_can_copy(editable);
+}
+
+/**
+ * thunar_gtk_editable_can_copy:
+ *
+ * Return value: TRUE if it's possible to copy text from a GtkEditable.
+ *               FALSE, otherwise.
+ **/
+gboolean etk_editable_can_copy(GtkEditable *editable)
+{
+    return gtk_editable_get_selection_bounds(editable, NULL,NULL);
+}
+
+/**
+ * thunar_gtk_editable_can_paste:
+ *
+ * Return value: TRUE if it's possible to paste text to a GtkEditable.
+ *               FALSE, otherwise.
+ **/
+gboolean etk_editable_can_paste(GtkEditable *editable)
+{
+    return gtk_editable_get_editable(editable);
+}
 
 /**
  * thunar_gtk_label_set_a11y_relation:
@@ -128,107 +226,6 @@ void etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 
     // release the menu reference
     g_object_unref(G_OBJECT(menu));
-}
-
-/**
- * etk_widget_set_tooltip:
- * @widget : a #GtkWidget for which to set the tooltip.
- * @format : a printf(3)-style format string.
- * @...    : additional arguments for @format.
- *
- * Sets the tooltip for the @widget to a string generated
- * from the @format and the additional arguments in @...<!--->.
- **/
-void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
-{
-    va_list  var_args;
-    gchar   *tooltip;
-
-    e_return_if_fail(GTK_IS_WIDGET(widget));
-    e_return_if_fail(g_utf8_validate(format, -1, NULL));
-
-    // determine the tooltip
-    va_start(var_args, format);
-    tooltip = g_strdup_vprintf(format, var_args);
-    va_end(var_args);
-
-    // setup the tooltip for the widget
-    gtk_widget_set_tooltip_text(widget, tooltip);
-
-    // release the tooltip
-    g_free(tooltip);
-}
-
-/**
- * thunar_gtk_get_focused_widget:
- * Return value:(transfer none): currently focused widget or NULL, if there is none.
- **/
-GtkWidget* etk_get_focused_widget()
-{
-    GtkApplication *app;
-    GtkWindow      *window;
-    app = GTK_APPLICATION(g_application_get_default());
-    if (NULL == app)
-        return NULL;
-
-    window = gtk_application_get_active_window(app);
-
-    return gtk_window_get_focus(window);
-}
-
-/**
- * etk_mount_operation_new:
- * @parent : a #GtkWindow or non-toplevel widget.
- *
- * Create a mount operation with some defaults.
- **/
-GMountOperation* etk_mount_operation_new(gpointer parent)
-{
-    GtkWindow *window = NULL;
-    GdkScreen *screen = util_parse_parent(parent, &window);
-
-    GMountOperation *operation = gtk_mount_operation_new(window);
-    g_mount_operation_set_password_save(G_MOUNT_OPERATION(operation),
-                                        G_PASSWORD_SAVE_FOR_SESSION);
-
-    if (window == NULL && screen != NULL)
-        gtk_mount_operation_set_screen(GTK_MOUNT_OPERATION(operation), screen);
-
-    return operation;
-}
-
-/**
- * thunar_gtk_editable_can_cut:
- *
- * Return value: TRUE if it's possible to cut text off of a GtkEditable.
- *               FALSE, otherwise.
- **/
-gboolean etk_editable_can_cut(GtkEditable *editable)
-{
-    return gtk_editable_get_editable(editable) &&
-           etk_editable_can_copy(editable);
-}
-
-/**
- * thunar_gtk_editable_can_copy:
- *
- * Return value: TRUE if it's possible to copy text from a GtkEditable.
- *               FALSE, otherwise.
- **/
-gboolean etk_editable_can_copy(GtkEditable *editable)
-{
-    return gtk_editable_get_selection_bounds(editable, NULL,NULL);
-}
-
-/**
- * thunar_gtk_editable_can_paste:
- *
- * Return value: TRUE if it's possible to paste text to a GtkEditable.
- *               FALSE, otherwise.
- **/
-gboolean etk_editable_can_paste(GtkEditable *editable)
-{
-    return gtk_editable_get_editable(editable);
 }
 
 

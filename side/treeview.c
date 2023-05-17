@@ -204,7 +204,7 @@ static const GtkTargetEntry drop_targets[] =
 G_DEFINE_TYPE_WITH_CODE(TreeView,
                         treeview,
                         GTK_TYPE_TREE_VIEW,
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               treeview_navigator_init))
 
 static void treeview_class_init(TreeViewClass *klass)
@@ -347,7 +347,7 @@ static void treeview_finalize(GObject *object)
         gtk_tree_path_free(view->select_path);
 
     // reset the current-directory property
-    navigator_set_current_directory(THUNAR_NAVIGATOR(view), NULL);
+    navigator_set_current_directory(THUNARNAVIGATOR(view), NULL);
 
     // free the tree model
     g_object_unref(G_OBJECT(view->model));
@@ -398,7 +398,7 @@ static void treeview_get_property(GObject *object, guint prop_id,
     {
     case PROP_CURRENT_DIRECTORY:
         g_value_set_object(value,
-                           navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+                           navigator_get_current_directory(THUNARNAVIGATOR(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -419,7 +419,7 @@ static void treeview_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+        navigator_set_current_directory(THUNARNAVIGATOR(object),
                                         g_value_get_object(value));
         break;
 
@@ -1357,7 +1357,7 @@ static void _treeview_open_selection(TreeView *view)
     if (G_LIKELY(file != NULL))
     {
         // open that folder in the main view
-        navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+        navigator_change_directory(THUNARNAVIGATOR(view), file);
         g_object_unref(file);
     }
 }
@@ -1413,7 +1413,7 @@ static void _treeview_select_files(TreeView *view, GList *files_to_selected)
         return;
 
     if (G_LIKELY(th_file_is_directory(file)))
-        navigator_change_directory(THUNAR_NAVIGATOR(view), file);
+        navigator_change_directory(THUNARNAVIGATOR(view), file);
 
     g_object_unref(file);
 }

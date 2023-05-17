@@ -448,7 +448,7 @@ G_DEFINE_TYPE_WITH_CODE(ThunarLauncher,
                         launcher,
                         G_TYPE_OBJECT,
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER, NULL)
-                        G_IMPLEMENT_INTERFACE(THUNAR_TYPE_NAVIGATOR,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               launcher_navigator_init)
                         G_IMPLEMENT_INTERFACE(THUNAR_TYPE_COMPONENT,
                                               launcher_component_init))
@@ -493,7 +493,7 @@ static void launcher_class_init(ThunarLauncherClass *klass)
     gpointer g_iface;
 
     // Override ThunarNavigator's properties
-    g_iface = g_type_default_interface_peek(THUNAR_TYPE_NAVIGATOR);
+    g_iface = g_type_default_interface_peek(TYPE_THUNARNAVIGATOR);
     _launcher_props[PROP_CURRENT_DIRECTORY] =
         g_param_spec_override("current-directory",
                               g_object_interface_find_property(g_iface,
@@ -536,7 +536,7 @@ static void launcher_dispose(GObject *object)
     ThunarLauncher *launcher = THUNAR_LAUNCHER(object);
 
     // reset our properties
-    navigator_set_current_directory(THUNAR_NAVIGATOR(launcher), NULL);
+    navigator_set_current_directory(THUNARNAVIGATOR(launcher), NULL);
     launcher_set_widget(THUNAR_LAUNCHER(launcher), NULL);
 
     // disconnect from the currently selected files
@@ -568,7 +568,7 @@ static void launcher_get_property(GObject *object, guint prop_id,
     {
     case PROP_CURRENT_DIRECTORY:
         g_value_set_object(value,
-                           navigator_get_current_directory(THUNAR_NAVIGATOR(object)));
+                           navigator_get_current_directory(THUNARNAVIGATOR(object)));
         break;
 
     case PROP_SELECTED_FILES:
@@ -592,7 +592,7 @@ static void launcher_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        navigator_set_current_directory(THUNAR_NAVIGATOR(object),
+        navigator_set_current_directory(THUNARNAVIGATOR(object),
                                         g_value_get_object(value));
         break;
 
@@ -1658,7 +1658,7 @@ static void _launcher_poke_device_finish(ThunarBrowser *browser,
     }
     else if (poke_data->folder_open_action == LAUNCHER_CHANGE_DIRECTORY)
     {
-        navigator_change_directory(THUNAR_NAVIGATOR(browser), mount_point);
+        navigator_change_directory(THUNARNAVIGATOR(browser), mount_point);
     }
 
     _launcher_poke_data_free(poke_data);
@@ -1733,7 +1733,7 @@ static void _launcher_poke_files_finish(ThunarBrowser *browser,
             {
                 // If multiple directories are passed, we assume that we should open them all
                 if (directories->next == NULL)
-                    navigator_change_directory(THUNAR_NAVIGATOR(browser), directories->data);
+                    navigator_change_directory(THUNARNAVIGATOR(browser), directories->data);
                 else
                 {
                     _launcher_open_windows(THUNAR_LAUNCHER(browser), directories);

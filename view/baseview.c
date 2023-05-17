@@ -20,7 +20,6 @@
 #include <baseview.h>
 
 #include <component.h>
-#include <navigator.h>
 
 static void baseview_class_init(gpointer klass);
 
@@ -266,24 +265,18 @@ gboolean baseview_get_visible_range(BaseView  *view,
  * loading, it'll remember to scroll to @file later when
  * the contents are loaded.
  **/
-void baseview_scroll_to_file(BaseView  *view,
-                            ThunarFile  *file,
-                            gboolean    select_file,
-                            gboolean    use_align,
-                            gfloat      row_align,
-                            gfloat      col_align)
+void baseview_scroll_to_file(BaseView *view, ThunarFile *file,
+                            gboolean select_file, gboolean use_align,
+                            gfloat row_align, gfloat col_align)
 {
     e_return_if_fail(THUNAR_IS_VIEW(view));
     e_return_if_fail(THUNAR_IS_FILE(file));
     e_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
     e_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
 
-    BASEVIEW_GET_IFACE(view)->scroll_to_file(view,
-                                                   file,
-                                                   select_file,
-                                                   use_align,
-                                                   row_align,
-                                                   col_align);
+    BASEVIEW_GET_IFACE(view)->scroll_to_file(view, file,
+                                             select_file, use_align,
+                                             row_align, col_align);
 }
 
 GList* baseview_get_selected_files(BaseView *view)

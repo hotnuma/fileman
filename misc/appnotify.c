@@ -19,9 +19,14 @@
 
 #include <config.h>
 #include <appnotify.h>
+
 #include <libnotify/notify.h>
 
 static gboolean _app_notify_initted = FALSE;
+
+static gboolean _app_notify_device_readonly(ThunarDevice *device);
+static void _app_notify_show(ThunarDevice *device, const gchar *summary,
+                             const gchar *message);
 
 gboolean app_notify_init()
 {
@@ -47,91 +52,6 @@ void app_notify_uninit()
 {
     if (_app_notify_initted && notify_is_initted())
         notify_uninit();
-}
-
-static void _app_notify_show(ThunarDevice *device, const gchar  *summary,
-                             const gchar  *message)
-{
-    // get suitable icon for the device
-    GIcon *icon = th_device_get_icon(device);
-
-    gchar *icon_name = NULL;
-
-    if (icon != NULL)
-    {
-        const gchar* const *icon_names;
-        GFile *icon_file;
-
-        if (G_IS_THEMED_ICON(icon))
-        {
-            icon_names = g_themed_icon_get_names(G_THEMED_ICON(icon));
-            if (icon_names != NULL)
-                icon_name = g_strdup(icon_names[0]);
-        }
-        else if (G_IS_FILE_ICON(icon))
-        {
-            icon_file = g_file_icon_get_file(G_FILE_ICON(icon));
-            if (icon_file != NULL)
-                icon_name = g_file_get_path(icon_file);
-        }
-
-        g_object_unref(icon);
-    }
-
-    if (icon_name == NULL)
-        icon_name = g_strdup("drive-removable-media");
-
-    NotifyNotification *notification;
-
-    // create notification
-#ifdef NOTIFY_CHECK_VERSION
-#if NOTIFY_CHECK_VERSION(0, 7, 0)
-    notification = notify_notification_new(summary, message, icon_name);
-#else
-    notification = notify_notification_new(summary, message, icon_name, NULL);
-#endif
-#else
-    notification = notify_notification_new(summary, message, icon_name, NULL);
-#endif
-
-    notify_notification_set_urgency(notification, NOTIFY_URGENCY_CRITICAL);
-    notify_notification_set_timeout(notification, NOTIFY_EXPIRES_NEVER);
-    notify_notification_show(notification, NULL);
-
-    // attach to object for finalize
-    g_object_set_data_full(G_OBJECT(device), I_("thunar-notification"),
-                           notification, g_object_unref);
-
-    g_free(icon_name);
-}
-
-static gboolean _app_notify_device_readonly(ThunarDevice *device)
-{
-    gboolean readonly = TRUE;
-
-    GFile *mount_point = th_device_get_root(device);
-    if (mount_point != NULL)
-    {
-        GFileInfo *info;
-        info = g_file_query_info(mount_point, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
-                                 G_FILE_QUERY_INFO_NONE, NULL, NULL);
-
-        if (info != NULL)
-        {
-            if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
-            {
-                readonly = !g_file_info_get_attribute_boolean(
-                                            info,
-                                            G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
-            }
-
-            g_object_unref(info);
-        }
-
-        g_object_unref(mount_point);
-    }
-
-    return readonly;
 }
 
 void app_notify_unmount(ThunarDevice *device)
@@ -199,6 +119,91 @@ void app_notify_eject(ThunarDevice *device)
 
     g_free(name);
     g_free(message);
+}
+
+static gboolean _app_notify_device_readonly(ThunarDevice *device)
+{
+    gboolean readonly = TRUE;
+
+    GFile *mount_point = th_device_get_root(device);
+    if (mount_point != NULL)
+    {
+        GFileInfo *info;
+        info = g_file_query_info(mount_point, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
+                                 G_FILE_QUERY_INFO_NONE, NULL, NULL);
+
+        if (info != NULL)
+        {
+            if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
+            {
+                readonly = !g_file_info_get_attribute_boolean(
+                                            info,
+                                            G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
+            }
+
+            g_object_unref(info);
+        }
+
+        g_object_unref(mount_point);
+    }
+
+    return readonly;
+}
+
+static void _app_notify_show(ThunarDevice *device, const gchar *summary,
+                             const gchar *message)
+{
+    // get suitable icon for the device
+    GIcon *icon = th_device_get_icon(device);
+
+    gchar *icon_name = NULL;
+
+    if (icon != NULL)
+    {
+        const gchar* const *icon_names;
+        GFile *icon_file;
+
+        if (G_IS_THEMED_ICON(icon))
+        {
+            icon_names = g_themed_icon_get_names(G_THEMED_ICON(icon));
+            if (icon_names != NULL)
+                icon_name = g_strdup(icon_names[0]);
+        }
+        else if (G_IS_FILE_ICON(icon))
+        {
+            icon_file = g_file_icon_get_file(G_FILE_ICON(icon));
+            if (icon_file != NULL)
+                icon_name = g_file_get_path(icon_file);
+        }
+
+        g_object_unref(icon);
+    }
+
+    if (icon_name == NULL)
+        icon_name = g_strdup("drive-removable-media");
+
+    NotifyNotification *notification;
+
+    // create notification
+#ifdef NOTIFY_CHECK_VERSION
+#if NOTIFY_CHECK_VERSION(0, 7, 0)
+    notification = notify_notification_new(summary, message, icon_name);
+#else
+    notification = notify_notification_new(summary, message, icon_name, NULL);
+#endif
+#else
+    notification = notify_notification_new(summary, message, icon_name, NULL);
+#endif
+
+    notify_notification_set_urgency(notification, NOTIFY_URGENCY_CRITICAL);
+    notify_notification_set_timeout(notification, NOTIFY_EXPIRES_NEVER);
+    notify_notification_show(notification, NULL);
+
+    // attach to object for finalize
+    g_object_set_data_full(G_OBJECT(device), I_("thunar-notification"),
+                           notification, g_object_unref);
+
+    g_free(icon_name);
 }
 
 void app_notify_finish(ThunarDevice *device)

@@ -20,13 +20,24 @@
 #include <config.h>
 #include <shortrender.h>
 
-#include <pixbuf_ext.h>
-#include <gio_ext.h>
-#include <gdk_ext.h>
-#include <iconfactory.h>
 #include <th_device.h>
+#include <iconrender.h>
+#include <pixbuf_ext.h>
+#include <gdk_ext.h>
 
-#include <gio/gio.h>
+static void shrender_finalize(GObject *object);
+static void shrender_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec);
+static void shrender_set_property(GObject *object, guint prop_id,
+                                  const GValue *value, GParamSpec *pspec);
+static void shrender_render(GtkCellRenderer *renderer,
+                            cairo_t *cr,
+                            GtkWidget *widget,
+                            const GdkRectangle *background_area,
+                            const GdkRectangle *cell_area,
+                            GtkCellRendererState flags);
+
+// ShortcutRenderer -----------------------------------------------------------
 
 enum
 {
@@ -34,18 +45,6 @@ enum
     PROP_DEVICE,
     PROP_GICON,
 };
-
-static void shrender_finalize(GObject *object);
-static void shrender_get_property(GObject *object, guint prop_id,
-                                   GValue *value, GParamSpec *pspec);
-static void shrender_set_property(GObject *object, guint prop_id,
-                                   const GValue *value, GParamSpec *pspec);
-static void shrender_render(GtkCellRenderer *renderer,
-                             cairo_t *cr,
-                             GtkWidget *widget,
-                             const GdkRectangle *background_area,
-                             const GdkRectangle *cell_area,
-                             GtkCellRendererState flags);
 
 struct _ShortcutRendererClass
 {
@@ -124,7 +123,7 @@ static void shrender_finalize(GObject *object)
 }
 
 static void shrender_get_property(GObject *object, guint prop_id,
-                                 GValue *value, GParamSpec *pspec)
+                                  GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -147,7 +146,7 @@ static void shrender_get_property(GObject *object, guint prop_id,
 }
 
 static void shrender_set_property(GObject *object, guint prop_id,
-                                 const GValue *value, GParamSpec *pspec)
+                                  const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -173,12 +172,12 @@ static void shrender_set_property(GObject *object, guint prop_id,
     }
 }
 
-static void shrender_render(GtkCellRenderer      *renderer,
-                           cairo_t              *cr,
-                           GtkWidget            *widget,
-                           const GdkRectangle   *background_area,
-                           const GdkRectangle   *cell_area,
-                           GtkCellRendererState flags)
+static void shrender_render(GtkCellRenderer *renderer,
+                            cairo_t *cr,
+                            GtkWidget *widget,
+                            const GdkRectangle *background_area,
+                            const GdkRectangle *cell_area,
+                            GtkCellRendererState flags)
 {
     ShortcutRenderer *shortcuts_icon_renderer = SHORTCUT_RENDERER(renderer);
     GtkIconTheme                *icon_theme;
@@ -273,6 +272,8 @@ static void shrender_render(GtkCellRenderer      *renderer,
                                                             flags);
     }
 }
+
+// Public ---------------------------------------------------------------------
 
 GtkCellRenderer* shrender_new()
 {
