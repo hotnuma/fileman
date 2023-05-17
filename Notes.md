@@ -11,7 +11,7 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -30
 +   68525	./appwindow.c
 +   68180	./side/treeview.c
 +   65058	./job/transferjob.c
-    58826	./side/treemodel.c
++   58826	./side/treemodel.c
 +   49416	./dialog/permbox.c
 +   47214	./application.c
 

@@ -44,6 +44,8 @@ static void treemodel_get_property(GObject *object, guint prop_id,
                                    GValue *value, GParamSpec *pspec);
 static void treemodel_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);
+static gboolean _treemodel_get_case_sensitive(TreeModel *model);
+static void _treemodel_set_case_sensitive(TreeModel *model, gboolean case_sensitive);
 
 // GtkTreeModel ---------------------------------------------------------------
 
@@ -67,15 +69,11 @@ static gboolean treemodel_iter_parent(GtkTreeModel *tree_model, GtkTreeIter *ite
 static void treemodel_ref_node(GtkTreeModel *tree_model, GtkTreeIter *iter);
 static void treemodel_unref_node(GtkTreeModel *tree_model, GtkTreeIter *iter);
 
-// Properties -----------------------------------------------------------------
-
-static gboolean _treemodel_get_case_sensitive(TreeModel *model);
-static void _treemodel_set_case_sensitive(TreeModel *model, gboolean case_sensitive);
-
 // Monitor --------------------------------------------------------------------
 
 static void _treemodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                                     TreeModel *model);
+
 static void _treemodel_device_added(DeviceMonitor *device_monitor,
                                     ThunarDevice *device,
                                     TreeModel *model);
@@ -413,6 +411,34 @@ static void treemodel_set_property(GObject *object, guint prop_id,
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
     }
+}
+
+static gboolean _treemodel_get_case_sensitive(TreeModel *model)
+{
+    e_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
+
+    return model->sort_case_sensitive;
+}
+
+static void _treemodel_set_case_sensitive(TreeModel *model, gboolean case_sensitive)
+{
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+
+    // normalize the setting
+    case_sensitive = !!case_sensitive;
+
+    // check if we have a new setting
+    if (model->sort_case_sensitive == case_sensitive)
+        return;
+
+    // apply the new setting
+    model->sort_case_sensitive = case_sensitive;
+
+    // resort the model with the new setting
+    g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_NON_LEAVES, -1, _treenode_traverse_sort, model);
+
+    // notify listeners
+    g_object_notify(G_OBJECT(model), "case-sensitive");
 }
 
 // GtkTreeModel ---------------------------------------------------------------
@@ -758,112 +784,7 @@ static void treemodel_unref_node(GtkTreeModel *tree_model, GtkTreeIter *iter)
      * tree, which results in all sorts for glitches */
 }
 
-// Properties -----------------------------------------------------------------
-
-static gboolean _treemodel_get_case_sensitive(TreeModel *model)
-{
-    e_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
-    return model->sort_case_sensitive;
-}
-
-static void _treemodel_set_case_sensitive(TreeModel *model, gboolean case_sensitive)
-{
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-
-    // normalize the setting
-    case_sensitive = !!case_sensitive;
-
-    // check if we have a new setting
-    if (model->sort_case_sensitive != case_sensitive)
-    {
-        // apply the new setting
-        model->sort_case_sensitive = case_sensitive;
-
-        // resort the model with the new setting
-        g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_NON_LEAVES, -1, _treenode_traverse_sort, model);
-
-        // notify listeners
-        g_object_notify(G_OBJECT(model), "case-sensitive");
-    }
-}
-
-
-static void _treemodel_sort(TreeModel *model, GNode *node)
-{
-    GtkTreePath *path;
-    GtkTreeIter  iter;
-    SortTuple   *sort_array;
-    GNode       *child_node;
-    guint        n_children;
-    gint        *new_order;
-    guint        n;
-
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-
-    // determine the number of children of the node
-    n_children = g_node_n_children(node);
-    if (G_UNLIKELY(n_children <= 1))
-        return;
-
-    // be sure to not overuse the stack
-    if (G_LIKELY(n_children < 500))
-        sort_array = g_newa(SortTuple, n_children);
-    else
-        sort_array = g_new(SortTuple, n_children);
-
-    // generate the sort array of tuples
-    for(child_node = g_node_first_child(node), n = 0; n < n_children; child_node = g_node_next_sibling(child_node), ++n)
-    {
-        e_return_if_fail(child_node != NULL);
-        e_return_if_fail(child_node->data != NULL);
-
-        sort_array[n].node = child_node;
-        sort_array[n].offset = n;
-    }
-
-    // sort the array using QuickSort
-    g_qsort_with_data(sort_array, n_children, sizeof(SortTuple), _treemodel_cmp_array, model);
-
-    // start out with an empty child list
-    node->children = NULL;
-
-    // update our internals and generate the new order
-    new_order = g_newa(gint, n_children);
-    for (n = 0; n < n_children; ++n)
-    {
-        // yeppa, there's the new offset
-        new_order[n] = sort_array[n].offset;
-
-        // unlink and reinsert
-        sort_array[n].node->next = NULL;
-        sort_array[n].node->prev = NULL;
-        sort_array[n].node->parent = NULL;
-        g_node_append(node, sort_array[n].node);
-    }
-
-    // determine the iterator for the parent node
-    GTK_TREE_ITER_INIT(iter, model->stamp, node);
-
-    // tell the view about the new item order
-    path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
-    gtk_tree_model_rows_reordered(GTK_TREE_MODEL(model), path, &iter, new_order);
-    gtk_tree_path_free(path);
-
-    // cleanup if we used the heap
-    if (G_UNLIKELY(n_children >= 500))
-        g_free(sort_array);
-}
-
-static gint _treemodel_cmp_array(gconstpointer a, gconstpointer b,
-                                 gpointer user_data)
-{
-    e_return_val_if_fail(THUNAR_IS_TREE_MODEL(user_data), 0);
-
-    // just sort by name(case-sensitive)
-    return th_file_compare_by_name(TREEMODEL_ITEM(((const SortTuple *) a)->node->data)->file,
-                                        TREEMODEL_ITEM(((const SortTuple *) b)->node->data)->file,
-                                        TREEMODEL(user_data)->sort_case_sensitive);
-}
+// Monitor --------------------------------------------------------------------
 
 static void _treemodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                                     TreeModel *model)
@@ -879,110 +800,8 @@ static void _treemodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                         _treenode_traverse_changed, file);
 }
 
-static void _treemodel_device_changed(DeviceMonitor *device_monitor,
-                                      ThunarDevice  *device,
-                                      TreeModel     *model)
-{
-    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
-    e_return_if_fail(model->device_monitor == device_monitor);
-    e_return_if_fail(IS_THUNARDEVICE(device));
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-
-    GNode *node;
-    TreeModelItem *item = NULL;
-
-    // lookup the volume in the item list
-    for (node = model->root->children; node != NULL; node = node->next)
-    {
-        item = TREEMODEL_ITEM(node->data);
-        if (item->device == device)
-            break;
-    }
-
-    // verify that we actually found the item
-    e_assert(item != NULL);
-    e_assert(item->device == device);
-
-    // check if the volume is mounted and we don't have a file yet
-    if (th_device_is_mounted(device) && item->file == NULL)
-    {
-        GFile *mount_point = th_device_get_root(device);
-
-        if (mount_point != NULL)
-        {
-            // try to determine the file for the mount point
-            item->file = th_file_get(mount_point, NULL);
-
-            /* because the volume node is already reffed, we need to load
-             * the folder manually here */
-            _treeitem_load_folder(item);
-
-            g_object_unref(mount_point);
-        }
-    }
-    else if (!th_device_is_mounted(device) && item->file != NULL)
-    {
-        // reset the item for the node
-        _treeitem_reset(item);
-
-        // release all child nodes
-        while (node->children != NULL)
-            g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
-                            _treenode_traverse_remove, model);
-
-        // append the dummy node
-        _treenode_insert_dummy(node, model);
-    }
-
-    // generate an iterator for the item
-    GtkTreeIter iter;
-    GTK_TREE_ITER_INIT(iter, model->stamp, node);
-
-    // tell the view that the volume has changed in some way
-    GtkTreePath *path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
-    gtk_tree_model_row_changed(GTK_TREE_MODEL(model), path, &iter);
-    gtk_tree_path_free(path);
-}
-
-static void _treemodel_device_pre_unmount(DeviceMonitor *device_monitor,
-                                          ThunarDevice  *device,
-                                          GFile         *root_file,
-                                          TreeModel     *model)
-{
-    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
-    e_return_if_fail(model->device_monitor == device_monitor);
-    e_return_if_fail(IS_THUNARDEVICE(device));
-    e_return_if_fail(G_IS_FILE(root_file));
-    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-
-    GNode *node;
-
-    // lookup the node for the volume (if visible)
-    for (node = model->root->children; node != NULL; node = node->next)
-    {
-        if (TREEMODEL_ITEM(node->data)->device == device)
-            break;
-    }
-
-    // check if we have a node
-    if (G_UNLIKELY(node == NULL))
-        return;
-
-    // reset the item for the node
-    _treeitem_reset(node->data);
-
-    // remove all child nodes
-    while (node->children != NULL)
-        g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
-                        _treenode_traverse_remove, model);
-
-    // add the dummy node
-    _treenode_insert_dummy(node, model);
-}
-
 static void _treemodel_device_added(DeviceMonitor *device_monitor,
-                                    ThunarDevice *device,
-                                    TreeModel *model)
+                                    ThunarDevice *device, TreeModel *model)
 {
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(model->device_monitor == device_monitor);
@@ -1035,6 +854,107 @@ static void _treemodel_device_added(DeviceMonitor *device_monitor,
     _treenode_insert_dummy(node, model);
 }
 
+static void _treemodel_device_changed(DeviceMonitor *device_monitor,
+                                      ThunarDevice *device, TreeModel *model)
+{
+    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
+    e_return_if_fail(model->device_monitor == device_monitor);
+    e_return_if_fail(IS_THUNARDEVICE(device));
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+
+    GNode *node;
+    TreeModelItem *item = NULL;
+
+    // lookup the volume in the item list
+    for (node = model->root->children; node != NULL; node = node->next)
+    {
+        item = TREEMODEL_ITEM(node->data);
+
+        if (item->device == device)
+            break;
+    }
+
+    // verify that we actually found the item
+    e_assert(item != NULL);
+    e_assert(item->device == device);
+
+    // check if the volume is mounted and we don't have a file yet
+    if (th_device_is_mounted(device) && item->file == NULL)
+    {
+        GFile *mount_point = th_device_get_root(device);
+
+        if (mount_point != NULL)
+        {
+            // try to determine the file for the mount point
+            item->file = th_file_get(mount_point, NULL);
+
+            /* because the volume node is already reffed, we need to load
+             * the folder manually here */
+            _treeitem_load_folder(item);
+
+            g_object_unref(mount_point);
+        }
+    }
+    else if (!th_device_is_mounted(device) && item->file != NULL)
+    {
+        // reset the item for the node
+        _treeitem_reset(item);
+
+        // release all child nodes
+        while (node->children != NULL)
+            g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
+                            _treenode_traverse_remove, model);
+
+        // append the dummy node
+        _treenode_insert_dummy(node, model);
+    }
+
+    // generate an iterator for the item
+    GtkTreeIter iter;
+    GTK_TREE_ITER_INIT(iter, model->stamp, node);
+
+    // tell the view that the volume has changed in some way
+    GtkTreePath *path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
+    gtk_tree_model_row_changed(GTK_TREE_MODEL(model), path, &iter);
+    gtk_tree_path_free(path);
+}
+
+static void _treemodel_device_pre_unmount(DeviceMonitor *device_monitor,
+                                          ThunarDevice *device,
+                                          GFile *root_file,
+                                          TreeModel *model)
+{
+    e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
+    e_return_if_fail(model->device_monitor == device_monitor);
+    e_return_if_fail(IS_THUNARDEVICE(device));
+    e_return_if_fail(G_IS_FILE(root_file));
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+
+    GNode *node;
+
+    // lookup the node for the volume (if visible)
+    for (node = model->root->children; node != NULL; node = node->next)
+    {
+        if (TREEMODEL_ITEM(node->data)->device == device)
+            break;
+    }
+
+    // check if we have a node
+    if (G_UNLIKELY(node == NULL))
+        return;
+
+    // reset the item for the node
+    _treeitem_reset(node->data);
+
+    // remove all child nodes
+    while (node->children != NULL)
+        g_node_traverse(node->children, G_POST_ORDER, G_TRAVERSE_ALL, -1,
+                        _treenode_traverse_remove, model);
+
+    // add the dummy node
+    _treenode_insert_dummy(node, model);
+}
+
 static void _treemodel_device_removed(DeviceMonitor *device_monitor,
                                       ThunarDevice *device,
                                       TreeModel *model)
@@ -1060,6 +980,86 @@ static void _treemodel_device_removed(DeviceMonitor *device_monitor,
     // drop the node from the model
     g_node_traverse(node, G_POST_ORDER, G_TRAVERSE_ALL, -1,
                     _treenode_traverse_remove, model);
+}
+
+// Sort -----------------------------------------------------------------------
+
+static void _treemodel_sort(TreeModel *model, GNode *node)
+{
+    GtkTreePath *path;
+    GtkTreeIter  iter;
+    SortTuple   *sort_array;
+    GNode       *child_node;
+    guint        n_children;
+    gint        *new_order;
+    guint        n;
+
+    e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
+
+    // determine the number of children of the node
+    n_children = g_node_n_children(node);
+    if (G_UNLIKELY(n_children <= 1))
+        return;
+
+    // be sure to not overuse the stack
+    if (G_LIKELY(n_children < 500))
+        sort_array = g_newa(SortTuple, n_children);
+    else
+        sort_array = g_new(SortTuple, n_children);
+
+    // generate the sort array of tuples
+    for (child_node = g_node_first_child(node), n = 0; n < n_children; child_node = g_node_next_sibling(child_node), ++n)
+    {
+        e_return_if_fail(child_node != NULL);
+        e_return_if_fail(child_node->data != NULL);
+
+        sort_array[n].node = child_node;
+        sort_array[n].offset = n;
+    }
+
+    // sort the array using QuickSort
+    g_qsort_with_data(sort_array, n_children, sizeof(SortTuple),
+                      _treemodel_cmp_array, model);
+
+    // start out with an empty child list
+    node->children = NULL;
+
+    // update our internals and generate the new order
+    new_order = g_newa(gint, n_children);
+    for (n = 0; n < n_children; ++n)
+    {
+        // yeppa, there's the new offset
+        new_order[n] = sort_array[n].offset;
+
+        // unlink and reinsert
+        sort_array[n].node->next = NULL;
+        sort_array[n].node->prev = NULL;
+        sort_array[n].node->parent = NULL;
+        g_node_append(node, sort_array[n].node);
+    }
+
+    // determine the iterator for the parent node
+    GTK_TREE_ITER_INIT(iter, model->stamp, node);
+
+    // tell the view about the new item order
+    path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
+    gtk_tree_model_rows_reordered(GTK_TREE_MODEL(model), path, &iter, new_order);
+    gtk_tree_path_free(path);
+
+    // cleanup if we used the heap
+    if (G_UNLIKELY(n_children >= 500))
+        g_free(sort_array);
+}
+
+static gint _treemodel_cmp_array(gconstpointer a, gconstpointer b,
+                                 gpointer user_data)
+{
+    e_return_val_if_fail(THUNAR_IS_TREE_MODEL(user_data), 0);
+
+    // just sort by name(case-sensitive)
+    return th_file_compare_by_name(TREEMODEL_ITEM(((const SortTuple *) a)->node->data)->file,
+                                        TREEMODEL_ITEM(((const SortTuple *) b)->node->data)->file,
+                                        TREEMODEL(user_data)->sort_case_sensitive);
 }
 
 // Public ---------------------------------------------------------------------
@@ -1209,17 +1209,6 @@ void treemodel_add_child(TreeModel *model, GNode *node, ThunarFile *file)
 
 // TreeModelItem ==============================================================
 
-static TreeModelItem* _treeitem_new_with_file(TreeModel *model, ThunarFile *file)
-{
-    TreeModelItem *item;
-
-    item = g_slice_new0(TreeModelItem);
-    item->file = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
-    item->model = model;
-
-    return item;
-}
-
 static TreeModelItem* _treeitem_new_with_device(TreeModel *model,
                                                 ThunarDevice *device)
 {
@@ -1245,17 +1234,15 @@ static TreeModelItem* _treeitem_new_with_device(TreeModel *model,
     return item;
 }
 
-static void _treeitem_free(TreeModelItem *item)
+static TreeModelItem* _treeitem_new_with_file(TreeModel *model, ThunarFile *file)
 {
-    // disconnect from the volume
-    if (G_UNLIKELY(item->device != NULL))
-        g_object_unref(item->device);
+    TreeModelItem *item;
 
-    // reset the remaining resources
-    _treeitem_reset(item);
+    item = g_slice_new0(TreeModelItem);
+    item->file = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
+    item->model = model;
 
-    // release the item
-    g_slice_free(TreeModelItem, item);
+    return item;
 }
 
 static void _treeitem_reset(TreeModelItem *item)
@@ -1292,6 +1279,19 @@ static void _treeitem_reset(TreeModelItem *item)
     }
 }
 
+static void _treeitem_free(TreeModelItem *item)
+{
+    // disconnect from the volume
+    if (G_UNLIKELY(item->device != NULL))
+        g_object_unref(item->device);
+
+    // reset the remaining resources
+    _treeitem_reset(item);
+
+    // release the item
+    g_slice_free(TreeModelItem, item);
+}
+
 static void _treeitem_load_folder(TreeModelItem *item)
 {
     e_return_if_fail(THUNAR_IS_FILE(item->file) || IS_THUNARDEVICE(item->device));
@@ -1299,9 +1299,77 @@ static void _treeitem_load_folder(TreeModelItem *item)
     // schedule the "load" idle source(if not already done)
     if (G_LIKELY(item->load_idle_id == 0 && item->folder == NULL))
     {
-        item->load_idle_id = g_idle_add_full(G_PRIORITY_HIGH, _treeitem_load_idle,
-                                              item, _treeitem_load_idle_destroy);
+        item->load_idle_id = g_idle_add_full(G_PRIORITY_HIGH,
+                                             _treeitem_load_idle,
+                                             item,
+                                             _treeitem_load_idle_destroy);
     }
+}
+
+static gboolean _treeitem_load_idle(gpointer user_data)
+{
+    TreeModelItem *item = user_data;
+    GFile               *mount_point;
+    GList               *files;
+#ifndef NDEBUG
+    GNode               *node;
+#endif
+
+    e_return_val_if_fail(item->folder == NULL, FALSE);
+
+#ifndef NDEBUG
+    // find the node in the tree
+    node = g_node_find(item->model->root, G_POST_ORDER, G_TRAVERSE_ALL, item);
+
+    /* debug check to make sure the node is empty or contains a dummy node.
+     * if this is not true, the node already contains sub folders which means
+     * something went wrong. */
+    e_return_val_if_fail(node->children == NULL || G_NODE_HAS_DUMMY(node), FALSE);
+#endif
+
+    UTIL_THREADS_ENTER
+
+    // check if we don't have a file yet and this is a mounted volume
+    if (item->file == NULL && item->device != NULL && th_device_is_mounted(item->device))
+    {
+        mount_point = th_device_get_root(item->device);
+        if (G_LIKELY(mount_point != NULL))
+        {
+            // try to determine the file for the mount point
+            item->file = th_file_get(mount_point, NULL);
+            g_object_unref(mount_point);
+        }
+    }
+
+    // verify that we have a file
+    if (G_LIKELY(item->file != NULL))
+    {
+        // open the folder for the item
+        item->folder = th_folder_get_for_file(item->file);
+        if (G_LIKELY(item->folder != NULL))
+        {
+            // connect signals
+            g_signal_connect_swapped(G_OBJECT(item->folder), "files-added",
+                                     G_CALLBACK(_treeitem_files_added), item);
+            g_signal_connect_swapped(G_OBJECT(item->folder), "files-removed",
+                                     G_CALLBACK(_treeitem_files_removed), item);
+            g_signal_connect_swapped(G_OBJECT(item->folder), "notify::loading",
+                                     G_CALLBACK(_treeitem_notify_loading), item);
+
+            // load the initial set of files(if any)
+            files = th_folder_get_files(item->folder);
+            if (G_UNLIKELY(files != NULL))
+                _treeitem_files_added(item, files, item->folder);
+
+            // notify for "loading" if already loaded
+            if (!th_folder_get_loading(item->folder))
+                g_object_notify(G_OBJECT(item->folder), "loading");
+        }
+    }
+
+    UTIL_THREADS_LEAVE
+
+    return FALSE;
 }
 
 static void _treeitem_load_idle_destroy(gpointer user_data)
@@ -1309,9 +1377,8 @@ static void _treeitem_load_idle_destroy(gpointer user_data)
     TREEMODEL_ITEM(user_data)->load_idle_id = 0;
 }
 
-static void _treeitem_files_added(TreeModelItem *item,
-                                               GList               *files,
-                                               ThunarFolder        *folder)
+static void _treeitem_files_added(TreeModelItem *item, GList *files,
+                                  ThunarFolder *folder)
 {
     TreeModel     *model = TREEMODEL(item->model);
     ThunarFile          *file;
@@ -1352,9 +1419,8 @@ static void _treeitem_files_added(TreeModelItem *item,
         _treemodel_sort(model, node);
 }
 
-static void _treeitem_files_removed(TreeModelItem *item,
-                                                 GList               *files,
-                                                 ThunarFolder        *folder)
+static void _treeitem_files_removed(TreeModelItem *item, GList *files,
+                                    ThunarFolder *folder)
 {
     TreeModel *model = item->model;
     GtkTreePath     *path;
@@ -1419,9 +1485,8 @@ static void _treeitem_files_removed(TreeModelItem *item,
     }
 }
 
-static void _treeitem_notify_loading(TreeModelItem *item,
-                                                  GParamSpec          *pspec,
-                                                  ThunarFolder        *folder)
+static void _treeitem_notify_loading(TreeModelItem *item, GParamSpec *pspec,
+                                     ThunarFolder *folder)
 {
     (void) pspec;
     GNode *node;
@@ -1441,69 +1506,6 @@ static void _treeitem_notify_loading(TreeModelItem *item,
         if (G_NODE_HAS_DUMMY(node))
             _treenode_drop_dummy(node, item->model);
     }
-}
-
-static gboolean _treeitem_load_idle(gpointer user_data)
-{
-    TreeModelItem *item = user_data;
-    GFile               *mount_point;
-    GList               *files;
-#ifndef NDEBUG
-    GNode               *node;
-#endif
-
-    e_return_val_if_fail(item->folder == NULL, FALSE);
-
-#ifndef NDEBUG
-    // find the node in the tree
-    node = g_node_find(item->model->root, G_POST_ORDER, G_TRAVERSE_ALL, item);
-
-    /* debug check to make sure the node is empty or contains a dummy node.
-     * if this is not true, the node already contains sub folders which means
-     * something went wrong. */
-    e_return_val_if_fail(node->children == NULL || G_NODE_HAS_DUMMY(node), FALSE);
-#endif
-
-    UTIL_THREADS_ENTER
-
-    // check if we don't have a file yet and this is a mounted volume
-    if (item->file == NULL && item->device != NULL && th_device_is_mounted(item->device))
-    {
-        mount_point = th_device_get_root(item->device);
-        if (G_LIKELY(mount_point != NULL))
-        {
-            // try to determine the file for the mount point
-            item->file = th_file_get(mount_point, NULL);
-            g_object_unref(mount_point);
-        }
-    }
-
-    // verify that we have a file
-    if (G_LIKELY(item->file != NULL))
-    {
-        // open the folder for the item
-        item->folder = th_folder_get_for_file(item->file);
-        if (G_LIKELY(item->folder != NULL))
-        {
-            // connect signals
-            g_signal_connect_swapped(G_OBJECT(item->folder), "files-added", G_CALLBACK(_treeitem_files_added), item);
-            g_signal_connect_swapped(G_OBJECT(item->folder), "files-removed", G_CALLBACK(_treeitem_files_removed), item);
-            g_signal_connect_swapped(G_OBJECT(item->folder), "notify::loading", G_CALLBACK(_treeitem_notify_loading), item);
-
-            // load the initial set of files(if any)
-            files = th_folder_get_files(item->folder);
-            if (G_UNLIKELY(files != NULL))
-                _treeitem_files_added(item, files, item->folder);
-
-            // notify for "loading" if already loaded
-            if (!th_folder_get_loading(item->folder))
-                g_object_notify(G_OBJECT(item->folder), "loading");
-        }
-    }
-
-    UTIL_THREADS_LEAVE
-
-    return FALSE;
 }
 
 // Tree Node ==================================================================
@@ -1588,6 +1590,16 @@ static gboolean _treenode_traverse_cleanup(GNode *node, gpointer  user_data)
     return FALSE;
 }
 
+static gboolean _treenode_traverse_free(GNode *node, gpointer user_data)
+{
+    (void) user_data;
+
+    if (G_LIKELY(node->data != NULL))
+        _treeitem_free(node->data);
+
+    return FALSE;
+}
+
 static gboolean _treenode_traverse_changed(GNode *node, gpointer user_data)
 {
     TreeModel     *model;
@@ -1668,14 +1680,6 @@ static gboolean _treenode_traverse_sort(GNode *node, gpointer user_data)
     if (G_LIKELY(node != model->root))
         _treemodel_sort(model, node);
 
-    return FALSE;
-}
-
-static gboolean _treenode_traverse_free(GNode *node, gpointer user_data)
-{
-    (void) user_data;
-    if (G_LIKELY(node->data != NULL))
-        _treeitem_free(node->data);
     return FALSE;
 }
 
