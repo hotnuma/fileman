@@ -2693,133 +2693,7 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name, GCancellable *cance
     return TRUE;
 }
 
-// Reload ---------------------------------------------------------------------
-
-/**
- * th_file_reload:
- * @file : a #ThunarFile instance.
- *
- * Tells @file to reload its internal state, e.g. by reacquiring
- * the file info from the underlying media.
- *
- * You must be able to handle the case that @file is
- * destroyed during the reload call.
- *
- * Return value: As this function can be used as a callback function
- * for th_file_reload_idle, it will always return FALSE to prevent
- * being called repeatedly.
- **/
-gboolean th_file_reload(ThunarFile *file)
-{
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-
-    // clear file pxmap cache
-    iconfact_clear_pixmap_cache(file);
-
-    if (!_th_file_load(file, NULL, NULL))
-    {
-        // destroy the file if we cannot query any file information
-        th_file_destroy(file);
-        return FALSE;
-    }
-
-    // ... and tell others
-    th_file_changed(file);
-
-    return FALSE;
-}
-
-/**
- * th_file_reload_idle_unref:
- * @file : a #ThunarFile instance.
- *
- * Schedules a reload of the @file by calling th_file_reload
- * when idle. When scheduled function returns @file object will be
- * unreferenced.
- *
- **/
-void th_file_reload_idle_unref(ThunarFile *file)
-{
-    e_return_if_fail(THUNAR_IS_FILE(file));
-
-    g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
-                    (GSourceFunc) th_file_reload,
-                     file,
-                    (GDestroyNotify) g_object_unref);
-}
-
-// Cache ----------------------------------------------------------------------
-
-/**
- * th_file_cache_lookup:
- * @file : a #GFile.
- *
- * Looks up the #ThunarFile for @file in the internal file
- * cache and returns the file present for @file in the
- * cache or %NULL if no #ThunarFile is cached for @file.
- *
- * Note that no reference is taken for the caller.
- *
- * This method should not be used but in very rare cases.
- * Consider using th_file_get() instead.
- *
- * Return value: the #ThunarFile for @file in the internal
- *               cache, or %NULL. If you are done with the
- *               file, use g_object_unref to release.
- **/
-ThunarFile* th_file_cache_lookup(const GFile *file)
-{
-    GWeakRef   *ref;
-    ThunarFile *cached_file;
-
-    e_return_val_if_fail(G_IS_FILE(file), NULL);
-
-    G_LOCK(_file_cache_mutex);
-
-    // allocate the ThunarFile cache on-demand
-    if (G_UNLIKELY(_file_cache == NULL))
-    {
-        _file_cache = g_hash_table_new_full(g_file_hash,
-                                           (GEqualFunc) g_file_equal,
-                                           (GDestroyNotify) g_object_unref,
-                                           (GDestroyNotify) weak_ref_free);
-    }
-
-    ref = g_hash_table_lookup(_file_cache, file);
-
-    if (ref == NULL)
-        cached_file = NULL;
-    else
-        cached_file = g_weak_ref_get(ref);
-
-    G_UNLOCK(_file_cache_mutex);
-
-    return cached_file;
-}
-
-gchar* th_file_cached_display_name(const GFile *file)
-{
-    ThunarFile *cached_file;
-    gchar      *display_name;
-
-    // check if we have a ThunarFile for it in the cache(usually is the case)
-    cached_file = th_file_cache_lookup(file);
-    if (cached_file != NULL)
-    {
-        // determine the display name of the file
-        display_name = g_strdup(th_file_get_display_name(cached_file));
-        g_object_unref(cached_file);
-    }
-    else
-    {
-        // determine something a hopefully good approximation of the display name
-        display_name = e_file_get_display_name(G_FILE(file));
-    }
-
-    return display_name;
-}
-
-// File Monitor ---------------------------------------------------------------
+// Monitor --------------------------------------------------------------------
 
 /**
  * th_file_watch:
@@ -3101,6 +2975,132 @@ static void _th_file_reload_parent(ThunarFile *file)
         th_file_reload(parent);
         g_object_unref(parent);
     }
+}
+
+// Reload ---------------------------------------------------------------------
+
+/**
+ * th_file_reload:
+ * @file : a #ThunarFile instance.
+ *
+ * Tells @file to reload its internal state, e.g. by reacquiring
+ * the file info from the underlying media.
+ *
+ * You must be able to handle the case that @file is
+ * destroyed during the reload call.
+ *
+ * Return value: As this function can be used as a callback function
+ * for th_file_reload_idle, it will always return FALSE to prevent
+ * being called repeatedly.
+ **/
+gboolean th_file_reload(ThunarFile *file)
+{
+    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+
+    // clear file pxmap cache
+    iconfact_clear_pixmap_cache(file);
+
+    if (!_th_file_load(file, NULL, NULL))
+    {
+        // destroy the file if we cannot query any file information
+        th_file_destroy(file);
+        return FALSE;
+    }
+
+    // ... and tell others
+    th_file_changed(file);
+
+    return FALSE;
+}
+
+/**
+ * th_file_reload_idle_unref:
+ * @file : a #ThunarFile instance.
+ *
+ * Schedules a reload of the @file by calling th_file_reload
+ * when idle. When scheduled function returns @file object will be
+ * unreferenced.
+ *
+ **/
+void th_file_reload_idle_unref(ThunarFile *file)
+{
+    e_return_if_fail(THUNAR_IS_FILE(file));
+
+    g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,
+                    (GSourceFunc) th_file_reload,
+                     file,
+                    (GDestroyNotify) g_object_unref);
+}
+
+// Cache ----------------------------------------------------------------------
+
+/**
+ * th_file_cache_lookup:
+ * @file : a #GFile.
+ *
+ * Looks up the #ThunarFile for @file in the internal file
+ * cache and returns the file present for @file in the
+ * cache or %NULL if no #ThunarFile is cached for @file.
+ *
+ * Note that no reference is taken for the caller.
+ *
+ * This method should not be used but in very rare cases.
+ * Consider using th_file_get() instead.
+ *
+ * Return value: the #ThunarFile for @file in the internal
+ *               cache, or %NULL. If you are done with the
+ *               file, use g_object_unref to release.
+ **/
+ThunarFile* th_file_cache_lookup(const GFile *file)
+{
+    GWeakRef   *ref;
+    ThunarFile *cached_file;
+
+    e_return_val_if_fail(G_IS_FILE(file), NULL);
+
+    G_LOCK(_file_cache_mutex);
+
+    // allocate the ThunarFile cache on-demand
+    if (G_UNLIKELY(_file_cache == NULL))
+    {
+        _file_cache = g_hash_table_new_full(g_file_hash,
+                                           (GEqualFunc) g_file_equal,
+                                           (GDestroyNotify) g_object_unref,
+                                           (GDestroyNotify) weak_ref_free);
+    }
+
+    ref = g_hash_table_lookup(_file_cache, file);
+
+    if (ref == NULL)
+        cached_file = NULL;
+    else
+        cached_file = g_weak_ref_get(ref);
+
+    G_UNLOCK(_file_cache_mutex);
+
+    return cached_file;
+}
+
+gchar* th_file_cached_display_name(const GFile *file)
+{
+    ThunarFile *cached_file;
+    gchar      *display_name;
+
+    // check if we have a ThunarFile for it in the cache(usually is the case)
+    cached_file = th_file_cache_lookup(file);
+    if (cached_file != NULL)
+    {
+        // determine the display name of the file
+        display_name = g_strdup(th_file_get_display_name(cached_file));
+        g_object_unref(cached_file);
+    }
+    else
+    {
+        // determine something a hopefully good approximation of the display name
+        display_name = e_file_get_display_name(G_FILE(file));
+    }
+
+    return display_name;
 }
 
 // File List ------------------------------------------------------------------

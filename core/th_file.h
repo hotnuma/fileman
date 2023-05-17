@@ -173,29 +173,28 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name,
                         GCancellable *cancellable, gboolean called_from_job,
                         GError **error);
 
+// Monitor --------------------------------------------------------------------
+
+void th_file_watch(ThunarFile *file);
+void th_file_unwatch(ThunarFile *file);
+
 // Reload ---------------------------------------------------------------------
 
 gboolean th_file_reload(ThunarFile *file);
 void th_file_reload_idle_unref(ThunarFile *file);
 
-// Cache ----------------------------------------------------------------------
+/* Emits the ::changed signal on file. This function is meant to be called
+ * by derived classes whenever they notice changes to the file. */
 
-ThunarFile* th_file_cache_lookup(const GFile *file);
-gchar* th_file_cached_display_name(const GFile *file);
-
-// Watch ----------------------------------------------------------------------
-
-void th_file_watch(ThunarFile *file);
-void th_file_unwatch(ThunarFile *file);
-
-// Monitor --------------------------------------------------------------------
-
-/* Emits the ::changed signal on @file. This function is meant to be called
- * by derived classes whenever they notice changes to the @file. */
 #define th_file_changed(file) \
 G_STMT_START{ \
     fileinfo_changed(FILEINFO((file))); \
 }G_STMT_END
+
+// Cache ----------------------------------------------------------------------
+
+ThunarFile* th_file_cache_lookup(const GFile *file);
+gchar* th_file_cached_display_name(const GFile *file);
 
 // File List ------------------------------------------------------------------
 
