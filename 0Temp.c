@@ -1,5 +1,11 @@
 
 #if 0
+
+#define FLAG_SET_THUMB_STATE(file, new_state) \
+    G_STMT_START{ \
+    (file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); \
+    }G_STMT_END
+
 static inline gboolean thumbnail_needs_frame(const GdkPixbuf *thumbnail,
                                              gint             width,
                                              gint             height,

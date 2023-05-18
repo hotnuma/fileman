@@ -43,12 +43,8 @@ G_LOCK_DEFINE_STATIC(_file_rename_mutex);
 #define FLAG_UNSET(file, flag) G_STMT_START{((file)->flags &= ~(flag)); }G_STMT_END
 #define FLAG_IS_SET(file,flag) (((file)->flags &(flag)) != 0)
 
-#if 0
-#define FLAG_SET_THUMB_STATE(file, new_state) \
-    G_STMT_START{ \
-    (file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); \
-    }G_STMT_END
-#endif
+static GWeakRef* weak_ref_new(GObject *obj);
+static void weak_ref_free(GWeakRef *ref);
 
 // ThunarFile -----------------------------------------------------------------
 
@@ -134,15 +130,15 @@ _th_file_dirs[] =
 typedef enum
 {
     // storage for ThunarFileThumbState
-    THUNAR_FILE_FLAG_THUMB_MASK     = 0x03,
+    FILEFLAG_THUMB_MASK     = 0x03,
 
     // for avoiding recursion during destroy
-    THUNAR_FILE_FLAG_IN_DESTRUCTION = 1 << 2,
+    FILEFLAG_IN_DESTRUCTION = 1 << 2,
 
     // whether this file is mounted
-    THUNAR_FILE_FLAG_IS_MOUNTED     = 1 << 3,
+    FILEFLAG_IS_MOUNTED     = 1 << 3,
 
-} ThunarFileFlags;
+} FileFlags;
 
 typedef struct
 {
@@ -150,18 +146,19 @@ typedef struct
     gpointer            user_data;
     GCancellable        *cancellable;
 
-} ThunarFileGetData;
+} FileGetData;
 
 typedef struct
 {
     GFileMonitor    *monitor;
     guint           watch_count;
 
-} ThunarFileWatch;
+} FileWatch;
 
 static GWeakRef* weak_ref_new(GObject *obj)
 {
     GWeakRef *ref = g_slice_new(GWeakRef);
+
     g_weak_ref_init(ref, obj);
 
     return ref;
@@ -170,6 +167,7 @@ static GWeakRef* weak_ref_new(GObject *obj)
 static void weak_ref_free(GWeakRef *ref)
 {
     g_weak_ref_clear(ref);
+
     g_slice_free(GWeakRef, ref);
 }
 
@@ -211,7 +209,7 @@ struct _ThunarFile
     gchar       *collate_key_nocase;
 
     // flags for thumbnail state etc
-    ThunarFileFlags flags;
+    FileFlags   flags;
 
     // tells whether the file watch is not set
     gboolean    no_file_watch;
@@ -294,12 +292,12 @@ static void th_file_dispose(GObject *object)
     ThunarFile *file = THUNAR_FILE(object);
 
     // check that we don't recurse here
-    if (!FLAG_IS_SET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION))
+    if (!FLAG_IS_SET(file, FILEFLAG_IN_DESTRUCTION))
     {
         // emit the "destroy" signal
-        FLAG_SET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION);
+        FLAG_SET(file, FILEFLAG_IN_DESTRUCTION);
         g_signal_emit(object, _file_signals[DESTROY], 0);
-        FLAG_UNSET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION);
+        FLAG_UNSET(file, FILEFLAG_IN_DESTRUCTION);
     }
 
     G_OBJECT_CLASS(th_file_parent_class)->dispose(object);
@@ -311,7 +309,7 @@ static void th_file_finalize(GObject *object)
 
     // verify that nobody's watching the file anymore
 #ifdef G_ENABLE_DEBUG
-    ThunarFileWatch *file_watch = g_object_get_qdata(G_OBJECT(file),
+    FileWatch *file_watch = g_object_get_qdata(G_OBJECT(file),
                                                      th_file_watch_quark);
     if (file_watch != NULL)
     {
@@ -516,7 +514,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
         && err->domain == G_IO_ERROR
         && err->code == G_IO_ERROR_NOT_MOUNTED)
     {
-        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+        FLAG_UNSET(file, FILEFLAG_IS_MOUNTED);
         g_clear_error(&err);
     }
 
@@ -610,7 +608,7 @@ ThunarFile* th_file_get_with_info(GFile *gfile, GFileInfo *info, gboolean not_mo
 
     // update the mounted info
     if (not_mounted)
-        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+        FLAG_UNSET(file, FILEFLAG_IS_MOUNTED);
 
     // setup lock until the file is inserted
     G_LOCK(_file_cache_mutex);
@@ -645,7 +643,7 @@ void th_file_get_async(GFile *location, GCancellable *cancellable,
     }
 
     // allocate get data
-    ThunarFileGetData *data = g_slice_new0(ThunarFileGetData);
+    FileGetData *data = g_slice_new0(FileGetData);
     data->user_data = user_data;
     data->func = func;
 
@@ -685,7 +683,7 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
     // set the file information
     file->info = file_info;
 
-    ThunarFileGetData *data = user_data;
+    FileGetData *data = user_data;
 
     // update the file from the information
     _th_file_info_load(file, data->cancellable);
@@ -695,7 +693,7 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
         && error->domain == G_IO_ERROR
         && error->code == G_IO_ERROR_NOT_MOUNTED)
     {
-        FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+        FLAG_UNSET(file, FILEFLAG_IS_MOUNTED);
         g_clear_error(&error);
     }
 
@@ -720,7 +718,7 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
     if (data->cancellable != NULL)
         g_object_unref(data->cancellable);
 
-    g_slice_free(ThunarFileGetData, data);
+    g_slice_free(FileGetData, data);
 }
 
 // fileinfo
@@ -745,9 +743,9 @@ static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
             if (target_uri != NULL && !g_file_info_get_attribute_boolean(
                                             file->info,
                                             G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT))
-                FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+                FLAG_SET(file, FILEFLAG_IS_MOUNTED);
             else
-                FLAG_UNSET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+                FLAG_UNSET(file, FILEFLAG_IS_MOUNTED);
         }
     }
 
@@ -896,7 +894,7 @@ static void _th_file_info_clear(ThunarFile *file)
     file->thumbnail_path = NULL;
 
     // assume the file is mounted by default
-    FLAG_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+    FLAG_SET(file, FILEFLAG_IS_MOUNTED);
 
     // set thumb state to unknown
     //FLAG_SET_THUMB_STATE(file, 0);
@@ -910,7 +908,7 @@ void th_file_destroy(ThunarFile *file)
 {
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    if (FLAG_IS_SET(file, THUNAR_FILE_FLAG_IN_DESTRUCTION))
+    if (FLAG_IS_SET(file, FILEFLAG_IN_DESTRUCTION))
         return;
 
     /* take an additional reference on the file, as the file-destroyed
@@ -2149,7 +2147,7 @@ gboolean th_file_is_mountable(const ThunarFile *file)
 gboolean th_file_is_mounted(const ThunarFile *file)
 {
     e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
-    return FLAG_IS_SET(file, THUNAR_FILE_FLAG_IS_MOUNTED);
+    return FLAG_IS_SET(file, FILEFLAG_IS_MOUNTED);
 }
 
 /**
@@ -2717,11 +2715,11 @@ void th_file_watch(ThunarFile *file)
 
     e_return_if_fail(THUNAR_IS_FILE(file));
 
-    ThunarFileWatch *file_watch = g_object_get_qdata(G_OBJECT(file), _file_watch_quark);
+    FileWatch *file_watch = g_object_get_qdata(G_OBJECT(file), _file_watch_quark);
 
     if (file_watch == NULL)
     {
-        file_watch = g_slice_new(ThunarFileWatch);
+        file_watch = g_slice_new(FileWatch);
         file_watch->watch_count = 1;
 
         // create a file or directory monitor
@@ -2760,7 +2758,7 @@ void th_file_watch(ThunarFile *file)
 
 static void _th_file_watch_destroyed(gpointer data)
 {
-    ThunarFileWatch *file_watch = data;
+    FileWatch *file_watch = data;
 
     if (G_LIKELY(file_watch->monitor != NULL))
     {
@@ -2768,7 +2766,7 @@ static void _th_file_watch_destroyed(gpointer data)
         g_object_unref(file_watch->monitor);
     }
 
-    g_slice_free(ThunarFileWatch, file_watch);
+    g_slice_free(FileWatch, file_watch);
 }
 
 /**
@@ -2780,7 +2778,7 @@ static void _th_file_watch_destroyed(gpointer data)
  **/
 void th_file_unwatch(ThunarFile *file)
 {
-    ThunarFileWatch *file_watch;
+    FileWatch *file_watch;
 
     e_return_if_fail(THUNAR_IS_FILE(file));
 
@@ -2802,8 +2800,9 @@ void th_file_unwatch(ThunarFile *file)
     }
 }
 
-static void _th_file_monitor(GFileMonitor *monitor, GFile *event_path,
-                             GFile *other_path, GFileMonitorEvent event_type,
+static void _th_file_monitor(GFileMonitor *monitor,
+                             GFile *event_path, GFile *other_path,
+                             GFileMonitorEvent event_type,
                              gpointer user_data)
 {
     ThunarFile *file = THUNAR_FILE(user_data);
@@ -2896,15 +2895,15 @@ static void _th_file_monitor_moved(ThunarFile *file, GFile *renamed_file)
 
     // insert the new entry
     g_hash_table_insert(_file_cache,
-                         g_object_ref(file->gfile),
-                         weak_ref_new(G_OBJECT(file)));
+                        g_object_ref(file->gfile),
+                        weak_ref_new(G_OBJECT(file)));
 
     G_UNLOCK(_file_cache_mutex);
 }
 
 static void _th_file_watch_reconnect(ThunarFile *file)
 {
-    ThunarFileWatch *file_watch;
+    FileWatch *file_watch;
 
     // recreate the monitor without changing the watch_count for file renames
     file_watch = g_object_get_qdata(G_OBJECT(file), _file_watch_quark);
@@ -3053,10 +3052,10 @@ void th_file_reload_idle_unref(ThunarFile *file)
  **/
 ThunarFile* th_file_cache_lookup(const GFile *file)
 {
-    GWeakRef   *ref;
-    ThunarFile *cached_file;
-
     e_return_val_if_fail(G_IS_FILE(file), NULL);
+
+    ThunarFile *cached_file;
+    GWeakRef   *ref;
 
     G_LOCK(_file_cache_mutex);
 
@@ -3064,9 +3063,9 @@ ThunarFile* th_file_cache_lookup(const GFile *file)
     if (G_UNLIKELY(_file_cache == NULL))
     {
         _file_cache = g_hash_table_new_full(g_file_hash,
-                                           (GEqualFunc) g_file_equal,
-                                           (GDestroyNotify) g_object_unref,
-                                           (GDestroyNotify) weak_ref_free);
+                                            (GEqualFunc) g_file_equal,
+                                            (GDestroyNotify) g_object_unref,
+                                            (GDestroyNotify) weak_ref_free);
     }
 
     ref = g_hash_table_lookup(_file_cache, file);
@@ -3083,11 +3082,11 @@ ThunarFile* th_file_cache_lookup(const GFile *file)
 
 gchar* th_file_cached_display_name(const GFile *file)
 {
-    ThunarFile *cached_file;
-    gchar      *display_name;
+    gchar *display_name;
 
     // check if we have a ThunarFile for it in the cache(usually is the case)
-    cached_file = th_file_cache_lookup(file);
+    ThunarFile *cached_file = th_file_cache_lookup(file);
+
     if (cached_file != NULL)
     {
         // determine the display name of the file
