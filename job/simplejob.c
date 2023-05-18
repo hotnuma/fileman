@@ -41,7 +41,7 @@ struct _SimpleJob
     GArray          *param_values;
 };
 
-G_DEFINE_TYPE(SimpleJob, simplejob, THUNAR_TYPE_JOB)
+G_DEFINE_TYPE(SimpleJob, simplejob, TYPE_THUNARJOB)
 
 static void simplejob_class_init(SimpleJobClass *klass)
 {

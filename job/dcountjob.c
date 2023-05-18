@@ -71,7 +71,7 @@ struct _DeepCountJob
     guint       unreadable_directory_count;
 };
 
-G_DEFINE_TYPE(DeepCountJob, dcjob, THUNAR_TYPE_JOB)
+G_DEFINE_TYPE(DeepCountJob, dcjob, TYPE_THUNARJOB)
 
 static void dcjob_class_init(DeepCountJobClass *klass)
 {

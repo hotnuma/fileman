@@ -1492,21 +1492,24 @@ static void standardview_set_zoom_level(BaseView *baseview, ThunarZoomLevel zoom
     gboolean newThumbnailSize = FALSE;
 
     // check if we have a new zoom-level here
-    if (G_LIKELY(view->priv->zoom_level != zoom_level))
+    if (G_UNLIKELY(view->priv->zoom_level == zoom_level))
+        return;
+
+    if (thunar_zoom_level_to_thumbnail_size(zoom_level)
+        != thunar_zoom_level_to_thumbnail_size(view->priv->zoom_level))
     {
-        if (thunar_zoom_level_to_thumbnail_size(zoom_level)
-            != thunar_zoom_level_to_thumbnail_size(view->priv->zoom_level))
-        {
-            newThumbnailSize = TRUE;
-        }
+        newThumbnailSize = TRUE;
+    }
 
-        view->priv->zoom_level = zoom_level;
+    view->priv->zoom_level = zoom_level;
 
-        g_object_notify_by_pspec(G_OBJECT(view),
-                                 _stdv_props[PROP_ZOOM_LEVEL]);
+    g_object_notify_by_pspec(G_OBJECT(view),
+                             _stdv_props[PROP_ZOOM_LEVEL]);
 
-        if (newThumbnailSize)
-            standardview_reload(baseview, TRUE);
+    if (newThumbnailSize)
+    {
+        printf("newThumbnailSize\n");
+        standardview_reload(baseview, TRUE);
     }
 }
 

@@ -32,17 +32,17 @@ typedef struct _ThunarJobPrivate ThunarJobPrivate;
 typedef struct _ThunarJobClass   ThunarJobClass;
 typedef struct _ThunarJob        ThunarJob;
 
-#define THUNAR_TYPE_JOB (job_get_type())
+#define TYPE_THUNARJOB (job_get_type())
 #define THUNAR_JOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  THUNAR_TYPE_JOB, ThunarJob))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARJOB, ThunarJob))
 #define THUNAR_JOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   THUNAR_TYPE_JOB, ThunarJobClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_THUNARJOB, ThunarJobClass))
 #define THUNAR_IS_JOB(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  THUNAR_TYPE_JOB))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_THUNARJOB))
 #define THUNAR_IS_JOB_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   THUNAR_TYPE_JOB))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_THUNARJOB))
 #define THUNAR_JOB_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   THUNAR_TYPE_JOB, ThunarJobClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARJOB, ThunarJobClass))
 
 struct _ThunarJobClass
 {

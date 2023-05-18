@@ -109,7 +109,7 @@ static void progressview_class_init(ProgressViewClass *klass)
     g_object_class_install_property(gobject_class,
                                     PROP_JOB,
                                     g_param_spec_object("job", "job", "job",
-                                             THUNAR_TYPE_JOB,
+                                             TYPE_THUNARJOB,
                                              E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,

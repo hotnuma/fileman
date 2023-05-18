@@ -176,7 +176,7 @@ struct _TransferJob
     ParallelCopyMode parallel_copy_mode;
 };
 
-G_DEFINE_TYPE(TransferJob, transferjob, THUNAR_TYPE_JOB)
+G_DEFINE_TYPE(TransferJob, transferjob, TYPE_THUNARJOB)
 
 static void transferjob_class_init(TransferJobClass *klass)
 {
