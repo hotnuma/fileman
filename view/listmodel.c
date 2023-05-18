@@ -1993,7 +1993,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
         }
 
         // try to determine a file for the current folder
-        file =(store->folder != NULL) ? th_folder_get_corresponding_file(store->folder) : NULL;
+        file =(store->folder != NULL) ? th_folder_get_thfile(store->folder) : NULL;
 
         // check if we can determine the amount of free space for the volume
         if (G_LIKELY(file != NULL

@@ -1148,7 +1148,7 @@ static void _window_select_files(AppWindow *window, GList *files_to_selected)
     /* If possible, reload the current directory to make sure new files
      * got added to the view */
 
-    ThunarFolder *thunar_folder = th_folder_get_for_file(window->current_directory);
+    ThunarFolder *thunar_folder = th_folder_get_for_thfile(window->current_directory);
 
     if (thunar_folder != NULL)
     {

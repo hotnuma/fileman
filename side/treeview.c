@@ -597,7 +597,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
         file = THUNARFILE(lp->data);
 
         // 3. Check if the contents of the corresponding folder is still being loaded
-        folder = th_folder_get_for_file(file);
+        folder = th_folder_get_for_thfile(file);
         if (folder != NULL && th_folder_get_loading(folder))
         {
             g_object_unref(folder);

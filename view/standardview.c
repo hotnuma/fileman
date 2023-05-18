@@ -1151,7 +1151,7 @@ static void standardview_set_current_directory(ThunarNavigator *navigator,
                  "model", NULL, NULL);
 
     // open the new directory as folder
-    ThunarFolder *folder = th_folder_get_for_file(current_directory);
+    ThunarFolder *folder = th_folder_get_for_thfile(current_directory);
 
     view->loading_binding =
         g_object_bind_property_full(folder,
@@ -1691,7 +1691,7 @@ static void standardview_reload(BaseView *baseview, gboolean reload_info)
     if (G_UNLIKELY(folder == NULL))
         return;
 
-    ThunarFile *file = th_folder_get_corresponding_file(folder);
+    ThunarFile *file = th_folder_get_thfile(folder);
 
     if (th_file_exists(file))
         th_folder_load(folder, reload_info);
@@ -2993,7 +2993,7 @@ static void _standardview_drag_data_received(GtkWidget        *widget,
                     if (th_file_is_directory(file))
                     {
                         // reload the folder corresponding to the file
-                        folder = th_folder_get_for_file(file);
+                        folder = th_folder_get_for_thfile(file);
                         th_folder_load(folder, FALSE);
                         g_object_unref(G_OBJECT(folder));
                     }

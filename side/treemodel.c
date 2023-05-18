@@ -300,9 +300,11 @@ static void treemodel_init(TreeModel *model)
 
     // append the network icon if browsing the network is supported
     if (e_vfs_is_uri_scheme_supported("network"))
-        system_paths = g_list_append(system_paths, g_file_new_for_uri("network://"));
+        system_paths = g_list_append(system_paths,
+                                     g_file_new_for_uri("network://"));
 
-    // append the system defined nodes, Computer, Home, Trash, File System, Network
+    /* append the system defined nodes, Computer, Home, Trash,
+     * File System, Network */
 
     for (GList *lp = system_paths; lp != NULL; lp = lp->next)
     {
@@ -361,15 +363,19 @@ static void treemodel_finalize(GObject *object)
         g_source_remove(model->cleanup_idle_id);
 
     // disconnect from the file monitor
-    g_signal_handlers_disconnect_by_func(model->file_monitor, _treemodel_file_changed, model);
+    g_signal_handlers_disconnect_by_func(model->file_monitor,
+                                         _treemodel_file_changed, model);
     g_object_unref(model->file_monitor);
 
     // release all resources allocated to the model
-    g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_ALL, -1, _treenode_traverse_free, NULL);
+    g_node_traverse(model->root, G_POST_ORDER, G_TRAVERSE_ALL, -1,
+                    _treenode_traverse_free, NULL);
     g_node_destroy(model->root);
 
     // disconnect from the volume monitor
-    g_signal_handlers_disconnect_matched(model->device_monitor, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, model);
+    g_signal_handlers_disconnect_matched(model->device_monitor,
+                                         G_SIGNAL_MATCH_DATA,
+                                         0, 0, NULL, NULL, model);
     g_object_unref(model->device_monitor);
 
     G_OBJECT_CLASS(treemodel_parent_class)->finalize(object);
@@ -420,7 +426,8 @@ static gboolean _treemodel_get_case_sensitive(TreeModel *model)
     return model->sort_case_sensitive;
 }
 
-static void _treemodel_set_case_sensitive(TreeModel *model, gboolean case_sensitive)
+static void _treemodel_set_case_sensitive(TreeModel *model,
+                                          gboolean case_sensitive)
 {
     e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
 
@@ -1345,7 +1352,7 @@ static gboolean _treeitem_load_idle(gpointer user_data)
     if (G_LIKELY(item->file != NULL))
     {
         // open the folder for the item
-        item->folder = th_folder_get_for_file(item->file);
+        item->folder = th_folder_get_for_thfile(item->file);
         if (G_LIKELY(item->folder != NULL))
         {
             // connect signals

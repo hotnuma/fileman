@@ -1303,7 +1303,7 @@ static void _application_launch_finished(ThunarJob *job, GList *containing_folde
         {
             if (th_file_is_directory(file))
             {
-                ThunarFolder *folder = th_folder_get_for_file(file);
+                ThunarFolder *folder = th_folder_get_for_thfile(file);
                 if (folder != NULL)
                 {
                     /* If the folder is connected to a folder monitor,
