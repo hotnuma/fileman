@@ -461,8 +461,8 @@ static ThunarJobResponse _progressview_ask_replace(ProgressView *view,
     e_return_val_if_fail(IS_PROGRESSVIEW(view), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(view->job == job, THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_THUNARFILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_THUNARFILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     // be sure to display the corresponding dialog prior to opening the question view
     g_signal_emit_by_name(view, "need-attention");

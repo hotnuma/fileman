@@ -232,7 +232,7 @@ static GFile* _history_get_gfile(ThunarFile *file)
     GFile       *gfile;
     const gchar *display_name;
 
-    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
 
     gfile = th_file_get_file(file);
 
@@ -320,7 +320,7 @@ void history_show_menu(ThunarHistory         *history,
         if (file != NULL)
         {
             // load the icon for the file
-            icon = iconfact_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 16);
+            icon = iconfact_load_file_icon(icon_factory, file, FILE_ICON_STATE_DEFAULT, 16);
             if (icon != NULL)
             {
                 // setup the image for the file

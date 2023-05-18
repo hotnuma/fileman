@@ -443,7 +443,7 @@ static void permbox_get_property(GObject *object, guint prop_id,
     case PROP_MUTABLE:
         for (lp = permbox->files; lp != NULL; lp = lp->next)
         {
-            if (!th_file_is_chmodable(THUNAR_FILE(lp->data)))
+            if (!th_file_is_chmodable(THUNARFILE(lp->data)))
                 break;
         }
         g_value_set_boolean(value,(permbox->files != NULL) &&(lp == NULL));
@@ -501,7 +501,7 @@ static void _permbox_set_files(PermissionBox *permbox, GList *files)
     // disconnect from the previous files
     for(lp = permbox->files; lp != NULL; lp = lp->next)
     {
-        e_assert(THUNAR_IS_FILE(lp->data));
+        e_assert(IS_THUNARFILE(lp->data));
         g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data),
                                              _permbox_file_changed, permbox);
         g_object_unref(G_OBJECT(lp->data));
@@ -515,7 +515,7 @@ static void _permbox_set_files(PermissionBox *permbox, GList *files)
     for(lp = permbox->files; lp != NULL; lp = lp->next)
     {
         // take a reference on the file
-        e_assert(THUNAR_IS_FILE(lp->data));
+        e_assert(IS_THUNARFILE(lp->data));
         g_object_ref(G_OBJECT(lp->data));
 
         // stay informed about changes
@@ -577,7 +577,7 @@ static void _permbox_file_changed(PermissionBox *permbox)
     // compare multiple files
     for(lp = permbox->files; lp != NULL; lp = lp->next)
     {
-        file = THUNAR_FILE(lp->data);
+        file = THUNARFILE(lp->data);
 
         // transform the file modes in r/w/r+w for each group
         mode = th_file_get_mode(file);
@@ -610,7 +610,7 @@ static void _permbox_file_changed(PermissionBox *permbox)
         n_files++;
     }
 
-    file = THUNAR_FILE(permbox->files->data);
+    file = THUNARFILE(permbox->files->data);
 
     // allocate a new store for the group combo box
     g_signal_handlers_block_by_func(G_OBJECT(permbox->group_combo), _permbox_group_changed, permbox);
@@ -792,7 +792,7 @@ static gboolean permbox_has_fixable_directory(PermissionBox *permbox)
 {
     for (GList *lp = permbox->files; lp != NULL; lp = lp->next)
     {
-        if (permbox_is_fixable_directory(THUNAR_FILE(lp->data)))
+        if (permbox_is_fixable_directory(THUNARFILE(lp->data)))
             return TRUE;
     }
 
@@ -803,7 +803,7 @@ static gboolean permbox_is_fixable_directory(ThunarFile *file)
 {
     ThunarFileMode mode;
 
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
     if (!th_file_is_directory(file)
             || !th_file_is_chmodable(file))
@@ -862,7 +862,7 @@ static gboolean permbox_has_directory(PermissionBox *permbox)
     GList *lp;
 
     for(lp = permbox->files; lp != NULL; lp = lp->next)
-        if (th_file_is_directory(THUNAR_FILE(lp->data)))
+        if (th_file_is_directory(THUNARFILE(lp->data)))
             return TRUE;
 
     return FALSE;
@@ -962,11 +962,11 @@ static void _permbox_fixperm_clicked(PermissionBox *permbox, GtkWidget *button)
         for(lp = permbox->files; lp != NULL; lp = lp->next)
         {
             // skip files that are fine
-            if (!permbox_is_fixable_directory(THUNAR_FILE(lp->data)))
+            if (!permbox_is_fixable_directory(THUNARFILE(lp->data)))
                 continue;
 
             // determine the current mode
-            mode = th_file_get_mode(THUNAR_FILE(lp->data));
+            mode = th_file_get_mode(THUNARFILE(lp->data));
 
             // determine the new mode(making sure the owner can read/enter the folder)
             mode =(THUNAR_FILE_MODE_USR_READ | THUNAR_FILE_MODE_USR_EXEC)
@@ -974,7 +974,7 @@ static void _permbox_fixperm_clicked(PermissionBox *permbox, GtkWidget *button)
                    |(((mode & THUNAR_FILE_MODE_OTH_READ) != 0) ? THUNAR_FILE_MODE_OTH_EXEC : 0);
 
             file_list.prev = NULL;
-            file_list.data = th_file_get_file(THUNAR_FILE(lp->data));
+            file_list.data = th_file_get_file(THUNARFILE(lp->data));
             file_list.next = NULL;
 
             // try to allocate the new job
@@ -1109,7 +1109,7 @@ static GList* permbox_get_file_list(PermissionBox *permbox)
 
     for (lp = permbox->files; lp != NULL; lp = lp->next)
     {
-        gfile = th_file_get_file(THUNAR_FILE(lp->data));
+        gfile = th_file_get_file(THUNARFILE(lp->data));
         e_assert(G_IS_FILE(gfile));
         file_list = g_list_prepend(file_list, g_object_ref(G_OBJECT(gfile)));
     }

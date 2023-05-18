@@ -163,7 +163,7 @@ static void pathentry_class_init(PathEntryClass *klass)
                                         "current-file",
                                         "current-file",
                                         "current-file",
-                                        THUNAR_TYPE_FILE,
+                                        TYPE_THUNARFILE,
                                         E_PARAM_READWRITE));
 
     gtk_widget_class_install_style_property(
@@ -314,7 +314,7 @@ ThunarFile* pathentry_get_current_file(PathEntry *path_entry)
 void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
 {
     e_return_if_fail(IS_PATHENTRY(path_entry));
-    e_return_if_fail(current_file == NULL || THUNAR_IS_FILE(current_file));
+    e_return_if_fail(current_file == NULL || IS_THUNARFILE(current_file));
 
     GFile *file = (current_file != NULL) ? th_file_get_file(current_file) : NULL;
 
@@ -404,14 +404,14 @@ static void _pathentry_update_icon(PathEntry *path_entry)
     {
         icon = iconfact_load_file_icon(path_entry->icon_factory,
                 path_entry->current_file,
-                THUNAR_FILE_ICON_STATE_DEFAULT,
+                FILE_ICON_STATE_DEFAULT,
                 icon_size);
     }
     else if (G_LIKELY(path_entry->current_folder != NULL))
     {
         icon = iconfact_load_file_icon(path_entry->icon_factory,
                 path_entry->current_folder,
-                THUNAR_FILE_ICON_STATE_DEFAULT,
+                FILE_ICON_STATE_DEFAULT,
                 icon_size);
     }
 
@@ -482,7 +482,7 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
         gtk_widget_style_get(widget, "icon-size", &size, NULL);
         icon = iconfact_load_file_icon(path_entry->icon_factory,
                 path_entry->current_file,
-                THUNAR_FILE_ICON_STATE_DEFAULT,
+                FILE_ICON_STATE_DEFAULT,
                 MAX(size, 16));
         if (G_LIKELY(icon != NULL))
         {
@@ -1168,14 +1168,14 @@ void pathentry_set_working_directory(PathEntry *path_entry,
                                      ThunarFile *working_directory)
 {
     e_return_if_fail(IS_PATHENTRY(path_entry));
-    e_return_if_fail(working_directory == NULL || THUNAR_IS_FILE(working_directory));
+    e_return_if_fail(working_directory == NULL || IS_THUNARFILE(working_directory));
 
     if (G_LIKELY(path_entry->working_directory != NULL))
         g_object_unref(path_entry->working_directory);
 
     path_entry->working_directory = NULL;
 
-    if (THUNAR_IS_FILE(working_directory))
+    if (IS_THUNARFILE(working_directory))
         path_entry->working_directory = g_object_ref(th_file_get_file(working_directory));
 }
 

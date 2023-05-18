@@ -579,7 +579,7 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
     // disconnect from any previously set files
     for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
     {
-        file = THUNAR_FILE(lp->data);
+        file = THUNARFILE(lp->data);
 
         // unregister our file watch
         th_file_unwatch(file);
@@ -599,8 +599,8 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
     // connect to the new files
     for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
     {
-        e_assert(THUNAR_IS_FILE(lp->data));
-        file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
+        e_assert(IS_THUNARFILE(lp->data));
+        file = THUNARFILE(g_object_ref(G_OBJECT(lp->data)));
 
         // watch the file for changes
         th_file_watch(file);
@@ -666,7 +666,7 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
         return;
 
     // determine new and old name
-    ThunarFile *file = THUNAR_FILE(dialog->files->data);
+    ThunarFile *file = THUNARFILE(dialog->files->data);
 
     const gchar *new_name;
     new_name = xfce_filename_input_get_text(dialog->name_entry);
@@ -699,11 +699,11 @@ static void _propsdlg_rename_error(ExoJob *job, GError *error,
        out event does not trigger the rename again by calling
        thunar_properties_dialog_name_activate */
     gtk_entry_set_text(GTK_ENTRY(xfce_filename_input_get_entry(dialog->name_entry)),
-                        th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
+                        th_file_get_display_name(THUNARFILE(dialog->files->data)));
 
     // display an error message
     dialog_error(GTK_WIDGET(dialog), error, _("Failed to rename \"%s\""),
-                               th_file_get_display_name(THUNAR_FILE(dialog->files->data)));
+                               th_file_get_display_name(THUNARFILE(dialog->files->data)));
 }
 
 static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
@@ -782,10 +782,10 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
 
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
-    e_return_if_fail(THUNAR_IS_FILE(dialog->files->data));
+    e_return_if_fail(IS_THUNARFILE(dialog->files->data));
 
     // whether the dialog shows a single file or a group of files
-    file = THUNAR_FILE(dialog->files->data);
+    file = THUNARFILE(dialog->files->data);
 
     // hide the permissions chooser for trashed files
     gtk_widget_set_visible(dialog->permissions_chooser, !th_file_is_trashed(file));
@@ -929,7 +929,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     }
 
     // update the modified time
-    date = th_file_get_date_string(file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
+    date = th_file_get_date_string(file, FILE_DATE_MODIFIED, date_style, date_custom_style);
     if (G_LIKELY(date != NULL))
     {
         gtk_label_set_text(GTK_LABEL(dialog->modified_label), date);
@@ -942,7 +942,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     }
 
     // update the accessed time
-    date = th_file_get_date_string(file, THUNAR_FILE_DATE_ACCESSED, date_style, date_custom_style);
+    date = th_file_get_date_string(file, FILE_DATE_ACCESSED, date_style, date_custom_style);
     if (G_LIKELY(date != NULL))
     {
         gtk_label_set_text(GTK_LABEL(dialog->accessed_label), date);
@@ -1051,8 +1051,8 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     // collect data of the selected files
     for (lp = dialog->files; lp != NULL; lp = lp->next)
     {
-        e_assert(THUNAR_IS_FILE(lp->data));
-        file = THUNAR_FILE(lp->data);
+        e_assert(IS_THUNARFILE(lp->data));
+        file = THUNARFILE(lp->data);
 
         // append the name
         if (!first_file)
@@ -1191,7 +1191,7 @@ GtkWidget* propsdlg_new(GtkWindow *parent)
 void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
 {
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
-    e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    e_return_if_fail(file == NULL || IS_THUNARFILE(file));
 
     if (file == NULL)
     {

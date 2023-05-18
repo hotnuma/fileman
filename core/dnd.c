@@ -207,7 +207,7 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
                      GdkDragAction action, GClosure *new_files_closure)
 {
     e_return_val_if_fail(GTK_IS_WIDGET(widget), FALSE);
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
     e_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
 
     // query a reference on the application object

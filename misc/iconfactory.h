@@ -48,7 +48,7 @@ GdkPixbuf* iconfact_load_icon(IconFactory *factory, const gchar *name,
 
 GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
                                    ThunarFile *file,
-                                   ThunarFileIconState icon_state,
+                                   FileIconState icon_state,
                                    gint icon_size);
 
 void iconfact_clear_pixmap_cache(ThunarFile *file);

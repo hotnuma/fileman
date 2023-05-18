@@ -60,7 +60,7 @@ static void filemon_class_init(FileMonitorClass *klass)
                      G_SIGNAL_NO_HOOKS,
                      0, NULL, NULL,
                      g_cclosure_marshal_VOID__OBJECT,
-                     G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
+                     G_TYPE_NONE, 1, TYPE_THUNARFILE);
 
     /**
      * FileMonitor::file-destroyed:
@@ -81,7 +81,7 @@ static void filemon_class_init(FileMonitorClass *klass)
                      G_SIGNAL_NO_HOOKS,
                      0, NULL, NULL,
                      g_cclosure_marshal_VOID__OBJECT,
-                     G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
+                     G_TYPE_NONE, 1, TYPE_THUNARFILE);
 }
 
 static void filemon_init(FileMonitor *monitor)
@@ -135,7 +135,7 @@ FileMonitor* filemon_get_default()
  **/
 void filemon_file_changed(ThunarFile *file)
 {
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     if (G_LIKELY(_filemon_default != NULL))
         g_signal_emit(G_OBJECT(_filemon_default),
@@ -152,7 +152,7 @@ void filemon_file_changed(ThunarFile *file)
  **/
 void filemon_file_destroyed(ThunarFile *file)
 {
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     if (G_LIKELY(_filemon_default != NULL))
         g_signal_emit(G_OBJECT(_filemon_default),

@@ -457,7 +457,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
         if (!view->show_hidden)
         {
             // look if the file or one of it's parents is hidden
-            for(file = THUNAR_FILE(g_object_ref(G_OBJECT(view->current_directory))); file != NULL; file = file_parent)
+            for(file = THUNARFILE(g_object_ref(G_OBJECT(view->current_directory))); file != NULL; file = file_parent)
             {
                 // check if this file is hidden
                 if (th_file_is_hidden(file))
@@ -498,7 +498,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
         if (!needs_refiltering && !view->show_hidden)
         {
             // look if the file or one of it's parents is hidden
-            for(file = THUNAR_FILE(g_object_ref(G_OBJECT(current_directory))); file != NULL; file = file_parent)
+            for(file = THUNARFILE(g_object_ref(G_OBJECT(current_directory))); file != NULL; file = file_parent)
             {
                 // check if this file is hidden
                 if (th_file_is_hidden(file))
@@ -585,7 +585,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
     gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, TREEMODEL_COLUMN_FILE, &file_in_tree, -1);
     for(lp = path_as_list; lp != NULL; lp = lp->next)
     {
-        if (THUNAR_FILE(lp->data) == file_in_tree)
+        if (THUNARFILE(lp->data) == file_in_tree)
             break;
     }
     if (file_in_tree)
@@ -594,7 +594,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
     // 2. loop on the remaining path_as_list
     for (; lp != NULL; lp = lp->next)
     {
-        file = THUNAR_FILE(lp->data);
+        file = THUNARFILE(lp->data);
 
         // 3. Check if the contents of the corresponding folder is still being loaded
         folder = th_folder_get_for_file(file);
@@ -647,7 +647,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
                 if (!g_file_info_get_attribute_boolean(file_info, G_FILE_ATTRIBUTE_ACCESS_CAN_READ))
                 {
                     // We KNOW that there is a File. Lets just create the required tree-node
-                    treemodel_add_child(view->model, iter.user_data,  THUNAR_FILE(lp->next->data));
+                    treemodel_add_child(view->model, iter.user_data,  THUNARFILE(lp->next->data));
                 }
             }
             break; // we dont have a valid child_iter by now, so we cannot continue.
@@ -665,7 +665,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
     // tidy up
     for (lp = path_as_list; lp != NULL; lp = lp->next)
     {
-        file = THUNAR_FILE(lp->data);
+        file = THUNARFILE(lp->data);
         if (file != NULL && file != view->current_directory)
             g_object_unref(file);
     }
@@ -692,7 +692,7 @@ static GtkTreePath* _treeview_get_preferred_toplevel_path(TreeView *view,
     GFile        *root;
     GFile        *best_match;
 
-    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
 
     // get active toplevel path and check if we can use it
     gtk_tree_view_get_cursor(GTK_TREE_VIEW(view), &path, NULL);
@@ -1421,7 +1421,7 @@ static void _treeview_select_files(TreeView *view, GList *files_to_selected)
 static gboolean _treeview_visible_func(TreeModel *model, ThunarFile *file,
                                        gpointer user_data)
 {
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
     e_return_val_if_fail(THUNAR_IS_TREE_MODEL(model), FALSE);
     e_return_val_if_fail(IS_TREEVIEW(user_data), FALSE);
 

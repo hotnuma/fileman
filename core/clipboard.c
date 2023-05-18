@@ -344,7 +344,7 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
 gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *file)
 {
     e_return_val_if_fail(IS_CLIPBOARDMANAGER(manager), FALSE);
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
     return (manager->files_cutted && g_list_find(manager->files, file) != NULL);
 }
@@ -385,7 +385,7 @@ static void _clipman_transfer_files(ClipboardManager *manager,
     // setup the new file list
     for (lp = g_list_last(files), manager->files = NULL; lp != NULL; lp = lp->prev)
     {
-        file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
+        file = THUNARFILE(g_object_ref(G_OBJECT(lp->data)));
         manager->files = g_list_prepend(manager->files, file);
         g_signal_connect(G_OBJECT(file), "destroy",
                          G_CALLBACK(_clipman_file_destroyed), manager);

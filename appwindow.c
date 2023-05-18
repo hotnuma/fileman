@@ -355,7 +355,7 @@ static void window_class_init(AppWindowClass *klass)
                                     g_param_spec_object("current-directory",
                                              "current-directory",
                                              "current-directory",
-                                             THUNAR_TYPE_FILE,
+                                             TYPE_THUNARFILE,
                                              E_PARAM_READWRITE));
 
     /**
@@ -854,7 +854,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
 //  DPRINT("enter : window_set_current_directory\n");
 
     e_return_if_fail(IS_APPWINDOW(window));
-    e_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(current_directory == NULL || IS_THUNARFILE(current_directory));
 
     // check if we already display the requested directory
     if (G_UNLIKELY(window->current_directory == current_directory))
@@ -978,7 +978,7 @@ static void _window_current_directory_changed(ThunarFile *current_directory,
                                               AppWindow *window)
 {
     e_return_if_fail(IS_APPWINDOW(window));
-    e_return_if_fail(THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(IS_THUNARFILE(current_directory));
     e_return_if_fail(window->current_directory == current_directory);
 
     gboolean show_full_path = false;
@@ -1008,7 +1008,7 @@ static void _window_update_window_icon(AppWindow *window)
     {
         GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(gtk_window_get_screen(GTK_WINDOW(window)));
         icon_name = th_file_get_icon_name(window->current_directory,
-                                               THUNAR_FILE_ICON_STATE_DEFAULT,
+                                               FILE_ICON_STATE_DEFAULT,
                                                icon_theme);
     }
 
@@ -1324,7 +1324,7 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
                                           ThunarHistory *history)
 {
     e_return_val_if_fail(IS_APPWINDOW(window), NULL);
-    e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
+    e_return_val_if_fail(IS_THUNARFILE(directory), NULL);
     e_return_val_if_fail(view_type != G_TYPE_NONE, NULL);
     e_return_val_if_fail(history == NULL || IS_THUNARHISTORY(history), NULL);
 
@@ -1606,8 +1606,8 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
                                ThunarFile *new_directory)
 {
     e_return_if_fail(IS_APPWINDOW(window));
-    e_return_if_fail(THUNAR_IS_FILE(old_directory));
-    e_return_if_fail(THUNAR_IS_FILE(new_directory));
+    e_return_if_fail(IS_THUNARFILE(old_directory));
+    e_return_if_fail(IS_THUNARFILE(new_directory));
 
 
     gint n_pages;
@@ -1632,7 +1632,7 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
         ThunarFile *directory;
         directory = navigator_get_current_directory(THUNARNAVIGATOR(view));
 
-        if (! THUNAR_IS_FILE(directory))
+        if (! IS_THUNARFILE(directory))
             continue;
 
         // if it matches the old directory, change to the new one
@@ -1822,7 +1822,7 @@ void window_scroll_to_file(AppWindow *window, ThunarFile *file, gboolean select_
                            gboolean use_align, gfloat row_align, gfloat col_align)
 {
     e_return_if_fail(IS_APPWINDOW(window));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     // verify that we have a valid view
     if (G_LIKELY(window->view != NULL))
@@ -1858,7 +1858,7 @@ gchar** window_get_directories(AppWindow *window, gint *active_page)
 
         // get the directory of the view
         directory = navigator_get_current_directory(THUNARNAVIGATOR(view));
-        e_return_val_if_fail(THUNAR_IS_FILE(directory), FALSE);
+        e_return_val_if_fail(IS_THUNARFILE(directory), FALSE);
 
         // add to array
         uris[n] = th_file_dup_uri(directory);

@@ -3,7 +3,7 @@
 
 #define FLAG_SET_THUMB_STATE(file, new_state) \
     G_STMT_START{ \
-    (file)->flags =((file)->flags & ~THUNAR_FILE_FLAG_THUMB_MASK) |(new_state); \
+    (file)->flags =((file)->flags & ~THUNARFILE_FLAG_THUMB_MASK) |(new_state); \
     }G_STMT_END
 
 static inline gboolean thumbnail_needs_frame(const GdkPixbuf *thumbnail,
@@ -77,7 +77,7 @@ gboolean thunar_icon_factory_get_show_thumbnail(const IconFactory *factory,
     GFilesystemPreviewType preview;
 
     e_return_val_if_fail(IS_ICONFACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
-    e_return_val_if_fail(file == NULL || THUNAR_IS_FILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
+    e_return_val_if_fail(file == NULL || IS_THUNARFILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
 
     if (file == NULL
             || factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_NEVER)

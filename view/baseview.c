@@ -270,7 +270,7 @@ void baseview_scroll_to_file(BaseView *view, ThunarFile *file,
                             gfloat row_align, gfloat col_align)
 {
     e_return_if_fail(THUNAR_IS_VIEW(view));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(row_align >= 0.0f && row_align <= 1.0f);
     e_return_if_fail(col_align >= 0.0f && col_align <= 1.0f);
 

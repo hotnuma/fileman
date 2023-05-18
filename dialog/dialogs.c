@@ -150,7 +150,7 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
 ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
 {
     e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
     IconFactory *icon_factory;
     GtkIconTheme      *icon_theme;
@@ -203,7 +203,7 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
 
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(dialog));
     icon_factory = iconfact_get_for_icon_theme(icon_theme);
-    icon = iconfact_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory, file, FILE_ICON_STATE_DEFAULT, 48);
     g_object_unref(G_OBJECT(icon_factory));
 
     image = gtk_image_new_from_pixbuf(icon);
@@ -379,7 +379,7 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
     GFileInfo      *info;
     GError         *err = NULL;
 
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
     e_return_val_if_fail(g_utf8_validate(command, -1, NULL), FALSE);
 
     // parse the parent window and screen
@@ -711,8 +711,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gint               response;
 
     e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(THUNAR_IS_FILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(THUNAR_IS_FILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_THUNARFILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_THUNARFILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     // setup the confirmation dialog
     dialog = gtk_dialog_new();
@@ -826,7 +826,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(label);
     g_free(text);
 
-    icon = iconfact_load_file_icon(icon_factory, dst_file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory, dst_file, FILE_ICON_STATE_DEFAULT, 48);
     image = gtk_image_new_from_pixbuf(icon);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
     gtk_widget_set_margin_end(GTK_WIDGET(image), 6);
@@ -843,7 +843,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gboolean file_size_binary = TRUE;
 
     size_string = th_file_get_size_string_long(dst_file, file_size_binary);
-    date_string = th_file_get_date_string(dst_file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
+    date_string = th_file_get_date_string(dst_file, FILE_DATE_MODIFIED, date_style, date_custom_style);
     text = g_strdup_printf("%s %s\n%s %s", _("Size:"), size_string, _("Modified:"), date_string);
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
@@ -871,7 +871,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(label);
     g_free(text);
 
-    icon = iconfact_load_file_icon(icon_factory, src_file, THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory, src_file, FILE_ICON_STATE_DEFAULT, 48);
     image = gtk_image_new_from_pixbuf(icon);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
     gtk_widget_set_margin_end(GTK_WIDGET(image), 6);
@@ -882,7 +882,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(image);
 
     size_string = th_file_get_size_string_long(src_file, file_size_binary);
-    date_string = th_file_get_date_string(src_file, THUNAR_FILE_DATE_MODIFIED, date_style, date_custom_style);
+    date_string = th_file_get_date_string(src_file, FILE_DATE_MODIFIED, date_style, date_custom_style);
     text = g_strdup_printf("%s %s\n%s %s", _("Size:"), size_string, _("Modified:"), date_string);
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);

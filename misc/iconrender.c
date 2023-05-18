@@ -85,7 +85,7 @@ static void iconrender_class_init(IconRendererClass *klass)
                                         "drop-file",
                                         "drop-file",
                                         "drop-file",
-                                        THUNAR_TYPE_FILE,
+                                        TYPE_THUNARFILE,
                                         E_PARAM_READWRITE));
 
     /**
@@ -99,7 +99,7 @@ static void iconrender_class_init(IconRendererClass *klass)
                                         "file",
                                         "file",
                                         "file",
-                                        THUNAR_TYPE_FILE,
+                                        TYPE_THUNARFILE,
                                         E_PARAM_READWRITE));
 
     /**
@@ -286,7 +286,7 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     (void) background_area;
 
     ClipboardManager *clipboard;
-    ThunarFileIconState     icon_state;
+    FileIconState     icon_state;
     IconRenderer     *icon_renderer = ICONRENDERER(renderer);
     IconFactory      *icon_factory;
     GtkIconTheme           *icon_theme;
@@ -310,9 +310,9 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     // determine the icon state
     icon_state =(icon_renderer->drop_file != icon_renderer->file)
                  ? is_expanded
-                 ? THUNAR_FILE_ICON_STATE_OPEN
-                 : THUNAR_FILE_ICON_STATE_DEFAULT
-                 : THUNAR_FILE_ICON_STATE_DROP;
+                 ? FILE_ICON_STATE_OPEN
+                 : FILE_ICON_STATE_DEFAULT
+                 : FILE_ICON_STATE_DROP;
 
     // load the main icon
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
@@ -325,7 +325,7 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     }
 
     // pre-light the item if we're dragging about it
-    if (G_UNLIKELY(icon_state == THUNAR_FILE_ICON_STATE_DROP))
+    if (G_UNLIKELY(icon_state == FILE_ICON_STATE_DROP))
         flags |= GTK_CELL_RENDERER_PRELIT;
 
     // determine the real icon size

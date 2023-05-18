@@ -914,12 +914,12 @@ ThunarJob* io_restore_files(GList *source_file_list, GList *target_file_list)
 
 ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
 {
-    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
     e_return_val_if_fail(g_utf8_validate(display_name, -1, NULL), NULL);
 
     return simplejob_launch(_io_rename,
                             2,
-                            THUNAR_TYPE_FILE, file,
+                            TYPE_THUNARFILE, file,
                             G_TYPE_STRING, display_name);
 }
 
@@ -928,7 +928,7 @@ static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error)
     e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     e_return_val_if_fail(param_values != NULL, FALSE);
     e_return_val_if_fail(param_values->len == 2, FALSE);
-    e_return_val_if_fail(G_VALUE_HOLDS(&g_array_index(param_values, GValue, 0), THUNAR_TYPE_FILE), FALSE);
+    e_return_val_if_fail(G_VALUE_HOLDS(&g_array_index(param_values, GValue, 0), TYPE_THUNARFILE), FALSE);
     e_return_val_if_fail(G_VALUE_HOLDS_STRING(&g_array_index(param_values, GValue, 1)), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
@@ -970,7 +970,7 @@ static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error)
 
 static gboolean _io_rename_notify(ThunarFile *file)
 {
-    e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+    e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
     // tell the associated folder that the file was renamed
     fileinfo_renamed(FILEINFO(file));

@@ -119,7 +119,7 @@ static void job_class_init(ThunarJobClass *klass)
                      _job_ask_accumulator, NULL,
                      _thunar_marshal_FLAGS__OBJECT_OBJECT,
                      THUNAR_TYPE_JOB_RESPONSE,
-                     2, THUNAR_TYPE_FILE, THUNAR_TYPE_FILE);
+                     2, TYPE_THUNARFILE, TYPE_THUNARFILE);
 
     /**
      * ThunarJob::files-ready:
@@ -266,8 +266,8 @@ static ThunarJobResponse job_real_ask_replace(ThunarJob *job,
                                               ThunarFile *target_file)
 {
     e_return_val_if_fail(THUNAR_IS_JOB(job), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(THUNAR_IS_FILE(source_file), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(THUNAR_IS_FILE(target_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_THUNARFILE(source_file), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(IS_THUNARFILE(target_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     gchar *message = g_strdup_printf(
         _("The file \"%s\" already exists. Would you like to replace it?\n\n"

@@ -729,13 +729,13 @@ static void launcher_set_selected_files(ThunarComponent *component,
     if (launcher->single_directory_to_process)
     {
         // grab the folder of the first selected item
-        launcher->single_folder = THUNAR_FILE(launcher->files_to_process->data);
+        launcher->single_folder = THUNARFILE(launcher->files_to_process->data);
     }
 
     if (launcher->files_to_process != NULL)
     {
         // just grab the folder of the first selected item
-        launcher->parent_folder = th_file_get_parent(THUNAR_FILE(launcher->files_to_process->data), NULL);
+        launcher->parent_folder = th_file_get_parent(THUNARFILE(launcher->files_to_process->data), NULL);
     }
 }
 
@@ -1389,7 +1389,7 @@ static gboolean _launcher_submenu_templates(ThunarLauncher *launcher,
             parent_menu = create_file_submenu;
 
         // determine the icon for this file/directory
-        icon = iconfact_load_file_icon(icon_factory, file, THUNAR_FILE_ICON_STATE_DEFAULT, 16);
+        icon = iconfact_load_file_icon(icon_factory, file, FILE_ICON_STATE_DEFAULT, 16);
 
         // allocate an image based on the icon
         image = gtk_image_new_from_pixbuf(icon);
@@ -1494,7 +1494,7 @@ static bool _launcher_can_extract(ThunarLauncher *launcher)
     if (launcher->n_files_to_process != 1 || !launcher->files_are_selected)
         return false;
 
-    ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
+    ThunarFile *file = THUNARFILE(launcher->files_to_process->data);
     const gchar *filename = th_file_get_display_name(file);
 
     Preferences *prefs = get_preferences();
@@ -1523,7 +1523,7 @@ void launcher_open_selected_folders(ThunarLauncher *launcher)
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
 
     for (lp = launcher->files_to_process; lp != NULL; lp = lp->next)
-        e_return_if_fail(th_file_is_directory(THUNAR_FILE(lp->data)));
+        e_return_if_fail(th_file_is_directory(THUNARFILE(lp->data)));
 
     _launcher_poke(launcher, NULL, LAUNCHER_OPEN_AS_NEW_WINDOW);
 }
@@ -1677,7 +1677,7 @@ static void _launcher_poke_files_finish(ThunarBrowser *browser,
     GList                  *lp;
 
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(poke_data != NULL);
     e_return_if_fail(poke_data->files_to_poke != NULL);
 
@@ -2100,7 +2100,7 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
         // ask the user to enter a name for the new document
         name = dialog_file_create(
                         launcher->widget,
-                        th_file_get_content_type(THUNAR_FILE(template_file)),
+                        th_file_get_content_type(THUNARFILE(template_file)),
                         th_file_get_display_name(template_file),
                         title);
         // cleanup
@@ -2433,7 +2433,7 @@ void launcher_action_rename(ThunarLauncher *launcher)
     // run the rename dialog
     ThunarJob *job = dialog_file_rename(
                             GTK_WINDOW(window),
-                            THUNAR_FILE(launcher->files_to_process->data));
+                            THUNARFILE(launcher->files_to_process->data));
 
     if (!job)
         return;
@@ -2458,7 +2458,7 @@ static void _launcher_action_terminal(ThunarLauncher *launcher)
         || th_file_is_trashed(launcher->current_directory))
         return;
 
-    ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
+    ThunarFile *file = THUNARFILE(launcher->files_to_process->data);
     GFile *gfile = th_file_get_file(file);
     gchar *filepath = g_file_get_path(gfile);
 
@@ -2480,7 +2480,7 @@ static void _launcher_action_extract(ThunarLauncher *launcher)
         || g_list_length(launcher->files_to_process) != 1)
         return;
 
-    ThunarFile *file = THUNAR_FILE(launcher->files_to_process->data);
+    ThunarFile *file = THUNARFILE(launcher->files_to_process->data);
     GFile *gfile = th_file_get_file(file);
     gchar *filepath = g_file_get_path(gfile);
 

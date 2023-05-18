@@ -17,8 +17,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNAR_FILE_H__
-#define __THUNAR_FILE_H__
+#ifndef __THUNARFILE_H__
+#define __THUNARFILE_H__
 
 #include <gtk/gtk.h>
 #include <usermanager.h>
@@ -29,19 +29,19 @@ G_BEGIN_DECLS
 
 typedef enum
 {
-    THUNAR_FILE_ICON_STATE_DEFAULT,
-    THUNAR_FILE_ICON_STATE_DROP,
-    THUNAR_FILE_ICON_STATE_OPEN,
+    FILE_ICON_STATE_DEFAULT,
+    FILE_ICON_STATE_DROP,
+    FILE_ICON_STATE_OPEN,
 
-} ThunarFileIconState;
+} FileIconState;
 
 typedef enum
 {
-    THUNAR_FILE_DATE_ACCESSED,
-    THUNAR_FILE_DATE_CHANGED,
-    THUNAR_FILE_DATE_MODIFIED,
+    FILE_DATE_ACCESSED,
+    FILE_DATE_CHANGED,
+    FILE_DATE_MODIFIED,
 
-} ThunarFileDateType;
+} FileDateType;
 
 // Thunar File ----------------------------------------------------------------
 
@@ -50,17 +50,17 @@ typedef struct _ThunarFile      ThunarFile;
 
 GType th_file_get_type() G_GNUC_CONST;
 
-#define THUNAR_TYPE_FILE (th_file_get_type())
-#define THUNAR_FILE(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  THUNAR_TYPE_FILE, ThunarFile))
-#define THUNAR_FILE_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   THUNAR_TYPE_FILE, ThunarFileClass))
-#define THUNAR_IS_FILE(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  THUNAR_TYPE_FILE))
-#define THUNAR_IS_FILE_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   THUNAR_TYPE_FILE))
-#define THUNAR_FILE_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   THUNAR_TYPE_FILE, ThunarFileClass))
+#define TYPE_THUNARFILE (th_file_get_type())
+#define THUNARFILE(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARFILE, ThunarFile))
+#define THUNARFILE_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_THUNARFILE, ThunarFileClass))
+#define IS_THUNARFILE(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_THUNARFILE))
+#define IS_THUNARFILE_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_THUNARFILE))
+#define THUNARFILE_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARFILE, ThunarFileClass))
 
 /* Callback type for loading ThunarFile's asynchronously. If you want to keep
  * the #ThunarFile, you need to ref it, else it will be destroyed. */
@@ -82,7 +82,7 @@ void th_file_destroy(ThunarFile *file);
 // get
 GAppInfo* th_file_get_default_handler(const ThunarFile *file);
 guint64 th_file_get_date(const ThunarFile *file,
-                         ThunarFileDateType date_type) G_GNUC_PURE;
+                         FileDateType date_type) G_GNUC_PURE;
 GFile* th_file_get_file(const ThunarFile *file) G_GNUC_PURE;
 ThunarGroup* th_file_get_group(const ThunarFile *file);
 GFileInfo* th_file_get_info(const ThunarFile *file) G_GNUC_PURE;
@@ -100,7 +100,7 @@ gchar* th_file_get_deletion_date(const ThunarFile *file,
                                  const gchar *date_custom_style)
                                  G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_date_string(const ThunarFile *file,
-                               ThunarFileDateType date_type,
+                               FileDateType date_type,
                                ThunarDateStyle date_style,
                                const gchar *date_custom_style)
                                G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
@@ -118,7 +118,7 @@ const gchar* th_file_get_content_type(ThunarFile *file);
 const gchar* th_file_get_custom_icon(const ThunarFile *file);
 const gchar* th_file_get_display_name(const ThunarFile *file) G_GNUC_CONST;
 const gchar* th_file_get_icon_name(ThunarFile *file,
-                                   ThunarFileIconState icon_state,
+                                   FileIconState icon_state,
                                    GtkIconTheme *icon_theme);
 const gchar* th_file_get_original_path(const ThunarFile *file);
 const gchar* th_file_get_symlink_target(const ThunarFile *file);
@@ -133,7 +133,7 @@ gboolean th_file_check_loaded(ThunarFile *file);
 gboolean th_file_exists(const ThunarFile *file);
 gboolean th_file_load_content_type(ThunarFile *file);
 
-#define th_file_has_parent(file) (!th_file_is_root(THUNAR_FILE((file))))
+#define th_file_has_parent(file) (!th_file_is_root(THUNARFILE((file))))
 #define th_file_has_uri_scheme(file, uri_scheme) \
     (g_file_has_uri_scheme(th_file_get_file(file), (uri_scheme)))
 
@@ -203,6 +203,6 @@ GList* th_filelist_to_thunar_g_file_list(GList *file_list);
 
 G_END_DECLS
 
-#endif // __THUNAR_FILE_H__
+#endif // __THUNARFILE_H__
 
 

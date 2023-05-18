@@ -1073,7 +1073,7 @@ static void standardview_set_current_directory(ThunarNavigator *navigator,
     StandardView *view = STANDARD_VIEW(navigator);
 
     e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(current_directory == NULL || IS_THUNARFILE(current_directory));
 
     // get the current directory
     if (view->priv->current_directory == current_directory)
@@ -1221,7 +1221,7 @@ static void _standardview_current_directory_destroy(ThunarFile *current_director
                                                     StandardView *view)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(IS_THUNARFILE(current_directory));
     e_return_if_fail(view->priv->current_directory == current_directory);
 
     GError *error = NULL;
@@ -1256,7 +1256,7 @@ static void _standardview_current_directory_destroy(ThunarFile *current_director
 static ThunarFile* _standardview_get_fallback_directory(ThunarFile *directory,
                                                         GError     *error)
 {
-    e_return_val_if_fail(THUNAR_IS_FILE(directory), NULL);
+    e_return_val_if_fail(IS_THUNARFILE(directory), NULL);
 
     // determine the path of the directory
     GFile *path = g_object_ref(th_file_get_file(directory));
@@ -1314,7 +1314,7 @@ static void _standardview_current_directory_changed(ThunarFile *current_director
                                                     StandardView *view)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(IS_THUNARFILE(current_directory));
     e_return_if_fail(view->priv->current_directory == current_directory);
 
     // update tab label and tooltip
@@ -1343,7 +1343,7 @@ static void _standardview_loading_unbound(gpointer user_data)
 static void _standardview_restore_selection_from_history(StandardView *view)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(THUNAR_IS_FILE(view->priv->current_directory));
+    e_return_if_fail(IS_THUNARFILE(view->priv->current_directory));
 
     // reset the selected files list
     GList selected_files;
@@ -1761,7 +1761,7 @@ static void standardview_scroll_to_file(BaseView   *baseview,
     if (baseview_get_loading(baseview))
     {
         // remember a reference for the new file and settings
-        view->priv->scroll_to_file = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
+        view->priv->scroll_to_file = THUNARFILE(g_object_ref(G_OBJECT(file)));
         view->priv->scroll_to_select = select_file;
         view->priv->scroll_to_use_align = use_align;
         view->priv->scroll_to_row_align = row_align;
@@ -2557,7 +2557,7 @@ static void _standardview_drag_begin(GtkWidget      *widget,
             GdkPixbuf *icon = iconfact_load_file_icon(
                                             view->icon_factory,
                                             file,
-                                            THUNAR_FILE_ICON_STATE_DEFAULT,
+                                            FILE_ICON_STATE_DEFAULT,
                                             size);
             gtk_drag_set_icon_pixbuf(context, icon, 0, 0);
             g_object_unref(G_OBJECT(icon));
@@ -3259,7 +3259,7 @@ static GdkDragAction _standardview_get_dest_actions(StandardView *view,
         {
             // tell the caller about the file(if it's interested)
             if (G_UNLIKELY(file_return != NULL))
-                *file_return = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
+                *file_return = THUNARFILE(g_object_ref(G_OBJECT(file)));
         }
     }
 

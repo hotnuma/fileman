@@ -230,12 +230,12 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     GList *lp;
 
     e_return_if_fail(IS_SIZELABEL(size_label));
-    e_return_if_fail(files == NULL || THUNAR_IS_FILE(files->data));
+    e_return_if_fail(files == NULL || IS_THUNARFILE(files->data));
 
     // disconnect from the previous files
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
-        e_assert(THUNAR_IS_FILE(lp->data));
+        e_assert(IS_THUNARFILE(lp->data));
 
         g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _szlabel_files_changed, size_label);
         g_object_unref(G_OBJECT(lp->data));
@@ -247,7 +247,7 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     // connect to the new file
     for(lp = size_label->files; lp != NULL; lp = lp->next)
     {
-        e_assert(THUNAR_IS_FILE(lp->data));
+        e_assert(IS_THUNARFILE(lp->data));
 
         g_object_ref(G_OBJECT(lp->data));
         g_signal_connect_swapped(G_OBJECT(lp->data), "changed",
@@ -302,7 +302,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
 {
     e_return_if_fail(IS_SIZELABEL(size_label));
     e_return_if_fail(size_label->files != NULL);
-    e_return_if_fail(THUNAR_IS_FILE(size_label->files->data));
+    e_return_if_fail(IS_THUNARFILE(size_label->files->data));
 
     // cancel the pending job(if any)
     if (G_UNLIKELY(size_label->job != NULL))
@@ -315,7 +315,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
 
     // check if there are multiple files or the single file is a directory
     if (size_label->files->next != NULL
-            || th_file_is_directory(THUNAR_FILE(size_label->files->data)))
+            || th_file_is_directory(THUNARFILE(size_label->files->data)))
     {
         // schedule a new job to determine the total size of the directory(not following symlinks)
         size_label->job = dcjob_new(size_label->files, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS);
@@ -338,7 +338,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
         gtk_widget_hide(size_label->spinner);
 
         // determine the size of the file
-        guint64 size = th_file_get_size(THUNAR_FILE(size_label->files->data));
+        guint64 size = th_file_get_size(THUNARFILE(size_label->files->data));
 
         // setup the new label
         gchar *size_string = g_format_size_full(

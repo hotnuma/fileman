@@ -172,8 +172,8 @@ static void _browser_poke_mountable_file_finish(GFile *location,
     PokeFileData *poke_data = user_data;
 
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
-    e_return_if_fail(THUNAR_IS_FILE(poke_data->file));
-    e_return_if_fail(THUNAR_IS_FILE(poke_data->source));
+    e_return_if_fail(IS_THUNARFILE(poke_data->file));
+    e_return_if_fail(IS_THUNARFILE(poke_data->source));
 
     if (poke_data->location_func != NULL)
     {
@@ -206,7 +206,7 @@ static void _browser_poke_mountable_finish(GObject      *object,
     e_return_if_fail(G_IS_ASYNC_RESULT(result));
     e_return_if_fail(user_data != NULL);
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
-    e_return_if_fail(THUNAR_IS_FILE(poke_data->file));
+    e_return_if_fail(IS_THUNARFILE(poke_data->file));
 
     if (!g_file_mount_mountable_finish(G_FILE(object), result, &error))
     {
@@ -269,7 +269,7 @@ static void _browser_poke_file_finish(GObject *object, GAsyncResult *result,
     e_return_if_fail(G_IS_ASYNC_RESULT(result));
     e_return_if_fail(user_data != NULL);
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
-    e_return_if_fail(THUNAR_IS_FILE(poke_data->file));
+    e_return_if_fail(IS_THUNARFILE(poke_data->file));
 
     if (!g_file_mount_enclosing_volume_finish(G_FILE(object), result, &error))
     {
@@ -340,7 +340,7 @@ static void _browser_poke_shortcut_file_finish(GFile *location,
     e_return_if_fail(G_IS_FILE(location));
     e_return_if_fail(user_data != NULL);
     e_return_if_fail(THUNAR_IS_BROWSER(poke_data->browser));
-    e_return_if_fail(THUNAR_IS_FILE(poke_data->file));
+    e_return_if_fail(IS_THUNARFILE(poke_data->file));
 
     if (error == NULL)
     {
@@ -387,8 +387,8 @@ static void _browser_poke_file_internal(
 {
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
     e_return_if_fail(G_IS_FILE(location));
-    e_return_if_fail(THUNAR_IS_FILE(source));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(source));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     GFile           *target;
     PokeFileData    *poke_data;
@@ -511,7 +511,7 @@ void browser_poke_file(ThunarBrowser             *browser,
                        gpointer                  user_data)
 {
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     _browser_poke_file_internal(browser,
                                 th_file_get_file(file),

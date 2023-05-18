@@ -582,7 +582,7 @@ static void _application_process_files(Application *application)
         return;
 
     // take the next file from the queue
-    ThunarFile *file = THUNAR_FILE(application->files_to_launch->data);
+    ThunarFile *file = THUNARFILE(application->files_to_launch->data);
 
     // retrieve the screen we need to launch the file on
     GdkScreen *screen = g_object_get_qdata(G_OBJECT(file), _app_screen_quark);
@@ -606,7 +606,7 @@ static void _application_process_files_finish(ThunarBrowser *browser, ThunarFile
     (void) unused;
 
     e_return_if_fail(THUNAR_IS_BROWSER(browser));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     Application *application = APPLICATION(browser);
     e_return_if_fail(IS_APPLICATION(application));
@@ -671,7 +671,7 @@ GtkWidget* application_open_window(Application *application, ThunarFile *directo
     (void) force_new_window;
 
     e_return_val_if_fail(IS_APPLICATION(application), NULL);
-    e_return_val_if_fail(directory == NULL || THUNAR_IS_FILE(directory), NULL);
+    e_return_val_if_fail(directory == NULL || IS_THUNARFILE(directory), NULL);
     e_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), NULL);
 
     if (G_UNLIKELY(screen == NULL))
@@ -863,7 +863,7 @@ void application_unlink_files(Application *application, gpointer parent,
     {
         message = g_strdup_printf(
         _("Are you sure that you want to\npermanently delete \"%s\"?"),
-        th_file_get_display_name(THUNAR_FILE(file_list->data)));
+        th_file_get_display_name(THUNARFILE(file_list->data)));
     }
     else
     {

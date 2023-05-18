@@ -140,7 +140,7 @@ static void th_folder_class_init(ThunarFolderClass *klass)
                                         "corresponding-file",
                                         "corresponding-file",
                                         "corresponding-file",
-                                        THUNAR_TYPE_FILE,
+                                        TYPE_THUNARFILE,
                                         G_PARAM_READABLE
                                         | G_PARAM_WRITABLE
                                         | G_PARAM_CONSTRUCT_ONLY));
@@ -366,7 +366,7 @@ static void th_folder_real_destroy(ThunarFolder *folder)
 static void _th_folder_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                                     ThunarFolder *folder)
 {
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(IS_FILEMONITOR(file_monitor));
 
@@ -381,7 +381,7 @@ static void _th_folder_file_changed(FileMonitor *file_monitor, ThunarFile *file,
 static void _th_folder_file_destroyed(FileMonitor *file_monitor, ThunarFile *file,
                                       ThunarFolder *folder)
 {
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(IS_FILEMONITOR(file_monitor));
 
@@ -440,7 +440,7 @@ static void _th_folder_monitor(GFileMonitor     *monitor,
     e_return_if_fail(G_IS_FILE_MONITOR(monitor));
     e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(folder->monitor == monitor);
-    e_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
+    e_return_if_fail(IS_THUNARFILE(folder->corresponding_file));
     e_return_if_fail(G_IS_FILE(event_file));
 
     // check on which file the event occurred
@@ -500,7 +500,7 @@ static void _th_folder_monitor(GFileMonitor     *monitor,
                 if (other_file != NULL)
                 {
                     file = th_file_get(other_file, NULL);
-                    if (file != NULL && THUNAR_IS_FILE(file))
+                    if (file != NULL && IS_THUNARFILE(file))
                     {
                         th_file_reload(file);
 
@@ -660,7 +660,7 @@ static void _th_folder_finished(ExoJob *job, ThunarFolder *folder)
 {
     e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(THUNAR_IS_JOB(job));
-    e_return_if_fail(THUNAR_IS_FILE(folder->corresponding_file));
+    e_return_if_fail(IS_THUNARFILE(folder->corresponding_file));
     e_return_if_fail(folder->content_type_idle_id == 0);
 
     ThunarFile *file;
@@ -696,7 +696,7 @@ static void _th_folder_finished(ExoJob *job, ThunarFolder *folder)
         for(files = NULL, lp = folder->files; lp != NULL; )
         {
             // determine the file
-            file = THUNAR_FILE(lp->data);
+            file = THUNARFILE(lp->data);
 
             // determine the next list item
             lp = lp->next;
@@ -783,7 +783,7 @@ static gboolean _th_folder_files_ready(ThunarJob *job, GList *files,
 
 ThunarFolder* th_folder_get_for_file(ThunarFile *file)
 {
-    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
 
     // make sure the file is loaded
     if (!th_file_check_loaded(file))

@@ -95,7 +95,7 @@ static void navigator_base_init(gpointer klass)
                          G_STRUCT_OFFSET(ThunarNavigatorIface, change_directory),
                          NULL, NULL,
                          g_cclosure_marshal_VOID__OBJECT,
-                         G_TYPE_NONE, 1, THUNAR_TYPE_FILE);
+                         G_TYPE_NONE, 1, TYPE_THUNARFILE);
 
         initialized = TRUE;
     }
@@ -124,7 +124,7 @@ static void navigator_class_init(gpointer klass)
                                             "current-directory",
                                             "current-directory",
                                             "current-directory",
-                                            THUNAR_TYPE_FILE,
+                                            TYPE_THUNARFILE,
                                             E_PARAM_READWRITE));
 }
 
@@ -157,7 +157,7 @@ void navigator_set_current_directory(ThunarNavigator *navigator,
                                      ThunarFile      *current_directory)
 {
     e_return_if_fail(IS_THUNARNAVIGATOR(navigator));
-    e_return_if_fail(current_directory == NULL || THUNAR_IS_FILE(current_directory));
+    e_return_if_fail(current_directory == NULL || IS_THUNARFILE(current_directory));
 
     THUNARNAVIGATOR_GET_IFACE(navigator)->set_current_directory(navigator, current_directory);
 }
@@ -183,7 +183,7 @@ void navigator_change_directory(ThunarNavigator *navigator,
                                 ThunarFile      *directory)
 {
     e_return_if_fail(IS_THUNARNAVIGATOR(navigator));
-    e_return_if_fail(THUNAR_IS_FILE(directory));
+    e_return_if_fail(IS_THUNARFILE(directory));
     e_return_if_fail(th_file_is_directory(directory));
 
     g_signal_emit(G_OBJECT(navigator), _navigator_signals[CHANGE_DIRECTORY], 0, directory);

@@ -462,7 +462,7 @@ static GType treemodel_get_column_type(GtkTreeModel *tree_model, gint column)
     switch (column)
     {
     case TREEMODEL_COLUMN_FILE:
-        return THUNAR_TYPE_FILE;
+        return TYPE_THUNARFILE;
 
     case TREEMODEL_COLUMN_NAME:
         return G_TYPE_STRING;
@@ -589,7 +589,7 @@ static void treemodel_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
     switch (column)
     {
     case TREEMODEL_COLUMN_FILE:
-        g_value_init(value, THUNAR_TYPE_FILE);
+        g_value_init(value, TYPE_THUNARFILE);
         g_value_set_object(value,(item != NULL) ? item->file : NULL);
         break;
 
@@ -792,7 +792,7 @@ static void _treemodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
     e_return_if_fail(IS_FILEMONITOR(file_monitor));
     e_return_if_fail(model->file_monitor == file_monitor);
     e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     // traverse the model and emit "row-changed" for the file's nodes
     if (th_file_is_directory(file))
@@ -1169,7 +1169,7 @@ void treemodel_add_child(TreeModel *model, GNode *node, ThunarFile *file)
     GtkTreePath         *child_path;
 
     e_return_if_fail(THUNAR_IS_TREE_MODEL(model));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     // allocate a new item for the file
     child_item = _treeitem_new_with_file(model, file);
@@ -1239,7 +1239,7 @@ static TreeModelItem* _treeitem_new_with_file(TreeModel *model, ThunarFile *file
     TreeModelItem *item;
 
     item = g_slice_new0(TreeModelItem);
-    item->file = THUNAR_FILE(g_object_ref(G_OBJECT(file)));
+    item->file = THUNARFILE(g_object_ref(G_OBJECT(file)));
     item->model = model;
 
     return item;
@@ -1294,7 +1294,7 @@ static void _treeitem_free(TreeModelItem *item)
 
 static void _treeitem_load_folder(TreeModelItem *item)
 {
-    e_return_if_fail(THUNAR_IS_FILE(item->file) || IS_THUNARDEVICE(item->device));
+    e_return_if_fail(IS_THUNARFILE(item->file) || IS_THUNARDEVICE(item->device));
 
     // schedule the "load" idle source(if not already done)
     if (G_LIKELY(item->load_idle_id == 0 && item->folder == NULL))
@@ -1393,7 +1393,7 @@ static void _treeitem_files_added(TreeModelItem *item, GList *files,
     for(lp = files; lp != NULL; lp = lp->next)
     {
         // we don't care for anything except folders
-        file = THUNAR_FILE(lp->data);
+        file = THUNARFILE(lp->data);
         if (!th_file_is_directory(file))
             continue;
 
@@ -1605,7 +1605,7 @@ static gboolean _treenode_traverse_changed(GNode *node, gpointer user_data)
     TreeModel     *model;
     GtkTreePath         *path;
     GtkTreeIter          iter;
-    ThunarFile          *file = THUNAR_FILE(user_data);
+    ThunarFile          *file = THUNARFILE(user_data);
     TreeModelItem *item = TREEMODEL_ITEM(node->data);
 
     // check if the node's file is the file that changed
@@ -1695,7 +1695,7 @@ static gboolean _treenode_traverse_visible(GNode *node, gpointer  user_data)
     ThunarFile          *file;
 
     e_return_val_if_fail(model->visible_func != NULL, FALSE);
-    e_return_val_if_fail(item == NULL || item->file == NULL || THUNAR_IS_FILE(item->file), FALSE);
+    e_return_val_if_fail(item == NULL || item->file == NULL || IS_THUNARFILE(item->file), FALSE);
 
     if (G_LIKELY(item != NULL && item->file != NULL))
     {
@@ -1732,9 +1732,9 @@ static gboolean _treenode_traverse_visible(GNode *node, gpointer  user_data)
             for(lp = item->invisible_children, child_node = NULL; lp != NULL; lp = lnext)
             {
                 lnext = lp->next;
-                file = THUNAR_FILE(lp->data);
+                file = THUNARFILE(lp->data);
 
-                e_return_val_if_fail(THUNAR_IS_FILE(file), FALSE);
+                e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
                 if (model->visible_func(model, file, model->visible_data))
                 {

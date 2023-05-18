@@ -72,7 +72,7 @@ struct _IconKey
 
 typedef struct
 {
-    ThunarFileIconState icon_state;
+    FileIconState icon_state;
     //ThunarFileThumbState thumb_state;
 
     gint        icon_size;
@@ -629,13 +629,13 @@ GdkPixbuf* iconfact_load_icon(IconFactory *factory, const gchar *name,
 
 GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
                                    ThunarFile *file,
-                                   ThunarFileIconState icon_state,
+                                   FileIconState icon_state,
                                    gint icon_size)
 {
     // g_object_unref when no longer needed
 
     e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
-    e_return_val_if_fail(THUNAR_IS_FILE(file), NULL);
+    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
     e_return_val_if_fail(icon_size > 0, NULL);
 
 
@@ -766,7 +766,7 @@ void iconfact_clear_pixmap_cache(ThunarFile *file)
 {
     // Unset the pixmap cache on a file to force a reload on the next request.
 
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     // unset the data
     if (_iconfact_store_quark != 0)

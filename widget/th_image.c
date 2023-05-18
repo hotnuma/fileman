@@ -74,7 +74,7 @@ static void th_image_class_init(ThunarImageClass *klass)
                                         "file",
                                         "file",
                                         "file",
-                                        THUNAR_TYPE_FILE,
+                                        TYPE_THUNARFILE,
                                         G_PARAM_READWRITE));
 }
 
@@ -142,7 +142,7 @@ static void _th_image_file_changed(FileMonitor *monitor, ThunarFile *file,
                                    ThunarImage *image)
 {
     e_return_if_fail(IS_FILEMONITOR(monitor));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(IS_THUNARIMAGE(image));
 
     if (file == image->priv->file)
@@ -158,14 +158,14 @@ static void _th_image_update(ThunarImage *image)
 
     e_return_if_fail(IS_THUNARIMAGE(image));
 
-    if (THUNAR_IS_FILE(image->priv->file))
+    if (IS_THUNARFILE(image->priv->file))
     {
         screen = gtk_widget_get_screen(GTK_WIDGET(image));
         icon_theme = gtk_icon_theme_get_for_screen(screen);
         icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
         icon = iconfact_load_file_icon(icon_factory, image->priv->file,
-                THUNAR_FILE_ICON_STATE_DEFAULT, 48);
+                FILE_ICON_STATE_DEFAULT, 48);
 
         gtk_image_set_from_pixbuf(GTK_IMAGE(image), icon);
 

@@ -741,7 +741,7 @@ void listmodel_set_show_hidden(ListModel *store, gboolean show_hidden)
     {
         for (GSList *lp = store->hidden; lp != NULL; lp = lp->next)
         {
-            ThunarFile *file = THUNAR_FILE(lp->data);
+            ThunarFile *file = THUNARFILE(lp->data);
 
             // insert file in the sorted position
             GSequenceIter *row = g_sequence_insert_sorted(
@@ -895,7 +895,7 @@ static GType listmodel_get_column_type(GtkTreeModel *model, gint idx)
         return G_TYPE_STRING;
 
     case THUNAR_COLUMN_FILE:
-        return THUNAR_TYPE_FILE;
+        return TYPE_THUNARFILE;
 
     case THUNAR_COLUMN_FILE_NAME:
         return G_TYPE_STRING;
@@ -949,7 +949,7 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
     e_return_if_fail(iter->stamp == (LISTMODEL(model))->stamp);
 
     ThunarFile *file = g_sequence_get(iter->user_data);
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     gchar *str;
     ThunarGroup *group;
@@ -962,13 +962,13 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
     {
     case THUNAR_COLUMN_DATE_ACCESSED:
         g_value_init(value, G_TYPE_STRING);
-        str = th_file_get_date_string(file, THUNAR_FILE_DATE_ACCESSED, LISTMODEL(model)->date_style, LISTMODEL(model)->date_custom_style);
+        str = th_file_get_date_string(file, FILE_DATE_ACCESSED, LISTMODEL(model)->date_style, LISTMODEL(model)->date_custom_style);
         g_value_take_string(value, str);
         break;
 
     case THUNAR_COLUMN_DATE_MODIFIED:
         g_value_init(value, G_TYPE_STRING);
-        str = th_file_get_date_string(file, THUNAR_FILE_DATE_MODIFIED, LISTMODEL(model)->date_style, LISTMODEL(model)->date_custom_style);
+        str = th_file_get_date_string(file, FILE_DATE_MODIFIED, LISTMODEL(model)->date_style, LISTMODEL(model)->date_custom_style);
         g_value_take_string(value, str);
         break;
 
@@ -1056,7 +1056,7 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
         break;
 
     case THUNAR_COLUMN_FILE:
-        g_value_init(value, THUNAR_TYPE_FILE);
+        g_value_init(value, TYPE_THUNARFILE);
         g_value_set_object(value, file);
         break;
 
@@ -1368,8 +1368,8 @@ static void _listmodel_sort(ListModel *store)
 static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
                                 gpointer user_data)
 {
-    e_return_val_if_fail(THUNAR_IS_FILE(a), 0);
-    e_return_val_if_fail(THUNAR_IS_FILE(b), 0);
+    e_return_val_if_fail(IS_THUNARFILE(a), 0);
+    e_return_val_if_fail(IS_THUNARFILE(b), 0);
 
     ListModel *store = LISTMODEL(user_data);
 
@@ -1388,8 +1388,8 @@ static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
 static gint _sort_by_date_accessed(const ThunarFile *a, const ThunarFile *b,
                                    gboolean case_sensitive)
 {
-    guint64 date_a = th_file_get_date(a, THUNAR_FILE_DATE_ACCESSED);
-    guint64 date_b = th_file_get_date(b, THUNAR_FILE_DATE_ACCESSED);
+    guint64 date_a = th_file_get_date(a, FILE_DATE_ACCESSED);
+    guint64 date_b = th_file_get_date(b, FILE_DATE_ACCESSED);
 
     if (date_a < date_b)
         return -1;
@@ -1402,8 +1402,8 @@ static gint _sort_by_date_accessed(const ThunarFile *a, const ThunarFile *b,
 static gint _sort_by_date_modified(const ThunarFile *a, const ThunarFile *b,
                                    gboolean case_sensitive)
 {
-    guint64 date_a = th_file_get_date(a, THUNAR_FILE_DATE_MODIFIED);
-    guint64 date_b = th_file_get_date(b, THUNAR_FILE_DATE_MODIFIED);
+    guint64 date_a = th_file_get_date(a, FILE_DATE_MODIFIED);
+    guint64 date_b = th_file_get_date(b, FILE_DATE_MODIFIED);
 
     if (date_a < date_b)
         return -1;
@@ -1469,8 +1469,8 @@ static gint _sort_by_mime_type(const ThunarFile *a, const ThunarFile *b,
     const gchar *content_type_b;
     gint         result;
 
-    content_type_a = th_file_get_content_type(THUNAR_FILE(a));
-    content_type_b = th_file_get_content_type(THUNAR_FILE(b));
+    content_type_a = th_file_get_content_type(THUNARFILE(a));
+    content_type_b = th_file_get_content_type(THUNARFILE(b));
 
     if (content_type_a == NULL)
         content_type_a = "";
@@ -1588,7 +1588,7 @@ static gint _sort_by_type(const ThunarFile *a, const ThunarFile *b,
     }
     else
     {
-        content_type_a = th_file_get_content_type(THUNAR_FILE(a));
+        content_type_a = th_file_get_content_type(THUNARFILE(a));
         description_a = g_content_type_get_description(content_type_a);
     }
 
@@ -1599,7 +1599,7 @@ static gint _sort_by_type(const ThunarFile *a, const ThunarFile *b,
     }
     else
     {
-        content_type_b = th_file_get_content_type(THUNAR_FILE(b));
+        content_type_b = th_file_get_content_type(THUNARFILE(b));
         description_b = g_content_type_get_description(content_type_b);
     }
 
@@ -1633,7 +1633,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
 {
     e_return_if_fail(IS_FILEMONITOR(file_monitor));
     e_return_if_fail(IS_LISTMODEL(store));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
     GSequenceIter *end = g_sequence_get_end_iter(store->rows);
@@ -1750,8 +1750,8 @@ static void _listmodel_files_added(ThunarFolder *folder, GList *files,
     {
         // take a reference on that file
         ThunarFile    *file;
-        file = THUNAR_FILE(g_object_ref(G_OBJECT(lp->data)));
-        e_return_if_fail(THUNAR_IS_FILE(file));
+        file = THUNARFILE(g_object_ref(G_OBJECT(lp->data)));
+        e_return_if_fail(IS_THUNARFILE(file));
 
         // check if the file should be hidden
         if (!store->show_hidden && th_file_is_hidden(file))

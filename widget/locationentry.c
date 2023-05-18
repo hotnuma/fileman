@@ -334,7 +334,7 @@ static void locentry_poke_file_finish(ThunarBrowser *browser,
     (void) ignored;
 
     e_return_if_fail(IS_LOCATIONENTRY(browser));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     if (error != NULL)
     {
@@ -355,7 +355,7 @@ static void locentry_open_or_launch(LocationEntry *location_entry,
     GError *error = NULL;
 
     e_return_if_fail(IS_LOCATIONENTRY(location_entry));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     // check if the file is mounted
     if (th_file_is_mounted(file))

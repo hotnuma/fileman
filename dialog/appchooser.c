@@ -125,7 +125,7 @@ static void appchooser_class_init(AppChooserDialogClass *klass)
                                         "file",
                                         "file",
                                         "file",
-                                        THUNAR_TYPE_FILE,
+                                        TYPE_THUNARFILE,
                                         E_PARAM_READWRITE));
 
     g_object_class_install_property(gobject_class,
@@ -389,7 +389,7 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
     AppChooserModel *model;
 
     e_return_if_fail(IS_APPCHOOSERDIALOG(dialog));
-    e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    e_return_if_fail(file == NULL || IS_THUNARFILE(file));
 
     // disconnect from the previous file
     if (G_LIKELY(dialog->file != NULL))
@@ -401,7 +401,7 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
         g_signal_handlers_disconnect_by_func(G_OBJECT(dialog->file),
                                              gtk_widget_destroy,
                                              dialog);
-        th_file_unwatch(THUNAR_FILE(dialog->file));
+        th_file_unwatch(THUNARFILE(dialog->file));
         g_object_unref(G_OBJECT(dialog->file));
     }
 
@@ -1132,7 +1132,7 @@ void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open)
     e_return_if_fail(parent == NULL
                           || GDK_IS_SCREEN(parent)
                           || GTK_IS_WIDGET(parent));
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
     GdkScreen         *screen;
     GtkWidget         *window = NULL;

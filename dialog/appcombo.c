@@ -93,7 +93,7 @@ static void appcombo_class_init(AppComboClass *klass)
                                         "file",
                                         "file",
                                         "file",
-                                        THUNAR_TYPE_FILE,
+                                        TYPE_THUNARFILE,
                                         E_PARAM_READWRITE));
 }
 
@@ -245,7 +245,7 @@ static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
 void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
 {
     e_return_if_fail(IS_APPCOMBO(chooser_button));
-    e_return_if_fail(file == NULL || THUNAR_IS_FILE(file));
+    e_return_if_fail(file == NULL || IS_THUNARFILE(file));
 
     // check if we already use that file
     if (G_UNLIKELY(chooser_button->file == file))
@@ -386,7 +386,7 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
 {
     e_return_if_fail(IS_APPCOMBO(chooser_button));
     e_return_if_fail(chooser_button->file == file);
-    e_return_if_fail(THUNAR_IS_FILE(file));
+    e_return_if_fail(IS_THUNARFILE(file));
 
         // clear the store
     gtk_list_store_clear(chooser_button->store);
