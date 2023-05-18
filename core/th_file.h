@@ -63,9 +63,11 @@ GType th_file_get_type() G_GNUC_CONST;
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARFILE, ThunarFileClass))
 
 /* Callback type for loading ThunarFile's asynchronously. If you want to keep
- * the #ThunarFile, you need to ref it, else it will be destroyed. */
+ * the ThunarFile, you need to ref it, else it will be destroyed. */
+
 typedef void (*ThunarFileGetFunc) (GFile *location, ThunarFile *file,
                                    GError *error, gpointer user_data);
+
 // allocate
 ThunarFile* th_file_get(GFile *file, GError **error);
 ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error);
