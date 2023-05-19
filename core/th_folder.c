@@ -52,17 +52,17 @@ static void _th_folder_content_type_loader_idle_destroyed(gpointer data);
 
 // Monitor --------------------------------------------------------------------
 
-static void _th_folder_file_changed(FileMonitor *file_monitor,
-                                    ThunarFile *file,
-                                    ThunarFolder *folder);
-static void _th_folder_file_destroyed(FileMonitor *file_monitor,
-                                      ThunarFile *file,
-                                      ThunarFolder *folder);
-static void _th_folder_monitor(GFileMonitor *monitor,
-                               GFile *file,
-                               GFile *other_file,
-                               GFileMonitorEvent event_type,
-                               gpointer user_data);
+static void _monitor_on_changed(FileMonitor *file_monitor,
+                                ThunarFile *file,
+                                ThunarFolder *folder);
+static void _monitor_on_destroyed(FileMonitor *file_monitor,
+                                  ThunarFile *file,
+                                  ThunarFolder *folder);
+static void _gfmonitor_on_changed(GFileMonitor *monitor,
+                                  GFile *file,
+                                  GFile *other_file,
+                                  GFileMonitorEvent event_type,
+                                  gpointer user_data);
 
 // ThunarFolder ---------------------------------------------------------------
 
@@ -115,8 +115,8 @@ struct _ThunarFolder
 
     guint       in_destruction : 1;
 
-    FileMonitor *monitor;
     GFileMonitor *gfilemonitor;
+    FileMonitor *monitor;
 };
 
 G_DEFINE_TYPE(ThunarFolder, th_folder, G_TYPE_OBJECT)
@@ -195,10 +195,10 @@ static void th_folder_init(ThunarFolder *folder)
     folder->monitor = filemon_get_default();
 
     g_signal_connect(G_OBJECT(folder->monitor), "file-changed",
-                     G_CALLBACK(_th_folder_file_changed), folder);
+                     G_CALLBACK(_monitor_on_changed), folder);
 
     g_signal_connect(G_OBJECT(folder->monitor), "file-destroyed",
-                     G_CALLBACK(_th_folder_file_destroyed), folder);
+                     G_CALLBACK(_monitor_on_destroyed), folder);
 
     folder->gfilemonitor = NULL;
     folder->reload_info = FALSE;
@@ -212,15 +212,15 @@ static void th_folder_constructed(GObject *object)
     GError *error = NULL;
 
     folder->gfilemonitor = g_file_monitor_directory(
-                            th_file_get_file(folder->thunar_file),
-                            G_FILE_MONITOR_WATCH_MOVES,
-                            NULL,
-                            &error);
+                                th_file_get_file(folder->thunar_file),
+                                G_FILE_MONITOR_WATCH_MOVES,
+                                NULL,
+                                &error);
 
     if (G_LIKELY(folder->gfilemonitor != NULL))
     {
         g_signal_connect(folder->gfilemonitor, "changed",
-                         G_CALLBACK(_th_folder_monitor), folder);
+                         G_CALLBACK(_gfmonitor_on_changed), folder);
     }
     else
     {
@@ -254,14 +254,16 @@ static void th_folder_finalize(GObject *object)
 
     // disconnect from the FileMonitor instance
     g_signal_handlers_disconnect_matched(folder->monitor,
-                                         G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, folder);
+                                         G_SIGNAL_MATCH_DATA,
+                                         0, 0, NULL, NULL, folder);
     g_object_unref(folder->monitor);
 
     // disconnect from the file alteration monitor
     if (G_LIKELY(folder->gfilemonitor != NULL))
     {
         g_signal_handlers_disconnect_matched(folder->gfilemonitor,
-                                             G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, folder);
+                                             G_SIGNAL_MATCH_DATA,
+                                             0, 0, NULL, NULL, folder);
         g_file_monitor_cancel(folder->gfilemonitor);
         g_object_unref(folder->gfilemonitor);
     }
@@ -270,7 +272,8 @@ static void th_folder_finalize(GObject *object)
     if (G_UNLIKELY(folder->job != NULL))
     {
         g_signal_handlers_disconnect_matched(folder->job,
-                                             G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, folder);
+                                             G_SIGNAL_MATCH_DATA,
+                                             0, 0, NULL, NULL, folder);
         g_object_unref(folder->job);
         folder->job = NULL;
     }
@@ -669,138 +672,157 @@ GList* th_folder_get_files(const ThunarFolder *folder)
 // Monitor --------------------------------------------------------------------
 
 // constructed
-static void _th_folder_monitor(GFileMonitor      *monitor,
-                               GFile             *event_file,
-                               GFile             *other_file,
-                               GFileMonitorEvent event_type,
-                               gpointer          user_data)
+static void _gfmonitor_on_changed(GFileMonitor      *monitor,
+                                  GFile             *event_file,
+                                  GFile             *other_file,
+                                  GFileMonitorEvent event_type,
+                                  gpointer          user_data)
 {
     ThunarFolder *folder = THUNARFOLDER(user_data);
-    ThunarFile   *file;
-    ThunarFile   *other_parent;
-    GList        *lp;
-    GList         list;
-    gboolean      restart = FALSE;
-
     e_return_if_fail(G_IS_FILE_MONITOR(monitor));
     e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(folder->gfilemonitor == monitor);
     e_return_if_fail(IS_THUNARFILE(folder->thunar_file));
     e_return_if_fail(G_IS_FILE(event_file));
 
-    // check on which file the event occurred
-    if (!g_file_equal(event_file, th_file_get_file(folder->thunar_file)))
+    //gchar *folder_uri = th_file_get_uri(folder->thunar_file);
+    //printf("------------------------------------------------------------\n");
+    //printf("%s\n", folder_uri);
+    //g_free(folder_uri);
+
+    //print_monitor_event(monitor, event_file, other_file, event_type, user_data);
+
+    if (g_file_equal(event_file, th_file_get_file(folder->thunar_file)))
     {
-        // check if we already ship the file
-        for(lp = folder->files; lp != NULL; lp = lp->next)
-            if (g_file_equal(event_file, th_file_get_file(lp->data)))
-                break;
-
-        // stop the content type collector
-        if (folder->content_type_idle_id != 0)
-            restart = g_source_remove(folder->content_type_idle_id);
-
-        // if we don't have it, add it if the event is not an "deleted" event
-        if (G_UNLIKELY(lp == NULL && event_type != G_FILE_MONITOR_EVENT_DELETED))
-        {
-            // allocate a file for the path
-            file = th_file_get(event_file, NULL);
-            if (G_UNLIKELY(file != NULL))
-            {
-                // prepend it to our internal list
-                folder->files = g_list_prepend(folder->files, file);
-
-                // tell others about the new file
-                list.data = file;
-                list.next = list.prev = NULL;
-                g_signal_emit(G_OBJECT(folder), _th_folder_signals[FILES_ADDED], 0, &list);
-
-                // load the new file
-                th_file_reload(file);
-            }
-        }
-        else if (lp != NULL)
-        {
-            if (event_type == G_FILE_MONITOR_EVENT_DELETED)
-            {
-                ThunarFile *destroyed;
-
-                // destroy the file
-                th_file_destroy(lp->data);
-
-                // if the file has not been destroyed by now, reload it to invalidate it
-                destroyed = th_file_cache_lookup(event_file);
-                if (destroyed != NULL)
-                {
-                    th_file_reload(destroyed);
-                    g_object_unref(destroyed);
-                }
-            }
-            else if (event_type == G_FILE_MONITOR_EVENT_RENAMED ||
-                     event_type == G_FILE_MONITOR_EVENT_MOVED_IN ||
-                     event_type == G_FILE_MONITOR_EVENT_MOVED_OUT)
-            {
-                // destroy the old file and update the new one
-                th_file_destroy(lp->data);
-                if (other_file != NULL)
-                {
-                    file = th_file_get(other_file, NULL);
-                    if (file != NULL && IS_THUNARFILE(file))
-                    {
-                        th_file_reload(file);
-
-                        /* if source and target folders are different, also tell
-                           the target folder to reload for the changes */
-                        if (th_file_has_parent(file))
-                        {
-                            other_parent = th_file_get_parent(file, NULL);
-                            if (other_parent &&
-                                    !g_file_equal(th_file_get_file(folder->thunar_file),
-                                                   th_file_get_file(other_parent)))
-                            {
-                                th_file_reload(other_parent);
-                                g_object_unref(other_parent);
-                            }
-                        }
-
-                        // drop reference on the other file
-                        g_object_unref(file);
-                    }
-                }
-            }
-            else
-            {
-
-#if DEBUG_FILE_CHANGES
-                _th_file_infos_equal(lp->data, event_file);
-#endif
-
-                th_file_reload(lp->data);
-            }
-        }
-
-        // check if we need to restart the collector
-        if (restart)
-            _th_folder_content_type_loader(folder);
-    }
-    else
-    {
-        // update/destroy the corresponding file
+        // directory event
         if (event_type == G_FILE_MONITOR_EVENT_DELETED)
         {
             if (!th_file_exists(folder->thunar_file))
+            {
+                //printf("g_file_equal: th_file_destroy\n");
                 th_file_destroy(folder->thunar_file);
+            }
         }
         else
         {
             th_file_reload(folder->thunar_file);
         }
+
+        return;
     }
+
+    GList *lp;
+
+    // check if we already ship the file
+    for (lp = folder->files; lp != NULL; lp = lp->next)
+    {
+        if (g_file_equal(event_file, th_file_get_file(lp->data)))
+            break;
+    }
+
+    gboolean restart = FALSE;
+
+    // stop the content type collector
+    if (folder->content_type_idle_id != 0)
+        restart = g_source_remove(folder->content_type_idle_id);
+
+    ThunarFile *file;
+    GList list;
+
+    // file added
+    if (G_UNLIKELY(lp == NULL && event_type != G_FILE_MONITOR_EVENT_DELETED))
+    {
+        // allocate a file for the path
+        file = th_file_get(event_file, NULL);
+
+        if (G_UNLIKELY(file != NULL))
+        {
+            // prepend it to our internal list
+            folder->files = g_list_prepend(folder->files, file);
+
+            // tell others about the new file
+            list.data = file;
+            list.next = list.prev = NULL;
+            g_signal_emit(G_OBJECT(folder),
+                          _th_folder_signals[FILES_ADDED], 0, &list);
+
+            // load the new file
+            th_file_reload(file);
+        }
+    }
+
+    //
+    else if (lp != NULL)
+    {
+        if (event_type == G_FILE_MONITOR_EVENT_DELETED)
+        {
+            // destroy the file
+            th_file_destroy(lp->data);
+
+            // if the file has not been destroyed by now, reload it to invalidate it
+            ThunarFile *destroyed = th_file_cache_lookup(event_file);
+            if (destroyed != NULL)
+            {
+                th_file_reload(destroyed);
+                g_object_unref(destroyed);
+            }
+        }
+        else if (event_type == G_FILE_MONITOR_EVENT_RENAMED
+                 || event_type == G_FILE_MONITOR_EVENT_MOVED_IN
+                 || event_type == G_FILE_MONITOR_EVENT_MOVED_OUT)
+        {
+            // destroy the old file and update the new one
+            th_file_destroy(lp->data);
+
+            // rename
+            if (other_file != NULL)
+            {
+                file = th_file_get(other_file, NULL);
+
+                if (file != NULL && IS_THUNARFILE(file))
+                {
+                    th_file_reload(file);
+
+                    /* if source and target folders are different, also tell
+                       the target folder to reload for the changes */
+                    if (th_file_has_parent(file))
+                    {
+                        // rename a directory
+                        ThunarFile *other_parent;
+                        other_parent = th_file_get_parent(file, NULL);
+                        if (other_parent &&
+                            !g_file_equal(th_file_get_file(folder->thunar_file),
+                                          th_file_get_file(other_parent)))
+                        {
+                            th_file_reload(other_parent);
+                            g_object_unref(other_parent);
+                        }
+                    }
+
+                    // drop reference on the other file
+                    g_object_unref(file);
+                }
+            }
+        }
+        else
+        {
+
+#if DEBUG_FILE_CHANGES
+            _th_file_infos_equal(lp->data, event_file);
+#endif
+
+            th_file_reload(lp->data);
+        }
+    }
+
+    // check if we need to restart the collector
+    if (restart)
+        _th_folder_content_type_loader(folder);
 }
 
 // init
-static void _th_folder_file_changed(FileMonitor *file_monitor, ThunarFile *file,
-                                    ThunarFolder *folder)
+static void _monitor_on_changed(FileMonitor *file_monitor,
+                                ThunarFile *file, ThunarFolder *folder)
 {
     e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(IS_THUNARFOLDER(folder));
@@ -810,18 +832,23 @@ static void _th_folder_file_changed(FileMonitor *file_monitor, ThunarFile *file,
     if (G_LIKELY(folder->thunar_file != file))
         return;
 
-    // ...and if so, reload the folder
+    //gchar *file_uri = th_file_get_uri(file);
+    //printf("changed : %s\n", file_uri);
+    //g_free(file_uri);
+    //printf("reload directory\n");
+
+    // reload the folder
     th_folder_load(folder, FALSE);
 }
 
-static void _th_folder_file_destroyed(FileMonitor *file_monitor,
-                                      ThunarFile *file, ThunarFolder *folder)
+static void _monitor_on_destroyed(FileMonitor *file_monitor,
+                                  ThunarFile *file, ThunarFolder *folder)
 {
     e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(IS_FILEMONITOR(file_monitor));
 
-    // check if the corresponding file was destroyed
+    // the directory was destroyed
     if (G_UNLIKELY(folder->thunar_file == file))
     {
         // the folder is useless now

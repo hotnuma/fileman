@@ -938,7 +938,8 @@ static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error)
         return FALSE;
 
     // determine the file and display name
-    ThunarFile *file = g_value_get_object(&g_array_index(param_values, GValue, 0));
+    ThunarFile *file = g_value_get_object(&g_array_index(param_values,
+                                                         GValue, 0));
 
     const gchar *display_name = g_value_get_string(&g_array_index(param_values,
                                                                   GValue,

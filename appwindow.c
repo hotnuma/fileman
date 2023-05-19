@@ -760,7 +760,9 @@ static void window_unrealize(GtkWidget *widget)
     AppWindow *window = APPWINDOW(widget);
 
     // disconnect from the clipboard manager
-    g_signal_handlers_disconnect_by_func(G_OBJECT(window->clipboard), gtk_widget_queue_draw, widget);
+    g_signal_handlers_disconnect_by_func(G_OBJECT(window->clipboard),
+                                         gtk_widget_queue_draw,
+                                         widget);
 
     // let the GtkWidget class unrealize the window
     GTK_WIDGET_CLASS(window_parent_class)->unrealize(widget);

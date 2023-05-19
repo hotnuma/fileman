@@ -1304,6 +1304,16 @@ gchar* th_file_get_mode_string(const ThunarFile *file)
     return text;
 }
 
+gchar* th_file_get_uri(const ThunarFile *file)
+{
+    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
+
+    if (file->gfile == NULL)
+        return NULL;
+
+    return g_file_get_uri(file->gfile);
+}
+
 /**
  * th_file_get_size_in_bytes_string:
  * @file : a #ThunarFile instance.
@@ -1672,6 +1682,7 @@ const gchar* th_file_get_original_path(const ThunarFile *file)
 
     return g_file_info_get_attribute_byte_string(file->gfileinfo, G_FILE_ATTRIBUTE_TRASH_ORIG_PATH);
 }
+
 
 /**
  * th_file_get_symlink_target:
@@ -2668,7 +2679,10 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name, GCancellable *cance
     G_LOCK(_file_rename_mutex);
 
     // try to rename the file
-    GFile *renamed_file = g_file_set_display_name(file->gfile, name, cancellable, error);
+    GFile *renamed_file = g_file_set_display_name(file->gfile,
+                                                  name,
+                                                  cancellable,
+                                                  error);
 
     // check if we succeeded
     if (renamed_file == NULL)
