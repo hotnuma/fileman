@@ -1863,7 +1863,7 @@ gchar** window_get_directories(AppWindow *window, gint *active_page)
         e_return_val_if_fail(IS_THUNARFILE(directory), FALSE);
 
         // add to array
-        uris[n] = th_file_dup_uri(directory);
+        uris[n] = th_file_get_uri(directory);
     }
 
     // selected tab

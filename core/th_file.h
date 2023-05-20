@@ -79,8 +79,6 @@ void th_file_get_async(GFile *location, GCancellable *cancellable,
 // destroy
 void th_file_destroy(ThunarFile *file);
 
-#define th_file_dup_uri(file) (g_file_get_uri(th_file_get_file(file)))
-
 // get
 GAppInfo* th_file_get_default_handler(const ThunarFile *file);
 guint64 th_file_get_date(const ThunarFile *file,
@@ -108,8 +106,9 @@ gchar* th_file_get_date_string(const ThunarFile *file,
                                G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_mode_string(const ThunarFile *file)
                                G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-gchar* th_file_get_uri(const ThunarFile *file)
-                       G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+#define th_file_get_uri(file) (g_file_get_uri(th_file_get_file(file)))
+//gchar* th_file_get_uri(const ThunarFile *file)
+//                       G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_size_in_bytes_string(const ThunarFile *file)
                                         G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_size_string_formatted(const ThunarFile *file,

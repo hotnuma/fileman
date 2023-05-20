@@ -360,7 +360,7 @@ static gchar* th_fileinfo_get_name(FileInfo *file_info)
 
 static gchar* th_fileinfo_get_uri(FileInfo *file_info)
 {
-    return th_file_dup_uri(THUNARFILE(file_info));
+    return th_file_get_uri(THUNARFILE(file_info));
 }
 
 static gchar* th_fileinfo_get_parent_uri(FileInfo *file_info)
@@ -1304,15 +1304,15 @@ gchar* th_file_get_mode_string(const ThunarFile *file)
     return text;
 }
 
-gchar* th_file_get_uri(const ThunarFile *file)
-{
-    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
+//gchar* th_file_get_uri(const ThunarFile *file)
+//{
+//    e_return_val_if_fail(IS_THUNARFILE(file), NULL);
 
-    if (file->gfile == NULL)
-        return NULL;
+//    if (file->gfile == NULL)
+//        return NULL;
 
-    return g_file_get_uri(file->gfile);
-}
+//    return g_file_get_uri(file->gfile);
+//}
 
 /**
  * th_file_get_size_in_bytes_string:
