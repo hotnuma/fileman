@@ -133,9 +133,6 @@ _th_file_dirs[] =
 
 typedef enum
 {
-    // storage for ThunarFileThumbState
-    //FILEFLAG_THUMB_MASK     = 0x03,
-
     // for avoiding recursion during destroy
     FILEFLAG_IN_DESTRUCTION = 1 << 2,
 

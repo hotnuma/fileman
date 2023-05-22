@@ -399,13 +399,13 @@ GType thunar_thumbnail_size_get_type()
     return type;
 }
 
-const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
-{
-    GEnumValue *thumbnail_size_enum_value;
+//const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
+//{
+//    GEnumValue *thumbnail_size_enum_value;
 
-    thumbnail_size_enum_value = g_enum_get_value(g_type_class_ref(THUNAR_TYPE_THUMBNAIL_SIZE), thumbnail_size);
-    return thumbnail_size_enum_value->value_nick;
-}
+//    thumbnail_size_enum_value = g_enum_get_value(g_type_class_ref(THUNAR_TYPE_THUMBNAIL_SIZE), thumbnail_size);
+//    return thumbnail_size_enum_value->value_nick;
+//}
 
 // ----------------------------------------------------------------------------
 
@@ -426,10 +426,10 @@ static ThunarThumbnailSize _icon_size_to_thumbnail_size(ThunarIconSize icon_size
 
 // ----------------------------------------------------------------------------
 
-ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
-{
-    ThunarIconSize icon_size = _zoom_level_to_icon_size(zoom_level);
-    return _icon_size_to_thumbnail_size(icon_size);
-}
+//ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
+//{
+//    ThunarIconSize icon_size = _zoom_level_to_icon_size(zoom_level);
+//    return _icon_size_to_thumbnail_size(icon_size);
+//}
 
 

@@ -232,10 +232,11 @@ typedef enum
 } ThunarThumbnailSize;
 
 GType thunar_thumbnail_size_get_type() G_GNUC_CONST;
-const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
-                                           G_GNUC_CONST;
-ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
-                                                        G_GNUC_CONST;
+
+//const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
+//                                           G_GNUC_CONST;
+//ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
+//                                                        G_GNUC_CONST;
 
 G_END_DECLS
 
