@@ -2662,6 +2662,8 @@ void th_file_watch(ThunarFile *file)
 
     GError *error = NULL;
 
+    //printf("watch : %s\n", th_file_get_display_name(file));
+
     FileWatch *file_watch = g_object_get_qdata(G_OBJECT(file),
                                                _file_watch_quark);
 
@@ -2723,6 +2725,8 @@ void th_file_unwatch(ThunarFile *file)
 
     if (G_UNLIKELY(file->no_file_watch))
         return;
+
+    //printf("unwatch : %s\n", th_file_get_display_name(file));
 
     FileWatch *file_watch = g_object_get_qdata(G_OBJECT(file),
                                                _file_watch_quark);

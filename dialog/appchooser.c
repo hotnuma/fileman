@@ -418,7 +418,8 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
         th_file_watch(dialog->file);
 
         // destroy the chooser dialog if the file is deleted
-        g_signal_connect_swapped(G_OBJECT(file), "destroy", G_CALLBACK(gtk_widget_destroy), dialog);
+        g_signal_connect_swapped(G_OBJECT(file), "destroy",
+                                 G_CALLBACK(gtk_widget_destroy), dialog);
 
         // allocate the new chooser model
         model = appmodel_new(th_file_get_content_type(file));

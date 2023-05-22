@@ -585,8 +585,10 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
         th_file_unwatch(file);
 
         // unregister handlers
-        g_signal_handlers_disconnect_by_func(G_OBJECT(file), _propsdlg_update, dialog);
-        g_signal_handlers_disconnect_by_func(G_OBJECT(file), gtk_widget_destroy, dialog);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(file),
+                                             _propsdlg_update, dialog);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(file),
+                                             gtk_widget_destroy, dialog);
 
         g_object_unref(G_OBJECT(file));
     }
