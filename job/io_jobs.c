@@ -912,6 +912,8 @@ ThunarJob* io_restore_files(GList *source_file_list, GList *target_file_list)
     return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
+// Rename File ----------------------------------------------------------------
+
 ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), NULL);

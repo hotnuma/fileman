@@ -2,86 +2,44 @@
 // ----------------------------------------------------------------------------
 
 #if 0
-
-
-static void print_monitor_event(GFileMonitor *monitor,
-                                GFile *event_file, GFile *other_file,
-                                GFileMonitorEvent event_type,
-                                gpointer user_data)
-{
-    (void) monitor;
-    (void) user_data;
-
-    switch (event_type)
+    if (folder->gfilemonitor)
     {
-    case G_FILE_MONITOR_EVENT_CHANGED:
-        printf("G_FILE_MONITOR_EVENT_CHANGED\n");
-        break;
+        gchar *file_uri = th_file_get_uri(folder->thunar_file);
 
-    case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-        printf("G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT\n");
-        break;
+        if (file_uri && folder->monitor_uri
+            && g_strcmp0(folder->monitor_uri, file_uri) != 0)
+        {
+            //printf("_monitor_on_changed : %s\n", file_uri);
 
-    case G_FILE_MONITOR_EVENT_DELETED:
-        printf("G_FILE_MONITOR_EVENT_DELETED\n");
-        break;
+            g_signal_handlers_disconnect_matched(folder->gfilemonitor,
+                                                 G_SIGNAL_MATCH_DATA,
+                                                 0, 0, NULL, NULL, folder);
+            g_file_monitor_cancel(folder->gfilemonitor);
+            g_object_unref(folder->gfilemonitor);
 
-    case G_FILE_MONITOR_EVENT_CREATED:
-        printf("G_FILE_MONITOR_EVENT_CREATED\n");
-        break;
+            if (folder->monitor_uri)
+                g_free(folder->monitor_uri);
 
-    case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
-        printf("G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED\n");
-        break;
+            folder->monitor_uri = file_uri;
+            file_uri = NULL;
+            folder->gfilemonitor = g_file_monitor_directory(
+                                        th_file_get_file(folder->thunar_file),
+                                        G_FILE_MONITOR_WATCH_MOVES,
+                                        NULL,
+                                        NULL);
 
-    case G_FILE_MONITOR_EVENT_PRE_UNMOUNT:
-        printf("G_FILE_MONITOR_EVENT_PRE_UNMOUNT\n");
-        break;
+            if (folder->gfilemonitor)
+            {
+                g_signal_connect(folder->gfilemonitor, "changed",
+                                 G_CALLBACK(_gfmonitor_on_changed), folder);
+            }
+        }
 
-    case G_FILE_MONITOR_EVENT_UNMOUNTED:
-        printf("G_FILE_MONITOR_EVENT_UNMOUNTED\n");
-        break;
-
-    case G_FILE_MONITOR_EVENT_MOVED:
-        printf("G_FILE_MONITOR_EVENT_MOVED\n");
-        break;
-
-    case G_FILE_MONITOR_EVENT_RENAMED:
-        printf("G_FILE_MONITOR_EVENT_RENAMED\n");
-        break;
-
-    case G_FILE_MONITOR_EVENT_MOVED_IN:
-        printf("G_FILE_MONITOR_EVENT_MOVED_IN\n");
-        break;
-
-    case G_FILE_MONITOR_EVENT_MOVED_OUT:
-        printf("G_FILE_MONITOR_EVENT_MOVED_OUT\n");
-        break;
-
-    default:
-        printf("INVALID\n");
-        break;
+        if (file_uri)
+            g_free(file_uri);
     }
 
-    if (g_file_monitor_is_cancelled(monitor))
-    {
-        printf("monitor_is_cancelled\n");
-    }
 
-    if (event_file)
-    {
-        gchar *file_uri = g_file_get_uri(event_file);
-        printf("event_file : %s\n", file_uri);
-        g_free(file_uri);
-    }
-
-    if (other_file)
-    {
-        gchar *file_uri = g_file_get_uri(other_file);
-        printf("other_file : %s\n", file_uri);
-        g_free(file_uri);
-    }
-}
 
 
     if (isdir)

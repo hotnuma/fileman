@@ -36,6 +36,7 @@ static void th_folder_get_property(GObject *object, guint prop_id,
 static void th_folder_set_property(GObject *object, guint prop_uid,
                                    const GValue *value, GParamSpec *pspec);
 static void th_folder_real_destroy(ThunarFolder *folder);
+static void _th_folder_move_monitor(ThunarFolder *folder);
 
 // Public ---------------------------------------------------------------------
 
@@ -44,13 +45,18 @@ static void _th_folder_error(ExoJob *job, GError *error, ThunarFolder *folder);
 static void _th_folder_finished(ExoJob *job, ThunarFolder *folder);
 static gboolean _th_folder_files_ready(ThunarJob *job, GList *files,
                                        ThunarFolder *folder);
-
+// type loader
 static void _th_folder_content_type_loader(ThunarFolder *folder);
 static gboolean _th_folder_content_type_loader_idle(gpointer data);
 static void _th_folder_content_type_loader_idle_destroyed(gpointer data);
 
-
 // Monitor --------------------------------------------------------------------
+
+static void _gfmonitor_on_changed(GFileMonitor *monitor,
+                                  GFile *file,
+                                  GFile *other_file,
+                                  GFileMonitorEvent event_type,
+                                  gpointer user_data);
 
 static void _monitor_on_changed(FileMonitor *file_monitor,
                                 ThunarFile *file,
@@ -58,11 +64,6 @@ static void _monitor_on_changed(FileMonitor *file_monitor,
 static void _monitor_on_destroyed(FileMonitor *file_monitor,
                                   ThunarFile *file,
                                   ThunarFolder *folder);
-static void _gfmonitor_on_changed(GFileMonitor *monitor,
-                                  GFile *file,
-                                  GFile *other_file,
-                                  GFileMonitorEvent event_type,
-                                  gpointer user_data);
 
 // ThunarFolder ---------------------------------------------------------------
 
@@ -104,18 +105,18 @@ struct _ThunarFolder
 
     ThunarFile  *thunar_file;
     gboolean    reload_info;
+    guint       in_destruction : 1;
 
     // io_list_directory
     ThunarJob   *job;
     GList       *new_files;
     GList       *files;
 
-    GList       *content_type_ptr;
+    // content type list
     guint       content_type_idle_id;
+    GList       *type_list;
 
-    guint       in_destruction : 1;
-
-    gchar       *file_uri;
+    gchar       *monitor_uri;
     GFileMonitor *gfilemonitor;
     FileMonitor *monitor;
 };
@@ -201,7 +202,7 @@ static void th_folder_init(ThunarFolder *folder)
     g_signal_connect(G_OBJECT(folder->monitor), "file-destroyed",
                      G_CALLBACK(_monitor_on_destroyed), folder);
 
-    folder->file_uri = NULL;
+    folder->monitor_uri = NULL;
     folder->gfilemonitor = NULL;
     folder->reload_info = FALSE;
 }
@@ -211,9 +212,10 @@ static void th_folder_init(ThunarFolder *folder)
 static void th_folder_constructed(GObject *object)
 {
     ThunarFolder *folder = THUNARFOLDER(object);
+
     GError *error = NULL;
 
-    folder->file_uri = th_file_get_uri(folder->thunar_file);
+    folder->monitor_uri = th_file_get_uri(folder->thunar_file);
     folder->gfilemonitor = g_file_monitor_directory(
                                 th_file_get_file(folder->thunar_file),
                                 G_FILE_MONITOR_WATCH_MOVES,
@@ -271,8 +273,8 @@ static void th_folder_finalize(GObject *object)
         g_object_unref(folder->gfilemonitor);
     }
 
-    if (folder->file_uri)
-        g_free(folder->file_uri);
+    if (folder->monitor_uri)
+        g_free(folder->monitor_uri);
 
     // cancel the pending job(if any)
     if (G_UNLIKELY(folder->job != NULL))
@@ -289,7 +291,8 @@ static void th_folder_finalize(GObject *object)
     {
         // drop the reference
         g_object_set_qdata(G_OBJECT(folder->thunar_file),
-                           _th_folder_quark, NULL);
+                           _th_folder_quark,
+                           NULL);
         g_object_unref(G_OBJECT(folder->thunar_file));
     }
 
@@ -535,7 +538,7 @@ static void _th_folder_finished(ExoJob *job, ThunarFolder *folder)
         folder->job = NULL;
     }
 
-    // restart the content type idle loader
+    // restart the content type loader
     _th_folder_content_type_loader(folder);
 
     // tell the consumers that we have loaded the directory
@@ -555,7 +558,7 @@ static gboolean _th_folder_files_ready(ThunarJob *job, GList *files,
     return TRUE;
 }
 
-// ----------------------------------------------------------------------------
+// Content Type Loader --------------------------------------------------------
 
 static void _th_folder_content_type_loader(ThunarFolder *folder)
 {
@@ -563,7 +566,7 @@ static void _th_folder_content_type_loader(ThunarFolder *folder)
     e_return_if_fail(folder->content_type_idle_id == 0);
 
     // set the pointer to the start of the list
-    folder->content_type_ptr = folder->files;
+    folder->type_list = folder->files;
 
     // schedule idle
     folder->content_type_idle_id =
@@ -579,17 +582,16 @@ static gboolean _th_folder_content_type_loader_idle(gpointer data)
 
     ThunarFolder *folder = THUNARFOLDER(data);
 
-    // load another files content type
-    for (GList *lp = folder->content_type_ptr; lp != NULL; lp = lp->next)
+    for (GList *lp = folder->type_list; lp != NULL; lp = lp->next)
     {
         if (th_file_load_content_type(lp->data))
         {
             // if this was the last file, abort
-            if (G_UNLIKELY(lp->next == NULL))
+            if (lp->next == NULL)
                 break;
 
             // set pointer to next file for the next iteration
-            folder->content_type_ptr = lp->next;
+            folder->type_list = lp->next;
 
             return TRUE;
         }
@@ -675,6 +677,46 @@ GList* th_folder_get_files(const ThunarFolder *folder)
     return folder->files;
 }
 
+static void _th_folder_move_monitor(ThunarFolder *folder)
+{
+    if (!folder->gfilemonitor)
+        return;
+
+    gchar *file_uri = th_file_get_uri(folder->thunar_file);
+
+    if (file_uri && folder->monitor_uri
+        && g_strcmp0(folder->monitor_uri, file_uri) != 0)
+    {
+        //printf("_monitor_on_changed : %s\n", file_uri);
+
+        g_signal_handlers_disconnect_matched(folder->gfilemonitor,
+                                             G_SIGNAL_MATCH_DATA,
+                                             0, 0, NULL, NULL, folder);
+        g_file_monitor_cancel(folder->gfilemonitor);
+        g_object_unref(folder->gfilemonitor);
+
+        if (folder->monitor_uri)
+            g_free(folder->monitor_uri);
+
+        folder->monitor_uri = file_uri;
+        file_uri = NULL;
+        folder->gfilemonitor = g_file_monitor_directory(
+                                    th_file_get_file(folder->thunar_file),
+                                    G_FILE_MONITOR_WATCH_MOVES,
+                                    NULL,
+                                    NULL);
+
+        if (folder->gfilemonitor)
+        {
+            g_signal_connect(folder->gfilemonitor, "changed",
+                             G_CALLBACK(_gfmonitor_on_changed), folder);
+        }
+    }
+
+    if (file_uri)
+        g_free(file_uri);
+}
+
 // Monitor --------------------------------------------------------------------
 
 // constructed
@@ -691,14 +733,21 @@ static void _gfmonitor_on_changed(GFileMonitor      *monitor,
     e_return_if_fail(IS_THUNARFILE(folder->thunar_file));
     e_return_if_fail(G_IS_FILE(event_file));
 
+    //monitor_print_event(monitor, event_file, other_file,
+    //                    event_type,
+    //                    folder->thunar_file);
+
     if (g_file_equal(event_file, th_file_get_file(folder->thunar_file)))
     {
         // directory event
         if (event_type == G_FILE_MONITOR_EVENT_DELETED)
         {
+            //printf("G_FILE_MONITOR_EVENT_DELETED\n");
+
             if (!th_file_exists(folder->thunar_file))
             {
                 //printf("g_file_equal: th_file_destroy\n");
+
                 th_file_destroy(folder->thunar_file);
             }
         }
@@ -814,61 +863,29 @@ static void _gfmonitor_on_changed(GFileMonitor      *monitor,
         }
     }
 
-    // check if we need to restart the collector
+    // check if we need to restart the type loader
     if (restart)
         _th_folder_content_type_loader(folder);
 }
 
 // init
 static void _monitor_on_changed(FileMonitor *file_monitor,
-                                ThunarFile *file, ThunarFolder *folder)
+                                ThunarFile *file,
+                                ThunarFolder *folder)
 {
     e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(IS_THUNARFOLDER(folder));
     e_return_if_fail(IS_FILEMONITOR(file_monitor));
 
-    // check if the corresponding file changed...
     if (G_LIKELY(folder->thunar_file != file))
         return;
 
-    if (folder->gfilemonitor)
-    {
-        gchar *file_uri = th_file_get_uri(folder->thunar_file);
+    // folder has changed
 
-        if (file_uri && folder->file_uri
-            && g_strcmp0(folder->file_uri, file_uri) != 0)
-        {
-            printf("_monitor_on_changed : %s\n", file_uri);
+    //printf("_monitor_on_changed: %s\n", th_file_get_display_name(file));
 
-            g_signal_handlers_disconnect_matched(folder->gfilemonitor,
-                                                 G_SIGNAL_MATCH_DATA,
-                                                 0, 0, NULL, NULL, folder);
-            g_file_monitor_cancel(folder->gfilemonitor);
-            g_object_unref(folder->gfilemonitor);
+    _th_folder_move_monitor(folder);
 
-            if (folder->file_uri)
-                g_free(folder->file_uri);
-
-            folder->file_uri = file_uri;
-            file_uri = NULL;
-            folder->gfilemonitor = g_file_monitor_directory(
-                                        th_file_get_file(folder->thunar_file),
-                                        G_FILE_MONITOR_WATCH_MOVES,
-                                        NULL,
-                                        NULL);
-
-            if (folder->gfilemonitor)
-            {
-                g_signal_connect(folder->gfilemonitor, "changed",
-                                 G_CALLBACK(_gfmonitor_on_changed), folder);
-            }
-        }
-
-        if (file_uri)
-            g_free(file_uri);
-    }
-
-    // reload the folder
     th_folder_load(folder, FALSE);
 }
 
@@ -913,7 +930,7 @@ static void _monitor_on_destroyed(FileMonitor *file_monitor,
     // drop our reference to the file
     g_object_unref(G_OBJECT(file));
 
-    // continue collecting the metadata
+    // continue collecting the content type
     if (restart)
         _th_folder_content_type_loader(folder);
 }

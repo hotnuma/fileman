@@ -169,6 +169,7 @@ void fileinfo_changed(FileInfo *file_info)
 void fileinfo_renamed(FileInfo *file_info)
 {
     g_return_if_fail(IS_FILEINFO(file_info));
+
     g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[RENAMED], 0);
 }
 

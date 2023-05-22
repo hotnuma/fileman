@@ -80,41 +80,40 @@ void th_file_get_async(GFile *location, GCancellable *cancellable,
 void th_file_destroy(ThunarFile *file);
 
 // get
-GAppInfo* th_file_get_default_handler(const ThunarFile *file);
 guint64 th_file_get_date(const ThunarFile *file,
                          FileDateType date_type) G_GNUC_PURE;
+GAppInfo* th_file_get_default_handler(const ThunarFile *file);
 GFile* th_file_get_file(const ThunarFile *file) G_GNUC_PURE;
+GFileType th_file_get_filetype(const ThunarFile *file) G_GNUC_PURE;
 ThunarGroup* th_file_get_group(const ThunarFile *file);
 GFileInfo* th_file_get_info(const ThunarFile *file) G_GNUC_PURE;
-guint32 th_file_get_item_count(const ThunarFile *file);
-GFileType th_file_get_kind(const ThunarFile *file) G_GNUC_PURE;
 ThunarFileMode th_file_get_mode(const ThunarFile *file);
 guint64 th_file_get_size(const ThunarFile *file);
 GFile* th_file_get_target_location(const ThunarFile *file);
+guint32 th_file_get_trash_count(const ThunarFile *file);
 ThunarUser* th_file_get_user(const ThunarFile *file);
 GVolume* th_file_get_volume(const ThunarFile *file);
 
 // get string
-gchar* th_file_get_deletion_date(const ThunarFile *file,
-                                 ThunarDateStyle date_style,
-                                 const gchar *date_custom_style)
-                                 G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_date_string(const ThunarFile *file,
                                FileDateType date_type,
                                ThunarDateStyle date_style,
                                const gchar *date_custom_style)
                                G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+gchar* th_file_get_deletion_date(const ThunarFile *file,
+                                 ThunarDateStyle date_style,
+                                 const gchar *date_custom_style)
+                                 G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_mode_string(const ThunarFile *file)
                                G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-#define th_file_get_uri(file) (g_file_get_uri(th_file_get_file(file)))
-//gchar* th_file_get_uri(const ThunarFile *file)
-//                       G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_size_in_bytes_string(const ThunarFile *file)
                                         G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_size_string_formatted(const ThunarFile *file,
                                          const gboolean file_size_binary);
 gchar* th_file_get_size_string_long(const ThunarFile *file,
                                     const gboolean file_size_binary);
+#define th_file_get_uri(file) (g_file_get_uri(th_file_get_file(file)))
+
 // get const string
 const gchar* th_file_get_basename(const ThunarFile *file) G_GNUC_CONST;
 const gchar* th_file_get_content_type(ThunarFile *file);
@@ -180,6 +179,10 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name,
 
 void th_file_watch(ThunarFile *file);
 void th_file_unwatch(ThunarFile *file);
+void monitor_print_event(GFileMonitor *monitor,
+                         GFile *event_file, GFile *other_file,
+                         GFileMonitorEvent event_type,
+                         gpointer user_data);
 
 // Reload ---------------------------------------------------------------------
 

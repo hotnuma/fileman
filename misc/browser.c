@@ -394,7 +394,7 @@ static void _browser_poke_file_internal(
     PokeFileData    *poke_data;
     GMountOperation *mount_operation;
 
-    if (th_file_get_kind(file) == G_FILE_TYPE_SHORTCUT)
+    if (th_file_get_filetype(file) == G_FILE_TYPE_SHORTCUT)
     {
         target = th_file_get_target_location(file);
 
@@ -413,7 +413,7 @@ static void _browser_poke_file_internal(
 
         g_object_unref(target);
     }
-    else if (th_file_get_kind(file) == G_FILE_TYPE_MOUNTABLE)
+    else if (th_file_get_filetype(file) == G_FILE_TYPE_MOUNTABLE)
     {
         if (th_file_is_mounted(file))
         {

@@ -2038,11 +2038,11 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
                                     size_string, th_file_get_symlink_target(file));
             g_free(size_string);
         }
-        else if (G_UNLIKELY(th_file_get_kind(file) == G_FILE_TYPE_SHORTCUT))
+        else if (G_UNLIKELY(th_file_get_filetype(file) == G_FILE_TYPE_SHORTCUT))
         {
             text = g_strdup_printf(_("\"%s\": shortcut"), th_file_get_display_name(file));
         }
-        else if (G_UNLIKELY(th_file_get_kind(file) == G_FILE_TYPE_MOUNTABLE))
+        else if (G_UNLIKELY(th_file_get_filetype(file) == G_FILE_TYPE_MOUNTABLE))
         {
             text = g_strdup_printf(_("\"%s\": mountable"), th_file_get_display_name(file));
         }
