@@ -1799,11 +1799,11 @@ static void _window_action_debug(AppWindow *window, GtkWidget *menu_item)
     (void) window;
     (void) menu_item;
 
-    GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
+    //th_file_cache_dump(NULL);
 
-    const gchar *name = gtk_widget_get_name(focused);
-
-    syslog(LOG_INFO, "focused widget = %s\n", name);
+    //GtkWidget *focused = gtk_window_get_focus(GTK_WINDOW(window));
+    //const gchar *name = gtk_widget_get_name(focused);
+    //syslog(LOG_INFO, "focused widget = %s\n", name);
 }
 
 // Public ---------------------------------------------------------------------

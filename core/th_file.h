@@ -201,6 +201,7 @@ G_STMT_START{ \
 
 ThunarFile* th_file_cache_lookup(const GFile *file);
 gchar* th_file_cached_display_name(const GFile *file);
+gboolean th_file_cache_dump(gpointer user_data);
 
 // File List ------------------------------------------------------------------
 

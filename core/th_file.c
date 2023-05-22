@@ -225,13 +225,11 @@ static void th_file_class_init(ThunarFileClass *klass)
 {
 
 #ifdef G_ENABLE_DEBUG
-#ifdef HAVE_ATEXIT
     if (G_UNLIKELY(!_th_file_atexit_registered))
     {
         atexit((void(*)(void)) _th_file_atexit);
         _th_file_atexit_registered = TRUE;
     }
-#endif
 #endif
 
 #if DUMP_FILE_CACHE
@@ -3142,6 +3140,78 @@ gchar* th_file_cached_display_name(const GFile *file)
     return display_name;
 }
 
+//#if DUMP_FILE_CACHE
+static void _th_file_cache_dump_foreach(gpointer gfile,
+                                        gpointer value, gpointer user_data)
+{
+    (void) value;
+    (void) user_data;
+
+    gchar *name = g_file_get_parse_name(G_FILE(gfile));
+    g_print("    %s\n", name);
+    g_free(name);
+}
+
+gboolean th_file_cache_dump(gpointer user_data)
+{
+    (void) user_data;
+
+    G_LOCK(_file_cache_mutex);
+
+    if (_file_cache != NULL)
+    {
+        g_print("------------------------------------------------------------\n");
+
+        g_hash_table_foreach(_file_cache, _th_file_cache_dump_foreach, NULL);
+
+        g_print("%d objects in cache:\n",
+                g_hash_table_size(_file_cache));
+
+        g_print("\n");
+    }
+
+    G_UNLOCK(_file_cache_mutex);
+
+    return TRUE;
+}
+//#endif
+
+#ifdef G_ENABLE_DEBUG
+static gboolean _th_file_atexit_registered = FALSE;
+
+static void _th_file_atexit_foreach(gpointer key, gpointer value, gpointer user_data)
+{
+    gchar *uri = g_file_get_uri(key);
+
+    g_print("--> %s\n", uri);
+
+    if (G_OBJECT(key)->ref_count > 2)
+        g_print("    GFile(%u)\n", G_OBJECT(key)->ref_count - 2);
+
+    g_free(uri);
+}
+
+static void _th_file_atexit()
+{
+    G_LOCK(file_cache_mutex);
+
+    if (file_cache == NULL || g_hash_table_size(file_cache) == 0)
+    {
+        G_UNLOCK(file_cache_mutex);
+        return;
+    }
+
+    g_print("--- Leaked a total of %u ThunarFile objects:\n",
+            g_hash_table_size(file_cache));
+
+    g_hash_table_foreach(file_cache, _th_file_atexit_foreach, NULL);
+
+    g_print("\n");
+
+    G_UNLOCK(file_cache_mutex);
+}
+#endif
+
 // File List ------------------------------------------------------------------
 
 /*
@@ -3215,7 +3285,7 @@ GList* th_filelist_get_applications(GList *file_list)
         else
         {
             // keep only the applications that are also present in list
-            for(ap = applications; ap != NULL; ap = next)
+            for (ap = applications; ap != NULL; ap = next)
             {
                 // grab a pointer on the next application
                 next = ap->next;
@@ -3286,76 +3356,5 @@ GList* th_filelist_to_thunar_g_file_list(GList *file_list)
 
     return list;
 }
-
-// Debug ----------------------------------------------------------------------
-
-#ifdef G_ENABLE_DEBUG
-#ifdef HAVE_ATEXIT
-static gboolean _th_file_atexit_registered = FALSE;
-
-static void _th_file_atexit_foreach(gpointer key, gpointer value, gpointer user_data)
-{
-    gchar *uri = g_file_get_uri(key);
-
-    g_print("--> %s\n", uri);
-
-    if (G_OBJECT(key)->ref_count > 2)
-        g_print("    GFile(%u)\n", G_OBJECT(key)->ref_count - 2);
-
-    g_free(uri);
-}
-
-static void _th_file_atexit()
-{
-    G_LOCK(file_cache_mutex);
-
-    if (file_cache == NULL || g_hash_table_size(file_cache) == 0)
-    {
-        G_UNLOCK(file_cache_mutex);
-        return;
-    }
-
-    g_print("--- Leaked a total of %u ThunarFile objects:\n",
-            g_hash_table_size(file_cache));
-
-    g_hash_table_foreach(file_cache, _th_file_atexit_foreach, NULL);
-
-    g_print("\n");
-
-    G_UNLOCK(file_cache_mutex);
-}
-#endif
-#endif
-
-#if DUMP_FILE_CACHE
-static void _th_file_cache_dump_foreach(gpointer gfile, gpointer value,
-                                        gpointer user_data)
-{
-    gchar *name = g_file_get_parse_name(G_FILE(gfile));
-
-    g_print("    %s\n", name);
-
-    g_free(name);
-}
-
-static gboolean _th_file_cache_dump(gpointer user_data)
-{
-    G_LOCK(file_cache_mutex);
-
-    if (file_cache != NULL)
-    {
-        g_print("--- %d ThunarFile objects in cache:\n",
-                g_hash_table_size(file_cache));
-
-        g_hash_table_foreach(file_cache, _th_file_cache_dump_foreach, NULL);
-
-        g_print("\n");
-    }
-
-    G_UNLOCK(file_cache_mutex);
-
-    return TRUE;
-}
-#endif
 
 

@@ -73,7 +73,6 @@
 #define HAVE_SCHED_YIELD
 #define HAVE_STRCOLL
 #define HAVE_SYMLINK
-#define HAVE_ATEXIT
 //#define HAVE_STRLCPY
 //#define HAVE_SETGROUPENT
 //#define HAVE_SETPASSENT
