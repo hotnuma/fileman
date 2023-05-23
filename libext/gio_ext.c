@@ -478,7 +478,9 @@ gboolean e_file_move(GFile                 *source,
 
 GList* e_list_copy(GList *list)
 {
-    return g_list_copy_deep(list, (GCopyFunc)(void(*)(void)) g_object_ref, NULL);
+    return g_list_copy_deep(list,
+                            (GCopyFunc) (void(*)(void)) g_object_ref,
+                            NULL);
 }
 
 void e_list_free(GList *list)

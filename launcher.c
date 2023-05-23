@@ -699,10 +699,15 @@ static void launcher_set_selected_files(ThunarComponent *component,
      * for all menus */
 
     if (launcher->files_are_selected)
+    {
         launcher->files_to_process = e_list_copy(selected_files);
+    }
     else
-        launcher->files_to_process = g_list_append(launcher->files_to_process,
-                                                   launcher->current_directory);
+    {
+        launcher->files_to_process = g_list_append(
+                                launcher->files_to_process,
+                                g_object_ref(launcher->current_directory));
+    }
 
     // determine the number of files/directories/executables
     for (GList *lp = launcher->files_to_process;
@@ -710,7 +715,7 @@ static void launcher_set_selected_files(ThunarComponent *component,
          lp = lp->next, ++launcher->n_files_to_process)
     {
         // Keep a reference on all selected files
-        g_object_ref(lp->data);
+        //g_object_ref(lp->data);
 
         if (th_file_is_directory(lp->data)
             || th_file_is_shortcut(lp->data)
@@ -743,7 +748,8 @@ static void launcher_set_selected_files(ThunarComponent *component,
     if (launcher->files_to_process != NULL)
     {
         // just grab the folder of the first selected item
-        launcher->parent_folder = th_file_get_parent(THUNARFILE(launcher->files_to_process->data), NULL);
+        launcher->parent_folder = th_file_get_parent(
+                        THUNARFILE(launcher->files_to_process->data), NULL);
     }
 }
 

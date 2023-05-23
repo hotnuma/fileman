@@ -59,28 +59,12 @@ typedef struct _AppWindow      AppWindow;
 
 GType window_get_type() G_GNUC_CONST;
 
-// Properties -----------------------------------------------------------------
-
-ThunarFile* window_get_current_directory(AppWindow *window);
+ThunarLauncher* window_get_launcher(AppWindow *window);
 void window_set_current_directory(AppWindow *window, ThunarFile *current_directory);
 
-// Directories ----------------------------------------------------------------
-
-gchar** window_get_directories(AppWindow *window, gint *active_page);
-gboolean window_set_directories(AppWindow *window, gchar **uris, gint active_page);
+void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);
 void window_update_directories(AppWindow *window, ThunarFile *old_directory,
                                ThunarFile *new_directory);
-
-// Get ------------------------------------------------------------------------
-
-const XfceGtkActionEntry* window_get_action_entry(AppWindow *window,
-                                                  WindowAction action);
-GtkWidget* window_get_focused_tree_view(AppWindow *window);
-ThunarLauncher* window_get_launcher(AppWindow *window);
-
-void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);
-void window_scroll_to_file(AppWindow *window, ThunarFile *file, gboolean select,
-                           gboolean use_align, gfloat row_align, gfloat col_align);
 
 G_END_DECLS
 

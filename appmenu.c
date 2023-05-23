@@ -91,7 +91,7 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         0,
                                         N_MENU_TYPE - 1,
                                         0,
-                                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
+                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
 
     g_object_class_install_property(gobject_class,
                                     PROP_LAUNCHER,
@@ -100,7 +100,7 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         "launcher",
                                         "launcher",
                                         THUNAR_TYPE_LAUNCHER,
-                                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
+                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
 
     g_object_class_install_property(gobject_class,
                                     PROP_FORCE_SECTION_OPEN,
@@ -109,7 +109,7 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         "force-section-open",
                                         "force-section-open",
                                         FALSE,
-                                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
+                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
 
     g_object_class_install_property(gobject_class,
                                     PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
@@ -118,7 +118,7 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         "change_directory-support-disabled",
                                         "change_directory-support-disabled",
                                         FALSE,
-                                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY));
+                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
 }
 
 static void appmenu_init(AppMenu *menu)
@@ -167,7 +167,6 @@ static void appmenu_set_property(GObject *object, guint prop_id,
 
     case PROP_LAUNCHER:
         menu->launcher = g_value_dup_object(value);
-        g_object_ref(G_OBJECT(menu->launcher));
         break;
 
     case PROP_FORCE_SECTION_OPEN:

@@ -1250,6 +1250,7 @@ static void _standardview_current_directory_destroy(ThunarFile *current_director
 
     // let the parent window update all active and inactive views(tabs)
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+
     window_update_directories(APPWINDOW(window), current_directory,
                               new_directory);
 
@@ -2331,45 +2332,45 @@ static gboolean _standardview_motion_notify_event(GtkWidget      *widget,
 
 void standardview_context_menu(StandardView *view)
 {
-    GtkWidget  *window;
-    AppMenu *context_menu;
-    GList      *selected_items;
-
-    //static int count;
-    //DPRINT("%d : thunar_standardview_context_menu\n", ++count);
-
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
     // grab an additional reference on the view
     g_object_ref(G_OBJECT(view));
 
-    selected_items =(*STANDARD_VIEW_GET_CLASS(view)->get_selected_items)(view);
+    GList *selected_items;
+    selected_items = STANDARD_VIEW_GET_CLASS(view)->get_selected_items(view);
 
-    window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+    GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    context_menu = g_object_new(TYPE_APPMENU, "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
-                                 "launcher", window_get_launcher(APPWINDOW(window)), NULL);
+    AppMenu *context_menu;
+    context_menu = g_object_new(TYPE_APPMENU,
+                                "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
+                                "launcher", window_get_launcher(APPWINDOW(window)),
+                                NULL);
+
     if (selected_items != NULL)
     {
         appmenu_add_sections(context_menu,
-                                 MENU_SECTION_OPEN
-                                 | MENU_SECTION_CUT
-                                 | MENU_SECTION_COPY_PASTE
-                                 | MENU_SECTION_TRASH_DELETE
-                                 | MENU_SECTION_EMPTY_TRASH
-                                 | MENU_SECTION_RESTORE
-                                 | MENU_SECTION_RENAME
-                                 | MENU_SECTION_TERMINAL
-                                 | MENU_SECTION_EXTRACT
-                                 | MENU_SECTION_PROPERTIES);
+                             MENU_SECTION_OPEN
+                             | MENU_SECTION_CUT
+                             | MENU_SECTION_COPY_PASTE
+                             | MENU_SECTION_TRASH_DELETE
+                             | MENU_SECTION_EMPTY_TRASH
+                             | MENU_SECTION_RESTORE
+                             | MENU_SECTION_RENAME
+                             | MENU_SECTION_TERMINAL
+                             | MENU_SECTION_EXTRACT
+                             | MENU_SECTION_PROPERTIES);
     }
-    else // right click on some empty space
+
+    // right click on some empty space
+    else
     {
         appmenu_add_sections(context_menu,
-                                 MENU_SECTION_CREATE_NEW_FILES
-                                 | MENU_SECTION_COPY_PASTE
-                                 | MENU_SECTION_EMPTY_TRASH
-                                 | MENU_SECTION_TERMINAL);
+                             MENU_SECTION_CREATE_NEW_FILES
+                             | MENU_SECTION_COPY_PASTE
+                             | MENU_SECTION_EMPTY_TRASH
+                             | MENU_SECTION_TERMINAL);
 
         _standardview_append_menu_items(view, GTK_MENU(context_menu), NULL);
         xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
@@ -2380,10 +2381,12 @@ void standardview_context_menu(StandardView *view)
     gtk_widget_show_all(GTK_WIDGET(context_menu));
     window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
 
-    // if there is a drag_timer_event(long press), we use it
+    // if there is a drag_timer_event (long press), we use it
     if (view->priv->drag_timer_event != NULL)
     {
-        etk_menu_run_at_event(GTK_MENU(context_menu), view->priv->drag_timer_event);
+        etk_menu_run_at_event(GTK_MENU(context_menu),
+                              view->priv->drag_timer_event);
+
         gdk_event_free(view->priv->drag_timer_event);
         view->priv->drag_timer_event = NULL;
     }
