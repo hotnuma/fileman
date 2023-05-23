@@ -664,10 +664,11 @@ static void launcher_set_selected_files(ThunarComponent *component,
         return;
 
     // disconnect from the previous files to process
-    if (launcher->files_to_process != NULL)
+    if (launcher->files_to_process)
+    {
         e_list_free(launcher->files_to_process);
-
-    launcher->files_to_process = NULL;
+        launcher->files_to_process = NULL;
+    }
 
     // notify listeners
     g_object_notify_by_pspec(G_OBJECT(launcher),
