@@ -519,6 +519,7 @@ again:
         {
             /* notify the thumbnail cache that the corresponding thumbnail can also
              * be deleted now */
+
             //thunar_thumbnail_cache_delete_file(thumbnail_cache, lp->data);
         }
         else

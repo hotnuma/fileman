@@ -3140,7 +3140,6 @@ gchar* th_file_cached_display_name(const GFile *file)
     return display_name;
 }
 
-//#if DUMP_FILE_CACHE
 static void _th_file_cache_dump_foreach(gpointer gfile,
                                         gpointer value, gpointer user_data)
 {
@@ -3174,7 +3173,6 @@ gboolean th_file_cache_dump(gpointer user_data)
 
     return TRUE;
 }
-//#endif
 
 #ifdef G_ENABLE_DEBUG
 static gboolean _th_file_atexit_registered = FALSE;

@@ -187,7 +187,7 @@ static void application_class_init(ApplicationClass *klass)
 
 static void application_finalize(GObject *object)
 {
-    /* rule of thumb: what gets initialized in GApplication::startup is cleaned up
+    /* what gets initialized in GApplication::startup is cleaned up
      * in GApplication::shutdown. Therefore, this method doesn't do very much */
 
     G_OBJECT_CLASS(application_parent_class)->finalize(object);

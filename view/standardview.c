@@ -594,10 +594,13 @@ static GObject* standardview_constructor(GType type, guint n_props,
 
     g_signal_connect(G_OBJECT(child), "drag-begin",
                      G_CALLBACK(_standardview_drag_begin), object);
+
     g_signal_connect(G_OBJECT(child), "drag-data-get",
                      G_CALLBACK(_standardview_drag_data_get), object);
+
     g_signal_connect(G_OBJECT(child), "drag-data-delete",
                      G_CALLBACK(_standardview_drag_data_delete), object);
+
     g_signal_connect(G_OBJECT(child), "drag-end",
                      G_CALLBACK(_standardview_drag_end), object);
 
@@ -613,20 +616,25 @@ static GObject* standardview_constructor(GType type, guint n_props,
 
     g_signal_connect(G_OBJECT(child), "drag-leave",
                      G_CALLBACK(_standardview_drag_leave), object);
+
     g_signal_connect(G_OBJECT(child), "drag-motion",
                      G_CALLBACK(_standardview_drag_motion), object);
+
     g_signal_connect(G_OBJECT(child), "drag-drop",
                      G_CALLBACK(_standardview_drag_drop), object);
+
     g_signal_connect(G_OBJECT(child), "drag-data-received",
                      G_CALLBACK(_standardview_drag_data_received), object);
 
     // connect to scroll events for generating thumbnail requests
-    GtkAdjustment *adjustment = gtk_scrolled_window_get_hadjustment(
-                                                        GTK_SCROLLED_WINDOW(view));
+    GtkAdjustment *adjustment =
+        gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(view));
+
     g_signal_connect(adjustment, "value-changed",
                      G_CALLBACK(_standardview_scrolled), object);
 
     adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(view));
+
     g_signal_connect(adjustment, "value-changed",
                      G_CALLBACK(_standardview_scrolled), object);
 
@@ -857,10 +865,6 @@ static void standardview_realize(GtkWidget *widget)
 
     StandardView *view = STANDARD_VIEW(widget);
     view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
-
-    g_object_bind_property(G_OBJECT(view->icon_renderer), "size",
-                           G_OBJECT(view->icon_factory), "thumbnail-size",
-                           G_BINDING_SYNC_CREATE);
 }
 
 static void standardview_unrealize(GtkWidget *widget)
@@ -1491,28 +1495,13 @@ static void standardview_set_zoom_level(BaseView *baseview,
 {
     StandardView *view = STANDARD_VIEW(baseview);
 
-    //gboolean newThumbnailSize = FALSE;
-
-    // check if we have a new zoom-level here
     if (G_UNLIKELY(view->priv->zoom_level == zoom_level))
         return;
-
-    //if (thunar_zoom_level_to_thumbnail_size(zoom_level)
-    //    != thunar_zoom_level_to_thumbnail_size(view->priv->zoom_level))
-    //{
-    //    newThumbnailSize = TRUE;
-    //}
 
     view->priv->zoom_level = zoom_level;
 
     g_object_notify_by_pspec(G_OBJECT(view),
                              _stdv_props[PROP_ZOOM_LEVEL]);
-
-    //if (newThumbnailSize)
-    //{
-    //    printf("newThumbnailSize\n");
-    //    standardview_reload(baseview, TRUE);
-    //}
 }
 
 static gboolean standardview_get_loading(BaseView *view)
@@ -1551,10 +1540,10 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
 
             // and try again
             baseview_scroll_to_file(BASEVIEW(view), file,
-                                        view->priv->scroll_to_select,
-                                        view->priv->scroll_to_use_align,
-                                        view->priv->scroll_to_row_align,
-                                        view->priv->scroll_to_col_align);
+                                    view->priv->scroll_to_select,
+                                    view->priv->scroll_to_use_align,
+                                    view->priv->scroll_to_row_align,
+                                    view->priv->scroll_to_col_align);
 
             // cleanup
             g_object_unref(G_OBJECT(file));
@@ -1564,6 +1553,7 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
             // look for a first visible file in the hash table
             ThunarFile *current_directory;
             current_directory = navigator_get_current_directory(THUNARNAVIGATOR(view));
+
             if (G_LIKELY(current_directory != NULL))
             {
                 GFile      *first_file;

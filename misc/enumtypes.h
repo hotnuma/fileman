@@ -146,7 +146,8 @@ GType parallel_copy_mode_get_type() G_GNUC_CONST;
 
 // ThunarRecursivePermissionsMode ---------------------------------------------
 
-#define THUNAR_TYPE_RECURSIVE_PERMISSIONS (thunar_recursive_permissions_get_type())
+#define THUNAR_TYPE_RECURSIVE_PERMISSIONS \
+    (thunar_recursive_permissions_get_type())
 
 typedef enum
 {
@@ -201,42 +202,6 @@ typedef enum
 } ThunarZoomLevel;
 
 GType thunar_zoom_level_get_type() G_GNUC_CONST;
-
-
-
-// ============================================================================
-
-// ThunarThumbnailMode --------------------------------------------------------
-
-#define THUNAR_TYPE_THUMBNAIL_MODE (thunar_thumbnail_mode_get_type())
-
-typedef enum
-{
-    THUNAR_THUMBNAIL_MODE_NEVER,
-    THUNAR_THUMBNAIL_MODE_ONLY_LOCAL,
-    THUNAR_THUMBNAIL_MODE_ALWAYS,
-
-} ThunarThumbnailMode;
-
-GType thunar_thumbnail_mode_get_type() G_GNUC_CONST;
-
-// ThunarThumbnailSize --------------------------------------------------------
-
-#define THUNAR_TYPE_THUMBNAIL_SIZE (thunar_thumbnail_size_get_type())
-
-typedef enum
-{
-    THUNAR_THUMBNAIL_SIZE_NORMAL,
-    THUNAR_THUMBNAIL_SIZE_LARGE,
-
-} ThunarThumbnailSize;
-
-GType thunar_thumbnail_size_get_type() G_GNUC_CONST;
-
-//const char* thunar_thumbnail_size_get_nick(ThunarThumbnailSize thumbnail_size)
-//                                           G_GNUC_CONST;
-//ThunarThumbnailSize thunar_zoom_level_to_thumbnail_size(ThunarZoomLevel zoom_level)
-//                                                        G_GNUC_CONST;
 
 G_END_DECLS
 

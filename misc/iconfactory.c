@@ -73,7 +73,6 @@ struct _IconKey
 typedef struct
 {
     FileIconState icon_state;
-    //ThunarFileThumbState thumb_state;
 
     gint        icon_size;
     guint       stamp;
@@ -90,9 +89,6 @@ enum
 {
     PROP_0,
     PROP_ICON_THEME,
-    PROP_THUMBNAIL_MODE,
-    PROP_THUMBNAIL_DRAW_FRAMES,
-    PROP_THUMBNAIL_SIZE,
 };
 
 struct _IconFactoryClass
@@ -106,10 +102,6 @@ struct _IconFactory
 
     GHashTable          *icon_cache;
     GtkIconTheme        *icon_theme;
-
-    ThunarThumbnailMode thumbnail_mode;
-    gboolean            thumbnail_draw_frames;
-    ThunarThumbnailSize thumbnail_size;
 
     guint               sweep_timer_id;
     gulong              changed_hook_id;
@@ -144,48 +136,14 @@ static void iconfact_class_init(IconFactoryClass *klass)
                                         "icon-theme",
                                         GTK_TYPE_ICON_THEME,
                                         E_PARAM_READABLE));
-
-    /**
-     * IconFactory:thumbnail-mode:
-     *
-     * Whether this #IconFactory will try to generate and load thumbnails
-     * when loading icons for #ThunarFile<!---->s.
-     **/
-    g_object_class_install_property(gobject_class,
-                                    PROP_THUMBNAIL_MODE,
-                                    g_param_spec_enum(
-                                        "thumbnail-mode",
-                                        "thumbnail-mode",
-                                        "thumbnail-mode",
-                                        THUNAR_TYPE_THUMBNAIL_MODE,
-                                        THUNAR_THUMBNAIL_MODE_NEVER,
-                                        E_PARAM_READWRITE));
-
-    /**
-     * IconFactory:thumbnail-size:
-     *
-     * Size of the thumbnails to load
-     **/
-    g_object_class_install_property(gobject_class,
-                                    PROP_THUMBNAIL_SIZE,
-                                    g_param_spec_enum(
-                                        "thumbnail-size",
-                                        "thumbnail-size",
-                                        "thumbnail-size",
-                                        THUNAR_TYPE_THUMBNAIL_SIZE,
-                                        THUNAR_THUMBNAIL_SIZE_NORMAL,
-                                        E_PARAM_READWRITE));
 }
 
 static void iconfact_init(IconFactory *factory)
 {
-    factory->thumbnail_mode = THUNAR_THUMBNAIL_MODE_NEVER;
-    factory->thumbnail_size = THUNAR_THUMBNAIL_SIZE_NORMAL;
-
-    /* connect emission hook for the "changed" signal on the GtkIconTheme class. We use the emission
-     * hook way here, because that way we can make sure that the icon cache is definetly cleared
-     * before any other part of the application gets notified about the icon theme change.
-     */
+    /* connect emission hook for the "changed" signal on the GtkIconTheme
+     * class. We use the emission hook way here, because that way we can make
+     * sure that the icon cache is definetly cleared before any other part of
+     * the application gets notified about the icon theme change. */
     factory->changed_hook_id = g_signal_add_emission_hook(
                             g_signal_lookup("changed", GTK_TYPE_ICON_THEME),
                             0,
@@ -247,18 +205,6 @@ static void iconfact_get_property(GObject *object, guint prop_id,
         g_value_set_object(value, factory->icon_theme);
         break;
 
-    case PROP_THUMBNAIL_MODE:
-        g_value_set_enum(value, factory->thumbnail_mode);
-        break;
-
-    case PROP_THUMBNAIL_DRAW_FRAMES:
-        g_value_set_boolean(value, factory->thumbnail_draw_frames);
-        break;
-
-    case PROP_THUMBNAIL_SIZE:
-        g_value_set_enum(value, factory->thumbnail_size);
-        break;
-
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
@@ -268,24 +214,14 @@ static void iconfact_get_property(GObject *object, guint prop_id,
 static void iconfact_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec)
 {
+    (void) object;
+    (void) value;
     (void) pspec;
 
-    IconFactory *factory = ICONFACTORY(object);
+    //IconFactory *factory = ICONFACTORY(object);
 
     switch (prop_id)
     {
-    case PROP_THUMBNAIL_MODE:
-        factory->thumbnail_mode = g_value_get_enum(value);
-        break;
-
-    case PROP_THUMBNAIL_DRAW_FRAMES:
-        factory->thumbnail_draw_frames = g_value_get_boolean(value);
-        break;
-
-    case PROP_THUMBNAIL_SIZE:
-        factory->thumbnail_size = g_value_get_enum(value);
-        break;
-
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
@@ -337,7 +273,7 @@ static guint _iconkey_hash(gconstpointer data)
 
     h =(guint) key->size << 5;
 
-    for(p = key->name; *p != '\0'; ++p)
+    for (p = key->name; *p != '\0'; ++p)
         h =(h << 5) - h + *p;
 
     return h;
@@ -383,7 +319,8 @@ static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
     lookup_key.size = size;
 
     // check if we already have a cached version of the icon
-    if (!g_hash_table_lookup_extended(factory->icon_cache, &lookup_key, NULL,(gpointer) &pixbuf))
+    if (!g_hash_table_lookup_extended(factory->icon_cache,
+                                      &lookup_key, NULL, (gpointer) &pixbuf))
     {
         // check if we have to load a file instead of a themed icon
         if (G_UNLIKELY(g_path_is_absolute(name)))
@@ -451,7 +388,6 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
                                            gint size)
 {
     GdkPixbuf *pixbuf;
-    //GdkPixbuf *frame;
     GdkPixbuf *tmp;
     gboolean   needs_frame;
     gint       max_width;
@@ -463,6 +399,7 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
 
     // try to load the image from the file
     pixbuf = gdk_pixbuf_new_from_file(path, NULL);
+
     if (G_LIKELY(pixbuf != NULL))
     {
         // determine the dimensions of the pixbuf
@@ -470,18 +407,6 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
         height = gdk_pixbuf_get_height(pixbuf);
 
         needs_frame = FALSE;
-
-        //if (factory->thumbnail_draw_frames)
-        //{
-        //    /* check if we want to add a frame to the image(we really don't
-        //     * want to do this for icons displayed in the details view).
-        //     * */
-        //    needs_frame =
-        //        (strstr(path,
-        //        G_DIR_SEPARATOR_S ".cache/thumbnails" G_DIR_SEPARATOR_S) != NULL)
-        //        && (size >= 32)
-        //        && thumbnail_needs_frame(pixbuf, width, height, size);
-        //}
 
         // be sure to make framed thumbnails fit into the size
         if (G_LIKELY(needs_frame))
@@ -503,16 +428,6 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
             g_object_unref(G_OBJECT(pixbuf));
             pixbuf = tmp;
         }
-
-        // add a frame around thumbnail(large) images
-        //if (G_LIKELY(needs_frame))
-        //{
-        //    // add a frame to the thumbnail
-        //    frame = thunar_icon_factory_get_thumbnail_frame();
-        //    tmp = pixbuf_frame(pixbuf, frame, 4, 3, 5, 6);
-        //    g_object_unref(G_OBJECT(pixbuf));
-        //    pixbuf = tmp;
-        //}
     }
 
     return pixbuf;
@@ -528,8 +443,8 @@ static gboolean _iconfact_sweep_timer(gpointer user_data)
 
     // ditch all icons whose ref_count is 1
     g_hash_table_foreach_remove(factory->icon_cache,
-                                (GHRFunc)(void(*)(void)) _iconkey_check_sweep,
-                                 factory);
+                                (GHRFunc) (void(*) (void)) _iconkey_check_sweep,
+                                factory);
 
     UTIL_THREADS_LEAVE
 
