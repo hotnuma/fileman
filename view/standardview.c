@@ -122,7 +122,10 @@ static gboolean _standardview_scroll_event(GtkWidget *widget, GdkEventScroll *ev
                                            StandardView *view);
 static gboolean _standardview_key_press_event(GtkWidget *widget, GdkEventKey *event,
                                               StandardView *view);
+
+#ifdef THUMB
 static void _standardview_scrolled(GtkAdjustment *adjustment, StandardView *view);
+#endif
 
 // standardview_init ----------------------------------------------------------
 
@@ -138,8 +141,11 @@ static void _standardview_error(ListModel *model, const GError *error,
                                 StandardView *view);
 static void _standardview_update_statusbar_text(StandardView *view);
 static gboolean _standardview_update_statusbar_text_idle(gpointer data);
+
+#ifdef THUMB
 static void _standardview_size_allocate(StandardView *view,
                                         GtkAllocation *allocation);
+#endif
 
 // Public Functions -----------------------------------------------------------
 
@@ -543,6 +549,110 @@ static void standardview_baseview_init(BaseViewIface *iface)
     iface->get_statusbar_text = standardview_get_statusbar_text;
 }
 
+// Standard View Init ---------------------------------------------------------
+
+static void standardview_init(StandardView *view)
+{
+    view->priv = standardview_get_instance_private(view);
+
+    // allocate the scroll_to_files mapping(directory GFile -> first visible child GFile)
+    view->priv->scroll_to_files = g_hash_table_new_full(
+                                                    g_file_hash,
+                                                    (GEqualFunc) g_file_equal,
+                                                    g_object_unref,
+                                                    g_object_unref);
+
+    // initialize the scrolled window
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(view),
+                                   GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_AUTOMATIC);
+
+    gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(view), NULL);
+    gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(view), NULL);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(view),
+                                        GTK_SHADOW_IN);
+
+    // setup the history support
+    view->priv->history = g_object_new(TYPE_THUNARHISTORY, NULL);
+    g_signal_connect_swapped(G_OBJECT(view->priv->history),
+                             "change-directory",
+                             G_CALLBACK(navigator_change_directory),
+                             view);
+
+    // setup the list model
+    view->model = listmodel_new();
+    g_signal_connect_after(G_OBJECT(view->model), "row-deleted",
+                           G_CALLBACK(_standardview_select_after_row_deleted),
+                           view);
+
+    view->priv->row_changed_id =
+        g_signal_connect(G_OBJECT(view->model), "row-changed",
+                         G_CALLBACK(_standardview_row_changed), view);
+
+    g_signal_connect(G_OBJECT(view->model), "rows-reordered",
+                     G_CALLBACK(_standardview_rows_reordered), view);
+
+    g_signal_connect(G_OBJECT(view->model), "error",
+                     G_CALLBACK(_standardview_error), view);
+
+    // setup the icon renderer
+    view->icon_renderer = iconrender_new();
+    g_object_ref_sink(G_OBJECT(view->icon_renderer));
+
+    g_object_bind_property(G_OBJECT(view), "zoom-level",
+                           G_OBJECT(view->icon_renderer), "size",
+                           G_BINDING_SYNC_CREATE);
+
+    // setup the name renderer
+    view->name_renderer =
+        g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
+#if PANGO_VERSION_CHECK(1, 44, 0)
+                     "attributes",
+                     e_pango_attr_disable_hyphens(),
+#endif
+                     "alignment",
+                     PANGO_ALIGN_CENTER,
+                     "xalign",
+                     0.5,
+                     NULL);
+
+    g_object_ref_sink(G_OBJECT(view->name_renderer));
+
+    // be sure to update the selection whenever the folder changes
+    g_signal_connect_swapped(G_OBJECT(view->model),
+                             "notify::folder",
+                             G_CALLBACK(standardview_selection_changed),
+                             view);
+
+    /* be sure to update the statusbar text whenever the number of
+     * files in our model changes.
+     */
+    g_signal_connect_swapped(G_OBJECT(view->model),
+                             "notify::num-files",
+                             G_CALLBACK(_standardview_update_statusbar_text),
+                             view);
+
+    // be sure to update the statusbar text whenever the file-size-binary property changes
+    g_signal_connect_swapped(G_OBJECT(view->model),
+                             "notify::file-size-binary",
+                             G_CALLBACK(_standardview_update_statusbar_text),
+                             view);
+
+#ifdef THUMB
+    // connect to size allocation signals for generating thumbnail requests
+    g_signal_connect_after(G_OBJECT(view),
+                           "size-allocate",
+                           G_CALLBACK(_standardview_size_allocate),
+                           NULL);
+#endif
+
+    // add widget to css class
+    gtk_style_context_add_class(
+                gtk_widget_get_style_context(GTK_WIDGET(view)),
+                "standard-view");
+
+    view->accel_group = NULL;
+}
 
 // Object Class ---------------------------------------------------------------
 
@@ -626,6 +736,7 @@ static GObject* standardview_constructor(GType type, guint n_props,
     g_signal_connect(G_OBJECT(child), "drag-data-received",
                      G_CALLBACK(_standardview_drag_data_received), object);
 
+#ifdef THUMB
     // connect to scroll events for generating thumbnail requests
     GtkAdjustment *adjustment =
         gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(view));
@@ -634,6 +745,7 @@ static GObject* standardview_constructor(GType type, guint n_props,
     adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(view));
     g_signal_connect(adjustment, "value-changed",
                      G_CALLBACK(_standardview_scrolled), object);
+#endif
 
     // done, we have a working object
     return object;
@@ -952,109 +1064,6 @@ static void _standardview_disconnect_accelerators(StandardView *view)
 
     // and release the accel group
     g_object_unref(view->accel_group);
-    view->accel_group = NULL;
-}
-
-// Standard View Init ---------------------------------------------------------
-
-static void standardview_init(StandardView *view)
-{
-    view->priv = standardview_get_instance_private(view);
-
-    // allocate the scroll_to_files mapping(directory GFile -> first visible child GFile)
-    view->priv->scroll_to_files = g_hash_table_new_full(
-                                                    g_file_hash,
-                                                    (GEqualFunc) g_file_equal,
-                                                    g_object_unref,
-                                                    g_object_unref);
-
-    // initialize the scrolled window
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(view),
-                                   GTK_POLICY_AUTOMATIC,
-                                   GTK_POLICY_AUTOMATIC);
-
-    gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(view), NULL);
-    gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(view), NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(view),
-                                        GTK_SHADOW_IN);
-
-    // setup the history support
-    view->priv->history = g_object_new(TYPE_THUNARHISTORY, NULL);
-    g_signal_connect_swapped(G_OBJECT(view->priv->history),
-                             "change-directory",
-                             G_CALLBACK(navigator_change_directory),
-                             view);
-
-    // setup the list model
-    view->model = listmodel_new();
-    g_signal_connect_after(G_OBJECT(view->model), "row-deleted",
-                           G_CALLBACK(_standardview_select_after_row_deleted),
-                           view);
-
-    view->priv->row_changed_id =
-        g_signal_connect(G_OBJECT(view->model), "row-changed",
-                         G_CALLBACK(_standardview_row_changed), view);
-
-    g_signal_connect(G_OBJECT(view->model), "rows-reordered",
-                     G_CALLBACK(_standardview_rows_reordered), view);
-
-    g_signal_connect(G_OBJECT(view->model), "error",
-                     G_CALLBACK(_standardview_error), view);
-
-    // setup the icon renderer
-    view->icon_renderer = iconrender_new();
-    g_object_ref_sink(G_OBJECT(view->icon_renderer));
-
-    g_object_bind_property(G_OBJECT(view), "zoom-level",
-                           G_OBJECT(view->icon_renderer), "size",
-                           G_BINDING_SYNC_CREATE);
-
-    // setup the name renderer
-    view->name_renderer =
-        g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
-#if PANGO_VERSION_CHECK(1, 44, 0)
-                     "attributes",
-                     e_pango_attr_disable_hyphens(),
-#endif
-                     "alignment",
-                     PANGO_ALIGN_CENTER,
-                     "xalign",
-                     0.5,
-                     NULL);
-
-    g_object_ref_sink(G_OBJECT(view->name_renderer));
-
-    // be sure to update the selection whenever the folder changes
-    g_signal_connect_swapped(G_OBJECT(view->model),
-                             "notify::folder",
-                             G_CALLBACK(standardview_selection_changed),
-                             view);
-
-    /* be sure to update the statusbar text whenever the number of
-     * files in our model changes.
-     */
-    g_signal_connect_swapped(G_OBJECT(view->model),
-                             "notify::num-files",
-                             G_CALLBACK(_standardview_update_statusbar_text),
-                             view);
-
-    // be sure to update the statusbar text whenever the file-size-binary property changes
-    g_signal_connect_swapped(G_OBJECT(view->model),
-                             "notify::file-size-binary",
-                             G_CALLBACK(_standardview_update_statusbar_text),
-                             view);
-
-    // connect to size allocation signals for generating thumbnail requests
-    g_signal_connect_after(G_OBJECT(view),
-                           "size-allocate",
-                           G_CALLBACK(_standardview_size_allocate),
-                           NULL);
-
-    // add widget to css class
-    gtk_style_context_add_class(
-                gtk_widget_get_style_context(GTK_WIDGET(view)),
-                "standard-view");
-
     view->accel_group = NULL;
 }
 
@@ -1926,6 +1935,7 @@ static gboolean _standardview_key_press_event(GtkWidget    *widget,
     return FALSE;
 }
 
+#ifdef THUMB
 static void _standardview_scrolled(GtkAdjustment *adjustment, StandardView *view)
 {
     e_return_if_fail(GTK_IS_ADJUSTMENT(adjustment));
@@ -1935,6 +1945,7 @@ static void _standardview_scrolled(GtkAdjustment *adjustment, StandardView *view
     if (baseview_get_loading(BASEVIEW(view)))
         return;
 }
+#endif
 
 // standardview_init ----------------------------------------------------------
 
@@ -2102,6 +2113,7 @@ static gboolean _standardview_update_statusbar_text_idle(gpointer data)
     return FALSE;
 }
 
+#ifdef THUMB
 static void _standardview_size_allocate(StandardView  *view,
                                         GtkAllocation *allocation)
 {
@@ -2113,6 +2125,7 @@ static void _standardview_size_allocate(StandardView  *view,
     if (baseview_get_loading(BASEVIEW(view)))
         return;
 }
+#endif
 
 // Public Functions -----------------------------------------------------------
 
