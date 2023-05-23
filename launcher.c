@@ -670,13 +670,16 @@ static void launcher_set_selected_files(ThunarComponent *component,
     launcher->files_to_process = NULL;
 
     // notify listeners
-    g_object_notify_by_pspec(G_OBJECT(launcher), _launcher_props[PROP_SELECTED_FILES]);
+    g_object_notify_by_pspec(G_OBJECT(launcher),
+                             _launcher_props[PROP_SELECTED_FILES]);
 
     // unref previous parent, if any
-    if (launcher->parent_folder != NULL)
+    if (launcher->parent_folder)
+    {
         g_object_unref(launcher->parent_folder);
+        launcher->parent_folder = NULL;
+    }
 
-    launcher->parent_folder = NULL;
     launcher->files_are_selected = TRUE;
 
     if (selected_files == NULL || g_list_length(selected_files) == 0)
@@ -690,9 +693,10 @@ static void launcher_set_selected_files(ThunarComponent *component,
 
     launcher->single_directory_to_process = FALSE;
     launcher->single_folder = NULL;
-    launcher->parent_folder = NULL;
 
-    // if nothing is selected, the current directory is the folder to use for all menus
+    /* if nothing is selected, the current directory is the folder to use
+     * for all menus */
+
     if (launcher->files_are_selected)
         launcher->files_to_process = e_list_copy(selected_files);
     else
@@ -700,8 +704,9 @@ static void launcher_set_selected_files(ThunarComponent *component,
                                                    launcher->current_directory);
 
     // determine the number of files/directories/executables
-    GList *lp;
-    for (lp = launcher->files_to_process; lp != NULL; lp = lp->next, ++launcher->n_files_to_process)
+    for (GList *lp = launcher->files_to_process;
+         lp != NULL;
+         lp = lp->next, ++launcher->n_files_to_process)
     {
         // Keep a reference on all selected files
         g_object_ref(lp->data);
@@ -724,7 +729,9 @@ static void launcher_set_selected_files(ThunarComponent *component,
             launcher->files_to_process_trashable = FALSE;
     }
 
-    launcher->single_directory_to_process =(launcher->n_directories_to_process == 1 && launcher->n_files_to_process == 1);
+    launcher->single_directory_to_process =
+            (launcher->n_directories_to_process == 1
+             && launcher->n_files_to_process == 1);
 
     if (launcher->single_directory_to_process)
     {
@@ -800,10 +807,10 @@ void launcher_append_accelerators(ThunarLauncher *launcher, GtkAccelGroup *accel
 }
 
 gboolean launcher_append_open_section(ThunarLauncher *launcher,
-                                             GtkMenuShell   *menu,
-                                             gboolean        support_tabs,
-                                             gboolean        support_change_directory,
-                                             gboolean        force)
+                                      GtkMenuShell   *menu,
+                                      gboolean       support_tabs,
+                                      gboolean       support_change_directory,
+                                      gboolean       force)
 {
     (void) support_tabs;
     GList     *applications;
