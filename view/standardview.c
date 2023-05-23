@@ -629,12 +629,9 @@ static GObject* standardview_constructor(GType type, guint n_props,
     // connect to scroll events for generating thumbnail requests
     GtkAdjustment *adjustment =
         gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(view));
-
     g_signal_connect(adjustment, "value-changed",
                      G_CALLBACK(_standardview_scrolled), object);
-
     adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(view));
-
     g_signal_connect(adjustment, "value-changed",
                      G_CALLBACK(_standardview_scrolled), object);
 

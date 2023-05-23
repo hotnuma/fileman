@@ -499,7 +499,7 @@ static void propsdlg_dispose(GObject *object)
 {
     PropertiesDialog *dialog = PROPERTIESDIALOG(object);
 
-    // reset the file displayed by the dialog
+    // unwatch files and delete list
     propsdlg_set_files(dialog, NULL);
 
     G_OBJECT_CLASS(propsdlg_parent_class)->dispose(object);
@@ -570,11 +570,10 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
 {
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
 
-    // check if the same lists are used(or null)
     if (G_UNLIKELY(dialog->files == files))
         return;
 
-    ThunarFile *file;
+    ThunarFile *file = NULL;
 
     // disconnect from any previously set files
     for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
@@ -602,6 +601,7 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
     for (GList *lp = dialog->files; lp != NULL; lp = lp->next)
     {
         e_assert(IS_THUNARFILE(lp->data));
+
         file = THUNARFILE(g_object_ref(G_OBJECT(lp->data)));
 
         // watch the file for changes
@@ -610,21 +610,16 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
         // install signal handlers
         g_signal_connect_swapped(G_OBJECT(file), "changed",
                                  G_CALLBACK(_propsdlg_update), dialog);
+
         g_signal_connect_swapped(G_OBJECT(file), "destroy",
                                  G_CALLBACK(gtk_widget_destroy), dialog);
     }
 
-    // update the dialog contents
+    // update UI
     if (dialog->files != NULL)
-    {
-        // update the UI for the new file
         _propsdlg_update(dialog);
 
-        // update the provider property pages
-        //thunar_properties_dialog_update_providers(dialog);
-    }
-
-    // tell everybody that we have a new file here
+    // tell everybody that we have a new files
     g_object_notify(G_OBJECT(dialog), "files");
 }
 
@@ -637,8 +632,8 @@ static void propsdlg_response(GtkDialog *dialog, gint response)
     else if (response == GTK_RESPONSE_HELP)
     {
         xfce_dialog_show_help(GTK_WINDOW(dialog), "thunar",
-                               "working-with-files-and-folders",
-                               "file_properties");
+                              "working-with-files-and-folders",
+                              "file_properties");
     }
     else if (GTK_DIALOG_CLASS(propsdlg_parent_class)->response != NULL)
     {
@@ -649,7 +644,8 @@ static void propsdlg_response(GtkDialog *dialog, gint response)
 static gboolean propsdlg_reload(PropertiesDialog *dialog)
 {
     // reload the active files
-    g_list_foreach(dialog->files,(GFunc)(void(*)(void)) th_file_reload, NULL);
+    g_list_foreach(dialog->files,
+                   (GFunc) (void(*)(void)) th_file_reload, NULL);
 
     return dialog->files != NULL;
 }
@@ -662,20 +658,20 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
 
-    // check if we still have a valid file and if the user is allowed to rename
-    if (G_UNLIKELY(!gtk_widget_get_sensitive(GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry)))
-                    || g_list_length(dialog->files) != 1))
+    GtkWidget *in_entry =
+        GTK_WIDGET(xfce_filename_input_get_entry(dialog->name_entry));
+
+    if (g_list_length(dialog->files) != 1
+        || !gtk_widget_get_sensitive(in_entry))
         return;
 
-    // determine new and old name
     ThunarFile *file = THUNARFILE(dialog->files->data);
+    const gchar *old_name = th_file_get_display_name(file);
 
     const gchar *new_name;
     new_name = xfce_filename_input_get_text(dialog->name_entry);
 
-    const gchar *old_name = th_file_get_display_name(file);
-
-    if (g_utf8_collate(new_name, old_name) == 0)
+    if (g_utf8_collate(old_name, new_name) == 0)
         return;
 
     ThunarJob *job = io_rename_file(file, new_name);
@@ -700,12 +696,14 @@ static void _propsdlg_rename_error(ExoJob *job, GError *error,
     /* reset the entry display name to the original name, so the focus
        out event does not trigger the rename again by calling
        thunar_properties_dialog_name_activate */
-    gtk_entry_set_text(GTK_ENTRY(xfce_filename_input_get_entry(dialog->name_entry)),
-                        th_file_get_display_name(THUNARFILE(dialog->files->data)));
+    gtk_entry_set_text(
+        GTK_ENTRY(xfce_filename_input_get_entry(dialog->name_entry)),
+        th_file_get_display_name(THUNARFILE(dialog->files->data)));
 
     // display an error message
-    dialog_error(GTK_WIDGET(dialog), error, _("Failed to rename \"%s\""),
-                               th_file_get_display_name(THUNARFILE(dialog->files->data)));
+    dialog_error(GTK_WIDGET(dialog), error,
+                 _("Failed to rename \"%s\""),
+                 th_file_get_display_name(THUNARFILE(dialog->files->data)));
 }
 
 static void _propsdlg_rename_finished(ExoJob *job, PropertiesDialog *dialog)
@@ -760,43 +758,24 @@ static void _propsdlg_update(PropertiesDialog *dialog)
 
 static void _propsdlg_update_single(PropertiesDialog *dialog)
 {
-    IconFactory *icon_factory;
-    GtkIconTheme      *icon_theme;
-    const gchar       *content_type;
-    const gchar       *name;
-    const gchar       *path;
-    GVolume           *volume;
-    GIcon             *gicon;
-    glong              offset;
-    gchar             *date;
-    gchar             *display_name;
-    gchar             *fs_string;
-    gchar             *str;
-    gchar             *volume_name;
-    gchar             *volume_id;
-    gchar             *volume_label;
-    ThunarFile        *file;
-    ThunarFile        *parent_file;
-    gboolean           show_chooser;
-    guint64            fs_free;
-    guint64            fs_size;
-    gdouble            fs_fraction = 0.0;
-
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
     e_return_if_fail(g_list_length(dialog->files) == 1);
     e_return_if_fail(IS_THUNARFILE(dialog->files->data));
 
     // whether the dialog shows a single file or a group of files
+    ThunarFile        *file;
     file = THUNARFILE(dialog->files->data);
 
     // hide the permissions chooser for trashed files
     gtk_widget_set_visible(dialog->permissions_chooser, !th_file_is_trashed(file));
 
+    IconFactory *icon_factory;
+    GtkIconTheme      *icon_theme;
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(dialog)));
     icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
-
     // update the properties dialog title
+    gchar             *str;
     str = g_strdup_printf(_("%s - Properties"), th_file_get_display_name(file));
     gtk_window_set_title(GTK_WINDOW(dialog), str);
     g_free(str);
@@ -823,6 +802,8 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     // update the name(if it differs)
     gtk_editable_set_editable(GTK_EDITABLE(xfce_filename_input_get_entry(dialog->name_entry)),
                                th_file_is_renameable(file));
+
+    const gchar       *name;
     name = th_file_get_display_name(file);
     if (G_LIKELY(strcmp(name, xfce_filename_input_get_text(dialog->name_entry)) != 0))
     {
@@ -836,6 +817,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
         if (G_LIKELY(str != NULL))
         {
             // calculate the offset
+            glong              offset;
             offset = g_utf8_pointer_to_offset(name, str);
 
             // select the region
@@ -845,6 +827,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     }
 
     // update the content type
+    const gchar       *content_type;
     content_type = th_file_get_content_type(file);
     if (content_type != NULL)
     {
@@ -865,12 +848,16 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     }
 
     // update the application chooser(shown only for non-executable regular files!)
+    gboolean           show_chooser;
     show_chooser = th_file_is_regular(file) && !th_file_is_executable(file);
     gtk_widget_set_visible(dialog->openwith_chooser, show_chooser);
     if (show_chooser)
         appcombo_set_file(APPCOMBO(dialog->openwith_chooser), file);
 
+    gchar             *display_name;
+
     // update the link target
+    const gchar       *path;
     path = th_file_is_symlink(file) ? th_file_get_symlink_target(file) : NULL;
     if (G_UNLIKELY(path != NULL))
     {
@@ -899,6 +886,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     }
 
     // update the file or folder location(parent)
+    ThunarFile        *parent_file;
     parent_file = th_file_get_parent(file, NULL);
     if (G_UNLIKELY(parent_file != NULL))
     {
@@ -918,6 +906,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     gchar *date_custom_style = NULL;
 
     // update the deleted time
+    gchar             *date;
     date = th_file_get_deletion_date(file, date_style, date_custom_style);
     if (G_LIKELY(date != NULL))
     {
@@ -959,6 +948,11 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     // update the free space(only for folders)
     if (th_file_is_directory(file))
     {
+        gchar             *fs_string;
+        guint64            fs_free;
+        guint64            fs_size;
+        gdouble            fs_fraction = 0.0;
+
         fs_string = e_file_get_free_space_string(th_file_get_file(file),
                     dialog->file_size_binary);
         if (e_file_get_free_space(th_file_get_file(file), &fs_free, &fs_size)
@@ -985,16 +979,21 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     }
 
     // update the volume
+    GVolume           *volume;
     volume = th_file_get_volume(file);
     if (G_LIKELY(volume != NULL))
     {
+        GIcon             *gicon;
         gicon = g_volume_get_icon(volume);
         gtk_image_set_from_gicon(GTK_IMAGE(dialog->volume_image), gicon, GTK_ICON_SIZE_MENU);
         if (G_LIKELY(gicon != NULL))
             g_object_unref(gicon);
 
+        gchar             *volume_name;
         volume_name = g_volume_get_name(volume);
+        gchar             *volume_id;
         volume_id = g_volume_get_identifier(volume, G_VOLUME_IDENTIFIER_KIND_UNIX_DEVICE);
+        gchar             *volume_label;
         volume_label= g_strdup_printf("%s(%s)", volume_name, volume_id);
         gtk_label_set_text(GTK_LABEL(dialog->volume_label), volume_label);
         gtk_widget_show(dialog->volume_label);
@@ -1184,10 +1183,11 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
 GtkWidget* propsdlg_new(GtkWindow *parent)
 {
     e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), NULL);
+
     return g_object_new(TYPE_PROPERTIESDIALOG,
-                         "transient-for", parent,
-                         "destroy-with-parent", parent != NULL,
-                         NULL);
+                        "transient-for", parent,
+                        "destroy-with-parent", parent != NULL,
+                        NULL);
 }
 
 void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
@@ -1198,6 +1198,7 @@ void propsdlg_set_file(PropertiesDialog *dialog, ThunarFile *file)
     if (file == NULL)
     {
         propsdlg_set_files(dialog, NULL);
+
         return;
     }
 

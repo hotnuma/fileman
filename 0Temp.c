@@ -2,6 +2,7 @@
 // ----------------------------------------------------------------------------
 
 #if 0
+
     if (folder->gfilemonitor)
     {
         gchar *file_uri = th_file_get_uri(folder->thunar_file);
@@ -79,110 +80,95 @@
     }
 #endif
 
-// ----------------------------------------------------------------------------
+// Thumbnails -----------------------------------------------------------------
 
 #if 0
 
-#define FLAG_SET_THUMB_STATE(file, new_state) \
-    G_STMT_START{ \
-    (file)->flags =((file)->flags & ~THUNARFILE_FLAG_THUMB_MASK) |(new_state); \
-    }G_STMT_END
+// _io_unlink
 
-static inline gboolean thumbnail_needs_frame(const GdkPixbuf *thumbnail,
-                                             gint             width,
-                                             gint             height,
-                                             gint             size)
+// try to delete the file
+if (_io_delete_file(lp->data, exo_job_get_cancellable(EXOJOB(job)), &err))
 {
-    const guchar *pixels;
-    gint          rowstride;
-    gint          n;
+    /* notify the thumbnail cache that the corresponding thumbnail can also
+     * be deleted now */
 
-    // don't add frames to small thumbnails
-    if (size < THUNAR_ICON_SIZE_64 )
-        return FALSE;
-
-    // always add a frame to thumbnails w/o alpha channel
-    if (G_LIKELY(!gdk_pixbuf_get_has_alpha(thumbnail)))
-        return TRUE;
-
-    // get a pointer to the thumbnail data
-    pixels = gdk_pixbuf_get_pixels(thumbnail);
-
-    // check if we have a transparent pixel on the first row
-    for(n = width * 4; n > 0; n -= 4)
-        if (pixels[n - 1] < 255u)
-            return FALSE;
-
-    // determine the rowstride
-    rowstride = gdk_pixbuf_get_rowstride(thumbnail);
-
-    // skip the first row
-    pixels += rowstride;
-
-    // check if we have a transparent pixel in the first or last column
-    for(n = height - 2; n > 0; --n, pixels += rowstride)
-        if (pixels[3] < 255u || pixels[width * 4 - 1] < 255u)
-            return FALSE;
-
-    // check if we have a transparent pixel on the last row
-    for(n = width * 4; n > 0; n -= 4)
-        if (pixels[n - 1] < 255u)
-            return FALSE;
-
-    return TRUE;
+    //thunar_thumbnail_cache_delete_file(thumbnail_cache, lp->data);
 }
 
-gboolean thunar_icon_factory_get_show_thumbnail(const IconFactory *factory,
-                                                const ThunarFile *file);
-
-static GdkPixbuf* thunar_icon_factory_get_thumbnail_frame()
-{
-    GInputStream *stream;
-    static GdkPixbuf *frame = NULL;
-
-    if (G_LIKELY(frame != NULL))
-        return frame;
-
-    stream = g_resources_open_stream("/org/xfce/thunar/thumbnail-frame.png", 0, NULL);
-    if (G_UNLIKELY(stream != NULL))
-    {
-        frame = gdk_pixbuf_new_from_stream(stream, NULL, NULL);
-        g_object_unref(stream);
-    }
-
-    return frame;
-}
-
-gboolean thunar_icon_factory_get_show_thumbnail(const IconFactory *factory,
-                                                const ThunarFile        *file)
-{
-    GFilesystemPreviewType preview;
-
-    e_return_val_if_fail(IS_ICONFACTORY(factory), THUNAR_THUMBNAIL_MODE_NEVER);
-    e_return_val_if_fail(file == NULL || IS_THUNARFILE(file), THUNAR_THUMBNAIL_MODE_NEVER);
-
-    if (file == NULL
-            || factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_NEVER)
-        return FALSE;
-
-    // always create thumbs for local files
-    if (thunar_file_is_local(file))
-        return TRUE;
-
-    preview = thunar_file_get_preview_type(file);
-
-    // file system says to never thumbnail anything
-    if (preview == G_FILESYSTEM_PREVIEW_TYPE_NEVER)
-        return FALSE;
-
-    // only if the setting is local and the fs reports to be local
-    if (factory->thumbnail_mode == THUNAR_THUMBNAIL_MODE_ONLY_LOCAL)
-        return preview == G_FILESYSTEM_PREVIEW_TYPE_IF_LOCAL;
-
-    // THUNAR_THUMBNAIL_MODE_ALWAYS
-    return TRUE;
-}
 #endif
 
+#if 0
+// iconfact_load_file_icon
+
+GInputStream    *stream;
+GtkIconInfo     *icon_info;
+const gchar     *thumbnail_path;
+GIcon           *gicon;
+
+// check if thumbnails are enabled and we can display a thumbnail for the item
+if (thunar_icon_factory_get_show_thumbnail(factory, file)
+        && (thunar_file_is_regular(file) || thunar_file_is_directory(file)))
+{
+    // determine the preview icon first
+    gicon = thunar_file_get_preview_icon(file);
+
+    // check if we have a preview icon
+    if (gicon != NULL)
+    {
+        if (G_IS_THEMED_ICON(gicon))
+        {
+            // we have a themed preview icon, look it up using the icon theme
+            icon_info =
+                gtk_icon_theme_lookup_by_gicon(factory->icon_theme,
+                                                gicon, icon_size,
+                                                GTK_ICON_LOOKUP_USE_BUILTIN
+                                                | GTK_ICON_LOOKUP_FORCE_SIZE);
+
+            // check if the lookup succeeded
+            if (icon_info != NULL)
+            {
+                // try to load the pixbuf from the icon info
+                icon = gtk_icon_info_load_icon(icon_info, NULL);
+                g_object_unref(icon_info);
+            }
+        }
+        else if (G_IS_LOADABLE_ICON(gicon))
+        {
+            // we have a loadable icon, try to open it for reading
+            stream = g_loadable_icon_load(G_LOADABLE_ICON(gicon), icon_size,
+                                           NULL, NULL, NULL);
+
+            // check if we have a valid input stream
+            if (stream != NULL)
+            {
+                // load the pixbuf from the stream
+                icon = gdk_pixbuf_new_from_stream_at_scale(stream, icon_size,
+                        icon_size, TRUE,
+                        NULL, NULL);
+
+                // destroy the stream
+                g_object_unref(stream);
+            }
+        }
+
+        // return the icon if we have one
+        if (icon != NULL)
+            return icon;
+    }
+    else
+    {
+        /* we have no preview icon but the thumbnail should be ready. determine
+         * the filename of the thumbnail */
+        thumbnail_path = thunar_file_get_thumbnail_path(file, factory->thumbnail_size);
+
+        // check if we have a valid path
+        if (thumbnail_path != NULL)
+        {
+            // try to load the thumbnail
+            icon = thunar_icon_factory_load_from_file(factory, thumbnail_path, icon_size);
+        }
+    }
+}
+#endif
 
 

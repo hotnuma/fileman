@@ -461,26 +461,19 @@ ThunarJob* io_unlink_files(GList *file_list)
 
 static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
 {
-    ThunarJobResponse     response;
-    GFileInfo            *info;
-    GError               *err = NULL;
-    GList                *file_list;
-    GList                *lp;
-    gchar                *base_name;
-    gchar                *display_name;
-    guint                 n_processed = 0;
-
     e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     e_return_val_if_fail(param_values != NULL, FALSE);
     e_return_val_if_fail(param_values->len == 1, FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     // get the file list
+    GList                *file_list;
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
 
     // tell the user that we're preparing to unlink the files
     exo_job_info_message(EXOJOB(job), _("Preparing..."));
 
+    GError               *err = NULL;
     // recursively collect files for removal, not following any symlinks
     file_list = _io_collect_nofollow(job, file_list, TRUE, &err);
 
@@ -499,10 +492,12 @@ static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
     // we know the total list of files to process
     job_set_total_files(THUNAR_JOB(job), file_list);
 
+    guint n_processed = 0;
+
     // remove all the files
-    for (lp = file_list;
-            lp != NULL && !exo_job_is_cancelled(EXOJOB(job));
-            lp = lp->next, n_processed++)
+    for (GList *lp = file_list;
+         lp != NULL && !exo_job_is_cancelled(EXOJOB(job));
+         lp = lp->next, ++n_processed)
     {
         g_assert(G_IS_FILE(lp->data));
 
@@ -514,22 +509,16 @@ static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
         job_processing_file(THUNAR_JOB(job), lp, n_processed);
 
 again:
-        // try to delete the file
-        if (_io_delete_file(lp->data, exo_job_get_cancellable(EXOJOB(job)), &err))
-        {
-            /* notify the thumbnail cache that the corresponding thumbnail can also
-             * be deleted now */
 
-            //thunar_thumbnail_cache_delete_file(thumbnail_cache, lp->data);
-        }
-        else
+        if (!_io_delete_file(lp->data, exo_job_get_cancellable(EXOJOB(job)), &err))
         {
             // query the file info for the display name
+            GFileInfo *info;
             info = g_file_query_info(lp->data,
-                                      G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
-                                      G_FILE_QUERY_INFO_NONE,
-                                      exo_job_get_cancellable(EXOJOB(job)),
-                                      NULL);
+                                     G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+                                     G_FILE_QUERY_INFO_NONE,
+                                     exo_job_get_cancellable(EXOJOB(job)),
+                                     NULL);
 
             // abort if the job was cancelled
             if (exo_job_is_cancelled(EXOJOB(job)))
@@ -537,6 +526,8 @@ again:
                 g_clear_error(&err);
                 break;
             }
+
+            gchar *display_name;
 
             // determine the display name, using the basename as a fallback
             if (info != NULL)
@@ -546,15 +537,17 @@ again:
             }
             else
             {
-                base_name = g_file_get_basename(lp->data);
+                gchar *base_name = g_file_get_basename(lp->data);
                 display_name = g_filename_display_name(base_name);
                 g_free(base_name);
             }
 
             // ask the user whether he wants to skip this file
+            ThunarJobResponse response;
             response = job_ask_skip(THUNAR_JOB(job),
-                                            _("Could not delete file \"%s\": %s"),
-                                            display_name, err->message);
+                                    _("Could not delete file \"%s\": %s"),
+                                    display_name, err->message);
+
             g_free(display_name);
 
             // clear the error
