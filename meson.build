@@ -17,8 +17,6 @@ c_args = [
     '-DSN_API_NOT_YET_FROZEN',
 ]
 
-#cc = meson.get_compiler('c')
-
 app_includes = [
     'core',
     'dialog',
