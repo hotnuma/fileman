@@ -713,20 +713,20 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                                                GdkEventButton *event,
                                                DetailView *details_view)
 {
-    GtkTreeSelection  *selection;
-    GtkTreePath       *path = NULL;
-    GtkTreeViewColumn *column;
-    GtkTreeViewColumn *name_column;
-
     // check if the event is for the bin window
     if (G_UNLIKELY(event->window != gtk_tree_view_get_bin_window(tree_view)))
         return FALSE;
 
     // get the current selection
+    GtkTreeSelection  *selection;
     selection = gtk_tree_view_get_selection(tree_view);
 
     // get the column showing the filenames
+    GtkTreeViewColumn *name_column;
     name_column = details_view->columns[THUNAR_COLUMN_NAME];
+
+    GtkTreePath *path = NULL;
+    GtkTreeViewColumn *column;
 
     /* unselect all selected items if the user clicks on an empty area
      * of the treeview and no modifier key is active */
@@ -743,14 +743,15 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
     // left click
     if (path != NULL && event->type == GDK_BUTTON_PRESS && event->button == 1)
     {
-        GtkTreePath       *cursor_path;
-
         details_view->button_pressed = TRUE;
 
         // grab the tree view
         gtk_widget_grab_focus(GTK_WIDGET(tree_view));
 
+        GtkTreePath *cursor_path;
+
         gtk_tree_view_get_cursor(tree_view, &cursor_path, NULL);
+
         if (cursor_path != NULL)
         {
             gtk_tree_path_free(cursor_path);
@@ -772,6 +773,7 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                 // return FALSE to not abort dragging
                 return FALSE;
             }
+
             gtk_tree_path_free(path);
         }
     }
@@ -784,10 +786,7 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
 
         if (path == NULL)
         {
-            // open the context menu
-
-            //DPRINT("button press 3-1\n");
-
+            // create the context menu
             standardview_context_menu(STANDARD_VIEW(details_view));
         }
         else
@@ -799,9 +798,7 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                     gtk_tree_selection_unselect_all(selection);
 
                 // queue the menu popup
-                //DPRINT("button press 3-2\n");
-                standardview_queue_popup(STANDARD_VIEW(details_view),
-                                                 event);
+                standardview_queue_popup(STANDARD_VIEW(details_view), event);
             }
             else
             {
@@ -813,7 +810,6 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                 }
 
                 // show the context menu
-                //DPRINT("button press 3-3\n");
                 standardview_context_menu(STANDARD_VIEW(details_view));
             }
 
@@ -822,35 +818,6 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
 
         return TRUE;
     }
-
-#if 0
-    // middle click
-    else if (event->type == GDK_BUTTON_PRESS && event->button == 2)
-    {
-        // determine the path to the item that was middle-clicked
-        if (gtk_tree_view_get_path_at_pos(tree_view,
-                                          event->x,
-                                          event->y,
-                                          &path,
-                                          NULL,
-                                          NULL,
-                                          NULL))
-        {
-            // select only the path to the item on which the user clicked
-            gtk_tree_selection_unselect_all(selection);
-            gtk_tree_selection_select_path(selection, path);
-
-            // try to open the path as new window/tab, if possible
-            standardview_open_on_middle_click(STANDARD_VIEW(details_view),
-                                               path, event->state);
-
-            // cleanup
-            gtk_tree_path_free(path);
-        }
-
-        return TRUE;
-    }
-#endif
 
     return FALSE;
 }
@@ -864,10 +831,12 @@ static gboolean _detailview_key_press_event(GtkTreeView *tree_view,
     details_view->button_pressed = FALSE;
 
     // popup context menu if "Menu" or "<Shift>F10" is pressed
-    if (event->keyval == GDK_KEY_Menu ||((event->state & GDK_SHIFT_MASK) != 0 && event->keyval == GDK_KEY_F10))
+    if (event->keyval == GDK_KEY_Menu
+        || ((event->state & GDK_SHIFT_MASK) != 0
+            && event->keyval == GDK_KEY_F10))
     {
-        //DPRINT("key press\n");
         standardview_context_menu(STANDARD_VIEW(details_view));
+
         return TRUE;
     }
 

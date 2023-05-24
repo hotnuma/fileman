@@ -1503,8 +1503,6 @@ static bool _launcher_can_extract(ThunarLauncher *launcher)
 {
     e_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), false);
 
-    //DPRINT("can extract\n");
-
     if (launcher->n_files_to_process != 1 || !launcher->files_are_selected)
         return false;
 
@@ -2048,8 +2046,6 @@ static void _launcher_action_open_with_other(ThunarLauncher *launcher)
 static void _launcher_action_create_folder(ThunarLauncher *launcher)
 {
     e_return_if_fail(THUNAR_IS_LAUNCHER(launcher));
-
-    //DPRINT("_launcher_action_create_folder\n");
 
     if (th_file_is_trashed(launcher->current_directory))
         return;

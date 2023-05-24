@@ -856,10 +856,11 @@ static ThunarFile* window_get_current_directory(AppWindow *window)
 
 void window_set_current_directory(AppWindow *window, ThunarFile *current_directory)
 {
-//  DPRINT("enter : window_set_current_directory\n");
+    //DPRINT("enter : window_set_current_directory\n");
 
     e_return_if_fail(IS_APPWINDOW(window));
-    e_return_if_fail(current_directory == NULL || IS_THUNARFILE(current_directory));
+    e_return_if_fail(current_directory == NULL
+                     || IS_THUNARFILE(current_directory));
 
     // check if we already display the requested directory
     if (G_UNLIKELY(window->current_directory == current_directory))
@@ -1391,7 +1392,8 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     gtk_notebook_insert_page(GTK_NOTEBOOK(window->notebook), view, label_box, position);
 
     // set tab child properties
-    gtk_container_child_set(GTK_CONTAINER(window->notebook), view, "tab-expand", TRUE, NULL);
+    gtk_container_child_set(GTK_CONTAINER(window->notebook), view,
+                            "tab-expand", TRUE, NULL);
     gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(window->notebook), view, TRUE);
     gtk_notebook_set_tab_detachable(GTK_NOTEBOOK(window->notebook), view, TRUE);
 
@@ -1537,8 +1539,6 @@ static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
     g_signal_connect_swapped(G_OBJECT(page), "change-directory",
                              G_CALLBACK(window_set_current_directory), window);
 
-    // update tab visibility
-    //window_notebook_show_tabs(window);
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(window->notebook), FALSE);
 }
 

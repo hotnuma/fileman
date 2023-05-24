@@ -1,7 +1,7 @@
 
 #if 0
 
-// AppWindow
+// AppWindow ------------------------------------------------------------------
 
 const XfceGtkActionEntry* window_get_action_entry(AppWindow *window,
                                                   WindowAction action);
@@ -95,8 +95,6 @@ gboolean window_set_directories(AppWindow *window, gchar **uris,
         {
             if (gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook)) == 0)
                 window_set_current_directory(window, directory);
-            //else
-            //    DPRINT("new tab oops");
         }
 
         g_object_unref(G_OBJECT(directory));
@@ -109,6 +107,37 @@ gboolean window_set_directories(AppWindow *window, gchar **uris,
     return gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook)) > 0;
 }
 
+#endif
+
+// ----------------------------------------------------------------------------
+
+#if 0
+    // middle click
+    else if (event->type == GDK_BUTTON_PRESS && event->button == 2)
+    {
+        // determine the path to the item that was middle-clicked
+        if (gtk_tree_view_get_path_at_pos(tree_view,
+                                          event->x,
+                                          event->y,
+                                          &path,
+                                          NULL,
+                                          NULL,
+                                          NULL))
+        {
+            // select only the path to the item on which the user clicked
+            gtk_tree_selection_unselect_all(selection);
+            gtk_tree_selection_select_path(selection, path);
+
+            // try to open the path as new window/tab, if possible
+            standardview_open_on_middle_click(STANDARD_VIEW(details_view),
+                                               path, event->state);
+
+            // cleanup
+            gtk_tree_path_free(path);
+        }
+
+        return TRUE;
+    }
 #endif
 
 // ----------------------------------------------------------------------------

@@ -562,9 +562,6 @@ GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
         && store->icon_size == icon_size
         && store->stamp == factory->theme_stamp)
     {
-        //static int count = 0;
-        //DPRINT("%d load from store\n", ++count);
-
         return g_object_ref(store->icon);
     }
 
@@ -577,6 +574,7 @@ GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
     {
         // try to load the icon
         icon = _iconfact_lookup_icon(factory, custom_icon, icon_size, FALSE);
+
         if (G_LIKELY(icon != NULL))
             return icon;
     }

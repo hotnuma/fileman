@@ -2251,7 +2251,6 @@ static gboolean _standardview_drag_timer(gpointer user_data)
     // fire up the context menu
     UTIL_THREADS_ENTER;
 
-    //DPRINT("drag timer\n");
     standardview_context_menu(view);
 
     UTIL_THREADS_LEAVE;
