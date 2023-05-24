@@ -93,9 +93,9 @@ static void _window_binding_destroyed(gpointer data, GObject *binding);
 // Notebook -------------------------------------------------------------------
 
 // _window_create_view
-static GtkWidget*_window_notebook_insert(AppWindow *window, ThunarFile *directory,
-                                         GType view_type, gint position,
-                                         ThunarHistory *history);
+static GtkWidget* _window_notebook_insert(AppWindow *window, ThunarFile *directory,
+                                          GType view_type, gint position,
+                                          ThunarHistory *history);
 // window_init
 static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
                                          guint page_num, AppWindow *window);
@@ -856,8 +856,6 @@ static ThunarFile* window_get_current_directory(AppWindow *window)
 
 void window_set_current_directory(AppWindow *window, ThunarFile *current_directory)
 {
-    //DPRINT("enter : window_set_current_directory\n");
-
     e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(current_directory == NULL
                      || IS_THUNARFILE(current_directory));
@@ -865,6 +863,17 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
     // check if we already display the requested directory
     if (G_UNLIKELY(window->current_directory == current_directory))
         return;
+
+    if (!current_directory)
+    {
+        DPRINT("window_set_current_directory: (null)\n");
+    }
+    else
+    {
+        gchar *current_uri = th_file_get_uri(current_directory);
+        DPRINT("window_set_current_directory: %s\n", current_uri);
+        g_free(current_uri);
+    }
 
     // disconnect from the previously active directory
     if (G_LIKELY(window->current_directory != NULL))
@@ -875,6 +884,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
                                              window);
 
         g_object_unref(G_OBJECT(window->current_directory));
+        window->current_directory = NULL;
     }
 
     // connect to the new directory
@@ -886,7 +896,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
         window->current_directory = current_directory;
 
         // create a new view if the window is new
-        if (window->view == NULL /*num_pages == 0*/)
+        if (window->view == NULL)
         {
             _window_create_view(window, window->view, TYPE_DETAILVIEW);
         }
@@ -934,7 +944,7 @@ static void _window_create_view(AppWindow *window, GtkWidget *view,
     if (view != NULL)
         return;
 
-    //DPRINT("enter : window_create_view\n");
+    DPRINT("window_create_view\n");
 
     /* if we have not got a current directory from the old view, use the
      *  window's current directory */
@@ -988,13 +998,19 @@ static void _window_current_directory_changed(ThunarFile *current_directory,
     e_return_if_fail(window->current_directory == current_directory);
 
     gboolean show_full_path = false;
+
     gchar *parse_name = NULL;
     const gchar *name;
 
     if (G_UNLIKELY(show_full_path))
-        name = parse_name = g_file_get_parse_name(th_file_get_file(current_directory));
+    {
+        parse_name = g_file_get_parse_name(th_file_get_file(current_directory));
+        name = parse_name;
+    }
     else
+    {
         name = th_file_get_display_name(current_directory);
+    }
 
     // set window title
     gtk_window_set_title(GTK_WINDOW(window), name);
@@ -1334,15 +1350,10 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     e_return_val_if_fail(view_type != G_TYPE_NONE, NULL);
     e_return_val_if_fail(history == NULL || IS_THUNARHISTORY(history), NULL);
 
-    //DPRINT("enter : window_notebook_insert\n");
-
-    GtkWidget      *view;
-    GtkWidget      *label;
-    GtkWidget      *label_box;
-    GtkWidget      *button;
-    GtkWidget      *icon;
+    DPRINT("window_notebook_insert\n");
 
     // allocate and setup a new view
+    GtkWidget *view;
     view = g_object_new(view_type, "current-directory", directory, NULL);
     baseview_set_show_hidden(BASEVIEW(view), window->show_hidden);
     gtk_widget_show(view);
@@ -1351,14 +1362,12 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     if (history != NULL)
         standardview_set_history(STANDARD_VIEW(view), history);
 
-    label_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-
-    label = gtk_label_new(NULL);
+    GtkWidget *label_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+    GtkWidget *label = gtk_label_new(NULL);
 
     g_object_bind_property(G_OBJECT(view), "display-name",
                            G_OBJECT(label), "label",
                            G_BINDING_SYNC_CREATE);
-
     g_object_bind_property(G_OBJECT(view), "tooltip-text",
                            G_OBJECT(label), "tooltip-text",
                            G_BINDING_SYNC_CREATE);
@@ -1374,7 +1383,7 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
     gtk_box_pack_start(GTK_BOX(label_box), label, TRUE, TRUE, 0);
     gtk_widget_show(label);
 
-    button = gtk_button_new();
+    GtkWidget *button = gtk_button_new();
     gtk_box_pack_start(GTK_BOX(label_box), button, FALSE, FALSE, 0);
     gtk_widget_set_can_default(button, FALSE);
     gtk_widget_set_focus_on_click(button, FALSE);
@@ -1384,12 +1393,14 @@ static GtkWidget* _window_notebook_insert(AppWindow  *window,
                              G_CALLBACK(gtk_widget_destroy), view);
     gtk_widget_show(button);
 
+    GtkWidget *icon;
     icon = gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
     gtk_container_add(GTK_CONTAINER(button), icon);
     gtk_widget_show(icon);
 
     // insert the new page
-    gtk_notebook_insert_page(GTK_NOTEBOOK(window->notebook), view, label_box, position);
+    gtk_notebook_insert_page(GTK_NOTEBOOK(window->notebook),
+                             view, label_box, position);
 
     // set tab child properties
     gtk_container_child_set(GTK_CONTAINER(window->notebook), view,
@@ -1418,7 +1429,7 @@ static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
     if (window->view == page)
         return;
 
-    //DPRINT("enter : window_notebook_switch_page\n");
+    DPRINT("window_notebook_switch_page\n");
 
     // Use accelerators only on the current active tab
     if (window->view != NULL)
@@ -1527,7 +1538,7 @@ static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
     e_return_if_fail(THUNAR_IS_VIEW(page));
     e_return_if_fail(window->notebook == notebook);
 
-    //DPRINT("enter : window_notebook_page_added\n");
+    DPRINT("window_notebook_page_added\n");
 
     // connect signals
     g_signal_connect(G_OBJECT(page), "notify::loading",
@@ -1591,7 +1602,7 @@ static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
 
     gint n_pages;
 
-    //DPRINT("enter : window_notebook_page_removed\n");
+    DPRINT("window_notebook_page_removed\n");
 
     // drop connected signals
     g_signal_handlers_disconnect_matched(page, G_SIGNAL_MATCH_DATA,
@@ -1604,6 +1615,10 @@ static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
         gtk_widget_destroy(GTK_WIDGET(window));
     }
 }
+
+// ----------------------------------------------------------------------------
+
+
 
 // Public ---------------------------------------------------------------------
 

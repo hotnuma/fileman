@@ -2525,19 +2525,18 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
     e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), FALSE);
 
-    GdkScreen           *screen;
-    screen = util_parse_parent(parent, NULL);
+    GdkScreen *screen = util_parse_parent(parent, NULL);
 
     // check if we have a folder here
     if (th_file_is_directory(file))
     {
-        Application   *application;
-        application = application_get();
+        Application *app = application_get();
 
         // Create app window
-        application_open_window(application, file, screen, startup_id, FALSE);
+        application_open_window(app, file, screen, startup_id, FALSE);
 
-        g_object_unref(G_OBJECT(application));
+        g_object_unref(G_OBJECT(app));
+
         return TRUE;
     }
 

@@ -679,7 +679,8 @@ GtkWidget* application_open_window(Application *application, ThunarFile *directo
 
     // generate a unique role for the new window (for session management)
     gchar *role = g_strdup_printf("Fileman-%u-%u",
-                                  (guint) time(NULL), (guint) g_random_int());
+                                  (guint) time(NULL),
+                                  (guint) g_random_int());
 
     GtkWidget *window = g_object_new(TYPE_APPWINDOW,
                                      "role", role,
@@ -699,7 +700,11 @@ GtkWidget* application_open_window(Application *application, ThunarFile *directo
 
     // change the directory
     if (directory != NULL)
+    {
+        DPRINT("enter\n");
         window_set_current_directory(APPWINDOW(window), directory);
+        DPRINT("leave\n");
+    }
 
     return window;
 }

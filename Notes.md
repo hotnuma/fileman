@@ -1,4 +1,14 @@
 
+#### Notes
+
+```
+window_set_current_directory: file:///home/hotnuma/DevFiles/fileman/build
+window_create_view
+window_notebook_insert
+window_notebook_page_added
+window_notebook_switch_page
+```
+
 #### 30 Biggest files
 
 ```
