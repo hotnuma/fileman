@@ -8,6 +8,9 @@ project(
     ],
 )
 
+prefix = get_option('prefix')
+datadir = join_paths(prefix, get_option('datadir'))
+
 gnome = import('gnome')
 
 marshal = gnome.genmarshal(
@@ -15,7 +18,6 @@ marshal = gnome.genmarshal(
     sources : 'marshal.list',
     prefix : '_thunar_marshal',
 )
-
 marshal_c = marshal[0]
 marshal_h = marshal[1]
 
@@ -118,6 +120,11 @@ executable(
     dependencies : app_deps,
     sources : [app_sources, marshal_h, marshal_c],
     install : true,
+)
+
+install_data(
+    join_paths('data', meson.project_name() + '.desktop'),
+    install_dir: join_paths(datadir, 'applications')
 )
 
 
