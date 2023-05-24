@@ -349,6 +349,8 @@ static void treeview_finalize(GObject *object)
     // reset the current-directory property
     navigator_set_current_directory(THUNARNAVIGATOR(view), NULL);
 
+    g_object_unref(view->launcher);
+
     // free the tree model
     g_object_unref(G_OBJECT(view->model));
 

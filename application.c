@@ -764,14 +764,16 @@ void application_link_into(Application *application, gpointer parent,
                            GList *source_file_list, GFile *target_file,
                            GClosure *new_files_closure)
 {
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
+    e_return_if_fail(parent == NULL
+                     || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
     e_return_if_fail(G_IS_FILE(target_file));
 
     // generate a title for the progress dialog
     gchar *display_name = th_file_cached_display_name(target_file);
-    gchar *title;
-    title = g_strdup_printf(_("Creating symbolic links in \"%s\"..."), display_name);
+    gchar *title = g_strdup_printf(_("Creating symbolic links in \"%s\"..."),
+                                   display_name);
     g_free(display_name);
 
     _application_collect_and_launch(application,
