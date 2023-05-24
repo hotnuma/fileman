@@ -7,14 +7,6 @@ if [[ -d $dest ]]; then
     rm -rf $dest
 fi
 
-glib-genmarshal \
-    --prefix=_thunar_marshal \
-    --header marshal.list > marshal.h
-
-glib-genmarshal \
-    --prefix=_thunar_marshal \
-    --body marshal.list > marshal.c
-
 meson build -Dbuildtype=plain
 ninja -C build
 sudo ninja -C build install

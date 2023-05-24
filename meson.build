@@ -8,6 +8,17 @@ project(
     ],
 )
 
+gnome = import('gnome')
+
+marshal = gnome.genmarshal(
+    'marshal',
+    sources : 'marshal.list',
+    prefix : '_thunar_marshal',
+)
+
+marshal_c = marshal[0]
+marshal_h = marshal[1]
+
 c_args = [
     '-Wall',
     '-Wextra',
@@ -97,7 +108,6 @@ app_sources = [
     'appwindow.c',
     'launcher.c',
     'main.c',
-    'marshal.c',
     'preferences.c',
 ]
 
@@ -106,7 +116,7 @@ executable(
     c_args : c_args,
     include_directories : app_includes,
     dependencies : app_deps,
-    sources : app_sources,
+    sources : [app_sources, marshal_h, marshal_c],
     install : true,
 )
 
