@@ -53,7 +53,6 @@ static void window_get_property(GObject *object, guint prop_id,
 static void window_set_property(GObject *object, guint prop_id,
                                 const GValue *value, GParamSpec *pspec);
 static ThunarFile* window_get_current_directory(AppWindow *window);
-
 // window_set_current_directory
 static void _window_current_directory_changed(ThunarFile *current_directory,
                                               AppWindow *window);
@@ -102,8 +101,8 @@ static void _window_action_back(AppWindow *window);
 static void _window_action_forward(AppWindow *window);
 static void _window_action_go_up(AppWindow *window);
 static void _window_action_open_home(AppWindow *window);
-static void _window_action_key_reload(AppWindow *window, GtkWidget *menu_item);
 static void _window_action_key_rename(AppWindow *window);
+static void _window_action_key_reload(AppWindow *window, GtkWidget *menu_item);
 static void _window_action_key_show_hidden(AppWindow *window);
 static void _window_action_key_trash(AppWindow *window);
 static void _window_action_debug(AppWindow *window, GtkWidget *menu_item);
@@ -127,15 +126,6 @@ static XfceGtkActionEntry _window_actions[] =
      N_("Back"),
      N_("Go to the previous visited folder"),
      "go-previous-symbolic",
-     G_CALLBACK(_window_action_back)},
-
-    {WINDOW_ACTION_KEY_BACK,
-     "<Actions>/StandardView/key-back",
-     "BackSpace",
-     0,
-     NULL,
-     NULL,
-     NULL,
      G_CALLBACK(_window_action_back)},
 
     {WINDOW_ACTION_FORWARD,
@@ -165,14 +155,14 @@ static XfceGtkActionEntry _window_actions[] =
      "go-home-symbolic",
      G_CALLBACK(_window_action_open_home)},
 
-    {WINDOW_ACTION_KEY_RELOAD,
-     "<Actions>/AppWindow/key-reload",
-     "F5",
+    {WINDOW_ACTION_KEY_BACK,
+     "<Actions>/StandardView/key-back",
+     "BackSpace",
      0,
      NULL,
      NULL,
      NULL,
-     G_CALLBACK(_window_action_key_reload)},
+     G_CALLBACK(_window_action_back)},
 
     {WINDOW_ACTION_KEY_RENAME,
      "<Actions>/StandardView/key-rename",
@@ -183,14 +173,14 @@ static XfceGtkActionEntry _window_actions[] =
      NULL,
      G_CALLBACK(_window_action_key_rename)},
 
-    {WINDOW_ACTION_KEY_SHOW_HIDDEN,
-     "<Actions>/AppWindow/show-hidden",
-     "<Primary>h",
-     0,     //XFCE_GTK_CHECK_MENU_ITEM,
-     NULL,  // N_("Show _Hidden Files"),
-     NULL,   // N_("Toggles the display of hidden files in the current window"),
+    {WINDOW_ACTION_KEY_RELOAD,
+     "<Actions>/AppWindow/key-reload",
+     "F5",
+     0,
      NULL,
-     G_CALLBACK(_window_action_key_show_hidden)},
+     NULL,
+     NULL,
+     G_CALLBACK(_window_action_key_reload)},
 
     {WINDOW_ACTION_KEY_TRASH,
      "<Actions>/StandardView/key-trash",
@@ -209,6 +199,15 @@ static XfceGtkActionEntry _window_actions[] =
      NULL,
      NULL,
      G_CALLBACK(_window_action_key_trash)},
+
+    {WINDOW_ACTION_KEY_SHOW_HIDDEN,
+     "<Actions>/AppWindow/show-hidden",
+     "<Primary>h",
+     0,
+     NULL,
+     NULL,
+     NULL,
+     G_CALLBACK(_window_action_key_show_hidden)},
 
     {WINDOW_ACTION_DEBUG,
      "<Actions>/AppWindow/debug",
@@ -260,49 +259,38 @@ struct _AppWindow
     GtkWindow       __parent__;
 
     ClipboardManager *clipboard;
-
     IconFactory     *icon_factory;
-
     // to be able to change folder on "device-pre-unmount" if required
     DeviceMonitor   *device_monitor;
 
     GtkWidget       *grid;
-    GtkWidget       *paned;
-    GtkWidget       *sidepane;
-    GtkWidget       *view_box;
-    GtkWidget       *view;
-    GtkWidget       *statusbar;
-
-    GSList          *view_bindings;
-
-    // we need to maintain pointers to be able to toggle sensitivity
     GtkWidget       *toolbar;
     GtkWidget       *toolbar_item_back;
     GtkWidget       *toolbar_item_forward;
     GtkWidget       *toolbar_item_parent;
     GtkWidget       *location_bar;
+    GtkWidget       *paned;
+    GtkWidget       *sidepane;
+    GtkWidget       *view_grid;
+    GtkWidget       *view;
+    GtkWidget       *statusbar;
 
-    // history
-    gulong          history_changed_id;
+    ThunarFile      *current_directory;
+    gboolean        show_hidden;
+    ThunarZoomLevel zoom_level;
 
     ThunarLauncher  *launcher;
 
-    ThunarFile      *current_directory;
     GtkAccelGroup   *accel_group;
-
-    // zoom-level support
-    ThunarZoomLevel zoom_level;
-    gboolean        show_hidden;
-
-    // support to remember window geometry
-    guint           save_geometry_timer_id;
-
-    /* support to toggle side pane using F9,
-     * see the toggle_sidepane() function. */
-    GType           toggle_sidepane_type;
+    GSList          *view_bindings;
+    gulong          history_changed_id;
 
     // Takes care to select a file after e.g. rename/create
     GClosure        *select_files_closure;
+
+    // unused
+    GType           toggle_sidepane_type;
+    guint           save_geometry_timer_id;
 };
 
 G_DEFINE_TYPE_WITH_CODE(AppWindow, window, GTK_TYPE_WINDOW,
@@ -328,12 +316,6 @@ static void window_class_init(AppWindowClass *klass)
     xfce_gtk_translate_action_entries(_window_actions,
                                       G_N_ELEMENTS(_window_actions));
 
-    /**
-     * AppWindow:current-directory:
-     *
-     * The directory currently displayed within this #AppWindow
-     * or %NULL.
-     **/
     g_object_class_install_property(gobject_class,
                                     PROP_CURRENT_DIRECTORY,
                                     g_param_spec_object("current-directory",
@@ -342,12 +324,6 @@ static void window_class_init(AppWindowClass *klass)
                                              TYPE_THUNARFILE,
                                              E_PARAM_READWRITE));
 
-    /**
-     * AppWindow:zoom-level:
-     *
-     * The #ThunarZoomLevel applied to the #BaseView currently
-     * shown within this window.
-     **/
     g_object_class_install_property(gobject_class,
                                     PROP_ZOOM_LEVEL,
                                     g_param_spec_enum("zoom-level",
@@ -357,13 +333,6 @@ static void window_class_init(AppWindowClass *klass)
                                              THUNAR_ZOOM_LEVEL_100_PERCENT,
                                              E_PARAM_READWRITE));
 
-    /**
-     * AppWindow::reload:
-     * @window : a #AppWindow instance.
-     *
-     * Emitted whenever the user requests to reload the contents
-     * of the currently displayed folder.
-     **/
     _window_signals[RELOAD] =
         g_signal_new(I_("reload"),
                      G_TYPE_FROM_CLASS(klass),
@@ -374,13 +343,6 @@ static void window_class_init(AppWindowClass *klass)
                      G_TYPE_BOOLEAN, 1,
                      G_TYPE_BOOLEAN);
 
-    /**
-     * AppWindow::zoom-in:
-     * @window : a #AppWindow instance.
-     *
-     * Emitted whenever the user requests to zoom in. This
-     * is an internal signal used to bind the action to keys.
-     **/
     _window_signals[ZOOM_IN] =
         g_signal_new(I_("zoom-in"),
                      G_TYPE_FROM_CLASS(klass),
@@ -390,13 +352,6 @@ static void window_class_init(AppWindowClass *klass)
                      _thunar_marshal_BOOLEAN__VOID,
                      G_TYPE_BOOLEAN, 0);
 
-    /**
-     * AppWindow::zoom-out:
-     * @window : a #AppWindow instance.
-     *
-     * Emitted whenever the user requests to zoom out. This
-     * is an internal signal used to bind the action to keys.
-     **/
     _window_signals[ZOOM_OUT] =
         g_signal_new(I_("zoom-out"),
                      G_TYPE_FROM_CLASS(klass),
@@ -406,13 +361,6 @@ static void window_class_init(AppWindowClass *klass)
                      _thunar_marshal_BOOLEAN__VOID,
                      G_TYPE_BOOLEAN, 0);
 
-    /**
-     * AppWindow::zoom-reset:
-     * @window : a #AppWindow instance.
-     *
-     * Emitted whenever the user requests reset the zoom level.
-     * This is an internal signal used to bind the action to keys.
-     **/
     _window_signals[ZOOM_RESET] =
         g_signal_new(I_("zoom-reset"),
                      G_TYPE_FROM_CLASS(klass),
@@ -478,10 +426,11 @@ static void window_init(AppWindow *window)
     g_closure_ref(window->select_files_closure);
     g_closure_sink(window->select_files_closure);
 
-    window->launcher = g_object_new(THUNAR_TYPE_LAUNCHER,
-                                    "widget", GTK_WIDGET(window),
-                                    "select-files-closure", window->select_files_closure,
-                                    NULL);
+    window->launcher = g_object_new(
+                        THUNAR_TYPE_LAUNCHER,
+                        "widget", GTK_WIDGET(window),
+                        "select-files-closure", window->select_files_closure,
+                        NULL);
 
     g_object_bind_property(G_OBJECT(window), "current-directory",
                            G_OBJECT(window->launcher), "current-directory",
@@ -503,7 +452,8 @@ static void window_init(AppWindow *window)
     GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(window));
     gtk_style_context_add_class(context, "thunar");
 
-    // Create widgets
+    // Main Grid --------------------------------------------------------------
+
     window->grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), window->grid);
     gtk_widget_show(window->grid);
@@ -579,7 +529,8 @@ static void window_init(AppWindow *window)
     gtk_widget_show_all(window->toolbar);
     _window_update_location_bar_visible(window);
 
-    // Paned
+    // Paned ------------------------------------------------------------------
+
     window->paned = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     gtk_container_set_border_width(GTK_CONTAINER(window->paned), 0);
     gtk_widget_set_hexpand(window->paned, TRUE);
@@ -599,10 +550,10 @@ static void window_init(AppWindow *window)
     // Side Treeview
     _window_create_sidepane(window);
 
-    // Right Pane GtkGrid
-    window->view_box = gtk_grid_new();
-    gtk_paned_pack2(GTK_PANED(window->paned), window->view_box, TRUE, FALSE);
-    gtk_widget_show(window->view_box);
+    // Right Grid
+    window->view_grid = gtk_grid_new();
+    gtk_paned_pack2(GTK_PANED(window->paned), window->view_grid, TRUE, FALSE);
+    gtk_widget_show(window->view_grid);
 
     // Detail View
     _window_create_detailview(window);
@@ -610,7 +561,7 @@ static void window_init(AppWindow *window)
     // setup a new statusbar
     window->statusbar = statusbar_new();
     gtk_widget_set_hexpand(window->statusbar, TRUE);
-    gtk_grid_attach(GTK_GRID(window->view_box), window->statusbar, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->view_grid), window->statusbar, 0, 1, 1, 1);
 
     gtk_widget_show(window->statusbar);
 
@@ -1151,15 +1102,6 @@ static void _window_create_sidepane(AppWindow *window)
     e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(window->sidepane == NULL);
 
-    //e_return_if_fail(type == G_TYPE_NONE
-    //                 || g_type_is_a(type, TYPE_SIDEPANE));
-    // drop the previous side pane(if any)
-    //if (G_UNLIKELY(window->sidepane != NULL))
-    //{
-    //    gtk_widget_destroy(window->sidepane);
-    //    window->sidepane = NULL;
-    //}
-
     // allocate the new side pane widget
     window->sidepane = g_object_new(TYPE_TREEPANE, NULL);
 
@@ -1199,29 +1141,10 @@ static void _window_create_detailview(AppWindow *window)
     e_return_if_fail(window->view == NULL);
     e_return_if_fail(window->current_directory == NULL);
 
-    DPRINT("window_create_view\n");
-
-    // ------------------------------------------------------------------------
-    // new_view = _window_notebook_insert(window, current_directory,
-    //                                    view_type, page_num + 1, history);
-
-    //ThunarFile *current_directory = NULL;
-    //if (window->current_directory != NULL)
-    //    current_directory = g_object_ref(window->current_directory);
-
-    //e_assert(current_directory != NULL);
-
-    GtkWidget *detail_view = g_object_new(
-                                TYPE_DETAILVIEW,
-                                /*"current-directory", current_directory,*/
-                                NULL);
+    GtkWidget *detail_view = g_object_new(TYPE_DETAILVIEW, NULL);
     gtk_widget_set_hexpand(detail_view, TRUE);
     gtk_widget_set_vexpand(detail_view, TRUE);
-
-    gtk_grid_attach(GTK_GRID(window->view_box), detail_view, 0, 0, 1, 1);
-
-    //if (current_directory)
-    //    g_object_unref(current_directory);
+    gtk_grid_attach(GTK_GRID(window->view_grid), detail_view, 0, 0, 1, 1);
 
     baseview_set_show_hidden(BASEVIEW(detail_view), window->show_hidden);
     gtk_widget_show(detail_view);
