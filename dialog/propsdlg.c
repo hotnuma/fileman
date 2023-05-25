@@ -155,8 +155,10 @@ static void propsdlg_class_init(PropertiesDialogClass *klass)
 
     // setup the key bindings for the properties dialog
     GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
-    gtk_binding_entry_add_signal(binding_set, GDK_KEY_F5, 0, "reload", 0);
-    gtk_binding_entry_add_signal(binding_set, GDK_KEY_r, GDK_CONTROL_MASK, "reload", 0);
+    gtk_binding_entry_add_signal(binding_set,
+                                 GDK_KEY_F5, 0, "reload", 0);
+    gtk_binding_entry_add_signal(binding_set,
+                                 GDK_KEY_r, GDK_CONTROL_MASK, "reload", 0);
 }
 
 static void propsdlg_init(PropertiesDialog *dialog)
