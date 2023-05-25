@@ -565,11 +565,15 @@ static void window_init(AppWindow *window)
 
     gtk_widget_show(window->statusbar);
 
-    if (G_LIKELY(window->view != NULL))
-        _window_binding_create(window,
-                               window->view, "statusbar-text",
-                               window->statusbar, "text",
-                               G_BINDING_SYNC_CREATE);
+    _window_binding_create(window,
+                           window->view, "selected-files",
+                           window->sidepane, "selected-files",
+                           G_BINDING_SYNC_CREATE);
+
+    _window_binding_create(window,
+                           window->view, "statusbar-text",
+                           window->statusbar, "text",
+                           G_BINDING_SYNC_CREATE);
 
     // ensure that all the view types are registered
     g_type_ensure(TYPE_DETAILVIEW);
@@ -1121,13 +1125,13 @@ static void _window_create_sidepane(AppWindow *window)
     gtk_widget_show(window->sidepane);
 
     // connect the side pane widget to the view (if any)
-    if (G_LIKELY(window->view != NULL))
-    {
-        _window_binding_create(window,
-                               window->view, "selected-files",
-                               window->sidepane, "selected-files",
-                               G_BINDING_SYNC_CREATE);
-    }
+    //if (G_LIKELY(window->view != NULL))
+    //{
+    //    _window_binding_create(window,
+    //                           window->view, "selected-files",
+    //                           window->sidepane, "selected-files",
+    //                           G_BINDING_SYNC_CREATE);
+    //}
 
     // apply show_hidden config to tree pane
     sidepane_set_show_hidden(SIDEPANE(window->sidepane),
@@ -1195,12 +1199,13 @@ static void _window_create_detailview(AppWindow *window)
     //GSList *view_bindings = window->view_bindings;
 
     // disconnect existing bindings
-    if (window->view_bindings)
-    {
-        DPRINT("*** disconnect existing bindings\n");
-        g_slist_free_full(window->view_bindings, g_object_unref);
-        window->view_bindings = NULL;
-    }
+    //if (window->view_bindings)
+    //{
+    //    DPRINT("*** disconnect existing bindings\n");
+
+    //    g_slist_free_full(window->view_bindings, g_object_unref);
+    //    window->view_bindings = NULL;
+    //}
 
     // update the directory of the current window
     //ThunarFile *dir = navigator_get_current_directory(
@@ -1223,23 +1228,14 @@ static void _window_create_detailview(AppWindow *window)
                            window, "zoom-level",
                            G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
 
-    // connect to the sidepane (if any)
-    if (G_LIKELY(window->sidepane != NULL))
-    {
-        _window_binding_create(window,
-                               detail_view, "selected-files",
-                               window->sidepane, "selected-files",
-                               G_BINDING_SYNC_CREATE);
-    }
-
     // connect to the statusbar(if any)
-    if (G_LIKELY(window->statusbar != NULL))
-    {
-        _window_binding_create(window,
-                               detail_view, "statusbar-text",
-                               window->statusbar, "text",
-                               G_BINDING_SYNC_CREATE);
-    }
+    //if (G_LIKELY(window->statusbar != NULL))
+    //{
+    //    _window_binding_create(window,
+    //                           detail_view, "statusbar-text",
+    //                           window->statusbar, "text",
+    //                           G_BINDING_SYNC_CREATE);
+    //}
 
     // activate new view
     window->view = detail_view;
