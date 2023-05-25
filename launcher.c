@@ -1843,7 +1843,10 @@ static void _launcher_open_windows(ThunarLauncher *launcher, GList *directories)
 
         // open all requested windows
         for (lp = directories; lp != NULL; lp = lp->next)
-            application_open_window(application, lp->data, screen, NULL, TRUE);
+        {
+            application_open_window(application, lp->data,
+                                    screen, NULL /*, TRUE*/);
+        }
 
         // release the application object
         g_object_unref(G_OBJECT(application));

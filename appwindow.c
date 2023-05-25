@@ -48,7 +48,6 @@ static void window_finalize(GObject *object);
 static void window_realize(GtkWidget *widget);
 static void window_unrealize(GtkWidget *widget);
 static gboolean window_reload(AppWindow *window, gboolean reload_info);
-static gboolean window_tab_change(AppWindow *window, gint nth);
 static void window_get_property(GObject *object, guint prop_id,
                                 GValue *value, GParamSpec *pspec);
 static void window_set_property(GObject *object, guint prop_id,
@@ -58,6 +57,7 @@ static ThunarFile* window_get_current_directory(AppWindow *window);
 // window_set_current_directory
 static void _window_current_directory_changed(ThunarFile *current_directory,
                                               AppWindow *window);
+static void _window_history_changed(AppWindow *window);
 static void _window_update_window_icon(AppWindow *window);
 static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level);
 
@@ -87,6 +87,10 @@ static gboolean _window_save_paned(AppWindow *window);
 
 static void _window_create_sidepane(AppWindow *window);
 static void _window_create_detailview(AppWindow *window);
+static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
+                                   AppWindow *window);
+static void _window_start_open_location(AppWindow *window,
+                                        const gchar *initial_text);
 static void _window_binding_create(AppWindow *window, gpointer src_object,
                                    const gchar *src_prop, gpointer dst_object,
                                    const gchar *dst_prop, GBindingFlags flags);
@@ -94,22 +98,21 @@ static void _window_binding_destroyed(gpointer data, GObject *binding);
 
 // Notebook View --------------------------------------------------------------
 
+#if 0
 static void _window_create_view_notebook(AppWindow *window);
 static GtkWidget* _window_notebook_insert(AppWindow *window, ThunarFile *directory,
                                           GType view_type, gint position,
                                           ThunarHistory *history);
-// window_init
 static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
                                          guint page_num, AppWindow *window);
-static void _window_history_changed(AppWindow *window);
-static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
-                                   AppWindow *window);
-static void _window_start_open_location(AppWindow *window,
-                                        const gchar *initial_text);
 static void _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
                                         guint page_num, AppWindow *window);
 static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
                                           guint page_num, AppWindow *window);
+static gboolean window_tab_change(AppWindow *window, gint nth);
+void window_update_directories(AppWindow *window, ThunarFile *old_directory,
+                               ThunarFile *new_directory);
+#endif
 
 // Actions --------------------------------------------------------------------
 
@@ -290,7 +293,7 @@ struct _AppWindow
     GtkWidget       *paned;
     GtkWidget       *sidepane;
     GtkWidget       *view_box;
-    GtkWidget       *notebook;
+    //GtkWidget       *notebook;
     GtkWidget       *view;
     GtkWidget       *statusbar;
 
@@ -342,7 +345,7 @@ static void window_class_init(AppWindowClass *klass)
     gtkwidget_class->unrealize = window_unrealize;
 
     klass->reload = window_reload;
-    klass->tab_change = window_tab_change;
+    klass->tab_change = NULL; // window_tab_change;
     klass->zoom_in = NULL;
     klass->zoom_out = NULL;
     klass->zoom_reset = NULL;
@@ -656,10 +659,10 @@ static void window_init(AppWindow *window)
     gtk_paned_pack2(GTK_PANED(window->paned), window->view_box, TRUE, FALSE);
     gtk_widget_show(window->view_box);
 
+#if 0
     // Notebook ---------------------------------------------------------------
 
     gboolean with_notebook = false;
-
     if (with_notebook)
     {
         window->notebook = gtk_notebook_new();
@@ -684,13 +687,15 @@ static void window_init(AppWindow *window)
 
         gtk_widget_set_can_focus(window->notebook, FALSE);
     }
-
-    // ------------------------------------------------------------------------
-
     else
     {
         _window_create_detailview(window);
     }
+#endif
+
+    // ------------------------------------------------------------------------
+
+    _window_create_detailview(window);
 
     //if (window->current_directory == NULL)
     //    DPRINT("*** current_directory == NULL\n");
@@ -807,17 +812,6 @@ static gboolean window_reload(AppWindow *window, gboolean reload_info)
     return FALSE;
 }
 
-static gboolean window_tab_change(AppWindow *window, gint nth)
-{
-    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
-
-    // Alt+0 is 10th tab
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook),
-                                  nth == -1 ? 9 : nth);
-
-    return TRUE;
-}
-
 // Properties -----------------------------------------------------------------
 
 static void window_get_property(GObject *object, guint prop_id,
@@ -913,12 +907,14 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
 
         window->current_directory = current_directory;
 
+#if 0
         // create a new view if the window is new
         if (window->view == NULL)
         {
             if (window->notebook != NULL)
                 _window_create_view_notebook(window);
         }
+#endif
 
         // connect the "changed"/"destroy" signals
         g_signal_connect(G_OBJECT(current_directory), "changed",
@@ -975,6 +971,28 @@ static void _window_current_directory_changed(ThunarFile *current_directory,
 
     // set window icon
     _window_update_window_icon(window);
+}
+
+static void _window_history_changed(AppWindow *window)
+{
+    ThunarHistory *history;
+
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    if (window->view == NULL)
+        return;
+
+    history = standardview_get_history(STANDARD_VIEW(window->view));
+    if (history == NULL)
+        return;
+
+    if (window->toolbar_item_back != NULL)
+        gtk_widget_set_sensitive(window->toolbar_item_back,
+                                 history_has_back(history));
+
+    if (window->toolbar_item_forward != NULL)
+        gtk_widget_set_sensitive(window->toolbar_item_forward,
+                                 history_has_forward(history));
 }
 
 static void _window_update_window_icon(AppWindow *window)
@@ -1456,6 +1474,43 @@ static void _window_create_detailview(AppWindow *window)
     //                             window);
 }
 
+static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
+                                   AppWindow *window)
+{
+    e_return_if_fail(THUNAR_IS_VIEW(view));
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    (void) pspec;
+
+    GdkCursor *cursor;
+
+    if (gtk_widget_get_realized(GTK_WIDGET(window))
+        && window->view == GTK_WIDGET(view))
+    {
+        // setup the proper cursor
+        if (baseview_get_loading(view))
+        {
+            cursor = gdk_cursor_new_for_display(gtk_widget_get_display(GTK_WIDGET(view)), GDK_WATCH);
+            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), cursor);
+            g_object_unref(cursor);
+        }
+        else
+        {
+            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), NULL);
+        }
+    }
+}
+
+static void _window_start_open_location(AppWindow *window,
+                                        const gchar *initial_text)
+{
+    e_return_if_fail(IS_APPWINDOW(window));
+
+    // temporary show the location toolbar, even if it is normally hidden
+    gtk_widget_show(window->toolbar);
+    locbar_request_entry(LOCATIONBAR(window->location_bar), initial_text);
+}
+
 static void _window_binding_create(AppWindow *window, gpointer src_object,
                                    const gchar *src_prop, gpointer dst_object,
                                    const gchar *dst_prop, GBindingFlags flags)
@@ -1481,7 +1536,8 @@ static void _window_binding_destroyed(gpointer data, GObject *binding)
         window->view_bindings = g_slist_remove(window->view_bindings, binding);
 }
 
-// Notebook View --------------------------------------------------------------
+#if 0
+// Notebook -------------------------------------------------------------------
 
 static void _window_create_view_notebook(AppWindow *window)
 {
@@ -1544,7 +1600,7 @@ static void _window_create_view_notebook(AppWindow *window)
     }
 }
 
-static GtkWidget* _window_notebook_insert(AppWindow  *window,
+static GtkWidget* _window_notebook_insert(AppWindow     *window,
                                           ThunarFile    *directory,
                                           GType         view_type,
                                           gint          position,
@@ -1753,65 +1809,6 @@ static void _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
     gtk_widget_grab_focus(page);
 }
 
-static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
-                                   AppWindow *window)
-{
-    e_return_if_fail(THUNAR_IS_VIEW(view));
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    (void) pspec;
-
-    GdkCursor *cursor;
-
-    if (gtk_widget_get_realized(GTK_WIDGET(window))
-            && window->view == GTK_WIDGET(view))
-    {
-        // setup the proper cursor
-        if (baseview_get_loading(view))
-        {
-            cursor = gdk_cursor_new_for_display(gtk_widget_get_display(GTK_WIDGET(view)), GDK_WATCH);
-            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), cursor);
-            g_object_unref(cursor);
-        }
-        else
-        {
-            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), NULL);
-        }
-    }
-}
-
-static void _window_start_open_location(AppWindow *window,
-                                        const gchar *initial_text)
-{
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    // temporary show the location toolbar, even if it is normally hidden
-    gtk_widget_show(window->toolbar);
-    locbar_request_entry(LOCATIONBAR(window->location_bar), initial_text);
-}
-
-static void _window_history_changed(AppWindow *window)
-{
-    ThunarHistory *history;
-
-    e_return_if_fail(IS_APPWINDOW(window));
-
-    if (window->view == NULL)
-        return;
-
-    history = standardview_get_history(STANDARD_VIEW(window->view));
-    if (history == NULL)
-        return;
-
-    if (window->toolbar_item_back != NULL)
-        gtk_widget_set_sensitive(window->toolbar_item_back,
-                                 history_has_back(history));
-
-    if (window->toolbar_item_forward != NULL)
-        gtk_widget_set_sensitive(window->toolbar_item_forward,
-                                 history_has_forward(history));
-}
-
 static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
                                           guint page_num, AppWindow *window)
 {
@@ -1838,7 +1835,16 @@ static void _window_notebook_page_removed(GtkWidget *notebook, GtkWidget *page,
     }
 }
 
-// Public ---------------------------------------------------------------------
+static gboolean window_tab_change(AppWindow *window, gint nth)
+{
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
+
+    // Alt+0 is 10th tab
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->notebook),
+                                  nth == -1 ? 9 : nth);
+
+    return TRUE;
+}
 
 void window_update_directories(AppWindow *window, ThunarFile *old_directory,
                                ThunarFile *new_directory)
@@ -1847,9 +1853,9 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
     e_return_if_fail(IS_THUNARFILE(old_directory));
     e_return_if_fail(IS_THUNARFILE(new_directory));
 
-
     gint n_pages;
     n_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(window->notebook));
+
 
     if (G_UNLIKELY(n_pages == 0))
         return;
@@ -1857,7 +1863,7 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
     gint active_page;
     active_page = gtk_notebook_get_current_page(GTK_NOTEBOOK(window->notebook));
 
-    for (gint n = 0; n < n_pages; n++)
+    for (gint n = 0; n < n_pages; ++n)
     {
         // get the view
         GtkWidget *view;
@@ -1883,6 +1889,9 @@ void window_update_directories(AppWindow *window, ThunarFile *old_directory,
         }
     }
 }
+#endif
+
+// Public ---------------------------------------------------------------------
 
 static GtkWidget* _window_get_focused_tree_view(AppWindow *window)
 {
@@ -2008,7 +2017,12 @@ static void _window_action_key_show_hidden(AppWindow *window)
     e_return_if_fail(IS_APPWINDOW(window));
 
     window->show_hidden = !window->show_hidden;
-    gtk_container_foreach(GTK_CONTAINER(window->notebook),(GtkCallback)(void(*)(void)) baseview_set_show_hidden, GINT_TO_POINTER(window->show_hidden));
+
+    //gtk_container_foreach(GTK_CONTAINER(window->notebook),
+    //                      (GtkCallback) (void(*)(void)) baseview_set_show_hidden,
+    //                      GINT_TO_POINTER(window->show_hidden));
+
+    baseview_set_show_hidden(BASEVIEW(window->view), window->show_hidden);
 
     if (G_LIKELY(window->sidepane != NULL))
         sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);

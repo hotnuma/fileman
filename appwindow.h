@@ -63,8 +63,6 @@ ThunarLauncher* window_get_launcher(AppWindow *window);
 void window_set_current_directory(AppWindow *window, ThunarFile *current_directory);
 
 void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);
-void window_update_directories(AppWindow *window, ThunarFile *old_directory,
-                               ThunarFile *new_directory);
 
 G_END_DECLS
 

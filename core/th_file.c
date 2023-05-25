@@ -2533,7 +2533,8 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
         Application *app = application_get();
 
         // Create app window
-        application_open_window(app, file, screen, startup_id, FALSE);
+        application_open_window(app, file,
+                                screen, startup_id /*, FALSE*/);
 
         g_object_unref(G_OBJECT(app));
 

@@ -664,11 +664,12 @@ static void _application_process_files_finish(ThunarBrowser *browser, ThunarFile
     g_application_release(G_APPLICATION(application));
 }
 
-GtkWidget* application_open_window(Application *application, ThunarFile *directory,
-                                   GdkScreen *screen, const gchar *startup_id,
-                                   gboolean force_new_window)
+GtkWidget* application_open_window(Application *application,
+                                   ThunarFile *directory,
+                                   GdkScreen *screen, const gchar *startup_id
+                                   /*, gboolean force_new_window*/)
 {
-    (void) force_new_window;
+    //(void) force_new_window;
 
     e_return_val_if_fail(IS_APPLICATION(application), NULL);
     e_return_val_if_fail(directory == NULL || IS_THUNARFILE(directory), NULL);
@@ -700,11 +701,7 @@ GtkWidget* application_open_window(Application *application, ThunarFile *directo
 
     // change the directory
     if (directory != NULL)
-    {
-        DPRINT("enter : window_set_current_directory\n");
         window_set_current_directory(APPWINDOW(window), directory);
-        DPRINT("leave : window_set_current_directory\n");
-    }
 
     return window;
 }

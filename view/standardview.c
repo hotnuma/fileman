@@ -1234,25 +1234,31 @@ static void _standardview_current_directory_destroy(ThunarFile *current_director
     e_return_if_fail(IS_THUNARFILE(current_directory));
     e_return_if_fail(view->priv->current_directory == current_directory);
 
+    DPRINT("*** _standardview_current_directory_destroy\n");
+
     GError *error = NULL;
 
-    // get a fallback directory(parents or home) we can navigate to
-    ThunarFile *new_directory;
-    new_directory = _standardview_get_fallback_directory(current_directory, error);
+    // get a fallback directory (parents or home) we can navigate to
+    ThunarFile *new_directory =
+            _standardview_get_fallback_directory(current_directory, error);
 
     if (G_UNLIKELY(new_directory == NULL))
     {
         // display an error to the user
-        dialog_error(GTK_WIDGET(view), error, _("Failed to open the home folder"));
+        dialog_error(GTK_WIDGET(view),
+                     error, _("Failed to open the home folder"));
+
         g_error_free(error);
+
         return;
     }
 
-    // let the parent window update all active and inactive views(tabs)
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+    window_set_current_directory(APPWINDOW(window), new_directory);
 
-    window_update_directories(APPWINDOW(window), current_directory,
-                              new_directory);
+    // let the parent window update all active and inactive views (tabs)
+    //window_update_directories(APPWINDOW(window), current_directory,
+    //                          new_directory);
 
     // release the reference to the new directory
     g_object_unref(new_directory);

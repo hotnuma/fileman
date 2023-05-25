@@ -61,8 +61,8 @@ gboolean application_process_filenames(Application *application,
                                        const gchar *startup_id,
                                        GError **error);
 GtkWidget* application_open_window(Application *application, ThunarFile *directory,
-                                   GdkScreen *screen, const gchar *startup_id,
-                                   gboolean force_new_window);
+                                   GdkScreen *screen, const gchar *startup_id
+                                   /*, gboolean force_new_window*/);
 
 // Actions --------------------------------------------------------------------
 
