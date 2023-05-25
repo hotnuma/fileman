@@ -657,7 +657,7 @@ static void window_init(AppWindow *window)
 
     // Notebook ---------------------------------------------------------------
 
-    gboolean with_notebook = true;
+    gboolean with_notebook = false;
 
     if (with_notebook)
     {
