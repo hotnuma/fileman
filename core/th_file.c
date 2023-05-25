@@ -433,8 +433,6 @@ static void th_fileinfo_changed(FileInfo *file_info)
 
     ThunarFile *file = THUNARFILE(file_info);
 
-    //FLAG_SET_THUMB_STATE(file, 0);
-
     // tell the file monitor that this file has changed
     filemon_file_changed(file);
 }

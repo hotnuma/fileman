@@ -219,10 +219,12 @@ static void treeview_class_init(TreeViewClass *klass)
     gtkwidget_class->unrealize = treeview_unrealize;
     gtkwidget_class->button_press_event = treeview_button_press_event;
     gtkwidget_class->button_release_event = treeview_button_release_event;
+
     gtkwidget_class->drag_data_received = treeview_drag_data_received;
     gtkwidget_class->drag_drop = treeview_drag_drop;
     gtkwidget_class->drag_motion = treeview_drag_motion;
     gtkwidget_class->drag_leave = treeview_drag_leave;
+
     gtkwidget_class->popup_menu = treeview_popup_menu;
 
     GtkTreeViewClass *gtktree_view_class = GTK_TREE_VIEW_CLASS(klass);

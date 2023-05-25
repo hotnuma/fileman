@@ -289,8 +289,8 @@ struct _AppWindow
     GClosure        *select_files_closure;
 
     // unused
-    GType           toggle_sidepane_type;
-    guint           save_geometry_timer_id;
+    //GType           toggle_sidepane_type;
+    //guint           save_geometry_timer_id;
 };
 
 G_DEFINE_TYPE_WITH_CODE(AppWindow, window, GTK_TYPE_WINDOW,
@@ -595,10 +595,6 @@ static void window_dispose(GObject *object)
         window->accel_group = NULL;
     }
 
-    // destroy the save geometry timer source
-    if (G_UNLIKELY(window->save_geometry_timer_id != 0))
-        g_source_remove(window->save_geometry_timer_id);
-
     // disconnect from the current-directory
     window_set_current_directory(window, NULL);
 
@@ -614,6 +610,7 @@ static void window_finalize(GObject *object)
                                          G_SIGNAL_MATCH_DATA,
                                          0, 0, NULL, NULL,
                                          window);
+
     g_object_unref(window->device_monitor);
 
     g_object_unref(window->icon_factory);
@@ -663,13 +660,12 @@ static gboolean window_reload(AppWindow *window, gboolean reload_info)
     e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
 
     // force the view to reload
-    if (G_LIKELY(window->view != NULL))
-    {
-        baseview_reload(BASEVIEW(window->view), reload_info);
-        return TRUE;
-    }
+    if (window->view == NULL)
+        return FALSE;
 
-    return FALSE;
+    baseview_reload(BASEVIEW(window->view), reload_info);
+
+    return TRUE;
 }
 
 // Properties -----------------------------------------------------------------
@@ -783,8 +779,9 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
 
         _window_history_changed(window);
 
-        gtk_widget_set_sensitive(window->toolbar_item_parent,
-                                 !e_file_is_root(th_file_get_file(current_directory)));
+        gtk_widget_set_sensitive(
+                        window->toolbar_item_parent,
+                        !e_file_is_root(th_file_get_file(current_directory)));
     }
 
     /* tell everybody that we have a new "current-directory",
@@ -1153,16 +1150,6 @@ static void _window_create_detailview(AppWindow *window)
     baseview_set_show_hidden(BASEVIEW(detail_view), window->show_hidden);
     gtk_widget_show(detail_view);
 
-    // set the history of the view if a history is provided
-    //ThunarHistory *history = NULL;
-    //if (history != NULL)
-    //    standardview_set_history(STANDARD_VIEW(detail_view), history);
-
-    // ------------------------------------------------------------------------
-    // _window_notebook_page_added(GtkWidget *notebook, GtkWidget *page,
-    //                             guint page_num, AppWindow *window)
-
-    // connect signals
     g_signal_connect(G_OBJECT(detail_view), "notify::loading",
                      G_CALLBACK(_window_notify_loading), window);
 
@@ -1171,14 +1158,6 @@ static void _window_create_detailview(AppWindow *window)
 
     g_signal_connect_swapped(G_OBJECT(detail_view), "change-directory",
                              G_CALLBACK(window_set_current_directory), window);
-
-    // ------------------------------------------------------------------------
-    // _window_notebook_switch_page(GtkWidget *notebook, GtkWidget *page,
-    //                              guint page_num, AppWindow *window)
-
-    // Use accelerators only on the current active tab
-    //if (window->view != NULL)
-    //    g_object_set(G_OBJECT(window->view), "accel-group", NULL, NULL);
 
     g_object_set(G_OBJECT(detail_view), "accel-group", window->accel_group, NULL);
 
@@ -1206,11 +1185,6 @@ static void _window_create_detailview(AppWindow *window)
     //    g_slist_free_full(window->view_bindings, g_object_unref);
     //    window->view_bindings = NULL;
     //}
-
-    // update the directory of the current window
-    //ThunarFile *dir = navigator_get_current_directory(
-    //                                    THUNARNAVIGATOR(detail_view));
-    //window_set_current_directory(window, dir);
 
     // add stock bindings
     _window_binding_create(window,

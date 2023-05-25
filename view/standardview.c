@@ -123,10 +123,6 @@ static gboolean _standardview_scroll_event(GtkWidget *widget, GdkEventScroll *ev
 static gboolean _standardview_key_press_event(GtkWidget *widget, GdkEventKey *event,
                                               StandardView *view);
 
-#ifdef THUMB
-static void _standardview_scrolled(GtkAdjustment *adjustment, StandardView *view);
-#endif
-
 // standardview_init ----------------------------------------------------------
 
 static void _standardview_select_after_row_deleted(ListModel *model, GtkTreePath *path,
@@ -141,11 +137,6 @@ static void _standardview_error(ListModel *model, const GError *error,
                                 StandardView *view);
 static void _standardview_update_statusbar_text(StandardView *view);
 static gboolean _standardview_update_statusbar_text_idle(gpointer data);
-
-#ifdef THUMB
-static void _standardview_size_allocate(StandardView *view,
-                                        GtkAllocation *allocation);
-#endif
 
 // Public Functions -----------------------------------------------------------
 
@@ -638,14 +629,6 @@ static void standardview_init(StandardView *view)
                              G_CALLBACK(_standardview_update_statusbar_text),
                              view);
 
-#ifdef THUMB
-    // connect to size allocation signals for generating thumbnail requests
-    g_signal_connect_after(G_OBJECT(view),
-                           "size-allocate",
-                           G_CALLBACK(_standardview_size_allocate),
-                           NULL);
-#endif
-
     // add widget to css class
     gtk_style_context_add_class(
                 gtk_widget_get_style_context(GTK_WIDGET(view)),
@@ -735,17 +718,6 @@ static GObject* standardview_constructor(GType type, guint n_props,
 
     g_signal_connect(G_OBJECT(child), "drag-data-received",
                      G_CALLBACK(_standardview_drag_data_received), object);
-
-#ifdef THUMB
-    // connect to scroll events for generating thumbnail requests
-    GtkAdjustment *adjustment =
-        gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(view));
-    g_signal_connect(adjustment, "value-changed",
-                     G_CALLBACK(_standardview_scrolled), object);
-    adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(view));
-    g_signal_connect(adjustment, "value-changed",
-                     G_CALLBACK(_standardview_scrolled), object);
-#endif
 
     // done, we have a working object
     return object;
@@ -1942,18 +1914,6 @@ static gboolean _standardview_key_press_event(GtkWidget    *widget,
     return FALSE;
 }
 
-#ifdef THUMB
-static void _standardview_scrolled(GtkAdjustment *adjustment, StandardView *view)
-{
-    e_return_if_fail(GTK_IS_ADJUSTMENT(adjustment));
-    e_return_if_fail(IS_STANDARD_VIEW(view));
-
-    // ignore adjustment changes when the view is still loading
-    if (baseview_get_loading(BASEVIEW(view)))
-        return;
-}
-#endif
-
 // standardview_init ----------------------------------------------------------
 
 static void _standardview_select_after_row_deleted(ListModel    *model,
@@ -2119,20 +2079,6 @@ static gboolean _standardview_update_statusbar_text_idle(gpointer data)
 
     return FALSE;
 }
-
-#ifdef THUMB
-static void _standardview_size_allocate(StandardView  *view,
-                                        GtkAllocation *allocation)
-{
-    (void) allocation;
-
-    e_return_if_fail(IS_STANDARD_VIEW(view));
-
-    // ignore size changes when the view is still loading
-    if (baseview_get_loading(BASEVIEW(view)))
-        return;
-}
-#endif
 
 // Public Functions -----------------------------------------------------------
 
