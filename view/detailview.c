@@ -224,7 +224,8 @@ static void detailview_init(DetailView *details_view)
 
     // connect to the default column model
     details_view->column_model = colmodel_get_default();
-    g_signal_connect(G_OBJECT(details_view->column_model), "columns-changed", G_CALLBACK(_detailview_columns_changed), details_view);
+    g_signal_connect(G_OBJECT(details_view->column_model), "columns-changed",
+                     G_CALLBACK(_detailview_columns_changed), details_view);
     g_signal_connect_after(G_OBJECT(STANDARD_VIEW(details_view)->model), "row-changed",
                             G_CALLBACK(_detailview_row_changed), details_view);
 

@@ -701,9 +701,9 @@ GtkWidget* application_open_window(Application *application, ThunarFile *directo
     // change the directory
     if (directory != NULL)
     {
-        DPRINT("enter\n");
+        DPRINT("enter : window_set_current_directory\n");
         window_set_current_directory(APPWINDOW(window), directory);
-        DPRINT("leave\n");
+        DPRINT("leave : window_set_current_directory\n");
     }
 
     return window;
