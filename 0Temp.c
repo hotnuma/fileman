@@ -1,4 +1,32 @@
 
+// ----------------------------------------------------------------------------
+
+#if 0
+    _window_signals[TAB_CHANGE] =
+        g_signal_new(I_("tab-change"),
+                     G_TYPE_FROM_CLASS(klass),
+                     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
+                     G_STRUCT_OFFSET(AppWindowClass, tab_change),
+                     g_signal_accumulator_true_handled, NULL,
+                     _thunar_marshal_BOOLEAN__INT,
+                     G_TYPE_BOOLEAN, 1,
+                     G_TYPE_INT);
+
+    GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
+
+    // setup the key bindings for Alt+N
+    for (guint i = 0; i < 10; ++i)
+    {
+        gtk_binding_entry_add_signal(binding_set,
+                                     GDK_KEY_0 + i,
+                                     GDK_MOD1_MASK,
+                                     "tab-change",
+                                     1,
+                                     G_TYPE_UINT,
+                                     i - 1);
+    }
+#endif
+
 // Notebook View --------------------------------------------------------------
 
 #if 0

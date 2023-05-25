@@ -236,14 +236,10 @@ enum
 
 enum
 {
-    BACK,
     RELOAD,
-    TOGGLE_SIDEPANE,
-    TOGGLE_MENUBAR,
     ZOOM_IN,
     ZOOM_OUT,
     ZOOM_RESET,
-    //TAB_CHANGE,
     LAST_SIGNAL,
 };
 static guint _window_signals[LAST_SIGNAL];
@@ -257,7 +253,6 @@ struct _AppWindowClass
     gboolean (*zoom_in) (AppWindow *window);
     gboolean (*zoom_out) (AppWindow *window);
     gboolean (*zoom_reset) (AppWindow *window);
-    //gboolean (*tab_change) (AppWindow *window, gint idx);
 };
 
 struct _AppWindow
@@ -329,8 +324,6 @@ static void window_class_init(AppWindowClass *klass)
     klass->zoom_in = NULL;
     klass->zoom_out = NULL;
     klass->zoom_reset = NULL;
-
-    //klass->tab_change = NULL; // window_tab_change;
 
     xfce_gtk_translate_action_entries(_window_actions,
                                       G_N_ELEMENTS(_window_actions));
@@ -428,32 +421,6 @@ static void window_class_init(AppWindowClass *klass)
                      g_signal_accumulator_true_handled, NULL,
                      _thunar_marshal_BOOLEAN__VOID,
                      G_TYPE_BOOLEAN, 0);
-
-#if 0
-    _window_signals[TAB_CHANGE] =
-        g_signal_new(I_("tab-change"),
-                     G_TYPE_FROM_CLASS(klass),
-                     G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
-                     G_STRUCT_OFFSET(AppWindowClass, tab_change),
-                     g_signal_accumulator_true_handled, NULL,
-                     _thunar_marshal_BOOLEAN__INT,
-                     G_TYPE_BOOLEAN, 1,
-                     G_TYPE_INT);
-
-    GtkBindingSet *binding_set = gtk_binding_set_by_class(klass);
-
-    // setup the key bindings for Alt+N
-    for (guint i = 0; i < 10; ++i)
-    {
-        gtk_binding_entry_add_signal(binding_set,
-                                     GDK_KEY_0 + i,
-                                     GDK_MOD1_MASK,
-                                     "tab-change",
-                                     1,
-                                     G_TYPE_UINT,
-                                     i - 1);
-    }
-#endif
 }
 
 static void window_init(AppWindow *window)
