@@ -164,7 +164,7 @@ static void _standardview_selection_invert(BaseView *baseview);
 static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context,
                            StandardView *view);
 static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
-                              GtkSelectionData *selection_data,
+                              GtkSelectionData *seldata,
                               guint info, guint timestamp,
                               StandardView *view);
 static void _on_drag_data_delete(GtkWidget *widget, GdkDragContext *context,
@@ -196,7 +196,7 @@ static gboolean _on_drag_drop(GtkWidget *widget, GdkDragContext *context,
 
 static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
                                    gint x, gint y,
-                                   GtkSelectionData *selection_data,
+                                   GtkSelectionData *seldata,
                                    guint info, guint timestamp,
                                    StandardView *view);
 static bool _received_text_uri_list(GdkDragContext *context,
@@ -206,12 +206,12 @@ static GClosure* _standardview_new_files_closure(StandardView *view,
                                                  GtkWidget *source_view);
 static bool _received_netscape_url(GtkWidget *widget,
                                    gint x, gint y,
-                                   GtkSelectionData *selection_data,
+                                   GtkSelectionData *seldata,
                                    StandardView *view);
 static void _reload_directory(GPid pid, gint status, gpointer user_data);
 static bool _received_xdnd_direct_save(GdkDragContext *context,
                                        gint x, gint y,
-                                       GtkSelectionData *selection_data,
+                                       GtkSelectionData *seldata,
                                        StandardView *view);
 
 static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
@@ -2512,7 +2512,7 @@ static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context,
 }
 
 static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
-                              GtkSelectionData *selection_data,
+                              GtkSelectionData *seldata,
                               guint info, guint timestamp,
                               StandardView *view)
 {
@@ -2526,7 +2526,7 @@ static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
         return;
 
     gchar **uris = e_filelist_to_stringv(view->priv->drag_g_file_list);
-    gtk_selection_data_set_uris(selection_data, uris);
+    gtk_selection_data_set_uris(seldata, uris);
     g_strfreev(uris);
 }
 
@@ -2930,7 +2930,7 @@ static gboolean _on_drag_drop(GtkWidget *widget, GdkDragContext *context,
 
 static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
                                    gint x, gint y,
-                                   GtkSelectionData *selection_data,
+                                   GtkSelectionData *seldata,
                                    guint info, guint timestamp,
                                    StandardView *view)
 {
@@ -2939,10 +2939,10 @@ static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
     {
         // extract the URI list from the selection data(if valid)
         if (info == TARGET_TEXT_URI_LIST
-            && gtk_selection_data_get_format(selection_data) == 8
-            && gtk_selection_data_get_length(selection_data) > 0)
+            && gtk_selection_data_get_format(seldata) == 8
+            && gtk_selection_data_get_length(seldata) > 0)
         {
-            const guchar *selstr = gtk_selection_data_get_data(selection_data);
+            const guchar *selstr = gtk_selection_data_get_data(seldata);
             view->priv->drop_file_list =
                 e_filelist_new_from_string((gchar*) selstr);
         }
@@ -2966,12 +2966,11 @@ static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
     }
     else if (G_UNLIKELY(info == TARGET_NETSCAPE_URL))
     {
-        succeed = _received_netscape_url(widget, x, y, selection_data, view);
+        succeed = _received_netscape_url(widget, x, y, seldata, view);
     }
     else if (G_UNLIKELY(info == TARGET_XDND_DIRECT_SAVE0))
     {
-        succeed = _received_xdnd_direct_save(context,
-                                             x, y, selection_data, view);
+        succeed = _received_xdnd_direct_save(context, x, y, seldata, view);
     }
 
     // tell the peer that we handled the drop
@@ -3068,19 +3067,19 @@ static GClosure* _standardview_new_files_closure(StandardView *view,
 
 static bool _received_netscape_url(GtkWidget *widget,
                                    gint x, gint y,
-                                   GtkSelectionData *selection_data,
+                                   GtkSelectionData *seldata,
                                    StandardView *view)
 {
     // check if the format is valid and we have any data
-    if (gtk_selection_data_get_format(selection_data) != 8
-        || gtk_selection_data_get_length(selection_data) < 1)
+    if (gtk_selection_data_get_format(seldata) != 8
+        || gtk_selection_data_get_length(seldata) < 1)
     {
         return false;
     }
 
     // _NETSCAPE_URL looks like this: "$URL\n$TITLE"
     gchar **bits =
-        g_strsplit((const gchar*) gtk_selection_data_get_data(selection_data),
+        g_strsplit((const gchar*) gtk_selection_data_get_data(seldata),
                    "\n", -1);
 
     if (g_strv_length(bits) != 2)
@@ -3213,13 +3212,13 @@ static void _reload_directory(GPid pid, gint status, gpointer user_data)
 
 static bool _received_xdnd_direct_save(GdkDragContext *context,
                                        gint x, gint y,
-                                       GtkSelectionData *selection_data,
+                                       GtkSelectionData *seldata,
                                        StandardView *view)
 {
     // we don't handle XdndDirectSave stage(3), result "F" yet
-    if (G_UNLIKELY(gtk_selection_data_get_format(selection_data) == 8
-                   && gtk_selection_data_get_length(selection_data) == 1
-                   && gtk_selection_data_get_data(selection_data)[0] == 'F'))
+    if (G_UNLIKELY(gtk_selection_data_get_format(seldata) == 8
+                   && gtk_selection_data_get_length(seldata) == 1
+                   && gtk_selection_data_get_data(seldata)[0] == 'F'))
     {
         // indicate that we don't provide "F" fallback
         gdk_property_change(gdk_drag_context_get_source_window(context),
@@ -3227,13 +3226,14 @@ static bool _received_xdnd_direct_save(GdkDragContext *context,
                             gdk_atom_intern_static_string("text/plain"), 8,
                             GDK_PROP_MODE_REPLACE, (const guchar*) "", 0);
     }
-    else if (G_LIKELY(gtk_selection_data_get_format(selection_data) == 8
-             && gtk_selection_data_get_length(selection_data) == 1
-             && gtk_selection_data_get_data(selection_data)[0] == 'S'))
+    else if (G_LIKELY(gtk_selection_data_get_format(seldata) == 8
+             && gtk_selection_data_get_length(seldata) == 1
+             && gtk_selection_data_get_data(seldata)[0] == 'S'))
     {
         // XDS was successfull, so determine the file for the drop position
         ThunarFile *file = NULL;
         file = _standardview_get_drop_file(view, x, y, NULL);
+
         if (G_LIKELY(file != NULL))
         {
             // verify that we have a directory here
@@ -3255,10 +3255,8 @@ static bool _received_xdnd_direct_save(GdkDragContext *context,
     return true;
 }
 
-static void _on_drag_leave(GtkWidget      *widget,
-                                     GdkDragContext *context,
-                                     guint          timestamp,
-                                     StandardView   *view)
+static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
+                           guint timestamp, StandardView *view)
 {
     (void) widget;
     (void) context;

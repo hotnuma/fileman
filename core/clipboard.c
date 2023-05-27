@@ -39,20 +39,20 @@ static void _clipman_owner_changed(GtkClipboard *clipboard,
                                    GdkEventOwnerChange *event,
                                    ClipboardManager *manager);
 static void _clipman_targets_received(GtkClipboard *clipboard,
-                                      GtkSelectionData *selection_data,
+                                      GtkSelectionData *seldata,
                                       gpointer user_data);
 static void _clipman_transfer_files(ClipboardManager *manager, gboolean copy,
                                     GList *files);
 static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager);
 static void _clipman_get_callback(GtkClipboard *clipboard,
-                                  GtkSelectionData *selection_data,
+                                  GtkSelectionData *seldata,
                                   guint info,
                                   gpointer user_data);
 static gchar* _clipman_file_list_to_string(GList *list, const gchar *prefix,
                                            gboolean format_for_text, gsize *len);
 static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data);
 static void _clipman_contents_received(GtkClipboard *clipboard,
-                                       GtkSelectionData *selection_data,
+                                       GtkSelectionData *seldata,
                                        gpointer user_data);
 
 enum
@@ -303,7 +303,7 @@ static void _clipman_owner_changed(GtkClipboard        *clipboard,
 }
 
 static void _clipman_targets_received(GtkClipboard     *clipboard,
-                                      GtkSelectionData *selection_data,
+                                      GtkSelectionData *seldata,
                                       gpointer         user_data)
 {
     ClipboardManager *manager = CLIPBOARDMANAGER(user_data);
@@ -319,7 +319,7 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
     gint n_targets;
 
     // check the list of targets provided by the owner
-    if (gtk_selection_data_get_targets(selection_data, &targets, &n_targets))
+    if (gtk_selection_data_get_targets(seldata, &targets, &n_targets))
     {
         for (gint n = 0; n < n_targets; ++n)
         {
@@ -421,7 +421,7 @@ static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager)
 }
 
 static void _clipman_get_callback(GtkClipboard     *clipboard,
-                                  GtkSelectionData *selection_data,
+                                  GtkSelectionData *seldata,
                                   guint            target_info,
                                   gpointer         user_data)
 {
@@ -443,15 +443,15 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
     {
     case TARGET_TEXT_URI_LIST:
         uris = e_filelist_to_stringv(file_list);
-        gtk_selection_data_set_uris(selection_data, uris);
+        gtk_selection_data_set_uris(seldata, uris);
         g_strfreev(uris);
         break;
 
     case TARGET_GNOME_COPIED_FILES:
         prefix = manager->files_cutted ? "cut\n" : "copy\n";
         str = _clipman_file_list_to_string(file_list, prefix, FALSE, &len);
-        gtk_selection_data_set(selection_data,
-                               gtk_selection_data_get_target(selection_data),
+        gtk_selection_data_set(seldata,
+                               gtk_selection_data_get_target(seldata),
                                8,
                                (guchar*) str,
                                len);
@@ -460,7 +460,7 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
 
     case TARGET_UTF8_STRING:
         str = _clipman_file_list_to_string(file_list, NULL, TRUE, &len);
-        gtk_selection_data_set_text(selection_data, str, len);
+        gtk_selection_data_set_text(seldata, str, len);
         g_free(str);
         break;
 
@@ -556,7 +556,7 @@ void clipman_paste_files(ClipboardManager *manager, GFile *target_file,
 }
 
 static void _clipman_contents_received(GtkClipboard *clipboard,
-                                       GtkSelectionData *selection_data,
+                                       GtkSelectionData *seldata,
                                        gpointer user_data)
 {
     (void) clipboard;
@@ -567,12 +567,12 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     GList *file_list = NULL;
 
     // check whether the retrieval worked
-    if (G_LIKELY(gtk_selection_data_get_length(selection_data) > 0))
+    if (G_LIKELY(gtk_selection_data_get_length(seldata) > 0))
     {
         // be sure the selection data is zero-terminated
         gchar *data;
-        data = (gchar *) gtk_selection_data_get_data(selection_data);
-        data[gtk_selection_data_get_length(selection_data)] = '\0';
+        data = (gchar *) gtk_selection_data_get_data(seldata);
+        data[gtk_selection_data_get_length(seldata)] = '\0';
 
         // check whether to copy or move
         if (g_ascii_strncasecmp(data, "copy\n", 5) == 0)

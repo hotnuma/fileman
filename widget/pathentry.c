@@ -46,7 +46,7 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
                                               GdkEventMotion *event);
 static void pathentry_drag_data_get(GtkWidget *widget,
                                     GdkDragContext *context,
-                                    GtkSelectionData *selection_data,
+                                    GtkSelectionData *seldata,
                                     guint info,
                                     guint timestamp);
 static void pathentry_activate(GtkEntry *entry);
@@ -501,7 +501,7 @@ static gboolean pathentry_motion_notify_event(GtkWidget *widget,
 
 static void pathentry_drag_data_get(GtkWidget        *widget,
                                     GdkDragContext   *context,
-                                    GtkSelectionData *selection_data,
+                                    GtkSelectionData *seldata,
                                     guint            info,
                                     guint            timestamp)
 {
@@ -522,7 +522,7 @@ static void pathentry_drag_data_get(GtkWidget        *widget,
 
         // setup the uri list for the drag selection
         uris = e_filelist_to_stringv(&file_list);
-        gtk_selection_data_set_uris(selection_data, uris);
+        gtk_selection_data_set_uris(seldata, uris);
         g_strfreev(uris);
     }
 }

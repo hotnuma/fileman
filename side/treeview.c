@@ -111,7 +111,7 @@ static void _treeview_action_unlink_selected_folder(TreeView *view,
 
 static void treeview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
                                         gint x, gint y,
-                                        GtkSelectionData *selection_data,
+                                        GtkSelectionData *seldata,
                                         guint info, guint time);
 static gboolean treeview_drag_drop(GtkWidget *widget, GdkDragContext *context,
                                    gint x, gint y, guint time);
@@ -1604,7 +1604,7 @@ static void treeview_drag_data_received(GtkWidget        *widget,
                                         GdkDragContext   *context,
                                         gint             x,
                                         gint             y,
-                                        GtkSelectionData *selection_data,
+                                        GtkSelectionData *seldata,
                                         guint            info,
                                         guint            timestamp)
 {
@@ -1618,8 +1618,8 @@ static void treeview_drag_data_received(GtkWidget        *widget,
     if (G_LIKELY(!view->drop_data_ready))
     {
         // extract the URI list from the selection data(if valid)
-        if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(selection_data) == 8 && gtk_selection_data_get_length(selection_data) > 0)
-            view->drop_file_list = e_filelist_new_from_string((const gchar *) gtk_selection_data_get_data(selection_data));
+        if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(seldata) == 8 && gtk_selection_data_get_length(seldata) > 0)
+            view->drop_file_list = e_filelist_new_from_string((const gchar *) gtk_selection_data_get_data(seldata));
 
         // reset the state
         view->drop_data_ready = TRUE;
