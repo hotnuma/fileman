@@ -225,7 +225,7 @@ static void th_file_class_init(ThunarFileClass *klass)
 {
 
 #ifdef G_ENABLE_DEBUG
-    if (G_UNLIKELY(!_th_file_atexit_registered))
+    if (!_th_file_atexit_registered)
     {
         atexit((void(*)(void)) _th_file_atexit);
         _th_file_atexit_registered = TRUE;
@@ -366,7 +366,7 @@ static gchar* th_fileinfo_get_parent_uri(FileInfo *file_info)
 
     GFile *parent = g_file_get_parent(THUNARFILE(file_info)->gfile);
 
-    if (G_UNLIKELY(parent == NULL))
+    if (parent == NULL)
         return NULL;
 
     gchar *uri = g_file_get_uri(parent);
@@ -448,7 +448,7 @@ ThunarFile* th_file_get(GFile *gfile, GError **error)
     // try from the file cache
     ThunarFile *file = th_file_cache_lookup(gfile);
 
-    if (G_UNLIKELY(file != NULL))
+    if (file != NULL)
         return file;
 
     // allocate a new object
@@ -585,7 +585,7 @@ ThunarFile* th_file_get_with_info(GFile *gfile,
     // check if we already have a cached version of that file
     ThunarFile *file = th_file_cache_lookup(gfile);
 
-    if (G_UNLIKELY(file != NULL))
+    if (file != NULL)
         return file;
 
     // allocate a new object
@@ -628,7 +628,7 @@ void th_file_get_async(GFile *location, GCancellable *cancellable,
     // check if we already have a cached version of that file
     ThunarFile *file = th_file_cache_lookup(location);
 
-    if (G_UNLIKELY(file != NULL))
+    if (file != NULL)
     {
         // call the return function with the file from the cache
         (func) (location, file, NULL, user_data);
@@ -722,7 +722,7 @@ static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
     e_return_if_fail(IS_THUNARFILE(file));
     e_return_if_fail(file->gfileinfo == NULL || G_IS_FILE_INFO(file->gfileinfo));
 
-    if (G_LIKELY(file->gfileinfo != NULL))
+    if (file->gfileinfo != NULL)
     {
         // this is requested so often, cache it
         file->gfiletype = g_file_info_get_file_type(file->gfileinfo);
@@ -781,7 +781,7 @@ static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
                                                     G_KEY_FILE_DESKTOP_KEY_ICON,
                                                     NULL);
 
-            if (G_UNLIKELY(!file->custom_icon_name || !*file->custom_icon_name))
+            if (!file->custom_icon_name || !*file->custom_icon_name)
             {
                 /* make sure we set null if the string is empty else the assertion in
                  * thunar_icon_factory_lookup_icon() will fail */
@@ -806,16 +806,16 @@ static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
     // determine the display name
     if (file->display_name == NULL)
     {
-        if (G_UNLIKELY(e_file_is_trash(file->gfile)))
+        if (e_file_is_trash(file->gfile))
         {
             file->display_name = g_strdup(_("Trash"));
         }
-        else if (G_LIKELY(file->gfileinfo != NULL))
+        else if (file->gfileinfo != NULL)
         {
             const gchar *display_name;
             display_name = g_file_info_get_display_name(file->gfileinfo);
 
-            if (G_LIKELY(display_name != NULL))
+            if (display_name != NULL)
             {
                 if (strcmp(display_name, "/") == 0)
                     file->display_name = g_strdup(_("File System"));
@@ -1184,7 +1184,7 @@ gchar* th_file_get_deletion_date(const ThunarFile *file, ThunarDateStyle date_st
     e_return_val_if_fail(G_IS_FILE_INFO(file->gfileinfo), NULL);
 
     date = g_file_info_get_attribute_string(file->gfileinfo, G_FILE_ATTRIBUTE_TRASH_DELETION_DATE);
-    if (G_UNLIKELY(date == NULL))
+    if (date == NULL)
         return NULL;
 
     // try to parse the DeletionDate(RFC 3339 string)
@@ -1277,11 +1277,13 @@ gchar* th_file_get_mode_string(const ThunarFile *file)
     text[9] =(mode & THUNAR_FILE_MODE_OTH_EXEC)  ? 'x' : '-';
 
     // special flags
-    if (G_UNLIKELY(mode & THUNAR_FILE_MODE_SUID))
+    if (mode & THUNAR_FILE_MODE_SUID)
         text[3] = 's';
-    if (G_UNLIKELY(mode & THUNAR_FILE_MODE_SGID))
+
+    if (mode & THUNAR_FILE_MODE_SGID)
         text[6] = 's';
-    if (G_UNLIKELY(mode & THUNAR_FILE_MODE_STICKY))
+
+    if (mode & THUNAR_FILE_MODE_STICKY)
         text[9] = 't';
 
     text[10] = '\0';
@@ -1342,12 +1344,12 @@ const gchar* th_file_get_content_type(ThunarFile *file)
     const gchar *content_type = NULL;
     GError *err = NULL;
 
-    if (G_UNLIKELY(file->content_type == NULL))
+    if (file->content_type == NULL)
     {
         G_LOCK(_file_content_type_mutex);
 
         // make sure we weren't waiting for a lock
-        if (G_UNLIKELY(file->content_type != NULL))
+        if (file->content_type != NULL)
             goto bailout;
 
         // make sure this is not loaded in the general info
@@ -1356,7 +1358,7 @@ const gchar* th_file_get_content_type(ThunarFile *file)
                                 file->gfileinfo,
                                 G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE));
 
-        if (G_UNLIKELY(file->gfiletype == G_FILE_TYPE_DIRECTORY))
+        if (file->gfiletype == G_FILE_TYPE_DIRECTORY)
         {
             // this we known for sure
             file->content_type = g_strdup("inode/directory");
@@ -1371,16 +1373,16 @@ const gchar* th_file_get_content_type(ThunarFile *file)
                             G_FILE_QUERY_INFO_NONE,
                             NULL, &err);
 
-            if (G_LIKELY(fileinfo != NULL))
+            if (fileinfo != NULL)
             {
                 // store the new content type
                 content_type = g_file_info_get_content_type(fileinfo);
 
-                if (G_UNLIKELY(content_type == NULL))
+                if (content_type == NULL)
                     content_type = g_file_info_get_attribute_string(fileinfo,
                                    G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
 
-                if (G_LIKELY(content_type != NULL))
+                if (content_type != NULL)
                     file->content_type = g_strdup(content_type);
 
                 g_object_unref(G_OBJECT(fileinfo));
@@ -1448,16 +1450,16 @@ const gchar* th_file_get_icon_name(ThunarFile *file, FileIconState icon_state,
     e_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
     // return cached name
-    if (G_LIKELY(file->icon_name != NULL))
+    if (file->icon_name != NULL)
         return _th_file_get_icon_name_for_state(file->icon_name, icon_state);
 
     // the system root folder has a special icon
     if (th_file_is_directory(file))
     {
-        if (G_LIKELY(th_file_is_local(file)))
+        if (th_file_is_local(file))
         {
             path = g_file_get_path(file->gfile);
-            if (G_LIKELY(path != NULL))
+            if (path != NULL)
             {
                 if (strcmp(path, G_DIR_SEPARATOR_S) == 0)
                     *special_names = "drive-harddisk";
@@ -1514,17 +1516,17 @@ const gchar* th_file_get_icon_name(ThunarFile *file, FileIconState icon_state,
         fileinfo = g_file_query_info(file->gfile,
                                       G_FILE_ATTRIBUTE_STANDARD_ICON,
                                       G_FILE_QUERY_INFO_NONE, NULL, NULL);
-        if (G_LIKELY(fileinfo != NULL))
+        if (fileinfo != NULL)
         {
             // take the icon from the info
             icon = g_file_info_get_icon(fileinfo);
-            if (G_LIKELY(icon != NULL))
+            if (icon != NULL)
                 g_object_ref(icon);
 
             // release
             g_object_unref(G_OBJECT(fileinfo));
 
-            if (G_LIKELY(icon != NULL))
+            if (icon != NULL)
                 goto check_icon;
         }
     }
@@ -1535,7 +1537,7 @@ const gchar* th_file_get_icon_name(ThunarFile *file, FileIconState icon_state,
 
     // lookup for content type, just like gio does for local files
     icon = g_content_type_get_icon(th_file_get_content_type(file));
-    if (G_LIKELY(icon != NULL))
+    if (icon != NULL)
     {
 check_icon:
         if (G_IS_THEMED_ICON(icon))
@@ -1544,7 +1546,7 @@ check_icon:
 
 check_names:
 
-            if (G_LIKELY(names != NULL))
+            if (names != NULL)
             {
                 for(i = 0; names[i] != NULL; ++i)
                     if (*names[i] != '(' // see gnome bug 688042
@@ -1562,14 +1564,14 @@ check_names:
                 icon_name = g_file_get_path(icon_file);
         }
 
-        if (G_LIKELY(icon != NULL))
+        if (icon != NULL)
             g_object_unref(icon);
     }
 
     // store new name, fallback to legacy names, or empty string to avoid recursion
     g_free(file->icon_name);
 
-    if (G_LIKELY(icon_name != NULL))
+    if (icon_name != NULL)
         file->icon_name = icon_name;
     else if (file->gfiletype == G_FILE_TYPE_DIRECTORY
              && gtk_icon_theme_has_icon(icon_theme, "folder"))
@@ -1657,7 +1659,7 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
     e_return_val_if_fail(GDK_IS_DRAG_CONTEXT(context), 0);
 
     // we can never drop an empty list
-    if (G_UNLIKELY(file_list == NULL))
+    if (file_list == NULL)
         return 0;
 
     // default to whatever GTK+ thinks for the suggested action
@@ -1667,7 +1669,7 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
     actions = gdk_drag_context_get_actions(context);
 
     // when the option to ask the user is set, make it the preferred action
-    if (G_UNLIKELY((actions & GDK_ACTION_ASK) != 0))
+    if ((actions & GDK_ACTION_ASK) != 0)
         suggested_action = GDK_ACTION_ASK;
 
     // check if we have a writable directory here or an executable file
@@ -1683,12 +1685,12 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
         for(lp = file_list; lp != NULL; lp = lp->next)
         {
             // we cannot drop a file on itself
-            if (G_UNLIKELY(g_file_equal(file->gfile, lp->data)))
+            if (g_file_equal(file->gfile, lp->data))
                 return 0;
 
             // check whether source and destination are the same
             parent_file = g_file_get_parent(lp->data);
-            if (G_LIKELY(parent_file != NULL))
+            if (parent_file != NULL)
             {
                 if (g_file_equal(file->gfile, parent_file))
                 {
@@ -1700,7 +1702,7 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
             }
 
             // copy/move/link within the trash not possible
-            if (G_UNLIKELY(e_file_is_trashed(lp->data) && th_file_is_trashed(file)))
+            if (e_file_is_trashed(lp->data) && th_file_is_trashed(file))
                 return 0;
         }
 
@@ -1713,10 +1715,10 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
             // default to move as suggested action
             suggested_action = GDK_ACTION_MOVE;
 
-            for(lp = file_list; lp != NULL; lp = lp->next)
+            for (lp = file_list; lp != NULL; lp = lp->next)
             {
                 // dropping from the trash always suggests move
-                if (G_UNLIKELY(e_file_is_trashed(lp->data)))
+                if (e_file_is_trashed(lp->data))
                     break;
 
                 // determine the cached version of the source file
@@ -1754,10 +1756,10 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
         return 0;
 
     // determine the preferred action based on the context
-    if (G_LIKELY(suggested_action_return != NULL))
+    if (suggested_action_return != NULL)
     {
         // determine a working action
-        if (G_LIKELY((suggested_action & actions) != 0))
+        if ((suggested_action & actions) != 0)
             *suggested_action_return = suggested_action;
         else if ((actions & GDK_ACTION_ASK) != 0)
             *suggested_action_return = GDK_ACTION_ASK;
@@ -1814,7 +1816,7 @@ gboolean th_file_check_loaded(ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
-    if (G_UNLIKELY(file->gfileinfo == NULL))
+    if (file->gfileinfo == NULL)
         _th_file_load(file, NULL, NULL);
 
     return (file->gfileinfo != NULL);
@@ -1936,7 +1938,7 @@ gboolean th_file_is_desktop_file(const ThunarFile *file, gboolean *is_secure)
         if (g_file_is_native(th_file_get_file(file)))
         {
             data_dirs = g_get_system_data_dirs();
-            if (G_LIKELY(data_dirs != NULL))
+            if (data_dirs != NULL)
             {
                 path = g_file_get_path(th_file_get_file(file));
                 for(n = 0; data_dirs[n] != NULL; n++)
@@ -1990,7 +1992,7 @@ gboolean th_file_is_executable(const ThunarFile *file)
         const gchar *content_type;
         content_type = th_file_get_content_type(THUNARFILE(file));
 
-        if (G_LIKELY(content_type != NULL))
+        if (content_type != NULL)
         {
             can_execute = g_content_type_can_be_executable(content_type);
 
@@ -2042,7 +2044,7 @@ gboolean th_file_is_gfile_ancestor(const ThunarFile *file, GFile *ancestor)
         if (current == NULL) // parent of root is NULL
             return FALSE;
 
-        if (G_UNLIKELY(g_file_equal(current, ancestor)))
+        if (g_file_equal(current, ancestor))
         {
             g_object_unref(current);
             return TRUE;
@@ -2236,7 +2238,7 @@ gint th_file_compare_by_name(const ThunarFile *file_a, const ThunarFile *file_b,
 #endif
 
     // case insensitive checking
-    if (G_LIKELY(!case_sensitive))
+    if (!case_sensitive)
         result = g_strcmp0(file_a->collate_key_nocase, file_b->collate_key_nocase);
 
     // fall-back to case sensitive
@@ -2367,10 +2369,10 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
         }
 
         type = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_TYPE, NULL);
-        if (G_LIKELY(g_strcmp0(type, "Application") == 0))
+        if (g_strcmp0(type, "Application") == 0)
         {
             exec = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_EXEC, NULL);
-            if (G_LIKELY(exec != NULL))
+            if (exec != NULL)
             {
                 // if the .desktop file is not secure, ask user what to do
                 if (is_secure || dialog_insecure_program(parent, _("Untrusted application launcher"), file, exec))
@@ -2407,7 +2409,7 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
         else if (g_strcmp0(type, "Link") == 0)
         {
             url = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_URL, NULL);
-            if (G_LIKELY(url != NULL))
+            if (url != NULL)
             {
                 // if the .desktop file is not secure, ask user what to do
                 if (is_secure || dialog_insecure_program(parent, _("Untrusted link launcher"), file, url))
@@ -2449,13 +2451,13 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
         g_free(command);
     }
 
-    if (G_LIKELY(result && argv != NULL))
+    if (result && argv != NULL)
     {
         // use other directory if the Path from the desktop file was not set
-        if (G_LIKELY(directory == NULL))
+        if (directory == NULL)
         {
             // determine the working directory
-            if (G_LIKELY(working_directory != NULL))
+            if (working_directory != NULL)
             {
                 // copy the working directory provided to this method
                 directory = g_file_get_path(working_directory);
@@ -2550,7 +2552,7 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
 
     /* display the application chooser if no application is defined for this file
      * type yet */
-    if (G_UNLIKELY(app_info == NULL))
+    if (app_info == NULL)
     {
         appchooser_dialog(parent, file, TRUE);
         return TRUE;
@@ -2671,7 +2673,7 @@ void th_file_watch(ThunarFile *file)
                                              | G_FILE_MONITOR_WATCH_MOVES,
                                              NULL, &error);
 
-        if (G_UNLIKELY(file_watch->monitor == NULL))
+        if (file_watch->monitor == NULL)
         {
             g_debug("Failed to create file monitor: %s", error->message);
             g_error_free(error);
@@ -2691,7 +2693,7 @@ void th_file_watch(ThunarFile *file)
                                 file_watch,
                                 _th_file_watch_destroyed);
     }
-    else if (G_LIKELY(file->no_file_watch == false))
+    else if (file->no_file_watch == false)
     {
         e_return_if_fail(G_IS_FILE_MONITOR(file_watch->monitor));
 
@@ -2703,7 +2705,7 @@ static void _th_file_watch_destroyed(gpointer data)
 {
     FileWatch *file_watch = data;
 
-    if (G_LIKELY(file_watch->monitor != NULL))
+    if (file_watch->monitor != NULL)
     {
         g_file_monitor_cancel(file_watch->monitor);
         g_object_unref(file_watch->monitor);
@@ -2716,7 +2718,7 @@ void th_file_unwatch(ThunarFile *file)
 {
     e_return_if_fail(IS_THUNARFILE(file));
 
-    if (G_UNLIKELY(file->no_file_watch))
+    if (file->no_file_watch)
         return;
 
     //printf("unwatch : %s\n", th_file_get_display_name(file));
@@ -2766,7 +2768,7 @@ static void _monitor_on_changed(GFileMonitor *monitor,
 
         // Trash : G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED
 
-        if (G_LIKELY(event_file))
+        if (event_file)
             _monitor_update(event_file, event_type);
 
         return;
@@ -2811,7 +2813,7 @@ static void _monitor_update(GFile *path, GFileMonitorEvent event_type)
 
     ThunarFile *file = th_file_cache_lookup(path);
 
-    if (G_UNLIKELY(file == NULL))
+    if (file == NULL)
         return;
 
     switch (event_type)
@@ -2973,7 +2975,7 @@ static void _th_file_watch_reconnect(ThunarFile *file)
         return;
 
     // reset the old monitor
-    if (G_LIKELY(file_watch->monitor != NULL))
+    if (file_watch->monitor != NULL)
     {
         g_file_monitor_cancel(file_watch->monitor);
         g_object_unref(file_watch->monitor);
@@ -2985,7 +2987,7 @@ static void _th_file_watch_reconnect(ThunarFile *file)
                                          | G_FILE_MONITOR_SEND_MOVED,
                                          NULL, NULL);
 
-    if (G_LIKELY(file_watch->monitor != NULL))
+    if (file_watch->monitor != NULL)
     {
         // watch monitor for file changes
         g_signal_connect(file_watch->monitor, "changed",
@@ -3096,7 +3098,7 @@ ThunarFile* th_file_cache_lookup(const GFile *file)
     G_LOCK(_file_cache_mutex);
 
     // allocate the ThunarFile cache on-demand
-    if (G_UNLIKELY(_file_cache == NULL))
+    if (_file_cache == NULL)
     {
         _file_cache = g_hash_table_new_full(g_file_hash,
                                             (GEqualFunc) g_file_equal,
@@ -3243,20 +3245,20 @@ GList* th_filelist_get_applications(GList *file_list)
 
         // no need to check anything if this file has the same mimetype as the previous file
         if (current_type != NULL && previous_type != NULL)
-            if (G_LIKELY(g_content_type_equals(previous_type, current_type)))
+            if (g_content_type_equals(previous_type, current_type))
                 continue;
 
         // store the previous type
         previous_type = current_type;
 
         // determine the list of applications that can open this file
-        if (G_UNLIKELY(current_type != NULL))
+        if (current_type != NULL)
         {
             list = g_app_info_get_all_for_type(current_type);
 
             // move any default application in front of the list
             default_application = g_app_info_get_default_for_type(current_type, FALSE);
-            if (G_LIKELY(default_application != NULL))
+            if (default_application != NULL)
             {
                 for(ap = list; ap != NULL; ap = ap->next)
                 {
@@ -3273,7 +3275,7 @@ GList* th_filelist_get_applications(GList *file_list)
         else
             list = NULL;
 
-        if (G_UNLIKELY(applications == NULL))
+        if (applications == NULL)
         {
             // first file, so just use the applications list
             applications = list;
@@ -3302,7 +3304,7 @@ GList* th_filelist_get_applications(GList *file_list)
         }
 
         // check if the set is still not empty
-        if (G_LIKELY(applications == NULL))
+        if (applications == NULL)
             break;
     }
 

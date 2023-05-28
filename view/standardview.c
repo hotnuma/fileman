@@ -708,22 +708,22 @@ static void standardview_dispose(GObject *object)
 {
     StandardView *view = STANDARD_VIEW(object);
 
-    if (G_UNLIKELY(view->loading_binding != NULL))
+    if (view->loading_binding != NULL)
     {
         g_object_unref(view->loading_binding);
         view->loading_binding = NULL;
     }
 
     // be sure to cancel any pending drag autoscroll timer
-    if (G_UNLIKELY(view->priv->drag_scroll_timer_id != 0))
+    if (view->priv->drag_scroll_timer_id != 0)
         g_source_remove(view->priv->drag_scroll_timer_id);
 
     // be sure to cancel any pending drag timer
-    if (G_UNLIKELY(view->priv->drag_timer_id != 0))
+    if (view->priv->drag_timer_id != 0)
         g_source_remove(view->priv->drag_timer_id);
 
     // be sure to free any pending drag timer event
-    if (G_UNLIKELY(view->priv->drag_timer_event != NULL))
+    if (view->priv->drag_timer_event != NULL)
     {
         gdk_event_free(view->priv->drag_timer_event);
         view->priv->drag_timer_event = NULL;
@@ -754,7 +754,7 @@ static void standardview_finalize(GObject *object)
     _standardview_disconnect_accelerators(view);
 
     // release the scroll_to_file reference(if any)
-    if (G_UNLIKELY(view->priv->scroll_to_file != NULL))
+    if (view->priv->scroll_to_file != NULL)
         g_object_unref(G_OBJECT(view->priv->scroll_to_file));
 
     // release the selected_files list(if any)
@@ -776,7 +776,7 @@ static void standardview_finalize(GObject *object)
     g_object_unref(G_OBJECT(view->icon_renderer));
 
     // drop any existing "new-files" closure
-    if (G_UNLIKELY(view->priv->new_files_closure != NULL))
+    if (view->priv->new_files_closure != NULL)
     {
         g_closure_invalidate(view->priv->new_files_closure);
         g_closure_unref(view->priv->new_files_closure);
@@ -958,7 +958,7 @@ static gboolean standardview_draw(GtkWidget *widget, cairo_t *cr)
     cairo_restore(cr);
 
     // render the folder drop shadow
-    if (G_UNLIKELY(STANDARD_VIEW(widget)->priv->drop_highlight))
+    if (STANDARD_VIEW(widget)->priv->drop_highlight)
     {
         GtkAllocation a;
         gtk_widget_get_allocation(widget, &a);
@@ -1044,7 +1044,7 @@ static void standardview_set_current_directory(ThunarNavigator *navigator,
 
     // disconnect any previous "loading" binding
 
-    if (G_LIKELY(view->loading_binding != NULL))
+    if (view->loading_binding != NULL)
     {
         g_object_unref(view->loading_binding);
         view->loading_binding = NULL;
@@ -1064,7 +1064,7 @@ static void standardview_set_current_directory(ThunarNavigator *navigator,
     }
 
     // check if we want to reset the directory
-    if (G_UNLIKELY(current_directory == NULL))
+    if (current_directory == NULL)
     {
         // unset
         view->priv->current_directory = NULL;
@@ -1195,7 +1195,7 @@ static void _standardview_current_directory_destroy(ThunarFile *current_director
     ThunarFile *new_directory =
             _standardview_get_fallback_directory(current_directory, error);
 
-    if (G_UNLIKELY(new_directory == NULL))
+    if (new_directory == NULL)
     {
         // display an error to the user
         dialog_error(GTK_WIDGET(view),
@@ -1300,7 +1300,7 @@ static void _standardview_loading_unbound(gpointer user_data)
     view->loading_binding = NULL;
 
     // reset the "loading" property
-    if (G_UNLIKELY(view->loading))
+    if (view->loading)
     {
         view->loading = false;
         g_object_freeze_notify(G_OBJECT(view));
@@ -1371,7 +1371,7 @@ static void standardview_set_selected_files_component(ThunarComponent *component
     StandardView *view = STANDARD_VIEW(component);
 
     // release the previous selected files list(if any)
-    if (G_UNLIKELY(view->priv->selected_files != NULL))
+    if (view->priv->selected_files != NULL)
     {
         e_list_free(view->priv->selected_files);
         view->priv->selected_files = NULL;
@@ -1386,7 +1386,7 @@ static void standardview_set_selected_files_component(ThunarComponent *component
     }
 
     // verify that we have a valid model
-    if (G_UNLIKELY(view->model == NULL))
+    if (view->model == NULL)
         return;
 
     // unselect all previously selected files
@@ -1398,7 +1398,7 @@ static void standardview_set_selected_files_component(ThunarComponent *component
     // determine the tree paths for the given files
     GList *paths;
     paths = listmodel_get_paths_for_files(view->model, selected_files);
-    if (G_UNLIKELY(paths == NULL))
+    if (paths == NULL)
         return;
 
     // determine the first path
@@ -1461,7 +1461,7 @@ static void standardview_set_zoom_level(BaseView *baseview,
 {
     StandardView *view = STANDARD_VIEW(baseview);
 
-    if (G_UNLIKELY(view->priv->zoom_level == zoom_level))
+    if (view->priv->zoom_level == zoom_level)
         return;
 
     view->priv->zoom_level = zoom_level;
@@ -1481,7 +1481,7 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
     loading = !!loading;
 
     // check if we're already in that state
-    if (G_UNLIKELY(view->loading == loading))
+    if (view->loading == loading)
         return;
 
     // apply the new state
@@ -1494,7 +1494,7 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
         g_signal_handler_unblock(view->model, view->priv->row_changed_id);
 
     // check if we're done loading and have a scheduled scroll_to_file
-    if (G_UNLIKELY(!loading))
+    if (!loading)
     {
         ThunarFile *file;
 
@@ -1520,14 +1520,14 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
             ThunarFile *current_directory;
             current_directory = navigator_get_current_directory(THUNARNAVIGATOR(view));
 
-            if (G_LIKELY(current_directory != NULL))
+            if (current_directory != NULL)
             {
                 GFile      *first_file;
                 first_file = g_hash_table_lookup(view->priv->scroll_to_files, th_file_get_file(current_directory));
-                if (G_LIKELY(first_file != NULL))
+                if (first_file != NULL)
                 {
                     file = th_file_cache_lookup(first_file);
-                    if (G_LIKELY(file != NULL))
+                    if (file != NULL)
                     {
                         baseview_scroll_to_file(BASEVIEW(view), file, false, true, 0.0f, 0.0f);
                         g_object_unref(file);
@@ -1538,7 +1538,7 @@ static void standardview_set_loading(StandardView *view, gboolean loading)
     }
 
     // check if we have a path list from new_files pending
-    if (G_UNLIKELY(!loading && view->priv->new_files_path_list != NULL))
+    if (!loading && view->priv->new_files_path_list != NULL)
     {
         // remember and reset the new_files_path_list
         GList *new_files_path_list;
@@ -1579,19 +1579,19 @@ static void _standardview_new_files(StandardView *view, GList *path_list)
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
     // release the previous "new-files" paths(if any)
-    if (G_UNLIKELY(view->priv->new_files_path_list != NULL))
+    if (view->priv->new_files_path_list != NULL)
     {
         e_list_free(view->priv->new_files_path_list);
         view->priv->new_files_path_list = NULL;
     }
 
     // check if the folder is currently being loaded
-    if (G_UNLIKELY(view->loading))
+    if (view->loading)
     {
         // schedule the "new-files" paths for later processing
         view->priv->new_files_path_list = e_list_copy(path_list);
     }
-    else if (G_LIKELY(path_list != NULL))
+    else if (path_list != NULL)
     {
         // to check if we should reload
         GFile     *parent_file;
@@ -1605,16 +1605,16 @@ static void _standardview_new_files(StandardView *view, GList *path_list)
         GList *lp;
         for (lp = path_list; lp != NULL; lp = lp->next)
         {
-            ThunarFile *file;
-            file = th_file_cache_lookup(lp->data);
-            if (G_LIKELY(file != NULL))
+            ThunarFile *file = th_file_cache_lookup(lp->data);
+
+            if (file != NULL)
                 file_list = g_list_prepend(file_list, file);
             else if (!belongs_here && g_file_has_parent(lp->data, parent_file))
                 belongs_here = true;
         }
 
         // check if we have any new files here
-        if (G_LIKELY(file_list != NULL))
+        if (file_list != NULL)
         {
             // select the files
             component_set_selected_files(THUNARCOMPONENT(view), file_list);
@@ -1649,7 +1649,7 @@ static void standardview_reload(BaseView *baseview, gboolean reload_info)
     // determine the folder for the view model
     ThunarFolder *folder = listmodel_get_folder(standard_view->model);
 
-    if (G_UNLIKELY(folder == NULL))
+    if (folder == NULL)
         return;
 
     ThunarFile *file = th_folder_get_thfile(folder);
@@ -1677,14 +1677,14 @@ static gboolean standardview_get_visible_range(BaseView *baseview,
         GtkTreeIter iter;
 
         // determine the file for the start path
-        if (G_LIKELY(start_file != NULL))
+        if (start_file != NULL)
         {
             gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, start_path);
             *start_file = listmodel_get_file(view->model, &iter);
         }
 
         // determine the file for the end path
-        if (G_LIKELY(end_file != NULL))
+        if (end_file != NULL)
         {
             gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, end_path);
             *end_file = listmodel_get_file(view->model, &iter);
@@ -1712,7 +1712,7 @@ static void standardview_scroll_to_file(BaseView   *baseview,
     GList              *paths;
 
     // release the previous scroll_to_file reference(if any)
-    if (G_UNLIKELY(view->priv->scroll_to_file != NULL))
+    if (view->priv->scroll_to_file != NULL)
     {
         g_object_unref(G_OBJECT(view->priv->scroll_to_file));
         view->priv->scroll_to_file = NULL;
@@ -1737,17 +1737,20 @@ static void standardview_scroll_to_file(BaseView   *baseview,
 
         // determine the path for the file
         paths = listmodel_get_paths_for_files(view->model, &files);
-        if (G_LIKELY(paths != NULL))
+        if (paths != NULL)
         {
             // scroll to the path
-           (*STANDARD_VIEW_GET_CLASS(view)->scroll_to_path)(view, paths->data, use_align, row_align, col_align);
+            STANDARD_VIEW_GET_CLASS(view)->scroll_to_path(view,
+                                                          paths->data,
+                                                          use_align,
+                                                          row_align, col_align);
 
             // check if we should also alter the selection
-            if (G_UNLIKELY(select_file))
+            if (select_file)
             {
                 // select only the file in question
-               (*STANDARD_VIEW_GET_CLASS(view)->unselect_all)(view);
-               (*STANDARD_VIEW_GET_CLASS(view)->select_path)(view, paths->data);
+                STANDARD_VIEW_GET_CLASS(view)->unselect_all(view);
+                STANDARD_VIEW_GET_CLASS(view)->select_path(view, paths->data);
             }
 
             // cleanup
@@ -1784,7 +1787,7 @@ static const gchar* standardview_get_statusbar_text(BaseView *baseview)
 // standardview_constructor ---------------------------------------------------
 
 static void _standardview_sort_column_changed(GtkTreeSortable *tree_sortable,
-                                              StandardView    *view)
+                                              StandardView *view)
 {
     e_return_if_fail(GTK_IS_TREE_SORTABLE(tree_sortable));
     e_return_if_fail(IS_STANDARD_VIEW(view));
@@ -1808,9 +1811,9 @@ static void _standardview_sort_column_changed(GtkTreeSortable *tree_sortable,
     }
 }
 
-static gboolean _standardview_scroll_event(GtkWidget      *widget,
+static gboolean _standardview_scroll_event(GtkWidget *widget,
                                            GdkEventScroll *event,
-                                           StandardView   *view)
+                                           StandardView *view)
 {
     (void) widget;
 
@@ -2013,7 +2016,7 @@ static void _standardview_error(ListModel *model, const GError *error,
 
     // determine the ThunarFile for the current directory
     ThunarFile *file = navigator_get_current_directory(THUNARNAVIGATOR(view));
-    if (G_UNLIKELY(file == NULL))
+    if (file == NULL)
         return;
 
     // inform the user about the problem
@@ -2087,7 +2090,7 @@ void standardview_selection_changed(StandardView *view)
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
     // drop any existing "new-files" closure
-    if (G_UNLIKELY(view->priv->new_files_closure != NULL))
+    if (view->priv->new_files_closure != NULL)
     {
         g_closure_invalidate(view->priv->new_files_closure);
         g_closure_unref(view->priv->new_files_closure);
@@ -2139,7 +2142,7 @@ void standardview_queue_popup(StandardView *view, GdkEventButton *event)
     e_return_if_fail(event != NULL);
 
     // check if we have already scheduled a drag timer
-    if (G_UNLIKELY(view->priv->drag_timer_id != 0))
+    if (view->priv->drag_timer_id != 0)
         return;
 
     // remember the new coordinates
@@ -2481,14 +2484,14 @@ static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context,
     view->priv->drag_g_file_list =
                 th_filelist_to_thunar_g_file_list(view->priv->selected_files);
 
-    if (G_UNLIKELY(view->priv->drag_g_file_list == NULL))
+    if (view->priv->drag_g_file_list == NULL)
         return;
 
     // generate an icon from the first selected file
 
     ThunarFile *file = th_file_get(view->priv->drag_g_file_list->data, NULL);
 
-    if (G_UNLIKELY(file == NULL))
+    if (file == NULL)
         return;
 
     gint size;
@@ -2542,7 +2545,7 @@ static void _on_drag_end(GtkWidget *widget, GdkDragContext *context,
     (void) context;
 
     // stop any running drag autoscroll timer
-    if (G_UNLIKELY(view->priv->drag_scroll_timer_id != 0))
+    if (view->priv->drag_scroll_timer_id != 0)
         g_source_remove(view->priv->drag_scroll_timer_id);
 
     // release the list of dragged URIs
@@ -2557,7 +2560,7 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
                                 StandardView *view)
 {
     // request the drop data on-demand (if we don't have it already)
-    if (G_UNLIKELY(!view->priv->drop_data_ready))
+    if (!view->priv->drop_data_ready)
     {
         GdkDragAction action = 0;
 
@@ -2581,7 +2584,7 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
             }
 
             // reset path if we cannot drop
-            if (G_UNLIKELY(action == 0 && path != NULL))
+            if (action == 0 && path != NULL)
             {
                 gtk_tree_path_free(path);
                 path = NULL;
@@ -2603,10 +2606,10 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
             STANDARD_VIEW_GET_CLASS(view)->highlight_path(view, path);
 
             // cleanup
-            if (G_LIKELY(file != NULL))
+            if (file != NULL)
                 g_object_unref(G_OBJECT(file));
 
-            if (G_LIKELY(path != NULL))
+            if (path != NULL)
                 gtk_tree_path_free(path);
         }
         else
@@ -2626,7 +2629,7 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
     }
 
     // start the drag autoscroll timer if not already running
-    if (G_LIKELY(view->priv->drag_scroll_timer_id != 0))
+    if (view->priv->drag_scroll_timer_id != 0)
         return true;
 
     // schedule the drag autoscroll timer
@@ -2650,7 +2653,7 @@ static ThunarFile* _standardview_get_drop_file(StandardView *view,
 
     ThunarFile *file = NULL;
 
-    if (G_LIKELY(path != NULL))
+    if (path != NULL)
     {
         // determine the file for the path
 
@@ -2670,19 +2673,19 @@ static ThunarFile* _standardview_get_drop_file(StandardView *view,
     }
 
     // if we don't have a path yet, we'll drop to the folder instead
-    if (G_UNLIKELY(path == NULL))
+    if (path == NULL)
     {
         // determine the current directory
         file = navigator_get_current_directory(THUNARNAVIGATOR(view));
 
-        if (G_LIKELY(file != NULL))
+        if (file != NULL)
             g_object_ref(G_OBJECT(file));
     }
 
     // return the path(if any)
-    if (G_LIKELY(path_return != NULL))
+    if (path_return != NULL)
         *path_return = path;
-    else if (G_LIKELY(path != NULL))
+    else if (path != NULL)
         gtk_tree_path_free(path);
 
     return file;
@@ -2702,20 +2705,20 @@ static GdkDragAction _standardview_get_dest_actions(StandardView *view,
     GdkDragAction action = 0;
 
     // check if we can drop there
-    if (G_LIKELY(file != NULL))
+    if (file != NULL)
     {
         // determine the possible drop actions for the file(and the suggested action if any)
         actions = th_file_accepts_drop(file, view->priv->drop_file_list, context, &action);
-        if (G_LIKELY(actions != 0))
+        if (actions != 0)
         {
             // tell the caller about the file(if it's interested)
-            if (G_UNLIKELY(file_return != NULL))
+            if (file_return != NULL)
                 *file_return = THUNARFILE(g_object_ref(G_OBJECT(file)));
         }
     }
 
     // reset path if we cannot drop
-    if (G_UNLIKELY(action == 0 && path != NULL))
+    if (action == 0 && path != NULL)
     {
         gtk_tree_path_free(path);
         path = NULL;
@@ -2742,10 +2745,10 @@ static GdkDragAction _standardview_get_dest_actions(StandardView *view,
     gdk_drag_status(context, action, timestamp);
 
     // clean up
-    if (G_LIKELY(file != NULL))
+    if (file != NULL)
         g_object_unref(G_OBJECT(file));
 
-    if (G_LIKELY(path != NULL))
+    if (path != NULL)
         gtk_tree_path_free(path);
 
     return actions;
@@ -2758,7 +2761,7 @@ static gboolean _standardview_drag_scroll_timer(gpointer user_data)
     UTIL_THREADS_ENTER
 
     // verify that we are realized
-    if (G_LIKELY(gtk_widget_get_realized(GTK_WIDGET(view))))
+    if (gtk_widget_get_realized(GTK_WIDGET(view)))
     {
         // determine pointer location and window geometry
         GdkWindow *window = gtk_widget_get_window(
@@ -2778,14 +2781,14 @@ static gboolean _standardview_drag_scroll_timer(gpointer user_data)
         // check if we are near the edge (vertical)
         gint offset = y - (2 * 20);
 
-        if (G_UNLIKELY(offset > 0))
+        if (offset > 0)
             offset = MAX(y - (h - 2 * 20), 0);
 
         GtkAdjustment *adjustment;
         gfloat value;
 
         // change the vertical adjustment appropriately
-        if (G_UNLIKELY(offset != 0))
+        if (offset != 0)
         {
             // determine the vertical adjustment
             adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(view));
@@ -2803,11 +2806,11 @@ static gboolean _standardview_drag_scroll_timer(gpointer user_data)
         // check if we are near the edge (horizontal)
         offset = x - (2 * 20);
 
-        if (G_UNLIKELY(offset > 0))
+        if (offset > 0)
             offset = MAX(x -(w - 2 * 20), 0);
 
         // change the horizontal adjustment appropriately
-        if (G_UNLIKELY(offset != 0))
+        if (offset != 0)
         {
             // determine the vertical adjustment
             adjustment = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(view));
@@ -2861,7 +2864,7 @@ static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
                                    StandardView *view)
 {
     // check if we don't already know the drop data
-    if (G_LIKELY(!view->priv->drop_data_ready))
+    if (!view->priv->drop_data_ready)
     {
         // extract the URI list from the selection data(if valid)
         if (info == TARGET_TEXT_URI_LIST
@@ -2885,11 +2888,11 @@ static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
     //ThunarFile *file = NULL;
     gboolean succeed = false;
 
-    if (G_LIKELY(info == TARGET_TEXT_URI_LIST))
+    if (info == TARGET_TEXT_URI_LIST)
     {
         succeed = _received_text_uri_list(context, x, y, timestamp, view);
     }
-    else if (G_UNLIKELY(info == TARGET_NETSCAPE_URL))
+    else if (info == TARGET_NETSCAPE_URL)
     {
         succeed = _received_netscape_url(widget, x, y, seldata, view);
     }
@@ -2915,9 +2918,9 @@ static bool _received_text_uri_list(GdkDragContext *context,
     GdkDragAction actions =
         _standardview_get_dest_actions(view, context, x, y, timestamp, &file);
 
-    if (G_LIKELY((actions & (GDK_ACTION_COPY
-                             | GDK_ACTION_MOVE
-                             | GDK_ACTION_LINK)) != 0))
+    if ((actions & (GDK_ACTION_COPY
+                    | GDK_ACTION_MOVE
+                    | GDK_ACTION_LINK)) != 0)
     {
         // ask the user what to do with the drop data
         GdkDragAction action =
@@ -2927,7 +2930,7 @@ static bool _received_text_uri_list(GdkDragContext *context,
             : gdk_drag_context_get_selected_action(context);
 
         // perform the requested action
-        if (G_LIKELY(action != 0))
+        if (action != 0)
         {
             // look if we can find the drag source widget
             GtkWidget *source_widget = gtk_drag_get_source_widget(context);
@@ -2954,7 +2957,7 @@ static bool _received_text_uri_list(GdkDragContext *context,
     }
 
     // release the file reference
-    if (G_LIKELY(file != NULL))
+    if (file != NULL)
         g_object_unref(G_OBJECT(file));
 
     return succeed;
@@ -2966,7 +2969,7 @@ static GClosure* _standardview_new_files_closure(StandardView *view,
     e_return_val_if_fail(source_view == NULL || THUNAR_IS_VIEW(source_view), NULL);
 
     // drop any previous "new-files" closure
-    if (G_UNLIKELY(view->priv->new_files_closure != NULL))
+    if (view->priv->new_files_closure != NULL)
     {
         g_closure_invalidate(view->priv->new_files_closure);
         g_closure_unref(view->priv->new_files_closure);
@@ -3081,7 +3084,7 @@ static bool _received_netscape_url(GtkWidget *widget,
                             display,
                             &pid, &error);
 
-    if (G_UNLIKELY(!succeed))
+    if (!succeed)
     {
         // display an error dialog to the user
         dialog_error(view,
@@ -3144,18 +3147,18 @@ static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
                  NULL);
 
     // stop any running drag autoscroll timer
-    if (G_UNLIKELY(view->priv->drag_scroll_timer_id != 0))
+    if (view->priv->drag_scroll_timer_id != 0)
         g_source_remove(view->priv->drag_scroll_timer_id);
 
     // disable the drop highlighting around the view
-    if (G_LIKELY(view->priv->drop_highlight))
+    if (view->priv->drop_highlight)
     {
         view->priv->drop_highlight = false;
         gtk_widget_queue_draw(GTK_WIDGET(view));
     }
 
     // reset the "drop data ready" status and free the URI list
-    if (G_LIKELY(view->priv->drop_data_ready))
+    if (view->priv->drop_data_ready)
     {
         e_list_free(view->priv->drop_file_list);
         view->priv->drop_file_list = NULL;
