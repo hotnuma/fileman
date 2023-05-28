@@ -2564,7 +2564,7 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
                                 gint x, gint y, guint timestamp,
                                 StandardView *view)
 {
-    // request the drop data on-demand(if we don't have it already)
+    // request the drop data on-demand (if we don't have it already)
     if (G_UNLIKELY(!view->priv->drop_data_ready))
     {
         GdkDragAction action = 0;
@@ -2578,14 +2578,13 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
         {
             // determine the file for the given coordinates
             GtkTreePath  *path;
-            ThunarFile   *file = NULL;
-            file = _standardview_get_drop_file(view, x, y, &path);
+            ThunarFile *file = _standardview_get_drop_file(view, x, y, &path);
 
             // check if we can save here
-            if (G_LIKELY(file != NULL
-                          && th_file_is_local(file)
-                          && th_file_is_directory(file)
-                          && th_file_is_writable(file)))
+            if (file != NULL
+                && th_file_is_local(file)
+                && th_file_is_directory(file)
+                && th_file_is_writable(file))
             {
                 action = gdk_drag_context_get_suggested_action(context);
             }
@@ -2911,7 +2910,8 @@ static bool _drop_xdnd_direct_save(GdkDragContext *context,
             gdk_property_change(gdk_drag_context_get_source_window(context),
                                 gdk_atom_intern_static_string("XdndDirectSave0"),
                                 gdk_atom_intern_static_string("text/plain"), 8,
-                                GDK_PROP_MODE_REPLACE, (const guchar*) uri,
+                                GDK_PROP_MODE_REPLACE,
+                                (const guchar*) uri,
                                 strlen(uri));
 
             // cleanup
@@ -3234,7 +3234,9 @@ static bool _received_xdnd_direct_save(GdkDragContext *context,
         gdk_property_change(gdk_drag_context_get_source_window(context),
                             gdk_atom_intern_static_string("XdndDirectSave0"),
                             gdk_atom_intern_static_string("text/plain"), 8,
-                            GDK_PROP_MODE_REPLACE, (const guchar*) "", 0);
+                            GDK_PROP_MODE_REPLACE,
+                            (const guchar*) "",
+                            0);
     }
     else if (G_LIKELY(gtk_selection_data_get_format(seldata) == 8
              && gtk_selection_data_get_length(seldata) == 1
