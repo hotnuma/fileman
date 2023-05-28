@@ -144,14 +144,11 @@ static gboolean _standardview_update_statusbar_text_idle(gpointer data);
 static void _standardview_append_menu_items(StandardView *view, GtkMenu *menu,
                                             GtkAccelGroup *accel_group);
 // standardview_queue_popup
-static gboolean _drag_timer(gpointer user_data);
-static void _drag_timer_destroy(gpointer user_data);
+static gboolean _popup_timer(gpointer user_data);
+static void _popup_timer_destroy(gpointer user_data);
 static gboolean _on_button_release_event(GtkWidget *widget,
                                          GdkEventButton *event,
                                          StandardView *view);
-static gboolean _on_motion_notify_event(GtkWidget *widget,
-                                        GdkEventMotion *event,
-                                        StandardView *view);
 
 // Actions --------------------------------------------------------------------
 
@@ -307,29 +304,22 @@ static guint _stdv_signals[LAST_SIGNAL];
 
 struct _StandardViewPrivate
 {
-    // current directory of the view
     ThunarFile  *current_directory;
 
-    // history of the current view
     ThunarHistory *history;
-
-    // zoom-level support
     ThunarZoomLevel zoom_level;
-
-    // scroll_to_file support
     GHashTable  *scroll_to_files;
 
-    // statusbar
     gchar       *statusbar_text;
     guint       statusbar_text_idle_id;
 
-    // right-click drag/popup support
+    // popup with timer
+    guint       popup_timer_id;
+    GdkEvent    *drag_timer_event;
+
+    // drag support
     GList       *drag_g_file_list;
     guint       drag_scroll_timer_id;
-    guint       drag_timer_id;
-    GdkEvent    *drag_timer_event;
-    gint        drag_x;
-    gint        drag_y;
 
     // drop site support
     guint       drop_data_ready : 1;    // whether the drop data was received already
@@ -719,8 +709,8 @@ static void standardview_dispose(GObject *object)
         g_source_remove(view->priv->drag_scroll_timer_id);
 
     // be sure to cancel any pending drag timer
-    if (view->priv->drag_timer_id != 0)
-        g_source_remove(view->priv->drag_timer_id);
+    if (view->priv->popup_timer_id)
+        g_source_remove(view->priv->popup_timer_id);
 
     // be sure to free any pending drag timer event
     if (view->priv->drag_timer_event != NULL)
@@ -2140,12 +2130,8 @@ void standardview_queue_popup(StandardView *view, GdkEventButton *event)
     e_return_if_fail(event != NULL);
 
     // check if we have already scheduled a drag timer
-    if (view->priv->drag_timer_id != 0)
+    if (view->priv->popup_timer_id)
         return;
-
-    // remember the new coordinates
-    view->priv->drag_x = event->x;
-    view->priv->drag_y = event->y;
 
     // figure out the real view
     GtkWidget *child = gtk_bin_get_child(GTK_BIN(view));
@@ -2160,12 +2146,12 @@ void standardview_queue_popup(StandardView *view, GdkEventButton *event)
     g_object_get(G_OBJECT(settings), "gtk-menu-popup-delay", &delay, NULL);
 
     // schedule the timer
-    view->priv->drag_timer_id =
+    view->priv->popup_timer_id =
         g_timeout_add_full(G_PRIORITY_LOW,
                            MAX(225, delay),
-                           _drag_timer,
+                           _popup_timer,
                            view,
-                           _drag_timer_destroy);
+                           _popup_timer_destroy);
 
     // store current event data
     view->priv->drag_timer_event = gtk_get_current_event();
@@ -2173,12 +2159,9 @@ void standardview_queue_popup(StandardView *view, GdkEventButton *event)
     // register the motion notify and the button release events on the real view
     g_signal_connect(G_OBJECT(child), "button-release-event",
                      G_CALLBACK(_on_button_release_event), view);
-
-    g_signal_connect(G_OBJECT(child), "motion-notify-event",
-                     G_CALLBACK(_on_motion_notify_event), view);
 }
 
-static gboolean _drag_timer(gpointer user_data)
+static gboolean _popup_timer(gpointer user_data)
 {
     StandardView *view = STANDARD_VIEW(user_data);
 
@@ -2192,17 +2175,14 @@ static gboolean _drag_timer(gpointer user_data)
     return false;
 }
 
-static void _drag_timer_destroy(gpointer user_data)
+static void _popup_timer_destroy(gpointer user_data)
 {
-    // unregister the motion notify and button release event handlers (thread-safe)
+    // unregister event handlers (thread-safe)
     g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
                                          _on_button_release_event, user_data);
 
-    g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
-                                         _on_motion_notify_event, user_data);
-
     // reset the drag timer source id
-    STANDARD_VIEW(user_data)->priv->drag_timer_id = 0;
+    STANDARD_VIEW(user_data)->priv->popup_timer_id = 0;
 }
 
 static gboolean _on_button_release_event(GtkWidget *widget,
@@ -2213,53 +2193,12 @@ static gboolean _on_button_release_event(GtkWidget *widget,
     (void) event;
 
     e_return_val_if_fail(IS_STANDARD_VIEW(view), false);
-    e_return_val_if_fail(view->priv->drag_timer_id != 0, false);
+    e_return_val_if_fail(view->priv->popup_timer_id != 0, false);
 
     // cancel the pending drag timer
-    g_source_remove(view->priv->drag_timer_id);
+    g_source_remove(view->priv->popup_timer_id);
 
     standardview_context_menu(view);
-
-    return true;
-}
-
-static gboolean _on_motion_notify_event(GtkWidget *widget,
-                                        GdkEventMotion *event,
-                                        StandardView *view)
-{
-    e_return_val_if_fail(IS_STANDARD_VIEW(view), false);
-    e_return_val_if_fail(view->priv->drag_timer_id != 0, false);
-
-    // check if we passed the DnD threshold
-    if (gtk_drag_check_threshold(widget,
-                                 view->priv->drag_x,
-                                 view->priv->drag_y,
-                                 event->x,
-                                 event->y) == false)
-    {
-        return false;
-    }
-
-    // cancel the drag timer, as we won't popup the menu anymore
-    g_source_remove(view->priv->drag_timer_id);
-    gdk_event_free(view->priv->drag_timer_event);
-    view->priv->drag_timer_event = NULL;
-
-    // allocate the drag context
-    GtkTargetList *target_list =
-        gtk_target_list_new(_drag_entries, G_N_ELEMENTS(_drag_entries));
-
-    gtk_drag_begin_with_coordinates(widget,
-                                    target_list,
-                                    GDK_ACTION_COPY
-                                    | GDK_ACTION_MOVE
-                                    | GDK_ACTION_LINK
-                                    | GDK_ACTION_ASK,
-                                    3,
-                                    (GdkEvent*) event,
-                                    -1, -1);
-
-    gtk_target_list_unref(target_list);
 
     return true;
 }
