@@ -2128,14 +2128,12 @@ void standardview_selection_changed(StandardView *view)
     g_object_notify_by_pspec(G_OBJECT(view), _stdv_props[PROP_SELECTED_FILES]);
 }
 
-/*
- * Schedules a context menu popup in response to a right-click button event.
+/* Schedules a context menu popup in response to a right-click button event.
  * Right-click events need to be handled in a special way, as the user may
  * also start a drag using the right mouse button and therefore this function
  * schedules a timer, which - once expired - opens the context menu.
  * If the user moves the mouse prior to expiration, a right-click drag
- * with GDK_ACTION_ASK, will be started instead.
- */
+ * with GDK_ACTION_ASK, will be started instead. */
 void standardview_queue_popup(StandardView *view, GdkEventButton *event)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
@@ -2196,7 +2194,7 @@ static gboolean _drag_timer(gpointer user_data)
 
 static void _drag_timer_destroy(gpointer user_data)
 {
-    // unregister the motion notify and button release event handlers(thread-safe)
+    // unregister the motion notify and button release event handlers (thread-safe)
     g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
                                          _on_button_release_event, user_data);
 
@@ -2468,7 +2466,7 @@ static void _standardview_selection_invert(BaseView *baseview)
     gtk_widget_grab_focus(GTK_WIDGET(view));
 
     // invert all files in the real view
-   (*STANDARD_VIEW_GET_CLASS(view)->selection_invert)(view);
+    STANDARD_VIEW_GET_CLASS(view)->selection_invert(view);
 }
 
 // DnD Source -----------------------------------------------------------------
@@ -2565,17 +2563,16 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
         GdkDragAction action = 0;
 
         // check if we can handle that drag data(yet?)
-        GdkAtom target;
-        target = gtk_drag_dest_find_target(widget, context, NULL);
+        GdkAtom target = gtk_drag_dest_find_target(widget, context, NULL);
 
         if (target == gdk_atom_intern_static_string("_NETSCAPE_URL"))
         {
             // determine the file for the given coordinates
-            GtkTreePath  *path;
-            ThunarFile *file = _standardview_get_drop_file(view, x, y, &path);
+            GtkTreePath *treepath;
+            ThunarFile *file = _standardview_get_drop_file(view, x, y, &treepath);
 
             // check if we can save here
-            if (file != NULL
+            if (file
                 && th_file_is_local(file)
                 && th_file_is_directory(file)
                 && th_file_is_writable(file))
@@ -2584,16 +2581,16 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
             }
 
             // reset path if we cannot drop
-            if (action == 0 && path != NULL)
+            if (action == 0 && treepath != NULL)
             {
-                gtk_tree_path_free(path);
-                path = NULL;
+                gtk_tree_path_free(treepath);
+                treepath = NULL;
             }
 
             // do the view highlighting
-            if (view->priv->drop_highlight !=(path == NULL && action != 0))
+            if (view->priv->drop_highlight != (treepath == NULL && action != 0))
             {
-                view->priv->drop_highlight =(path == NULL && action != 0);
+                view->priv->drop_highlight = (treepath == NULL && action != 0);
                 gtk_widget_queue_draw(GTK_WIDGET(view));
             }
 
@@ -2603,14 +2600,13 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
                          NULL);
 
             // do the item highlighting
-            STANDARD_VIEW_GET_CLASS(view)->highlight_path(view, path);
+            STANDARD_VIEW_GET_CLASS(view)->highlight_path(view, treepath);
 
-            // cleanup
-            if (file != NULL)
+            if (file)
                 g_object_unref(G_OBJECT(file));
 
-            if (path != NULL)
-                gtk_tree_path_free(path);
+            if (treepath)
+                gtk_tree_path_free(treepath);
         }
         else
         {
@@ -2648,45 +2644,45 @@ static ThunarFile* _standardview_get_drop_file(StandardView *view,
                                                GtkTreePath **path_return)
 {
     // determine the path for the given coordinates
-    GtkTreePath *path;
-    path = STANDARD_VIEW_GET_CLASS(view)->get_path_at_pos(view, x, y);
+    GtkTreePath *treepath;
+    treepath = STANDARD_VIEW_GET_CLASS(view)->get_path_at_pos(view, x, y);
 
     ThunarFile *file = NULL;
 
-    if (path != NULL)
+    if (treepath)
     {
         // determine the file for the path
 
         GtkTreeIter iter;
-
-        gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path);
+        gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, treepath);
         file = listmodel_get_file(view->model, &iter);
 
         // we can only drop to directories and executable files
         if (!th_file_is_directory(file) && !th_file_is_executable(file))
         {
             // drop to the folder instead
-            g_object_unref(G_OBJECT(file));
-            gtk_tree_path_free(path);
-            path = NULL;
+            g_object_unref(file);
+            gtk_tree_path_free(treepath);
+            treepath = NULL;
         }
     }
 
     // if we don't have a path yet, we'll drop to the folder instead
-    if (path == NULL)
+    if (!treepath)
     {
         // determine the current directory
         file = navigator_get_current_directory(THUNARNAVIGATOR(view));
 
-        if (file != NULL)
-            g_object_ref(G_OBJECT(file));
+        if (file)
+            g_object_ref(file);
     }
 
     // return the path(if any)
-    if (path_return != NULL)
-        *path_return = path;
-    else if (path != NULL)
-        gtk_tree_path_free(path);
+    if (path_return)
+        *path_return = treepath;
+
+    else if (treepath)
+        gtk_tree_path_free(treepath);
 
     return file;
 }
@@ -2698,30 +2694,32 @@ static GdkDragAction _standardview_get_dest_actions(StandardView *view,
                                                     ThunarFile **file_return)
 {
     // determine the file and path for the given coordinates
-    GtkTreePath *path;
-    ThunarFile *file = _standardview_get_drop_file(view, x, y, &path);
+    GtkTreePath *treepath;
+    ThunarFile *file = _standardview_get_drop_file(view, x, y, &treepath);
 
     GdkDragAction actions = 0;
     GdkDragAction action = 0;
 
     // check if we can drop there
-    if (file != NULL)
+    if (file)
     {
         // determine the possible drop actions for the file(and the suggested action if any)
-        actions = th_file_accepts_drop(file, view->priv->drop_file_list, context, &action);
+        actions = th_file_accepts_drop(file,
+                                       view->priv->drop_file_list,
+                                       context, &action);
         if (actions != 0)
         {
             // tell the caller about the file(if it's interested)
             if (file_return != NULL)
-                *file_return = THUNARFILE(g_object_ref(G_OBJECT(file)));
+                *file_return = THUNARFILE(g_object_ref(file));
         }
     }
 
     // reset path if we cannot drop
-    if (action == 0 && path != NULL)
+    if (action == 0 && treepath != NULL)
     {
-        gtk_tree_path_free(path);
-        path = NULL;
+        gtk_tree_path_free(treepath);
+        treepath = NULL;
     }
 
     /* setup the drop-file for the icon renderer, so the user
@@ -2732,14 +2730,14 @@ static GdkDragAction _standardview_get_dest_actions(StandardView *view,
                  NULL);
 
     // do the view highlighting
-    if (view->priv->drop_highlight !=(path == NULL && action != 0))
+    if (view->priv->drop_highlight !=(treepath == NULL && action != 0))
     {
-        view->priv->drop_highlight =(path == NULL && action != 0);
+        view->priv->drop_highlight =(treepath == NULL && action != 0);
         gtk_widget_queue_draw(GTK_WIDGET(view));
     }
 
     // do the item highlighting
-    STANDARD_VIEW_GET_CLASS(view)->highlight_path(view, path);
+    STANDARD_VIEW_GET_CLASS(view)->highlight_path(view, treepath);
 
     // tell Gdk whether we can drop here
     gdk_drag_status(context, action, timestamp);
@@ -2748,8 +2746,8 @@ static GdkDragAction _standardview_get_dest_actions(StandardView *view,
     if (file != NULL)
         g_object_unref(G_OBJECT(file));
 
-    if (path != NULL)
-        gtk_tree_path_free(path);
+    if (treepath != NULL)
+        gtk_tree_path_free(treepath);
 
     return actions;
 }
@@ -2908,11 +2906,8 @@ static bool _received_text_uri_list(GdkDragContext *context,
                                     gint x, gint y, guint timestamp,
                                     StandardView *view)
 {
-    //DPRINT("_received_text_uri_list\n");
-
     ThunarFile *file = NULL;
     gboolean succeed = false;
-
 
     // determine the drop position
     GdkDragAction actions =
@@ -2957,8 +2952,8 @@ static bool _received_text_uri_list(GdkDragContext *context,
     }
 
     // release the file reference
-    if (file != NULL)
-        g_object_unref(G_OBJECT(file));
+    if (file)
+        g_object_unref(file);
 
     return succeed;
 }
