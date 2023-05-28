@@ -193,8 +193,6 @@ static void _standardview_drag_scroll_timer_destroy(gpointer user_data);
 static gboolean _on_drag_drop(GtkWidget *widget, GdkDragContext *context,
                               gint x, gint y, guint timestamp,
                               StandardView *view);
-static bool _drop_xdnd_direct_save(GdkDragContext *context,
-                                   gint x, gint y, StandardView *view);
 
 static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
                                    gint x, gint y,
@@ -211,10 +209,6 @@ static bool _received_netscape_url(GtkWidget *widget,
                                    GtkSelectionData *seldata,
                                    StandardView *view);
 static void _reload_directory(GPid pid, gint status, gpointer user_data);
-static bool _received_xdnd_direct_save(GdkDragContext *context,
-                                       gint x, gint y,
-                                       GtkSelectionData *seldata,
-                                       StandardView *view);
 
 static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
                            guint timestamp, StandardView *view);
@@ -269,7 +263,6 @@ static XfceGtkActionEntry _standardview_actions[] =
 enum
 {
     TARGET_TEXT_URI_LIST,
-    TARGET_XDND_DIRECT_SAVE0,
     TARGET_NETSCAPE_URL,
 };
 
@@ -283,7 +276,6 @@ static const GtkTargetEntry _drag_entries[] =
 static const GtkTargetEntry _drop_entries[] =
 {
     {"text/uri-list",   0, TARGET_TEXT_URI_LIST},
-    {"XdndDirectSave0", 0, TARGET_XDND_DIRECT_SAVE0},
     {"_NETSCAPE_URL",   0, TARGET_NETSCAPE_URL},
 };
 
@@ -2573,8 +2565,7 @@ static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
         GdkAtom target;
         target = gtk_drag_dest_find_target(widget, context, NULL);
 
-        if ((target == gdk_atom_intern_static_string("XdndDirectSave0"))
-            || (target == gdk_atom_intern_static_string("_NETSCAPE_URL")))
+        if (target == gdk_atom_intern_static_string("_NETSCAPE_URL"))
         {
             // determine the file for the given coordinates
             GtkTreePath  *path;
@@ -2843,100 +2834,24 @@ static gboolean _on_drag_drop(GtkWidget *widget, GdkDragContext *context,
                               gint x, gint y, guint timestamp,
                               StandardView *view)
 {
+    (void) x;
+    (void) y;
+
     GdkAtom target = gtk_drag_dest_find_target(widget, context, NULL);
 
     if (target == GDK_NONE)
         return false;
 
-    if (target == gdk_atom_intern_static_string("XdndDirectSave0"))
-    {
-        if (_drop_xdnd_direct_save(context, x, y, view) == false)
-            return false;
-    }
-
     /* set state so the drag-data-received knows that
      * this is really a drop this time. */
     view->priv->drop_occurred = true;
 
-    /* request the drag data from the source
-     * (initiates saving in case of XdndDirectSave) */
+    // request the drag data from the source
     gtk_drag_get_data(widget, context, target, timestamp);
 
     // we'll call gtk_drag_finish() later
 
     return true;
-}
-
-static bool _drop_xdnd_direct_save(GdkDragContext *context,
-                                   gint x, gint y, StandardView *view)
-{
-    // determine the file for the drop position
-    ThunarFile *file = _standardview_get_drop_file(view, x, y, NULL);
-
-    if (file == NULL)
-        return true;
-
-    gchar *uri = NULL;
-
-    guchar *prop_text;
-    gint prop_len;
-
-    // determine the file name from the DnD source window
-    if (gdk_property_get(gdk_drag_context_get_source_window(context),
-                         gdk_atom_intern_static_string("XdndDirectSave0"),
-                         gdk_atom_intern_static_string("text/plain"),
-                         0, 1024, false, NULL, NULL,
-                         &prop_len,
-                         &prop_text)
-        && prop_text != NULL)
-    {
-        // zero-terminate the string
-        prop_text = g_realloc(prop_text, prop_len + 1);
-        prop_text[prop_len] = '\0';
-
-        // verify that the file name provided by the source is valid
-        if (*prop_text != '\0'
-            && strchr((const gchar*) prop_text, G_DIR_SEPARATOR) == NULL)
-        {
-            // allocate the relative path for the target
-            GFile *path = g_file_resolve_relative_path(
-                                            th_file_get_file(file),
-                                            (const gchar*) prop_text);
-
-            // determine the new URI
-            uri = g_file_get_uri(path);
-
-            // setup the property
-            gdk_property_change(gdk_drag_context_get_source_window(context),
-                                gdk_atom_intern_static_string("XdndDirectSave0"),
-                                gdk_atom_intern_static_string("text/plain"), 8,
-                                GDK_PROP_MODE_REPLACE,
-                                (const guchar*) uri,
-                                strlen(uri));
-
-            // cleanup
-            g_object_unref(path);
-            g_free(uri);
-        }
-        else
-        {
-            /* tell the user that the file name provided by
-             * the X Direct Save source is invalid */
-            dialog_error(GTK_WIDGET(view),
-                         NULL,
-                         _("Invalid filename provided by XDS drag site"));
-        }
-
-        // cleanup
-        g_free(prop_text);
-    }
-
-    // release the file reference
-    g_object_unref(file);
-
-    // if uri == NULL, we didn't set the property
-
-    return (uri != NULL);
 }
 
 static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
@@ -2977,10 +2892,6 @@ static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
     else if (G_UNLIKELY(info == TARGET_NETSCAPE_URL))
     {
         succeed = _received_netscape_url(widget, x, y, seldata, view);
-    }
-    else if (G_UNLIKELY(info == TARGET_XDND_DIRECT_SAVE0))
-    {
-        succeed = _received_xdnd_direct_save(context, x, y, seldata, view);
     }
 
     // tell the peer that we handled the drop
@@ -3218,53 +3129,6 @@ static void _reload_directory(GPid pid, gint status, gpointer user_data)
     }
 
     g_object_unref(file);
-}
-
-static bool _received_xdnd_direct_save(GdkDragContext *context,
-                                       gint x, gint y,
-                                       GtkSelectionData *seldata,
-                                       StandardView *view)
-{
-    // we don't handle XdndDirectSave stage(3), result "F" yet
-    if (G_UNLIKELY(gtk_selection_data_get_format(seldata) == 8
-                   && gtk_selection_data_get_length(seldata) == 1
-                   && gtk_selection_data_get_data(seldata)[0] == 'F'))
-    {
-        // indicate that we don't provide "F" fallback
-        gdk_property_change(gdk_drag_context_get_source_window(context),
-                            gdk_atom_intern_static_string("XdndDirectSave0"),
-                            gdk_atom_intern_static_string("text/plain"), 8,
-                            GDK_PROP_MODE_REPLACE,
-                            (const guchar*) "",
-                            0);
-    }
-    else if (G_LIKELY(gtk_selection_data_get_format(seldata) == 8
-             && gtk_selection_data_get_length(seldata) == 1
-             && gtk_selection_data_get_data(seldata)[0] == 'S'))
-    {
-        // XDS was successfull, so determine the file for the drop position
-        ThunarFile *file = NULL;
-        file = _standardview_get_drop_file(view, x, y, NULL);
-
-        if (G_LIKELY(file != NULL))
-        {
-            // verify that we have a directory here
-            if (th_file_is_directory(file))
-            {
-                // reload the folder corresponding to the file
-                ThunarFolder *folder;
-                folder = th_folder_get_for_thfile(file);
-                th_folder_load(folder, false);
-                g_object_unref(G_OBJECT(folder));
-            }
-
-            // cleanup
-            g_object_unref(G_OBJECT(file));
-        }
-    }
-
-    // in either case, we succeed!
-    return true;
 }
 
 static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
