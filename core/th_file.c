@@ -108,9 +108,10 @@ static void _th_file_reload_parent(ThunarFile *file);
 
 #ifdef TH_FILE_DEBUG
 static gboolean _th_file_atexit_registered = FALSE;
-static void _th_file_atexit_foreach(gpointer key, gpointer value, gpointer user_data);
 static void _th_file_atexit();
 #endif
+
+static void _th_file_debug(gpointer gfile, gpointer value, gpointer user_data);
 
 // Globals --------------------------------------------------------------------
 
@@ -3147,17 +3148,6 @@ gchar* th_file_cached_display_name(const GFile *file)
     return display_name;
 }
 
-static void _th_file_cache_dump_foreach(gpointer gfile,
-                                        gpointer value, gpointer user_data)
-{
-    (void) value;
-    (void) user_data;
-
-    gchar *name = g_file_get_parse_name(G_FILE(gfile));
-    g_print("    %s\n", name);
-    g_free(name);
-}
-
 gboolean th_file_cache_dump(gpointer user_data)
 {
     (void) user_data;
@@ -3168,7 +3158,7 @@ gboolean th_file_cache_dump(gpointer user_data)
     {
         g_print("------------------------------------------------------------\n");
 
-        g_hash_table_foreach(_file_cache, _th_file_cache_dump_foreach, NULL);
+        g_hash_table_foreach(_file_cache, _th_file_debug, NULL);
 
         g_print("%d objects in cache:\n",
                 g_hash_table_size(_file_cache));
@@ -3182,21 +3172,6 @@ gboolean th_file_cache_dump(gpointer user_data)
 }
 
 #ifdef TH_FILE_DEBUG
-static void _th_file_atexit_foreach(gpointer key, gpointer value, gpointer user_data)
-{
-    (void) value;
-    (void) user_data;
-
-    gchar *uri = g_file_get_uri(key);
-
-    g_print("--> %s\n", uri);
-
-    if (G_OBJECT(key)->ref_count > 2)
-        g_print("    GFile(%u)\n", G_OBJECT(key)->ref_count - 2);
-
-    g_free(uri);
-}
-
 static void _th_file_atexit()
 {
     G_LOCK(_file_cache_mutex);
@@ -3207,16 +3182,28 @@ static void _th_file_atexit()
         return;
     }
 
-    g_print("--- Leaked a total of %u ThunarFile objects:\n",
+    g_print("--- ThunarFile Leaked : %u\n",
             g_hash_table_size(_file_cache));
 
-    g_hash_table_foreach(_file_cache, _th_file_atexit_foreach, NULL);
+    g_hash_table_foreach(_file_cache, _th_file_debug, NULL);
 
     g_print("\n");
 
     G_UNLOCK(_file_cache_mutex);
 }
 #endif
+
+static void _th_file_debug(gpointer gfile, gpointer value, gpointer user_data)
+{
+    (void) value;
+    (void) user_data;
+
+    guint refcount = G_OBJECT(gfile)->ref_count;
+
+    gchar *path = g_file_get_parse_name(G_FILE(gfile));
+    g_print("--> %d : %s\n", refcount, path);
+    g_free(path);
+}
 
 // File List ------------------------------------------------------------------
 
