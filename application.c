@@ -220,7 +220,7 @@ static void application_startup(GApplication *gapplication)
     // check if we have a saved accel map
     gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
 
-    if (G_LIKELY(path != NULL))
+    if (path != NULL))
     {
         // load the accel map
         gtk_accel_map_load(path);
@@ -266,7 +266,7 @@ static gboolean _application_accel_map_save(gpointer user_data)
     gchar *path = xfce_resource_save_location(XFCE_RESOURCE_CONFIG,
                                               ACCEL_MAP_PATH,
                                               TRUE);
-    if (G_LIKELY(path != NULL))
+    if (path != NULL))
     {
         // save the accel map
         gtk_accel_map_save(path);
@@ -316,7 +316,7 @@ static void application_shutdown(GApplication *gapplication)
     e_list_free(application->files_to_launch);
 
     // save the current accel map
-    if (G_UNLIKELY(application->accel_map_save_id != 0))
+    if (application->accel_map_save_id != 0)
     {
         g_source_remove(application->accel_map_save_id);
         _application_accel_map_save(application);
@@ -326,7 +326,7 @@ static void application_shutdown(GApplication *gapplication)
         g_object_unref(G_OBJECT(application->accel_map));
 
     // drop any running "show dialogs" timer
-    if (G_UNLIKELY(application->show_dialogs_timer_id != 0))
+    if (application->show_dialogs_timer_id != 0)
         g_source_remove(application->show_dialogs_timer_id);
 
     G_APPLICATION_CLASS(application_parent_class)->shutdown(gapplication);
@@ -358,7 +358,7 @@ static int application_command_line(GApplication *gapplication,
     GError *error = NULL;
 
     // FIXME: --quit should be named --suicide
-    if (G_UNLIKELY(quit))
+    if (quit)
     {
         g_debug("quitting");
         g_application_quit(gapplication);
@@ -366,7 +366,7 @@ static int application_command_line(GApplication *gapplication,
     }
 
     // check whether we should daemonize
-    if (G_UNLIKELY(daemon))
+    if (daemon)
     {
         application_set_daemon(application, TRUE);
     }
@@ -526,7 +526,7 @@ gboolean application_process_filenames(Application *application,
         }
 
         // verify that we have a valid file
-        if (G_LIKELY(file != NULL))
+        if (file != NULL)
         {
             file_list = g_list_append(file_list, file);
         }
@@ -553,7 +553,7 @@ gboolean application_process_filenames(Application *application,
         g_object_set_qdata(G_OBJECT(lp->data), _app_screen_quark, screen);
 
         // remember the startup id to set on the window
-        if (G_LIKELY(startup_id != NULL && *startup_id != '\0'))
+        if (startup_id != NULL && *startup_id != '\0')
             g_object_set_qdata_full(G_OBJECT(lp->data), _app_startup_id_quark,
                                     g_strdup(startup_id),(GDestroyNotify) g_free);
 
@@ -675,7 +675,7 @@ GtkWidget* application_open_window(Application *application,
     e_return_val_if_fail(directory == NULL || IS_THUNARFILE(directory), NULL);
     e_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), NULL);
 
-    if (G_UNLIKELY(screen == NULL))
+    if (screen == NULL)
         screen = gdk_screen_get_default();
 
     // generate a unique role for the new window (for session management)
@@ -848,11 +848,11 @@ void application_unlink_files(Application *application, gpointer parent,
     }
 
     // nothing to do if we don't have any paths
-    if (G_UNLIKELY(n_path_list == 0))
+    if (n_path_list == 0)
         return;
 
     // ask the user to confirm if deleting permanently
-    if (G_LIKELY(permanently == false))
+    if (permanently == false)
     {
         application_trash(application, parent, path_list);
         e_list_free(path_list);
@@ -863,7 +863,7 @@ void application_unlink_files(Application *application, gpointer parent,
     gchar *message;
 
     // generate the question to confirm the delete operation
-    if (G_LIKELY(n_path_list == 1))
+    if (n_path_list == 1)
     {
         message = g_strdup_printf(
         _("Are you sure that you want to\npermanently delete \"%s\"?"),
@@ -890,7 +890,7 @@ void application_unlink_files(Application *application, gpointer parent,
                                      GTK_BUTTONS_NONE,
                                      "%s", message);
 
-    if (G_UNLIKELY(window == NULL && screen != NULL))
+    if (window == NULL && screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
     gtk_dialog_add_buttons(GTK_DIALOG(dialog),
@@ -908,7 +908,7 @@ void application_unlink_files(Application *application, gpointer parent,
     g_free(message);
 
     // perform the delete operation
-    if (G_LIKELY(response == GTK_RESPONSE_YES))
+    if (response == GTK_RESPONSE_YES)
     {
         _application_launch(application,
                             parent,
@@ -1036,7 +1036,7 @@ void application_empty_trash(Application *application, gpointer parent,
                                 GTK_BUTTONS_NONE,
                                 _("Remove all files and folders from the Trash?"));
 
-    if (G_UNLIKELY(window == NULL && screen != NULL))
+    if (window == NULL && screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
     gtk_window_set_startup_id(GTK_WINDOW(dialog), startup_id);
@@ -1059,7 +1059,7 @@ void application_empty_trash(Application *application, gpointer parent,
     GList file_list;
 
     // check if the user confirmed
-    if (G_LIKELY(response == GTK_RESPONSE_YES))
+    if (response == GTK_RESPONSE_YES)
     {
         /* fake a path list with only the trash root(the root
          * folder itself will never be unlinked, so this is safe)
@@ -1102,7 +1102,7 @@ void application_restore_files(Application *application, gpointer parent,
     {
         const gchar *original_uri = th_file_get_original_path(lp->data);
 
-        if (G_UNLIKELY(original_uri == NULL))
+        if (original_uri == NULL)
         {
             // no OriginalPath, impossible to continue
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL,
@@ -1120,7 +1120,7 @@ void application_restore_files(Application *application, gpointer parent,
         g_object_unref(target_path);
     }
 
-    if (G_UNLIKELY(err != NULL))
+    if (err != NULL)
     {
         dialog_error(parent,
                      err,
@@ -1163,7 +1163,7 @@ static void _application_collect_and_launch(Application  *application,
                                             GClosure     *new_files_closure)
 {
     // check if we have anything to operate on
-    if (G_UNLIKELY(source_file_list == NULL))
+    if (source_file_list == NULL)
         return;
 
     GList  *target_file_list = NULL;
@@ -1174,7 +1174,7 @@ static void _application_collect_and_launch(Application  *application,
                                     err == NULL && lp != NULL; lp = lp->prev)
     {
         // verify that we're not trying to collect a root node
-        if (G_UNLIKELY(e_file_is_root(lp->data)))
+        if (e_file_is_root(lp->data))
         {
             // tell the user that we cannot perform the requested operation
             g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s", g_strerror(EINVAL));
@@ -1192,7 +1192,7 @@ static void _application_collect_and_launch(Application  *application,
     }
 
     // check if we failed
-    if (G_UNLIKELY(err != NULL))
+    if (err != NULL)
     {
         // display an error message to the user
         dialog_error(parent, err, _("Failed to launch operation"));
@@ -1254,7 +1254,7 @@ static void _application_launch(Application  *application,
                      G_CALLBACK(_application_launch_finished), parent_folder_list);
 
     // connect the "new-files" closure (if any)
-    if (G_LIKELY(new_files_closure != NULL))
+    if (new_files_closure != NULL)
         g_signal_connect_closure(job, "new-files", new_files_closure, FALSE);
 
     // get the shared progress dialog
@@ -1280,7 +1280,7 @@ static void _application_launch(Application  *application,
 
     /* Set up a timer to show the dialog, to make sure we don't
      * just popup and destroy a dialog for a very short job. */
-    if (G_LIKELY(application->show_dialogs_timer_id == 0))
+    if (application->show_dialogs_timer_id == 0)
     {
         application->show_dialogs_timer_id =
             gdk_threads_add_timeout_full(G_PRIORITY_DEFAULT,

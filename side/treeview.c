@@ -333,15 +333,15 @@ static void treeview_finalize(GObject *object)
     e_list_free(view->drop_file_list);
 
     // be sure to cancel the cursor idle source
-    if (G_UNLIKELY(view->cursor_idle_id != 0))
+    if (view->cursor_idle_id != 0)
         g_source_remove(view->cursor_idle_id);
 
     // cancel any running autoscroll timer
-    if (G_LIKELY(view->drag_scroll_timer_id != 0))
+    if (view->drag_scroll_timer_id != 0)
         g_source_remove(view->drag_scroll_timer_id);
 
     // be sure to cancel the expand timer source
-    if (G_UNLIKELY(view->expand_timer_id != 0))
+    if (view->expand_timer_id != 0)
         g_source_remove(view->expand_timer_id);
 
     // free path remembered for selection
@@ -357,7 +357,7 @@ static void treeview_finalize(GObject *object)
     g_object_unref(G_OBJECT(view->model));
 
     // drop any existing "new-files" closure
-    if (G_UNLIKELY(view->new_files_closure != NULL))
+    if (view->new_files_closure != NULL)
     {
         g_closure_invalidate(view->new_files_closure);
         g_closure_unref(view->new_files_closure);
@@ -451,11 +451,11 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
     gboolean    needs_refiltering = FALSE;
 
     // check if we already use that directory
-    if (G_UNLIKELY(view->current_directory == current_directory))
+    if (view->current_directory == current_directory)
         return;
 
     // check if we have an active directory
-    if (G_LIKELY(view->current_directory != NULL))
+    if (view->current_directory != NULL)
     {
         // update the filter if the old current directory, or one of it's parents, is hidden
         if (!view->show_hidden)
@@ -491,7 +491,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
     view->current_directory = current_directory;
 
     // connect to the new current directory
-    if (G_LIKELY(current_directory != NULL))
+    if (current_directory != NULL)
     {
         // take a reference on the directory
         g_object_ref(G_OBJECT(current_directory));
@@ -525,7 +525,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
         }
 
         // schedule an idle source to set the cursor to the current directory
-        if (G_LIKELY(view->cursor_idle_id == 0))
+        if (view->cursor_idle_id == 0)
         {
             view->cursor_idle_id = g_idle_add_full(G_PRIORITY_LOW,
                                                    _treeview_cursor_idle,
@@ -568,7 +568,7 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
     }
 
     // verify that we still have a current directory
-    if (G_UNLIKELY(view->current_directory == NULL))
+    if (view->current_directory == NULL)
         return TRUE;
 
     // get the preferred toplevel path for the current directory
@@ -878,7 +878,7 @@ static gboolean treeview_button_press_event(GtkWidget *widget, GdkEventButton *e
     if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget), event->x, event->y, &path, &column, NULL, NULL))
     {
         // check if we should popup the context menu
-        if (G_UNLIKELY(event->button == 3))
+        if (event->button == 3)
         {
             // determine the iterator for the path
             if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
@@ -944,14 +944,14 @@ static gboolean treeview_button_release_event(GtkWidget *widget, GdkEventButton 
     TreeView *view = TREEVIEW(widget);
 
     // check if we have an event matching the pressed button state
-    if (G_LIKELY(view->pressed_button ==(gint) event->button))
+    if (view->pressed_button == (gint) event->button)
     {
         // check if we should simply open or open in new window
-        if (G_LIKELY(event->button == 1))
+        if (event->button == 1)
         {
             _treeview_action_open(view);
         }
-        else if (G_UNLIKELY(event->button == 2))
+        else if (event->button == 2)
         {
             launcher_open_selected_folders(view->launcher);
 
@@ -1127,7 +1127,7 @@ static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
     gboolean expandable = TRUE;
 
     // check if we have a device
-    if (G_UNLIKELY(device != NULL))
+    if (device != NULL)
     {
         // check if we need to mount the device first
         if (!th_device_is_mounted(device))
@@ -1202,7 +1202,7 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                    GtkTreeIter *iter)
 {
     // check if we're connected to the clipboard manager
-    if (G_UNLIKELY(view->clipboard == NULL))
+    if (view->clipboard == NULL)
         return;
 
     // determine the file and device for the given iter
@@ -1307,10 +1307,10 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                                GTK_MENU(context_menu));
     etk_menu_run(GTK_MENU(context_menu));
 
-    if (G_UNLIKELY(device != NULL))
+    if (device != NULL)
         g_object_unref(G_OBJECT(device));
 
-    if (G_LIKELY(file != NULL))
+    if (file != NULL)
         g_object_unref(G_OBJECT(file));
 }
 
@@ -1358,7 +1358,7 @@ static void _treeview_open_selection(TreeView *view)
     // determine the selected file
     ThunarFile *file = _treeview_get_selected_file(view);
 
-    if (G_LIKELY(file != NULL))
+    if (file != NULL)
     {
         // open that folder in the main view
         navigator_change_directory(THUNARNAVIGATOR(view), file);
@@ -1407,16 +1407,16 @@ static void _treeview_select_files(TreeView *view, GList *files_to_selected)
     e_return_if_fail(IS_TREEVIEW(view));
 
     // check if we have exactly one new path
-    if (G_UNLIKELY(files_to_selected == NULL || files_to_selected->next != NULL))
+    if (files_to_selected == NULL || files_to_selected->next != NULL)
         return;
 
     // determine the file for the first path
     ThunarFile *file = th_file_get(G_FILE(files_to_selected->data), NULL);
 
-    if (G_UNLIKELY(file == NULL))
+    if (file == NULL)
         return;
 
-    if (G_LIKELY(th_file_is_directory(file)))
+    if (th_file_is_directory(file))
         navigator_change_directory(THUNARNAVIGATOR(view), file);
 
     g_object_unref(file);
@@ -1434,7 +1434,7 @@ static gboolean _treeview_visible_func(TreeModel *model, ThunarFile *file,
 
     gboolean visible = TRUE;
 
-    if (G_LIKELY(!view->show_hidden))
+    if (!view->show_hidden)
     {
         /* we display all non-hidden file and hidden files that are ancestors
          * of the current directory */
@@ -1471,7 +1471,7 @@ static gboolean _treeview_selection_func(GtkTreeSelection *selection,
     {
         // determine the file for the iterator
         gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_FILE, &file, -1);
-        if (G_LIKELY(file != NULL))
+        if (file != NULL)
         {
             // rows with files can be selected
             result = TRUE;
@@ -1483,7 +1483,7 @@ static gboolean _treeview_selection_func(GtkTreeSelection *selection,
         {
             // but maybe the row has a device
             gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
-            if (G_LIKELY(device != NULL))
+            if (device != NULL)
             {
                 // rows with devices can also be selected
                 result = TRUE;
@@ -1546,7 +1546,7 @@ static void _treeview_action_unlink_selected_folder(TreeView *view, gboolean per
 
     ThunarFile *file = _treeview_get_selected_file(view);
 
-    if (G_UNLIKELY(file == NULL))
+    if (file == NULL)
         return;
 
     if (th_file_can_be_trashed(file))
@@ -1615,7 +1615,7 @@ static void treeview_drag_data_received(GtkWidget        *widget,
     gboolean        succeed = FALSE;
 
     // check if don't already know the drop data
-    if (G_LIKELY(!view->drop_data_ready))
+    if (!view->drop_data_ready)
     {
         // extract the URI list from the selection data(if valid)
         if (info == TARGET_TEXT_URI_LIST && gtk_selection_data_get_format(seldata) == 8 && gtk_selection_data_get_length(seldata) > 0)
@@ -1626,7 +1626,7 @@ static void treeview_drag_data_received(GtkWidget        *widget,
     }
 
     // check if the data was droppped
-    if (G_UNLIKELY(view->drop_occurred))
+    if (view->drop_occurred)
     {
         // reset the state
         view->drop_occurred = FALSE;
@@ -1634,7 +1634,7 @@ static void treeview_drag_data_received(GtkWidget        *widget,
         // determine the drop position
         actions = _treeview_get_dest_actions(view, context, x, y, timestamp, &file);
 
-        if (G_LIKELY((actions & (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK)) != 0))
+        if ((actions & (GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK)) != 0)
         {
             // ask the user what to do with the drop data
             action = (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
@@ -1645,12 +1645,12 @@ static void treeview_drag_data_received(GtkWidget        *widget,
                      : gdk_drag_context_get_selected_action(context);
 
             // perform the requested action
-            if (G_LIKELY(action != 0))
+            if (action != 0)
                 succeed = dnd_perform(GTK_WIDGET(view), file, view->drop_file_list, action, NULL);
         }
 
         // release the file reference
-        if (G_LIKELY(file != NULL))
+        if (file != NULL)
             g_object_unref(G_OBJECT(file));
 
         // tell the peer that we handled the drop
@@ -1675,7 +1675,7 @@ static gboolean treeview_drag_drop(GtkWidget      *widget,
 
     // determine the drop target
     target = gtk_drag_dest_find_target(widget, context, NULL);
-    if (G_LIKELY(target == gdk_atom_intern_static_string("text/uri-list")))
+    if (target == gdk_atom_intern_static_string("text/uri-list"))
     {
         /* set state so the drag-data-received handler
          * knows that this is really a drop this time.
@@ -1705,7 +1705,7 @@ static gboolean treeview_drag_motion(GtkWidget      *widget,
 
     // determine the drop target
     target = gtk_drag_dest_find_target(widget, context, NULL);
-    if (G_UNLIKELY(target != gdk_atom_intern_static_string("text/uri-list")))
+    if (target != gdk_atom_intern_static_string("text/uri-list"))
     {
         // reset the "drop-file" of the icon renderer
         g_object_set(G_OBJECT(view->icon_renderer), "drop-file", NULL, NULL);
@@ -1715,7 +1715,7 @@ static gboolean treeview_drag_motion(GtkWidget      *widget,
     }
 
     // request the drop data on-demand(if we don't have it already)
-    if (G_UNLIKELY(!view->drop_data_ready))
+    if (!view->drop_data_ready)
     {
         // reset the "drop-file" of the icon renderer
         g_object_set(G_OBJECT(view->icon_renderer), "drop-file", NULL, NULL);
@@ -1733,7 +1733,7 @@ static gboolean treeview_drag_motion(GtkWidget      *widget,
     }
 
     // start the drag autoscroll timer if not already running
-    if (G_UNLIKELY(view->drag_scroll_timer_id == 0))
+    if (view->drag_scroll_timer_id == 0)
     {
         // schedule the drag autoscroll timer
         view->drag_scroll_timer_id = g_timeout_add_full(G_PRIORITY_LOW, 50, _treeview_drag_scroll_timer,
@@ -1757,7 +1757,7 @@ static GdkDragAction _treeview_get_dest_actions(TreeView       *view,
     ThunarFile   *file = NULL;
 
     // cancel any previously active expand timer
-    if (G_LIKELY(view->expand_timer_id != 0))
+    if (view->expand_timer_id != 0)
         g_source_remove(view->expand_timer_id);
 
     // determine the path for x/y
@@ -1769,12 +1769,12 @@ static GdkDragAction _treeview_get_dest_actions(TreeView       *view,
             // determine the file for the given path
             gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter, TREEMODEL_COLUMN_FILE, &file, -1);
 
-            if (G_LIKELY(file != NULL))
+            if (file != NULL)
             {
                 // check if the file accepts the drop
                 actions = th_file_accepts_drop(file, view->drop_file_list, context, &action);
 
-                if (G_UNLIKELY(actions == 0))
+                if (actions == 0)
                 {
                     // reset file
                     g_object_unref(G_OBJECT(file));
@@ -1788,7 +1788,7 @@ static GdkDragAction _treeview_get_dest_actions(TreeView       *view,
     gtk_tree_view_set_drag_dest_row(GTK_TREE_VIEW(view), path, GTK_TREE_VIEW_DROP_INTO_OR_BEFORE);
 
     // check if we have drag dest row
-    if (G_LIKELY(path != NULL))
+    if (path != NULL)
     {
         // schedule a new expand timer to expand the drag dest row
         view->expand_timer_id = g_timeout_add_full(G_PRIORITY_LOW, TREEVIEW_EXPAND_TIMEOUT,
@@ -1803,19 +1803,19 @@ static GdkDragAction _treeview_get_dest_actions(TreeView       *view,
     gdk_drag_status(context, action, timestamp);
 
     // return the file if requested
-    if (G_LIKELY(file_return != NULL))
+    if (file_return != NULL)
     {
         *file_return = file;
         file = NULL;
     }
-    else if (G_UNLIKELY(file != NULL))
+    else if (file != NULL)
     {
         // release the file
         g_object_unref(G_OBJECT(file));
     }
 
     // clean up
-    if (G_LIKELY(path != NULL))
+    if (path != NULL)
         gtk_tree_path_free(path);
 
     return actions;
@@ -1829,13 +1829,13 @@ static gboolean _treeview_expand_timer(gpointer user_data)
     UTIL_THREADS_ENTER
 
     // cancel the drag autoscroll timer when expanding a row
-    if (G_UNLIKELY(view->drag_scroll_timer_id != 0))
+    if (view->drag_scroll_timer_id != 0)
         g_source_remove(view->drag_scroll_timer_id);
 
     // determine the drag dest row
     gtk_tree_view_get_drag_dest_row(GTK_TREE_VIEW(view), &path, NULL);
 
-    if (G_LIKELY(path != NULL))
+    if (path != NULL)
     {
         // expand the drag dest row
         gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, FALSE);
@@ -1881,11 +1881,11 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
 
         // check if we are near the edge
         offset = y -(2 * 20);
-        if (G_UNLIKELY(offset > 0))
+        if (offset > 0)
             offset = MAX(y -(h - 2 * 20), 0);
 
         // change the vertical adjustment appropriately
-        if (G_UNLIKELY(offset != 0))
+        if (offset != 0)
         {
             // determine the vertical adjustment
             vadjustment = gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(view));
@@ -1894,7 +1894,7 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
             value = CLAMP(gtk_adjustment_get_value(vadjustment) + 2 * offset, gtk_adjustment_get_lower(vadjustment), gtk_adjustment_get_upper(vadjustment) - gtk_adjustment_get_page_size(vadjustment));
 
             // check if we have a new value
-            if (G_UNLIKELY(gtk_adjustment_get_value(vadjustment) != value))
+            if (gtk_adjustment_get_value(vadjustment) != value)
             {
                 // apply the new value
                 gtk_adjustment_set_value(vadjustment, value);
@@ -1903,7 +1903,7 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
                  * if a path is expanded while scrolling through the view.
                  * reschedule it if the drag dest path is still visible.
                  */
-                if (G_UNLIKELY(view->expand_timer_id != 0))
+                if (view->expand_timer_id != 0)
                 {
                     // drop the current expand timer source
                     g_source_remove(view->expand_timer_id);
@@ -1913,7 +1913,7 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
                     {
                         // determine the drag dest row
                         gtk_tree_view_get_drag_dest_row(GTK_TREE_VIEW(view), &path, NULL);
-                        if (G_LIKELY(path != NULL))
+                        if (path != NULL)
                         {
                             // check if the drag dest row is currently visible
                             if (gtk_tree_path_compare(path, start_path) >= 0 && gtk_tree_path_compare(path, end_path) <= 0)
@@ -1953,14 +1953,14 @@ static void treeview_drag_leave(GtkWidget *widget, GdkDragContext *context,
     TreeView *view = TREEVIEW(widget);
 
     // cancel any running autoscroll timer
-    if (G_LIKELY(view->drag_scroll_timer_id != 0))
+    if (view->drag_scroll_timer_id != 0)
         g_source_remove(view->drag_scroll_timer_id);
 
     // reset the "drop-file" of the icon renderer
     g_object_set(G_OBJECT(view->icon_renderer), "drop-file", NULL, NULL);
 
     // reset the "drop data ready" status and free the URI list
-    if (G_LIKELY(view->drop_data_ready))
+    if (view->drop_data_ready)
     {
         e_list_free(view->drop_file_list);
         view->drop_data_ready = FALSE;

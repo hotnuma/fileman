@@ -445,7 +445,7 @@ static void window_init(AppWindow *window)
                                 prefs->window_width,
                                 prefs->window_height);
 
-    if (G_UNLIKELY(prefs->window_maximized))
+    if (prefs->window_maximized)
         gtk_window_maximize(GTK_WINDOW(window));
 
     // add thunar style class for easier theming
@@ -729,7 +729,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
                      || IS_THUNARFILE(current_directory));
 
     // check if we already display the requested directory
-    if (G_UNLIKELY(window->current_directory == current_directory))
+    if (window->current_directory == current_directory)
         return;
 
     if (!current_directory)
@@ -744,7 +744,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
     }
 
     // disconnect from the previously active directory
-    if (G_LIKELY(window->current_directory != NULL))
+    if (window->current_directory != NULL)
     {
         // disconnect signals and release reference
         g_signal_handlers_disconnect_by_func(G_OBJECT(window->current_directory),
@@ -756,7 +756,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
     }
 
     // connect to the new directory
-    if (G_LIKELY(current_directory != NULL))
+    if (current_directory != NULL)
     {
         // take a reference on the file
         g_object_ref(G_OBJECT(current_directory));
@@ -771,7 +771,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
         // update window icon and title
         _window_current_directory_changed(current_directory, window);
 
-        if (G_LIKELY(window->view != NULL))
+        if (window->view != NULL)
         {
             // grab the focus to the main view
             gtk_widget_grab_focus(window->view);
@@ -803,7 +803,7 @@ static void _window_current_directory_changed(ThunarFile *current_directory,
     gchar *parse_name = NULL;
     const gchar *name;
 
-    if (G_UNLIKELY(show_full_path))
+    if (show_full_path)
     {
         parse_name = g_file_get_parse_name(th_file_get_file(current_directory));
         name = parse_name;
@@ -868,7 +868,7 @@ static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level
     e_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
     // check if we have a new zoom level
-    if (G_LIKELY(window->zoom_level == zoom_level))
+    if (window->zoom_level == zoom_level)
         return;
 
     // remember the new zoom level
@@ -934,7 +934,7 @@ static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
     e_return_if_fail(IS_APPWINDOW(window));
 
     // nothing to do if we don't have a current directory
-    if (G_UNLIKELY(window->current_directory == NULL))
+    if (window->current_directory == NULL)
         return;
 
     // check if the file is the current directory or an ancestor of the current directory
@@ -1050,7 +1050,7 @@ static gboolean _window_button_press_event(GtkWidget *view, GdkEventButton *even
 
     const XfceGtkActionEntry* action_entry;
 
-    if (G_UNLIKELY(event->button == 8))
+    if (event->button == 8)
     {
         action_entry = get_action_entry(WINDOW_ACTION_BACK);
 
@@ -1059,7 +1059,7 @@ static gboolean _window_button_press_event(GtkWidget *view, GdkEventButton *even
         return GDK_EVENT_STOP;
     }
 
-    else if (G_UNLIKELY(event->button == 9))
+    else if (event->button == 9)
     {
         action_entry = get_action_entry(WINDOW_ACTION_FORWARD);
 
@@ -1122,7 +1122,7 @@ static void _window_create_sidepane(AppWindow *window)
     gtk_widget_show(window->sidepane);
 
     // connect the side pane widget to the view (if any)
-    //if (G_LIKELY(window->view != NULL))
+    //if (window->view != NULL))
     //{
     //    _window_binding_create(window,
     //                           window->view, "selected-files",
@@ -1161,7 +1161,7 @@ static void _window_create_detailview(AppWindow *window)
 
     g_object_set(G_OBJECT(detail_view), "accel-group", window->accel_group, NULL);
 
-    //if (G_LIKELY(window->view != NULL))
+    //if (window->view != NULL))
     //{
     //    // disconnect from previous history
     //    if (window->signal_handler_id_history_changed != 0)
@@ -1203,7 +1203,7 @@ static void _window_create_detailview(AppWindow *window)
                            G_BINDING_SYNC_CREATE | G_BINDING_BIDIRECTIONAL);
 
     // connect to the statusbar(if any)
-    //if (G_LIKELY(window->statusbar != NULL))
+    //if (window->statusbar != NULL))
     //{
     //    _window_binding_create(window,
     //                           detail_view, "statusbar-text",
@@ -1243,7 +1243,7 @@ static void _window_create_detailview(AppWindow *window)
     //GList *selected_files = NULL;
 
     // scroll to the previously visible file in the old view
-    //if (G_UNLIKELY(file != NULL))
+    //if (file != NULL))
     //    baseview_scroll_to_file(BASEVIEW(detail_view),
     //                            file, FALSE, TRUE, 0.0f, 0.0f);
 
@@ -1252,7 +1252,7 @@ static void _window_create_detailview(AppWindow *window)
     //e_list_free(selected_files);
 
     // release the file references
-    //if (G_UNLIKELY(file != NULL))
+    //if (file != NULL))
     //    g_object_unref(G_OBJECT(file));
 
     // connect to the new history if this is the active view
@@ -1369,7 +1369,7 @@ static void _window_action_go_up(AppWindow *window)
 
     ThunarFile *parent = th_file_get_parent(window->current_directory, &error);
 
-    if (G_LIKELY(parent != NULL))
+    if (parent != NULL)
     {
         window_set_current_directory(window, parent);
 
@@ -1399,7 +1399,7 @@ static void _window_action_open_home(AppWindow *window)
 
     ThunarFile *home_file = th_file_get(home, &error);
 
-    if (G_UNLIKELY(home_file == NULL))
+    if (home_file == NULL)
     {
         // display an error to the user
         dialog_error(GTK_WIDGET(window),
@@ -1454,13 +1454,9 @@ static void _window_action_key_show_hidden(AppWindow *window)
 
     window->show_hidden = !window->show_hidden;
 
-    //gtk_container_foreach(GTK_CONTAINER(window->notebook),
-    //                      (GtkCallback) (void(*)(void)) baseview_set_show_hidden,
-    //                      GINT_TO_POINTER(window->show_hidden));
-
     baseview_set_show_hidden(BASEVIEW(window->view), window->show_hidden);
 
-    if (G_LIKELY(window->sidepane != NULL))
+    if (window->sidepane != NULL)
         sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
 }
 
@@ -1549,12 +1545,12 @@ static void _window_menu_item_selected(AppWindow *window, GtkWidget *menu_item)
     e_return_if_fail(IS_APPWINDOW(window));
 
     // we can only display tooltips if we have a statusbar
-    if (G_UNLIKELY(window->statusbar == NULL))
+    if (window->statusbar == NULL)
         return;
 
     gchar *tooltip = gtk_widget_get_tooltip_text(menu_item);
 
-    if (G_UNLIKELY(tooltip == NULL))
+    if (tooltip == NULL)
         return;
 
     // push to the statusbar
@@ -1572,7 +1568,7 @@ static void _window_menu_item_deselected(AppWindow *window, GtkWidget *menu_item
     e_return_if_fail(IS_APPWINDOW(window));
 
     // we can only undisplay tooltips if we have a statusbar
-    if (G_UNLIKELY(window->statusbar == NULL))
+    if (window->statusbar == NULL)
         return;
 
     // drop the last tooltip from the statusbar

@@ -107,7 +107,7 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
     }
 
     // check if we have any files to report
-    if (G_LIKELY(file_list != NULL))
+    if (file_list != NULL)
     {
         // emit the "files-ready" signal
         if (!job_files_ready(THUNAR_JOB(job), file_list))
@@ -322,7 +322,7 @@ static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
     {
         // open read stream to feed in the new files
         template_stream = g_file_read(template_file, exo_job_get_cancellable(EXOJOB(job)), &err);
-        if (G_UNLIKELY(template_stream == NULL))
+        if (template_stream == NULL)
         {
             g_propagate_error(error, err);
             return FALSE;
@@ -1072,7 +1072,8 @@ retry_chown:
         if (err != NULL && !exo_job_is_cancelled(EXOJOB(job)))
         {
             // generate a useful error message
-            message = G_LIKELY(uid >= 0) ? _("Failed to change the owner of \"%s\": %s")
+            message = (uid >= 0)
+                      ? _("Failed to change the owner of \"%s\": %s")
                       : _("Failed to change the group of \"%s\": %s");
 
             // ask the user whether to skip/retry this file

@@ -572,7 +572,7 @@ void propsdlg_set_files(PropertiesDialog *dialog, GList *files)
 {
     e_return_if_fail(IS_PROPERTIESDIALOG(dialog));
 
-    if (G_UNLIKELY(dialog->files == files))
+    if (dialog->files == files)
         return;
 
     ThunarFile *file = NULL;
@@ -807,7 +807,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
 
     const gchar       *name;
     name = th_file_get_display_name(file);
-    if (G_LIKELY(strcmp(name, xfce_filename_input_get_text(dialog->name_entry)) != 0))
+    if (strcmp(name, xfce_filename_input_get_text(dialog->name_entry)) != 0)
     {
         gtk_entry_set_text(xfce_filename_input_get_entry(dialog->name_entry), name);
 
@@ -816,14 +816,14 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
 
         // select the pre-dot part of the name
         str = util_str_get_extension(name);
-        if (G_LIKELY(str != NULL))
+        if (str != NULL)
         {
             // calculate the offset
             glong              offset;
             offset = g_utf8_pointer_to_offset(name, str);
 
             // select the region
-            if (G_LIKELY(offset > 0))
+            if (offset > 0)
                 gtk_editable_select_region(GTK_EDITABLE(xfce_filename_input_get_entry(dialog->name_entry)), 0, offset);
         }
     }
@@ -833,9 +833,9 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     content_type = th_file_get_content_type(file);
     if (content_type != NULL)
     {
-        if (G_UNLIKELY(g_content_type_equals(content_type, "inode/symlink")))
+        if (g_content_type_equals(content_type, "inode/symlink"))
             str = g_strdup(_("broken link"));
-        else if (G_UNLIKELY(th_file_is_symlink(file)))
+        else if (th_file_is_symlink(file))
             str = g_strdup_printf(_("link to %s"), th_file_get_symlink_target(file));
         else
             str = g_content_type_get_description(content_type);
@@ -861,7 +861,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     // update the link target
     const gchar       *path;
     path = th_file_is_symlink(file) ? th_file_get_symlink_target(file) : NULL;
-    if (G_UNLIKELY(path != NULL))
+    if (path != NULL)
     {
         display_name = g_filename_display_name(path);
         gtk_label_set_text(GTK_LABEL(dialog->link_label), display_name);
@@ -875,7 +875,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
 
     // update the original path
     path = th_file_get_original_path(file);
-    if (G_UNLIKELY(path != NULL))
+    if (path != NULL)
     {
         display_name = g_filename_display_name(path);
         gtk_label_set_text(GTK_LABEL(dialog->origin_label), display_name);
@@ -890,7 +890,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     // update the file or folder location(parent)
     ThunarFile        *parent_file;
     parent_file = th_file_get_parent(file, NULL);
-    if (G_UNLIKELY(parent_file != NULL))
+    if (parent_file != NULL)
     {
         display_name = g_file_get_parse_name(th_file_get_file(parent_file));
         gtk_label_set_text(GTK_LABEL(dialog->location_label), display_name);
@@ -910,7 +910,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     // update the deleted time
     gchar             *date;
     date = th_file_get_deletion_date(file, date_style, date_custom_style);
-    if (G_LIKELY(date != NULL))
+    if (date != NULL)
     {
         gtk_label_set_text(GTK_LABEL(dialog->deleted_label), date);
         gtk_widget_show(dialog->deleted_label);
@@ -923,7 +923,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
 
     // update the modified time
     date = th_file_get_date_string(file, FILE_DATE_MODIFIED, date_style, date_custom_style);
-    if (G_LIKELY(date != NULL))
+    if (date != NULL)
     {
         gtk_label_set_text(GTK_LABEL(dialog->modified_label), date);
         gtk_widget_show(dialog->modified_label);
@@ -936,7 +936,7 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
 
     // update the accessed time
     date = th_file_get_date_string(file, FILE_DATE_ACCESSED, date_style, date_custom_style);
-    if (G_LIKELY(date != NULL))
+    if (date != NULL)
     {
         gtk_label_set_text(GTK_LABEL(dialog->accessed_label), date);
         gtk_widget_show(dialog->accessed_label);
@@ -983,12 +983,12 @@ static void _propsdlg_update_single(PropertiesDialog *dialog)
     // update the volume
     GVolume           *volume;
     volume = th_file_get_volume(file);
-    if (G_LIKELY(volume != NULL))
+    if (volume != NULL)
     {
         GIcon             *gicon;
         gicon = g_volume_get_icon(volume);
         gtk_image_set_from_gicon(GTK_IMAGE(dialog->volume_image), gicon, GTK_ICON_SIZE_MENU);
-        if (G_LIKELY(gicon != NULL))
+        if (gicon != NULL)
             g_object_unref(gicon);
 
         gchar             *volume_name;
@@ -1142,7 +1142,7 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     }
 
     // update the file or folder location(parent)
-    if (G_UNLIKELY(parent_file != NULL))
+    if (parent_file != NULL)
     {
         display_name = g_file_get_parse_name(th_file_get_file(parent_file));
         gtk_label_set_text(GTK_LABEL(dialog->location_label), display_name);
@@ -1156,11 +1156,11 @@ static void _propsdlg_update_multiple(PropertiesDialog *dialog)
     }
 
     // update the volume
-    if (G_LIKELY(volume != NULL))
+    if (volume != NULL)
     {
         gicon = g_volume_get_icon(volume);
         gtk_image_set_from_gicon(GTK_IMAGE(dialog->volume_image), gicon, GTK_ICON_SIZE_MENU);
-        if (G_LIKELY(gicon != NULL))
+        if (gicon != NULL)
             g_object_unref(gicon);
 
         volume_name = g_volume_get_name(volume);

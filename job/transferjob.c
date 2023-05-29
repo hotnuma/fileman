@@ -330,7 +330,7 @@ static gboolean transferjob_execute(ExoJob *job, GError **error)
                                   exo_job_get_cancellable(job),
                                   &err);
 
-        if (G_UNLIKELY(info == NULL))
+        if (info == NULL)
             break;
 
         // check if we are moving a file out of the trash
@@ -375,7 +375,7 @@ static gboolean transferjob_execute(ExoJob *job, GError **error)
     }
 
     // continue if there were no errors yet
-    if (G_LIKELY(err == NULL))
+    if (err == NULL)
     {
         // check destination
         if (!_transferjob_verify_destination(transfer_job, &err))
@@ -412,7 +412,7 @@ static gboolean transferjob_execute(ExoJob *job, GError **error)
     }
 
     // check if we failed
-    if (G_UNLIKELY(err != NULL))
+    if (err != NULL)
     {
         g_propagate_error(error, err);
 
@@ -540,7 +540,7 @@ static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
                                 exo_job_get_cancellable(EXOJOB(job)),
                                 &err);
 
-    if (G_UNLIKELY(info == NULL))
+    if (info == NULL)
         return FALSE;
 
     job->total_size += g_file_info_get_size(info);
@@ -583,7 +583,7 @@ static gboolean _transferjob_collect_node(TransferJob *job, TransferNode *node,
     // release file info
     g_object_unref(info);
 
-    if (G_UNLIKELY(err != NULL))
+    if (err != NULL)
     {
         g_propagate_error(error, err);
         return FALSE;
@@ -619,7 +619,7 @@ static void _transferjob_copy_node(TransferJob  *job,
     for (; err == NULL && node != NULL; node = node->next)
     {
         // guess the target file for this node(unless already provided)
-        if (G_LIKELY(target_file == NULL))
+        if (target_file == NULL)
         {
             base_name = g_file_get_basename(node->source_file);
             target_file = g_file_get_child(target_parent_file, base_name);
@@ -655,10 +655,10 @@ retry_copy:
                            node->rename_confirmed,
                            &err);
 
-        if (G_LIKELY(real_target_file != NULL))
+        if (real_target_file != NULL)
         {
             // node->source_file == real_target_file means to skip the file
-            if (G_LIKELY(node->source_file != real_target_file))
+            if (node->source_file != real_target_file)
             {
                 // check if we have children to copy
                 if (node->children != NULL)
@@ -672,7 +672,7 @@ retry_copy:
                 }
 
                 // check if the child copy failed
-                if (G_UNLIKELY(err != NULL))
+                if (err != NULL)
                 {
                     // outa here, freeing the target paths
                     g_object_unref(real_target_file);
@@ -681,7 +681,7 @@ retry_copy:
                 }
 
                 // add the real target file to the return list
-                if (G_LIKELY(target_file_list_return != NULL))
+                if (target_file_list_return != NULL)
                 {
                     *target_file_list_return =
                         e_list_prepend_ref(*target_file_list_return,
@@ -706,7 +706,7 @@ retry_remove:
                         g_clear_error(&err);
 
                         // check whether to retry
-                        if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_RETRY))
+                        if (response == THUNAR_JOB_RESPONSE_RETRY)
                             goto retry_remove;
                     }
                 }
@@ -726,7 +726,7 @@ retry_remove:
                 g_clear_error(&err);
 
                 // check whether to retry
-                if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_RETRY))
+                if (response == THUNAR_JOB_RESPONSE_RETRY)
                     goto retry_copy;
             }
         }
@@ -740,7 +740,7 @@ retry_remove:
     }
 
     // propagate error if we failed or the job was cancelled
-    if (G_UNLIKELY(err != NULL))
+    if (err != NULL)
         g_propagate_error(error, err);
 }
 
@@ -1065,11 +1065,11 @@ ThunarJob* transferjob_new(GList *source_node_list, GList *target_file_list,
             sp = sp->next, tp = tp->next)
     {
         // make sure we don't transfer root directories. this should be prevented in the GUI
-        if (G_UNLIKELY(e_file_is_root(sp->data) || e_file_is_root(tp->data)))
+        if (e_file_is_root(sp->data) || e_file_is_root(tp->data))
             continue;
 
         // only process non-equal pairs unless we're copying
-        if (G_LIKELY(type != TRANSFERJOB_MOVE || !g_file_equal(sp->data, tp->data)))
+        if (type != TRANSFERJOB_MOVE || !g_file_equal(sp->data, tp->data))
         {
             // append transfer node for this source file
             TransferNode *node = g_slice_new0(TransferNode);
@@ -1200,7 +1200,7 @@ static gboolean _transferjob_prepare_untrash_file(ExoJob *job, GFileInfo *info,
                                           g_file_info_get_display_name(info));
 
         // abort if cancelled
-        if (G_UNLIKELY(response == THUNAR_JOB_RESPONSE_CANCEL))
+        if (response == THUNAR_JOB_RESPONSE_CANCEL)
         {
             g_free(parent_display_name);
             g_object_unref(info);
@@ -1444,7 +1444,7 @@ static GFile* _transferjob_copy_file(TransferJob *job,
     {
         _transferjob_check_pause(job);
 
-        if (G_LIKELY(!g_file_equal(source_file, dest_file)))
+        if (!g_file_equal(source_file, dest_file))
         {
             // try to copy the file from source_file to the dest_file
             if (_transferjob_copy_file_real(job,
@@ -1613,7 +1613,7 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
                 job,
                 &err);
 
-    if (G_UNLIKELY(err != NULL && err->domain == G_IO_ERROR))
+    if (err != NULL && err->domain == G_IO_ERROR)
     {
         // cancelled
         if (err->code == G_IO_ERROR_CANCELLED
@@ -1691,7 +1691,7 @@ static gboolean _transferjob_copy_file_real(TransferJob    *job,
         }
     }
 
-    if (G_UNLIKELY(err != NULL))
+    if (err != NULL)
     {
         g_propagate_error(error, err);
 
@@ -1717,7 +1717,7 @@ static void _transferjob_progress(goffset current_num_bytes,
 
     _transferjob_check_pause(job);
 
-    if (G_LIKELY(job->total_size > 0))
+    if (job->total_size > 0)
     {
         // update total progress
         job->total_progress +=(current_num_bytes - job->file_progress);

@@ -257,7 +257,7 @@ static void detailview_init(DetailView *details_view)
                          G_CALLBACK(_detailview_notify_width), details_view);
 
         // name column gets special renderers
-        if (G_UNLIKELY(column == THUNAR_COLUMN_NAME))
+        if (column == THUNAR_COLUMN_NAME)
         {
             // add the icon renderer
             gtk_tree_view_column_pack_start(details_view->columns[column], STANDARD_VIEW(details_view)->icon_renderer, FALSE);
@@ -305,7 +305,7 @@ static void detailview_init(DetailView *details_view)
     _detailview_columns_changed(details_view->column_model, details_view);
 
     // apply fixed column widths if we start in fixed column mode
-    if (G_UNLIKELY(details_view->fixed_columns))
+    if (details_view->fixed_columns)
     {
         // apply to all columns
         for (ThunarColumn column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
@@ -398,7 +398,7 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
     fixed_columns = !!fixed_columns;
 
     // check if we have a new value
-    if (G_LIKELY(details_view->fixed_columns != fixed_columns))
+    if (details_view->fixed_columns != fixed_columns)
     {
         // apply the new value
         details_view->fixed_columns = fixed_columns;
@@ -411,11 +411,11 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
         for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
         {
             // apply the new column mode
-            if (G_LIKELY(fixed_columns))
+            if (fixed_columns)
             {
                 // apply "width" as "fixed-width" for fixed columns mode
                 width = gtk_tree_view_column_get_width(details_view->columns[column]);
-                if (G_UNLIKELY(width <= 0))
+                if (width <= 0)
                     width = colmodel_get_column_width(details_view->column_model, column);
                 gtk_tree_view_column_set_fixed_width(details_view->columns[column], MAX(width, 1));
 
@@ -445,7 +445,7 @@ static AtkObject* detailview_get_accessible(GtkWidget *widget)
     AtkObject *object = GTK_WIDGET_CLASS(detailview_parent_class)->get_accessible(widget);
 
     // set custom Atk properties for the details view
-    if (G_LIKELY(object != NULL))
+    if (object != NULL)
     {
         atk_object_set_description(object, _("Detailed directory listing"));
         atk_object_set_name(object, _("Details view"));
@@ -715,7 +715,7 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                                                DetailView *details_view)
 {
     // check if the event is for the bin window
-    if (G_UNLIKELY(event->window != gtk_tree_view_get_bin_window(tree_view)))
+    if (event->window != gtk_tree_view_get_bin_window(tree_view))
         return FALSE;
 
     // get the current selection
@@ -918,7 +918,7 @@ static void _detailview_columns_changed(ColumnModel *column_model,
         gtk_tree_view_column_set_visible(details_view->columns[column], colmodel_get_column_visible(column_model, column));
 
         // change the order of the column relative to its predecessor
-        if (G_LIKELY(column > 0))
+        if (column > 0)
         {
             gtk_tree_view_move_column_after(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))),
                                              details_view->columns[column_order[column]],

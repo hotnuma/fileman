@@ -392,7 +392,7 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
     e_return_if_fail(file == NULL || IS_THUNARFILE(file));
 
     // disconnect from the previous file
-    if (G_LIKELY(dialog->file != NULL))
+    if (dialog->file != NULL)
     {
         // unset the chooser model
         gtk_tree_view_set_model(GTK_TREE_VIEW(dialog->tree_view), NULL);
@@ -409,7 +409,7 @@ static void _appchooser_set_file(AppChooserDialog *dialog, ThunarFile *file)
     dialog->file = file;
 
     // connect to the new file
-    if (G_LIKELY(file != NULL))
+    if (file != NULL)
     {
         // take a reference on the file
         g_object_ref(G_OBJECT(file));
@@ -468,7 +468,7 @@ static void _appchooser_update_header(AppChooserDialog *dialog)
     e_return_if_fail(gtk_widget_get_realized(GTK_WIDGET(dialog)));
 
     // check if we have a valid file set
-    if (G_UNLIKELY(dialog->file == NULL))
+    if (dialog->file == NULL)
     {
         gtk_image_clear(GTK_IMAGE(dialog->header_image));
         gtk_label_set_text(GTK_LABEL(dialog->header_label), NULL);
@@ -517,7 +517,7 @@ static void _appchooser_expand(AppChooserDialog *dialog)
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(dialog->tree_view));
 
     // expand the first tree view row(the recommended applications)
-    if (G_LIKELY(gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter)))
+    if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(model), &iter))
     {
         path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
         gtk_tree_view_expand_to_path(GTK_TREE_VIEW(dialog->tree_view), path);
@@ -525,7 +525,7 @@ static void _appchooser_expand(AppChooserDialog *dialog)
     }
 
     // expand the second tree view row(the other applications)
-    if (G_LIKELY(gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter)))
+    if (gtk_tree_model_iter_next(GTK_TREE_MODEL(model), &iter))
     {
         path = gtk_tree_model_get_path(GTK_TREE_MODEL(model), &iter);
         gtk_tree_view_expand_to_path(GTK_TREE_VIEW(dialog->tree_view), path);
@@ -533,11 +533,11 @@ static void _appchooser_expand(AppChooserDialog *dialog)
     }
 
     // reset the cursor
-    if (G_LIKELY(gtk_widget_get_realized(GTK_WIDGET(dialog))))
+    if (gtk_widget_get_realized(GTK_WIDGET(dialog)))
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(dialog)), NULL);
 
     // grab focus to the tree view widget
-    if (G_LIKELY(gtk_widget_get_realized(dialog->tree_view)))
+    if (gtk_widget_get_realized(dialog->tree_view))
         gtk_widget_grab_focus(dialog->tree_view);
 }
 
@@ -561,7 +561,7 @@ static void appchooser_response(GtkDialog *widget, gint response)
     GdkScreen           *screen;
 
     // no special processing for non-accept responses
-    if (G_UNLIKELY(response != GTK_RESPONSE_ACCEPT))
+    if (response != GTK_RESPONSE_ACCEPT)
         return;
 
     // determine the content type for the file
@@ -588,7 +588,7 @@ static void appchooser_response(GtkDialog *widget, gint response)
         g_free(name);
 
         // verify the application
-        if (G_UNLIKELY(app_info == NULL))
+        if (app_info == NULL)
         {
             // display an error to the user
             dialog_error(GTK_WIDGET(dialog), error, _("Failed to add new application \"%s\""), custom_command);
@@ -615,7 +615,7 @@ static void appchooser_response(GtkDialog *widget, gint response)
     }
 
     // verify that we have a valid application
-    if (G_UNLIKELY(app_info == NULL))
+    if (app_info == NULL)
         return;
 
     // check if we should also set the application as default
@@ -625,7 +625,7 @@ static void appchooser_response(GtkDialog *widget, gint response)
         succeed = g_app_info_set_as_default_for_type(app_info, content_type, &error);
 
         // verify that we were successful
-        if (G_UNLIKELY(!succeed))
+        if (!succeed)
         {
             // display an error to the user
             dialog_error(GTK_WIDGET(dialog),
@@ -638,7 +638,7 @@ static void appchooser_response(GtkDialog *widget, gint response)
         }
 
         // emit "changed" on the file if we successfully changed the default application
-        if (G_LIKELY(succeed))
+        if (succeed)
             th_file_changed(dialog->file);
     }
     else
@@ -652,7 +652,7 @@ static void appchooser_response(GtkDialog *widget, gint response)
     }
 
     // check if we should also execute the application
-    if (G_LIKELY(succeed && dialog->open))
+    if (succeed && dialog->open)
     {
         // create launch context
         screen = gtk_widget_get_screen(GTK_WIDGET(dialog));
@@ -700,7 +700,7 @@ static gboolean _appchooser_selection_func(GtkTreeSelection *selection,
     GValue      value = { 0, };
 
     // we can always change the selection if the path is already selected
-    if (G_UNLIKELY(!path_currently_selected))
+    if (!path_currently_selected)
     {
         // check if there's an application for the path
         gtk_tree_model_get_iter(model, &iter, path);
@@ -743,7 +743,7 @@ static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
 
     // determine the app info for the row
     gtk_tree_model_get(model, &iter, APPCHOOSER_COLUMN_APPLICATION, &app_info, -1);
-    if (G_UNLIKELY(app_info == NULL))
+    if (app_info == NULL)
         return FALSE;
 
     // prepare the popup menu
@@ -786,7 +786,7 @@ static void _appchooser_action_remove(AppChooserDialog *dialog)
 
     // determine the app info for the row
     gtk_tree_model_get(model, &iter, APPCHOOSER_COLUMN_APPLICATION, &app_info, -1);
-    if (G_UNLIKELY(app_info == NULL))
+    if (app_info == NULL)
         return;
 
     if (g_app_info_can_delete(app_info))
@@ -815,7 +815,7 @@ static void _appchooser_action_remove(AppChooserDialog *dialog)
         gtk_widget_destroy(message);
 
         // check if the user confirmed the removal
-        if (G_LIKELY(response == GTK_RESPONSE_YES))
+        if (response == GTK_RESPONSE_YES)
         {
             // try to delete the application from the model
             if (!appmodel_remove(APPCHOOSER_MODEL(model), &iter, &error))
@@ -824,7 +824,7 @@ static void _appchooser_action_remove(AppChooserDialog *dialog)
                 dialog_error(dialog, error, _("Failed to remove \"%s\""), name);
                 g_error_free(error);
             }
-            else if (G_LIKELY(dialog->file != NULL))
+            else if (dialog->file != NULL)
             {
                 // emit "changed" for the file, so the context menu is updated
                 th_file_changed(dialog->file);
@@ -848,7 +848,7 @@ static gboolean _appchooser_button_press_event(GtkWidget *tree_view,
     e_return_val_if_fail(GTK_IS_TREE_VIEW(tree_view), FALSE);
 
     // check if we should popup the context menu
-    if (G_LIKELY(event->button == 3 && event->type == GDK_BUTTON_PRESS))
+    if (event->button == 3 && event->type == GDK_BUTTON_PRESS)
     {
         // determine the path for the clicked row
         if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), event->x, event->y, &path, NULL, NULL, NULL))
@@ -883,7 +883,7 @@ static void _appchooser_row_activated(GtkTreeView *treeview,
 
     // determine the current chooser model
     model = gtk_tree_view_get_model(treeview);
-    if (G_UNLIKELY(model == NULL))
+    if (model == NULL)
         return;
 
     // determine the application for the tree path
@@ -891,7 +891,7 @@ static void _appchooser_row_activated(GtkTreeView *treeview,
     gtk_tree_model_get_value(model, &iter, APPCHOOSER_COLUMN_APPLICATION, &value);
 
     // check if the row refers to a valid application
-    if (G_LIKELY(g_value_get_object(&value) != NULL))
+    if (g_value_get_object(&value) != NULL)
     {
         // emit the accept dialog response
         gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
@@ -1035,22 +1035,22 @@ static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dial
 
     // setup the currently selected file
     filename = gtk_editable_get_chars(GTK_EDITABLE(dialog->custom_entry), 0, -1);
-    if (G_LIKELY(filename != NULL))
+    if (filename != NULL)
     {
         // use only the first argument
         s = strchr(filename, ' ');
-        if (G_UNLIKELY(s != NULL))
+        if (s != NULL)
             *s = '\0';
 
         // check if we have a file name
-        if (G_LIKELY(*filename != '\0'))
+        if (*filename != '\0')
         {
             // check if the filename is not an absolute path
-            if (G_LIKELY(!g_path_is_absolute(filename)))
+            if (!g_path_is_absolute(filename))
             {
                 // try to lookup the filename in $PATH
                 s = g_find_program_in_path(filename);
-                if (G_LIKELY(s != NULL))
+                if (s != NULL)
                 {
                     // use the absolute path instead
                     g_free(filename);
@@ -1059,7 +1059,7 @@ static void _appchooser_browse_clicked(GtkWidget *button, AppChooserDialog *dial
             }
 
             // check if we have an absolute path now
-            if (G_LIKELY(g_path_is_absolute(filename)))
+            if (g_path_is_absolute(filename))
                 gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(chooser), filename);
         }
 
@@ -1096,7 +1096,7 @@ static void _appchooser_selection_changed(GtkTreeSelection *selection,
 
         // determine the command for the app info
         exec = g_app_info_get_executable(app_info);
-        if (G_LIKELY(exec != NULL && g_utf8_validate(exec, -1, NULL)))
+        if (exec != NULL && g_utf8_validate(exec, -1, NULL))
         {
             // setup the command as default for the custom command box
             gtk_entry_set_text(GTK_ENTRY(dialog->custom_entry), exec);
@@ -1139,7 +1139,7 @@ void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open)
     GtkWidget         *window = NULL;
 
     // determine the screen for the dialog
-    if (G_UNLIKELY(parent == NULL))
+    if (parent == NULL)
     {
         // just use the default screen, no toplevel window
         screen = gdk_screen_get_default();
@@ -1164,7 +1164,7 @@ void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open)
                            NULL);
 
     // check if we have a toplevel window
-    if (G_LIKELY(window != NULL && gtk_widget_get_toplevel(window)))
+    if (window != NULL && gtk_widget_get_toplevel(window))
     {
         // dialog is transient for toplevel window and modal
         gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);

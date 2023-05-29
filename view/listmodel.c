@@ -592,11 +592,11 @@ void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
     e_return_if_fail(IS_LISTMODEL(store));
     e_return_if_fail(folder == NULL || IS_THUNARFOLDER(folder));
 
-    if (G_UNLIKELY(store->folder == folder))
+    if (store->folder == folder)
         return;
 
     // remove existing entries, remove previous ThunarFolder
-    if (G_LIKELY(store->folder != NULL))
+    if (store->folder != NULL)
     {
         // check if we have any handlers connected for "row-deleted"
         gboolean has_handler = g_signal_has_handler_pending(G_OBJECT(store),
@@ -618,7 +618,7 @@ void listmodel_set_folder(ListModel *store, ThunarFolder *folder)
 
             /* notify the view(s) if they're actually
              * interested in the "row-deleted" signal. */
-            if (G_LIKELY(has_handler))
+            if (has_handler)
                 gtk_tree_model_row_deleted(GTK_TREE_MODEL(store), path);
         }
 
@@ -936,7 +936,7 @@ static GtkTreePath* listmodel_get_path(GtkTreeModel *model, GtkTreeIter *iter)
 
     gint idx = g_sequence_iter_get_position(iter->user_data);
 
-    if (G_LIKELY(idx >= 0))
+    if (idx >= 0)
         return gtk_tree_path_new_from_indices(idx, -1);
 
     return NULL;
@@ -975,7 +975,7 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
     case THUNAR_COLUMN_GROUP:
         g_value_init(value, G_TYPE_STRING);
         group = th_file_get_group(file);
-        if (G_LIKELY(group != NULL))
+        if (group != NULL)
         {
             g_value_set_string(value, group_get_name(group));
             g_object_unref(G_OBJECT(group));
@@ -999,12 +999,12 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
     case THUNAR_COLUMN_OWNER:
         g_value_init(value, G_TYPE_STRING);
         user = th_file_get_user(file);
-        if (G_LIKELY(user != NULL))
+        if (user != NULL)
         {
             // determine sane display name for the owner
             name = user_get_name(user);
             real_name = user_get_real_name(user);
-            if (G_LIKELY(real_name != NULL))
+            if (real_name != NULL)
             {
                 if (strcmp(name, real_name) == 0)
                     str = g_strdup(name);
@@ -1041,7 +1041,7 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
 
     case THUNAR_COLUMN_TYPE:
         g_value_init(value, G_TYPE_STRING);
-        if (G_UNLIKELY(th_file_is_symlink(file)))
+        if (th_file_is_symlink(file))
         {
             g_value_take_string(value,
                                 g_strdup_printf(_("link to %s"),
@@ -1086,7 +1086,7 @@ static gboolean listmodel_iter_children(GtkTreeModel *model, GtkTreeIter *iter,
     ListModel *store = LISTMODEL(model);
     e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
 
-    if (G_LIKELY(parent == NULL && g_sequence_get_length(store->rows) > 0))
+    if (parent == NULL && g_sequence_get_length(store->rows) > 0)
     {
         GTK_TREE_ITER_INIT(*iter, store->stamp, g_sequence_get_begin_iter(store->rows));
 
@@ -1118,7 +1118,7 @@ static gboolean listmodel_iter_nth_child(GtkTreeModel *model, GtkTreeIter *iter,
     ListModel *store = LISTMODEL(model);
     e_return_val_if_fail(IS_LISTMODEL(store), FALSE);
 
-    if (G_UNLIKELY(parent != NULL))
+    if (parent != NULL)
         return FALSE;
 
     GSequenceIter *row = g_sequence_get_iter_at_pos(store->rows, n);
@@ -1315,14 +1315,14 @@ static void _listmodel_sort(ListModel *store)
     e_return_if_fail(IS_LISTMODEL(store));
 
     gint length = g_sequence_get_length(store->rows);
-    if (G_UNLIKELY(length <= 1))
+    if (length <= 1)
         return;
 
     GSequenceIter **old_order;
     gint *new_order;
 
     // be sure to not overuse the stack
-    if (G_LIKELY(length < 2000))
+    if (length < 2000)
     {
         old_order = g_newa(GSequenceIter*, length);
         new_order = g_newa(gint, length);
@@ -1358,7 +1358,7 @@ static void _listmodel_sort(ListModel *store)
     gtk_tree_path_free(path);
 
     // clean up if we used the heap
-    if (G_UNLIKELY(length >= 2000))
+    if (length >= 2000)
     {
         g_free(old_order);
         g_free(new_order);
@@ -1373,7 +1373,7 @@ static gint _listmodel_cmp_func(gconstpointer a, gconstpointer b,
 
     ListModel *store = LISTMODEL(user_data);
 
-    if (G_LIKELY(store->sort_folders_first))
+    if (store->sort_folders_first)
     {
         gboolean isdir_a = th_file_is_directory(a);
         gboolean isdir_b = th_file_is_directory(b);
@@ -1648,7 +1648,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
 
     while (row != end)
     {
-        if (G_UNLIKELY(g_sequence_get(row) == file))
+        if (g_sequence_get(row) == file)
         {
             // generate the iterator for this row
             GTK_TREE_ITER_INIT(iter, store->stamp, row);
@@ -1663,7 +1663,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
             {
                 // do swap sorting here since its much faster than a complete sort
                 length = g_sequence_get_length(store->rows);
-                if (G_LIKELY(length < 2000))
+                if (length < 2000)
                     new_order = g_newa(gint, length);
                 else
                     new_order = g_new(gint, length);
@@ -1671,13 +1671,13 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                 // new_order[newpos] = oldpos
                 for (i = 0, j = 0; i < length; ++i)
                 {
-                    if (G_UNLIKELY(i == pos_after))
+                    if (i == pos_after)
                     {
                         new_order[i] = pos_before;
                     }
                     else
                     {
-                        if (G_UNLIKELY(j == pos_before))
+                        if (j == pos_before)
                             j++;
                         new_order[i] = j++;
                     }
@@ -1689,7 +1689,7 @@ static void _listmodel_file_changed(FileMonitor *file_monitor, ThunarFile *file,
                 gtk_tree_path_free(path);
 
                 // clean up if we used the heap
-                if (G_UNLIKELY(length >= 2000))
+                if (length >= 2000)
                     g_free(new_order);
             }
 
@@ -1996,8 +1996,8 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
         file =(store->folder != NULL) ? th_folder_get_thfile(store->folder) : NULL;
 
         // check if we can determine the amount of free space for the volume
-        if (G_LIKELY(file != NULL
-                      && e_file_get_free_space(th_file_get_file(file), &size, NULL)))
+        if (file != NULL
+            && e_file_get_free_space(th_file_get_file(file), &size, NULL))
         {
             size_string = _listmodel_get_statusbar_text_for_files(relevant_files, show_file_size_binary_format);
 
@@ -2027,22 +2027,22 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
         // determine the content type of the file
         content_type = th_file_get_content_type(file);
 
-        if (G_UNLIKELY(content_type != NULL && g_str_equal(content_type, "inode/symlink")))
+        if (content_type != NULL && g_str_equal(content_type, "inode/symlink"))
         {
             text = g_strdup_printf(_("\"%s\": broken link"), th_file_get_display_name(file));
         }
-        else if (G_UNLIKELY(th_file_is_symlink(file)))
+        else if (th_file_is_symlink(file))
         {
             size_string = th_file_get_size_string_long(file, show_file_size_binary_format);
             text = g_strdup_printf(_("\"%s\": %s link to %s"), th_file_get_display_name(file),
                                     size_string, th_file_get_symlink_target(file));
             g_free(size_string);
         }
-        else if (G_UNLIKELY(th_file_get_filetype(file) == G_FILE_TYPE_SHORTCUT))
+        else if (th_file_get_filetype(file) == G_FILE_TYPE_SHORTCUT)
         {
             text = g_strdup_printf(_("\"%s\": shortcut"), th_file_get_display_name(file));
         }
-        else if (G_UNLIKELY(th_file_get_filetype(file) == G_FILE_TYPE_MOUNTABLE))
+        else if (th_file_get_filetype(file) == G_FILE_TYPE_MOUNTABLE)
         {
             text = g_strdup_printf(_("\"%s\": mountable"), th_file_get_display_name(file));
         }
@@ -2066,7 +2066,7 @@ gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)
 
         // append the original path(if any)
         original_path = th_file_get_original_path(file);
-        if (G_UNLIKELY(original_path != NULL))
+        if (original_path != NULL)
         {
             // append the original path to the statusbar text
             display_name = g_filename_display_name(original_path);

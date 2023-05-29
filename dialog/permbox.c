@@ -407,7 +407,7 @@ static void permbox_finalize(GObject *object)
     PermissionBox *permbox = PERMISSIONBOX(object);
 
     // cancel any pending job
-    if (G_UNLIKELY(permbox->job != NULL))
+    if (permbox->job != NULL)
     {
         // cancel the job(if not already done)
         exo_job_cancel(EXOJOB(permbox->job));
@@ -495,7 +495,7 @@ static void _permbox_set_files(PermissionBox *permbox, GList *files)
     e_return_if_fail(IS_PERMISSIONBOX(permbox));
 
     // check if we already use that file
-    if (G_UNLIKELY(permbox->files == files))
+    if (permbox->files == files)
         return;
 
     // disconnect from the previous files
@@ -541,7 +541,7 @@ static gboolean _permbox_row_separator(GtkTreeModel *treemodel,
     // determine the value of the "name" column
     gtk_tree_model_get(treemodel, iter, THUNAR_PERMISSIONS_STORE_COLUMN_NAME, &name, -1);
 
-    if (G_LIKELY(name != NULL))
+    if (name != NULL)
     {
         g_free(name);
         return FALSE;
@@ -618,12 +618,12 @@ static void _permbox_file_changed(PermissionBox *permbox)
     gtk_combo_box_set_model(GTK_COMBO_BOX(permbox->group_combo), GTK_TREE_MODEL(store));
 
     // determine the owner of the new file
-    if (G_LIKELY(user != NULL))
+    if (user != NULL)
     {
         // determine sane display name for the owner
         user_name = user_get_name(user);
         real_name = user_get_real_name(user);
-        if (G_LIKELY(real_name != NULL))
+        if (real_name != NULL)
             g_snprintf(buffer, sizeof(buffer), "%s(%s)", real_name, user_name);
         else
             g_strlcpy(buffer, user_name, sizeof(buffer));
@@ -636,7 +636,7 @@ static void _permbox_file_changed(PermissionBox *permbox)
     }
 
     // check if we have superuser privileges
-    if (G_UNLIKELY(geteuid() == 0))
+    if (geteuid() == 0)
     {
         // determine all groups in the system
         user_manager = usermanager_get_default();
@@ -645,7 +645,7 @@ static void _permbox_file_changed(PermissionBox *permbox)
     }
     else
     {
-        if (G_UNLIKELY(user == NULL && n_files > 1))
+        if (user == NULL && n_files > 1)
         {
             // get groups of the active user
             user_manager = usermanager_get_default();
@@ -654,7 +654,7 @@ static void _permbox_file_changed(PermissionBox *permbox)
         }
 
         // determine the groups for the user and take a copy
-        if (G_LIKELY(user != NULL))
+        if (user != NULL)
         {
             groups = g_list_copy(user_get_groups(user));
             g_list_foreach(groups,(GFunc)(void(*)(void)) g_object_ref, NULL);
@@ -662,7 +662,7 @@ static void _permbox_file_changed(PermissionBox *permbox)
     }
 
     // make sure that the group list includes the file group
-    if (G_UNLIKELY(group != NULL && g_list_find(groups, group) == NULL))
+    if (group != NULL && g_list_find(groups, group) == NULL)
         groups = g_list_prepend(groups, g_object_ref(G_OBJECT(group)));
 
     // sort the groups according to group_compare()
@@ -693,14 +693,14 @@ static void _permbox_file_changed(PermissionBox *permbox)
                             -1);
 
         // set the active iter for the combo box if this group is the primary group
-        if (G_UNLIKELY(lp->data == group))
+        if (lp->data == group)
             gtk_combo_box_set_active_iter(GTK_COMBO_BOX(permbox->group_combo), &iter);
     }
 
     // cleanup
-    if (G_LIKELY(user != NULL))
+    if (user != NULL)
         g_object_unref(G_OBJECT(user));
-    if (G_LIKELY(group != NULL))
+    if (group != NULL)
         g_object_unref(G_OBJECT(group));
 
     g_list_free_full(groups, g_object_unref);
@@ -880,7 +880,7 @@ static void _permbox_group_changed(PermissionBox *permbox, GtkWidget *combo)
     e_return_if_fail(GTK_IS_COMBO_BOX(combo));
 
     // verify that we have a valid file
-    if (G_UNLIKELY(permbox->files == NULL))
+    if (permbox->files == NULL)
         return;
 
     // determine the tree model from the combo box
@@ -906,7 +906,7 @@ static void _permbox_program_toggled(PermissionBox *permbox, GtkWidget *button)
     e_return_if_fail(GTK_IS_TOGGLE_BUTTON(button));
 
     // verify that we have a valid file
-    if (G_UNLIKELY(permbox->files == NULL))
+    if (permbox->files == NULL)
         return;
 
     // determine the new mode based on the toggle state
@@ -932,12 +932,12 @@ static void _permbox_fixperm_clicked(PermissionBox *permbox, GtkWidget *button)
     e_return_if_fail(permbox_has_fixable_directory(permbox));
 
     // verify that we have a valid file
-    if (G_UNLIKELY(permbox->files == NULL))
+    if (permbox->files == NULL)
         return;
 
     // determine the toplevel widget
     window = gtk_widget_get_toplevel(GTK_WIDGET(permbox));
-    if (G_UNLIKELY(window == NULL))
+    if (window == NULL)
         return;
 
     // popup a confirm dialog
@@ -993,7 +993,7 @@ static void _permbox_job_cancel(PermissionBox *permbox)
     e_return_if_fail(IS_PERMISSIONBOX(permbox));
 
     // verify that we have a job to cancel
-    if (G_UNLIKELY(permbox->job == NULL))
+    if (permbox->job == NULL)
         return;
 
     // cancel the job(if not already done)
@@ -1123,7 +1123,7 @@ static gboolean _permbox_ask_recursive(PermissionBox *permbox)
     ThunarRecursivePermissionsMode mode = THUNAR_RECURSIVE_PERMISSIONS_ALWAYS;
 
     // check if we should ask the user first
-    if (G_UNLIKELY(mode == THUNAR_RECURSIVE_PERMISSIONS_ASK))
+    if (mode == THUNAR_RECURSIVE_PERMISSIONS_ASK)
     {
         // determine the toplevel widget for the permbox
         GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(permbox));
@@ -1227,7 +1227,7 @@ static void _permbox_job_start(PermissionBox *permbox, ThunarJob *job,
                              G_CALLBACK(_permbox_job_finished), permbox);
 
     // don't connect percent for single file operations
-    if (G_UNLIKELY(recursive))
+    if (recursive)
     {
         g_signal_connect_swapped(job, "percent",
                                  G_CALLBACK(_permbox_job_percent), permbox);
@@ -1256,7 +1256,7 @@ static ThunarJobResponse _permbox_job_ask(PermissionBox *permbox,
     // determine the toplevel window for the permbox
     GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(permbox));
 
-    if (G_UNLIKELY(toplevel == NULL))
+    if (toplevel == NULL)
         return THUNAR_JOB_RESPONSE_CANCEL;
 
     // display the question dialog
@@ -1276,7 +1276,7 @@ static void _permbox_job_error(PermissionBox *permbox, GError *error, ThunarJob 
     // determine the toplevel widget for the permbox
     GtkWidget *toplevel = gtk_widget_get_toplevel(GTK_WIDGET(permbox));
 
-    if (G_UNLIKELY(toplevel == NULL))
+    if (toplevel == NULL)
         return;
 
     // popup the error message dialog
