@@ -41,37 +41,27 @@ struct _ThunarBrowserIface
     GTypeInterface __parent__;
 };
 
-typedef void (*ThunarBrowserPokeFileFunc) (ThunarBrowser *browser,
-                                           ThunarFile    *file,
-                                           ThunarFile    *target_file,
-                                           GError        *error,
-                                           gpointer      user_data);
+typedef void (*PokeFileFunc) (ThunarBrowser *browser,
+                              ThunarFile *file, ThunarFile *target_file,
+                              GError *error, gpointer user_data);
 
-typedef void (*ThunarBrowserPokeDeviceFunc) (ThunarBrowser *browser,
-                                             ThunarDevice  *volume,
-                                             ThunarFile    *mount_point,
-                                             GError        *error,
-                                             gpointer      user_data,
-                                             gboolean      cancelled);
+typedef void (*PokeDeviceFunc) (ThunarBrowser *browser,
+                                ThunarDevice *volume, ThunarFile *mount_point,
+                                GError *error, gpointer user_data,
+                                gboolean cancelled);
 
-typedef void (*ThunarBrowserPokeLocationFunc) (ThunarBrowser *browser,
-                                               GFile         *location,
-                                               ThunarFile    *file,
-                                               ThunarFile    *target_file,
-                                               GError        *error,
-                                               gpointer      user_data);
+typedef void (*PokeLocationFunc) (ThunarBrowser *browser, GFile *location,
+                                  ThunarFile *file, ThunarFile *target_file,
+                                  GError *error, gpointer user_data);
 
 GType browser_get_type() G_GNUC_CONST;
 
-void browser_poke_file(ThunarBrowser *browser, ThunarFile *file,
-                       gpointer widget, ThunarBrowserPokeFileFunc func,
-                       gpointer user_data);
 void browser_poke_device(ThunarBrowser *browser, ThunarDevice *device,
-                         gpointer widget, ThunarBrowserPokeDeviceFunc func,
+                         gpointer widget, PokeDeviceFunc func,
                          gpointer user_data);
-void browser_poke_location(ThunarBrowser *browser, GFile *location,
-                           gpointer widget, ThunarBrowserPokeLocationFunc func,
-                           gpointer user_data);
+void browser_poke_file(ThunarBrowser *browser, ThunarFile *file,
+                       gpointer widget, PokeFileFunc func,
+                       gpointer user_data);
 
 G_END_DECLS
 
