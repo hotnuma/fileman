@@ -30,8 +30,7 @@
 #include <utils.h>
 #include <sys/stat.h>
 
-// Dump the file cache every X second, set to 0 to disable
-#define DUMP_FILE_CACHE 0
+//#define TH_FILE_DEBUG
 
 #define DEFAULT_CONTENT_TYPE "application/octet-stream"
 
@@ -104,6 +103,14 @@ static void _monitor_update(GFile *path, GFileMonitorEvent event_type);
 static void _th_file_monitor_moved(ThunarFile *file, GFile *renamed_file);
 static void _th_file_watch_reconnect(ThunarFile *file);
 static void _th_file_reload_parent(ThunarFile *file);
+
+// Debug ----------------------------------------------------------------------
+
+#ifdef TH_FILE_DEBUG
+static gboolean _th_file_atexit_registered = FALSE;
+static void _th_file_atexit_foreach(gpointer key, gpointer value, gpointer user_data);
+static void _th_file_atexit();
+#endif
 
 // Globals --------------------------------------------------------------------
 
@@ -224,7 +231,7 @@ G_DEFINE_TYPE_WITH_CODE(ThunarFile,
 static void th_file_class_init(ThunarFileClass *klass)
 {
 
-#ifdef G_ENABLE_DEBUG
+#ifdef TH_FILE_DEBUG
     if (!_th_file_atexit_registered)
     {
         atexit((void(*)(void)) _th_file_atexit);
@@ -306,9 +313,9 @@ static void th_file_finalize(GObject *object)
     ThunarFile *file = THUNARFILE(object);
 
     // verify that nobody's watching the file anymore
-#ifdef G_ENABLE_DEBUG
+#ifdef TH_FILE_DEBUG
     FileWatch *file_watch = g_object_get_qdata(G_OBJECT(file),
-                                                     th_file_watch_quark);
+                                               _file_watch_quark);
     if (file_watch != NULL)
     {
         g_error("Attempt to finalize a ThunarFile, which has an active "
@@ -3174,11 +3181,12 @@ gboolean th_file_cache_dump(gpointer user_data)
     return TRUE;
 }
 
-#ifdef G_ENABLE_DEBUG
-static gboolean _th_file_atexit_registered = FALSE;
-
+#ifdef TH_FILE_DEBUG
 static void _th_file_atexit_foreach(gpointer key, gpointer value, gpointer user_data)
 {
+    (void) value;
+    (void) user_data;
+
     gchar *uri = g_file_get_uri(key);
 
     g_print("--> %s\n", uri);
@@ -3191,22 +3199,22 @@ static void _th_file_atexit_foreach(gpointer key, gpointer value, gpointer user_
 
 static void _th_file_atexit()
 {
-    G_LOCK(file_cache_mutex);
+    G_LOCK(_file_cache_mutex);
 
-    if (file_cache == NULL || g_hash_table_size(file_cache) == 0)
+    if (_file_cache == NULL || g_hash_table_size(_file_cache) == 0)
     {
-        G_UNLOCK(file_cache_mutex);
+        G_UNLOCK(_file_cache_mutex);
         return;
     }
 
     g_print("--- Leaked a total of %u ThunarFile objects:\n",
-            g_hash_table_size(file_cache));
+            g_hash_table_size(_file_cache));
 
-    g_hash_table_foreach(file_cache, _th_file_atexit_foreach, NULL);
+    g_hash_table_foreach(_file_cache, _th_file_atexit_foreach, NULL);
 
     g_print("\n");
 
-    G_UNLOCK(file_cache_mutex);
+    G_UNLOCK(_file_cache_mutex);
 }
 #endif
 
@@ -3332,20 +3340,10 @@ static gint _compare_app_infos(gconstpointer a, gconstpointer b)
     return g_app_info_equal(G_APP_INFO(a), G_APP_INFO(b)) ? 0 : 1;
 }
 
-/*
- * th_filelist_to_thunar_g_file_list:
- * @file_list : a #GList of #ThunarFile<!---->s.
- *
- * Transforms the @file_list to a #GList of #GFile<!---->s for
- * the #ThunarFile<!---->s contained within @file_list.
- *
- * The caller is responsible to free the returned list using
- * eg_list_free() when no longer needed.
- *
- * Return value: the list of #GFile<!---->s for @file_list.
- **/
 GList* th_list_to_g_list(GList *thlist)
 {
+    // e_list_free() when no longer needed.
+
     GList *list = NULL;
 
     for (GList *lp = g_list_last(thlist); lp != NULL; lp = lp->prev)
