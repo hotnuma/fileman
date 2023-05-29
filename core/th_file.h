@@ -205,8 +205,8 @@ gboolean th_file_cache_dump(gpointer user_data);
 
 // File List ------------------------------------------------------------------
 
-GList* th_filelist_get_applications(GList *file_list);
-GList* th_filelist_to_thunar_g_file_list(GList *file_list);
+GList* th_list_get_applications(GList *file_list);
+GList* th_list_to_g_list(GList *thlist);
 
 G_END_DECLS
 

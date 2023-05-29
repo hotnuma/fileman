@@ -21,7 +21,7 @@
 #include <enumtypes.h>
 
 static void _icon_size_from_zoom_level(const GValue *src_value,
-                                             GValue *dst_value);
+                                       GValue *dst_value);
 static ThunarIconSize _zoom_level_to_icon_size(ThunarZoomLevel zoom_level);
 
 // ThunarColumn ---------------------------------------------------------------
@@ -59,7 +59,7 @@ GType thunar_column_get_type(void)
             { THUNAR_COLUMN_FILE_NAME,
               "THUNAR_COLUMN_FILE_NAME",     N_("File Name"),     },
             { 0,
-              NULL,                          NULL,                 },
+              NULL,                          NULL,                },
         };
 
         type = g_enum_register_static(I_("ThunarColumn"), values);

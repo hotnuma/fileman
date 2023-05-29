@@ -25,8 +25,8 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarBrowser      ThunarBrowser;
 typedef struct _ThunarBrowserIface ThunarBrowserIface;
+typedef struct _ThunarBrowser      ThunarBrowser;
 
 #define TYPE_THUNARBROWSER (browser_get_type())
 #define THUNARBROWSER(obj) \

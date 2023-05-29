@@ -3227,7 +3227,7 @@ static void _th_file_atexit()
  * Return value: the list of #GAppInfo<!---->s that can be used to open all
  *               items in the @file_list.
  **/
-GList* th_filelist_get_applications(GList *file_list)
+GList* th_list_get_applications(GList *file_list)
 {
     GList       *applications = NULL;
     GList       *list;
@@ -3239,7 +3239,7 @@ GList* th_filelist_get_applications(GList *file_list)
     const gchar *current_type;
 
     // determine the set of applications that can open all files
-    for(lp = file_list; lp != NULL; lp = lp->next)
+    for (lp = file_list; lp != NULL; lp = lp->next)
     {
         current_type = th_file_get_content_type(lp->data);
 
@@ -3309,7 +3309,7 @@ GList* th_filelist_get_applications(GList *file_list)
     }
 
     // remove hidden applications
-    for(ap = applications; ap != NULL; ap = next)
+    for (ap = applications; ap != NULL; ap = next)
     {
         // grab a pointer on the next application
         next = ap->next;
@@ -3344,12 +3344,11 @@ static gint _compare_app_infos(gconstpointer a, gconstpointer b)
  *
  * Return value: the list of #GFile<!---->s for @file_list.
  **/
-GList* th_filelist_to_thunar_g_file_list(GList *file_list)
+GList* th_list_to_g_list(GList *thlist)
 {
     GList *list = NULL;
-    GList *lp;
 
-    for(lp = g_list_last(file_list); lp != NULL; lp = lp->prev)
+    for (GList *lp = g_list_last(thlist); lp != NULL; lp = lp->prev)
         list = g_list_prepend(list, g_object_ref(THUNARFILE(lp->data)->gfile));
 
     return list;

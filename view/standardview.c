@@ -315,7 +315,7 @@ struct _StandardViewPrivate
 
     // popup with timer
     guint       popup_timer_id;
-    GdkEvent    *drag_timer_event;
+    GdkEvent    *popup_timer_event;
 
     // drag support
     GList       *drag_g_file_list;
@@ -713,10 +713,10 @@ static void standardview_dispose(GObject *object)
         g_source_remove(view->priv->popup_timer_id);
 
     // be sure to free any pending drag timer event
-    if (view->priv->drag_timer_event != NULL)
+    if (view->priv->popup_timer_event)
     {
-        gdk_event_free(view->priv->drag_timer_event);
-        view->priv->drag_timer_event = NULL;
+        gdk_event_free(view->priv->popup_timer_event);
+        view->priv->popup_timer_event = NULL;
     }
 
     // disconnect from file
@@ -2154,7 +2154,7 @@ void standardview_queue_popup(StandardView *view, GdkEventButton *event)
                            _popup_timer_destroy);
 
     // store current event data
-    view->priv->drag_timer_event = gtk_get_current_event();
+    view->priv->popup_timer_event = gtk_get_current_event();
 
     // register the motion notify and the button release events on the real view
     g_signal_connect(G_OBJECT(child), "button-release-event",
@@ -2255,13 +2255,13 @@ void standardview_context_menu(StandardView *view)
     window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
 
     // if there is a drag_timer_event (long press), we use it
-    if (view->priv->drag_timer_event != NULL)
+    if (view->priv->popup_timer_event)
     {
         etk_menu_run_at_event(GTK_MENU(context_menu),
-                              view->priv->drag_timer_event);
+                              view->priv->popup_timer_event);
 
-        gdk_event_free(view->priv->drag_timer_event);
-        view->priv->drag_timer_event = NULL;
+        gdk_event_free(view->priv->popup_timer_event);
+        view->priv->popup_timer_event = NULL;
     }
     else
     {
@@ -2419,7 +2419,7 @@ static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context,
     e_list_free(view->priv->drag_g_file_list);
 
     view->priv->drag_g_file_list =
-                th_filelist_to_thunar_g_file_list(view->priv->selected_files);
+                th_list_to_g_list(view->priv->selected_files);
 
     if (view->priv->drag_g_file_list == NULL)
         return;
