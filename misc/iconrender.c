@@ -161,10 +161,10 @@ static void iconrender_finalize(GObject *object)
     IconRenderer *icon_renderer = ICONRENDERER(object);
 
     // free the icon data
-    if (G_UNLIKELY(icon_renderer->drop_file != NULL))
+    if (icon_renderer->drop_file != NULL)
         g_object_unref(G_OBJECT(icon_renderer->drop_file));
 
-    if (G_LIKELY(icon_renderer->file != NULL))
+    if (icon_renderer->file != NULL)
         g_object_unref(G_OBJECT(icon_renderer->file));
 
     G_OBJECT_CLASS(iconrender_parent_class)->finalize(object);
@@ -215,13 +215,13 @@ static void iconrender_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_DROP_FILE:
-        if (G_LIKELY(icon_renderer->drop_file != NULL))
+        if (icon_renderer->drop_file != NULL)
             g_object_unref(G_OBJECT(icon_renderer->drop_file));
         icon_renderer->drop_file =(gpointer) g_value_dup_object(value);
         break;
 
     case PROP_FILE:
-        if (G_LIKELY(icon_renderer->file != NULL))
+        if (icon_renderer->file != NULL)
             g_object_unref(G_OBJECT(icon_renderer->file));
         icon_renderer->file =(gpointer) g_value_dup_object(value);
         break;
@@ -256,8 +256,11 @@ static void iconrender_get_preferred_width(GtkCellRenderer *renderer,
 
     gtk_cell_renderer_get_padding(renderer, &xpad, NULL);
 
-    if (G_LIKELY(minimum)) *minimum =(gint) xpad * 2 + icon_renderer->size;
-    if (G_LIKELY(natural)) *natural =(gint) xpad * 2 + icon_renderer->size;
+    if (minimum)
+        *minimum =(gint) xpad * 2 + icon_renderer->size;
+
+    if (natural)
+        *natural =(gint) xpad * 2 + icon_renderer->size;
 }
 
 static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
@@ -272,8 +275,11 @@ static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
 
     gtk_cell_renderer_get_padding(renderer, NULL, &ypad);
 
-    if (G_LIKELY(minimum)) *minimum =(gint) ypad * 2 + icon_renderer->size;
-    if (G_LIKELY(natural)) *natural =(gint) ypad * 2 + icon_renderer->size;
+    if (minimum)
+        *minimum =(gint) ypad * 2 + icon_renderer->size;
+
+    if (natural)
+        *natural =(gint) ypad * 2 + icon_renderer->size;
 }
 
 static void iconrender_render(GtkCellRenderer     *renderer,
@@ -299,10 +305,10 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     gboolean                color_lighten;
     gboolean                is_expanded;
 
-    if (G_UNLIKELY(icon_renderer->file == NULL))
+    if (icon_renderer->file == NULL)
         return;
 
-    if (G_UNLIKELY(!gdk_cairo_get_clip_rectangle(cr, &clip_area)))
+    if (!gdk_cairo_get_clip_rectangle(cr, &clip_area))
         return;
 
     g_object_get(renderer, "is-expanded", &is_expanded, NULL);
@@ -318,14 +324,14 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
     icon_factory = iconfact_get_for_icon_theme(icon_theme);
     icon = iconfact_load_file_icon(icon_factory, icon_renderer->file, icon_state, icon_renderer->size);
-    if (G_UNLIKELY(icon == NULL))
+    if (icon == NULL)
     {
         g_object_unref(G_OBJECT(icon_factory));
         return;
     }
 
     // pre-light the item if we're dragging about it
-    if (G_UNLIKELY(icon_state == FILE_ICON_STATE_DROP))
+    if (icon_state == FILE_ICON_STATE_DROP)
         flags |= GTK_CELL_RENDERER_PRELIT;
 
     // determine the real icon size
@@ -333,7 +339,8 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     icon_area.height = gdk_pixbuf_get_height(icon);
 
     // scale down the icon on-demand
-    if (G_UNLIKELY(icon_area.width > cell_area->width || icon_area.height > cell_area->height))
+    if (icon_area.width > cell_area->width
+        || icon_area.height > cell_area->height)
     {
         // scale down to fit
         temp = pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
@@ -379,7 +386,8 @@ static void iconrender_render(GtkCellRenderer     *renderer,
         cairo_paint_with_alpha(cr, alpha);
 
         // check if we should render an insensitive icon
-        if (G_UNLIKELY(gtk_widget_get_state_flags(widget) == GTK_STATE_FLAG_INSENSITIVE || !gtk_cell_renderer_get_sensitive(renderer)))
+        if (gtk_widget_get_state_flags(widget) == GTK_STATE_FLAG_INSENSITIVE
+            || !gtk_cell_renderer_get_sensitive(renderer))
             _iconrender_color_insensitive(cr,widget);
 
         // paint the lighten mask

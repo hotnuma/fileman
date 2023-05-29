@@ -98,7 +98,7 @@ GList* io_scan_directory(ThunarJob           *job,
         // query info of the child
         info = g_file_enumerator_next_file(enumerator, cancellable, &err);
 
-        if (G_UNLIKELY(info == NULL))
+        if (info == NULL)
             break;
 
         is_mounted = TRUE;
@@ -152,7 +152,7 @@ GList* io_scan_directory(ThunarJob           *job,
     // release the enumerator
     g_object_unref(enumerator);
 
-    if (G_UNLIKELY(err != NULL))
+    if (err != NULL)
     {
         g_propagate_error(error, err);
         e_list_free(files);

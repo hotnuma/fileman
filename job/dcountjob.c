@@ -147,7 +147,7 @@ static gboolean dcjob_execute(ExoJob *job, GError **error)
     {
         gfile = th_file_get_file(THUNARFILE(lp->data));
         success = _dcjob_process(job, gfile, NULL, NULL, &err);
-        if (G_UNLIKELY(!success))
+        if (!success)
             break;
     }
 

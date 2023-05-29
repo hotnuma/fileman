@@ -248,7 +248,7 @@ ClipboardManager* clipman_get_for_display(GdkDisplay *display)
     e_return_val_if_fail(GDK_IS_DISPLAY(display), NULL);
 
     // generate the quark on-demand
-    if (G_UNLIKELY(_clipman_quark == 0))
+    if (_clipman_quark == 0)
         _clipman_quark = g_quark_from_static_string("thunar-clipboard-manager");
 
     // figure out the clipboard for the given display
@@ -259,7 +259,7 @@ ClipboardManager* clipman_get_for_display(GdkDisplay *display)
     // check if a clipboard manager exists
     ClipboardManager *manager = g_object_get_qdata(G_OBJECT(clipboard),
                                                    _clipman_quark);
-    if (G_LIKELY(manager != NULL))
+    if (manager != NULL)
     {
         g_object_ref(G_OBJECT(manager));
         return manager;
@@ -535,7 +535,7 @@ void clipman_paste_files(ClipboardManager *manager, GFile *target_file,
     request->widget = widget;
 
     // take a reference on the closure(if any)
-    if (G_LIKELY(new_files_closure != NULL))
+    if (new_files_closure != NULL)
     {
         request->new_files_closure = new_files_closure;
         g_closure_ref(new_files_closure);
@@ -545,7 +545,7 @@ void clipman_paste_files(ClipboardManager *manager, GFile *target_file,
     /* get notified when the widget is destroyed prior to
      * completing the clipboard contents retrieval
      */
-    if (G_LIKELY(request->widget != NULL))
+    if (request->widget != NULL)
         g_object_add_weak_pointer(G_OBJECT(request->widget), (gpointer) &request->widget);
 
     // schedule the request
@@ -567,7 +567,7 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     GList *file_list = NULL;
 
     // check whether the retrieval worked
-    if (G_LIKELY(gtk_selection_data_get_length(seldata) > 0))
+    if (gtk_selection_data_get_length(seldata) > 0)
     {
         // be sure the selection data is zero-terminated
         gchar *data;
@@ -591,11 +591,11 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     }
 
     // perform the action if possible
-    if (G_LIKELY(file_list != NULL))
+    if (file_list != NULL)
     {
         Application *application = application_get();
 
-        if (G_LIKELY(path_copy))
+        if (path_copy)
             application_copy_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
         else
             application_move_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
@@ -607,7 +607,7 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
          * (gtk_clipboard_clear takes care of not clearing
          * the selection if we don't own it)
          */
-        if (G_UNLIKELY(!path_copy))
+        if (!path_copy)
             gtk_clipboard_clear(manager->clipboard);
 
         /* check the contents of the clipboard again if either the Xserver or
@@ -624,10 +624,10 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     }
 
     // free the request
-    if (G_LIKELY(request->widget != NULL))
+    if (request->widget != NULL)
         g_object_remove_weak_pointer(G_OBJECT(request->widget),(gpointer) &request->widget);
 
-    if (G_LIKELY(request->new_files_closure != NULL))
+    if (request->new_files_closure != NULL)
         g_closure_unref(request->new_files_closure);
 
     g_object_unref(G_OBJECT(request->manager));

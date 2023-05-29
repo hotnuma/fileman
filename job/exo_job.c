@@ -279,7 +279,7 @@ static gboolean _exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
     if (!success)
     {
         // clear existing error
-        if (G_UNLIKELY(job->priv->error != NULL))
+        if (job->priv->error != NULL)
             g_error_free(job->priv->error);
 
         // take the error

@@ -231,7 +231,7 @@ static gboolean _appcombo_row_separator(GtkTreeModel *model, GtkTreeIter *iter,
 
     // determine the value of the "name" column
     gtk_tree_model_get(model, iter, APPCOMBO_STORE_COLUMN_NAME, &name, -1);
-    if (G_LIKELY(name != NULL))
+    if (name != NULL)
     {
         g_free(name);
         return FALSE;
@@ -248,11 +248,11 @@ void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
     e_return_if_fail(file == NULL || IS_THUNARFILE(file));
 
     // check if we already use that file
-    if (G_UNLIKELY(chooser_button->file == file))
+    if (chooser_button->file == file)
         return;
 
     // disconnect from the previous file
-    if (G_UNLIKELY(chooser_button->file != NULL))
+    if (chooser_button->file != NULL)
     {
         g_signal_handlers_disconnect_by_func(G_OBJECT(chooser_button->file), _appcombo_file_changed, chooser_button);
         g_object_unref(G_OBJECT(chooser_button->file));
@@ -262,7 +262,7 @@ void appcombo_set_file(AppCombo *chooser_button, ThunarFile *file)
     chooser_button->file = file;
 
     // connect to the new file
-    if (G_LIKELY(file != NULL))
+    if (file != NULL)
     {
         // take a reference
         g_object_ref(G_OBJECT(file));
@@ -293,7 +293,7 @@ static void _appcombo_changed(GtkComboBox *combo_box)
     e_return_if_fail(GTK_IS_LIST_STORE(chooser_button->store));
 
     // verify that we still have a valid file
-    if (G_UNLIKELY(chooser_button->file == NULL))
+    if (chooser_button->file == NULL)
         return;
 
     // get the selected item in the combo box
@@ -305,7 +305,7 @@ static void _appcombo_changed(GtkComboBox *combo_box)
                         APPCOMBO_STORE_COLUMN_APPLICATION,
                         &app_info, -1);
 
-    if (G_LIKELY(app_info != NULL))
+    if (app_info != NULL)
     {
         // determine the mime info for the file
         content_type = th_file_get_content_type(chooser_button->file);
@@ -358,7 +358,7 @@ static void _appcombo_chooser_dialog(AppCombo *chooser_button)
 
     // determine the toplevel window for the chooser
     toplevel = gtk_widget_get_toplevel(GTK_WIDGET(chooser_button));
-    if (G_UNLIKELY(toplevel == NULL))
+    if (toplevel == NULL)
         return;
 
     // popup the application chooser dialog
@@ -422,7 +422,7 @@ static void _appcombo_file_changed(AppCombo *chooser_button, ThunarFile *file)
 
         // determine the default application for that content type
         app_info = g_app_info_get_default_for_type(content_type, FALSE);
-        if (G_LIKELY(app_info != NULL))
+        if (app_info != NULL)
         {
             // determine all applications that claim to be able to handle the file
             app_infos = g_app_info_get_all_for_type(content_type);

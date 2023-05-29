@@ -179,7 +179,7 @@ GType fileinfolist_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         type = g_boxed_type_register_static(I_("FileInfoList"),
                                             (GBoxedCopyFunc) e_list_copy,

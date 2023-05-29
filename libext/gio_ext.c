@@ -170,7 +170,7 @@ gchar* e_file_get_display_name(GFile *file)
     e_return_val_if_fail(G_IS_FILE(file), NULL);
 
     base_name = g_file_get_basename(file);
-    if (G_LIKELY(base_name != NULL))
+    if (base_name != NULL)
     {
         if (strcmp(base_name, "/") == 0)
             display_name = g_strdup(_("File System"));
@@ -238,7 +238,7 @@ gchar* e_file_get_display_name_remote(GFile *mount_point)
             }
 
             // extract the path and hostname from the string
-            if (G_LIKELY(path != NULL))
+            if (path != NULL)
             {
                 hostname = g_strndup(p, path - p);
             }
@@ -402,7 +402,7 @@ gboolean e_file_is_root(GFile *file)
     gboolean is_root = TRUE;
 
     parent = g_file_get_parent(file);
-    if (G_UNLIKELY(parent != NULL))
+    if (parent != NULL)
     {
         is_root = FALSE;
         g_object_unref(parent);
@@ -494,7 +494,7 @@ GType e_filelist_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         type = g_boxed_type_register_static(I_("ThunarGFileList"),
                                             (GBoxedCopyFunc) e_list_copy,
@@ -636,11 +636,11 @@ GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
     key_file = g_key_file_new();
 
     // try to parse the key file from the contents of the file
-    if (G_LIKELY(length == 0
-                  || g_key_file_load_from_data(key_file, contents, length,
-                          G_KEY_FILE_KEEP_COMMENTS
-                          | G_KEY_FILE_KEEP_TRANSLATIONS,
-                          error)))
+    if (length == 0
+        || g_key_file_load_from_data(key_file, contents, length,
+                                     G_KEY_FILE_KEEP_COMMENTS
+                                     | G_KEY_FILE_KEEP_TRANSLATIONS,
+                                     error))
     {
         g_free(contents);
         return key_file;

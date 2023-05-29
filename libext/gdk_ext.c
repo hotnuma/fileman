@@ -40,7 +40,7 @@ void edk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
     cairo_surface_t *surface;
     static GQuark    surface_quark = 0;
 
-    if (G_UNLIKELY(surface_quark == 0))
+    if (surface_quark == 0)
         surface_quark = g_quark_from_static_string("thunar-gdk-surface");
 
     // peek if there is already a surface
@@ -96,7 +96,7 @@ static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf)
     cairo_surface_set_user_data(surface, &_cairo_key, cairo_pixels, g_free);
 
     // convert format
-    if (G_UNLIKELY(n_channels == 3))
+    if (n_channels == 3)
     {
         for (j = height; j; j--)
         {

@@ -83,7 +83,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
 
     // append the various items
     for (n = 0; n < G_N_ELEMENTS(dnd_action_items); ++n)
-        if (G_LIKELY((dnd_actions & dnd_action_items[n]) != 0))
+        if ((dnd_actions & dnd_action_items[n]) != 0)
         {
             G_GNUC_BEGIN_IGNORE_DEPRECATIONS
             item = gtk_image_menu_item_new_with_mnemonic(_(dnd_action_names[n]));
@@ -95,7 +95,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
             gtk_widget_show(item);
 
             // add image to the menu item
-            if (G_LIKELY(dnd_action_icons[n] != NULL))
+            if (dnd_action_icons[n] != NULL)
             {
                 image = gtk_image_new_from_icon_name(dnd_action_icons[n], GTK_ICON_SIZE_MENU);
                 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
@@ -112,7 +112,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
     // determine the toplevel window the widget belongs to
     window = gtk_widget_get_toplevel(widget);
 
-    if (G_LIKELY(window != NULL && gtk_widget_get_toplevel(window)))
+    if (window != NULL && gtk_widget_get_toplevel(window))
     {
         // check if we can resolve all paths
         for (lp = path_list; lp != NULL; lp = lp->next)
@@ -120,7 +120,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
             // try to resolve this path
             file = th_file_cache_lookup(lp->data);
 
-            if (G_LIKELY(file != NULL))
+            if (file != NULL)
                 file_list = g_list_prepend(file_list, file);
             else
                 break;
@@ -128,7 +128,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
 
 #if 0
         // check if we resolved all paths(and have atleast one file)
-        if (G_LIKELY(file_list != NULL && lp == NULL))
+        if (file_list != NULL && lp == NULL)
         {
             GList                  *providers = NULL;
             // load the menu providers from the provider factory
@@ -145,7 +145,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
             g_list_free(providers);
 
             // check if we have at least one item
-            if (G_UNLIKELY(items != NULL))
+            if (items != NULL)
             {
                 // add menu items for all items
                 for (lp = items; lp != NULL; lp = lp->next)
@@ -243,7 +243,7 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
     {
         // TODO any chance to determine the working dir here?
         succeed = th_file_execute(file, NULL, widget, file_list, NULL, &error);
-        if (G_UNLIKELY(!succeed))
+        if (!succeed)
         {
             // display an error to the user
             dialog_error(widget, error, _("Failed to execute file \"%s\""), th_file_get_display_name(file));

@@ -327,11 +327,11 @@ static void _progressview_set_job(ProgressView *view, ThunarJob *job)
     e_return_if_fail(job == NULL || THUNAR_IS_JOB(job));
 
     // check if we're already on that job
-    if (G_UNLIKELY(view->job == job))
+    if (view->job == job)
         return;
 
     // disconnect from the previous job
-    if (G_LIKELY(view->job != NULL))
+    if (view->job != NULL)
     {
         g_signal_handlers_disconnect_matched(view->job,
                                              G_SIGNAL_MATCH_DATA,
@@ -344,7 +344,7 @@ static void _progressview_set_job(ProgressView *view, ThunarJob *job)
     view->job = job;
 
     // connect to the new job
-    if (G_LIKELY(job != NULL))
+    if (job != NULL)
     {
         g_object_ref(job);
 

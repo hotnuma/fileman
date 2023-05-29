@@ -108,7 +108,7 @@ static void filemon_init(FileMonitor *monitor)
  **/
 FileMonitor* filemon_get_default()
 {
-    if (G_UNLIKELY(_filemon_default == NULL))
+    if (_filemon_default == NULL)
     {
         // allocate the default monitor
         _filemon_default = g_object_new(TYPE_FILEMONITOR, NULL);
@@ -137,7 +137,7 @@ void filemon_file_changed(ThunarFile *file)
 {
     e_return_if_fail(IS_THUNARFILE(file));
 
-    if (G_LIKELY(_filemon_default != NULL))
+    if (_filemon_default != NULL)
         g_signal_emit(G_OBJECT(_filemon_default),
                       _filemon_signals[FILE_CHANGED], 0, file);
 }
@@ -154,7 +154,7 @@ void filemon_file_destroyed(ThunarFile *file)
 {
     e_return_if_fail(IS_THUNARFILE(file));
 
-    if (G_LIKELY(_filemon_default != NULL))
+    if (_filemon_default != NULL)
         g_signal_emit(G_OBJECT(_filemon_default),
                       _filemon_signals[FILE_DESTROYED], 0, file);
 }

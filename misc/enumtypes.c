@@ -30,7 +30,7 @@ GType thunar_column_get_type(void)
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         static const GEnumValue values[] =
         {
@@ -109,7 +109,7 @@ GType thunar_date_style_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         static const GEnumValue values[] =
         {
@@ -196,7 +196,7 @@ GType thunar_job_response_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         static const GFlagsValue values[] =
         {
@@ -242,7 +242,7 @@ GType parallel_copy_mode_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         static const GEnumValue values[] =
         {
@@ -279,7 +279,7 @@ GType thunar_recursive_permissions_get_type(void)
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         static const GEnumValue values[] =
         {
@@ -312,7 +312,7 @@ GType thunar_icon_size_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         static const GEnumValue values[] =
         {
@@ -393,7 +393,7 @@ GType thunar_zoom_level_get_type()
 {
     static GType type = G_TYPE_INVALID;
 
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
+    if (type == G_TYPE_INVALID)
     {
         static const GEnumValue values[] =
         {

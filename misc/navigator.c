@@ -67,7 +67,7 @@ static void navigator_base_init(gpointer klass)
 {
     static gboolean initialized = FALSE;
 
-    if (G_UNLIKELY(!initialized))
+    if (!initialized)
     {
         /**
          * ThunarNavigator::change-directory:

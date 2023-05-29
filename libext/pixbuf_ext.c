@@ -69,7 +69,7 @@ GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
     // check if there's a good reason to use MMX
-    if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
+    if (has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 && (width * height) % 2 == 0)
     {
         __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
         __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
@@ -187,11 +187,11 @@ GdkPixbuf* pixbuf_scale_down(GdkPixbuf *source, gboolean preserve_ratio,
     source_height = gdk_pixbuf_get_height(source);
 
     // check if we need to scale
-    if(G_UNLIKELY(source_width <= dest_width && source_height <= dest_height))
+    if (source_width <= dest_width && source_height <= dest_height)
         return GDK_PIXBUF(g_object_ref(G_OBJECT(source)));
 
     // check if aspect ratio should be preserved
-    if (G_LIKELY(preserve_ratio))
+    if (preserve_ratio)
     {
         // calculate the new dimensions
         wratio =(gdouble) source_width  /(gdouble) dest_width;
@@ -244,7 +244,7 @@ GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
     // check if there's a good reason to use MMX
-    if(G_LIKELY(has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 &&(width * height) % 2 == 0))
+    if (has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 && (width * height) % 2 == 0)
     {
         __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
         __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
@@ -311,7 +311,7 @@ GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
                 *pixdst++ = _lighten_channel(*pixsrc++);
                 *pixdst++ = _lighten_channel(*pixsrc++);
 
-                if(G_LIKELY(has_alpha))
+                if (has_alpha)
                     *pixdst++ = *pixsrc++;
             }
         }
@@ -325,7 +325,7 @@ static inline guchar _lighten_channel(guchar cur_value)
     gint new_value = cur_value;
 
     new_value += 24 +(new_value >> 3);
-    if(G_UNLIKELY(new_value > 255))
+    if (new_value > 255)
         new_value = 255;
 
     return(guchar) new_value;

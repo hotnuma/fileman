@@ -153,7 +153,7 @@ ThunarJob* simplejob_launch(SimpleJobFunc func, guint n_param_values, ...)
         G_VALUE_COLLECT(&value, var_args, 0, &error_message);
 
         // check if an error occurred
-        if (G_UNLIKELY(error_message != NULL))
+        if (error_message != NULL)
         {
             g_error("%s: %s", G_STRLOC, error_message);
             g_free(error_message);

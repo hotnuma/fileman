@@ -113,10 +113,10 @@ static void shrender_finalize(GObject *object)
 {
     ShortcutRenderer *renderer = SHORTCUT_RENDERER(object);
 
-    if (G_UNLIKELY(renderer->device != NULL))
+    if (renderer->device != NULL)
         g_object_unref(renderer->device);
 
-    if (G_UNLIKELY(renderer->gicon != NULL))
+    if (renderer->gicon != NULL)
         g_object_unref(renderer->gicon);
 
     G_OBJECT_CLASS(shrender_parent_class)->finalize(object);
@@ -155,13 +155,13 @@ static void shrender_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_DEVICE:
-        if (G_UNLIKELY(renderer->device != NULL))
+        if (renderer->device != NULL)
             g_object_unref(renderer->device);
         renderer->device = g_value_dup_object(value);
         break;
 
     case PROP_GICON:
-        if (G_UNLIKELY(renderer->gicon != NULL))
+        if (renderer->gicon != NULL)
             g_object_unref(renderer->gicon);
         renderer->gicon = g_value_dup_object(value);
         break;
@@ -193,8 +193,8 @@ static void shrender_render(GtkCellRenderer *renderer,
         return;
 
     // check if we have a volume set
-    if (G_UNLIKELY(shortcuts_icon_renderer->gicon != NULL
-                    ||  shortcuts_icon_renderer->device != NULL))
+    if (shortcuts_icon_renderer->gicon != NULL
+        ||  shortcuts_icon_renderer->device != NULL)
     {
         // load the volume icon
         icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
@@ -212,21 +212,22 @@ static void shrender_render(GtkCellRenderer *renderer,
         g_object_unref(gicon);
 
         // try to load the icon
-        if (G_LIKELY(icon_info != NULL))
+        if (icon_info != NULL)
         {
             icon = gtk_icon_info_load_icon(icon_info, NULL);
             g_object_unref(icon_info);
         }
 
         // render the icon(if any)
-        if (G_LIKELY(icon != NULL))
+        if (icon != NULL)
         {
             // determine the real icon size
             icon_area.width = gdk_pixbuf_get_width(icon);
             icon_area.height = gdk_pixbuf_get_height(icon);
 
             // scale down the icon on-demand
-            if (G_UNLIKELY(icon_area.width > cell_area->width || icon_area.height > cell_area->height))
+            if (icon_area.width > cell_area->width
+                || icon_area.height > cell_area->height)
             {
                 // scale down to fit
                 temp = pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));

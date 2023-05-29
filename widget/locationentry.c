@@ -267,14 +267,14 @@ static void locentry_set_current_directory(ThunarNavigator *navigator,
     LocationEntry *location_entry = LOCATIONENTRY(navigator);
 
     // disconnect from the previous directory
-    if (G_LIKELY(location_entry->current_directory != NULL))
+    if (location_entry->current_directory != NULL)
         g_object_unref(G_OBJECT(location_entry->current_directory));
 
     // activate the new directory
     location_entry->current_directory = current_directory;
 
     // connect to the new directory
-    if (G_LIKELY(current_directory != NULL))
+    if (current_directory != NULL)
         g_object_ref(G_OBJECT(current_directory));
 
     // notify listeners
@@ -288,7 +288,7 @@ void locentry_accept_focus(LocationEntry *location_entry,
     gtk_widget_grab_focus(location_entry->path_entry);
 
     // check if we have an initial text for the location bar
-    if (G_LIKELY(initial_text != NULL))
+    if (initial_text != NULL)
     {
         // setup the new text
         gtk_entry_set_text(GTK_ENTRY(location_entry->path_entry), initial_text);
@@ -313,7 +313,7 @@ static void locentry_activate(GtkWidget *path_entry, LocationEntry *location_ent
     // determine the current file from the path entry
     ThunarFile *file = pathentry_get_current_file(PATHENTRY(path_entry));
 
-    if (G_UNLIKELY(file == NULL))
+    if (file == NULL)
         return;
 
     browser_poke_file(THUNARBROWSER(location_entry),
@@ -372,7 +372,7 @@ static void locentry_open_or_launch(LocationEntry *location_entry,
             th_file_launch(file, location_entry->path_entry, NULL, &error);
 
             // be sure to reset the current file of the path entry
-            if (G_LIKELY(location_entry->current_directory != NULL))
+            if (location_entry->current_directory != NULL)
             {
                 pathentry_set_current_file(PATHENTRY(location_entry->path_entry),
                                                     location_entry->current_directory);

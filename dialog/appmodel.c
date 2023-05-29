@@ -241,7 +241,7 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
     gboolean    inserted_infos = FALSE;
     GtkTreeIter child_iter;
 
-    if (G_LIKELY(app_infos != NULL))
+    if (app_infos != NULL)
     {
         // insert the program items
         for (GList *lp = app_infos; lp != NULL; lp = lp->next)
@@ -312,7 +312,7 @@ static GdkPixbuf* _pixbuf_from_gicon(GtkWidget *widget, GIcon *gicon,
                                        GTK_ICON_LOOKUP_USE_BUILTIN
                                        | GTK_ICON_LOOKUP_FORCE_SIZE);
 
-    if (G_UNLIKELY(icon_info == NULL))
+    if (icon_info == NULL)
     {
         //g_print("_pixbuf_from_gicon : %s : icon_info = null\n", id);
 
@@ -347,7 +347,7 @@ static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget, const gchar *id)
                                    GTK_ICON_LOOKUP_USE_BUILTIN
                                    | GTK_ICON_LOOKUP_FORCE_SIZE);
 
-    if (G_UNLIKELY(icon_info == NULL))
+    if (icon_info == NULL)
     {
         //g_print("_pixbuf_get_default : %s : icon_info = null\n", id);
 
@@ -381,7 +381,7 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
                        APPCHOOSER_COLUMN_APPLICATION, &app_info,
                        -1);
 
-    if (G_UNLIKELY(app_info == NULL))
+    if (app_info == NULL)
         return TRUE;
 
     // try to remove support for this content type
@@ -403,7 +403,7 @@ gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **err
     g_object_unref(app_info);
 
     // if the removal was successfull, delete the row from the model
-    if (G_LIKELY(succeed))
+    if (succeed)
         gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
 
     return succeed;

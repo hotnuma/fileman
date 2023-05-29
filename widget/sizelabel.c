@@ -147,7 +147,7 @@ static void szlabel_finalize(GObject *object)
     SizeLabel *size_label = SIZELABEL(object);
 
     // cancel the pending job(if any)
-    if (G_UNLIKELY(size_label->job != NULL))
+    if (size_label->job != NULL)
     {
         g_signal_handlers_disconnect_matched(G_OBJECT(size_label->job), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
         exo_job_cancel(EXOJOB(size_label->job));
@@ -271,10 +271,10 @@ static gboolean _szlabel_button_press_event(GtkWidget *ebox,
     e_return_val_if_fail(IS_SIZELABEL(size_label), FALSE);
 
     // left button press on the spinner cancels the calculation
-    if (G_LIKELY(event->button == 1))
+    if (event->button == 1)
     {
         // cancel the pending job(if any)
-        if (G_UNLIKELY(size_label->job != NULL))
+        if (size_label->job != NULL)
         {
             g_signal_handlers_disconnect_matched(
                         size_label->job, G_SIGNAL_MATCH_DATA,
@@ -305,7 +305,7 @@ static void _szlabel_files_changed(SizeLabel *size_label)
     e_return_if_fail(IS_THUNARFILE(size_label->files->data));
 
     // cancel the pending job(if any)
-    if (G_UNLIKELY(size_label->job != NULL))
+    if (size_label->job != NULL)
     {
         g_signal_handlers_disconnect_matched(size_label->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
         exo_job_cancel(EXOJOB(size_label->job));
@@ -397,7 +397,7 @@ static void _szlabel_status_update(DeepCountJob *job,
     // determine the total number of items
     n = file_count + directory_count + unreadable_directory_count;
 
-    if (G_LIKELY(n > unreadable_directory_count))
+    if (n > unreadable_directory_count)
     {
         // update the label
         size_string = g_format_size_full(total_size, G_FORMAT_SIZE_LONG_FORMAT |(size_label->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));

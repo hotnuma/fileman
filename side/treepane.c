@@ -207,14 +207,14 @@ static void treepane_set_current_directory(ThunarNavigator *navigator,
     TreePane *tree_pane = TREEPANE(navigator);
 
     // disconnect from the previously set current directory
-    if (G_LIKELY(tree_pane->current_directory != NULL))
+    if (tree_pane->current_directory != NULL)
         g_object_unref(G_OBJECT(tree_pane->current_directory));
 
     // activate the new directory
     tree_pane->current_directory = current_directory;
 
     // connect to the new directory
-    if (G_LIKELY(current_directory != NULL))
+    if (current_directory != NULL)
         g_object_ref(G_OBJECT(current_directory));
 
     // notify listeners
@@ -234,7 +234,7 @@ static void treepane_set_show_hidden(SidePane *side_pane,
     show_hidden = !!show_hidden;
 
     // check if we have a new setting
-    if (G_UNLIKELY(tree_pane->show_hidden != show_hidden))
+    if (tree_pane->show_hidden != show_hidden)
     {
         // remember the new setting
         tree_pane->show_hidden = show_hidden;
