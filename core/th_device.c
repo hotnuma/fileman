@@ -558,7 +558,7 @@ void th_device_unmount(ThunarDevice         *device,
     else
         mount = NULL;
 
-    if (G_UNLIKELY(mount == NULL))
+    if (mount == NULL)
         return;
 
     // only handle mounts that can be unmounted here

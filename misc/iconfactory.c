@@ -164,7 +164,7 @@ static void iconfact_dispose(GObject *object)
 
     e_return_if_fail(IS_ICONFACTORY(factory));
 
-    if (G_UNLIKELY(factory->sweep_timer_id != 0))
+    if (factory->sweep_timer_id != 0)
         g_source_remove(factory->sweep_timer_id);
 
     G_OBJECT_CLASS(iconfact_parent_class)->dispose(object);
@@ -183,7 +183,7 @@ static void iconfact_finalize(GObject *object)
     g_signal_remove_emission_hook(g_signal_lookup("changed", GTK_TYPE_ICON_THEME), factory->changed_hook_id);
 
     // disconnect from the associated icon theme(if any)
-    if (G_LIKELY(factory->icon_theme != NULL))
+    if (factory->icon_theme != NULL)
     {
         g_object_set_qdata(G_OBJECT(factory->icon_theme), _iconfact_quark, NULL);
         g_object_unref(G_OBJECT(factory->icon_theme));
@@ -323,7 +323,7 @@ static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
                                       &lookup_key, NULL, (gpointer) &pixbuf))
     {
         // check if we have to load a file instead of a themed icon
-        if (G_UNLIKELY(g_path_is_absolute(name)))
+        if (g_path_is_absolute(name))
         {
             // load the file directly
             pixbuf = _iconfact_load_from_file(factory, name, size);
@@ -336,7 +336,7 @@ static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
 
             // check if the icon theme contains an icon of that name
             icon_info = gtk_icon_theme_lookup_icon(factory->icon_theme, name, size, GTK_ICON_LOOKUP_FORCE_SIZE);
-            if (G_LIKELY(icon_info != NULL))
+            if (icon_info != NULL)
             {
                 // try to load the pixbuf from the icon info
                 pixbuf = gtk_icon_info_load_icon(icon_info, NULL);
@@ -347,7 +347,7 @@ static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
         }
 
         // use fallback icon if no pixbuf could be loaded
-        if (G_UNLIKELY(pixbuf == NULL))
+        if (pixbuf == NULL)
         {
             // check if we are allowed to return the fallback icon
             if (!wants_default)
@@ -366,7 +366,7 @@ static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
     }
 
     // schedule the sweeper
-    if (G_UNLIKELY(factory->sweep_timer_id == 0))
+    if (factory->sweep_timer_id == 0)
     {
         factory->sweep_timer_id =
             g_timeout_add_seconds_full(G_PRIORITY_LOW,
@@ -400,7 +400,7 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
     // try to load the image from the file
     pixbuf = gdk_pixbuf_new_from_file(path, NULL);
 
-    if (G_LIKELY(pixbuf != NULL))
+    if (pixbuf != NULL)
     {
         // determine the dimensions of the pixbuf
         width = gdk_pixbuf_get_width(pixbuf);
@@ -409,7 +409,7 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
         needs_frame = FALSE;
 
         // be sure to make framed pixbufs fit into the size
-        if (G_LIKELY(needs_frame))
+        if (needs_frame)
         {
             max_width = size - (3 + 6);
             max_height = size - (3 + 6);
@@ -421,7 +421,7 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
         }
 
         // scale down the icon(if required)
-        if (G_LIKELY(width > max_width || height > max_height))
+        if (width > max_width || height > max_height)
         {
             // scale down to the required size
             tmp = pixbuf_scale_down(pixbuf, TRUE, MAX(1, max_height), MAX(1, max_height));
@@ -471,7 +471,7 @@ IconFactory* iconfact_get_default()
 
     static IconFactory *factory = NULL;
 
-    if (G_UNLIKELY(factory == NULL))
+    if (factory == NULL)
     {
         factory = iconfact_get_for_icon_theme(gtk_icon_theme_get_default());
         g_object_add_weak_pointer(G_OBJECT(factory),(gpointer) &factory);
@@ -493,12 +493,12 @@ IconFactory* iconfact_get_for_icon_theme(GtkIconTheme *icon_theme)
     e_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
     // generate the quark on-demand
-    if (G_UNLIKELY(_iconfact_quark == 0))
+    if (_iconfact_quark == 0)
         _iconfact_quark = g_quark_from_static_string("thunar-icon-factory");
 
     // check if the given icon theme already knows about an icon factory
     factory = g_object_get_qdata(G_OBJECT(icon_theme), _iconfact_quark);
-    if (G_UNLIKELY(factory == NULL))
+    if (factory == NULL)
     {
         // allocate a new factory and connect it to the icon theme
         factory = g_object_new(TYPE_ICONFACTORY, NULL);
@@ -529,10 +529,10 @@ GdkPixbuf* iconfact_load_icon(IconFactory *factory, const gchar *name,
     /* cannot happen unless there's no XSETTINGS manager
      * for the default screen, but just in case...
      */
-    if (G_UNLIKELY(!name ||!*name))
+    if (!name ||!*name)
     {
         // check if the caller will happly accept the fallback icon
-        if (G_LIKELY(wants_default))
+        if (wants_default)
             return _iconfact_load_fallback(factory, size);
         else
             return NULL;
@@ -575,19 +575,19 @@ GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
         // try to load the icon
         icon = _iconfact_lookup_icon(factory, custom_icon, icon_size, FALSE);
 
-        if (G_LIKELY(icon != NULL))
+        if (icon != NULL)
             return icon;
     }
 
 
     // lookup the icon name for the icon in the given state and load the icon
-    if (G_LIKELY(icon == NULL))
+    if (icon == NULL)
     {
         const gchar *icon_name = th_file_get_icon_name(file, icon_state, factory->icon_theme);
         icon = iconfact_load_icon(factory, icon_name, icon_size, TRUE);
     }
 
-    if (G_LIKELY(icon != NULL))
+    if (icon != NULL)
     {
         store = g_slice_new(IconStore);
         store->icon_size = icon_size;

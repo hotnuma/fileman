@@ -70,12 +70,12 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
 
     GIcon *icon = NULL;
     // try to load the icon
-    if (G_LIKELY(content_type != NULL))
+    if (content_type != NULL)
         icon = g_content_type_get_icon(content_type);
 
     GtkWidget *image;
     // setup the image
-    if (G_LIKELY(icon != NULL))
+    if (icon != NULL)
     {
         image = g_object_new(GTK_TYPE_IMAGE, "xpad", 6, "ypad", 6, NULL);
         gtk_image_set_from_gicon(GTK_IMAGE(image), icon, GTK_ICON_SIZE_DIALOG);
@@ -131,7 +131,7 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
 
         // convert the UTF-8 filename to the local file system encoding
         name = g_filename_from_utf8(filename, -1, NULL, NULL, &error);
-        if (G_UNLIKELY(name == NULL))
+        if (name == NULL)
         {
             // display an error message
             dialog_error(dialog, error, _("Cannot convert filename \"%s\" to the local encoding"), filename);
@@ -191,7 +191,7 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     g_free(title);
 
     // move the dialog to the appropriate screen
-    if (G_UNLIKELY(window == NULL && screen != NULL))
+    if (window == NULL && screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
     grid = gtk_grid_new();
@@ -251,7 +251,7 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     layout_width +=(layout_offset * 2) +(12 * 4) + 48; // 12px free space in entry
 
     // parent window width
-    if (G_LIKELY(window != NULL))
+    if (window != NULL)
     {
         // keep below 90% of the parent window width
         gtk_window_get_size(GTK_WINDOW(window), &parent_width, NULL);
@@ -267,7 +267,7 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
 
     // run the dialog
     response = gtk_dialog_run(GTK_DIALOG(dialog));
-    if (G_LIKELY(response == GTK_RESPONSE_OK))
+    if (response == GTK_RESPONSE_OK)
     {
         // hide the dialog
         gtk_widget_hide(dialog);
@@ -276,7 +276,7 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
         text = xfce_filename_input_get_text(filename_input);
 
         // check if we have a new name here
-        if (G_LIKELY(g_strcmp0(filename, text) != 0))
+        if (g_strcmp0(filename, text) != 0)
         {
             // try to rename the file
             job = io_rename_file(file, text);
@@ -284,7 +284,7 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     }
 
     // cleanup
-    if (G_UNLIKELY(response == GTK_RESPONSE_NONE))
+    if (response == GTK_RESPONSE_NONE)
         return job;
 
     // unregister handler
@@ -313,7 +313,7 @@ static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file)
 
     // check if the filename contains an extension
     ext = util_str_get_extension(filename);
-    if (G_UNLIKELY(ext == NULL))
+    if (ext == NULL)
         return;
 
     // grab focus to the entry first, else the selection will be altered later
@@ -323,7 +323,7 @@ static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file)
     offset = g_utf8_pointer_to_offset(filename, ext);
 
     // select the text prior to the dot
-    if (G_LIKELY(offset > 0))
+    if (offset > 0)
         gtk_editable_select_region(GTK_EDITABLE(entry), 0, offset);
 }
 
@@ -344,7 +344,7 @@ gboolean dialog_folder_trash(GtkWindow *window)
                                         "%s",
                                         message);
 
-    //if (G_UNLIKELY(window == NULL && screen != NULL))
+    //if (window == NULL && screen != NULL))
     //    gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
     gtk_dialog_add_buttons(GTK_DIALOG(dialog),
@@ -425,7 +425,7 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
                                   G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
                                   NULL, &err);
 
-        if (G_LIKELY(info != NULL))
+        if (info != NULL)
         {
             if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_UNIX_MODE))
             {
@@ -496,11 +496,11 @@ void dialog_error(gpointer parent, const GError *error, const gchar  *format, ..
                                      "%s.", primary_text);
 
     // move the dialog to the appropriate screen
-    if (G_UNLIKELY(window == NULL && screen != NULL))
+    if (window == NULL && screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
 
     // set secondary text if an error is provided
-    if (G_LIKELY(error != NULL))
+    if (error != NULL)
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s.", error->message);
 
     GList *children = gtk_container_get_children(
@@ -543,7 +543,7 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
 
     // try to separate the question into primary and secondary parts
     separator = strstr(question, ": ");
-    if (G_LIKELY(separator != NULL))
+    if (separator != NULL)
     {
         // primary is everything before the colon, plus a dot
         g_string_append_len(primary, question, separator - question);
@@ -559,7 +559,7 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
     {
         // otherwise separate based on the \n\n
         separator = strstr(question, "\n\n");
-        if (G_LIKELY(separator != NULL))
+        if (separator != NULL)
         {
             // primary is everything before the newlines
             g_string_append_len(primary, question, separator - question);
@@ -583,7 +583,7 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
                                       GTK_MESSAGE_QUESTION,
                                       GTK_BUTTONS_NONE,
                                       "%s", primary->str);
-    if (G_LIKELY(*secondary->str != '\0'))
+    if (*secondary->str != '\0')
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(message), "%s", secondary->str);
 
     // add the buttons based on the possible choices
@@ -676,7 +676,7 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
     gtk_widget_destroy(message);
 
     // transform the result as required
-    if (G_UNLIKELY(response <= 0))
+    if (response <= 0)
         response = THUNAR_JOB_RESPONSE_CANCEL;
 
     // cleanup
@@ -901,7 +901,7 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     g_object_unref(G_OBJECT(icon_factory));
 
     // translate GTK responses
-    if (G_UNLIKELY(response < 0))
+    if (response < 0)
         response = THUNAR_JOB_RESPONSE_CANCEL;
 
     return response;
@@ -930,7 +930,7 @@ void dialog_job_error(GtkWindow *parent, GError *error)
 
     // try to separate the message into primary and secondary parts
     separator = strstr(error->message, ": ");
-    if (G_LIKELY(separator > error->message))
+    if (separator > error->message)
     {
         // primary is everything before the colon, plus a dot
         g_string_append_len(primary, error->message, separator - error->message);
@@ -958,7 +958,7 @@ void dialog_job_error(GtkWindow *parent, GError *error)
                                       GTK_BUTTONS_NONE,
                                       "%s", primary->str);
 
-    if (G_LIKELY(*secondary->str != '\0'))
+    if (*secondary->str != '\0')
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(message), "%s", secondary->str);
 
     gtk_dialog_add_button(GTK_DIALOG(message), _("_Close"), GTK_RESPONSE_CANCEL);

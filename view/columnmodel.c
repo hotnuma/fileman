@@ -167,7 +167,7 @@ static void colmodel_finalize(GObject *object)
     ColumnModel *column_model = COLUMN_MODEL(object);
 
     // drop any running "save width" timer
-    if (G_UNLIKELY(column_model->save_width_timer_id != 0))
+    if (column_model->save_width_timer_id != 0)
         g_source_remove(column_model->save_width_timer_id);
 
     G_OBJECT_CLASS(colmodel_parent_class)->finalize(object);
@@ -219,7 +219,7 @@ static gboolean colmodel_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
     // check if the path is valid
     ThunarColumn       column;
     column = gtk_tree_path_get_indices(path)[0];
-    if (G_UNLIKELY(column >= THUNAR_N_VISIBLE_COLUMNS))
+    if (column >= THUNAR_N_VISIBLE_COLUMNS)
         return FALSE;
 
     // generate an iterator
@@ -300,7 +300,7 @@ static gboolean colmodel_iter_children(GtkTreeModel *tree_model,
 
     e_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
 
-    if (G_LIKELY(parent == NULL))
+    if (parent == NULL)
     {
         GTK_TREE_ITER_INIT(*iter, column_model->stamp, GINT_TO_POINTER(0));
         return TRUE;
@@ -334,7 +334,7 @@ static gboolean colmodel_iter_nth_child(GtkTreeModel *tree_model,
 
     e_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
 
-    if (G_LIKELY(parent == NULL && n < THUNAR_N_VISIBLE_COLUMNS))
+    if (parent == NULL && n < THUNAR_N_VISIBLE_COLUMNS)
     {
         GTK_TREE_ITER_INIT(*iter, column_model->stamp, GINT_TO_POINTER(n));
         return TRUE;
@@ -381,7 +381,7 @@ static void _colmodel_load_column_order(ColumnModel *column_model)
     {
         // determine the enum value for the name
         value = g_enum_get_value_by_name(klass, column_order[i]);
-        if (G_UNLIKELY(value == NULL || value->value == i))
+        if (value == NULL || value->value == i)
             continue;
 
         // find the current position of the value
@@ -390,7 +390,7 @@ static void _colmodel_load_column_order(ColumnModel *column_model)
                 break;
 
         // check if valid
-        if (G_LIKELY(j < THUNAR_N_VISIBLE_COLUMNS))
+        if (j < THUNAR_N_VISIBLE_COLUMNS)
         {
             // exchange the positions of i and j
             column = column_model->order[i];
@@ -460,7 +460,7 @@ static void _colmodel_load_column_widths(ColumnModel *column_model)
     for(n = 0; column_widths[n] != NULL; ++n)
     {
         width = strtol(column_widths[n], NULL, 10);
-        if (G_LIKELY(width >= 0))
+        if (width >= 0)
             column_model->width[n] = width;
     }
 
@@ -519,7 +519,7 @@ static void _colmodel_load_visible_columns(ColumnModel *column_model)
     {
         // determine the enum value from the string
         value = g_enum_get_value_by_name(klass, visible_columns[n]);
-        if (G_LIKELY(value != NULL && value->value < THUNAR_N_VISIBLE_COLUMNS))
+        if (value != NULL && value->value < THUNAR_N_VISIBLE_COLUMNS)
             column_model->visible[value->value] = TRUE;
     }
     g_type_class_unref(klass);
@@ -571,7 +571,7 @@ ColumnModel* colmodel_get_default()
 
     static ColumnModel *column_model = NULL;
 
-    if (G_UNLIKELY(column_model == NULL))
+    if (column_model == NULL)
     {
         column_model = g_object_new(TYPE_COLUMN_MODEL, NULL);
         g_object_add_weak_pointer(G_OBJECT(column_model),(gpointer) &column_model);
@@ -677,14 +677,14 @@ void colmodel_set_column_visible(ColumnModel  *column_model,
     e_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
 
     // cannot change the visibility of the name column
-    if (G_UNLIKELY(column == THUNAR_COLUMN_NAME))
+    if (column == THUNAR_COLUMN_NAME)
         return;
 
     // normalize the value
     visible = !!visible;
 
     // check if we have a new value
-    if (G_LIKELY(column_model->visible[column] != visible))
+    if (column_model->visible[column] != visible)
     {
         // apply the new value
         column_model->visible[column] = visible;
@@ -731,7 +731,7 @@ void colmodel_set_column_width(ColumnModel *column_model, ThunarColumn column,
     e_return_if_fail(width >= 0);
 
     // check if we have a new width
-    if (G_LIKELY(column_model->width[column] != width))
+    if (column_model->width[column] != width)
     {
         // apply the new value
         column_model->width[column] = width;

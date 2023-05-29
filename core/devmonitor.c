@@ -376,7 +376,7 @@ static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
 
         // meh
         e_return_if_fail(IS_THUNARDEVICE(device));
-        if (G_UNLIKELY(device == NULL))
+        if (device == NULL)
             return;
 
         // the device changed
@@ -413,7 +413,7 @@ static void _devmon_volume_removed(GVolumeMonitor *volume_monitor,
 
         // meh
         e_return_if_fail(IS_THUNARDEVICE(device));
-        if (G_UNLIKELY(device == NULL))
+        if (device == NULL)
             return;
 
         // the device is not visble for the user
@@ -452,7 +452,7 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
     if (volume == NULL)
     {
         location = g_mount_get_root(mount);
-        if (G_UNLIKELY(location == NULL))
+        if (location == NULL)
             return;
 
         // skip gphoto and mtp locations, since those also have a volume
@@ -613,7 +613,7 @@ DeviceMonitor* devmon_get()
 {
     static DeviceMonitor *monitor = NULL;
 
-    if (G_UNLIKELY(monitor == NULL))
+    if (monitor == NULL)
     {
         monitor = g_object_new(TYPE_DEVICE_MONITOR, NULL);
         g_object_add_weak_pointer(G_OBJECT(monitor), (gpointer) &monitor);

@@ -165,11 +165,11 @@ static void exo_treeview_finalize(GObject *object)
     ExoTreeView *tree_view = EXOTREEVIEW(object);
 
     // be sure to cancel any single-click timeout
-    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+    if (tree_view->priv->single_click_timeout_id >= 0)
         g_source_remove(tree_view->priv->single_click_timeout_id);
 
     // be sure to release the hover path
-    if (G_UNLIKELY(tree_view->priv->hover_path != NULL))
+    if (tree_view->priv->hover_path != NULL)
         gtk_tree_path_free(tree_view->priv->hover_path);
 
     G_OBJECT_CLASS(exo_treeview_parent_class)->finalize(object);
@@ -276,7 +276,7 @@ void exo_treeview_set_single_click_timeout(ExoTreeView *tree_view,
     tree_view->priv->single_click_timeout = single_click_timeout;
 
     // be sure to cancel any pending single click timeout
-    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+    if (tree_view->priv->single_click_timeout_id >= 0)
         g_source_remove(tree_view->priv->single_click_timeout_id);
 
     // notify listeners
@@ -299,11 +299,11 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view));
 
     // be sure to cancel any pending single-click timeout
-    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+    if (tree_view->priv->single_click_timeout_id >= 0)
         g_source_remove(tree_view->priv->single_click_timeout_id);
 
     // check if the button press was on the internal tree view window
-    if (G_LIKELY(event->window == gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view))))
+    if (event->window == gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view)))
     {
         // determine the path at the event coordinates
         if (!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), event->x, event->y, &path, NULL, NULL, NULL))
@@ -336,11 +336,11 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
     if (gtk_tree_selection_get_mode(selection) == GTK_SELECTION_MULTIPLE && gtk_tree_view_get_rubber_banding(GTK_TREE_VIEW(tree_view)) && event->button == 1 && event->type == GDK_BUTTON_PRESS)
     {
         // check if clicked on empty area or on a not yet selected row
-        if (G_LIKELY(path == NULL || !gtk_tree_selection_path_is_selected(selection, path)))
+        if (path == NULL || !gtk_tree_selection_path_is_selected(selection, path))
         {
             // need to disable drag and drop because we're rubberbanding now
             drag_data = g_object_get_data(G_OBJECT(tree_view), I_("gtk-site-data"));
-            if (G_LIKELY(drag_data != NULL))
+            if (drag_data != NULL)
             {
                 g_signal_handlers_block_matched(G_OBJECT(tree_view),
                                                 G_SIGNAL_MATCH_DATA,
@@ -379,14 +379,14 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
     if (GTK_IS_TREE_SELECTION(selection))
     {
         // Re-enable selection updates
-        if (G_LIKELY(gtk_tree_selection_get_select_function(selection) == _select_false))
+        if (gtk_tree_selection_get_select_function(selection) == _select_false)
         {
             gtk_tree_selection_set_select_function(selection, _select_true, NULL, NULL);
         }
     }
 
     // release the path (if any)
-    if (G_LIKELY(path != NULL))
+    if (path != NULL)
         gtk_tree_path_free(path);
 
     return result;
@@ -428,10 +428,10 @@ static gboolean exo_treeview_button_release_event(GtkWidget *widget,
     gpointer drag_data;
 
     // verify that the release event is for the internal tree view window
-    if (G_LIKELY(event->window == gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view))))
+    if (event->window == gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view)))
     {
         // check if we're in single-click mode and the button-release-event should emit a "row-activate"
-        if (G_UNLIKELY(tree_view->priv->single_click && tree_view->priv->button_release_activates))
+        if (tree_view->priv->single_click && tree_view->priv->button_release_activates)
         {
             // reset the "release-activates" flag
             tree_view->priv->button_release_activates = FALSE;
@@ -471,10 +471,10 @@ static gboolean exo_treeview_button_release_event(GtkWidget *widget,
     }
 
     // check if we need to re-enable drag and drop
-    if (G_LIKELY(tree_view->priv->button_release_unblocks_dnd))
+    if (tree_view->priv->button_release_unblocks_dnd)
     {
         drag_data = g_object_get_data(G_OBJECT(tree_view), I_("gtk-site-data"));
-        if (G_LIKELY(drag_data != NULL))
+        if (drag_data != NULL)
         {
             g_signal_handlers_unblock_matched(G_OBJECT(tree_view),
                                               G_SIGNAL_MATCH_DATA,
@@ -485,7 +485,7 @@ static gboolean exo_treeview_button_release_event(GtkWidget *widget,
     }
 
     // check if we need to re-enable rubberbanding
-    if (G_UNLIKELY(tree_view->priv->button_release_enables_rubber_banding))
+    if (tree_view->priv->button_release_enables_rubber_banding)
     {
         gtk_tree_view_set_rubber_banding(GTK_TREE_VIEW(tree_view), TRUE);
         tree_view->priv->button_release_enables_rubber_banding = FALSE;
@@ -506,7 +506,7 @@ static gboolean exo_treeview_motion_notify_event(GtkWidget *widget,
     if (event->window == gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view)) && tree_view->priv->single_click)
     {
         // check if we're doing a rubberband selection right now (which means DnD is blocked)
-        if (G_UNLIKELY(tree_view->priv->button_release_unblocks_dnd))
+        if (tree_view->priv->button_release_unblocks_dnd)
         {
             // we're doing a rubberband selection, so don't activate anything
             tree_view->priv->button_release_activates = FALSE;
@@ -531,7 +531,7 @@ static gboolean exo_treeview_motion_notify_event(GtkWidget *widget,
                 tree_view->priv->hover_path = path;
 
                 // check if we're over a row right now
-                if (G_LIKELY(path != NULL))
+                if (path != NULL)
                 {
                     // setup the hand cursor to indicate that the row at the pointer can be activated with a single click
                     cursor = gdk_cursor_new_for_display(gdk_window_get_display(event->window), GDK_HAND2);
@@ -545,10 +545,11 @@ static gboolean exo_treeview_motion_notify_event(GtkWidget *widget,
                 }
 
                 // check if autoselection is enabled and the pointer is over a row
-                if (G_LIKELY(tree_view->priv->single_click_timeout > 0 && tree_view->priv->hover_path != NULL))
+                if (tree_view->priv->single_click_timeout > 0
+                    && tree_view->priv->hover_path != NULL)
                 {
                     // cancel any previous single-click timeout
-                    if (G_LIKELY(tree_view->priv->single_click_timeout_id >= 0))
+                    if (tree_view->priv->single_click_timeout_id >= 0)
                         g_source_remove(tree_view->priv->single_click_timeout_id);
 
                     // remember the current event state
@@ -621,7 +622,7 @@ static gboolean _exo_treeview_single_click_timeout(gpointer user_data)
                     /* since we cannot access the anchor of a GtkTreeView, we
                    * use the cursor instead which is usually the same row.
                    */
-                    if (G_UNLIKELY(cursor_path == NULL))
+                    if (cursor_path == NULL)
                     {
                         // place the cursor on the new row
                         gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree_view), tree_view->priv->hover_path, cursor_column, FALSE);
@@ -652,12 +653,12 @@ static gboolean _exo_treeview_single_click_timeout(gpointer user_data)
                     (tree_view->priv->single_click_timeout_state & GDK_CONTROL_MASK) != 0)
                 {
                     // toggle the selection state of the row
-                    if (G_UNLIKELY(hover_path_selected))
+                    if (hover_path_selected)
                         gtk_tree_selection_unselect_path(selection, tree_view->priv->hover_path);
                     else
                         gtk_tree_selection_select_path(selection, tree_view->priv->hover_path);
                 }
-                else if (G_UNLIKELY(!hover_path_selected))
+                else if (!hover_path_selected)
                 {
                     // unselect all other rows
                     gtk_tree_selection_unselect_all(selection);
@@ -668,7 +669,7 @@ static gboolean _exo_treeview_single_click_timeout(gpointer user_data)
             }
 
             // cleanup
-            if (G_LIKELY(cursor_path != NULL))
+            if (cursor_path != NULL)
                 gtk_tree_path_free(cursor_path);
         }
     }
@@ -687,7 +688,7 @@ static gboolean exo_treeview_leave_notify_event(GtkWidget *widget,
     ExoTreeView *tree_view = EXOTREEVIEW(widget);
 
     // be sure to cancel any pending single-click timeout
-    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+    if (tree_view->priv->single_click_timeout_id >= 0)
         g_source_remove(tree_view->priv->single_click_timeout_id);
 
     // release and reset the hover path (if any)
@@ -725,7 +726,7 @@ static gboolean exo_treeview_move_cursor(GtkTreeView *view, GtkMovementStep step
     ExoTreeView *tree_view = EXOTREEVIEW(view);
 
     // be sure to cancel any pending single-click timeout
-    if (G_UNLIKELY(tree_view->priv->single_click_timeout_id >= 0))
+    if (tree_view->priv->single_click_timeout_id >= 0)
         g_source_remove(tree_view->priv->single_click_timeout_id);
 
     // release and reset the hover path (if any)

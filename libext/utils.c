@@ -189,7 +189,7 @@ gchar* util_str_replace(const gchar *str, const gchar *pattern,
 
     /* an empty string or pattern is useless, so just
      * return a copy of str */
-    if (G_UNLIKELY(!str || !*str || !pattern || !*pattern))
+    if (!str || !*str || !pattern || !*pattern)
         return g_strdup(str);
 
     // allocate the result string
@@ -198,7 +198,7 @@ gchar* util_str_replace(const gchar *str, const gchar *pattern,
     // process the input string
     while (*str != '\0')
     {
-        if (G_UNLIKELY(*str == *pattern))
+        if (*str == *pattern)
         {
             // compare the pattern to the current string
             for (p = pattern + 1, s = str + 1; *p == *s; ++s, ++p)
@@ -206,9 +206,9 @@ gchar* util_str_replace(const gchar *str, const gchar *pattern,
                     break;
 
             // check if the pattern fully matched
-            if (G_LIKELY(*p == '\0'))
+            if (*p == '\0')
             {
-                if (G_LIKELY(replace != NULL && *replace != '\0'))
+                if (replace != NULL && *replace != '\0')
                     g_string_append(result, replace);
                 str = s;
                 continue;
@@ -251,7 +251,7 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
     g_return_val_if_fail(filename != NULL, NULL);
 
     // check if we have a valid(non-empty!) filename
-    if (G_UNLIKELY(*filename == '\0'))
+    if (*filename == '\0')
     {
         g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL, _("Invalid path"));
         return NULL;
@@ -264,7 +264,7 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
         remainder = filename + 1;
 
         // if we have only the slash, then we want the home dir
-        if (G_UNLIKELY(*remainder == '\0'))
+        if (*remainder == '\0')
             return g_strdup(g_get_home_dir());
 
         // lookup the slash
@@ -272,7 +272,7 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
             ;
 
         // check if a username was given after the '~'
-        if (G_LIKELY(slash == remainder))
+        if (slash == remainder)
         {
             // replace the tilde with the home dir
             replacement = g_get_home_dir();
@@ -285,7 +285,7 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
             g_free(username);
 
             // check if we have a valid entry
-            if (G_UNLIKELY(passwd == NULL))
+            if (passwd == NULL)
             {
                 username = g_strndup(remainder, slash - remainder);
                 g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL, _("Unknown user \"%s\""), username);
@@ -326,12 +326,12 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
         remainder = filename + 1;
 
         // transform working directory into a filename string
-        if (G_LIKELY(working_directory != NULL))
+        if (working_directory != NULL)
         {
             pwd = g_file_get_path(working_directory);
 
             // if we only have the slash then we want the working directory only
-            if (G_UNLIKELY(*remainder == '\0'))
+            if (*remainder == '\0')
                 return pwd;
 
             // concatenate working directory and remainder
@@ -356,7 +356,7 @@ gchar* util_expand_field_codes(const gchar *command, GSList *uri_list,
                                const gchar *icon, const gchar *name,
                                const gchar *uri, gboolean requires_terminal)
 {
-    if (G_UNLIKELY(command == NULL))
+    if (command == NULL)
         return NULL;
 
     GString *string;
@@ -372,7 +372,7 @@ gchar* util_expand_field_codes(const gchar *command, GSList *uri_list,
 
     for (p = command; *p != '\0'; ++p)
     {
-        if (G_UNLIKELY(p[0] == '%' && p[1] != '\0'))
+        if (p[0] == '%' && p[1] != '\0')
         {
             switch (*++p)
             {
@@ -386,7 +386,7 @@ gchar* util_expand_field_codes(const gchar *command, GSList *uri_list,
 
                     file = g_file_new_for_uri(li->data);
                     filename = g_file_get_path(file);
-                    if (G_LIKELY(filename != NULL))
+                    if (filename != NULL)
                         util_append_quoted(string, filename);
 
                     g_object_unref(file);
@@ -528,7 +528,7 @@ GdkScreen* util_parse_parent(gpointer parent, GtkWindow **window_return)
     }
 
     // check if we should return the window
-    if (G_LIKELY(window_return != NULL))
+    if (window_return != NULL)
         *window_return = (GtkWindow *)window;
 
     return screen;
@@ -554,7 +554,7 @@ time_t util_time_from_rfc3339(const gchar *date_string)
 
 #ifdef HAVE_STRPTIME
     // using strptime() its easy to parse the date string
-    if (G_UNLIKELY(strptime(date_string, "%FT%T", &tm) == NULL))
+    if (strptime(date_string, "%FT%T", &tm) == NULL)
         return 0;
 #else
     gulong val;
@@ -564,7 +564,7 @@ time_t util_time_from_rfc3339(const gchar *date_string)
 
     // parsing by hand is also doable for RFC 3339 dates
     val = strtoul(date_string, (gchar **)&date_string, 10);
-    if (G_UNLIKELY(*date_string != '-'))
+    if (*date_string != '-')
         return 0;
 
     // YYYY-MM-DD
@@ -572,16 +572,16 @@ time_t util_time_from_rfc3339(const gchar *date_string)
     date_string++;
     tm.tm_mon = strtoul(date_string, (gchar **)&date_string, 10) - 1;
 
-    if (G_UNLIKELY(*date_string++ != '-'))
+    if (*date_string++ != '-')
         return 0;
 
     tm.tm_mday = strtoul(date_string, (gchar **)&date_string, 10);
 
-    if (G_UNLIKELY(*date_string++ != 'T'))
+    if (*date_string++ != 'T')
         return 0;
 
     val = strtoul(date_string, (gchar **)&date_string, 10);
-    if (G_UNLIKELY(*date_string != ':'))
+    if (*date_string != ':')
         return 0;
 
     // hh:mm:ss
@@ -589,7 +589,7 @@ time_t util_time_from_rfc3339(const gchar *date_string)
     date_string++;
     tm.tm_min = strtoul(date_string, (gchar **)&date_string, 10);
 
-    if (G_UNLIKELY(*date_string++ != ':'))
+    if (*date_string++ != ':')
         return 0;
 
     tm.tm_sec = strtoul(date_string, (gchar **)&date_string, 10);
@@ -623,7 +623,7 @@ gchar* util_humanize_file_time(guint64 file_time, ThunarDateStyle date_style,
     gint diff;
 
     // check if the file_time is valid
-    if (G_LIKELY(file_time != 0))
+    if (file_time != 0)
     {
         ftime = (time_t)file_time;
 
@@ -736,7 +736,7 @@ gchar* util_strdup_strftime(const gchar *format, const struct tm *tm)
      * so convert to locale encoding which strftime uses.
      */
     converted = g_locale_from_utf8(format, -1, NULL, NULL, NULL);
-    if (G_UNLIKELY(converted == NULL))
+    if (converted == NULL)
         return NULL;
 
     // start processing the format
