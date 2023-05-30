@@ -61,7 +61,7 @@ void listmodel_set_file_size_binary(ListModel *store, gboolean file_size_binary)
 
 ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter);
 GList* listmodel_get_paths_for_files(ListModel *store, GList *files);
-GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern);
+GList* listmodel_get_treepaths(ListModel *store, const gchar *pattern);
 gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items);
 
 G_END_DECLS

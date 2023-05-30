@@ -1902,57 +1902,41 @@ GList* listmodel_get_paths_for_files(ListModel *store, GList *files)
     return paths;
 }
 
-/**
- * thunar_list_model_get_paths_for_pattern:
- * @store   : a #ListModel instance.
- * @pattern : the pattern to match.
- *
- * Looks up all rows in the @store that match @pattern and returns
- * a list of #GtkTreePath<!---->s corresponding to the rows.
- *
- * The caller is responsible to free the returned list using:
- * <informalexample><programlisting>
- * g_list_free_full(list,(GDestroyNotify) gtk_tree_path_free);
- * </programlisting></informalexample>
- *
- * Return value: the list of #GtkTreePath<!---->s that match @pattern.
- **/
-GList* listmodel_get_paths_for_pattern(ListModel *store, const gchar *pattern)
+GList* listmodel_get_treepaths(ListModel *store, const gchar *pattern)
 {
-    GPatternSpec  *pspec;
-    GList         *paths = NULL;
-    GSequenceIter *row;
-    GSequenceIter *end;
-    ThunarFile    *file;
-    gint           i = 0;
-
     e_return_val_if_fail(IS_LISTMODEL(store), NULL);
     e_return_val_if_fail(g_utf8_validate(pattern, -1, NULL), NULL);
 
     // compile the pattern
-    pspec = g_pattern_spec_new(pattern);
+    GPatternSpec *pspec = g_pattern_spec_new(pattern);
 
-    row = g_sequence_get_begin_iter(store->rows);
-    end = g_sequence_get_end_iter(store->rows);
+    GSequenceIter *row = g_sequence_get_begin_iter(store->rows);
+    GSequenceIter *end = g_sequence_get_end_iter(store->rows);
+
+    GList *treepaths = NULL;
+    gint i = 0;
 
     // find all rows that match the given pattern
-    while(row != end)
+    while (row != end)
     {
-        file = g_sequence_get(row);
+        ThunarFile *file = g_sequence_get(row);
+
         if (g_pattern_match_string(pspec, th_file_get_display_name(file)))
         {
             e_assert(i == g_sequence_iter_get_position(row));
-            paths = g_list_prepend(paths, gtk_tree_path_new_from_indices(i, -1));
+
+            treepaths = g_list_prepend(treepaths, gtk_tree_path_new_from_indices(i, -1));
         }
 
         row = g_sequence_iter_next(row);
-        i++;
+
+        ++i;
     }
 
     // release the pattern
     g_pattern_spec_free(pspec);
 
-    return paths;
+    return treepaths;
 }
 
 gchar* listmodel_get_statusbar_text(ListModel *store, GList *selected_items)

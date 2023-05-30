@@ -799,7 +799,7 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                     gtk_tree_selection_unselect_all(selection);
 
                 // queue the menu popup
-                standardview_queue_popup(STANDARD_VIEW(details_view), event);
+                standardview_popup_timer(STANDARD_VIEW(details_view), event);
             }
             else
             {

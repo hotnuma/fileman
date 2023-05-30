@@ -27,8 +27,8 @@ G_BEGIN_DECLS
 
 // StandardView ---------------------------------------------------------------
 
-typedef struct _StandardViewPrivate StandardViewPrivate;
 typedef struct _StandardViewClass   StandardViewClass;
+typedef struct _StandardViewPrivate StandardViewPrivate;
 typedef struct _StandardView        StandardView;
 
 #define TYPE_STANDARD_VIEW (standardview_get_type())
@@ -120,8 +120,9 @@ struct _StandardView
     GtkCellRenderer     *icon_renderer;
     GtkCellRenderer     *name_renderer;
 
-    GBinding            *loading_binding;
     gboolean            loading;
+    GBinding            *loading_binding;
+
     GtkAccelGroup       *accel_group;
 
     StandardViewPrivate *priv;
@@ -133,10 +134,8 @@ ThunarHistory* standardview_get_history(StandardView *standard_view);
 void standardview_set_history(StandardView *standard_view, ThunarHistory *history);
 void standardview_selection_changed(StandardView *standard_view);
 
-// for detailview
-void standardview_queue_popup(StandardView *standard_view, GdkEventButton *event);
-
 void standardview_context_menu(StandardView *standard_view);
+void standardview_popup_timer(StandardView *standard_view, GdkEventButton *event);
 
 G_END_DECLS
 

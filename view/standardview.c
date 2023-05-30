@@ -143,7 +143,7 @@ static gboolean _standardview_update_statusbar_text_idle(gpointer data);
 // standardview_context_menu
 static void _standardview_append_menu_items(StandardView *view, GtkMenu *menu,
                                             GtkAccelGroup *accel_group);
-// standardview_queue_popup
+// standardview_popup_timer
 static gboolean _popup_timer(gpointer user_data);
 static void _popup_timer_destroy(gpointer user_data);
 static gboolean _on_button_release_event(GtkWidget *widget,
@@ -153,8 +153,8 @@ static gboolean _on_button_release_event(GtkWidget *widget,
 // Actions --------------------------------------------------------------------
 
 static void _standardview_select_all_files(BaseView *baseview);
+static void _standardview_select_invert(BaseView *baseview);
 static void _standardview_select_by_pattern(BaseView *baseview);
-static void _standardview_selection_invert(BaseView *baseview);
 
 // DnD Source -----------------------------------------------------------------
 
@@ -215,8 +215,8 @@ static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
 typedef enum
 {
     STANDARDVIEW_ACTION_SELECT_ALL_FILES,
+    STANDARDVIEW_ACTION_SELECT_INVERT,
     STANDARDVIEW_ACTION_SELECT_BY_PATTERN,
-    STANDARDVIEW_ACTION_INVERT_SELECTION,
 
 } StandardViewAction;
 
@@ -225,29 +225,29 @@ static XfceGtkActionEntry _standardview_actions[] =
     {STANDARDVIEW_ACTION_SELECT_ALL_FILES,
      "<Actions>/StandardView/select-all-files",
      "<Primary>a",
-     XFCE_GTK_MENU_ITEM,
-     N_("Select _all Files"),
-     N_("Select all files in this window"),
+     0,
+     NULL,
+     NULL,
      NULL,
      G_CALLBACK(_standardview_select_all_files)},
+
+    {STANDARDVIEW_ACTION_SELECT_INVERT,
+     "<Actions>/StandardView/select-invert",
+     "<Primary>i",
+     0,
+     NULL,
+     NULL,
+     NULL,
+     G_CALLBACK(_standardview_select_invert)},
 
     {STANDARDVIEW_ACTION_SELECT_BY_PATTERN,
      "<Actions>/StandardView/select-by-pattern",
      "<Primary>s",
-     XFCE_GTK_MENU_ITEM,
-     N_("Select _by Pattern..."),
-     N_("Select all files that match a certain pattern"),
+     0,
+     NULL,
+     NULL,
      NULL,
      G_CALLBACK(_standardview_select_by_pattern)},
-
-    {STANDARDVIEW_ACTION_INVERT_SELECTION,
-     "<Actions>/StandardView/invert-selection",
-     "",
-     XFCE_GTK_MENU_ITEM,
-     N_("_Invert Selection"),
-     N_("Select all files but not those currently selected"),
-     NULL,
-     G_CALLBACK(_standardview_selection_invert)},
 };
 
 #define get_action_entry(id) \
@@ -304,28 +304,18 @@ static guint _stdv_signals[LAST_SIGNAL];
 
 struct _StandardViewPrivate
 {
-    ThunarFile  *current_directory;
+    ThunarFile *current_directory;
 
     ThunarHistory *history;
     ThunarZoomLevel zoom_level;
-    GHashTable  *scroll_to_files;
-
-    gchar       *statusbar_text;
-    guint       statusbar_text_idle_id;
 
     // popup with timer
     guint       popup_timer_id;
     GdkEvent    *popup_timer_event;
 
-    // drag support
-    GList       *drag_g_file_list;
-    guint       drag_scroll_timer_id;
-
-    // drop site support
-    guint       drop_data_ready : 1;    // whether the drop data was received already
-    guint       drop_highlight : 1;
-    guint       drop_occurred : 1;      // whether the data was dropped
-    GList       *drop_file_list;        // the list of URIs that are contained in the drop data */
+    // status text
+    gchar       *statusbar_text;
+    guint       statusbar_text_idle_id;
 
     /* the "new-files" closure, which is used to select files whenever
      * new files are created by a ThunarJob associated with this view */
@@ -339,6 +329,7 @@ struct _StandardViewPrivate
     GList       *new_files_path_list;
 
     // scroll-to-file support
+    GHashTable  *scroll_to_files;
     ThunarFile  *scroll_to_file;
     guint       scroll_to_select : 1;
     guint       scroll_to_use_align : 1;
@@ -351,6 +342,16 @@ struct _StandardViewPrivate
 
     // file insert signal
     gulong      row_changed_id;
+
+    // drag support
+    GList       *drag_g_file_list;
+    guint       drag_scroll_timer_id;
+
+    // drop site support
+    guint       drop_data_ready : 1;    // whether the drop data was received already
+    guint       drop_highlight : 1;
+    guint       drop_occurred : 1;      // whether the data was dropped
+    GList       *drop_file_list;        // the list of URIs that are contained in the drop data */
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(
@@ -2118,90 +2119,7 @@ void standardview_selection_changed(StandardView *view)
     g_object_notify_by_pspec(G_OBJECT(view), _stdv_props[PROP_SELECTED_FILES]);
 }
 
-/* Schedules a context menu popup in response to a right-click button event.
- * Right-click events need to be handled in a special way, as the user may
- * also start a drag using the right mouse button and therefore this function
- * schedules a timer, which - once expired - opens the context menu.
- * If the user moves the mouse prior to expiration, a right-click drag
- * with GDK_ACTION_ASK, will be started instead. */
-void standardview_queue_popup(StandardView *view, GdkEventButton *event)
-{
-    e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(event != NULL);
-
-    // check if we have already scheduled a drag timer
-    if (view->priv->popup_timer_id)
-        return;
-
-    // figure out the real view
-    GtkWidget *child = gtk_bin_get_child(GTK_BIN(view));
-
-    /* we use the menu popup delay here, note that we only use this to
-     * allow higher values! see bug #3549 */
-
-    GtkSettings *settings;
-    settings = gtk_settings_get_for_screen(gtk_widget_get_screen(child));
-
-    gint delay;
-    g_object_get(G_OBJECT(settings), "gtk-menu-popup-delay", &delay, NULL);
-
-    // schedule the timer
-    view->priv->popup_timer_id =
-        g_timeout_add_full(G_PRIORITY_LOW,
-                           MAX(225, delay),
-                           _popup_timer,
-                           view,
-                           _popup_timer_destroy);
-
-    // store current event data
-    view->priv->popup_timer_event = gtk_get_current_event();
-
-    // register the motion notify and the button release events on the real view
-    g_signal_connect(G_OBJECT(child), "button-release-event",
-                     G_CALLBACK(_on_button_release_event), view);
-}
-
-static gboolean _popup_timer(gpointer user_data)
-{
-    StandardView *view = STANDARD_VIEW(user_data);
-
-    // fire up the context menu
-    UTIL_THREADS_ENTER;
-
-    standardview_context_menu(view);
-
-    UTIL_THREADS_LEAVE;
-
-    return false;
-}
-
-static void _popup_timer_destroy(gpointer user_data)
-{
-    // unregister event handlers (thread-safe)
-    g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
-                                         _on_button_release_event, user_data);
-
-    // reset the drag timer source id
-    STANDARD_VIEW(user_data)->priv->popup_timer_id = 0;
-}
-
-static gboolean _on_button_release_event(GtkWidget *widget,
-                                         GdkEventButton *event,
-                                         StandardView *view)
-{
-    (void) widget;
-    (void) event;
-
-    e_return_val_if_fail(IS_STANDARD_VIEW(view), false);
-    e_return_val_if_fail(view->priv->popup_timer_id != 0, false);
-
-    // cancel the pending drag timer
-    g_source_remove(view->priv->popup_timer_id);
-
-    standardview_context_menu(view);
-
-    return true;
-}
+// Popup Menu -----------------------------------------------------------------
 
 void standardview_context_menu(StandardView *view)
 {
@@ -2283,6 +2201,91 @@ static void _standardview_append_menu_items(StandardView *view,
     STANDARD_VIEW_GET_CLASS(view)->append_menu_items(view, menu, accel_group);
 }
 
+/* Schedules a context menu popup in response to a right-click button event.
+ * Right-click events need to be handled in a special way, as the user may
+ * also start a drag using the right mouse button and therefore this function
+ * schedules a timer, which - once expired - opens the context menu.
+ * If the user moves the mouse prior to expiration, a right-click drag
+ * with GDK_ACTION_ASK, will be started instead. */
+void standardview_popup_timer(StandardView *view, GdkEventButton *event)
+{
+    e_return_if_fail(IS_STANDARD_VIEW(view));
+    e_return_if_fail(event != NULL);
+
+    // check if we have already scheduled a drag timer
+    if (view->priv->popup_timer_id)
+        return;
+
+    // figure out the real view
+    GtkWidget *child = gtk_bin_get_child(GTK_BIN(view));
+
+    /* we use the menu popup delay here, note that we only use this to
+     * allow higher values! see bug #3549 */
+
+    GtkSettings *settings;
+    settings = gtk_settings_get_for_screen(gtk_widget_get_screen(child));
+
+    gint delay;
+    g_object_get(G_OBJECT(settings), "gtk-menu-popup-delay", &delay, NULL);
+
+    // schedule the timer
+    view->priv->popup_timer_id =
+        g_timeout_add_full(G_PRIORITY_LOW,
+                           MAX(225, delay),
+                           _popup_timer,
+                           view,
+                           _popup_timer_destroy);
+
+    // store current event data
+    view->priv->popup_timer_event = gtk_get_current_event();
+
+    // register the motion notify and the button release events on the real view
+    g_signal_connect(G_OBJECT(child), "button-release-event",
+                     G_CALLBACK(_on_button_release_event), view);
+}
+
+static gboolean _popup_timer(gpointer user_data)
+{
+    StandardView *view = STANDARD_VIEW(user_data);
+
+    // fire up the context menu
+    UTIL_THREADS_ENTER;
+
+    standardview_context_menu(view);
+
+    UTIL_THREADS_LEAVE;
+
+    return false;
+}
+
+static void _popup_timer_destroy(gpointer user_data)
+{
+    // unregister event handlers (thread-safe)
+    g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
+                                         _on_button_release_event, user_data);
+
+    // reset the drag timer source id
+    STANDARD_VIEW(user_data)->priv->popup_timer_id = 0;
+}
+
+static gboolean _on_button_release_event(GtkWidget *widget,
+                                         GdkEventButton *event,
+                                         StandardView *view)
+{
+    (void) widget;
+    (void) event;
+
+    e_return_val_if_fail(IS_STANDARD_VIEW(view), false);
+    e_return_val_if_fail(view->priv->popup_timer_id != 0, false);
+
+    // cancel the pending drag timer
+    g_source_remove(view->priv->popup_timer_id);
+
+    standardview_context_menu(view);
+
+    return true;
+}
+
 // Actions --------------------------------------------------------------------
 
 static void _standardview_select_all_files(BaseView *baseview)
@@ -2297,6 +2300,19 @@ static void _standardview_select_all_files(BaseView *baseview)
     STANDARD_VIEW_GET_CLASS(view)->select_all(view);
 }
 
+static void _standardview_select_invert(BaseView *baseview)
+{
+    StandardView *view = STANDARD_VIEW(baseview);
+
+    e_return_if_fail(IS_STANDARD_VIEW(view));
+
+    // grab the focus to the view
+    gtk_widget_grab_focus(GTK_WIDGET(view));
+
+    // invert all files in the real view
+    STANDARD_VIEW_GET_CLASS(view)->selection_invert(view);
+}
+
 static void _standardview_select_by_pattern(BaseView *baseview)
 {
     StandardView *view = STANDARD_VIEW(baseview);
@@ -2309,11 +2325,10 @@ static void _standardview_select_by_pattern(BaseView *baseview)
                                         GTK_WINDOW(window),
                                         GTK_DIALOG_MODAL
                                         | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                        _("_Cancel"),
-                                        GTK_RESPONSE_CANCEL,
-                                        _("_Select"),
-                                        GTK_RESPONSE_OK,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Select"), GTK_RESPONSE_OK,
                                         NULL);
+
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
     gtk_window_set_default_size(GTK_WINDOW(dialog), 290, -1);
 
@@ -2341,7 +2356,13 @@ static void _standardview_select_by_pattern(BaseView *baseview)
     gtk_label_set_mnemonic_widget(GTK_LABEL(label), entry);
     gtk_widget_show(entry);
 
-    hbox = g_object_new(GTK_TYPE_BOX, "orientation", GTK_ORIENTATION_HORIZONTAL, "margin-right", 6, "margin-bottom", 6, "spacing", 0, NULL);
+    hbox = g_object_new(GTK_TYPE_BOX,
+                        "orientation", GTK_ORIENTATION_HORIZONTAL,
+                        "margin-right", 6,
+                        "margin-bottom", 6,
+                        "spacing", 0,
+                        NULL);
+
     gtk_box_pack_start(GTK_BOX(vbox), hbox, true, true, 0);
     gtk_widget_show(hbox);
 
@@ -2357,55 +2378,49 @@ static void _standardview_select_by_pattern(BaseView *baseview)
 
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
 
-    if (response == GTK_RESPONSE_OK)
+    if (response != GTK_RESPONSE_OK)
     {
-        // get entered pattern
-        const gchar *pattern = gtk_entry_get_text(GTK_ENTRY(entry));
-
-        gchar *pattern_extended = NULL;
-
-        if (pattern != NULL
-            && strchr(pattern, '*') == NULL
-            && strchr(pattern, '?') == NULL)
-        {
-            // make file matching pattern
-            pattern_extended = g_strdup_printf("*%s*", pattern);
-            pattern = pattern_extended;
-        }
-
-        // select all files that match pattern
-        GList *paths = listmodel_get_paths_for_pattern(view->model, pattern);
-
-        STANDARD_VIEW_GET_CLASS(view)->unselect_all(view);
-
-        // set the cursor and scroll to the first selected item
-        if (paths != NULL)
-            STANDARD_VIEW_GET_CLASS(view)->set_cursor(view, g_list_last(paths)->data, false);
-
-        for (GList *lp = paths; lp != NULL; lp = lp->next)
-        {
-            STANDARD_VIEW_GET_CLASS(view)->select_path(view, lp->data);
-            gtk_tree_path_free(lp->data);
-        }
-
-        g_list_free(paths);
-        g_free(pattern_extended);
+        gtk_widget_destroy(dialog);
+        return;
     }
 
+    // get entered pattern
+    const gchar *pattern = gtk_entry_get_text(GTK_ENTRY(entry));
+
+    gchar *pattern_extended = NULL;
+
+    if (pattern != NULL
+        && strchr(pattern, '*') == NULL
+        && strchr(pattern, '?') == NULL)
+    {
+        // make file matching pattern
+        pattern_extended = g_strdup_printf("*%s*", pattern);
+        pattern = pattern_extended;
+    }
+
+    // select all files that match pattern
+    GList *treepaths = listmodel_get_treepaths(view->model, pattern);
+
+    STANDARD_VIEW_GET_CLASS(view)->unselect_all(view);
+
+    // set the cursor and scroll to the first selected item
+    if (treepaths != NULL)
+    {
+        STANDARD_VIEW_GET_CLASS(view)->set_cursor(view,
+                                                  g_list_last(treepaths)->data,
+                                                  false);
+    }
+
+    for (GList *lp = treepaths; lp != NULL; lp = lp->next)
+    {
+        STANDARD_VIEW_GET_CLASS(view)->select_path(view, lp->data);
+        gtk_tree_path_free(lp->data);
+    }
+
+    g_list_free(treepaths);
+    g_free(pattern_extended);
+
     gtk_widget_destroy(dialog);
-}
-
-static void _standardview_selection_invert(BaseView *baseview)
-{
-    StandardView *view = STANDARD_VIEW(baseview);
-
-    e_return_if_fail(IS_STANDARD_VIEW(view));
-
-    // grab the focus to the view
-    gtk_widget_grab_focus(GTK_WIDGET(view));
-
-    // invert all files in the real view
-    STANDARD_VIEW_GET_CLASS(view)->selection_invert(view);
 }
 
 // DnD Source -----------------------------------------------------------------
@@ -2446,9 +2461,8 @@ static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context,
 }
 
 static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
-                              GtkSelectionData *seldata,
-                              guint info, guint timestamp,
-                              StandardView *view)
+                              GtkSelectionData *seldata, guint info,
+                              guint timestamp, StandardView *view)
 {
     (void) widget;
     (void) context;
