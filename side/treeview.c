@@ -1681,12 +1681,12 @@ static void treeview_drag_begin(GtkWidget *widget, GdkDragContext *context)
     view->drag_gfile = th_file_get_file(selected);
 
     if (view->drag_gfile == NULL)
+    {
+        g_object_unref(selected);
         return;
+    }
 
     g_object_ref(view->drag_gfile);
-
-    if (view->drag_gfile == NULL)
-        return;
 
     // generate an icon from the selected file
 
@@ -1771,8 +1771,10 @@ static void treeview_drag_end(GtkWidget *widget, GdkDragContext *context)
 
     // release the list of dragged URIs
     if (view->drag_gfile)
+    {
         g_object_unref(view->drag_gfile);
-    view->drag_gfile = NULL;
+        view->drag_gfile = NULL;
+    }
 }
 #endif
 
