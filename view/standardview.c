@@ -706,6 +706,7 @@ static void standardview_dispose(GObject *object)
     // be sure to cancel any pending drag autoscroll timer
     if (view->priv->drag_scroll_timer_id != 0)
         g_source_remove(view->priv->drag_scroll_timer_id);
+    view->priv->drag_scroll_timer_id = 0;
 
     // be sure to cancel any pending drag timer
     if (view->priv->popup_timer_id)
@@ -2495,6 +2496,7 @@ static void _on_drag_end(GtkWidget *widget, GdkDragContext *context,
     // stop any running drag autoscroll timer
     if (view->priv->drag_scroll_timer_id != 0)
         g_source_remove(view->priv->drag_scroll_timer_id);
+    view->priv->drag_scroll_timer_id = 0;
 
     // release the list of dragged URIs
     e_list_free(view->priv->drag_glist);
@@ -3095,6 +3097,7 @@ static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
     // stop any running drag autoscroll timer
     if (view->priv->drag_scroll_timer_id != 0)
         g_source_remove(view->priv->drag_scroll_timer_id);
+    view->priv->drag_scroll_timer_id = 0;
 
     // disable the drop highlighting around the view
     if (view->priv->drop_highlight)
