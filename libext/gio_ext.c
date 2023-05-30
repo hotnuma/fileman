@@ -488,7 +488,7 @@ void e_list_free(GList *list)
     g_list_free_full(list, g_object_unref);
 }
 
-// EFileList ------------------------------------------------------------------
+// ThunarGFileList ------------------------------------------------------------
 
 GType e_filelist_get_type()
 {
@@ -504,29 +504,18 @@ GType e_filelist_get_type()
     return type;
 }
 
-/**
- * thunar_g_file_list_new_from_string:
- * @string : a string representation of an URI list.
- *
- * Splits an URI list conforming to the text/uri-list
+/* Splits an URI list conforming to the text/uri-list
  * mime type defined in RFC 2483 into individual URIs,
  * discarding any comments and whitespace. The resulting
- * list will hold one #GFile for each URI.
- *
- * If @string contains no URIs, this function
- * will return %NULL.
- *
- * Return value: the list of #GFile<!---->s or %NULL.
- **/
+ * list will hold one #GFile for each URI. */
+
 GList* e_filelist_new_from_string(const gchar *string)
 {
-    GList  *list = NULL;
-    gchar **uris;
-    gsize   n;
+    gchar **uris = g_uri_list_extract_uris(string);
 
-    uris = g_uri_list_extract_uris(string);
+    GList *list = NULL;
 
-    for(n = 0; uris != NULL && uris[n] != NULL; ++n)
+    for (gsize n = 0; uris != NULL && uris[n] != NULL; ++n)
         list = g_list_append(list, g_file_new_for_uri(uris[n]));
 
     g_strfreev(uris);
@@ -534,25 +523,17 @@ GList* e_filelist_new_from_string(const gchar *string)
     return list;
 }
 
-/**
- * thunar_g_file_list_to_stringv:
- * @list : a list of #GFile<!---->s.
- *
- * Free the returned value using g_strfreev() when you
- * are done with it. Useful for gtk_selection_data_set_uris.
- *
- * Return value: and array of uris.
- **/
 gchar** e_filelist_to_stringv(GList *list)
 {
-    gchar **uris;
-    guint   n;
-    GList  *lp;
+    // g_strfreev
+
+    GList *lp;
+    guint n;
 
     // allocate initial string
-    uris = g_new0(gchar *, g_list_length(list) + 1);
+    gchar **uris = g_new0(gchar*, g_list_length(list) + 1);
 
-    for(lp = list, n = 0; lp != NULL; lp = lp->next)
+    for (lp = list, n = 0; lp != NULL; lp = lp->next)
     {
         // Prefer native paths for interoperability.
         gchar *path = g_file_get_path(G_FILE(lp->data));

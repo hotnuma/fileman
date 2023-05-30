@@ -814,18 +814,12 @@ void launcher_append_accelerators(ThunarLauncher *launcher, GtkAccelGroup *accel
 }
 
 gboolean launcher_append_open_section(ThunarLauncher *launcher,
-                                      GtkMenuShell   *menu,
-                                      gboolean       support_tabs,
-                                      gboolean       support_change_directory,
-                                      gboolean       force)
+                                      GtkMenuShell *menu,
+                                      gboolean support_tabs,
+                                      gboolean support_change_directory,
+                                      gboolean force)
 {
     (void) support_tabs;
-    GList     *applications;
-    gchar     *label_text;
-    gchar     *tooltip_text;
-    GtkWidget *image;
-    GtkWidget *menu_item;
-    GtkWidget *submenu;
 
     e_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), FALSE);
 
@@ -833,35 +827,43 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
     if (launcher->files_are_selected == FALSE && !force)
         return FALSE;
 
+    gchar *label_text;
+    gchar *tooltip_text;
+    GtkWidget *image;
+    GtkWidget *menu_item;
+
     // determine the set of applications that work for all selected files
-    applications = th_list_get_applications(launcher->files_to_process);
+    GList *applist = thlist_get_applications(launcher->files_to_process);
 
     // Execute OR Open OR OpenWith
     if (launcher->n_executables_to_process == launcher->n_files_to_process)
-        launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), LAUNCHER_ACTION_EXECUTE, FALSE);
+    {
+        launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu),
+                                  LAUNCHER_ACTION_EXECUTE, FALSE);
+    }
     else if (launcher->n_directories_to_process >= 1)
     {
         if (support_change_directory)
             launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), LAUNCHER_ACTION_OPEN, FALSE);
     }
-    else if (applications != NULL)
+    else if (applist != NULL)
     {
-        label_text = g_strdup_printf(_("_Open With \"%s\""), g_app_info_get_name(applications->data));
+        label_text = g_strdup_printf(_("_Open With \"%s\""), g_app_info_get_name(applist->data));
         tooltip_text = g_strdup_printf(ngettext("Use \"%s\" to open the selected file",
                                         "Use \"%s\" to open the selected files",
-                                        launcher->n_files_to_process), g_app_info_get_name(applications->data));
+                                        launcher->n_files_to_process), g_app_info_get_name(applist->data));
 
-        image = gtk_image_new_from_gicon(g_app_info_get_icon(applications->data), GTK_ICON_SIZE_MENU);
+        image = gtk_image_new_from_gicon(g_app_info_get_icon(applist->data), GTK_ICON_SIZE_MENU);
         menu_item = xfce_gtk_image_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(_launcher_menu_item_activated),
                     G_OBJECT(launcher), image, menu);
 
         // remember the default application for the "Open" action as quark
-        g_object_set_qdata_full(G_OBJECT(menu_item), _launcher_appinfo_quark, applications->data, g_object_unref);
+        g_object_set_qdata_full(G_OBJECT(menu_item), _launcher_appinfo_quark, applist->data, g_object_unref);
         g_free(tooltip_text);
         g_free(label_text);
 
         // drop the default application from the list
-        applications = g_list_delete_link(applications, applications);
+        applist = g_list_delete_link(applist, applist);
     }
     else
     {
@@ -875,29 +877,31 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
     }
 
     if (launcher->n_files_to_process == launcher->n_directories_to_process
-            && launcher->n_directories_to_process >= 1)
+        && launcher->n_directories_to_process >= 1)
     {
-        launcher_append_menu_item(launcher,
-                                         GTK_MENU_SHELL(menu),
-                                         LAUNCHER_ACTION_OPEN_IN_WINDOW,
-                                         FALSE);
+        launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu),
+                                  LAUNCHER_ACTION_OPEN_IN_WINDOW, FALSE);
     }
 
-    if (applications != NULL)
+    if (applist != NULL)
     {
-        menu_item = xfce_gtk_menu_item_new(_("Open With"),
-                                            _("Choose another application with which to open the selected file"),
-                                            NULL, NULL, NULL, menu);
-        submenu = _launcher_build_application_submenu(launcher, applications);
+        menu_item = xfce_gtk_menu_item_new(
+                _("Open With"),
+                _("Choose another application with which to open the selected file"),
+                NULL, NULL, NULL, menu);
+
+        GtkWidget *submenu;
+        submenu = _launcher_build_application_submenu(launcher, applist);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
     }
     else
     {
         if (launcher->n_files_to_process == 1)
-            launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu), LAUNCHER_ACTION_OPEN_WITH_OTHER, FALSE);
+            launcher_append_menu_item(launcher, GTK_MENU_SHELL(menu),
+                                      LAUNCHER_ACTION_OPEN_WITH_OTHER, FALSE);
     }
 
-    g_list_free_full(applications, g_object_unref);
+    g_list_free_full(applist, g_object_unref);
 
     return TRUE;
 }
@@ -2342,7 +2346,7 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
         return;
 
     // determine the selected files for the view
-    GList *files_to_process = th_list_to_g_list(
+    GList *files_to_process = thlist_to_glist(
                                             launcher->files_to_process);
 
     if (!files_to_process)

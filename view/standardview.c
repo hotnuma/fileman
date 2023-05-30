@@ -344,7 +344,7 @@ struct _StandardViewPrivate
     gulong      row_changed_id;
 
     // drag support
-    GList       *drag_g_file_list;
+    GList       *drag_glist;
     guint       drag_scroll_timer_id;
 
     // drop site support
@@ -752,7 +752,7 @@ static void standardview_finalize(GObject *object)
     e_list_free(view->priv->selected_files);
 
     // release the drag path list(just in case the drag-end wasn't fired before)
-    e_list_free(view->priv->drag_g_file_list);
+    e_list_free(view->priv->drag_glist);
 
     // release the drop path list(just in case the drag-leave wasn't fired before)
     e_list_free(view->priv->drop_file_list);
@@ -2431,17 +2431,17 @@ static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context,
     (void) widget;
 
     // release in case the drag-end wasn't fired before
-    e_list_free(view->priv->drag_g_file_list);
+    e_list_free(view->priv->drag_glist);
 
-    view->priv->drag_g_file_list =
-                th_list_to_g_list(view->priv->selected_files);
+    view->priv->drag_glist =
+                thlist_to_glist(view->priv->selected_files);
 
-    if (view->priv->drag_g_file_list == NULL)
+    if (view->priv->drag_glist == NULL)
         return;
 
     // generate an icon from the first selected file
 
-    ThunarFile *file = th_file_get(view->priv->drag_g_file_list->data, NULL);
+    ThunarFile *file = th_file_get(view->priv->drag_glist->data, NULL);
 
     if (file == NULL)
         return;
@@ -2470,10 +2470,10 @@ static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
     (void) timestamp;
 
     // set the URI list for the drag selection
-    if (view->priv->drag_g_file_list == NULL)
+    if (view->priv->drag_glist == NULL)
         return;
 
-    gchar **uris = e_filelist_to_stringv(view->priv->drag_g_file_list);
+    gchar **uris = e_filelist_to_stringv(view->priv->drag_glist);
     gtk_selection_data_set_uris(seldata, uris);
     g_strfreev(uris);
 }
@@ -2500,8 +2500,8 @@ static void _on_drag_end(GtkWidget *widget, GdkDragContext *context,
         g_source_remove(view->priv->drag_scroll_timer_id);
 
     // release the list of dragged URIs
-    e_list_free(view->priv->drag_g_file_list);
-    view->priv->drag_g_file_list = NULL;
+    e_list_free(view->priv->drag_glist);
+    view->priv->drag_glist = NULL;
 }
 
 // DnD Dest -------------------------------------------------------------------
@@ -2823,6 +2823,7 @@ static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
             && gtk_selection_data_get_length(seldata) > 0)
         {
             const guchar *selstr = gtk_selection_data_get_data(seldata);
+
             view->priv->drop_file_list =
                 e_filelist_new_from_string((gchar*) selstr);
         }

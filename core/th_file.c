@@ -3222,29 +3222,31 @@ static void _th_file_debug(gpointer gfile, gpointer value, gpointer user_data)
  * Return value: the list of #GAppInfo<!---->s that can be used to open all
  *               items in the @file_list.
  **/
-GList* th_list_get_applications(GList *file_list)
+GList* thlist_get_applications(GList *thlist)
 {
-    GList       *applications = NULL;
-    GList       *list;
-    GList       *next;
-    GList       *ap;
-    GList       *lp;
-    GAppInfo    *default_application;
+    GList *applist = NULL;
     const gchar *previous_type = NULL;
-    const gchar *current_type;
+
+    GList *next;
 
     // determine the set of applications that can open all files
-    for (lp = file_list; lp != NULL; lp = lp->next)
+    for (GList *lp = thlist; lp != NULL; lp = lp->next)
     {
-        current_type = th_file_get_content_type(lp->data);
+        const gchar *current_type = th_file_get_content_type(lp->data);
 
-        // no need to check anything if this file has the same mimetype as the previous file
+        /* no need to check anything if this file has the same mimetype
+         * as the previous file */
+
         if (current_type != NULL && previous_type != NULL)
+        {
             if (g_content_type_equals(previous_type, current_type))
                 continue;
+        }
 
         // store the previous type
         previous_type = current_type;
+
+        GList *list = NULL;
 
         // determine the list of applications that can open this file
         if (current_type != NULL)
@@ -3252,33 +3254,34 @@ GList* th_list_get_applications(GList *file_list)
             list = g_app_info_get_all_for_type(current_type);
 
             // move any default application in front of the list
-            default_application = g_app_info_get_default_for_type(current_type, FALSE);
-            if (default_application != NULL)
+            GAppInfo *defapp;
+            defapp = g_app_info_get_default_for_type(current_type, FALSE);
+
+            if (defapp != NULL)
             {
-                for(ap = list; ap != NULL; ap = ap->next)
+                for (GList *ap = list; ap != NULL; ap = ap->next)
                 {
-                    if (g_app_info_equal(ap->data, default_application))
+                    if (g_app_info_equal(ap->data, defapp))
                     {
                         g_object_unref(ap->data);
                         list = g_list_delete_link(list, ap);
                         break;
                     }
                 }
-                list = g_list_prepend(list, default_application);
+
+                list = g_list_prepend(list, defapp);
             }
         }
-        else
-            list = NULL;
 
-        if (applications == NULL)
+        if (applist == NULL)
         {
             // first file, so just use the applications list
-            applications = list;
+            applist = list;
         }
         else
         {
             // keep only the applications that are also present in list
-            for (ap = applications; ap != NULL; ap = next)
+            for (GList *ap = applist; ap != NULL; ap = next)
             {
                 // grab a pointer on the next application
                 next = ap->next;
@@ -3290,7 +3293,7 @@ GList* th_list_get_applications(GList *file_list)
                     g_object_unref(G_OBJECT(ap->data));
 
                     // drop this application from the list
-                    applications = g_list_delete_link(applications, ap);
+                    applist = g_list_delete_link(applist, ap);
                 }
             }
 
@@ -3299,12 +3302,12 @@ GList* th_list_get_applications(GList *file_list)
         }
 
         // check if the set is still not empty
-        if (applications == NULL)
+        if (applist == NULL)
             break;
     }
 
     // remove hidden applications
-    for (ap = applications; ap != NULL; ap = next)
+    for (GList *ap = applist; ap != NULL; ap = next)
     {
         // grab a pointer on the next application
         next = ap->next;
@@ -3315,11 +3318,11 @@ GList* th_list_get_applications(GList *file_list)
             g_object_unref(G_OBJECT(ap->data));
 
             // drop this application from the list
-            applications = g_list_delete_link(applications, ap);
+            applist = g_list_delete_link(applist, ap);
         }
     }
 
-    return applications;
+    return applist;
 }
 
 static gint _compare_app_infos(gconstpointer a, gconstpointer b)
@@ -3327,7 +3330,7 @@ static gint _compare_app_infos(gconstpointer a, gconstpointer b)
     return g_app_info_equal(G_APP_INFO(a), G_APP_INFO(b)) ? 0 : 1;
 }
 
-GList* th_list_to_g_list(GList *thlist)
+GList* thlist_to_glist(GList *thlist)
 {
     // e_list_free() when no longer needed.
 
