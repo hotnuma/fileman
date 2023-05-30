@@ -264,13 +264,13 @@ enum
 };
 
 // Target types for dragging from the view
-static const GtkTargetEntry _drag_entries[] =
+static const GtkTargetEntry _drag_targets[] =
 {
     {"text/uri-list",   0, TARGET_TEXT_URI_LIST},
 };
 
 // Target types for dropping to the view
-static const GtkTargetEntry _drop_entries[] =
+static const GtkTargetEntry _drop_targets[] =
 {
     {"text/uri-list",   0, TARGET_TEXT_URI_LIST},
     {"_NETSCAPE_URL",   0, TARGET_NETSCAPE_URL},
@@ -653,8 +653,7 @@ static GObject* standardview_constructor(GType type, guint n_props,
     // setup the real view as drag source
     gtk_drag_source_set(child,
                         GDK_BUTTON1_MASK,
-                        _drag_entries,
-                        G_N_ELEMENTS(_drag_entries),
+                        _drag_targets, G_N_ELEMENTS(_drag_targets),
                         GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK);
 
     g_signal_connect(G_OBJECT(child), "drag-begin",
@@ -672,8 +671,7 @@ static GObject* standardview_constructor(GType type, guint n_props,
     // setup the real view as drop site
     gtk_drag_dest_set(child,
                       0,
-                      _drop_entries,
-                      G_N_ELEMENTS(_drop_entries),
+                      _drop_targets, G_N_ELEMENTS(_drop_targets),
                       GDK_ACTION_ASK
                       | GDK_ACTION_COPY
                       | GDK_ACTION_LINK
