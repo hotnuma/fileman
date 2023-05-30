@@ -169,7 +169,7 @@ static void _on_drag_data_delete(GtkWidget *widget, GdkDragContext *context,
 static void _on_drag_end(GtkWidget *widget, GdkDragContext *context,
                          StandardView *view);
 
-// DnD Target -----------------------------------------------------------------
+// DnD Dest -------------------------------------------------------------------
 
 static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
                                 gint x, gint y, guint timestamp,
@@ -2057,25 +2057,6 @@ static gboolean _standardview_update_statusbar_text_idle(gpointer data)
 
 // Public Functions -----------------------------------------------------------
 
-ThunarHistory* standardview_get_history(StandardView *view)
-{
-    return view->priv->history;
-}
-
-void standardview_set_history(StandardView *view, ThunarHistory *history)
-{
-    e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(history == NULL || IS_THUNARHISTORY(history));
-
-    // set the new history
-    g_object_unref(view->priv->history);
-    view->priv->history = history;
-
-    // connect callback
-    g_signal_connect_swapped(G_OBJECT(history), "change-directory",
-                             G_CALLBACK(navigator_change_directory), view);
-}
-
 void standardview_selection_changed(StandardView *view)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
@@ -2117,6 +2098,25 @@ void standardview_selection_changed(StandardView *view)
 
     // emit notification for "selected-files"
     g_object_notify_by_pspec(G_OBJECT(view), _stdv_props[PROP_SELECTED_FILES]);
+}
+
+ThunarHistory* standardview_get_history(StandardView *view)
+{
+    return view->priv->history;
+}
+
+void standardview_set_history(StandardView *view, ThunarHistory *history)
+{
+    e_return_if_fail(IS_STANDARD_VIEW(view));
+    e_return_if_fail(history == NULL || IS_THUNARHISTORY(history));
+
+    // set the new history
+    g_object_unref(view->priv->history);
+    view->priv->history = history;
+
+    // connect callback
+    g_signal_connect_swapped(G_OBJECT(history), "change-directory",
+                             G_CALLBACK(navigator_change_directory), view);
 }
 
 // Popup Menu -----------------------------------------------------------------
@@ -2504,7 +2504,7 @@ static void _on_drag_end(GtkWidget *widget, GdkDragContext *context,
     view->priv->drag_g_file_list = NULL;
 }
 
-// DnD Target -----------------------------------------------------------------
+// DnD Dest -------------------------------------------------------------------
 
 static gboolean _on_drag_motion(GtkWidget *widget, GdkDragContext *context,
                                 gint x, gint y, guint timestamp,
