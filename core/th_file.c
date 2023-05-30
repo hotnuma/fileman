@@ -449,7 +449,7 @@ static void th_fileinfo_changed(FileInfo *file_info)
 
 ThunarFile* th_file_get(GFile *gfile, GError **error)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     e_return_val_if_fail(G_IS_FILE(gfile), NULL);
 
@@ -542,7 +542,7 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
 
 ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     e_return_val_if_fail(uri != NULL, NULL);
     e_return_val_if_fail(error == NULL || *error == NULL, NULL);
@@ -558,8 +558,8 @@ ThunarFile* th_file_get_for_uri(const gchar *uri, GError **error)
 
 ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error)
 {
+    // g_object_unref when unneeded
     // You may want to call th_file_has_parent() first
-    // g_object_unref
 
     e_return_val_if_fail(IS_THUNARFILE(file), NULL);
     e_return_val_if_fail(error == NULL || *error == NULL, NULL);
@@ -585,7 +585,7 @@ ThunarFile* th_file_get_parent(const ThunarFile *file, GError **error)
 ThunarFile* th_file_get_with_info(GFile *gfile,
                                   GFileInfo *info, gboolean not_mounted)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     e_return_val_if_fail(G_IS_FILE(gfile), NULL);
     e_return_val_if_fail(G_IS_FILE_INFO(info), NULL);

@@ -132,7 +132,7 @@ gboolean fileinfo_is_directory(FileInfo *file_info)
 
 GFileInfo* fileinfo_get_file_info(FileInfo *file_info)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
@@ -141,7 +141,7 @@ GFileInfo* fileinfo_get_file_info(FileInfo *file_info)
 
 GFileInfo* fileinfo_get_filesystem_info(FileInfo *file_info)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
@@ -150,7 +150,7 @@ GFileInfo* fileinfo_get_filesystem_info(FileInfo *file_info)
 
 GFile* fileinfo_get_location(FileInfo *file_info)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 

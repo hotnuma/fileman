@@ -23,11 +23,12 @@
 
 #include <application.h>
 #include <appmenu.h>
+#include <treemodel.h>
+#include <iconfactory.h>
+#include <shortrender.h>
 #include <clipboard.h>
 #include <navigator.h>
 #include <dnd.h>
-#include <treemodel.h>
-#include <shortrender.h>
 #include <th_device.h>
 #include <th_folder.h>
 #include <gtk_ext.h>
@@ -107,6 +108,15 @@ static ThunarFile* _treeview_get_selected_file(TreeView *view);
 static void _treeview_action_unlink_selected_folder(TreeView *view,
                                                     gboolean permanently);
 
+// DnD Source -----------------------------------------------------------------
+
+static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context);
+static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
+                              GtkSelectionData *seldata, guint info,
+                              guint timestamp);
+static void _on_drag_data_delete(GtkWidget *widget, GdkDragContext *context);
+static void _on_drag_end(GtkWidget *widget, GdkDragContext *context);
+
 // DnD Dest -------------------------------------------------------------------
 
 static gboolean treeview_drag_motion(GtkWidget *widget, GdkDragContext *context,
@@ -155,19 +165,13 @@ struct _TreeView
     GtkTreeView         __parent__;
 
     ClipboardManager    *clipboard;
+    IconFactory         *icon_factory;
     GtkCellRenderer     *icon_renderer;
     ThunarFile          *current_directory;
     TreeModel           *model;
 
     // whether to display hidden/backup files
     guint               show_hidden : 1;
-
-    // drop site support
-    guint               drop_data_ready : 1;
-    // whether the drop data was received already
-    guint               drop_occurred : 1;
-    GList               *drop_file_list;
-    // the list of URIs that are contained in the drop data
 
     /* the "new-files" closure, which is used to
      * open newly created directories once done.
@@ -196,6 +200,14 @@ struct _TreeView
 
     // expand drag dest row timer source
     guint               expand_timer_id;
+
+    // drag site support
+    GFile               *drag_gfile;
+
+    // drop site support
+    GList               *drop_glist;
+    guint               drop_occurred : 1;
+    guint               drop_data_ready : 1; // whether the drop data was received already
 };
 
 // Target types for dropping into the tree view
@@ -332,8 +344,12 @@ static void treeview_finalize(GObject *object)
 {
     TreeView *view = TREEVIEW(object);
 
-    // release drop path list(if drag_leave wasn't called)
-    e_list_free(view->drop_file_list);
+    e_assert(view->icon_factory == NULL);
+
+    e_list_free(view->drop_glist);
+
+    if (view->drag_gfile)
+        g_object_unref(view->drag_gfile);
 
     // be sure to cancel the cursor idle source
     if (view->cursor_idle_id != 0)
@@ -357,7 +373,7 @@ static void treeview_finalize(GObject *object)
     g_object_unref(view->launcher);
 
     // free the tree model
-    g_object_unref(G_OBJECT(view->model));
+    g_object_unref(view->model);
 
     // drop any existing "new-files" closure
     if (view->new_files_closure != NULL)
@@ -376,9 +392,12 @@ static void treeview_realize(GtkWidget *widget)
     // let the parent class realize the widget
     GTK_WIDGET_CLASS(treeview_parent_class)->realize(widget);
 
+    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
+                                                gtk_widget_get_screen(widget));
+    view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
+
     // query the clipboard manager for the display
     GdkDisplay *display = gtk_widget_get_display(widget);
-
     view->clipboard = clipman_get_for_display(display);
 }
 
@@ -389,6 +408,9 @@ static void treeview_unrealize(GtkWidget *widget)
     // release the clipboard manager reference
     g_object_unref(G_OBJECT(view->clipboard));
     view->clipboard = NULL;
+
+    g_object_unref(G_OBJECT(view->icon_factory));
+    view->icon_factory = NULL;
 
     // let the parent class unrealize the widget
     GTK_WIDGET_CLASS(treeview_parent_class)->unrealize(widget);
@@ -1347,10 +1369,10 @@ static void _treeview_action_open(TreeView *view)
         _treeview_open_selection(view);
     }
 
-    if (device != NULL)
+    if (device)
         g_object_unref(device);
 
-    if (file != NULL)
+    if (file)
         g_object_unref(file);
 }
 
@@ -1371,13 +1393,14 @@ static void _treeview_open_selection(TreeView *view)
 
 static ThunarDevice* _treeview_get_selected_device(TreeView *view)
 {
-    GtkTreeSelection *selection;
-    ThunarDevice     *device = NULL;
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-
     // determine file for the selected row
+    GtkTreeSelection *selection;
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    ThunarDevice *device = NULL;
+
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
         gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
 
@@ -1386,18 +1409,20 @@ static ThunarDevice* _treeview_get_selected_device(TreeView *view)
 
 static ThunarFile* _treeview_get_selected_file(TreeView *view)
 {
-    GtkTreeSelection *selection;
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-    ThunarFile       *file = NULL;
+    // g_object_unref when unneeded
 
     // determine file for the selected row
+    GtkTreeSelection *selection;
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 
     /* avoid dealing with invalid selections(may occur when the mount_finish()
      * handler is called and the tree view has been hidden already) */
     if (!GTK_IS_TREE_SELECTION(selection))
         return NULL;
+
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    ThunarFile *file = NULL;
 
     if (gtk_tree_selection_get_selected(selection, &model, &iter))
         gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_FILE, &file, -1);
@@ -1603,94 +1628,117 @@ void treeview_rename_selected(TreeView *view)
 
 // DnD Source -----------------------------------------------------------------
 
-#if 0
-static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context);
-static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
-                              GtkSelectionData *seldata, guint info,
-                              guint timestamp);
-static void _on_drag_data_delete(GtkWidget *widget, GdkDragContext *context,
-                                 StandardView *view);
-static void _on_drag_end(GtkWidget *widget, GdkDragContext *context);
-#endif
-
-#if 0
 static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context)
 {
-    (void) widget;
+    TreeView *view = TREEVIEW(widget);
 
     // release in case the drag-end wasn't fired before
-    e_list_free(view->priv->drag_g_file_list);
+    if (view->drag_gfile)
+        g_object_unref(view->drag_gfile);
 
-    view->priv->drag_g_file_list =
-                th_list_to_g_list(view->priv->selected_files);
+    ThunarFile *selected = _treeview_get_selected_file(view);
 
-    if (view->priv->drag_g_file_list == NULL)
+    if (selected == NULL)
         return;
 
-    // generate an icon from the first selected file
+    view->drag_gfile = th_file_get_file(selected);
 
-    ThunarFile *file = th_file_get(view->priv->drag_g_file_list->data, NULL);
-
-    if (file == NULL)
+    if (view->drag_gfile == NULL)
         return;
+
+    g_object_ref(view->drag_gfile);
+
+    if (view->drag_gfile == NULL)
+        return;
+
+    // generate an icon from the selected file
 
     gint size;
     g_object_get(G_OBJECT(view->icon_renderer), "size", &size, NULL);
 
     GdkPixbuf *icon = iconfact_load_file_icon(view->icon_factory,
-                                              file,
+                                              selected,
                                               FILE_ICON_STATE_DEFAULT,
                                               size);
 
     gtk_drag_set_icon_pixbuf(context, icon, 0, 0);
 
     g_object_unref(icon);
-    g_object_unref(file);
+    g_object_unref(selected);
+}
+
+static gchar** _gfile_to_stringv(GFile *file)
+{
+    // g_strfreev
+
+    if (!file)
+        return NULL;
+
+    gchar **uris = g_new0(gchar*, 2);
+
+    // Prefer native paths for interoperability.
+    gchar *path = g_file_get_path(file);
+    if (path == NULL)
+    {
+        uris[0] = g_file_get_uri(file);
+    }
+    else
+    {
+        uris[0] = g_filename_to_uri(path, NULL, NULL);
+        g_free(path);
+    }
+
+    return uris;
 }
 
 static void _on_drag_data_get(GtkWidget *widget, GdkDragContext *context,
                               GtkSelectionData *seldata, guint info,
                               guint timestamp)
 {
-    (void) widget;
     (void) context;
     (void) info;
     (void) timestamp;
 
-    // set the URI list for the drag selection
-    if (view->priv->drag_g_file_list == NULL)
+    TreeView *view = TREEVIEW(widget);
+
+    if (view->drag_gfile == NULL)
         return;
 
-    gchar **uris = e_filelist_to_stringv(view->priv->drag_g_file_list);
+    // set the URI list for the drag selection
+
+    gchar **uris = _gfile_to_stringv(view->drag_gfile);
+    if (!uris)
+        return;
+
     gtk_selection_data_set_uris(seldata, uris);
     g_strfreev(uris);
 }
 
-static void _on_drag_data_delete(GtkWidget *widget, GdkDragContext *context,
-                                 StandardView *view)
+static void _on_drag_data_delete(GtkWidget *widget, GdkDragContext *context)
 {
     (void) context;
-    (void) view;
 
-    // make sure the default handler of ExoIconView/GtkTreeView is never run
-
+    // make sure the default handler is never run
     g_signal_stop_emission_by_name(G_OBJECT(widget), "drag-data-delete");
 }
 
 static void _on_drag_end(GtkWidget *widget, GdkDragContext *context)
 {
-    (void) widget;
     (void) context;
 
+    TreeView *view = TREEVIEW(widget);
+
+#if 0
     // stop any running drag autoscroll timer
-    if (view->priv->drag_scroll_timer_id != 0)
-        g_source_remove(view->priv->drag_scroll_timer_id);
+    if (view->drag_scroll_timer_id != 0)
+        g_source_remove(view->drag_scroll_timer_id);
+#endif
 
     // release the list of dragged URIs
-    e_list_free(view->priv->drag_g_file_list);
-    view->priv->drag_g_file_list = NULL;
+    if (view->drag_gfile)
+        g_object_unref(view->drag_gfile);
+    view->drag_gfile = NULL;
 }
-#endif
 
 // DnD Dest -------------------------------------------------------------------
 
@@ -1699,10 +1747,9 @@ static gboolean treeview_drag_motion(GtkWidget *widget,
                                      gint x, gint y, guint timestamp)
 {
     TreeView *view = TREEVIEW(widget);
-    GdkAtom         target;
 
     // determine the drop target
-    target = gtk_drag_dest_find_target(widget, context, NULL);
+    GdkAtom target = gtk_drag_dest_find_target(widget, context, NULL);
     if (target != gdk_atom_intern_static_string("text/uri-list"))
     {
         // reset the "drop-file" of the icon renderer
@@ -1772,7 +1819,8 @@ static GdkDragAction _treeview_get_dest_actions(TreeView *view,
             if (file != NULL)
             {
                 // check if the file accepts the drop
-                actions = th_file_accepts_drop(file, view->drop_file_list, context, &action);
+                actions = th_file_accepts_drop(file,
+                                               view->drop_glist, context, &action);
 
                 if (actions == 0)
                 {
@@ -1987,7 +2035,7 @@ static void treeview_drag_data_received(GtkWidget *widget,
             && gtk_selection_data_get_format(seldata) == 8
             && gtk_selection_data_get_length(seldata) > 0)
         {
-            view->drop_file_list = e_filelist_new_from_string(
+            view->drop_glist = e_filelist_new_from_string(
                             (const gchar*) gtk_selection_data_get_data(seldata));
         }
 
@@ -2018,7 +2066,7 @@ static void treeview_drag_data_received(GtkWidget *widget,
         action = (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
                  ? dnd_ask(GTK_WIDGET(view),
                                   file,
-                                  view->drop_file_list,
+                                  view->drop_glist,
                                   actions)
                  : gdk_drag_context_get_selected_action(context);
 
@@ -2026,7 +2074,7 @@ static void treeview_drag_data_received(GtkWidget *widget,
         if (action != 0)
         {
             succeed = dnd_perform(GTK_WIDGET(view),
-                                  file, view->drop_file_list, action, NULL);
+                                  file, view->drop_glist, action, NULL);
         }
     }
 
@@ -2056,9 +2104,9 @@ static void treeview_drag_leave(GtkWidget *widget, GdkDragContext *context,
     // reset the "drop data ready" status and free the URI list
     if (view->drop_data_ready)
     {
-        e_list_free(view->drop_file_list);
+        e_list_free(view->drop_glist);
         view->drop_data_ready = false;
-        view->drop_file_list = NULL;
+        view->drop_glist = NULL;
     }
 
     // call the parent's handler

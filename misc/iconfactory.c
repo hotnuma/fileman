@@ -467,7 +467,7 @@ static void _iconfact_sweep_timer_destroy(gpointer user_data)
 
 IconFactory* iconfact_get_default()
 {
-    // g_object_unref when no longer needed
+    // g_object_unref when unneeded
 
     static IconFactory *factory = NULL;
 
@@ -486,7 +486,7 @@ IconFactory* iconfact_get_default()
 
 IconFactory* iconfact_get_for_icon_theme(GtkIconTheme *icon_theme)
 {
-    // g_object_unref when no longer needed
+    // g_object_unref when unneeded
 
     IconFactory *factory;
 
@@ -521,7 +521,7 @@ IconFactory* iconfact_get_for_icon_theme(GtkIconTheme *icon_theme)
 GdkPixbuf* iconfact_load_icon(IconFactory *factory, const gchar *name,
                               gint size, gboolean wants_default)
 {
-    // g_object_unref when no longer needed
+    // g_object_unref when unneeded
 
     e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
     e_return_val_if_fail(size > 0, NULL);
@@ -547,7 +547,7 @@ GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
                                    FileIconState icon_state,
                                    gint icon_size)
 {
-    // g_object_unref when no longer needed
+    // g_object_unref when unneeded
 
     e_return_val_if_fail(IS_ICONFACTORY(factory), NULL);
     e_return_val_if_fail(IS_THUNARFILE(file), NULL);

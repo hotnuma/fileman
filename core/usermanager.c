@@ -165,7 +165,7 @@ static void _usermanager_flush_timer_destroy(gpointer user_data)
 
 UserManager* usermanager_get_default()
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     static UserManager *manager = NULL;
 
@@ -215,7 +215,7 @@ GList* usermanager_get_all_groups(UserManager *manager)
 ThunarGroup* usermanager_get_group_by_id(UserManager *manager,
                                           guint32 id)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
 
@@ -235,7 +235,7 @@ ThunarGroup* usermanager_get_group_by_id(UserManager *manager,
 
 ThunarUser* usermanager_get_user_by_id(UserManager *manager, guint32 id)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     g_return_val_if_fail(IS_USERMANAGER(manager), NULL);
 

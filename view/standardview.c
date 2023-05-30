@@ -912,11 +912,11 @@ static void standardview_realize(GtkWidget *widget)
     // let the GtkWidget do its work
     GTK_WIDGET_CLASS(standardview_parent_class)->realize(widget);
 
+    StandardView *view = STANDARD_VIEW(widget);
+
     // determine the icon factory for the screen on which we are realized
     GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
                                                 gtk_widget_get_screen(widget));
-
-    StandardView *view = STANDARD_VIEW(widget);
     view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
 }
 

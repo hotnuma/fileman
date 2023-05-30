@@ -567,7 +567,7 @@ static void _colmodel_save_visible_columns(ColumnModel *column_model)
 
 ColumnModel* colmodel_get_default()
 {
-    // g_object_unref when no longer needed
+    // g_object_unref when unneeded
 
     static ColumnModel *column_model = NULL;
 

@@ -1848,7 +1848,7 @@ ListModel* listmodel_new()
 
 ThunarFile* listmodel_get_file(ListModel *store, GtkTreeIter *iter)
 {
-    // g_object_unref
+    // g_object_unref when unneeded
 
     e_return_val_if_fail(IS_LISTMODEL(store), NULL);
     e_return_val_if_fail(iter->stamp == store->stamp, NULL);
