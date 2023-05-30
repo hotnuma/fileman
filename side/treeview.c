@@ -1814,17 +1814,16 @@ static gboolean treeview_drag_motion(GtkWidget *widget,
     }
 
     // start the drag autoscroll timer if not already running
-    if (view->drag_scroll_timer_id == 0)
-    {
-        // schedule the drag autoscroll timer
-        view->drag_scroll_timer_id = g_timeout_add_full(
-                                            G_PRIORITY_LOW,
-                                            50,
-                                            _treeview_drag_scroll_timer,
-                                            view,
-                                            _treeview_drag_scroll_timer_destroy);
-    }
+    if (view->drag_scroll_timer_id != 0)
+        return true;
 
+    // schedule the drag autoscroll timer
+    view->drag_scroll_timer_id = g_timeout_add_full(
+                                        G_PRIORITY_LOW,
+                                        50,
+                                        _treeview_drag_scroll_timer,
+                                        view,
+                                        _treeview_drag_scroll_timer_destroy);
     return true;
 }
 
