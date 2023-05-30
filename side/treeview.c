@@ -430,10 +430,12 @@ static void treeview_unrealize(GtkWidget *widget)
     TreeView *view = TREEVIEW(widget);
 
     // release the clipboard manager reference
-    g_object_unref(G_OBJECT(view->clipboard));
+    if (view->clipboard)
+        g_object_unref(view->clipboard);
     view->clipboard = NULL;
 
-    g_object_unref(G_OBJECT(view->icon_factory));
+    if (view->icon_factory)
+        g_object_unref(view->icon_factory);
     view->icon_factory = NULL;
 
     // let the parent class unrealize the widget
@@ -477,7 +479,8 @@ static void treeview_set_property(GObject *object, guint prop_id,
         break;
 
     case PROP_SHOW_HIDDEN:
-        _treeview_set_show_hidden(TREEVIEW(object), g_value_get_boolean(value));
+        _treeview_set_show_hidden(TREEVIEW(object),
+                                  g_value_get_boolean(value));
         break;
 
     default:
@@ -495,31 +498,36 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
                                            ThunarFile *current_directory)
 {
     TreeView *view = TREEVIEW(navigator);
-    ThunarFile  *file;
-    ThunarFile  *file_parent;
-    gboolean    needs_refiltering = false;
 
     // check if we already use that directory
     if (view->current_directory == current_directory)
         return;
 
+    gboolean needs_refiltering = false;
+
     // check if we have an active directory
     if (view->current_directory != NULL)
     {
-        // update the filter if the old current directory, or one of it's parents, is hidden
+        /* update the filter if the old current directory, or one of it's
+         * parents, is hidden */
         if (!view->show_hidden)
         {
+            ThunarFile *file;
+            ThunarFile *file_parent;
+
             // look if the file or one of it's parents is hidden
-            for(file = THUNARFILE(g_object_ref(G_OBJECT(view->current_directory))); file != NULL; file = file_parent)
+            for (file = THUNARFILE(g_object_ref(view->current_directory));
+                 file != NULL; file = file_parent)
             {
                 // check if this file is hidden
                 if (th_file_is_hidden(file))
                 {
-                    // schedule an update of the filter after the current directory has been changed
+                    /* schedule an update of the filter after the current
+                     * directory has been changed */
                     needs_refiltering = true;
 
                     // release the file
-                    g_object_unref(G_OBJECT(file));
+                    g_object_unref(file);
 
                     break;
                 }
@@ -528,7 +536,7 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
                 file_parent = th_file_get_parent(file, NULL);
 
                 // release the file
-                g_object_unref(G_OBJECT(file));
+                g_object_unref(file);
             }
         }
 
@@ -545,13 +553,17 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
         // take a reference on the directory
         g_object_ref(G_OBJECT(current_directory));
 
-        /* update the filter if the new current directory, or one of it's parents, is
-         * hidden. we don't have to check this if refiltering needs to be done
-         * anyway */
+        /* update the filter if the new current directory, or one of it's
+         * parents, is hidden. we don't have to check this if refiltering
+         * needs to be done anyway */
         if (!needs_refiltering && !view->show_hidden)
         {
+            ThunarFile *file;
+            ThunarFile *file_parent;
+
             // look if the file or one of it's parents is hidden
-            for(file = THUNARFILE(g_object_ref(G_OBJECT(current_directory))); file != NULL; file = file_parent)
+            for (file = THUNARFILE(g_object_ref(current_directory));
+                 file != NULL; file = file_parent)
             {
                 // check if this file is hidden
                 if (th_file_is_hidden(file))
@@ -1693,8 +1705,8 @@ static void treeview_drag_begin(GtkWidget *widget, GdkDragContext *context)
 }
 
 static void treeview_drag_data_get(GtkWidget *widget, GdkDragContext *context,
-                              GtkSelectionData *seldata, guint info,
-                              guint timestamp)
+                                   GtkSelectionData *seldata, guint info,
+                                   guint timestamp)
 {
     (void) context;
     (void) info;
@@ -1921,9 +1933,9 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
         gdk_window_get_geometry(window, NULL, NULL, NULL, &h);
 
         // check if we are near the edge
-        offset = y -(2 * 20);
+        offset = y - (2 * 20);
         if (offset > 0)
-            offset = MAX(y -(h - 2 * 20), 0);
+            offset = MAX(y - (h - 2 * 20), 0);
 
         // change the vertical adjustment appropriately
         if (offset != 0)
