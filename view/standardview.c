@@ -348,10 +348,10 @@ struct _StandardViewPrivate
     guint       drag_scroll_timer_id;
 
     // drop site support
-    guint       drop_data_ready : 1;    // whether the drop data was received already
+    GList       *drop_glist;
     guint       drop_highlight : 1;
     guint       drop_occurred : 1;      // whether the data was dropped
-    GList       *drop_file_list;        // the list of URIs that are contained in the drop data */
+    guint       drop_data_ready : 1;    // whether the drop data was received already
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE(
@@ -755,7 +755,7 @@ static void standardview_finalize(GObject *object)
     e_list_free(view->priv->drag_glist);
 
     // release the drop path list(just in case the drag-leave wasn't fired before)
-    e_list_free(view->priv->drop_file_list);
+    e_list_free(view->priv->drop_glist);
 
     // release the history
     g_object_unref(view->priv->history);
@@ -2433,8 +2433,7 @@ static void _on_drag_begin(GtkWidget *widget, GdkDragContext *context,
     // release in case the drag-end wasn't fired before
     e_list_free(view->priv->drag_glist);
 
-    view->priv->drag_glist =
-                thlist_to_glist(view->priv->selected_files);
+    view->priv->drag_glist = thlist_to_glist(view->priv->selected_files);
 
     if (view->priv->drag_glist == NULL)
         return;
@@ -2658,7 +2657,7 @@ static GdkDragAction _standardview_get_dest_actions(StandardView *view,
     {
         // determine the possible drop actions for the file(and the suggested action if any)
         actions = th_file_accepts_drop(file,
-                                       view->priv->drop_file_list,
+                                       view->priv->drop_glist,
                                        context, &action);
         if (actions != 0)
         {
@@ -2824,7 +2823,7 @@ static void _on_drag_data_received(GtkWidget *widget, GdkDragContext *context,
         {
             const guchar *selstr = gtk_selection_data_get_data(seldata);
 
-            view->priv->drop_file_list =
+            view->priv->drop_glist =
                 e_filelist_new_from_string((gchar*) selstr);
         }
 
@@ -2875,7 +2874,7 @@ static bool _received_text_uri_list(GdkDragContext *context,
         GdkDragAction action =
             (gdk_drag_context_get_selected_action(context) == GDK_ACTION_ASK)
             ? dnd_ask(GTK_WIDGET(view), file,
-                      view->priv->drop_file_list, actions)
+                      view->priv->drop_glist, actions)
             : gdk_drag_context_get_selected_action(context);
 
         // perform the requested action
@@ -2899,7 +2898,7 @@ static bool _received_text_uri_list(GdkDragContext *context,
             succeed = dnd_perform(
                         GTK_WIDGET(view),
                         file,
-                        view->priv->drop_file_list,
+                        view->priv->drop_glist,
                         action,
                         _standardview_new_files_closure(view, source_view));
         }
@@ -3109,8 +3108,8 @@ static void _on_drag_leave(GtkWidget *widget, GdkDragContext *context,
     // reset the "drop data ready" status and free the URI list
     if (view->priv->drop_data_ready)
     {
-        e_list_free(view->priv->drop_file_list);
-        view->priv->drop_file_list = NULL;
+        e_list_free(view->priv->drop_glist);
+        view->priv->drop_glist = NULL;
         view->priv->drop_data_ready = false;
     }
 
