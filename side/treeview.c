@@ -37,7 +37,7 @@
 // drag dest expand timeout
 #define TREEVIEW_EXPAND_TIMEOUT 750
 
-//#define ENABLE_TREE_DRAG
+#define ENABLE_TREE_DRAG
 
 // TreeView -------------------------------------------------------------------
 
