@@ -117,6 +117,7 @@ static void treeview_drag_begin(GtkWidget *widget, GdkDragContext *context);
 static void treeview_drag_data_get(GtkWidget *widget, GdkDragContext *context,
                                    GtkSelectionData *seldata, guint info,
                                    guint timestamp);
+static gchar** _gfile_to_stringv(GFile *file);
 static void treeview_drag_data_delete(GtkWidget *widget, GdkDragContext *context);
 static void treeview_drag_end(GtkWidget *widget, GdkDragContext *context);
 #endif
