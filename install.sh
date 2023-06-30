@@ -28,7 +28,7 @@ if [[ $NOCLEAN == 0 && -d $dest ]]; then
     rm -rf $dest
 fi
 
-meson build -Dbuildtype=${BUILDTYPE}
+meson setup build -Dbuildtype=${BUILDTYPE}
 ninja -C build
 sudo ninja -C build install
 
