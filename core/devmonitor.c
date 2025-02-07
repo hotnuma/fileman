@@ -457,7 +457,7 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
 
         // skip gphoto and mtp locations, since those also have a volume
         if (g_file_has_uri_scheme(location, "gphoto2")
-                || g_file_has_uri_scheme(location, "mtp"))
+            || g_file_has_uri_scheme(location, "mtp"))
         {
             g_object_unref(location);
             return;

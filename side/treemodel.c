@@ -299,9 +299,9 @@ static void treemodel_init(TreeModel *model)
     system_paths = g_list_append(system_paths, e_file_new_for_root());
 
     // append the network icon if browsing the network is supported
-    if (e_vfs_is_uri_scheme_supported("network"))
-        system_paths = g_list_append(system_paths,
-                                     g_file_new_for_uri("network://"));
+    //if (e_vfs_is_uri_scheme_supported("network"))
+    //    system_paths = g_list_append(system_paths,
+    //                                 g_file_new_for_uri("network://"));
 
     /* append the system defined nodes, Computer, Home, Trash,
      * File System, Network */

@@ -1521,6 +1521,7 @@ const gchar* th_file_get_icon_name(ThunarFile *file, FileIconState icon_state,
              || g_file_has_uri_scheme(file->gfile, "network"))
     {
         // query the icon(computer:// and network:// backend)
+
         fileinfo = g_file_query_info(file->gfile,
                                       G_FILE_ATTRIBUTE_STANDARD_ICON,
                                       G_FILE_QUERY_INFO_NONE, NULL, NULL);
@@ -2510,10 +2511,14 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
             stimestamp = gtk_get_current_event_time();
         }
 
+        G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
         // execute the command
         result = xfce_spawn_on_screen(util_parse_parent(parent, NULL),
                                        directory, argv, NULL, G_SPAWN_SEARCH_PATH,
                                        snotify, stimestamp, icon_name, error);
+
+        G_GNUC_END_IGNORE_DEPRECATIONS
     }
 
     // clean up

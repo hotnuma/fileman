@@ -31,8 +31,9 @@
 #define BINDIR "/usr/bin"
 #define PATH_BSHELL "/bin/sh"
 
+#include <libxfce4util/libxfce4util.h>
 // Deprecated: xfce 4.18
-#define I_(string) (g_intern_static_string((string)))
+//#define I_(string) (g_intern_static_string((string)))
 
 #define E_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
 #define E_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)

@@ -1921,12 +1921,16 @@ GList* listmodel_get_treepaths(ListModel *store, const gchar *pattern)
     {
         ThunarFile *file = g_sequence_get(row);
 
+        G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
         if (g_pattern_match_string(pspec, th_file_get_display_name(file)))
         {
             e_assert(i == g_sequence_iter_get_position(row));
 
             treepaths = g_list_prepend(treepaths, gtk_tree_path_new_from_indices(i, -1));
         }
+
+        G_GNUC_END_IGNORE_DEPRECATIONS
 
         row = g_sequence_iter_next(row);
 
