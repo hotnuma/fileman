@@ -732,6 +732,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
     if (window->current_directory == current_directory)
         return;
 
+    #if 0
     if (!current_directory)
     {
         DPRINT("window_set_current_directory: (null)\n");
@@ -742,6 +743,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
         DPRINT("window_set_current_directory: %s\n", current_uri);
         g_free(current_uri);
     }
+    #endif
 
     // disconnect from the previously active directory
     if (window->current_directory != NULL)
