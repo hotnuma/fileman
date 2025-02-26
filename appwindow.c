@@ -58,25 +58,31 @@ static void _window_current_directory_changed(ThunarFile *current_directory,
                                               AppWindow *window);
 static void _window_history_changed(AppWindow *window);
 static void _window_update_window_icon(AppWindow *window);
-static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level);
+static void _window_set_zoom_level(AppWindow *window,
+                                   ThunarZoomLevel zoom_level);
 
 // Window Init ----------------------------------------------------------------
 
 static void _window_screen_changed(GtkWidget *widget, GdkScreen *old_screen,
                                    gpointer userdata);
-static gboolean _window_delete(AppWindow *window, GdkEvent *event, gpointer data);
+static gboolean _window_delete(AppWindow *window,
+                               GdkEvent *event, gpointer data);
 static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
-                                       ThunarDevice *device, GFile *root_file,
+                                       ThunarDevice *device,
+                                       GFile *root_file,
                                        AppWindow *window);
 static void _window_device_changed(DeviceMonitor *device_monitor,
                                    ThunarDevice *device, AppWindow *window);
-static gboolean _window_propagate_key_event(GtkWindow *window, GdkEvent *key_event,
+static gboolean _window_propagate_key_event(GtkWindow *window,
+                                            GdkEvent *key_event,
                                             gpointer user_data);
 static void _window_select_files(AppWindow *window, GList *path_list);
 // toolbar
-static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
+static gboolean _window_history_clicked(GtkWidget *button,
+                                        GdkEventButton *event,
                                         GtkWidget *window);
-static gboolean _window_button_press_event(GtkWidget *view, GdkEventButton *event,
+static gboolean _window_button_press_event(GtkWidget *view,
+                                           GdkEventButton *event,
                                            AppWindow *window);
 static void _window_handle_reload_request(AppWindow *window);
 static void _window_update_location_bar_visible(AppWindow *window);
@@ -110,9 +116,12 @@ static void _window_action_debug(AppWindow *window, GtkWidget *menu_item);
 // Public ---------------------------------------------------------------------
 
 // window_redirect_tooltips
-static void _window_redirect_tooltips_r(GtkWidget *menu_item, AppWindow *window);
-static void _window_menu_item_selected(AppWindow *window, GtkWidget *menu_item);
-static void _window_menu_item_deselected(AppWindow *window, GtkWidget *menu_item);
+static void _window_redirect_tooltips_r(GtkWidget *menu_item,
+                                        AppWindow *window);
+static void _window_menu_item_selected(AppWindow *window,
+                                       GtkWidget *menu_item);
+static void _window_menu_item_deselected(AppWindow *window,
+                                         GtkWidget *menu_item);
 static GtkWidget* _window_get_focused_tree_view(AppWindow *window);
 
 // Actions --------------------------------------------------------------------
@@ -241,6 +250,7 @@ enum
     ZOOM_RESET,
     LAST_SIGNAL,
 };
+
 static guint _window_signals[LAST_SIGNAL];
 
 struct _AppWindowClass
@@ -392,7 +402,8 @@ static void window_init(AppWindow *window)
     g_signal_connect(window, "screen-changed",
                      G_CALLBACK(_window_screen_changed), NULL);
 
-    // invoke the window_screen_changed function to initially set the best possible visual.
+    // invoke the window_screen_changed function to initially set
+    // the best possible visual.
     _window_screen_changed(GTK_WIDGET(window), NULL, NULL);
 
     // set up a handler to confirm exit when there are multiple tabs open 
@@ -420,24 +431,30 @@ static void window_init(AppWindow *window)
     g_signal_connect(window, "key-release-event",
                      G_CALLBACK(_window_propagate_key_event), NULL);
 
-    window->select_files_closure = g_cclosure_new_swap(G_CALLBACK(_window_select_files),
-                                                       window,
-                                                       NULL);
+    window->select_files_closure = g_cclosure_new_swap(
+                                G_CALLBACK(_window_select_files),
+                                window,
+                                NULL);
     g_closure_ref(window->select_files_closure);
     g_closure_sink(window->select_files_closure);
 
-    window->launcher = g_object_new(
-                        THUNAR_TYPE_LAUNCHER,
-                        "widget", GTK_WIDGET(window),
-                        "select-files-closure", window->select_files_closure,
-                        NULL);
+    window->launcher = g_object_new(THUNAR_TYPE_LAUNCHER,
+                                    "widget",
+                                    GTK_WIDGET(window),
+                                    "select-files-closure",
+                                    window->select_files_closure,
+                                    NULL);
 
-    g_object_bind_property(G_OBJECT(window), "current-directory",
-                           G_OBJECT(window->launcher), "current-directory",
+    g_object_bind_property(G_OBJECT(window),
+                           "current-directory",
+                           G_OBJECT(window->launcher),
+                           "current-directory",
                            G_BINDING_SYNC_CREATE);
 
-    g_signal_connect_swapped(G_OBJECT(window->launcher), "change-directory",
-                             G_CALLBACK(window_set_current_directory), window);
+    g_signal_connect_swapped(G_OBJECT(window->launcher),
+                             "change-directory",
+                             G_CALLBACK(window_set_current_directory),
+                             window);
 
     launcher_append_accelerators(window->launcher, window->accel_group);
 
@@ -449,7 +466,8 @@ static void window_init(AppWindow *window)
         gtk_window_maximize(GTK_WINDOW(window));
 
     // add thunar style class for easier theming
-    GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(window));
+    GtkStyleContext *context =
+            gtk_widget_get_style_context(GTK_WIDGET(window));
     gtk_style_context_add_class(context, "thunar");
 
     // Main Grid --------------------------------------------------------------
@@ -462,45 +480,56 @@ static void window_init(AppWindow *window)
 
     window->toolbar = gtk_toolbar_new();
     gtk_toolbar_set_style(GTK_TOOLBAR(window->toolbar), GTK_TOOLBAR_ICONS);
-    gtk_toolbar_set_icon_size(GTK_TOOLBAR(window->toolbar), GTK_ICON_SIZE_SMALL_TOOLBAR);
+    gtk_toolbar_set_icon_size(GTK_TOOLBAR(window->toolbar),
+                              GTK_ICON_SIZE_SMALL_TOOLBAR);
     gtk_widget_set_hexpand(window->toolbar, TRUE);
     gtk_grid_attach(GTK_GRID(window->grid), window->toolbar, 0, 0, 1, 1);
 
     // back
     window->toolbar_item_back = xfce_gtk_tool_button_new_from_action_entry(
-                                        get_action_entry(WINDOW_ACTION_BACK),
-                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    g_signal_connect(G_OBJECT(window->toolbar_item_back), "button-press-event",
-                     G_CALLBACK(_window_history_clicked), G_OBJECT(window));
+                get_action_entry(WINDOW_ACTION_BACK),
+                G_OBJECT(window),
+                GTK_TOOLBAR(window->toolbar));
+    g_signal_connect(G_OBJECT(window->toolbar_item_back),
+                     "button-press-event",
+                     G_CALLBACK(_window_history_clicked),
+                     G_OBJECT(window));
 
     // forward
     window->toolbar_item_forward = xfce_gtk_tool_button_new_from_action_entry(
-                                        get_action_entry(WINDOW_ACTION_FORWARD),
-                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
-    g_signal_connect(G_OBJECT(window->toolbar_item_forward), "button-press-event",
-                     G_CALLBACK(_window_history_clicked), G_OBJECT(window));
+                get_action_entry(WINDOW_ACTION_FORWARD),
+                G_OBJECT(window),
+                GTK_TOOLBAR(window->toolbar));
+    g_signal_connect(G_OBJECT(window->toolbar_item_forward),
+                     "button-press-event",
+                     G_CALLBACK(_window_history_clicked),
+                     G_OBJECT(window));
 
     // parent
     window->toolbar_item_parent = xfce_gtk_tool_button_new_from_action_entry(
-                                        get_action_entry(WINDOW_ACTION_OPEN_PARENT),
-                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+                get_action_entry(WINDOW_ACTION_OPEN_PARENT),
+                G_OBJECT(window),
+                GTK_TOOLBAR(window->toolbar));
 
     // home
     xfce_gtk_tool_button_new_from_action_entry(
-                                        get_action_entry(WINDOW_ACTION_OPEN_HOME),
-                                        G_OBJECT(window), GTK_TOOLBAR(window->toolbar));
+                get_action_entry(WINDOW_ACTION_OPEN_HOME),
+                G_OBJECT(window),
+                GTK_TOOLBAR(window->toolbar));
 
-    g_signal_connect(G_OBJECT(window), "button-press-event",
-                     G_CALLBACK(_window_button_press_event), G_OBJECT(window));
+    g_signal_connect(G_OBJECT(window),
+                     "button-press-event",
+                     G_CALLBACK(_window_button_press_event),
+                     G_OBJECT(window));
 
     window->history_changed_id = 0;
 
-#if 0
+    #if 0
     /* The UCA shortcuts need to be checked 'by hand',
      *  since we dont want to permanently keep menu items for them */
     g_signal_connect(window, "key-press-event",
                      G_CALLBACK(window_check_uca_key_activation), NULL);
-#endif
+    #endif
 
     // Location bar
 
@@ -511,18 +540,26 @@ static void window_init(AppWindow *window)
 
     window->location_bar = locbar_new();
 
-    g_object_bind_property(G_OBJECT(window), "current-directory",
-                           G_OBJECT(window->location_bar), "current-directory",
+    g_object_bind_property(G_OBJECT(window),
+                           "current-directory",
+                           G_OBJECT(window->location_bar),
+                           "current-directory",
                            G_BINDING_SYNC_CREATE);
 
-    g_signal_connect_swapped(G_OBJECT(window->location_bar), "change-directory",
-                             G_CALLBACK(window_set_current_directory), window);
+    g_signal_connect_swapped(G_OBJECT(window->location_bar),
+                             "change-directory",
+                             G_CALLBACK(window_set_current_directory),
+                             window);
 
-    g_signal_connect_swapped(G_OBJECT(window->location_bar), "reload-requested",
-                             G_CALLBACK(_window_handle_reload_request), window);
+    g_signal_connect_swapped(G_OBJECT(window->location_bar),
+                             "reload-requested",
+                             G_CALLBACK(_window_handle_reload_request),
+                             window);
 
-    g_signal_connect_swapped(G_OBJECT(window->location_bar), "entry-done",
-                             G_CALLBACK(_window_update_location_bar_visible), window);
+    g_signal_connect_swapped(G_OBJECT(window->location_bar),
+                             "entry-done",
+                             G_CALLBACK(_window_update_location_bar_visible),
+                             window);
 
     gtk_container_add(GTK_CONTAINER(tool_item), window->location_bar);
 
@@ -539,7 +576,8 @@ static void window_init(AppWindow *window)
     gtk_widget_show(window->paned);
 
     // determine the last separator position and apply it to the paned view
-    gtk_paned_set_position(GTK_PANED(window->paned), prefs->separator_position);
+    gtk_paned_set_position(GTK_PANED(window->paned),
+                           prefs->separator_position);
 
     g_signal_connect_swapped(window->paned, "accept-position",
                              G_CALLBACK(_window_save_paned), window);
@@ -561,8 +599,9 @@ static void window_init(AppWindow *window)
     // setup a new statusbar
     window->statusbar = statusbar_new();
     gtk_widget_set_hexpand(window->statusbar, TRUE);
-    gtk_grid_attach(GTK_GRID(window->view_grid), window->statusbar, 0, 1, 1, 1);
-
+    //gtk_grid_attach(GTK_GRID(window->view_grid),
+    //  window->statusbar, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(window->grid), window->statusbar, 0, 2, 1, 1);
     gtk_widget_show(window->statusbar);
 
     _window_binding_create(window,
@@ -577,6 +616,40 @@ static void window_init(AppWindow *window)
 
     // ensure that all the view types are registered
     g_type_ensure(TYPE_DETAILVIEW);
+}
+
+static void window_realize(GtkWidget *widget)
+{
+    AppWindow *window = APP_WINDOW(widget);
+
+    // let the GtkWidget class perform the realize operation
+    GTK_WIDGET_CLASS(window_parent_class)->realize(widget);
+
+    /* connect to the clipboard manager of the new display and be sure to
+     * redraw the window whenever the clipboard contents change to make sure
+     * we always display up2date state. */
+    window->clipboard = clipman_get_for_display(gtk_widget_get_display(widget));
+
+    g_signal_connect_swapped(G_OBJECT(window->clipboard), "changed",
+                             G_CALLBACK(gtk_widget_queue_draw), widget);
+}
+
+static void window_unrealize(GtkWidget *widget)
+{
+    AppWindow *window = APP_WINDOW(widget);
+
+    // disconnect from the clipboard manager
+    g_signal_handlers_disconnect_by_func(G_OBJECT(window->clipboard),
+                                         gtk_widget_queue_draw,
+                                         widget);
+
+    // let the GtkWidget class unrealize the window
+    GTK_WIDGET_CLASS(window_parent_class)->unrealize(widget);
+
+    /* drop the reference on the clipboard manager, we do this after letting
+     * the GtkWidget class unrealise the window to prevent the clipboard
+     * being disposed during the unrealize  */
+    g_object_unref(G_OBJECT(window->clipboard));
 }
 
 static void window_dispose(GObject *object)
@@ -622,39 +695,6 @@ static void window_finalize(GObject *object)
     G_OBJECT_CLASS(window_parent_class)->finalize(object);
 }
 
-static void window_realize(GtkWidget *widget)
-{
-    AppWindow *window = APP_WINDOW(widget);
-
-    // let the GtkWidget class perform the realize operation
-    GTK_WIDGET_CLASS(window_parent_class)->realize(widget);
-
-    /* connect to the clipboard manager of the new display and be sure to
-     * redraw the window whenever the clipboard contents change to make sure
-     * we always display up2date state. */
-    window->clipboard = clipman_get_for_display(gtk_widget_get_display(widget));
-
-    g_signal_connect_swapped(G_OBJECT(window->clipboard), "changed",
-                             G_CALLBACK(gtk_widget_queue_draw), widget);
-}
-
-static void window_unrealize(GtkWidget *widget)
-{
-    AppWindow *window = APP_WINDOW(widget);
-
-    // disconnect from the clipboard manager
-    g_signal_handlers_disconnect_by_func(G_OBJECT(window->clipboard),
-                                         gtk_widget_queue_draw,
-                                         widget);
-
-    // let the GtkWidget class unrealize the window
-    GTK_WIDGET_CLASS(window_parent_class)->unrealize(widget);
-
-    /* drop the reference on the clipboard manager, we do this after letting the GtkWidget class
-     * unrealise the window to prevent the clipboard being disposed during the unrealize  */
-    g_object_unref(G_OBJECT(window->clipboard));
-}
-
 static gboolean window_reload(AppWindow *window, gboolean reload_info)
 {
     e_return_val_if_fail(APP_IS_WINDOW(window), FALSE);
@@ -668,7 +708,8 @@ static gboolean window_reload(AppWindow *window, gboolean reload_info)
     return TRUE;
 }
 
-// Properties -----------------------------------------------------------------
+
+// properties -----------------------------------------------------------------
 
 static void window_get_property(GObject *object, guint prop_id,
                                 GValue *value, GParamSpec *pspec)
