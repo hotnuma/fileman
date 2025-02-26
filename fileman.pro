@@ -11,8 +11,6 @@ PKGCONFIG += libnotify
 PKGCONFIG += libxfce4ui-2
 
 HEADERS = \
-    appmenu.h \
-    appwindow.h \
     core/appnotify.h \
     core/clipboard.h \
     core/devmonitor.h \
@@ -69,17 +67,15 @@ HEADERS = \
     widget/pathentry.h \
     widget/sizelabel.h \
     widget/statusbar.h \
+    widget/th_image.h \
     application.h \
+    appmenu.h \
+    appwindow.h \
     config.h \
     debug.h \
-    marshal.h \
     preferences.h \
-    widget/th_image.h
 
 SOURCES = \
-    0Temp.c \
-    appmenu.c \
-    appwindow.c \
     core/appnotify.c \
     core/clipboard.c \
     core/devmonitor.c \
@@ -136,11 +132,13 @@ SOURCES = \
     widget/pathentry.c \
     widget/sizelabel.c \
     widget/statusbar.c \
+    widget/th_image.c \
+    0temp.c \
+    appmenu.c \
+    appwindow.c \
     application.c \
     main.c \
-    marshal.c \
     preferences.c \
-    widget/th_image.c
 
 DISTFILES = \
     deps_search.txt \
