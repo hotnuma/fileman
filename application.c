@@ -19,22 +19,22 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <application.h>
+#include "config.h"
+#include "application.h"
 
-#include <browser.h>
-#include <preferences.h>
-#include <th_folder.h>
-#include <dialogs.h>
-#include <progressdlg.h>
-#include <io_jobs.h>
-#include <utils.h>
+#include "browser.h"
+#include "preferences.h"
+#include "th_folder.h"
+#include "dialogs.h"
+#include "progressdlg.h"
+#include "io_jobs.h"
+#include "utils.h"
 
-#ifdef ENABLE_ACCEL_MAP
+#ifdef SAVE_ACCEL_MAP
 #define ACCEL_MAP_PATH "Fileman/accels.scm"
 #endif
 
-// Globals --------------------------------------------------------------------
+// globals --------------------------------------------------------------------
 
 // option entries
 static const GOptionEntry _option_entries[] =
@@ -43,7 +43,7 @@ static const GOptionEntry _option_entries[] =
      NULL, N_("Run in daemon mode"), NULL},
 
     {"quit", 'q', 0, G_OPTION_ARG_NONE,
-     NULL, N_("Quit a running Thunar instance"), NULL},
+     NULL, N_("Quit a running Fileman instance"), NULL},
 
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY,
      NULL, NULL, NULL},
@@ -51,10 +51,11 @@ static const GOptionEntry _option_entries[] =
     {NULL, 0, 0, 0, NULL, NULL, NULL},
 };
 
-// Launcher Job
-typedef ThunarJob* (*LauncherFunc) (GList *source_path_list, GList *target_path_list);
+// launcher job
+typedef ThunarJob* (*LauncherFunc) (GList *source_path_list,
+                                    GList *target_path_list);
 
-// Application ----------------------------------------------------------------
+// application ----------------------------------------------------------------
 
 static void application_finalize(GObject *object);
 static void application_get_property(GObject *object, guint prop_id,
@@ -70,18 +71,21 @@ static void application_activate(GApplication *application);
 static int application_command_line(GApplication *application,
                                     GApplicationCommandLine *command_line);
 
-// Public ---------------------------------------------------------------------
+// public ---------------------------------------------------------------------
 
 // application_process_filenames
 static void _application_process_files(Application *application);
-static void _application_process_files_finish(ThunarBrowser *browser, ThunarFile *file,
-                                              ThunarFile *target_file, GError *error,
+static void _application_process_files_finish(ThunarBrowser *browser,
+                                              ThunarFile *file,
+                                              ThunarFile *target_file,
+                                              GError *error,
                                               gpointer unused);
 
-// Actions --------------------------------------------------------------------
+// actions --------------------------------------------------------------------
 
 // application_unlink_files
-static ThunarJob* unlink_stub(GList *source_path_list, GList *target_path_list);
+static ThunarJob* unlink_stub(GList *source_path_list,
+                              GList *target_path_list);
 // application_trash
 static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list);
 // application_creat
@@ -89,7 +93,7 @@ static ThunarJob* creat_stub(GList *template_file, GList *target_path_list);
 // application_mkdir
 static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list);
 
-// Launch ---------------------------------------------------------------------
+// launch ---------------------------------------------------------------------
 
 static void _application_collect_and_launch(Application *application,
                                             gpointer parent,
@@ -114,13 +118,13 @@ static void _application_launch(Application *application,
 static void _application_launch_finished(ThunarJob *job,
                                          GList *containing_folders);
 
-// Progress Dialog ------------------------------------------------------------
+// progress dialog ------------------------------------------------------------
 
 static GtkWidget* _application_get_progress_dialog(Application *application);
 static gboolean _application_show_dialogs(gpointer user_data);
 static void _application_show_dialogs_destroy(gpointer user_data);
 
-// Application ----------------------------------------------------------------
+// application ----------------------------------------------------------------
 
 enum
 {
@@ -161,7 +165,8 @@ static void application_class_init(ApplicationClass *klass)
 {
     // pre-allocate the required quarks
     _app_screen_quark = g_quark_from_static_string("application-screen");
-    _app_startup_id_quark = g_quark_from_static_string("application-startup-id");
+    _app_startup_id_quark = g_quark_from_static_string(
+                                                "application-startup-id");
     _app_file_quark = g_quark_from_static_string("application-file");
 
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
@@ -185,18 +190,10 @@ static void application_class_init(ApplicationClass *klass)
                                         E_PARAM_READWRITE));
 }
 
-static void application_finalize(GObject *object)
-{
-    /* what gets initialized in GApplication::startup is cleaned up
-     * in GApplication::shutdown. Therefore, this method doesn't do very much */
-
-    G_OBJECT_CLASS(application_parent_class)->finalize(object);
-}
-
 static void application_init(Application *application)
 {
-    /* we do most initialization in GApplication::startup since it is only needed
-     * in the primary instance anyways */
+    // we do most initialization in GApplication::startup since it is
+    // only needed in the primary instance anyways
 
     application->files_to_launch = NULL;
     application->progress_dialog = NULL;
@@ -208,6 +205,14 @@ static void application_init(Application *application)
                                           _option_entries);
 }
 
+static void application_finalize(GObject *object)
+{
+    // what gets initialized in GApplication::startup is cleaned up in
+    // GApplication::shutdown. Therefore, this method doesn't do very much
+
+    G_OBJECT_CLASS(application_parent_class)->finalize(object);
+}
+
 static void application_startup(GApplication *gapplication)
 {
     Application *application = APPLICATION(gapplication);
@@ -216,7 +221,7 @@ static void application_startup(GApplication *gapplication)
 
     G_APPLICATION_CLASS(application_parent_class)->startup(gapplication);
 
-#ifdef ENABLE_ACCEL_MAP
+    #ifdef SAVE_ACCEL_MAP
     // check if we have a saved accel map
     gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
 
@@ -226,7 +231,7 @@ static void application_startup(GApplication *gapplication)
         gtk_accel_map_load(path);
         g_free(path);
     }
-#endif
+    #endif
 
     // watch for changes
     application->accel_map = gtk_accel_map_get();
@@ -261,7 +266,7 @@ static gboolean _application_accel_map_save(gpointer user_data)
 
     application->accel_map_save_id = 0;
 
-#ifdef ENABLE_ACCEL_MAP
+    #ifdef SAVE_ACCEL_MAP
     // save the current accel map
     gchar *path = xfce_resource_save_location(XFCE_RESOURCE_CONFIG,
                                               ACCEL_MAP_PATH,
@@ -272,7 +277,7 @@ static gboolean _application_accel_map_save(gpointer user_data)
         gtk_accel_map_save(path);
         g_free(path);
     }
-#endif
+    #endif
 
     return FALSE;
 }
@@ -345,7 +350,8 @@ static int application_command_line(GApplication *gapplication,
     Application *application  = APPLICATION(gapplication);
 
     // retrieve arguments
-    GVariantDict *options_dict = g_application_command_line_get_options_dict(command_line);
+    GVariantDict *options_dict =
+            g_application_command_line_get_options_dict(command_line);
 
     gboolean daemon = FALSE;
     gboolean quit = FALSE;
@@ -353,7 +359,8 @@ static int application_command_line(GApplication *gapplication,
 
     g_variant_dict_lookup(options_dict, "daemon", "b", &daemon);
     g_variant_dict_lookup(options_dict, "quit", "b", &quit);
-    g_variant_dict_lookup(options_dict, G_OPTION_REMAINING, "^aay", &filenames);
+    g_variant_dict_lookup(options_dict, G_OPTION_REMAINING,
+                          "^aay", &filenames);
 
     GError *error = NULL;
 
@@ -362,6 +369,7 @@ static int application_command_line(GApplication *gapplication,
     {
         g_debug("quitting");
         g_application_quit(gapplication);
+
         goto out;
     }
 
@@ -399,12 +407,16 @@ out:
     // cleanup
     g_strfreev(filenames);
 
-    if (!error)
-        return EXIT_SUCCESS;
+    if (error)
+    {
+        g_error_free(error);
 
-    g_error_free(error);
-    return EXIT_FAILURE;
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
+
 static void application_get_property(GObject *object, guint prop_id,
                                      GValue *value, GParamSpec *pspec)
 {
@@ -504,7 +516,8 @@ gboolean application_process_filenames(Application *application,
     GList *file_list = NULL;
     GError *derror = NULL;
 
-    // try to process all filenames and convert them to the appropriate file objects
+    // try to process all filenames and convert them to the appropriate
+    // file objects
     for (gint n = 0; filenames[n] != NULL; ++n)
     {
         ThunarFile *file;
@@ -537,7 +550,8 @@ gboolean application_process_filenames(Application *application,
                                        filenames[n]);
 
             g_set_error(error, derror->domain, derror->code,
-                         _("Failed to open \"%s\": %s"), filenames[n], derror->message);
+                        _("Failed to open \"%s\": %s"),
+                        filenames[n], derror->message);
             g_error_free(derror);
 
             e_list_free(file_list);
@@ -554,8 +568,10 @@ gboolean application_process_filenames(Application *application,
 
         // remember the startup id to set on the window
         if (startup_id != NULL && *startup_id != '\0')
-            g_object_set_qdata_full(G_OBJECT(lp->data), _app_startup_id_quark,
-                                    g_strdup(startup_id),(GDestroyNotify) g_free);
+            g_object_set_qdata_full(G_OBJECT(lp->data),
+                                    _app_startup_id_quark,
+                                    g_strdup(startup_id),
+                                    (GDestroyNotify) g_free);
 
         // append the file to the list of files we need to launch
         application->files_to_launch = g_list_append(
@@ -587,7 +603,8 @@ static void _application_process_files(Application *application)
     // retrieve the screen we need to launch the file on
     GdkScreen *screen = g_object_get_qdata(G_OBJECT(file), _app_screen_quark);
 
-    // make sure to hold a reference to the application while file processing is going on
+    // make sure to hold a reference to the application while file processing
+    // is going on
     g_application_hold(G_APPLICATION(application));
 
     // resolve the file and/or mount its enclosing volume
@@ -599,8 +616,10 @@ static void _application_process_files(Application *application)
                       NULL);
 }
 
-static void _application_process_files_finish(ThunarBrowser *browser, ThunarFile *file,
-                                              ThunarFile *target_file, GError *error,
+static void _application_process_files_finish(ThunarBrowser *browser,
+                                              ThunarFile *file,
+                                              ThunarFile *target_file,
+                                              GError *error,
                                               gpointer unused)
 {
     (void) unused;

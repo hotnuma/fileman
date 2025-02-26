@@ -17,8 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <appnotify.h>
+#include "config.h"
+#include "appnotify.h"
 
 #include <libnotify/notify.h>
 
@@ -69,17 +69,17 @@ void app_notify_unmount(ThunarDevice *device)
     if (_app_notify_device_readonly(device))
     {
         summary = _("Unmounting device");
-        message = g_strdup_printf(_("The device \"%s\" is being unmounted by the system. "
-                                     "Please do not remove the media or disconnect the "
-                                     "drive"), name);
+        message = g_strdup_printf(_("The device \"%s\" is being unmounted by"
+                                    " the system. Please do not remove the"
+                                    " media or disconnect the drive"), name);
     }
     else
     {
         summary = _("Writing data to device");
-        message = g_strdup_printf(_("There is data that needs to be written to the "
-                                     "device \"%s\" before it can be removed. Please "
-                                     "do not remove the media or disconnect the drive"),
-                                   name);
+        message = g_strdup_printf(_("There is data that needs to be written"
+                                    " to the device \"%s\" before it can be"
+                                    " removed. Please do not remove the"
+                                    " media or disconnect the drive"), name);
     }
 
     _app_notify_show(device, summary, message);
@@ -104,14 +104,15 @@ void app_notify_eject(ThunarDevice *device)
     {
         summary = _("Ejecting device");
         message = g_strdup_printf(_("The device \"%s\" is being ejected. "
-                                     "This may take some time"), name);
+                                    "This may take some time"), name);
     }
     else
     {
         summary = _("Writing data to device");
-        message = g_strdup_printf(_("There is data that needs to be written to the "
-                                     "device \"%s\" before it can be removed. Please "
-                                     "do not remove the media or disconnect the drive"),
+        message = g_strdup_printf(_("There is data that needs to be written"
+                                    " to the device \"%s\" before it can be"
+                                    " removed. Please do not remove the media"
+                                    " or disconnect the drive"),
                                    name);
     }
 
@@ -123,29 +124,31 @@ void app_notify_eject(ThunarDevice *device)
 
 static gboolean _app_notify_device_readonly(ThunarDevice *device)
 {
-    gboolean readonly = TRUE;
-
     GFile *mount_point = th_device_get_root(device);
-    if (mount_point != NULL)
+    if (!mount_point)
+        return true;
+
+    GFileInfo *info = g_file_query_info(mount_point,
+                                        G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
+                                        G_FILE_QUERY_INFO_NONE,
+                                        NULL, NULL);
+    if (!info)
     {
-        GFileInfo *info;
-        info = g_file_query_info(mount_point, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
-                                 G_FILE_QUERY_INFO_NONE, NULL, NULL);
-
-        if (info != NULL)
-        {
-            if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
-            {
-                readonly = !g_file_info_get_attribute_boolean(
-                                            info,
-                                            G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
-            }
-
-            g_object_unref(info);
-        }
-
         g_object_unref(mount_point);
+        return true;
     }
+
+    gboolean readonly = true;
+
+    if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
+    {
+        readonly = !g_file_info_get_attribute_boolean(
+                                    info,
+                                    G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
+    }
+
+    g_object_unref(info);
+    g_object_unref(mount_point);
 
     return readonly;
 }
@@ -158,19 +161,18 @@ static void _app_notify_show(ThunarDevice *device, const gchar *summary,
 
     gchar *icon_name = NULL;
 
-    if (icon != NULL)
+    if (icon)
     {
-        const gchar* const *icon_names;
-        GFile *icon_file;
-
         if (G_IS_THEMED_ICON(icon))
         {
+            const gchar* const *icon_names;
             icon_names = g_themed_icon_get_names(G_THEMED_ICON(icon));
             if (icon_names != NULL)
                 icon_name = g_strdup(icon_names[0]);
         }
         else if (G_IS_FILE_ICON(icon))
         {
+            GFile *icon_file;
             icon_file = g_file_icon_get_file(G_FILE_ICON(icon));
             if (icon_file != NULL)
                 icon_name = g_file_get_path(icon_file);
@@ -179,29 +181,33 @@ static void _app_notify_show(ThunarDevice *device, const gchar *summary,
         g_object_unref(icon);
     }
 
-    if (icon_name == NULL)
+    if (!icon_name)
         icon_name = g_strdup("drive-removable-media");
 
     NotifyNotification *notification;
 
     // create notification
-#ifdef NOTIFY_CHECK_VERSION
-#if NOTIFY_CHECK_VERSION(0, 7, 0)
+    #ifdef NOTIFY_CHECK_VERSION
+    #if NOTIFY_CHECK_VERSION(0, 7, 0)
+
     notification = notify_notification_new(summary, message, icon_name);
-#else
+
+    #else
     notification = notify_notification_new(summary, message, icon_name, NULL);
-#endif
-#else
+    #endif
+    #else
     notification = notify_notification_new(summary, message, icon_name, NULL);
-#endif
+    #endif
 
     notify_notification_set_urgency(notification, NOTIFY_URGENCY_CRITICAL);
     notify_notification_set_timeout(notification, NOTIFY_EXPIRES_NEVER);
     notify_notification_show(notification, NULL);
 
     // attach to object for finalize
-    g_object_set_data_full(G_OBJECT(device), I_("thunar-notification"),
-                           notification, g_object_unref);
+    g_object_set_data_full(G_OBJECT(device),
+                           I_("thunar-notification"),
+                           notification,
+                           g_object_unref);
 
     g_free(icon_name);
 }
@@ -210,17 +216,18 @@ void app_notify_finish(ThunarDevice *device)
 {
     e_return_if_fail(IS_THUNARDEVICE(device));
 
-    NotifyNotification *notification;
-    notification = g_object_get_data(G_OBJECT(device), I_("thunar-notification"));
+    NotifyNotification *notification =
+                                g_object_get_data(G_OBJECT(device),
+                                I_("thunar-notification"));
 
-    if (notification != NULL)
-    {
-        notify_notification_set_urgency(notification, NOTIFY_URGENCY_NORMAL);
-        notify_notification_set_timeout(notification, 2000);
-        notify_notification_show(notification, NULL);
+    if (!notification)
+        return;
 
-        g_object_set_data(G_OBJECT(device), I_("thunar-notification"), NULL);
-    }
+    notify_notification_set_urgency(notification, NOTIFY_URGENCY_NORMAL);
+    notify_notification_set_timeout(notification, 2000);
+    notify_notification_show(notification, NULL);
+
+    g_object_set_data(G_OBJECT(device), I_("thunar-notification"), NULL);
 }
 
 

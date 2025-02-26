@@ -22,11 +22,11 @@
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
 
-#include <appwindow.h>
+#include "appwindow.h"
 
 G_BEGIN_DECLS
 
-// Application ----------------------------------------------------------------
+// application ----------------------------------------------------------------
 
 typedef struct _ApplicationClass ApplicationClass;
 typedef struct _Application      Application;
@@ -45,12 +45,12 @@ typedef struct _Application      Application;
 
 GType application_get_type() G_GNUC_CONST;
 
-// Properties -----------------------------------------------------------------
+// properties -----------------------------------------------------------------
 
 gboolean application_get_daemon(Application *application);
 void application_set_daemon(Application *application, gboolean daemon);
 
-// Public ---------------------------------------------------------------------
+// public ---------------------------------------------------------------------
 
 Application* application_get();
 void application_take_window(Application *application, GtkWindow *window);
@@ -60,16 +60,17 @@ gboolean application_process_filenames(Application *application,
                                        GdkScreen *screen,
                                        const gchar *startup_id,
                                        GError **error);
-GtkWidget* application_open_window(Application *application, ThunarFile *directory,
-                                   GdkScreen *screen, const gchar *startup_id
-                                   /*, gboolean force_new_window*/);
+GtkWidget* application_open_window(Application *application,
+                                   ThunarFile *directory,
+                                   GdkScreen *screen, const gchar *startup_id);
 
-// Actions --------------------------------------------------------------------
+// actions --------------------------------------------------------------------
 
-void application_mkdir(Application *application, gpointer parent, GList *file_list,
+void application_mkdir(Application *application, gpointer parent,
+                       GList *file_list, GClosure *new_files_closure);
+void application_creat(Application *application, gpointer parent,
+                       GList *file_list, GFile *template_file,
                        GClosure *new_files_closure);
-void application_creat(Application *application, gpointer parent, GList *file_list,
-                       GFile *template_file, GClosure *new_files_closure);
 void application_copy_into(Application *application, gpointer parent,
                            GList *source_file_list, GFile *target_file,
                            GClosure *new_files_closure);
@@ -81,9 +82,11 @@ void application_move_into(Application *application, gpointer parent,
                            GClosure *new_files_closure);
 void application_unlink_files(Application *application, gpointer parent,
                               GList *file_list, gboolean permanently);
-void application_trash(Application *application, gpointer parent, GList *file_list);
+void application_trash(Application *application, gpointer parent,
+                       GList *file_list);
 void application_restore_files(Application *application, gpointer parent,
-                               GList *trash_file_list, GClosure *new_files_closure);
+                               GList *trash_file_list,
+                               GClosure *new_files_closure);
 void application_empty_trash(Application *application, gpointer parent,
                              const gchar *startup_id);
 

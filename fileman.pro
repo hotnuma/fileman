@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = fileman
 CONFIG = c99 link_pkgconfig
-DEFINES = _GNU_SOURCE
+DEFINES = _GNU_SOURCE bool=BOOL true=TRUE false=FALSE
 INCLUDEPATH = core dialog job libext misc side view widget
 PKGCONFIG =
 
