@@ -1144,7 +1144,9 @@ static void _window_create_detailview(AppWindow *window)
     e_return_if_fail(window->view == NULL);
     e_return_if_fail(window->current_directory == NULL);
 
-    GtkWidget *detail_view = g_object_new(TYPE_DETAILVIEW, NULL);
+    GtkWidget *detail_view = g_object_new(TYPE_DETAILVIEW,
+                                          "fixed-columns", TRUE,
+                                          NULL);
     gtk_widget_set_hexpand(detail_view, TRUE);
     gtk_widget_set_vexpand(detail_view, TRUE);
     gtk_grid_attach(GTK_GRID(window->view_grid), detail_view, 0, 0, 1, 1);

@@ -245,12 +245,15 @@ static void detailview_init(DetailView *details_view)
     for (ThunarColumn column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
     {
         // allocate the tree view column
-        details_view->columns[column] = gtk_tree_view_column_new();
-        g_object_ref_sink(G_OBJECT(details_view->columns[column]));
-        gtk_tree_view_column_set_min_width(details_view->columns[column], 50);
-        gtk_tree_view_column_set_resizable(details_view->columns[column], TRUE);
-        gtk_tree_view_column_set_sort_column_id(details_view->columns[column], column);
-        gtk_tree_view_column_set_title(details_view->columns[column], colmodel_get_column_name(details_view->column_model, column));
+        GtkTreeViewColumn *tvcol = gtk_tree_view_column_new();
+        details_view->columns[column] = tvcol;
+        g_object_ref_sink(G_OBJECT(tvcol));
+
+        gtk_tree_view_column_set_min_width(tvcol, COL_MIN_WIDTH);
+        gtk_tree_view_column_set_resizable(tvcol, TRUE);
+        //gtk_tree_view_column_set_sizing(tvcol, GTK_TREE_VIEW_COLUMN_FIXED);
+        gtk_tree_view_column_set_sort_column_id(tvcol, column);
+        gtk_tree_view_column_set_title(tvcol, colmodel_get_column_name(details_view->column_model, column));
 
         // stay informed whenever the width of the column is changed
         g_signal_connect(G_OBJECT(details_view->columns[column]), "notify::width",
@@ -260,10 +263,14 @@ static void detailview_init(DetailView *details_view)
         if (column == THUNAR_COLUMN_NAME)
         {
             // add the icon renderer
-            gtk_tree_view_column_pack_start(details_view->columns[column], STANDARD_VIEW(details_view)->icon_renderer, FALSE);
-            gtk_tree_view_column_set_attributes(details_view->columns[column], STANDARD_VIEW(details_view)->icon_renderer,
-                                                 "file", THUNAR_COLUMN_FILE,
-                                                 NULL);
+            gtk_tree_view_column_pack_start(
+                        details_view->columns[column],
+                        STANDARD_VIEW(details_view)->icon_renderer, FALSE);
+            gtk_tree_view_column_set_attributes(
+                        details_view->columns[column],
+                        STANDARD_VIEW(details_view)->icon_renderer,
+                        "file", THUNAR_COLUMN_FILE,
+                        NULL);
 
             // add the name renderer
             g_object_set(G_OBJECT(STANDARD_VIEW(details_view)->name_renderer),
@@ -280,12 +287,16 @@ static void detailview_init(DetailView *details_view)
         else
         {
             // size is right aligned, everything else is left aligned
-            GtkCellRenderer *renderer;
-            renderer =(column == THUNAR_COLUMN_SIZE || column == THUNAR_COLUMN_SIZE_IN_BYTES) ? right_aligned_renderer : left_aligned_renderer;
+            GtkCellRenderer *renderer =
+                (column == THUNAR_COLUMN_SIZE
+                 || column == THUNAR_COLUMN_SIZE_IN_BYTES)
+                        ? right_aligned_renderer : left_aligned_renderer;
 
             // add the renderer
-            gtk_tree_view_column_pack_start(details_view->columns[column], renderer, TRUE);
-            gtk_tree_view_column_set_attributes(details_view->columns[column], renderer, "text", column, NULL);
+            gtk_tree_view_column_pack_start(details_view->columns[column],
+                                            renderer, TRUE);
+            gtk_tree_view_column_set_attributes(details_view->columns[column],
+                                                renderer, "text", column, NULL);
         }
 
         // append the tree view column to the tree view
@@ -389,54 +400,61 @@ static gboolean _detailview_get_fixed_columns(DetailView *details_view)
 static void _detailview_set_fixed_columns(DetailView *details_view,
                                           gboolean fixed_columns)
 {
-    ThunarColumn column;
-    gint         width;
-
     e_return_if_fail(IS_DETAILVIEW(details_view));
 
     // normalize the value
     fixed_columns = !!fixed_columns;
 
     // check if we have a new value
-    if (details_view->fixed_columns != fixed_columns)
-    {
+    if (details_view->fixed_columns == fixed_columns)
+        return;
+
         // apply the new value
-        details_view->fixed_columns = fixed_columns;
+    details_view->fixed_columns = fixed_columns;
 
-        // disable in reverse order, otherwise graphical glitches can appear
-        if (!fixed_columns)
-            gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))), FALSE);
+    // disable in reverse order, otherwise graphical glitches can appear
+    if (!fixed_columns)
+        gtk_tree_view_set_fixed_height_mode(
+                    GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))),
+                    FALSE);
 
-        // apply the new setting to all columns
-        for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
-        {
-            // apply the new column mode
-            if (fixed_columns)
-            {
-                // apply "width" as "fixed-width" for fixed columns mode
-                width = gtk_tree_view_column_get_width(details_view->columns[column]);
-                if (width <= 0)
-                    width = colmodel_get_column_width(details_view->column_model, column);
-                gtk_tree_view_column_set_fixed_width(details_view->columns[column], MAX(width, 1));
-
-                // set column to fixed width
-                gtk_tree_view_column_set_sizing(details_view->columns[column], GTK_TREE_VIEW_COLUMN_FIXED);
-            }
-            else
-            {
-                // reset column to grow-only mode
-                gtk_tree_view_column_set_sizing(details_view->columns[column], GTK_TREE_VIEW_COLUMN_GROW_ONLY);
-            }
-        }
-
-        /* for fixed columns mode, we can enable the fixed height
-         * mode to improve the performance of the GtkTreeVeiw. */
+    // apply the new setting to all columns
+    for (ThunarColumn column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
+    {
+        // apply the new column mode
         if (fixed_columns)
-            gtk_tree_view_set_fixed_height_mode(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))), TRUE);
+        {
+            // apply "width" as "fixed-width" for fixed columns mode
+            gint width;
+            width = gtk_tree_view_column_get_width(details_view->columns[column]);
+            if (width <= 0)
+                width = colmodel_get_column_width(details_view->column_model, column);
 
-        // notify listeners
-        g_object_notify(G_OBJECT(details_view), "fixed-columns");
+            gtk_tree_view_column_set_fixed_width(details_view->columns[column], MAX(width, 1));
+
+            // set column to fixed width
+            gtk_tree_view_column_set_sizing(details_view->columns[column],
+                                            GTK_TREE_VIEW_COLUMN_FIXED);
+        }
+        else
+        {
+            // reset column to grow-only mode
+            gtk_tree_view_column_set_sizing(details_view->columns[column],
+                                            GTK_TREE_VIEW_COLUMN_GROW_ONLY);
+            //gtk_tree_view_column_set_sizing(details_view->columns[column],
+            //                                GTK_TREE_VIEW_COLUMN_FIXED);
+        }
     }
+
+    /* for fixed columns mode, we can enable the fixed height
+     * mode to improve the performance of the GtkTreeVeiw. */
+    if (fixed_columns)
+        gtk_tree_view_set_fixed_height_mode(
+                    GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))),
+                    TRUE);
+
+    // notify listeners
+    g_object_notify(G_OBJECT(details_view), "fixed-columns");
 }
 
 static AtkObject* detailview_get_accessible(GtkWidget *widget)

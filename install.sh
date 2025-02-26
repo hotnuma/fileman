@@ -6,10 +6,10 @@ buildtype="plain"
 
 while (($#)); do
     case "$1" in
-        -clean)
+        clean)
         opt_clean=1
         ;;
-        -debug)
+        -type)
         buildtype="debug"
         ;;
         *)

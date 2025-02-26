@@ -24,6 +24,8 @@
 
 G_BEGIN_DECLS
 
+#define COL_MIN_WIDTH 20
+
 typedef enum
 {
     COLUMN_MODEL_COLUMN_NAME,
@@ -39,6 +41,7 @@ typedef struct _ColumnModelClass ColumnModelClass;
 typedef struct _ColumnModel      ColumnModel;
 
 #define TYPE_COLUMN_MODEL (colmodel_get_type())
+
 #define COLUMN_MODEL(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_COLUMN_MODEL, ColumnModel))
 #define COLUMN_MODEL_CLASS(klass) \
