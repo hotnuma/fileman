@@ -42,20 +42,25 @@ typedef enum
 
 // AppWindow ------------------------------------------------------------------
 
-typedef struct _AppWindowClass AppWindowClass;
-typedef struct _AppWindow      AppWindow;
+typedef struct _AppWindow AppWindow;
 
-#define TYPE_APPWINDOW (window_get_type())
-#define APPWINDOW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPWINDOW, AppWindow))
-#define APPWINDOW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_APPWINDOW, AppWindowClass))
-#define IS_APPWINDOW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_APPWINDOW))
-#define IS_APPWINDOW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPWINDOW))
-#define APPWINDOW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPWINDOW, AppWindowClass))
+#define APP_TYPE_WINDOW (window_get_type())
+
+#if 0
+G_DECLARE_FINAL_TYPE(AppWindow, window, APP, WINDOW, GtkWindow)
+#else
+typedef struct _AppWindowClass AppWindowClass;
+#define APP_WINDOW(obj) \
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),  APP_TYPE_WINDOW, AppWindow))
+#define APP_WINDOW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_CAST((klass),   APP_TYPE_WINDOW, AppWindowClass))
+#define APP_IS_WINDOW(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  APP_TYPE_WINDOW))
+#define APP_IS_WINDOW_CLASS(klass) \
+    (G_TYPE_CHECK_CLASS_TYPE((klass),   APP_TYPE_WINDOW))
+#define APP_WINDOW_GET_CLASS(obj) \
+    (G_TYPE_INSTANCE_GET_CLASS((obj),   APP_TYPE_WINDOW, AppWindowClass))
+#endif
 
 GType window_get_type() G_GNUC_CONST;
 

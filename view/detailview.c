@@ -886,7 +886,7 @@ static void _detailview_row_activated(GtkTreeView *tree_view,
     }
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
-    ThunarLauncher *launcher = window_get_launcher(APPWINDOW(window));
+    ThunarLauncher *launcher = window_get_launcher(APP_WINDOW(window));
     launcher_activate_selected_files(launcher, LAUNCHER_CHANGE_DIRECTORY, NULL);
 
     // FOCUS
@@ -914,7 +914,7 @@ static gboolean _detailview_select_cursor_row(GtkTreeView *tree_view,
     g_signal_stop_emission_by_name(tree_view,"select-cursor-row");
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
-    launcher = window_get_launcher(APPWINDOW(window));
+    launcher = window_get_launcher(APP_WINDOW(window));
     launcher_activate_selected_files(launcher, LAUNCHER_CHANGE_DIRECTORY, NULL);
 
     return TRUE;
