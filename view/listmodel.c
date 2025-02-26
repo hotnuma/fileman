@@ -962,13 +962,19 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
     {
     case THUNAR_COLUMN_DATE_ACCESSED:
         g_value_init(value, G_TYPE_STRING);
-        str = th_file_get_date_string(file, FILE_DATE_ACCESSED, LISTMODEL(model)->date_style, LISTMODEL(model)->date_custom_style);
+        str = th_file_get_date_string(file,
+                                      FILE_DATE_ACCESSED,
+                                      LISTMODEL(model)->date_style,
+                                      LISTMODEL(model)->date_custom_style);
         g_value_take_string(value, str);
         break;
 
     case THUNAR_COLUMN_DATE_MODIFIED:
         g_value_init(value, G_TYPE_STRING);
-        str = th_file_get_date_string(file, FILE_DATE_MODIFIED, LISTMODEL(model)->date_style, LISTMODEL(model)->date_custom_style);
+        str = th_file_get_date_string(file,
+                                      FILE_DATE_MODIFIED,
+                                      LISTMODEL(model)->date_style,
+                                      LISTMODEL(model)->date_custom_style);
         g_value_take_string(value, str);
         break;
 
@@ -1031,7 +1037,10 @@ static void listmodel_get_value(GtkTreeModel *model, GtkTreeIter *iter,
 
     case THUNAR_COLUMN_SIZE:
         g_value_init(value, G_TYPE_STRING);
-        g_value_take_string(value, th_file_get_size_string_formatted(file, LISTMODEL(model)->file_size_binary));
+        g_value_take_string(value,
+                            th_file_get_size_string_formatted(
+                                        file,
+                                        LISTMODEL(model)->file_size_binary));
         break;
 
     case THUNAR_COLUMN_SIZE_IN_BYTES:

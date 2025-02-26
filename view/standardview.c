@@ -140,9 +140,12 @@ static gboolean _standardview_update_statusbar_text_idle(gpointer data);
 
 // Public Functions -----------------------------------------------------------
 
+#if 0
 // standardview_context_menu
 static void _standardview_append_menu_items(StandardView *view, GtkMenu *menu,
                                             GtkAccelGroup *accel_group);
+#endif
+
 // standardview_popup_timer
 static gboolean _popup_timer(gpointer user_data);
 static void _popup_timer_destroy(gpointer user_data);
@@ -544,6 +547,12 @@ static void standardview_init(StandardView *view)
 
     // setup the list model
     view->model = listmodel_new();
+
+    g_object_set(G_OBJECT(view->model),
+                 "date-style", THUNAR_DATE_STYLE_CUSTOM,
+                 "date-custom-style", "%Y-%m-%d %H:%M",
+                 NULL);
+
     g_signal_connect_after(G_OBJECT(view->model), "row-deleted",
                            G_CALLBACK(_standardview_select_after_row_deleted),
                            view);
@@ -2161,8 +2170,9 @@ void standardview_context_menu(StandardView *view)
                              | MENU_SECTION_EMPTY_TRASH
                              | MENU_SECTION_TERMINAL);
 
-        _standardview_append_menu_items(view, GTK_MENU(context_menu), NULL);
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+        //_standardview_append_menu_items(view, GTK_MENU(context_menu), NULL);
+        //xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+
         appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
 
@@ -2190,6 +2200,7 @@ void standardview_context_menu(StandardView *view)
     g_object_unref(G_OBJECT(view));
 }
 
+#if 0
 static void _standardview_append_menu_items(StandardView *view,
                                             GtkMenu *menu,
                                             GtkAccelGroup *accel_group)
@@ -2198,6 +2209,7 @@ static void _standardview_append_menu_items(StandardView *view,
 
     STANDARD_VIEW_GET_CLASS(view)->append_menu_items(view, menu, accel_group);
 }
+#endif
 
 /* Schedules a context menu popup in response to a right-click button event.
  * Right-click events need to be handled in a special way, as the user may
