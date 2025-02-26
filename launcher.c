@@ -1309,50 +1309,55 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
 
 static GtkWidget* _launcher_create_document_submenu_new(ThunarLauncher *launcher)
 {
-    GList           *files = NULL;
-    GFile           *home_dir;
-    GFile           *templates_dir = NULL;
-    const gchar     *path;
-    gchar           *template_path;
-    gchar           *label_text;
-    GtkWidget       *submenu;
-    GtkWidget       *item;
-
     e_return_val_if_fail(THUNAR_IS_LAUNCHER(launcher), NULL);
 
-    home_dir = e_file_new_for_home();
-    path = g_get_user_special_dir(G_USER_DIRECTORY_TEMPLATES);
+    GFile *home_dir = e_file_new_for_home();
+    const gchar *path = g_get_user_special_dir(G_USER_DIRECTORY_TEMPLATES);
 
-    if (path != NULL)
+    GFile *templates_dir = NULL;
+    if (path)
         templates_dir = g_file_new_for_path(path);
 
-    // If G_USER_DIRECTORY_TEMPLATES not found, set "~/Templates" directory as default
+    // if templates dir  not found, set "~/Templates" as default
     if (path == NULL || g_file_equal(templates_dir, home_dir))
     {
-        if (templates_dir != NULL)
+        if (templates_dir)
             g_object_unref(templates_dir);
+
         templates_dir = g_file_resolve_relative_path(home_dir, "Templates");
     }
 
-    if (templates_dir != NULL)
+    GList *files = NULL;
+    if (templates_dir)
     {
         // load the ThunarFiles
-        files = io_scan_directory(NULL, templates_dir, G_FILE_QUERY_INFO_NONE, TRUE, FALSE, TRUE, NULL);
+        files = io_scan_directory(NULL,
+                                  templates_dir,
+                                  G_FILE_QUERY_INFO_NONE,
+                                  TRUE, FALSE, TRUE, NULL);
     }
 
-    submenu = gtk_menu_new();
-    if (files == NULL)
+    GtkWidget *submenu = gtk_menu_new();
+    if (!files)
     {
-        template_path = g_file_get_path(templates_dir);
-        label_text = g_strdup_printf(_("No templates installed in \"%s\""), template_path);
-        item = xfce_gtk_image_menu_item_new(label_text, NULL, NULL, NULL, NULL, NULL, GTK_MENU_SHELL(submenu));
+        //gchar *template_path = g_file_get_path(templates_dir);
+        //label_text = g_strdup_printf(_("No templates installed in \"%s\""),
+        //                             template_path);
+
+        gchar *label_text = g_strdup(_("No templates"));
+        GtkWidget *item = xfce_gtk_image_menu_item_new(
+                                            label_text,
+                                            NULL, NULL, NULL, NULL, NULL,
+                                            GTK_MENU_SHELL(submenu));
         gtk_widget_set_sensitive(item, FALSE);
-        g_free(template_path);
+
+        //g_free(template_path);
         g_free(label_text);
     }
     else
     {
         _launcher_submenu_templates(launcher, submenu, files);
+
         e_list_free(files);
     }
 

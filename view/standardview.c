@@ -138,9 +138,9 @@ static void _standardview_error(ListModel *model, const GError *error,
 static void _standardview_update_statusbar_text(StandardView *view);
 static gboolean _standardview_update_statusbar_text_idle(gpointer data);
 
-// Public Functions -----------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-#if 0
+#if WITH_CONFIGURE_COLUMNS
 // standardview_context_menu
 static void _standardview_append_menu_items(StandardView *view, GtkMenu *menu,
                                             GtkAccelGroup *accel_group);
@@ -2170,8 +2170,10 @@ void standardview_context_menu(StandardView *view)
                              | MENU_SECTION_EMPTY_TRASH
                              | MENU_SECTION_TERMINAL);
 
-        //_standardview_append_menu_items(view, GTK_MENU(context_menu), NULL);
-        //xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+        #ifdef WITH_CONFIGURE_COLUMNS
+        _standardview_append_menu_items(view, GTK_MENU(context_menu), NULL);
+        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+        #endif
 
         appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
@@ -2200,7 +2202,7 @@ void standardview_context_menu(StandardView *view)
     g_object_unref(G_OBJECT(view));
 }
 
-#if 0
+#ifdef WITH_CONFIGURE_COLUMNS
 static void _standardview_append_menu_items(StandardView *view,
                                             GtkMenu *menu,
                                             GtkAccelGroup *accel_group)

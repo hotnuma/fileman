@@ -635,13 +635,15 @@ static void detailview_append_menu_items(StandardView  *standard_view,
     (void) menu;
     (void) accel_group;
 
-    //DetailView *details_view = DETAILVIEW(standard_view);
-    //e_return_if_fail(IS_DETAILVIEW(details_view));
+    #ifdef WITH_CONFIGURE_COLUMNS
+    DetailView *details_view = DETAILVIEW(standard_view);
+    e_return_if_fail(IS_DETAILVIEW(details_view));
 
-    //xfce_gtk_menu_item_new_from_action_entry(
-    //            get_action_entry(DETAILVIEW_ACTION_CONFIGURE_COLUMNS),
-    //            G_OBJECT(details_view),
-    //            GTK_MENU_SHELL(menu));
+    xfce_gtk_menu_item_new_from_action_entry(
+                get_action_entry(DETAILVIEW_ACTION_CONFIGURE_COLUMNS),
+                G_OBJECT(details_view),
+                GTK_MENU_SHELL(menu));
+    #endif
 }
 
 /**
