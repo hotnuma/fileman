@@ -702,7 +702,7 @@ GtkWidget* application_open_window(Application *application,
                                   (guint) time(NULL),
                                   (guint) g_random_int());
 
-    GtkWidget *window = g_object_new(APP_TYPE_WINDOW,
+    GtkWidget *window = g_object_new(TYPE_APPWINDOW,
                                      "role", role,
                                      "screen", screen,
                                      NULL);
@@ -720,7 +720,7 @@ GtkWidget* application_open_window(Application *application,
 
     // change the directory
     if (directory != NULL)
-        window_set_current_directory(APP_WINDOW(window), directory);
+        window_set_current_directory(APPWINDOW(window), directory);
 
     return window;
 }

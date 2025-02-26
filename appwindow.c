@@ -620,7 +620,7 @@ static void window_init(AppWindow *window)
 
 static void window_realize(GtkWidget *widget)
 {
-    AppWindow *window = APP_WINDOW(widget);
+    AppWindow *window = APPWINDOW(widget);
 
     // let the GtkWidget class perform the realize operation
     GTK_WIDGET_CLASS(window_parent_class)->realize(widget);
@@ -636,7 +636,7 @@ static void window_realize(GtkWidget *widget)
 
 static void window_unrealize(GtkWidget *widget)
 {
-    AppWindow *window = APP_WINDOW(widget);
+    AppWindow *window = APPWINDOW(widget);
 
     // disconnect from the clipboard manager
     g_signal_handlers_disconnect_by_func(G_OBJECT(window->clipboard),
@@ -654,7 +654,7 @@ static void window_unrealize(GtkWidget *widget)
 
 static void window_dispose(GObject *object)
 {
-    AppWindow  *window = APP_WINDOW(object);
+    AppWindow  *window = APPWINDOW(object);
 
     // indicate that history items are out of use
     window->toolbar_item_back = NULL;
@@ -676,7 +676,7 @@ static void window_dispose(GObject *object)
 
 static void window_finalize(GObject *object)
 {
-    AppWindow *window = APP_WINDOW(object);
+    AppWindow *window = APPWINDOW(object);
 
     // disconnect from the volume monitor
     g_signal_handlers_disconnect_matched(window->device_monitor,
@@ -697,7 +697,7 @@ static void window_finalize(GObject *object)
 
 static gboolean window_reload(AppWindow *window, gboolean reload_info)
 {
-    e_return_val_if_fail(APP_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
 
     // force the view to reload
     if (window->view == NULL)
@@ -716,7 +716,7 @@ static void window_get_property(GObject *object, guint prop_id,
 {
     (void) pspec;
 
-    AppWindow *window = APP_WINDOW(object);
+    AppWindow *window = APPWINDOW(object);
 
     switch (prop_id)
     {
@@ -738,7 +738,7 @@ static void window_set_property(GObject *object, guint prop_id,
                                 const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
-    AppWindow *window = APP_WINDOW(object);
+    AppWindow *window = APPWINDOW(object);
 
     switch (prop_id)
     {
@@ -758,14 +758,14 @@ static void window_set_property(GObject *object, guint prop_id,
 
 static ThunarFile* window_get_current_directory(AppWindow *window)
 {
-    e_return_val_if_fail(APP_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(IS_APPWINDOW(window), NULL);
 
     return window->current_directory;
 }
 
 void window_set_current_directory(AppWindow *window, ThunarFile *current_directory)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(current_directory == NULL
                      || IS_THUNARFILE(current_directory));
 
@@ -837,7 +837,7 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
 static void _window_current_directory_changed(ThunarFile *current_directory,
                                               AppWindow *window)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(IS_THUNARFILE(current_directory));
     e_return_if_fail(window->current_directory == current_directory);
 
@@ -866,7 +866,7 @@ static void _window_current_directory_changed(ThunarFile *current_directory,
 
 static void _window_history_changed(AppWindow *window)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     if (window->view == NULL)
         return;
@@ -907,7 +907,7 @@ static void _window_update_window_icon(AppWindow *window)
 
 static void _window_set_zoom_level(AppWindow *window, ThunarZoomLevel zoom_level)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(zoom_level < THUNAR_ZOOM_N_LEVELS);
 
     // check if we have a new zoom level
@@ -974,7 +974,7 @@ static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
     e_return_if_fail(window->device_monitor == device_monitor);
     e_return_if_fail(IS_THUNARDEVICE(device));
     e_return_if_fail(G_IS_FILE(root_file));
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     // nothing to do if we don't have a current directory
     if (window->current_directory == NULL)
@@ -996,7 +996,7 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
     e_return_if_fail(IS_DEVICE_MONITOR(device_monitor));
     e_return_if_fail(window->device_monitor == device_monitor);
     e_return_if_fail(IS_THUNARDEVICE(device));
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     if (th_device_is_mounted(device))
         return;
@@ -1013,7 +1013,7 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
 static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_event,
                                             gpointer user_data)
 {
-    e_return_val_if_fail(APP_IS_WINDOW(window), GDK_EVENT_PROPAGATE);
+    e_return_val_if_fail(IS_APPWINDOW(window), GDK_EVENT_PROPAGATE);
 
     (void) user_data;
 
@@ -1033,7 +1033,7 @@ static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_eve
 
 static void _window_select_files(AppWindow *window, GList *files_to_selected)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     /* If possible, reload the current directory to make sure new files
      * got added to the view */
@@ -1060,9 +1060,9 @@ static void _window_select_files(AppWindow *window, GList *files_to_selected)
 static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
                                         GtkWidget *data)
 {
-    e_return_val_if_fail(APP_IS_WINDOW(data), FALSE);
+    e_return_val_if_fail(IS_APPWINDOW(data), FALSE);
 
-    AppWindow *window = APP_WINDOW(data);
+    AppWindow *window = APPWINDOW(data);
 
     if (event->button == 3)
     {
@@ -1086,7 +1086,7 @@ static gboolean _window_button_press_event(GtkWidget *view, GdkEventButton *even
 {
     (void) view;
 
-    e_return_val_if_fail(APP_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
 
     if (event->type != GDK_BUTTON_PRESS)
         return GDK_EVENT_PROPAGATE;
@@ -1130,7 +1130,7 @@ static void _window_update_location_bar_visible(AppWindow *window)
 
 static gboolean _window_save_paned(AppWindow *window)
 {
-    e_return_val_if_fail(APP_IS_WINDOW(window), FALSE);
+    e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
 
     Preferences *prefs = get_preferences();
     prefs->separator_position = gtk_paned_get_position(GTK_PANED(window->paned));
@@ -1143,7 +1143,7 @@ static gboolean _window_save_paned(AppWindow *window)
 
 static void _window_create_sidepane(AppWindow *window)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(window->sidepane == NULL);
 
     // allocate the new side pane widget
@@ -1314,7 +1314,7 @@ static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
                                    AppWindow *window)
 {
     e_return_if_fail(THUNAR_IS_VIEW(view));
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     (void) pspec;
 
@@ -1340,7 +1340,7 @@ static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
 static void _window_start_open_location(AppWindow *window,
                                         const gchar *initial_text)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     // temporary show the location toolbar, even if it is normally hidden
     gtk_widget_show(window->toolbar);
@@ -1366,7 +1366,7 @@ static void _window_binding_create(AppWindow *window, gpointer src_object,
 
 static void _window_binding_destroyed(gpointer data, GObject *binding)
 {
-    AppWindow *window = APP_WINDOW(data);
+    AppWindow *window = APPWINDOW(data);
 
     if (window->view_bindings != NULL)
         window->view_bindings = g_slist_remove(window->view_bindings, binding);
@@ -1376,7 +1376,7 @@ static void _window_binding_destroyed(gpointer data, GObject *binding)
 
 static GtkWidget* _window_get_focused_tree_view(AppWindow *window)
 {
-    e_return_val_if_fail(APP_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(IS_APPWINDOW(window), NULL);
 
     GtkWidget *tree_view = GTK_WIDGET(treepane_get_view(
                                      TREEPANE(window->sidepane)));
@@ -1392,7 +1392,7 @@ static void _window_action_back(AppWindow *window)
 {
     ThunarHistory *history;
 
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     history = standardview_get_history(STANDARD_VIEW(window->view));
     history_action_back(history);
@@ -1402,7 +1402,7 @@ static void _window_action_forward(AppWindow *window)
 {
     ThunarHistory *history;
 
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     history = standardview_get_history(STANDARD_VIEW(window->view));
     history_action_forward(history);
@@ -1434,7 +1434,7 @@ static void _window_action_go_up(AppWindow *window)
 
 static void _window_action_open_home(AppWindow *window)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     // determine the path to the home directory
     GFile *home = e_file_new_for_home();
@@ -1466,7 +1466,7 @@ static void _window_action_open_home(AppWindow *window)
 
 static void _window_action_key_reload(AppWindow *window, GtkWidget *menu_item)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     (void) menu_item;
 
@@ -1495,7 +1495,7 @@ static void _window_action_key_rename(AppWindow *window)
 
 static void _window_action_key_show_hidden(AppWindow *window)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     window->show_hidden = !window->show_hidden;
 
@@ -1537,7 +1537,7 @@ static void _window_action_debug(AppWindow *window, GtkWidget *menu_item)
 
 ThunarLauncher* window_get_launcher(AppWindow *window)
 {
-    e_return_val_if_fail(APP_IS_WINDOW(window), NULL);
+    e_return_val_if_fail(IS_APPWINDOW(window), NULL);
 
     return window->launcher;
 }
@@ -1553,7 +1553,7 @@ ThunarLauncher* window_get_launcher(AppWindow *window)
 void window_redirect_tooltips(AppWindow *window,
                                                 GtkMenu *menu)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(GTK_IS_MENU(menu));
 
     gtk_container_foreach(GTK_CONTAINER(menu),
@@ -1587,7 +1587,7 @@ static void _window_redirect_tooltips_r(GtkWidget *menu_item,AppWindow *window)
 
 static void _window_menu_item_selected(AppWindow *window, GtkWidget *menu_item)
 {
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     // we can only display tooltips if we have a statusbar
     if (window->statusbar == NULL)
@@ -1610,7 +1610,7 @@ static void _window_menu_item_deselected(AppWindow *window, GtkWidget *menu_item
 {
     (void) menu_item;
 
-    e_return_if_fail(APP_IS_WINDOW(window));
+    e_return_if_fail(IS_APPWINDOW(window));
 
     // we can only undisplay tooltips if we have a statusbar
     if (window->statusbar == NULL)
