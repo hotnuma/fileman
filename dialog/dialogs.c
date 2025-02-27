@@ -176,7 +176,6 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     GtkIconTheme      *icon_theme;
     const gchar       *filename;
     const gchar       *text;
-    ThunarJob         *job = NULL;
     GtkWidget         *dialog;
     GtkWidget         *label;
     GtkWidget         *image;
@@ -304,6 +303,8 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     // automatically close the dialog when the file is destroyed
     g_signal_connect_swapped(G_OBJECT(file), "destroy",
                               G_CALLBACK(gtk_widget_destroy), dialog);
+
+    ThunarJob *job = NULL;
 
     // run the dialog
     response = gtk_dialog_run(GTK_DIALOG(dialog));
