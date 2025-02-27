@@ -18,11 +18,11 @@
  */
 
 #include <config.h>
-#include <th_folder.h>
+#include <th-folder.h>
 
 #include <filemonitor.h>
-#include <io_jobs.h>
-#include <gio_ext.h>
+#include <io-jobs.h>
+#include <gio-ext.h>
 
 #define DEBUG_FILE_CHANGES FALSE
 

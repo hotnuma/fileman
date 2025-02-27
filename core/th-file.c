@@ -19,14 +19,14 @@
  */
 
 #include <config.h>
-#include <th_file.h>
+#include <th-file.h>
 
 #include <application.h>
 #include <appchooser.h>
 #include <filemonitor.h>
 #include <iconfactory.h>
 #include <dialogs.h>
-#include <gio_ext.h>
+#include <gio-ext.h>
 #include <utils.h>
 #include <sys/stat.h>
 

@@ -22,7 +22,7 @@
 
 #include <dialogs.h>
 #include <transferjob.h>
-#include <pango_ext.h>
+#include <pango-ext.h>
 
 // ProgressView ---------------------------------------------------------------
 

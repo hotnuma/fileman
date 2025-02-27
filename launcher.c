@@ -33,9 +33,9 @@
 #include <propsdlg.h>
 #include <preferences.h>
 
-#include <io_scandir.h>
+#include <io-scandir.h>
 #include <simplejob.h>
-#include <gtk_ext.h>
+#include <gtk-ext.h>
 #include <fnmatch.h>
 
 typedef struct _LauncherPokeData LauncherPokeData;

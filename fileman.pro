@@ -17,9 +17,9 @@ HEADERS = \
     core/dnd.h \
     core/fileinfo.h \
     core/filemonitor.h \
-    core/th_device.h \
-    core/th_file.h \
-    core/th_folder.h \
+    core/th-device.h \
+    core/th-file.h \
+    core/th-folder.h \
     core/usermanager.h \
     dialog/appchooser.h \
     dialog/appcombo.h \
@@ -30,20 +30,20 @@ HEADERS = \
     dialog/progressview.h \
     dialog/propsdlg.h \
     job/dcountjob.h \
-    job/exo_job.h \
-    job/io_jobs.h \
-    job/io_scandir.h \
+    job/exo-job.h \
+    job/io-jobs.h \
+    job/io-scandir.h \
     job/job.h \
     job/jobutils.h \
     job/simplejob.h \
     job/transferjob.h \
     launcher.h \
     libext/etktype.h \
-    libext/gdk_ext.h \
-    libext/gio_ext.h \
-    libext/gtk_ext.h \
-    libext/pango_ext.h \
-    libext/pixbuf_ext.h \
+    libext/gdk-ext.h \
+    libext/gio-ext.h \
+    libext/gtk-ext.h \
+    libext/pango-ext.h \
+    libext/pixbuf-ext.h \
     libext/utils.h \
     misc/browser.h \
     misc/component.h \
@@ -68,7 +68,7 @@ HEADERS = \
     widget/pathentry.h \
     widget/sizelabel.h \
     widget/statusbar.h \
-    widget/th_image.h \
+    widget/th-image.h \
     application.h \
     appmenu.h \
     appwindow.h \
@@ -83,9 +83,9 @@ SOURCES = \
     core/dnd.c \
     core/fileinfo.c \
     core/filemonitor.c \
-    core/th_device.c \
-    core/th_file.c \
-    core/th_folder.c \
+    core/th-device.c \
+    core/th-file.c \
+    core/th-folder.c \
     core/usermanager.c \
     dialog/appchooser.c \
     dialog/appcombo.c \
@@ -96,19 +96,19 @@ SOURCES = \
     dialog/progressview.c \
     dialog/propsdlg.c \
     job/dcountjob.c \
-    job/exo_job.c \
-    job/io_jobs.c \
-    job/io_scandir.c \
+    job/exo-job.c \
+    job/io-jobs.c \
+    job/io-scandir.c \
     job/job.c \
     job/jobutils.c \
     job/simplejob.c \
     job/transferjob.c \
     launcher.c \
-    libext/gdk_ext.c \
-    libext/gio_ext.c \
-    libext/gtk_ext.c \
-    libext/pango_ext.c \
-    libext/pixbuf_ext.c \
+    libext/gdk-ext.c \
+    libext/gio-ext.c \
+    libext/gtk-ext.c \
+    libext/pango-ext.c \
+    libext/pixbuf-ext.c \
     libext/utils.c \
     misc/browser.c \
     misc/component.c \
@@ -133,7 +133,7 @@ SOURCES = \
     widget/pathentry.c \
     widget/sizelabel.c \
     widget/statusbar.c \
-    widget/th_image.c \
+    widget/th-image.c \
     0temp.c \
     appmenu.c \
     appwindow.c \

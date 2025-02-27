@@ -23,7 +23,7 @@
 
 #include <application.h>
 #include <dialogs.h>
-#include <gtk_ext.h>
+#include <gtk-ext.h>
 
 static void _dnd_action_selected(GtkWidget *item, GdkDragAction *dnd_action_return);
 

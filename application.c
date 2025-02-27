@@ -24,10 +24,10 @@
 
 #include "browser.h"
 #include "preferences.h"
-#include "th_folder.h"
+#include "th-folder.h"
 #include "dialogs.h"
 #include "progressdlg.h"
-#include "io_jobs.h"
+#include "io-jobs.h"
 #include "utils.h"
 
 #ifdef SAVE_ACCEL_MAP

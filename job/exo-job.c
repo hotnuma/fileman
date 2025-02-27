@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <exo_job.h>
+#include <exo-job.h>
 
 /**
  * ExoJob is an abstract base class

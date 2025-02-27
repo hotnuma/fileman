@@ -17,7 +17,7 @@
  */
 
 #include <config.h>
-#include <gdk_ext.h>
+#include <gdk-ext.h>
 
 static const cairo_user_data_key_t _cairo_key;
 

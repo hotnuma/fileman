@@ -16,10 +16,10 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNARDEVICE_H__
-#define __THUNARDEVICE_H__
+#ifndef __TH_DEVICE_H__
+#define __TH_DEVICE_H__
 
-#include <gio_ext.h>
+#include <gio-ext.h>
 
 G_BEGIN_DECLS
 
@@ -91,6 +91,6 @@ void th_device_eject(ThunarDevice *device,
 
 G_END_DECLS
 
-#endif // __THUNARDEVICE_H__
+#endif // __TH_DEVICE_H__
 
 

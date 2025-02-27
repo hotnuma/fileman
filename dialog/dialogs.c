@@ -21,10 +21,10 @@
 #include <dialogs.h>
 
 #include <iconfactory.h>
-#include <io_jobs.h>
+#include <io-jobs.h>
 #include <utils.h>
-#include <gtk_ext.h>
-#include <pango_ext.h>
+#include <gtk-ext.h>
+#include <pango-ext.h>
 #include <libxfce4ui/libxfce4ui.h>
 
 // dialog_file_rename

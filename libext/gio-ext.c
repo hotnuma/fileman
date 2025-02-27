@@ -18,9 +18,9 @@
  */
 
 #include <config.h>
-#include <gio_ext.h>
+#include <gio-ext.h>
 
-#include <th_file.h>
+#include <th-file.h>
 #include <utils.h>
 #include <gio/gdesktopappinfo.h>
 #include <syslog.h>

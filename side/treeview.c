@@ -29,9 +29,9 @@
 #include <clipboard.h>
 #include <navigator.h>
 #include <dnd.h>
-#include <th_device.h>
-#include <th_folder.h>
-#include <gtk_ext.h>
+#include <th-device.h>
+#include <th-folder.h>
+#include <gtk-ext.h>
 #include <utils.h>
 
 // drag dest expand timeout

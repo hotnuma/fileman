@@ -18,10 +18,10 @@
  */
 
 #include <config.h>
-#include <io_jobs.h>
+#include <io-jobs.h>
 
-#include <io_scandir.h>
-#include <gio_ext.h>
+#include <io-scandir.h>
+#include <gio-ext.h>
 
 #include <transferjob.h>
 #include <simplejob.h>

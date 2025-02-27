@@ -25,14 +25,14 @@
 
 #include <appcombo.h>
 #include <iconfactory.h>
-#include <th_image.h>
+#include <th-image.h>
 #include <sizelabel.h>
 #include <permbox.h>
 
 #include <dialogs.h>
-#include <io_jobs.h>
-#include <pango_ext.h>
-#include <gio_ext.h>
+#include <io-jobs.h>
+#include <pango-ext.h>
+#include <gio-ext.h>
 #include <utils.h>
 #include <libxfce4ui/libxfce4ui.h>
 

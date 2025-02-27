@@ -21,7 +21,7 @@
 #include <config.h>
 #include <iconfactory.h>
 
-#include <pixbuf_ext.h>
+#include <pixbuf-ext.h>
 #include <utils.h>
 
 // the timeout until the sweeper is run (in seconds)

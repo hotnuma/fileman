@@ -23,7 +23,7 @@
 
 #include <application.h>
 #include <filemonitor.h>
-#include <gio_ext.h>
+#include <gio-ext.h>
 
 #define ETMFOREACHFUNC (GtkTreeModelForeachFunc) (void(*)(void))
 

@@ -20,7 +20,7 @@
 #ifndef __CLIPBOARDMANAGER_H__
 #define __CLIPBOARDMANAGER_H__
 
-#include "th_file.h"
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

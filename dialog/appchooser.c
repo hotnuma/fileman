@@ -23,7 +23,7 @@
 #include <appmodel.h>
 #include <application.h>
 #include <dialogs.h>
-#include <gtk_ext.h>
+#include <gtk-ext.h>
 #include <utils.h>
 
 // AppChooserDialog -----------------------------------------------------------

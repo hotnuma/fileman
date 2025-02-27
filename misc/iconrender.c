@@ -20,9 +20,9 @@
 #include <iconrender.h>
 
 #include <iconfactory.h>
-#include <pixbuf_ext.h>
+#include <pixbuf-ext.h>
 #include <clipboard.h>
-#include <gdk_ext.h>
+#include <gdk-ext.h>
 
 static void iconrender_finalize(GObject *object);
 static void iconrender_get_property(GObject *object, guint prop_id,

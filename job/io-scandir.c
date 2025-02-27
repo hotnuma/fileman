@@ -18,9 +18,9 @@
  */
 
 #include <config.h>
-#include <io_scandir.h>
+#include <io-scandir.h>
 
-#include <gio_ext.h>
+#include <gio-ext.h>
 
 GList* io_scan_directory(ThunarJob           *job,
                          GFile               *file,

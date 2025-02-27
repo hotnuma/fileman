@@ -17,8 +17,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNARFILE_H__
-#define __THUNARFILE_H__
+#ifndef __TH_FILE_H__
+#define __TH_FILE_H__
 
 #include <gtk/gtk.h>
 #include <usermanager.h>
@@ -210,6 +210,6 @@ GList* thlist_to_glist(GList *thlist);
 
 G_END_DECLS
 
-#endif // __THUNARFILE_H__
+#endif // __TH_FILE_H__
 
 

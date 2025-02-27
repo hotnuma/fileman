@@ -20,7 +20,7 @@
 #include <config.h>
 #include <jobutils.h>
 
-#include <gio_ext.h>
+#include <gio-ext.h>
 #include <utils.h>
 
 /**

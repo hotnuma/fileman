@@ -20,7 +20,7 @@
 #define __APPWINDOW_H__
 
 #include <launcher.h>
-#include <th_file.h>
+#include <th-file.h>
 #include <libxfce4ui/libxfce4ui.h>
 
 G_BEGIN_DECLS

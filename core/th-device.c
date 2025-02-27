@@ -17,11 +17,11 @@
  */
 
 #include <config.h>
-#include <th_device.h>
+#include <th-device.h>
 
 #include <appnotify.h>
 #include <devmonitor.h>
-#include <th_file.h>
+#include <th-file.h>
 
 typedef struct _ThunarDeviceOperation ThunarDeviceOperation;
 

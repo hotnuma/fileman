@@ -26,7 +26,7 @@
 
 #include <string.h>
 #include <memory.h>
-#include <gio_ext.h>
+#include <gio-ext.h>
 
 static void clipman_finalize(GObject *object);
 static void clipman_dispose(GObject *object);

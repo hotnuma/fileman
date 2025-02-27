@@ -16,10 +16,10 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __THUNARFOLDER_H__
-#define __THUNARFOLDER_H__
+#ifndef __TH_FOLDER_H__
+#define __TH_FOLDER_H__
 
-#include <th_file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 
@@ -55,6 +55,6 @@ GList* th_folder_get_files(const ThunarFolder *folder);
 
 G_END_DECLS
 
-#endif // __THUNARFOLDER_H__
+#endif // __TH_FOLDER_H__
 
 

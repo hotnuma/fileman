@@ -20,7 +20,7 @@
 #define __BASEVIEW_H__
 
 #include <enumtypes.h>
-#include <th_file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 

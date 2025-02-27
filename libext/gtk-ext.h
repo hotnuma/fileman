@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2006 Benedikt Meurer <benny@xfce.org>
+ * Copyright (c) 2005-2006 Benedikt Meurer <benny@xfce.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,26 +16,28 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __PANGO_EXTENSIONS_H__
-#define __PANGO_EXTENSIONS_H__
+#ifndef __GTK_EXT_H__
+#define __GTK_EXT_H__
 
-#include <pango/pango.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-#if PANGO_VERSION_CHECK(1, 44, 0)
-PangoAttrList* e_pango_attr_disable_hyphens() G_GNUC_CONST;
-#endif
-PangoAttrList* e_pango_attr_list_big() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_big_bold() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_bold() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_italic() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_small() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_small_italic() G_GNUC_CONST;
-PangoAttrList* e_pango_attr_list_underline_single() G_GNUC_CONST;
+GMountOperation* etk_mount_operation_new(gpointer parent);
+
+GtkWidget* etk_get_focused_widget();
+void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
+                            G_GNUC_PRINTF (2, 3);
+
+gboolean etk_editable_can_cut(GtkEditable *editable);
+gboolean etk_editable_can_copy(GtkEditable *editable);
+gboolean etk_editable_can_paste(GtkEditable *editable);
+void etk_label_set_a11y_relation(GtkLabel *label, GtkWidget *widget);
+void etk_menu_run(GtkMenu *menu);
+void etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event);
 
 G_END_DECLS
 
-#endif // __PANGO_EXTENSIONS_H__
+#endif // __GTK_EXT_H__
 
 

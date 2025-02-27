@@ -17,8 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __EXOJOB_H__
-#define __EXOJOB_H__
+#ifndef __EXO_JOB_H__
+#define __EXO_JOB_H__
 
 #include <gio/gio.h>
 
@@ -88,6 +88,6 @@ gboolean exo_job_send_to_mainloop(ExoJob *job, GSourceFunc func,
 
 G_END_DECLS
 
-#endif // __EXOJOB_H__
+#endif // __EXO_JOB_H__
 
 

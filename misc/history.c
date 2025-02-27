@@ -23,8 +23,8 @@
 #include <iconfactory.h>
 #include <dialogs.h>
 #include <libxfce4ui/libxfce4ui.h>
-#include <gio_ext.h>
-#include <gtk_ext.h>
+#include <gio-ext.h>
+#include <gtk-ext.h>
 
 static void history_navigator_init(ThunarNavigatorIface *iface);
 static void history_finalize(GObject *object);

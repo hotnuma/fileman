@@ -19,7 +19,7 @@
 #ifndef __SIZELABEL_H__
 #define __SIZELABEL_H__
 
-#include <th_file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 

@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#include <th_image.h>
+#include <th-image.h>
 
 #include <iconfactory.h>
 #include <filemonitor.h>

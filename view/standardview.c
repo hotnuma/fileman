@@ -31,9 +31,9 @@
 #include <dnd.h>
 #include <dialogs.h>
 
-#include <gio_ext.h>
-#include <gtk_ext.h>
-#include <pango_ext.h>
+#include <gio-ext.h>
+#include <gtk-ext.h>
+#include <pango-ext.h>
 #include <utils.h>
 
 // for desktop file edit

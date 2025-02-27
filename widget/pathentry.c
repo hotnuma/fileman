@@ -27,7 +27,7 @@
 #include <iconfactory.h>
 #include <iconrender.h>
 #include <listmodel.h>
-#include <gio_ext.h>
+#include <gio-ext.h>
 #include <utils.h>
 
 #define ICON_MARGIN (2)

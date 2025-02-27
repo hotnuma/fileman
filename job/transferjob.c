@@ -22,8 +22,8 @@
 #include <transferjob.h>
 
 #include <jobutils.h>
-#include <io_scandir.h>
-#include <gio_ext.h>
+#include <io-scandir.h>
+#include <gio-ext.h>
 #include <syslog.h>
 
 // 10 seconds before we show the transfer rate + remaining time

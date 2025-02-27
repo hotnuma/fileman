@@ -22,8 +22,8 @@
 
 #include <devmonitor.h>
 #include <filemonitor.h>
-#include <th_folder.h>
-#include <pango_ext.h>
+#include <th-folder.h>
+#include <pango-ext.h>
 #include <utils.h>
 
 // convenience macros

@@ -20,7 +20,7 @@
 #include <component.h>
 
 #include <navigator.h>
-#include <gio_ext.h>
+#include <gio-ext.h>
 
 /*
  * ThunarComponent:selected-files:

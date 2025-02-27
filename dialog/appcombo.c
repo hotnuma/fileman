@@ -24,8 +24,8 @@
 
 #include <appchooser.h>
 #include <dialogs.h>
-#include <gio_ext.h>
-#include <gtk_ext.h>
+#include <gio-ext.h>
+#include <gtk-ext.h>
 
 static void appcombo_finalize(GObject *object);
 static void appcombo_get_property(GObject *object, guint prop_id,

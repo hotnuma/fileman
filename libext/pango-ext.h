@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2003-2007 Benedikt Meurer <benny@xfce.org>
+ * Copyright (c) 2006 Benedikt Meurer <benny@xfce.org>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,18 +16,26 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __GDK_EXTENSIONS_H__
-#define __GDK_EXTENSIONS_H__
+#ifndef __PANGO_EXT_H__
+#define __PANGO_EXT_H__
 
-#include <gdk/gdk.h>
+#include <pango/pango.h>
 
 G_BEGIN_DECLS
 
-void edk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
-                                 gdouble pixbuf_x, gdouble pixbuf_y);
+#if PANGO_VERSION_CHECK(1, 44, 0)
+PangoAttrList* e_pango_attr_disable_hyphens() G_GNUC_CONST;
+#endif
+PangoAttrList* e_pango_attr_list_big() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_big_bold() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_bold() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_italic() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_small() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_small_italic() G_GNUC_CONST;
+PangoAttrList* e_pango_attr_list_underline_single() G_GNUC_CONST;
 
 G_END_DECLS
 
-#endif // __GDK_EXTENSIONS_H__
+#endif // __PANGO_EXT_H__
 
 

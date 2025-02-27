@@ -19,7 +19,7 @@
 #ifndef __DEVICE_MONITOR_H__
 #define __DEVICE_MONITOR_H__
 
-#include <th_device.h>
+#include <th-device.h>
 
 // DeviceMonitor --------------------------------------------------------------
 

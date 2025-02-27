@@ -20,10 +20,10 @@
 #include <config.h>
 #include <shortrender.h>
 
-#include <th_device.h>
+#include <th-device.h>
 #include <iconrender.h>
-#include <pixbuf_ext.h>
-#include <gdk_ext.h>
+#include <pixbuf-ext.h>
+#include <gdk-ext.h>
 
 static void shrender_finalize(GObject *object);
 static void shrender_get_property(GObject *object, guint prop_id,

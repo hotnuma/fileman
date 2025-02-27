@@ -19,7 +19,7 @@
 #ifndef __LISTMODEL_H__
 #define __LISTMODEL_H__
 
-#include <th_folder.h>
+#include <th-folder.h>
 
 G_BEGIN_DECLS
 

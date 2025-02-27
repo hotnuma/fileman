@@ -17,10 +17,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __THUNARIMAGE_H__
-#define __THUNARIMAGE_H__
+#ifndef __TH_IMAGE_H__
+#define __TH_IMAGE_H__
 
-#include <th_file.h>
+#include <th-file.h>
 
 G_BEGIN_DECLS
 
@@ -49,6 +49,6 @@ void th_image_set_file(ThunarImage *image, ThunarFile *file);
 
 G_END_DECLS
 
-#endif // __THUNARIMAGE_H__
+#endif // __TH_IMAGE_H__
 
 
