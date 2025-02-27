@@ -19,6 +19,7 @@
 
 #include "appmodel.h"
 #include "config.h"
+#include "etktype.h"
 #include <gio-ext.h>
 
 static void appmodel_constructed(GObject *object);
