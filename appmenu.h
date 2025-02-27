@@ -18,11 +18,10 @@
 #ifndef __APPMENU_H__
 #define __APPMENU_H__
 
+#include "etktype.h"
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
-
-// Globals --------------------------------------------------------------------
 
 // For window menu, some items are shown insensitive, instead of hidden
 typedef enum
@@ -55,22 +54,13 @@ typedef enum
 
 } MenuSections;
 
+
 // AppMenu --------------------------------------------------------------------
 
-typedef struct _AppMenuClass AppMenuClass;
-typedef struct _AppMenu      AppMenu;
+typedef struct _AppMenu AppMenu;
 
 #define TYPE_APPMENU (appmenu_get_type())
-#define APPMENU(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPMENU, AppMenu))
-#define APPMENU_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_APPMENU, AppMenuClass))
-#define IS_APPMENU(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_APPMENU))
-#define IS_APPMENU_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPMENU))
-#define APPMENU_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPMENU, AppMenu))
+E_DECLARE_FINAL_TYPE(AppMenu, appmenu, APPMENU, GtkMenu)
 
 GType appmenu_get_type() G_GNUC_CONST;
 

@@ -19,8 +19,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "config.h"
 #include "application.h"
+#include "config.h"
 
 #include "browser.h"
 #include "preferences.h"
@@ -739,7 +739,8 @@ void application_take_window(Application *application, GtkWindow *window)
     e_return_if_fail(IS_APPLICATION(application));
 
     // only windows without a parent get a new window group
-    if (gtk_window_get_transient_for(window) == NULL && !gtk_window_has_group(window))
+    if (gtk_window_get_transient_for(window) == NULL
+            && !gtk_window_has_group(window))
     {
         GtkWindowGroup *group = gtk_window_group_new();
         gtk_window_group_add_window(group, window);
@@ -758,7 +759,8 @@ void application_copy_into(Application *application, gpointer parent,
                            GList *source_file_list, GFile *target_file,
                            GClosure *new_files_closure)
 {
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(G_IS_FILE(target_file));
 
@@ -814,7 +816,8 @@ void application_move_into(Application *application, gpointer parent,
                            GList *source_file_list, GFile *target_file,
                            GClosure *new_files_closure)
 {
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(target_file != NULL);
 
@@ -847,14 +850,16 @@ void application_move_into(Application *application, gpointer parent,
 void application_unlink_files(Application *application, gpointer parent,
                               GList *file_list, gboolean permanently)
 {
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
     e_return_if_fail(IS_APPLICATION(application));
 
     GList *path_list = NULL;
     guint n_path_list = 0;
 
     // determine the paths for the files
-    for (GList *lp = g_list_last(file_list); lp != NULL; lp = lp->prev, ++n_path_list)
+    for (GList *lp = g_list_last(file_list); lp != NULL;
+         lp = lp->prev, ++n_path_list)
     {
         // prepend the path to the path list
         path_list = e_list_prepend_ref(path_list, th_file_get_file(lp->data));
@@ -891,10 +896,12 @@ void application_unlink_files(Application *application, gpointer parent,
     else
     {
         message = g_strdup_printf(
-        ngettext("Are you sure that you want to permanently\ndelete the selected file?",
-        "Are you sure that you want to permanently\ndelete the %u selected files?",
-        n_path_list),
-        n_path_list);
+        ngettext("Are you sure that you want to permanently\ndelete"
+                 " the selected file?",
+                 "Are you sure that you want to permanently\ndelete"
+                 " the %u selected files?",
+                 n_path_list),
+                 n_path_list);
     }
 
     // parse the parent pointer
@@ -978,7 +985,8 @@ static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
     return io_trash_files(source_file_list);
 }
 
-void application_creat(Application *application, gpointer parent, GList *file_list,
+void application_creat(Application *application,
+                       gpointer parent, GList *file_list,
                        GFile *template_file, GClosure *new_files_closure)
 {
     GList template_list;
@@ -1040,7 +1048,8 @@ void application_empty_trash(Application *application, gpointer parent,
                              const gchar *startup_id)
 {
     e_return_if_fail(IS_APPLICATION(application));
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
 
     // parse the parent pointer
     GtkWindow *window;
@@ -1048,12 +1057,12 @@ void application_empty_trash(Application *application, gpointer parent,
 
     // ask the user to confirm the operation
     GtkWidget *dialog = gtk_message_dialog_new(
-                                window,
-                                GTK_DIALOG_MODAL
-                                | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                GTK_MESSAGE_QUESTION,
-                                GTK_BUTTONS_NONE,
-                                _("Remove all files and folders from the Trash?"));
+                        window,
+                        GTK_DIALOG_MODAL
+                        | GTK_DIALOG_DESTROY_WITH_PARENT,
+                        GTK_MESSAGE_QUESTION,
+                        GTK_BUTTONS_NONE,
+                        _("Remove all files and folders from the Trash?"));
 
     if (window == NULL && screen != NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
@@ -1068,8 +1077,9 @@ void application_empty_trash(Application *application, gpointer parent,
 
     gtk_message_dialog_format_secondary_text(
         GTK_MESSAGE_DIALOG(dialog),
-        _("If you choose to empty the Trash, all items in it will be permanently "
-          "lost. Please note that you can also delete them separately."));
+        _("If you choose to empty the Trash, all items in it will be"
+          " permanently lost. Please note that you can also delete"
+          " them separately."));
 
     gint response = gtk_dialog_run(GTK_DIALOG(dialog));
 
@@ -1104,8 +1114,9 @@ void application_empty_trash(Application *application, gpointer parent,
     }
 }
 
-void application_restore_files(Application *application, gpointer parent,
-                               GList *trash_file_list, GClosure *new_files_closure)
+void application_restore_files(Application *application,
+                               gpointer parent, GList *trash_file_list,
+                               GClosure *new_files_closure)
 {
     e_return_if_fail(IS_APPLICATION(application));
     e_return_if_fail(parent == NULL
@@ -1133,7 +1144,8 @@ void application_restore_files(Application *application, gpointer parent,
         // TODO we might have to distinguish between URIs and paths here
         GFile *target_path = g_file_new_for_commandline_arg(original_uri);
 
-        source_path_list = e_list_append_ref(source_path_list, th_file_get_file(lp->data));
+        source_path_list = e_list_append_ref(source_path_list,
+                                             th_file_get_file(lp->data));
         target_path_list = e_list_append_ref(target_path_list, target_path);
 
         g_object_unref(target_path);
@@ -1196,7 +1208,8 @@ static void _application_collect_and_launch(Application  *application,
         if (e_file_is_root(lp->data))
         {
             // tell the user that we cannot perform the requested operation
-            g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s", g_strerror(EINVAL));
+            g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s",
+                        g_strerror(EINVAL));
         }
         else
         {
@@ -1249,7 +1262,8 @@ static void _application_launch(Application  *application,
                                 gboolean     update_target_folders,
                                 GClosure     *new_files_closure)
 {
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
 
     // parse the parent pointer
     GdkScreen *screen = util_parse_parent(parent, NULL);
@@ -1260,17 +1274,20 @@ static void _application_launch(Application  *application,
     GList *parent_folder_list = NULL;
 
     if (update_source_folders)
-        parent_folder_list = g_list_concat(parent_folder_list,
-                                           e_filelist_get_parents(source_file_list));
+        parent_folder_list = g_list_concat(
+                                parent_folder_list,
+                                e_filelist_get_parents(source_file_list));
 
     if (update_target_folders)
-        parent_folder_list = g_list_concat(parent_folder_list,
-                                           e_filelist_get_parents(target_file_list));
+        parent_folder_list = g_list_concat(
+                                parent_folder_list,
+                                e_filelist_get_parents(target_file_list));
 
     /* connect a callback to instantly refresh the parent folders after
      * the operation finished */
     g_signal_connect(G_OBJECT(job), "finished",
-                     G_CALLBACK(_application_launch_finished), parent_folder_list);
+                     G_CALLBACK(_application_launch_finished),
+                     parent_folder_list);
 
     // connect the "new-files" closure (if any)
     if (new_files_closure != NULL)
@@ -1312,7 +1329,8 @@ static void _application_launch(Application  *application,
     g_object_unref(job);
 }
 
-static void _application_launch_finished(ThunarJob *job, GList *containing_folders)
+static void _application_launch_finished(ThunarJob *job,
+                                         GList *containing_folders)
 {
     e_return_if_fail(THUNAR_IS_JOB(job));
 
@@ -1363,7 +1381,8 @@ static GtkWidget* _application_get_progress_dialog(Application *application)
     g_object_add_weak_pointer(G_OBJECT(application->progress_dialog),
                               (gpointer) &application->progress_dialog);
 
-    application_take_window(application, GTK_WINDOW(application->progress_dialog));
+    application_take_window(application,
+                            GTK_WINDOW(application->progress_dialog));
 
     return application->progress_dialog;
 }

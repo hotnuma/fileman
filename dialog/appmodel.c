@@ -17,19 +17,19 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <appmodel.h>
-
+#include "appmodel.h"
+#include "config.h"
 #include <gio_ext.h>
 
 static void appmodel_constructed(GObject *object);
 static void appmodel_finalize(GObject *object);
 static void appmodel_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec);
+static const gchar* _appmodel_get_content_type(AppChooserModel *model);
 static void appmodel_set_property(GObject *object, guint prop_id,
                                   const GValue *value, GParamSpec *pspec);
 
-void _appmodel_load(AppChooserModel *model, GtkWidget *widget);
+static void _appmodel_load(AppChooserModel *model, GtkWidget *widget);
 static gint _sort_app_infos(gconstpointer a, gconstpointer b);
 static gint _compare_app_infos(gconstpointer a, gconstpointer b);
 static void _appmodel_append(AppChooserModel *model, const gchar *title,
@@ -125,13 +125,20 @@ static void appmodel_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CONTENT_TYPE:
-        g_value_set_string(value, appmodel_get_content_type(model));
+        g_value_set_string(value, _appmodel_get_content_type(model));
         break;
 
     default:
         G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
         break;
     }
+}
+
+static const gchar* _appmodel_get_content_type(AppChooserModel *model)
+{
+    e_return_val_if_fail(IS_APPCHOOSER_MODEL(model), NULL);
+
+    return model->content_type;
 }
 
 static void appmodel_set_property(GObject *object, guint prop_id,
@@ -153,14 +160,65 @@ static void appmodel_set_property(GObject *object, guint prop_id,
     }
 }
 
-const gchar* appmodel_get_content_type(AppChooserModel *model)
-{
-    e_return_val_if_fail(IS_APPCHOOSER_MODEL(model), NULL);
 
-    return model->content_type;
+// public ---------------------------------------------------------------------
+
+AppChooserModel* appmodel_new(const gchar *content_type)
+{
+    return g_object_new(TYPE_APPCHOOSER_MODEL,
+                        "content-type", content_type,
+                        NULL);
 }
 
-void _appmodel_load(AppChooserModel *model, GtkWidget *widget)
+gboolean appmodel_remove(AppChooserModel *model,
+                         GtkTreeIter *iter, GError **error)
+{
+    e_return_val_if_fail(IS_APPCHOOSER_MODEL(model), FALSE);
+    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
+    e_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model),
+                                                      iter), FALSE);
+
+    GAppInfo *app_info;
+    gboolean succeed;
+
+    // determine the app info for the iter
+    gtk_tree_model_get(GTK_TREE_MODEL(model),
+                       iter,
+                       APPCHOOSER_COLUMN_APPLICATION, &app_info,
+                       -1);
+
+    if (app_info == NULL)
+        return TRUE;
+
+    // try to remove support for this content type
+    succeed = g_app_info_remove_supports_type(app_info,
+                                              model->content_type,
+                                              error);
+
+    // try to delete the file
+    if (succeed && g_app_info_delete(app_info))
+    {
+        g_set_error(error,
+                    G_IO_ERROR,
+                    G_IO_ERROR_FAILED,
+                    _("Failed to remove \"%s\"."),
+                    g_app_info_get_id(app_info));
+    }
+
+    // clean up
+    g_object_unref(app_info);
+
+    // if the removal was successfull, delete the row from the model
+    if (succeed)
+        gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
+
+    return succeed;
+}
+
+
+// ----------------------------------------------------------------------------
+
+static void _appmodel_load(AppChooserModel *model, GtkWidget *widget)
 {
     (void) widget;
 
@@ -254,7 +312,8 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
                                      g_app_info_get_id(lp->data));
 
             // append the tree row with the program data
-            gtk_tree_store_append(GTK_TREE_STORE(model), &child_iter, &parent_iter);
+            gtk_tree_store_append(GTK_TREE_STORE(model),
+                                  &child_iter, &parent_iter);
             gtk_tree_store_set(
                     GTK_TREE_STORE(model), &child_iter,
                     APPCHOOSER_COLUMN_NAME, g_app_info_get_name(lp->data),
@@ -272,7 +331,8 @@ static void _appmodel_append(AppChooserModel *model, const gchar *title,
     if (!inserted_infos)
     {
         // tell the user that we don't have any applications for this category
-        gtk_tree_store_append(GTK_TREE_STORE(model), &child_iter, &parent_iter);
+        gtk_tree_store_append(GTK_TREE_STORE(model),
+                              &child_iter, &parent_iter);
         gtk_tree_store_set(GTK_TREE_STORE(model), &child_iter,
                            APPCHOOSER_COLUMN_NAME, _("None available"),
                            APPCHOOSER_COLUMN_STYLE, PANGO_STYLE_ITALIC,
@@ -300,7 +360,8 @@ static GdkPixbuf* _pixbuf_from_gicon(GtkWidget *widget, GIcon *gicon,
     }
     else
     {
-        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
+        icon_theme =
+                gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
         gint scale_factor = gtk_widget_get_scale_factor(widget);
         requested_icon_size = 24 * scale_factor;
     }
@@ -335,7 +396,8 @@ static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget, const gchar *id)
     }
     else
     {
-        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
+        icon_theme =
+                gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
         gint scale_factor = gtk_widget_get_scale_factor(widget);
         requested_icon_size = 24 * scale_factor;
     }
@@ -355,58 +417,6 @@ static GdkPixbuf* _pixbuf_get_default(GtkWidget *widget, const gchar *id)
     }
 
     return gtk_icon_info_load_icon(icon_info, NULL);
-}
-
-// Public ---------------------------------------------------------------------
-
-AppChooserModel* appmodel_new(const gchar *content_type)
-{
-    return g_object_new(TYPE_APPCHOOSER_MODEL,
-                        "content-type", content_type,
-                        NULL);
-}
-
-gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **error)
-{
-    e_return_val_if_fail(IS_APPCHOOSER_MODEL(model), FALSE);
-    e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    e_return_val_if_fail(gtk_tree_store_iter_is_valid(GTK_TREE_STORE(model), iter), FALSE);
-
-    GAppInfo *app_info;
-    gboolean succeed;
-
-    // determine the app info for the iter
-    gtk_tree_model_get(GTK_TREE_MODEL(model),
-                       iter,
-                       APPCHOOSER_COLUMN_APPLICATION, &app_info,
-                       -1);
-
-    if (app_info == NULL)
-        return TRUE;
-
-    // try to remove support for this content type
-    succeed = g_app_info_remove_supports_type(app_info,
-                                              model->content_type,
-                                              error);
-
-    // try to delete the file
-    if (succeed && g_app_info_delete(app_info))
-    {
-        g_set_error(error,
-                    G_IO_ERROR,
-                    G_IO_ERROR_FAILED,
-                    _("Failed to remove \"%s\"."),
-                    g_app_info_get_id(app_info));
-    }
-
-    // clean up
-    g_object_unref(app_info);
-
-    // if the removal was successfull, delete the row from the model
-    if (succeed)
-        gtk_tree_store_remove(GTK_TREE_STORE(model), iter);
-
-    return succeed;
 }
 
 

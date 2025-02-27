@@ -55,7 +55,6 @@ typedef enum
 GType appmodel_get_type() G_GNUC_CONST;
 
 AppChooserModel* appmodel_new(const gchar *content_type) G_GNUC_MALLOC;
-const gchar* appmodel_get_content_type(AppChooserModel *model);
 gboolean appmodel_remove(AppChooserModel *model, GtkTreeIter *iter, GError **error);
 
 G_END_DECLS

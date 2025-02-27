@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = fileman
 CONFIG = c99 link_pkgconfig
-DEFINES = _GNU_SOURCE bool=BOOL true=TRUE false=FALSE
+DEFINES = _GNU_SOURCE GLIB_CHECK_VERSION bool=BOOL true=TRUE false=FALSE
 INCLUDEPATH = core dialog job libext misc side view widget
 PKGCONFIG =
 
@@ -38,6 +38,7 @@ HEADERS = \
     job/simplejob.h \
     job/transferjob.h \
     launcher.h \
+    libext/etktype.h \
     libext/gdk_ext.h \
     libext/gio_ext.h \
     libext/gtk_ext.h \

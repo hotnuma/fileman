@@ -43,13 +43,10 @@ typedef enum
 // AppWindow ------------------------------------------------------------------
 
 typedef struct _AppWindow AppWindow;
+typedef struct _AppWindowClass AppWindowClass;
 
 #define TYPE_APPWINDOW (window_get_type())
 
-#if 0
-G_DECLARE_FINAL_TYPE(AppWindow, window, APP, WINDOW, GtkWindow)
-#else
-typedef struct _AppWindowClass AppWindowClass;
 #define APPWINDOW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_APPWINDOW, AppWindow))
 #define APPWINDOW_CLASS(klass) \
@@ -60,7 +57,6 @@ typedef struct _AppWindowClass AppWindowClass;
     (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_APPWINDOW))
 #define APPWINDOW_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_APPWINDOW, AppWindowClass))
-#endif
 
 GType window_get_type() G_GNUC_CONST;
 
