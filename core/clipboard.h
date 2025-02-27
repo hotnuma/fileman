@@ -20,26 +20,21 @@
 #ifndef __CLIPBOARDMANAGER_H__
 #define __CLIPBOARDMANAGER_H__
 
-#include <th_file.h>
+#include "th_file.h"
 
 G_BEGIN_DECLS
 
 // ClipboardManager -----------------------------------------------------------
 
-typedef struct _ClipboardManagerClass ClipboardManagerClass;
 typedef struct _ClipboardManager      ClipboardManager;
+typedef struct _ClipboardManagerClass ClipboardManagerClass;
 
 #define TYPE_CLIPBOARDMANAGER (clipman_get_type())
+
 #define CLIPBOARDMANAGER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_CLIPBOARDMANAGER, ClipboardManager))
-#define CLIPBOARDMANAGER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((obj),     TYPE_CLIPBOARDMANAGER, ClipboardManagerClass))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_CLIPBOARDMANAGER, ClipboardManager))
 #define IS_CLIPBOARDMANAGER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_CLIPBOARDMANAGER))
-#define IS_CLIPBOARDMANAGER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_CLIPBOARDMANAGER))
-#define CLIPBOARDMANAGER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_CLIPBOARDMANAGER, ClipboardManagerClass))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_CLIPBOARDMANAGER))
 
 GType clipman_get_type() G_GNUC_CONST;
 

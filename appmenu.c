@@ -99,7 +99,7 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         "launcher",
                                         "launcher",
                                         "launcher",
-                                        THUNAR_TYPE_LAUNCHER,
+                                        TYPE_LAUNCHER,
                                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
 
     g_object_class_install_property(gobject_class,

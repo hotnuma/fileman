@@ -335,7 +335,7 @@ static void treeview_init(TreeView *view)
     g_closure_ref(view->new_files_closure);
     g_closure_sink(view->new_files_closure);
 
-    view->launcher =  g_object_new(THUNAR_TYPE_LAUNCHER,
+    view->launcher =  g_object_new(TYPE_LAUNCHER,
                                    "widget", GTK_WIDGET(view),
                                    "select-files-closure", view->new_files_closure,
                                    NULL);

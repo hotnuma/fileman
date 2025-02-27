@@ -20,6 +20,7 @@
 #ifndef __THUNAR_LAUNCHER_H__
 #define __THUNAR_LAUNCHER_H__
 
+#include "etktype.h"
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
@@ -72,20 +73,10 @@ typedef enum
 
 // Launcher -------------------------------------------------------------------
 
-typedef struct _ThunarLauncherClass ThunarLauncherClass;
-typedef struct _ThunarLauncher      ThunarLauncher;
+typedef struct _ThunarLauncher ThunarLauncher;
 
-#define THUNAR_TYPE_LAUNCHER (launcher_get_type())
-#define THUNAR_LAUNCHER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  THUNAR_TYPE_LAUNCHER, ThunarLauncher))
-#define THUNAR_LAUNCHER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
-#define THUNAR_IS_LAUNCHER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  THUNAR_TYPE_LAUNCHER))
-#define THUNAR_IS_LAUNCHER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   THUNAR_TYPE_LAUNCHER))
-#define THUNAR_LAUNCHER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   THUNAR_TYPE_LAUNCHER, ThunarLauncherClass))
+#define TYPE_LAUNCHER (launcher_get_type())
+E_DECLARE_FINAL_TYPE(ThunarLauncher, launcher, LAUNCHER, GObject)
 
 GType launcher_get_type() G_GNUC_CONST;
 

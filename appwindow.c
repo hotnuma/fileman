@@ -438,7 +438,7 @@ static void window_init(AppWindow *window)
     g_closure_ref(window->select_files_closure);
     g_closure_sink(window->select_files_closure);
 
-    window->launcher = g_object_new(THUNAR_TYPE_LAUNCHER,
+    window->launcher = g_object_new(TYPE_LAUNCHER,
                                     "widget",
                                     GTK_WIDGET(window),
                                     "select-files-closure",
