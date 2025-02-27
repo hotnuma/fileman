@@ -270,7 +270,8 @@ static gboolean _exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
     GSource  *source;
 
     e_return_val_if_fail(IS_EXOJOB(job), FALSE);
-    e_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
+    e_return_val_if_fail(cancellable == NULL
+                         || G_IS_CANCELLABLE(cancellable), FALSE);
 
     job->priv->scheduler_job = scheduler_job;
 

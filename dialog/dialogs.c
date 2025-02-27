@@ -31,7 +31,8 @@
 static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);
 
 // dialog_job_ask_replace
-static void _dialog_job_ask_replace_callback(GtkWidget *button, gpointer user_data);
+static void _dialog_job_ask_replace_callback(GtkWidget *button,
+                                             gpointer user_data);
 
 // Launcher -------------------------------------------------------------------
 
@@ -48,24 +49,28 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
     GdkScreen *screen = util_parse_parent(parent, &window);
 
     // create a new dialog window
-    GtkWidget *dialog = gtk_dialog_new_with_buttons(title,
-                                                    window,
-                                                    GTK_DIALOG_MODAL
-                                                    | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                    _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                                    _("C_reate"), GTK_RESPONSE_OK,
-                                                    NULL);
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+                                    title,
+                                    window,
+                                    GTK_DIALOG_MODAL
+                                    | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                    _("C_reate"), GTK_RESPONSE_OK,
+                                    NULL);
 
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK);
-    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog), GTK_RESPONSE_OK, FALSE);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog),
+                                    GTK_RESPONSE_OK);
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),
+                                      GTK_RESPONSE_OK, FALSE);
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, -1);
 
     GtkWidget *grid = gtk_grid_new();
     gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
     gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
     gtk_container_set_border_width(GTK_CONTAINER(grid), 6);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
-                       grid, TRUE, TRUE, 0);
+    gtk_box_pack_start(
+                GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+                grid, TRUE, TRUE, 0);
     gtk_widget_show(grid);
 
     GIcon *icon = NULL;
@@ -94,22 +99,33 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
     gtk_widget_show(label);
 
     // set up the widget for entering the filename
-    XfceFilenameInput *filename_input = g_object_new(XFCE_TYPE_FILENAME_INPUT,
-                                                     "original-filename", filename,
-                                                     NULL);
+    XfceFilenameInput *filename_input =
+            g_object_new(XFCE_TYPE_FILENAME_INPUT,
+                         "original-filename", filename,
+                         NULL);
+
     gtk_widget_set_hexpand(GTK_WIDGET(filename_input), TRUE);
     gtk_widget_set_valign(GTK_WIDGET(filename_input), GTK_ALIGN_CENTER);
 
-    /* connect to signals so that the sensitivity of the Create button is updated according to whether there
-     * is a valid file name entered */
-    g_signal_connect_swapped(filename_input, "text-invalid", G_CALLBACK(xfce_filename_input_desensitise_widget),
-                              gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK));
-    g_signal_connect_swapped(filename_input, "text-valid", G_CALLBACK(xfce_filename_input_sensitise_widget),
-                              gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK));
+    // connect to signals so that the sensitivity of the Create button
+    // is updated according to whether there is a valid file name entered
+    g_signal_connect_swapped(
+                    filename_input,
+                    "text-invalid",
+                    G_CALLBACK(xfce_filename_input_desensitise_widget),
+                    gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog),
+                                                       GTK_RESPONSE_OK));
+    g_signal_connect_swapped(
+                    filename_input,
+                    "text-valid",
+                    G_CALLBACK(xfce_filename_input_sensitise_widget),
+                    gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog),
+                                                       GTK_RESPONSE_OK));
 
     gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(filename_input), 1, 1, 1, 1);
-    etk_label_set_a11y_relation(GTK_LABEL(label),
-                                        GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
+    etk_label_set_a11y_relation(
+            GTK_LABEL(label),
+            GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
     gtk_widget_show_all( GTK_WIDGET(filename_input));
 
     // ensure that the sensitivity of the Create button is set correctly
@@ -134,7 +150,10 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
         if (name == NULL)
         {
             // display an error message
-            dialog_error(dialog, error, _("Cannot convert filename \"%s\" to the local encoding"), filename);
+            dialog_error(dialog,
+                         error,
+                         _("Cannot convert filename"
+                           " \"%s\" to the local encoding"), filename);
 
             // release the error
             g_error_free(error);
@@ -149,7 +168,8 @@ gchar* dialog_file_create(gpointer parent, const gchar *content_type,
 
 ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
 {
-    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WINDOW(parent), FALSE);
+    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                         || GTK_IS_WINDOW(parent), FALSE);
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
     IconFactory *icon_factory;
@@ -198,12 +218,15 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
     gtk_grid_set_row_spacing(GTK_GRID(grid), 3);
     gtk_container_set_border_width(GTK_CONTAINER(grid), 6);
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), grid, TRUE, TRUE, 0);
+    gtk_box_pack_start(
+                GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
+                grid, TRUE, TRUE, 0);
     gtk_widget_show(grid);
 
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(dialog));
     icon_factory = iconfact_get_for_icon_theme(icon_theme);
-    icon = iconfact_load_file_icon(icon_factory, file, FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory,
+                                   file, FILE_ICON_STATE_DEFAULT, 48);
     g_object_unref(G_OBJECT(icon_factory));
 
     image = gtk_image_new_from_pixbuf(icon);
@@ -222,33 +245,49 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     gtk_widget_show(label);
 
     // set up the widget for entering the filename
-    filename_input = g_object_new(XFCE_TYPE_FILENAME_INPUT, "original-filename", filename, NULL);
+    filename_input = g_object_new(XFCE_TYPE_FILENAME_INPUT,
+                                  "original-filename", filename, NULL);
     gtk_widget_set_hexpand(GTK_WIDGET(filename_input), TRUE);
     gtk_widget_set_valign(GTK_WIDGET(filename_input), GTK_ALIGN_CENTER);
 
-    /* connect to signals so that the sensitivity of the Create button is updated according to whether there
-     * is a valid file name entered */
-    g_signal_connect_swapped(filename_input, "text-invalid", G_CALLBACK(xfce_filename_input_desensitise_widget),
-                              gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK));
-    g_signal_connect_swapped(filename_input, "text-valid", G_CALLBACK(xfce_filename_input_sensitise_widget),
-                              gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog), GTK_RESPONSE_OK));
+    // connect to signals so that the sensitivity of the Create button
+    // is updated according to whether there is a valid file name entered
+    g_signal_connect_swapped(
+        filename_input,
+        "text-invalid",
+        G_CALLBACK(xfce_filename_input_desensitise_widget),
+        gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog),
+                                           GTK_RESPONSE_OK));
+    g_signal_connect_swapped(
+        filename_input,
+        "text-valid",
+        G_CALLBACK(xfce_filename_input_sensitise_widget),
+        gtk_dialog_get_widget_for_response(GTK_DIALOG(dialog),
+                                           GTK_RESPONSE_OK));
 
     gtk_grid_attach(GTK_GRID(grid), GTK_WIDGET(filename_input), 1, 1, 1, 1);
-    etk_label_set_a11y_relation(GTK_LABEL(label),
-                                        GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
+    etk_label_set_a11y_relation(
+        GTK_LABEL(label),
+        GTK_WIDGET(xfce_filename_input_get_entry(filename_input)));
     gtk_widget_show_all( GTK_WIDGET(filename_input));
 
     // ensure that the sensitivity of the Create button is set correctly
     xfce_filename_input_check(filename_input);
 
     // select the filename without the extension
-    _dialog_select_filename(GTK_WIDGET(xfce_filename_input_get_entry(filename_input)), file);
+    _dialog_select_filename(
+                GTK_WIDGET(xfce_filename_input_get_entry(filename_input)),
+                file);
 
     // get the size the entry requires to render the full text
-    layout = gtk_entry_get_layout(xfce_filename_input_get_entry(filename_input));
+    layout = gtk_entry_get_layout(
+                xfce_filename_input_get_entry(filename_input));
     pango_layout_get_pixel_size(layout, &layout_width, NULL);
-    gtk_entry_get_layout_offsets(xfce_filename_input_get_entry(filename_input), &layout_offset, NULL);
-    layout_width +=(layout_offset * 2) +(12 * 4) + 48; // 12px free space in entry
+    gtk_entry_get_layout_offsets(
+                xfce_filename_input_get_entry(filename_input),
+                &layout_offset, NULL);
+    layout_width +=(layout_offset * 2) +(12 * 4) + 48;
+    // 12px free space in entry
 
     // parent window width
     if (window != NULL)
@@ -259,7 +298,8 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
     }
 
     // resize the dialog to make long names fit as much as possible
-    gtk_window_set_default_size(GTK_WINDOW(dialog), CLAMP(layout_width, 300, parent_width), -1);
+    gtk_window_set_default_size(GTK_WINDOW(dialog),
+                                CLAMP(layout_width, 300, parent_width), -1);
 
     // automatically close the dialog when the file is destroyed
     g_signal_connect_swapped(G_OBJECT(file), "destroy",
@@ -366,8 +406,8 @@ gboolean dialog_folder_trash(GtkWindow *window)
 
 // ThunarFile -----------------------------------------------------------------
 
-gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFile *file,
-                                 const gchar *command)
+gboolean dialog_insecure_program(gpointer parent, const gchar *primary,
+                                 ThunarFile *file, const gchar *command)
 {
     GdkScreen      *screen;
     GtkWindow      *window;
@@ -387,15 +427,19 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
 
     // secondary text
     secondary = g_string_new(NULL);
-    g_string_append_printf(secondary, _("The desktop file \"%s\" is in an insecure location "
-                                         "and not marked as executable. If you do not trust "
-                                         "this program, click Cancel."),
-                            th_file_get_display_name(file));
+    g_string_append_printf(
+                secondary,
+                _("The desktop file \"%s\" is in an insecure location "
+                "and not marked as executable. If you do not trust "
+                "this program, click Cancel."),
+                th_file_get_display_name(file));
     g_string_append(secondary, "\n\n");
     if (g_uri_is_valid(command, G_URI_FLAGS_NONE, NULL))
-        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
+        g_string_append_printf(secondary,
+                               G_KEY_FILE_DESKTOP_KEY_URL"=%s", command);
     else
-        g_string_append_printf(secondary, G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);
+        g_string_append_printf(secondary,
+                               G_KEY_FILE_DESKTOP_KEY_EXEC"=%s", command);
 
     // allocate and display the error message dialog
     dialog = gtk_message_dialog_new(window,
@@ -404,14 +448,23 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
                                      GTK_MESSAGE_WARNING,
                                      GTK_BUTTONS_NONE,
                                      "%s", primary);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Launch Anyway"), GTK_RESPONSE_OK);
+
+    gtk_dialog_add_button(GTK_DIALOG(dialog),
+                          _("_Launch Anyway"), GTK_RESPONSE_OK);
+
     if (th_file_is_chmodable(file))
-        gtk_dialog_add_button(GTK_DIALOG(dialog), _("Mark _Executable"), GTK_RESPONSE_APPLY);
-    gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
+        gtk_dialog_add_button(GTK_DIALOG(dialog),
+                              _("Mark _Executable"), GTK_RESPONSE_APPLY);
+
+    gtk_dialog_add_button(GTK_DIALOG(dialog),
+                          _("_Cancel"), GTK_RESPONSE_CANCEL);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+
     if (screen != NULL && window == NULL)
         gtk_window_set_screen(GTK_WINDOW(dialog), screen);
-    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", secondary->str);
+
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                                             "%s", secondary->str);
     g_string_free(secondary, TRUE);
     response = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
@@ -430,22 +483,29 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
             if (g_file_info_has_attribute(info, G_FILE_ATTRIBUTE_UNIX_MODE))
             {
                 // determine the current mode
-                old_mode = g_file_info_get_attribute_uint32(info, G_FILE_ATTRIBUTE_UNIX_MODE);
+                old_mode = g_file_info_get_attribute_uint32(
+                                        info,
+                                        G_FILE_ATTRIBUTE_UNIX_MODE);
 
                 // generate the new mode
-                new_mode = old_mode | THUNAR_FILE_MODE_USR_EXEC | THUNAR_FILE_MODE_GRP_EXEC | THUNAR_FILE_MODE_OTH_EXEC;
+                new_mode = old_mode
+                           | THUNAR_FILE_MODE_USR_EXEC
+                           | THUNAR_FILE_MODE_GRP_EXEC
+                           | THUNAR_FILE_MODE_OTH_EXEC;
 
                 if (old_mode != new_mode)
                 {
-                    g_file_set_attribute_uint32(th_file_get_file(file),
-                                                 G_FILE_ATTRIBUTE_UNIX_MODE, new_mode,
-                                                 G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
-                                                 NULL, &err);
+                    g_file_set_attribute_uint32(
+                                th_file_get_file(file),
+                                G_FILE_ATTRIBUTE_UNIX_MODE, new_mode,
+                                G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS,
+                                NULL, &err);
                 }
             }
             else
             {
-                g_warning("No %s attribute found", G_FILE_ATTRIBUTE_UNIX_MODE);
+                g_warning("No %s attribute found",
+                          G_FILE_ATTRIBUTE_UNIX_MODE);
             }
 
             g_object_unref(info);
@@ -466,9 +526,11 @@ gboolean dialog_insecure_program(gpointer parent, const gchar *primary, ThunarFi
 
 // Error ----------------------------------------------------------------------
 
-void dialog_error(gpointer parent, const GError *error, const gchar  *format, ...)
+void dialog_error(gpointer parent, const GError *error,
+                  const gchar  *format, ...)
 {
-    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
 
     // do not display error dialog for already handled errors
     if (error && error->code == G_IO_ERROR_FAILED_HANDLED)
@@ -501,16 +563,19 @@ void dialog_error(gpointer parent, const GError *error, const gchar  *format, ..
 
     // set secondary text if an error is provided
     if (error != NULL)
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s.", error->message);
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                                                 "%s.", error->message);
 
-    GList *children = gtk_container_get_children(
-                            GTK_CONTAINER(gtk_message_dialog_get_message_area(
-                                                      GTK_MESSAGE_DIALOG(dialog))));
+    GList *children =
+            gtk_container_get_children(
+                    GTK_CONTAINER(gtk_message_dialog_get_message_area(
+                    GTK_MESSAGE_DIALOG(dialog))));
     // enable wrap for labels
     for (GList *lp = children; lp != NULL; lp = lp->next)
     {
         if (GTK_IS_LABEL(lp->data))
-            gtk_label_set_line_wrap_mode(GTK_LABEL(lp->data), PANGO_WRAP_WORD_CHAR);
+            gtk_label_set_line_wrap_mode(GTK_LABEL(lp->data),
+                                         PANGO_WRAP_WORD_CHAR);
     }
 
     // display the dialog
@@ -538,8 +603,10 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
     gint         n;
     gboolean     has_cancel = FALSE;
 
-    e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
-    e_return_val_if_fail(g_utf8_validate(question, -1, NULL), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent),
+                         THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(g_utf8_validate(question, -1, NULL),
+                         THUNAR_JOB_RESPONSE_CANCEL);
 
     // try to separate the question into primary and secondary parts
     separator = strstr(question, ": ");
@@ -567,6 +634,7 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
             // secondary is everything after the newlines(skipping whitespace)
             while(g_ascii_isspace(*separator))
                 ++separator;
+
             g_string_append(secondary, separator);
         }
         else
@@ -584,7 +652,8 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
                                       GTK_BUTTONS_NONE,
                                       "%s", primary->str);
     if (*secondary->str != '\0')
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(message), "%s", secondary->str);
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(message),
+                                                 "%s", secondary->str);
 
     // add the buttons based on the possible choices
     for (n = THUNAR_JOB_RESPONSE_MAX_INT; n >= 0; --n)
@@ -666,9 +735,11 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
     {
         button = gtk_button_new_with_mnemonic(_("_Cancel"));
         gtk_widget_set_can_default(button, TRUE);
-        gtk_dialog_add_action_widget(GTK_DIALOG(message), button, GTK_RESPONSE_CANCEL);
+        gtk_dialog_add_action_widget(GTK_DIALOG(message), button,
+                                     GTK_RESPONSE_CANCEL);
         gtk_widget_show(button);
-        gtk_dialog_set_default_response(GTK_DIALOG(message), GTK_RESPONSE_CANCEL);
+        gtk_dialog_set_default_response(GTK_DIALOG(message),
+                                        GTK_RESPONSE_CANCEL);
     }
 
     // run the question dialog
@@ -686,7 +757,8 @@ ThunarJobResponse dialog_job_ask(GtkWindow *parent, const gchar *question,
     return response;
 }
 
-ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file,
+ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
+                                         ThunarFile *src_file,
                                          ThunarFile *dst_file)
 {
     IconFactory *icon_factory;
@@ -710,7 +782,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gchar             *text;
     gint               response;
 
-    e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent), THUNAR_JOB_RESPONSE_CANCEL);
+    e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent),
+                         THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(IS_THUNARFILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(IS_THUNARFILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
@@ -720,7 +793,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), THUNAR_JOB_RESPONSE_REPLACE);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog),
+                                    THUNAR_JOB_RESPONSE_REPLACE);
     content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
     // determine the icon factory to use
@@ -745,21 +819,55 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     renameall_button  = gtk_button_new_with_mnemonic(_("Rena_me All"));
     rename_button     = gtk_button_new_with_mnemonic(_("Re_name"));
 
-    g_signal_connect(cancel_button,      "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
-    g_signal_connect(skipall_button,     "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
-    g_signal_connect(skip_button,        "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
-    g_signal_connect(replaceall_button,  "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
-    g_signal_connect(replace_button,     "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
-    g_signal_connect(renameall_button,   "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
-    g_signal_connect(rename_button,      "clicked", G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_signal_connect(cancel_button,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_signal_connect(skipall_button,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_signal_connect(skip_button,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_signal_connect(replaceall_button,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_signal_connect(replace_button,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_signal_connect(renameall_button,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_signal_connect(rename_button,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
 
-    g_object_set_data(G_OBJECT(cancel_button),     "response-id", GINT_TO_POINTER(GTK_RESPONSE_CANCEL));
-    g_object_set_data(G_OBJECT(skipall_button),    "response-id", GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP_ALL));
-    g_object_set_data(G_OBJECT(skip_button),       "response-id", GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP));
-    g_object_set_data(G_OBJECT(replaceall_button), "response-id", GINT_TO_POINTER(THUNAR_JOB_RESPONSE_REPLACE_ALL));
-    g_object_set_data(G_OBJECT(replace_button),    "response-id", GINT_TO_POINTER(THUNAR_JOB_RESPONSE_REPLACE));
-    g_object_set_data(G_OBJECT(renameall_button),  "response-id", GINT_TO_POINTER(THUNAR_JOB_RESPONSE_RENAME_ALL));
-    g_object_set_data(G_OBJECT(rename_button),     "response-id", GINT_TO_POINTER(THUNAR_JOB_RESPONSE_RENAME));
+    g_object_set_data(G_OBJECT(cancel_button),
+                      "response-id",
+                      GINT_TO_POINTER(GTK_RESPONSE_CANCEL));
+    g_object_set_data(G_OBJECT(skipall_button),
+                      "response-id",
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP_ALL));
+    g_object_set_data(G_OBJECT(skip_button),
+                      "response-id",
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP));
+    g_object_set_data(G_OBJECT(replaceall_button),
+                      "response-id",
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_REPLACE_ALL));
+    g_object_set_data(G_OBJECT(replace_button),
+                      "response-id",
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_REPLACE));
+    g_object_set_data(G_OBJECT(renameall_button),
+                      "response-id",
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_RENAME_ALL));
+    g_object_set_data(G_OBJECT(rename_button),
+                      "response-id",
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_RENAME));
 
     gtk_container_add(GTK_CONTAINER(button_box), cancel_button);
     gtk_container_add(GTK_CONTAINER(button_box), skipall_button);
@@ -773,7 +881,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_box_set_spacing(GTK_BOX(button_box), 5);
     gtk_widget_show_all(button_box);
 
-    image = gtk_image_new_from_icon_name("stock_folder-copy", GTK_ICON_SIZE_BUTTON);
+    image = gtk_image_new_from_icon_name("stock_folder-copy",
+                                         GTK_ICON_SIZE_BUTTON);
     gtk_widget_set_halign(image, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(image, GTK_ALIGN_START);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
@@ -786,17 +895,20 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
 
     if (th_file_is_symlink(dst_file))
     {
-        text = g_strdup_printf(_("This folder already contains a symbolic link \"%s\"."),
+        text = g_strdup_printf(_("This folder already contains a symbolic"
+                                 " link \"%s\"."),
                                 th_file_get_display_name(dst_file));
     }
     else if (th_file_is_directory(dst_file))
     {
-        text = g_strdup_printf(_("This folder already contains a folder \"%s\"."),
+        text = g_strdup_printf(_("This folder already contains a folder"
+                                 " \"%s\"."),
                                 th_file_get_display_name(dst_file));
     }
     else
     {
-        text = g_strdup_printf(_("This folder already contains a file \"%s\"."),
+        text = g_strdup_printf(_("This folder already contains a file"
+                                 " \"%s\"."),
                                 th_file_get_display_name(dst_file));
     }
 
@@ -814,7 +926,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
         text = g_strdup_printf(_("Do you want to replace the link"));
     else if (th_file_is_directory(dst_file))
         // TRANSLATORS: First part of replace dialog sentence
-        text = g_strdup_printf(_("Do you want to replace the existing folder"));
+        text = g_strdup_printf(_("Do you want to replace the existing"
+                                 " folder"));
     else
         // TRANSLATORS: First part of replace dialog sentence
         text = g_strdup_printf(_("Do you want to replace the existing file"));
@@ -826,7 +939,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(label);
     g_free(text);
 
-    icon = iconfact_load_file_icon(icon_factory, dst_file, FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory,
+                                   dst_file, FILE_ICON_STATE_DEFAULT, 48);
     image = gtk_image_new_from_pixbuf(icon);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
     gtk_widget_set_margin_end(GTK_WIDGET(image), 6);
@@ -843,8 +957,12 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gboolean file_size_binary = TRUE;
 
     size_string = th_file_get_size_string_long(dst_file, file_size_binary);
-    date_string = th_file_get_date_string(dst_file, FILE_DATE_MODIFIED, date_style, date_custom_style);
-    text = g_strdup_printf("%s %s\n%s %s", _("Size:"), size_string, _("Modified:"), date_string);
+    date_string = th_file_get_date_string(dst_file,
+                                          FILE_DATE_MODIFIED,
+                                          date_style, date_custom_style);
+    text = g_strdup_printf("%s %s\n%s %s",
+                           _("Size:"), size_string,
+                           _("Modified:"), date_string);
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
     gtk_widget_set_hexpand(label, TRUE);
@@ -871,7 +989,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(label);
     g_free(text);
 
-    icon = iconfact_load_file_icon(icon_factory, src_file, FILE_ICON_STATE_DEFAULT, 48);
+    icon = iconfact_load_file_icon(icon_factory,
+                                   src_file, FILE_ICON_STATE_DEFAULT, 48);
     image = gtk_image_new_from_pixbuf(icon);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
     gtk_widget_set_margin_end(GTK_WIDGET(image), 6);
@@ -882,8 +1001,11 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent, ThunarFile *src_file
     gtk_widget_show(image);
 
     size_string = th_file_get_size_string_long(src_file, file_size_binary);
-    date_string = th_file_get_date_string(src_file, FILE_DATE_MODIFIED, date_style, date_custom_style);
-    text = g_strdup_printf("%s %s\n%s %s", _("Size:"), size_string, _("Modified:"), date_string);
+    date_string = th_file_get_date_string(src_file,
+                                          FILE_DATE_MODIFIED,
+                                          date_style, date_custom_style);
+    text = g_strdup_printf("%s %s\n%s %s", _("Size:"), size_string,
+                           _("Modified:"), date_string);
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
     gtk_widget_set_hexpand(label, TRUE);
@@ -914,7 +1036,8 @@ static void _dialog_job_ask_replace_callback(GtkWidget *button,
 
     e_return_if_fail(GTK_IS_DIALOG(user_data));
 
-    response = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "response-id"));
+    response = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button),
+                                                 "response-id"));
     gtk_dialog_response(GTK_DIALOG(user_data), response);
 }
 
@@ -933,7 +1056,9 @@ void dialog_job_error(GtkWindow *parent, GError *error)
     if (separator > error->message)
     {
         // primary is everything before the colon, plus a dot
-        g_string_append_len(primary, error->message, separator - error->message);
+        g_string_append_len(primary,
+                            error->message,
+                            separator - error->message);
         g_string_append_c(primary, '.');
 
         // secondary is everything after the colon(plus a dot)
@@ -959,9 +1084,11 @@ void dialog_job_error(GtkWindow *parent, GError *error)
                                       "%s", primary->str);
 
     if (*secondary->str != '\0')
-        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(message), "%s", secondary->str);
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(message),
+                                                 "%s", secondary->str);
 
-    gtk_dialog_add_button(GTK_DIALOG(message), _("_Close"), GTK_RESPONSE_CANCEL);
+    gtk_dialog_add_button(GTK_DIALOG(message),
+                          _("_Close"), GTK_RESPONSE_CANCEL);
     gtk_dialog_run(GTK_DIALOG(message));
     gtk_widget_destroy(message);
 
