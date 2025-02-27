@@ -21,8 +21,8 @@
 #ifndef __THUNAR_JOB_H__
 #define __THUNAR_JOB_H__
 
-#include <exo-job.h>
-#include <th-file.h>
+#include "exo-job.h"
+#include "th-file.h"
 
 // ThunarJob ------------------------------------------------------------------
 

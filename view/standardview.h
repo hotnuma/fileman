@@ -19,9 +19,9 @@
 #ifndef __STANDARDVIEW_H__
 #define __STANDARDVIEW_H__
 
-#include <history.h>
-#include <listmodel.h>
-#include <iconfactory.h>
+#include "history.h"
+#include "listmodel.h"
+#include "iconfactory.h"
 
 G_BEGIN_DECLS
 

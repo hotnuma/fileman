@@ -21,7 +21,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <enumtypes.h>
+#include "enumtypes.h"
 #include <gtk/gtk.h>
 
 #define UTIL_THREADS_ENTER           \

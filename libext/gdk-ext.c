@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <gdk-ext.h>
+#include "config.h"
+#include "gdk-ext.h"
 
 static const cairo_user_data_key_t _cairo_key;
 

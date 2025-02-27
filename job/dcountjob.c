@@ -18,11 +18,11 @@
  * MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <dcountjob.h>
-#include <marshal.h>
+#include "config.h"
+#include "dcountjob.h"
+#include "marshal.h"
 
-#include <job.h>
+#include "job.h"
 
 #define DEEPCOUNT_FILEINFO_NAMESPACE \
     G_FILE_ATTRIBUTE_STANDARD_TYPE "," \

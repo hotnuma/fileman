@@ -19,7 +19,7 @@
 #ifndef __PROPERTIESDIALOG_H__
 #define __PROPERTIESDIALOG_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

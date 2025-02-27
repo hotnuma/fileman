@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <simplejob.h>
+#include "config.h"
+#include "simplejob.h"
 
 #include <gobject/gvaluecollector.h>
 

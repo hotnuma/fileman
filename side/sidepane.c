@@ -16,10 +16,10 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <sidepane.h>
+#include "config.h"
+#include "sidepane.h"
 
-#include <component.h>
+#include "component.h"
 #include <gtk/gtk.h>
 
 static void sidepane_class_init(gpointer klass);

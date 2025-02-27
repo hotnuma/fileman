@@ -18,11 +18,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <sizelabel.h>
+#include "config.h"
+#include "sizelabel.h"
 
-#include <job.h>
-#include <dcountjob.h>
+#include "job.h"
+#include "dcountjob.h"
 
 static void szlabel_finalize(GObject *object);
 static void szlabel_get_property(GObject *object, guint prop_id,

@@ -17,9 +17,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <job.h>
-#include <marshal.h>
+#include "config.h"
+#include "job.h"
+#include "marshal.h"
 
 static gboolean _job_ask_accumulator(GSignalInvocationHint *ihint,
                                      GValue *return_accu,

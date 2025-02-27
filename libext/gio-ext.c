@@ -17,11 +17,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <gio-ext.h>
+#include "config.h"
+#include "gio-ext.h"
 
-#include <th-file.h>
-#include <utils.h>
+#include "th-file.h"
+#include "utils.h"
 #include <gio/gdesktopappinfo.h>
 #include <syslog.h>
 

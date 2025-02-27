@@ -16,13 +16,13 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <iconrender.h>
+#include "config.h"
+#include "iconrender.h"
 
-#include <iconfactory.h>
-#include <pixbuf-ext.h>
-#include <clipboard.h>
-#include <gdk-ext.h>
+#include "iconfactory.h"
+#include "pixbuf-ext.h"
+#include "clipboard.h"
+#include "gdk-ext.h"
 
 static void iconrender_finalize(GObject *object);
 static void iconrender_get_property(GObject *object, guint prop_id,

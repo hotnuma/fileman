@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <filemonitor.h>
+#include "config.h"
+#include "filemonitor.h"
 
 static FileMonitor* _filemon_default;
 

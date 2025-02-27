@@ -17,14 +17,14 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <dialogs.h>
+#include "config.h"
+#include "dialogs.h"
 
-#include <iconfactory.h>
-#include <io-jobs.h>
-#include <utils.h>
-#include <gtk-ext.h>
-#include <pango-ext.h>
+#include "iconfactory.h"
+#include "io-jobs.h"
+#include "utils.h"
+#include "gtk-ext.h"
+#include "pango-ext.h"
 #include <libxfce4ui/libxfce4ui.h>
 
 // dialog_file_rename

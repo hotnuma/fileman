@@ -20,7 +20,7 @@
 #ifndef __JOBUTILS_H__
 #define __JOBUTILS_H__
 
-#include <job.h>
+#include "job.h"
 
 G_BEGIN_DECLS
 

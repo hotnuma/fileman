@@ -21,7 +21,7 @@
 #define __PROGRESSDIALOG_H__
 
 #include <gtk/gtk.h>
-#include <job.h>
+#include "job.h"
 
 G_BEGIN_DECLS
 

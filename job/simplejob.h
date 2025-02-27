@@ -20,7 +20,7 @@
 #ifndef __SIMPLEJOB_H__
 #define __SIMPLEJOB_H__
 
-#include <job.h>
+#include "job.h"
 
 G_BEGIN_DECLS
 

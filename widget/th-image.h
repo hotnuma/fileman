@@ -20,7 +20,7 @@
 #ifndef __TH_IMAGE_H__
 #define __TH_IMAGE_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

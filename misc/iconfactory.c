@@ -18,11 +18,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <iconfactory.h>
+#include "config.h"
+#include "iconfactory.h"
 
-#include <pixbuf-ext.h>
-#include <utils.h>
+#include "pixbuf-ext.h"
+#include "utils.h"
 
 // the timeout until the sweeper is run (in seconds)
 #define ICONFACTORY_SWEEP_TIMEOUT (30)

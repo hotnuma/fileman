@@ -18,23 +18,23 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <standardview.h>
+#include "config.h"
+#include "standardview.h"
 
-#include <navigator.h>
-#include <component.h>
-#include <baseview.h>
+#include "navigator.h"
+#include "component.h"
+#include "baseview.h"
 
-#include <appwindow.h>
-#include <appmenu.h>
-#include <iconrender.h>
-#include <dnd.h>
-#include <dialogs.h>
+#include "appwindow.h"
+#include "appmenu.h"
+#include "iconrender.h"
+#include "dnd.h"
+#include "dialogs.h"
 
-#include <gio-ext.h>
-#include <gtk-ext.h>
-#include <pango-ext.h>
-#include <utils.h>
+#include "gio-ext.h"
+#include "gtk-ext.h"
+#include "pango-ext.h"
+#include "utils.h"
 
 // for desktop file edit
 #if defined(GDK_WINDOWING_X11)

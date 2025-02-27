@@ -18,14 +18,14 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <locationentry.h>
-#include <marshal.h>
+#include "config.h"
+#include "locationentry.h"
+#include "marshal.h"
 
-#include <pathentry.h>
-#include <browser.h>
-#include <navigator.h>
-#include <dialogs.h>
+#include "pathentry.h"
+#include "browser.h"
+#include "navigator.h"
+#include "dialogs.h"
 
 static void locentry_navigator_init(ThunarNavigatorIface *iface);
 static void locentry_finalize(GObject *object);

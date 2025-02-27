@@ -17,12 +17,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <progressview.h>
+#include "config.h"
+#include "progressview.h"
 
-#include <dialogs.h>
-#include <transferjob.h>
-#include <pango-ext.h>
+#include "dialogs.h"
+#include "transferjob.h"
+#include "pango-ext.h"
 
 // ProgressView ---------------------------------------------------------------
 

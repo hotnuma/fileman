@@ -16,14 +16,14 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <detailview.h>
+#include "config.h"
+#include "detailview.h"
 
-#include <appwindow.h>
-#include <standardview.h>
-#include <exotreeview.h>
-#include <columnmodel.h>
-#include <launcher.h>
+#include "appwindow.h"
+#include "standardview.h"
+#include "exotreeview.h"
+#include "columnmodel.h"
+#include "launcher.h"
 
 // DetailView -----------------------------------------------------------------
 

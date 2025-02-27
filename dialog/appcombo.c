@@ -19,13 +19,13 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <appcombo.h>
+#include "config.h"
+#include "appcombo.h"
 
-#include <appchooser.h>
-#include <dialogs.h>
-#include <gio-ext.h>
-#include <gtk-ext.h>
+#include "appchooser.h"
+#include "dialogs.h"
+#include "gio-ext.h"
+#include "gtk-ext.h"
 
 static void appcombo_finalize(GObject *object);
 static void appcombo_get_property(GObject *object, guint prop_id,

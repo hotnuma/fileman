@@ -16,10 +16,10 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <baseview.h>
+#include "config.h"
+#include "baseview.h"
 
-#include <component.h>
+#include "component.h"
 
 static void baseview_class_init(gpointer klass);
 

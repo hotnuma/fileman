@@ -17,11 +17,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <th-image.h>
+#include "config.h"
+#include "th-image.h"
 
-#include <iconfactory.h>
-#include <filemonitor.h>
+#include "iconfactory.h"
+#include "filemonitor.h"
 
 static void th_image_finalize(GObject *object);
 static void th_image_get_property(GObject *object, guint prop_id,

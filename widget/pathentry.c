@@ -21,14 +21,14 @@
  * Christian Hammond <chipx86@chipx86.com>.
  */
 
-#include <config.h>
-#include <pathentry.h>
+#include "config.h"
+#include "pathentry.h"
 
-#include <iconfactory.h>
-#include <iconrender.h>
-#include <listmodel.h>
-#include <gio-ext.h>
-#include <utils.h>
+#include "iconfactory.h"
+#include "iconrender.h"
+#include "listmodel.h"
+#include "gio-ext.h"
+#include "utils.h"
 
 #define ICON_MARGIN (2)
 

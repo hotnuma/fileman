@@ -19,7 +19,7 @@
 #ifndef __THUNARHISTORY_H__
 #define __THUNARHISTORY_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

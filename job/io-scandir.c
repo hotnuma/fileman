@@ -17,10 +17,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <io-scandir.h>
+#include "config.h"
+#include "io-scandir.h"
 
-#include <gio-ext.h>
+#include "gio-ext.h"
 
 GList* io_scan_directory(ThunarJob           *job,
                          GFile               *file,

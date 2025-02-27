@@ -18,13 +18,13 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <permbox.h>
+#include "config.h"
+#include "permbox.h"
 
-#include <dialogs.h>
-#include <io-jobs.h>
-#include <gtk-ext.h>
-#include <pango-ext.h>
+#include "dialogs.h"
+#include "io-jobs.h"
+#include "gtk-ext.h"
+#include "pango-ext.h"
 
 // PermissionBox --------------------------------------------------------------
 

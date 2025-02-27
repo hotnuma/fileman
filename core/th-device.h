@@ -19,7 +19,7 @@
 #ifndef __TH_DEVICE_H__
 #define __TH_DEVICE_H__
 
-#include <gio-ext.h>
+#include "gio-ext.h"
 
 G_BEGIN_DECLS
 

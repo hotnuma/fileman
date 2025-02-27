@@ -18,26 +18,26 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <appwindow.h>
-#include <marshal.h>
+#include "config.h"
+#include "appwindow.h"
+#include "marshal.h"
 
-#include <clipboard.h>
-#include <devmonitor.h>
-#include <browser.h>
-#include <component.h>
-#include <navigator.h>
+#include "clipboard.h"
+#include "devmonitor.h"
+#include "browser.h"
+#include "component.h"
+#include "navigator.h"
 
-#include <locationbar.h>
-#include <locationentry.h>
-#include <sidepane.h>
-#include <treepane.h>
-#include <baseview.h>
-#include <standardview.h>
-#include <detailview.h>
-#include <statusbar.h>
-#include <dialogs.h>
-#include <preferences.h>
+#include "locationbar.h"
+#include "locationentry.h"
+#include "sidepane.h"
+#include "treepane.h"
+#include "baseview.h"
+#include "standardview.h"
+#include "detailview.h"
+#include "statusbar.h"
+#include "dialogs.h"
+#include "preferences.h"
 
 #include <syslog.h>
 

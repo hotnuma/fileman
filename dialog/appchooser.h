@@ -19,7 +19,7 @@
 #ifndef __APPCHOOSERDIALOG_H__
 #define __APPCHOOSERDIALOG_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

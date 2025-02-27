@@ -17,15 +17,15 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <io-jobs.h>
+#include "config.h"
+#include "io-jobs.h"
 
-#include <io-scandir.h>
-#include <gio-ext.h>
+#include "io-scandir.h"
+#include "gio-ext.h"
 
-#include <transferjob.h>
-#include <simplejob.h>
-#include <jobutils.h>
+#include "transferjob.h"
+#include "simplejob.h"
+#include "jobutils.h"
 #include <glib/gstdio.h>
 
 // io_list_directory

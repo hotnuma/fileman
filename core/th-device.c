@@ -16,12 +16,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <th-device.h>
+#include "config.h"
+#include "th-device.h"
 
-#include <appnotify.h>
-#include <devmonitor.h>
-#include <th-file.h>
+#include "appnotify.h"
+#include "devmonitor.h"
+#include "th-file.h"
 
 typedef struct _ThunarDeviceOperation ThunarDeviceOperation;
 

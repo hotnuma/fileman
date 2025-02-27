@@ -18,12 +18,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#include <config.h>
-#include <usermanager.h>
+#include "config.h"
+#include "usermanager.h"
 
 #include <grp.h>
 #include <pwd.h>
-#include <utils.h>
+#include "utils.h"
 
 // the interval in which the user/group cache is flushed(in seconds)
 #define USER_MANAGER_FLUSH_INTERVAL (10 * 60)

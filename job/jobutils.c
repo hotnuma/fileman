@@ -17,11 +17,11 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <jobutils.h>
+#include "config.h"
+#include "jobutils.h"
 
-#include <gio-ext.h>
-#include <utils.h>
+#include "gio-ext.h"
+#include "utils.h"
 
 /**
  * thunar_io_jobs_util_next_duplicate_file:

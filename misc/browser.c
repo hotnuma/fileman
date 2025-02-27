@@ -17,10 +17,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <browser.h>
+#include "config.h"
+#include "browser.h"
 
-#include <gtk-ext.h>
+#include "gtk-ext.h"
 
 typedef struct _PokeFileData   PokeFileData;
 typedef struct _PokeDeviceData PokeDeviceData;

@@ -19,7 +19,7 @@
 #ifndef __THUNARNAVIGATOR_H__
 #define __THUNARNAVIGATOR_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <navigator.h>
+#include "config.h"
+#include "navigator.h"
 
 static void navigator_base_init(gpointer klass);
 static void navigator_class_init(gpointer klass);

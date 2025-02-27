@@ -15,10 +15,10 @@
  * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#include <config.h>
-#include <appmenu.h>
+#include "config.h"
+#include "appmenu.h"
 
-#include <launcher.h>
+#include "launcher.h"
 #include <libxfce4ui/libxfce4ui.h>
 
 /* AppMenu is a GtkMenu which provides a unified menu-creation service for

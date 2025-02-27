@@ -19,7 +19,7 @@
 #ifndef __TREEMODEL_H__
 #define __TREEMODEL_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

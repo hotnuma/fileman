@@ -16,8 +16,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <pango-ext.h>
+#include "config.h"
+#include "pango-ext.h"
 
 static PangoAttrList* _e_pango_attr_list_wrap(PangoAttribute *attribute, ...)
                                               G_GNUC_MALLOC;

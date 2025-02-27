@@ -18,12 +18,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <transferjob.h>
+#include "config.h"
+#include "transferjob.h"
 
-#include <jobutils.h>
-#include <io-scandir.h>
-#include <gio-ext.h>
+#include "jobutils.h"
+#include "io-scandir.h"
+#include "gio-ext.h"
 #include <syslog.h>
 
 // 10 seconds before we show the transfer rate + remaining time

@@ -18,12 +18,12 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <dnd.h>
+#include "config.h"
+#include "dnd.h"
 
-#include <application.h>
-#include <dialogs.h>
-#include <gtk-ext.h>
+#include "application.h"
+#include "dialogs.h"
+#include "gtk-ext.h"
 
 static void _dnd_action_selected(GtkWidget *item, GdkDragAction *dnd_action_return);
 

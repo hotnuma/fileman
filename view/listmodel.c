@@ -18,12 +18,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <listmodel.h>
+#include "config.h"
+#include "listmodel.h"
 
-#include <application.h>
-#include <filemonitor.h>
-#include <gio-ext.h>
+#include "application.h"
+#include "filemonitor.h"
+#include "gio-ext.h"
 
 #define ETMFOREACHFUNC (GtkTreeModelForeachFunc) (void(*)(void))
 

@@ -17,12 +17,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <th-folder.h>
+#include "config.h"
+#include "th-folder.h"
 
-#include <filemonitor.h>
-#include <io-jobs.h>
-#include <gio-ext.h>
+#include "filemonitor.h"
+#include "io-jobs.h"
+#include "gio-ext.h"
 
 #define DEBUG_FILE_CHANGES FALSE
 

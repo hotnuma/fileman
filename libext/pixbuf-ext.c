@@ -19,9 +19,9 @@
  * MA 02110-1301 USA
  */
 
-#include <config.h>
+#include "config.h"
 
-#include <pixbuf-ext.h>
+#include "pixbuf-ext.h"
 #include <math.h>
 
 static inline guchar _lighten_channel(guchar cur_value);

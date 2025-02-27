@@ -16,12 +16,12 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <treepane.h>
+#include "config.h"
+#include "treepane.h"
 
-#include <sidepane.h>
-#include <component.h>
-#include <navigator.h>
+#include "sidepane.h"
+#include "component.h"
+#include "navigator.h"
 
 static void treepane_component_init(ThunarComponentIface *iface);
 static void treepane_navigator_init(ThunarNavigatorIface *iface);

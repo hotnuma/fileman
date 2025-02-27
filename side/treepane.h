@@ -19,7 +19,7 @@
 #ifndef __TREEPANE_H__
 #define __TREEPANE_H__
 
-#include <treeview.h>
+#include "treeview.h"
 
 G_BEGIN_DECLS
 

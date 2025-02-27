@@ -21,9 +21,9 @@
 #define __TH_FILE_H__
 
 #include <gtk/gtk.h>
-#include <usermanager.h>
-#include <fileinfo.h>
-#include <enumtypes.h>
+#include "usermanager.h"
+#include "fileinfo.h"
+#include "enumtypes.h"
 
 G_BEGIN_DECLS
 

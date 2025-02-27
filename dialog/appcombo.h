@@ -19,7 +19,7 @@
 #ifndef __APPCOMBO_H__
 #define __APPCOMBO_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 // AppCombo -------------------------------------------------------------------
 

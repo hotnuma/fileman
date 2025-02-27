@@ -17,8 +17,8 @@
  * MA 02110-1301 USA
  */
 
-#include <config.h>
-#include <exotreeview.h>
+#include "config.h"
+#include "exotreeview.h"
 
 /*
  * SECTION: exo-tree-view

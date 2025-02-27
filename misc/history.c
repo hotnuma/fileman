@@ -16,15 +16,15 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <history.h>
+#include "config.h"
+#include "history.h"
 
-#include <navigator.h>
-#include <iconfactory.h>
-#include <dialogs.h>
+#include "navigator.h"
+#include "iconfactory.h"
+#include "dialogs.h"
 #include <libxfce4ui/libxfce4ui.h>
-#include <gio-ext.h>
-#include <gtk-ext.h>
+#include "gio-ext.h"
+#include "gtk-ext.h"
 
 static void history_navigator_init(ThunarNavigatorIface *iface);
 static void history_finalize(GObject *object);

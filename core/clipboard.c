@@ -19,14 +19,14 @@
  */
 
 #include "config.h"
-#include <clipboard.h>
+#include "clipboard.h"
 
-#include <application.h>
-#include <dialogs.h>
+#include "application.h"
+#include "dialogs.h"
 
 #include <string.h>
 #include <memory.h>
-#include <gio-ext.h>
+#include "gio-ext.h"
 
 static void clipman_finalize(GObject *object);
 static void clipman_dispose(GObject *object);

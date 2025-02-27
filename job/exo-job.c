@@ -17,8 +17,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <exo-job.h>
+#include "config.h"
+#include "exo-job.h"
 
 /**
  * ExoJob is an abstract base class

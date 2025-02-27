@@ -18,24 +18,24 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <launcher.h>
+#include "config.h"
+#include "launcher.h"
 
-#include <application.h>
-#include <clipboard.h>
-#include <browser.h>
-#include <component.h>
-#include <navigator.h>
-#include <iconfactory.h>
-#include <treeview.h>
-#include <dialogs.h>
-#include <appchooser.h>
-#include <propsdlg.h>
-#include <preferences.h>
+#include "application.h"
+#include "clipboard.h"
+#include "browser.h"
+#include "component.h"
+#include "navigator.h"
+#include "iconfactory.h"
+#include "treeview.h"
+#include "dialogs.h"
+#include "appchooser.h"
+#include "propsdlg.h"
+#include "preferences.h"
 
-#include <io-scandir.h>
-#include <simplejob.h>
-#include <gtk-ext.h>
+#include "io-scandir.h"
+#include "simplejob.h"
+#include "gtk-ext.h"
 #include <fnmatch.h>
 
 typedef struct _LauncherPokeData LauncherPokeData;

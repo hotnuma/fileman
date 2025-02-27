@@ -17,14 +17,14 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <treemodel.h>
+#include "config.h"
+#include "treemodel.h"
 
-#include <devmonitor.h>
-#include <filemonitor.h>
-#include <th-folder.h>
-#include <pango-ext.h>
-#include <utils.h>
+#include "devmonitor.h"
+#include "filemonitor.h"
+#include "th-folder.h"
+#include "pango-ext.h"
+#include "utils.h"
 
 // convenience macros
 #define TREEMODEL_ITEM(item) ((TreeModelItem*)(item))

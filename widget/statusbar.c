@@ -18,8 +18,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <statusbar.h>
+#include "config.h"
+#include "statusbar.h"
 
 static void statusbar_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);

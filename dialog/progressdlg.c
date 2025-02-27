@@ -17,10 +17,10 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <progressdlg.h>
+#include "config.h"
+#include "progressdlg.h"
 
-#include <progressview.h>
+#include "progressview.h"
 #include <libxfce4ui/libxfce4ui.h>
 
 #define SCROLLVIEW_THRESHOLD 5

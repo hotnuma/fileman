@@ -18,21 +18,21 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include <config.h>
-#include <treeview.h>
+#include "config.h"
+#include "treeview.h"
 
-#include <application.h>
-#include <appmenu.h>
-#include <treemodel.h>
-#include <iconfactory.h>
-#include <shortrender.h>
-#include <clipboard.h>
-#include <navigator.h>
-#include <dnd.h>
-#include <th-device.h>
-#include <th-folder.h>
-#include <gtk-ext.h>
-#include <utils.h>
+#include "application.h"
+#include "appmenu.h"
+#include "treemodel.h"
+#include "iconfactory.h"
+#include "shortrender.h"
+#include "clipboard.h"
+#include "navigator.h"
+#include "dnd.h"
+#include "th-device.h"
+#include "th-folder.h"
+#include "gtk-ext.h"
+#include "utils.h"
 
 // drag dest expand timeout
 #define TREEVIEW_EXPAND_TIMEOUT 750

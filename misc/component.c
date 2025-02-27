@@ -16,11 +16,11 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <component.h>
+#include "config.h"
+#include "component.h"
 
-#include <navigator.h>
-#include <gio-ext.h>
+#include "navigator.h"
+#include "gio-ext.h"
 
 /*
  * ThunarComponent:selected-files:

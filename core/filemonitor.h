@@ -19,7 +19,7 @@
 #ifndef __FILEMONITOR_H__
 #define __FILEMONITOR_H__
 
-#include <th-file.h>
+#include "th-file.h"
 
 G_BEGIN_DECLS
 

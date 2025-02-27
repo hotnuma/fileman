@@ -17,8 +17,8 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <config.h>
-#include <enumtypes.h>
+#include "config.h"
+#include "enumtypes.h"
 
 static void _icon_size_from_zoom_level(const GValue *src_value,
                                        GValue *dst_value);
