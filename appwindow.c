@@ -281,7 +281,7 @@ struct _AppWindow
     GtkWidget       *location_bar;
     GtkWidget       *paned;
     GtkWidget       *sidepane;
-    GtkWidget       *view_grid;
+    //GtkWidget       *view_grid;
     GtkWidget       *view;
     GtkWidget       *statusbar;
 
@@ -589,9 +589,9 @@ static void window_init(AppWindow *window)
     _window_create_sidepane(window);
 
     // Right Grid
-    window->view_grid = gtk_grid_new();
-    gtk_paned_pack2(GTK_PANED(window->paned), window->view_grid, TRUE, FALSE);
-    gtk_widget_show(window->view_grid);
+    //window->view_grid = gtk_grid_new();
+    //gtk_paned_pack2(GTK_PANED(window->paned), window->view_grid, TRUE, FALSE);
+    //gtk_widget_show(window->view_grid);
 
     // Detail View
     _window_create_detailview(window);
@@ -1190,7 +1190,10 @@ static void _window_create_detailview(AppWindow *window)
                                           NULL);
     gtk_widget_set_hexpand(detail_view, TRUE);
     gtk_widget_set_vexpand(detail_view, TRUE);
-    gtk_grid_attach(GTK_GRID(window->view_grid), detail_view, 0, 0, 1, 1);
+
+    //gtk_grid_attach(GTK_GRID(window->view_grid), detail_view, 0, 0, 1, 1);
+
+    gtk_paned_pack2(GTK_PANED(window->paned), detail_view, TRUE, FALSE);
 
     baseview_set_show_hidden(BASEVIEW(detail_view), window->show_hidden);
     gtk_widget_show(detail_view);
