@@ -20,8 +20,8 @@
 
 #include "config.h"
 #include "fileinfo.h"
-
 #include "gio-ext.h"
+
 
 // FileInfo -------------------------------------------------------------------
 
@@ -88,14 +88,11 @@ gchar* fileinfo_get_uri(FileInfo *file_info)
     return FILEINFO_GET_IFACE(file_info)->get_uri(file_info);
 }
 
-/*
- * Note that the parent URI
- * may be of a different type than the
- * URI of @file_info. For example, the
- * parent of "file:///" is "computer:///".
- */
 gchar* fileinfo_get_parent_uri(FileInfo *file_info)
 {
+    // Note that the parent URI may be of a different type than the URI of
+    // file_info. For example, the parent of "file:///" is "computer:///"
+
     g_return_val_if_fail(IS_FILEINFO(file_info), NULL);
 
     return FILEINFO_GET_IFACE(file_info)->get_parent_uri(file_info);
@@ -157,21 +154,25 @@ GFile* fileinfo_get_location(FileInfo *file_info)
     return FILEINFO_GET_IFACE(file_info)->get_location(file_info);
 }
 
-// The file manager uses this method to emit the ::changed signal.
 void fileinfo_changed(FileInfo *file_info)
 {
+    // The file manager uses this method to emit the ::changed signal.
+
     g_return_if_fail(IS_FILEINFO(file_info));
 
     g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[CHANGED], 0);
 }
 
-// The file manager emits this signal whenever the user renamed the file_info.
 void fileinfo_renamed(FileInfo *file_info)
 {
+    // The file manager emits this signal whenever the user renamed the
+    // file_info.
+
     g_return_if_fail(IS_FILEINFO(file_info));
 
     g_signal_emit(G_OBJECT(file_info), _fileinfo_signals[RENAMED], 0);
 }
+
 
 // FileInfoList ---------------------------------------------------------------
 

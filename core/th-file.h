@@ -43,7 +43,7 @@ typedef enum
 
 } FileDateType;
 
-// Thunar File ----------------------------------------------------------------
+// ThunarFile -----------------------------------------------------------------
 
 typedef struct _ThunarFileClass ThunarFileClass;
 typedef struct _ThunarFile      ThunarFile;
@@ -62,8 +62,8 @@ GType th_file_get_type() G_GNUC_CONST;
 #define THUNARFILE_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARFILE, ThunarFileClass))
 
-/* Callback type for loading ThunarFile's asynchronously. If you want to keep
- * the ThunarFile, you need to ref it, else it will be destroyed. */
+// callback type for loading ThunarFile's asynchronously. If you want to keep
+// the ThunarFile, you need to ref it, else it will be destroyed
 
 typedef void (*ThunarFileGetFunc) (GFile *location, ThunarFile *file,
                                    GError *error, gpointer user_data);
@@ -106,8 +106,8 @@ gchar* th_file_get_deletion_date(const ThunarFile *file,
                                  G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_mode_string(const ThunarFile *file)
                                G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-gchar* th_file_get_size_in_bytes_string(const ThunarFile *file)
-                                        G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+gchar* th_file_get_size_in_bytes_string(
+        const ThunarFile *file) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 gchar* th_file_get_size_string_formatted(const ThunarFile *file,
                                          const gboolean file_size_binary);
 gchar* th_file_get_size_string_long(const ThunarFile *file,
@@ -125,7 +125,7 @@ const gchar* th_file_get_icon_name(ThunarFile *file,
 const gchar* th_file_get_original_path(const ThunarFile *file);
 const gchar* th_file_get_symlink_target(const ThunarFile *file);
 
-// Tests ----------------------------------------------------------------------
+// tests ----------------------------------------------------------------------
 
 GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *path_list,
                                    GdkDragContext *context,
@@ -139,7 +139,8 @@ gboolean th_file_load_content_type(ThunarFile *file);
 #define th_file_has_uri_scheme(file, uri_scheme) \
     (g_file_has_uri_scheme(th_file_get_file(file), (uri_scheme)))
 
-gboolean th_file_is_ancestor(const ThunarFile *file, const ThunarFile *ancestor);
+gboolean th_file_is_ancestor(const ThunarFile *file,
+                             const ThunarFile *ancestor);
 gboolean th_file_is_chmodable(const ThunarFile *file);
 gboolean th_file_is_desktop_file(const ThunarFile *file, gboolean *is_secure);
 gboolean th_file_is_directory(const ThunarFile *file) G_GNUC_PURE;
@@ -158,13 +159,14 @@ gboolean th_file_is_symlink(const ThunarFile *file);
 gboolean th_file_is_trashed(const ThunarFile *file);
 gboolean th_file_is_writable(const ThunarFile *file);
 
-// Compare --------------------------------------------------------------------
+// compare --------------------------------------------------------------------
 
-gint th_file_compare_by_name(const ThunarFile *file_a, const ThunarFile *file_b,
+gint th_file_compare_by_name(const ThunarFile *file_a,
+                             const ThunarFile *file_b,
                              gboolean case_sensitive) G_GNUC_PURE;
 gint th_file_compare_by_type(ThunarFile *file_a, ThunarFile *file_b);
 
-// Actions --------------------------------------------------------------------
+// actions --------------------------------------------------------------------
 
 gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
                          gpointer parent, GList *path_list,
@@ -175,7 +177,7 @@ gboolean th_file_rename(ThunarFile *file, const gchar *name,
                         GCancellable *cancellable, gboolean called_from_job,
                         GError **error);
 
-// Monitor --------------------------------------------------------------------
+// monitor --------------------------------------------------------------------
 
 void th_file_watch(ThunarFile *file);
 void th_file_unwatch(ThunarFile *file);
@@ -184,26 +186,26 @@ void monitor_print_event(GFileMonitor *monitor,
                          GFileMonitorEvent event_type,
                          gpointer user_data);
 
-// Reload ---------------------------------------------------------------------
+// reload ---------------------------------------------------------------------
 
 gboolean th_file_reload(ThunarFile *file);
 void th_file_reload_idle_unref(ThunarFile *file);
 
-/* Emits the ::changed signal on file. This function is meant to be called
- * by derived classes whenever they notice changes to the file. */
+// Emits the ::changed signal on file. This function is meant to be called
+// by derived classes whenever they notice changes to the file.
 
 #define th_file_changed(file) \
 G_STMT_START{ \
     fileinfo_changed(FILEINFO((file))); \
 }G_STMT_END
 
-// Cache ----------------------------------------------------------------------
+// cache ----------------------------------------------------------------------
 
 ThunarFile* th_file_cache_lookup(const GFile *file);
 gchar* th_file_cached_display_name(const GFile *file);
 gboolean th_file_cache_dump(gpointer user_data);
 
-// File List ------------------------------------------------------------------
+// file list ------------------------------------------------------------------
 
 GList* thlist_get_applications(GList *thlist);
 GList* thlist_to_glist(GList *thlist);

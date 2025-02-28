@@ -29,27 +29,27 @@ G_BEGIN_DECLS
  * File information namespaces available in the GFileInfo returned by
  * thunarx_file_info_get_file_info().
  */
-#define FILEINFO_NAMESPACE \
-  "access::*," \
-  "id::filesystem," \
-  "mountable::can-mount,standard::target-uri," \
-  "preview::*," \
-  "standard::type,standard::is-hidden,standard::is-backup," \
-  "standard::is-symlink,standard::name,standard::display-name," \
-  "standard::size,standard::symlink-target," \
-  "time::*," \
-  "trash::*," \
-  "unix::gid,unix::uid,unix::mode," \
-  "metadata::emblems," \
-  "metadata::thunar-view-type," \
-  "metadata::thunar-sort-column,metadata::thunar-sort-order"
 
-/*
- * Filesystem information namespaces available in the #GFileInfo
- * returned by thunarx_file_info_get_filesystem_info().
- */
-#define FILESYSTEM_INFO_NAMESPACE \
-  "filesystem::*"
+#define FILEINFO_NAMESPACE \
+    "access::*," \
+    "id::filesystem," \
+    "mountable::can-mount,standard::target-uri," \
+    "preview::*," \
+    "standard::type,standard::is-hidden,standard::is-backup," \
+    "standard::is-symlink,standard::name,standard::display-name," \
+    "standard::size,standard::symlink-target," \
+    "time::*," \
+    "trash::*," \
+    "unix::gid,unix::uid,unix::mode," \
+    "metadata::emblems," \
+    "metadata::thunar-view-type," \
+    "metadata::thunar-sort-column,metadata::thunar-sort-order"
+
+// Filesystem information namespaces available in the #GFileInfo
+// returned by thunarx_file_info_get_filesystem_info().
+
+#define FILESYSTEM_INFO_NAMESPACE "filesystem::*"
+
 
 // FileInfo -------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ struct _FileInfoIface
     void (*reserved3) ();
     void (*reserved4) ();
     void (*reserved5) ();
-    void (*reserved6) (void);
+    void (*reserved6) ();
 
     // signals
     void (*changed) (FileInfo *file_info);
@@ -112,6 +112,7 @@ GFile* fileinfo_get_location(FileInfo *file_info);
 
 void fileinfo_changed(FileInfo *file_info);
 void fileinfo_renamed(FileInfo *file_info);
+
 
 // FileInfoList ---------------------------------------------------------------
 

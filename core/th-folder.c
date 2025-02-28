@@ -458,7 +458,8 @@ static void _th_folder_finished(ExoJob *job, ThunarFolder *folder)
         if (files != NULL)
         {
             // emit a "files-added" signal for the added files
-            g_signal_emit(G_OBJECT(folder), _th_folder_signals[FILES_ADDED], 0, files);
+            g_signal_emit(G_OBJECT(folder),
+                          _th_folder_signals[FILES_ADDED], 0, files);
 
             // release the added files list
             g_list_free(files);
@@ -488,7 +489,8 @@ static void _th_folder_finished(ExoJob *job, ThunarFolder *folder)
         if (files != NULL)
         {
             // emit a "files-removed" signal for the removed files
-            g_signal_emit(G_OBJECT(folder), _th_folder_signals[FILES_REMOVED], 0, files);
+            g_signal_emit(G_OBJECT(folder),
+                          _th_folder_signals[FILES_REMOVED], 0, files);
 
             // release the removed files list
             e_list_free(files);
@@ -807,7 +809,8 @@ static void _gfmonitor_on_changed(GFileMonitor      *monitor,
             // destroy the file
             th_file_destroy(lp->data);
 
-            // if the file has not been destroyed by now, reload it to invalidate it
+            // if the file has not been destroyed by now, reload it to
+            // invalidate it
             ThunarFile *destroyed = th_file_cache_lookup(event_file);
             if (destroyed != NULL)
             {
@@ -831,16 +834,17 @@ static void _gfmonitor_on_changed(GFileMonitor      *monitor,
                 {
                     th_file_reload(file);
 
-                    /* if source and target folders are different, also tell
-                       the target folder to reload for the changes */
+                    // if source and target folders are different, also tell
+                    // the target folder to reload for the changes
                     if (th_file_has_parent(file))
                     {
                         // rename a directory
                         ThunarFile *other_parent;
                         other_parent = th_file_get_parent(file, NULL);
-                        if (other_parent &&
-                            !g_file_equal(th_file_get_file(folder->thunar_file),
-                                          th_file_get_file(other_parent)))
+                        if (other_parent
+                            && !g_file_equal(
+                                        th_file_get_file(folder->thunar_file),
+                                        th_file_get_file(other_parent)))
                         {
                             th_file_reload(other_parent);
                             g_object_unref(other_parent);

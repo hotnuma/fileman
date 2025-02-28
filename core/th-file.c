@@ -180,6 +180,7 @@ static void weak_ref_free(GWeakRef *ref)
     g_slice_free(GWeakRef, ref);
 }
 
+
 // ThunarFile -----------------------------------------------------------------
 
 enum
@@ -187,6 +188,7 @@ enum
     DESTROY,
     LAST_SIGNAL,
 };
+
 static guint _file_signals[LAST_SIGNAL];
 
 struct _ThunarFileClass
@@ -291,6 +293,7 @@ static void th_file_init(ThunarFile *file)
     (void) file;
 }
 
+
 // GObject --------------------------------------------------------------------
 
 static void th_file_dispose(GObject *object)
@@ -314,6 +317,7 @@ static void th_file_finalize(GObject *object)
     ThunarFile *file = THUNARFILE(object);
 
     // verify that nobody's watching the file anymore
+
 #ifdef TH_FILE_DEBUG
     FileWatch *file_watch = g_object_get_qdata(G_OBJECT(file),
                                                _file_watch_quark);
@@ -330,7 +334,7 @@ static void th_file_finalize(GObject *object)
     G_UNLOCK(_file_cache_mutex);
 
     // release file info
-    if (file->gfileinfo != NULL)
+    if (file->gfileinfo)
         g_object_unref(file->gfileinfo);
 
     // free the custom icon name
@@ -356,7 +360,8 @@ static void th_file_finalize(GObject *object)
     G_OBJECT_CLASS(th_file_parent_class)->finalize(object);
 }
 
-// FileInfo ------------------------------------------------------------
+
+// FileInfo -------------------------------------------------------------------
 
 static gchar* th_fileinfo_get_name(FileInfo *file_info)
 {
@@ -374,7 +379,7 @@ static gchar* th_fileinfo_get_parent_uri(FileInfo *file_info)
 
     GFile *parent = g_file_get_parent(THUNARFILE(file_info)->gfile);
 
-    if (parent == NULL)
+    if (!parent)
         return NULL;
 
     gchar *uri = g_file_get_uri(parent);
@@ -445,7 +450,8 @@ static void th_fileinfo_changed(FileInfo *file_info)
     filemon_file_changed(file);
 }
 
-// Public ---------------------------------------------------------------------
+
+// ThunarFile -----------------------------------------------------------------
 
 ThunarFile* th_file_get(GFile *gfile, GError **error)
 {
