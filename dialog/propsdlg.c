@@ -685,6 +685,8 @@ static void _propsdlg_name_activate(GtkWidget *entry, PropertiesDialog *dialog)
 
     g_signal_connect(job, "finished",
                      G_CALLBACK(_propsdlg_rename_finished), dialog);
+
+    exo_job_launch(EXOJOB(job));
 }
 
 static void _propsdlg_rename_error(ExoJob *job, GError *error,

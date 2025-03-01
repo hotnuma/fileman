@@ -65,8 +65,9 @@ ThunarJob* io_list_directory(GFile *directory)
 {
     e_return_val_if_fail(G_IS_FILE(directory), NULL);
 
-    return simplejob_launch(_io_ls, 1,
-                            G_TYPE_FILE, directory);
+    return simplejob_new(_io_ls, 1, G_TYPE_FILE, directory);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
@@ -133,8 +134,10 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
 
 ThunarJob* io_make_directories(GList *file_list)
 {
-    return simplejob_launch(_io_mkdir, 1,
+    return simplejob_new(_io_mkdir, 1,
                             TYPE_EFILELIST, file_list);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_mkdir(ThunarJob *job, GArray *param_values, GError **error)
@@ -286,9 +289,11 @@ static gboolean _io_delete_file(GFile *file, GCancellable *cancellable,
 
 ThunarJob* io_create_files(GList *file_list, GFile *template_file)
 {
-    return simplejob_launch(_io_create, 2,
+    return simplejob_new(_io_create, 2,
                             TYPE_EFILELIST, file_list,
                             G_TYPE_FILE, template_file);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
@@ -455,8 +460,10 @@ again:
 
 ThunarJob* io_unlink_files(GList *file_list)
 {
-    return simplejob_launch(_io_unlink, 1,
+    return simplejob_new(_io_unlink, 1,
                             TYPE_EFILELIST, file_list);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
@@ -647,9 +654,11 @@ ThunarJob* io_link_files(GList *source_file_list, GList *target_file_list)
     e_return_val_if_fail(target_file_list != NULL, NULL);
     e_return_val_if_fail(g_list_length(source_file_list) == g_list_length(target_file_list), NULL);
 
-    return simplejob_launch(_io_link, 2,
+    ThunarJob *job = simplejob_new(_io_link, 2,
                             TYPE_EFILELIST, source_file_list,
                             TYPE_EFILELIST, target_file_list);
+
+    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_link(ThunarJob *job, GArray *param_values, GError **error)
@@ -841,7 +850,9 @@ ThunarJob* io_trash_files(GList *file_list)
 {
     e_return_val_if_fail(file_list != NULL, NULL);
 
-    return simplejob_launch(_io_trash, 1, TYPE_EFILELIST, file_list);
+    return simplejob_new(_io_trash, 1, TYPE_EFILELIST, file_list);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error)
@@ -913,10 +924,12 @@ ThunarJob* io_rename_file(ThunarFile *file, const gchar *display_name)
     e_return_val_if_fail(IS_THUNARFILE(file), NULL);
     e_return_val_if_fail(g_utf8_validate(display_name, -1, NULL), NULL);
 
-    return simplejob_launch(_io_rename,
+    return simplejob_new(_io_rename,
                             2,
                             TYPE_THUNARFILE, file,
                             G_TYPE_STRING, display_name);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_rename(ThunarJob *job, GArray *param_values, GError **error)
@@ -985,11 +998,13 @@ ThunarJob* io_change_group(GList *files, guint32 gid, gboolean recursive)
     // files are released when the list if destroyed
     g_list_foreach(files, (GFunc)(void(*)(void)) g_object_ref, NULL);
 
-    return simplejob_launch(_io_chown, 4,
+    return simplejob_new(_io_chown, 4,
                             TYPE_EFILELIST, files,
                             G_TYPE_INT, -1,
                             G_TYPE_INT, (gint) gid,
                             G_TYPE_BOOLEAN, recursive);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_chown(ThunarJob *job, GArray *param_values, GError **error)
@@ -1119,13 +1134,15 @@ ThunarJob* io_change_mode(GList          *files,
     // files are released when the list if destroyed
     g_list_foreach(files, (GFunc)(void(*)(void)) g_object_ref, NULL);
 
-    return simplejob_launch(_io_chmod, 6,
+    return simplejob_new(_io_chmod, 6,
                             TYPE_EFILELIST, files,
                             THUNAR_TYPE_FILE_MODE, dir_mask,
                             THUNAR_TYPE_FILE_MODE, dir_mode,
                             THUNAR_TYPE_FILE_MODE, file_mask,
                             THUNAR_TYPE_FILE_MODE, file_mode,
                             G_TYPE_BOOLEAN, recursive);
+
+    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 static gboolean _io_chmod(ThunarJob *job, GArray *param_values, GError **error)

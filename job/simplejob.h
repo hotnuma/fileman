@@ -58,7 +58,7 @@ typedef struct _SimpleJob      SimpleJob;
 
 GType simplejob_get_type() G_GNUC_CONST;
 
-ThunarJob* simplejob_launch(SimpleJobFunc func, guint n_param_values, ...)
+ThunarJob* simplejob_new(SimpleJobFunc func, guint n_param_values, ...)
                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 GArray* simplejob_get_param_values(SimpleJob *job);
 

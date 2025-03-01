@@ -980,6 +980,7 @@ static void _permbox_fixperm_clicked(PermissionBox *permbox, GtkWidget *button)
             // try to allocate the new job
             job = io_change_mode(&file_list,
                                               0511, mode, 0000, 0000, FALSE);
+            exo_job_launch(EXOJOB(job));
 
             // handle the job
             _permbox_job_start(permbox, job, FALSE);
@@ -1047,6 +1048,7 @@ static void _permbox_change_group(PermissionBox *permbox, guint32 gid)
     file_list = permbox_get_file_list(permbox);
 
     job = io_change_group(file_list, gid, recursive);
+    exo_job_launch(EXOJOB(job));
     _permbox_job_start(permbox, job, recursive);
 
     g_list_free_full(file_list, g_object_unref);
@@ -1091,6 +1093,7 @@ static gboolean _permbox_change_mode(PermissionBox *permbox,
     file_list = permbox_get_file_list(permbox);
 
     job = io_change_mode(file_list, dir_mask, dir_mode, file_mask, file_mode, recursive);
+    exo_job_launch(EXOJOB(job));
     _permbox_job_start(permbox, job, recursive);
 
     g_list_free_full(file_list, g_object_unref);

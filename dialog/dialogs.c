@@ -321,6 +321,8 @@ ThunarJob* dialog_file_rename(gpointer parent, ThunarFile *file)
         {
             // try to rename the file
             job = io_rename_file(file, text);
+
+            exo_job_launch(EXOJOB(job));
         }
     }
 

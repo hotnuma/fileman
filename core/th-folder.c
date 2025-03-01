@@ -414,6 +414,8 @@ void th_folder_load(ThunarFolder *folder, gboolean reload_info)
     g_signal_connect(folder->job, "files-ready",
                      G_CALLBACK(_th_folder_files_ready), folder);
 
+    exo_job_launch(EXOJOB(folder->job));
+
     // tell all consumers that we're loading
     g_object_notify(G_OBJECT(folder), "loading");
 }
