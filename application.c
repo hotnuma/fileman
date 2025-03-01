@@ -83,15 +83,6 @@ static void _application_process_files_finish(ThunarBrowser *browser,
 
 // actions --------------------------------------------------------------------
 
-// application_unlink_files
-static ThunarJob* unlink_stub(GList *source_path_list,
-                              GList *target_path_list);
-// application_trash
-static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list);
-// application_creat
-static ThunarJob* creat_stub(GList *template_file, GList *target_path_list);
-// application_mkdir
-static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list);
 
 // launch ---------------------------------------------------------------------
 
@@ -940,7 +931,7 @@ void application_unlink_files(Application *application, gpointer parent,
                             parent,
                             "edit-delete",
                             _("Deleting files..."),
-                            unlink_stub,
+                            io_unlink_files,
                             path_list,
                             path_list,
                             TRUE,
@@ -949,15 +940,6 @@ void application_unlink_files(Application *application, gpointer parent,
     }
 
     e_list_free(path_list);
-}
-
-static ThunarJob* unlink_stub(GList *source_path_list, GList *target_path_list)
-{
-    (void) target_path_list;
-
-    ThunarJob *job = io_unlink_files(source_path_list);
-
-    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 void application_trash(Application *application, gpointer parent,
@@ -972,21 +954,12 @@ void application_trash(Application *application, gpointer parent,
                         parent,
                         "user-trash-full",
                         _("Moving files into the trash..."),
-                        trash_stub,
+                        io_trash_files,
                         file_list,
                         NULL,
                         TRUE,
                         FALSE,
                         NULL);
-}
-
-static ThunarJob* trash_stub(GList *source_file_list, GList *target_file_list)
-{
-    (void) target_file_list;
-
-    ThunarJob *job = io_trash_files(source_file_list);
-
-    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 void application_creat(Application *application,
@@ -1006,22 +979,12 @@ void application_creat(Application *application,
                         parent,
                         "document-new",
                         _("Creating files..."),
-                        creat_stub,
+                        io_create_files,
                         &template_list,
                         file_list,
                         FALSE,
                         TRUE,
                         new_files_closure);
-}
-
-static ThunarJob* creat_stub(GList *template_file, GList *target_path_list)
-{
-    e_return_val_if_fail(template_file->data == NULL
-                         || G_IS_FILE(template_file->data), NULL);
-
-    ThunarJob *job = io_create_files(target_path_list, template_file->data);
-
-    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 void application_mkdir(Application *application, gpointer parent,
@@ -1035,21 +998,12 @@ void application_mkdir(Application *application, gpointer parent,
                         parent,
                         "folder-new",
                         _("Creating directories..."),
-                        mkdir_stub,
+                        io_make_directories,
                         file_list,
                         file_list,
                         TRUE,
                         FALSE,
                         new_files_closure);
-}
-
-static ThunarJob* mkdir_stub(GList *source_path_list, GList *target_path_list)
-{
-    (void) target_path_list;
-
-    ThunarJob *job = io_make_directories(source_path_list);
-
-    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
 
 void application_empty_trash(Application *application, gpointer parent,
@@ -1110,7 +1064,7 @@ void application_empty_trash(Application *application, gpointer parent,
                             parent,
                             "user-trash",
                             _("Emptying the Trash..."),
-                            unlink_stub,
+                            io_unlink_files,
                             &file_list,
                             NULL,
                             TRUE,

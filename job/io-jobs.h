@@ -26,15 +26,20 @@ G_BEGIN_DECLS
 
 // ----------------------------------------------------------------------------
 
-ThunarJob* io_create_files(GList *file_list, GFile *template_file)
-                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-ThunarJob* io_unlink_files(GList *file_list)
-                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_create_files(GList *template_file, GList *target_path_list);
+
+//ThunarJob* io_create_files(GList *file_list, GFile *template_file)
+//                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_unlink_files(GList *source_path_list,
+                              GList *target_path_list);
+//ThunarJob* io_unlink_files(GList *file_list)
+//                           G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 // ----------------------------------------------------------------------------
 
-ThunarJob* io_make_directories(GList *file_list)
-                               G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_make_directories(GList *source_path_list, GList *target_path_list);
+//ThunarJob* io_make_directories(GList *file_list)
+//                               G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 ThunarJob* io_list_directory(GFile *directory)
                              G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
@@ -50,7 +55,8 @@ ThunarJob* io_link_files(GList *source_file_list, GList *target_file_list)
 
 // ----------------------------------------------------------------------------
 
-ThunarJob* io_trash_files(GList *file_list) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+ThunarJob* io_trash_files(GList *source_file_list, GList *target_file_list);
+//ThunarJob* io_trash_files(GList *file_list) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 ThunarJob* io_restore_files(GList *source_file_list, GList *target_file_list)
                             G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 

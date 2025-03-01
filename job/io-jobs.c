@@ -132,13 +132,27 @@ static gboolean _io_ls(ThunarJob *job, GArray *param_values, GError **error)
     return TRUE;
 }
 
-ThunarJob* io_make_directories(GList *file_list)
+// application_mkdir
+ThunarJob* io_make_directories(GList *source_path_list, GList *target_path_list)
 {
-    return simplejob_new(_io_mkdir, 1,
-                            TYPE_EFILELIST, file_list);
+    (void) target_path_list;
 
-    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+    //ThunarJob *job = io_make_directories(source_path_list);
+
+    ThunarJob *job = simplejob_new(_io_mkdir, 1,
+                            TYPE_EFILELIST, source_path_list);
+
+
+    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
+
+//ThunarJob* io_make_directories(GList *file_list)
+//{
+//    return simplejob_new(_io_mkdir, 1,
+//                            TYPE_EFILELIST, file_list);
+
+//    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+//}
 
 static gboolean _io_mkdir(ThunarJob *job, GArray *param_values, GError **error)
 {
@@ -287,14 +301,29 @@ static gboolean _io_delete_file(GFile *file, GCancellable *cancellable,
     return FALSE;
 }
 
-ThunarJob* io_create_files(GList *file_list, GFile *template_file)
+// application_creat
+ThunarJob* io_create_files(GList *template_file, GList *target_path_list)
 {
-    return simplejob_new(_io_create, 2,
-                            TYPE_EFILELIST, file_list,
-                            G_TYPE_FILE, template_file);
+    e_return_val_if_fail(template_file->data == NULL
+                         || G_IS_FILE(template_file->data), NULL);
 
-    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+    //ThunarJob *job = io_create_files(target_path_list, template_file->data);
+
+    ThunarJob *job = simplejob_new(_io_create, 2,
+                            TYPE_EFILELIST, target_path_list,
+                            G_TYPE_FILE, template_file->data);
+
+    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
+
+//ThunarJob* io_create_files(GList *file_list, GFile *template_file)
+//{
+//    return simplejob_new(_io_create, 2,
+//                            TYPE_EFILELIST, file_list,
+//                            G_TYPE_FILE, template_file);
+
+//    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+//}
 
 static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
 {
@@ -458,13 +487,27 @@ again:
     return TRUE;
 }
 
-ThunarJob* io_unlink_files(GList *file_list)
+// application_unlink_files
+ThunarJob* io_unlink_files(GList *source_path_list, GList *target_path_list)
 {
-    return simplejob_new(_io_unlink, 1,
-                            TYPE_EFILELIST, file_list);
+    (void) target_path_list;
 
-    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+    //ThunarJob *job = io_unlink_files(source_path_list);
+
+    ThunarJob *job = simplejob_new(_io_unlink, 1,
+                            TYPE_EFILELIST, source_path_list);
+
+
+    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
+
+//ThunarJob* io_unlink_files(GList *file_list)
+//{
+//    return simplejob_new(_io_unlink, 1,
+//                            TYPE_EFILELIST, file_list);
+
+//    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+//}
 
 static gboolean _io_unlink(ThunarJob *job, GArray *param_values, GError **error)
 {
@@ -846,14 +889,29 @@ static GFile* _io_link_file(ThunarJob *job, GFile *source_file,
     return NULL;
 }
 
-ThunarJob* io_trash_files(GList *file_list)
+// application_trash
+
+ThunarJob* io_trash_files(GList *source_file_list, GList *target_file_list)
 {
-    e_return_val_if_fail(file_list != NULL, NULL);
+    e_return_val_if_fail(source_file_list != NULL, NULL);
 
-    return simplejob_new(_io_trash, 1, TYPE_EFILELIST, file_list);
+    (void) target_file_list;
 
-    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+    ThunarJob *job = simplejob_new(_io_trash, 1, TYPE_EFILELIST, source_file_list);
+
+    //ThunarJob *job = io_trash_files(source_file_list);
+
+    return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
 }
+
+//ThunarJob* io_trash_files(GList *file_list)
+//{
+//    e_return_val_if_fail(file_list != NULL, NULL);
+
+//    return simplejob_new(_io_trash, 1, TYPE_EFILELIST, file_list);
+
+//    //return THUNAR_JOB(exo_job_launch(EXOJOB(job)));
+//}
 
 static gboolean _io_trash(ThunarJob *job, GArray *param_values, GError **error)
 {
