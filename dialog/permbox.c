@@ -325,9 +325,13 @@ static void permbox_init(PermissionBox *permbox)
     gtk_grid_attach(GTK_GRID(permbox->grid), label, 0, row, 1, 1);
     gtk_widget_show(label);
 
-    permbox->program_button = gtk_check_button_new_with_mnemonic(_("Allow this file to _run as a program"));
-    g_object_bind_property(G_OBJECT(permbox->program_button), "visible", G_OBJECT(label), "visible", G_BINDING_SYNC_CREATE);
-    g_object_bind_property(G_OBJECT(permbox), "mutable", G_OBJECT(permbox->program_button), "sensitive", G_BINDING_SYNC_CREATE);
+    permbox->program_button = gtk_check_button_new_with_mnemonic(
+                _("Allow this file to _run as a program"));
+    g_object_bind_property(G_OBJECT(permbox->program_button), "visible",
+                           G_OBJECT(label), "visible", G_BINDING_SYNC_CREATE);
+    g_object_bind_property(G_OBJECT(permbox), "mutable",
+                           G_OBJECT(permbox->program_button),
+                           "sensitive", G_BINDING_SYNC_CREATE);
     g_signal_connect_swapped(G_OBJECT(permbox->program_button), "toggled",
                              G_CALLBACK(_permbox_program_toggled), permbox);
     gtk_grid_attach(GTK_GRID(permbox->grid), permbox->program_button, 1, row, 1, 1);

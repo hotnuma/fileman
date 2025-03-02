@@ -298,47 +298,62 @@ ThunarJob* io_create_files(GList *template_file, GList *target_path_list)
 
 static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
 {
-    GFileOutputStream *stream;
-    ThunarJobResponse  response = THUNAR_JOB_RESPONSE_CANCEL;
-    GFileInfo         *info;
-    GError            *err = NULL;
-    GList             *file_list;
-    GList             *lp;
-    gchar             *base_name;
-    gchar             *display_name;
-    guint              n_processed = 0;
-    GFile             *template_file;
-    GFileInputStream  *template_stream = NULL;
-
     e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     e_return_val_if_fail(param_values != NULL, FALSE);
     e_return_val_if_fail(param_values->len == 2, FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     // get the file list
+    GList             *file_list;
     file_list = g_value_get_boxed(&g_array_index(param_values, GValue, 0));
-    template_file = g_value_get_object(&g_array_index(param_values, GValue, 1));
+    GFile *template_file = g_value_get_object(&g_array_index(param_values, GValue, 1));
+
+
 
     // we know the total amount of files to be processed
     job_set_total_files(THUNAR_JOB(job), file_list);
+
+    GError            *err = NULL;
+    GFileInputStream  *template_stream = NULL;
+
+    int mode = 0;
 
     // check if we need to open the template
     if (template_file != NULL)
     {
         // open read stream to feed in the new files
-        template_stream = g_file_read(template_file, exo_job_get_cancellable(EXOJOB(job)), &err);
+        template_stream = g_file_read(template_file,
+                                      exo_job_get_cancellable(EXOJOB(job)),
+                                      &err);
+
         if (template_stream == NULL)
         {
             g_propagate_error(error, err);
+
             return FALSE;
         }
+
+        gchar *template_path = g_file_get_path(template_file);
+
+        struct stat st;
+        if (stat(template_path, &st) == 0)
+            mode = st.st_mode;
+
+        free(template_path);
     }
 
+    ThunarJobResponse  response = THUNAR_JOB_RESPONSE_CANCEL;
+    guint n_processed = 0;
+
     // iterate over all files in the list
-    for (lp = file_list;
-            err == NULL && lp != NULL && !exo_job_is_cancelled(EXOJOB(job));
-            lp = lp->next, n_processed++)
+    for (GList *lp = file_list;
+         err == NULL && lp != NULL && !exo_job_is_cancelled(EXOJOB(job));
+         lp = lp->next, ++n_processed)
     {
+        GFileInfo         *info;
+        gchar             *base_name;
+        gchar             *display_name;
+
         g_assert(G_IS_FILE(lp->data));
 
         // update progress information
@@ -346,7 +361,8 @@ static gboolean _io_create(ThunarJob *job, GArray *param_values, GError **error)
 
 again:
         // try to create the file
-        stream = g_file_create(lp->data,
+        GFileOutputStream *stream = g_file_create(
+                                lp->data,
                                 G_FILE_CREATE_NONE,
                                 exo_job_get_cancellable(EXOJOB(job)),
                                 &err);
@@ -428,13 +444,20 @@ again:
             {
                 // write the template into the new file
                 g_output_stream_splice(G_OUTPUT_STREAM(stream),
-                                        G_INPUT_STREAM(template_stream),
-                                        G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
-                                        exo_job_get_cancellable(EXOJOB(job)),
-                                        NULL);
+                                       G_INPUT_STREAM(template_stream),
+                                       G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET,
+                                       exo_job_get_cancellable(EXOJOB(job)),
+                                       NULL);
             }
 
             g_object_unref(stream);
+
+            if (mode & S_IXUSR)
+            {
+                gchar *dest_path = g_file_get_path(G_FILE(lp->data));
+                g_chmod(dest_path, 0777);
+                g_free(dest_path);
+            }
         }
     }
 
