@@ -943,7 +943,7 @@ static GtkWidget* _launcher_build_application_submenu(
 
     if (launcher->n_files_to_process == 1)
     {
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(submenu));
+        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(submenu));
         launcher_append_menu_item(launcher, GTK_MENU_SHELL(submenu), LAUNCHER_ACTION_OPEN_WITH_OTHER, FALSE);
     }
 
@@ -1361,7 +1361,7 @@ static GtkWidget* _launcher_create_document_submenu_new(ThunarLauncher *launcher
         e_list_free(files);
     }
 
-    xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(submenu));
+    xfce_gtk_menu_append_separator(GTK_MENU_SHELL(submenu));
     xfce_gtk_image_menu_item_new_from_icon_name(_("_Empty File"), NULL, NULL,
                                                 G_CALLBACK(_launcher_action_create_document),
             G_OBJECT(launcher), "text-x-generic", GTK_MENU_SHELL(submenu));

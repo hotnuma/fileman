@@ -2172,7 +2172,7 @@ void standardview_context_menu(StandardView *view)
 
         #ifdef WITH_CONFIGURE_COLUMNS
         _standardview_append_menu_items(view, GTK_MENU(context_menu), NULL);
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(context_menu));
         #endif
 
         appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);

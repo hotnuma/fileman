@@ -1312,7 +1312,7 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN, true);
             launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN_IN_WINDOW, true);
 
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(context_menu));
 
             appmenu_add_sections(context_menu, MENU_SECTION_EMPTY_TRASH);
         }
@@ -1351,7 +1351,7 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                   LAUNCHER_ACTION_OPEN_IN_WINDOW,
                                   true);
 
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(context_menu));
+        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(context_menu));
 
         appmenu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
 

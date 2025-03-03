@@ -200,7 +200,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                          !menu->change_directory_support_disabled,
                                          menu->force_section_open))
         {
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
         }
     }
 
@@ -220,7 +220,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                                      LAUNCHER_ACTION_CREATE_DOCUMENT,
                                                      force) != NULL);
         if (item_added)
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }
 
     item_added = FALSE;
@@ -251,7 +251,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
     }
 
     if (item_added)
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
 
     if (menu_sections & MENU_SECTION_TRASH_DELETE)
     {
@@ -266,7 +266,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                                 LAUNCHER_ACTION_DELETE,
                                                 force) != NULL);
         if (item_added)
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }
 
     if (menu_sections & MENU_SECTION_EMPTY_TRASH)
@@ -275,7 +275,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                       GTK_MENU_SHELL(menu),
                                       LAUNCHER_ACTION_EMPTY_TRASH,
                                       FALSE) != NULL)
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }
 
     if (menu_sections & MENU_SECTION_RESTORE)
@@ -284,7 +284,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                       GTK_MENU_SHELL(menu),
                                       LAUNCHER_ACTION_RESTORE,
                                       FALSE) != NULL)
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }
 
     item_added = FALSE;
@@ -308,7 +308,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                                  force) != NULL);
 
     if (item_added)
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
 
     // custom actions ---------------------------------------------------------
 
@@ -331,7 +331,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
     }
 
     if (item_added)
-        xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
 
     // mountable --------------------------------------------------------------
 
@@ -355,7 +355,7 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                                  FALSE) != NULL);
 
         if (item_added)
-            xfce_gtk_menu_append_seperator(GTK_MENU_SHELL(menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }
 
     // properties -------------------------------------------------------------
