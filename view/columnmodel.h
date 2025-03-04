@@ -24,7 +24,7 @@
 
 G_BEGIN_DECLS
 
-#define COL_MIN_WIDTH 20
+#define COL_MIN_WIDTH 50
 
 typedef enum
 {
