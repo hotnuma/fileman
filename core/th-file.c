@@ -2069,14 +2069,6 @@ gboolean th_file_is_gfile_ancestor(const ThunarFile *file, GFile *ancestor)
     return FALSE;
 }
 
-/**
- * th_file_is_hidden:
- * @file : a #ThunarFile instance.
- *
- * Checks whether @file can be considered a hidden file.
- *
- * Return value: %TRUE if @file is a hidden file, else %FALSE.
- **/
 gboolean th_file_is_hidden(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
@@ -2084,8 +2076,16 @@ gboolean th_file_is_hidden(const ThunarFile *file)
     if (file->gfileinfo == NULL)
         return FALSE;
 
-    return g_file_info_get_is_hidden(file->gfileinfo)
-           || g_file_info_get_is_backup(file->gfileinfo);
+    // https://gitlab.gnome.org/GNOME/gtk/-/
+    // commit/c1fa916e88de20fc61dc06d3ff9f26722effa0df
+
+    gboolean has_is_hidden = g_file_info_has_attribute(file->gfileinfo,
+                                                       "standard::is-hidden");
+    gboolean has_is_backup = g_file_info_has_attribute(file->gfileinfo,
+                                                       "standard::is-backup");
+
+    return (has_is_hidden && g_file_info_get_is_hidden(file->gfileinfo))
+           || (has_is_backup && g_file_info_get_is_backup(file->gfileinfo));
 }
 
 gboolean th_file_is_local(const ThunarFile *file)
