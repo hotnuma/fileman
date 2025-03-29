@@ -810,7 +810,8 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
         if (path == NULL)
         {
             // create the context menu
-            standardview_context_menu(STANDARD_VIEW(details_view), false);
+            standardview_context_menu(STANDARD_VIEW(details_view),
+                                      (GdkEvent*) event, false);
         }
         else
         {
@@ -824,7 +825,8 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                 //standardview_popup_timer(STANDARD_VIEW(details_view), event);
 
                 // show the context menu
-                standardview_context_menu(STANDARD_VIEW(details_view), true);
+                standardview_context_menu(STANDARD_VIEW(details_view),
+                                          (GdkEvent*) event, true);
             }
             else
             {
@@ -836,7 +838,8 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                 }
 
                 // show the context menu
-                standardview_context_menu(STANDARD_VIEW(details_view), false);
+                standardview_context_menu(STANDARD_VIEW(details_view),
+                                          (GdkEvent*) event, false);
             }
 
             gtk_tree_path_free(path);
@@ -861,7 +864,9 @@ static gboolean _detailview_key_press_event(GtkTreeView *tree_view,
         || ((event->state & GDK_SHIFT_MASK) != 0
             && event->keyval == GDK_KEY_F10))
     {
-        standardview_context_menu(STANDARD_VIEW(details_view), false);
+        standardview_context_menu(STANDARD_VIEW(details_view),
+                                  (GdkEvent*) event,
+                                  false);
 
         return TRUE;
     }

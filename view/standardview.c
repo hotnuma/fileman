@@ -147,11 +147,11 @@ static void _standardview_append_menu_items(StandardView *view, GtkMenu *menu,
 #endif
 
 // standardview_popup_timer
-static gboolean _popup_timer(gpointer user_data);
-static void _popup_timer_destroy(gpointer user_data);
-static gboolean _on_button_release_event(GtkWidget *widget,
-                                         GdkEventButton *event,
-                                         StandardView *view);
+//static gboolean _popup_timer(gpointer user_data);
+//static void _popup_timer_destroy(gpointer user_data);
+//static gboolean _on_button_release_event(GtkWidget *widget,
+//                                         GdkEventButton *event,
+//                                         StandardView *view);
 
 // Actions --------------------------------------------------------------------
 
@@ -313,8 +313,8 @@ struct _StandardViewPrivate
     ThunarZoomLevel zoom_level;
 
     // popup with timer
-    guint       popup_timer_id;
-    GdkEvent    *popup_timer_event;
+    //guint       popup_timer_id;
+    //GdkEvent    *popup_timer_event;
 
     // status text
     gchar       *statusbar_text;
@@ -717,15 +717,15 @@ static void standardview_dispose(GObject *object)
         g_source_remove(view->priv->drag_scroll_timer_id);
 
     // be sure to cancel any pending drag timer
-    if (view->priv->popup_timer_id)
-        g_source_remove(view->priv->popup_timer_id);
+    //if (view->priv->popup_timer_id)
+    //    g_source_remove(view->priv->popup_timer_id);
 
     // be sure to free any pending drag timer event
-    if (view->priv->popup_timer_event)
-    {
-        gdk_event_free(view->priv->popup_timer_event);
-        view->priv->popup_timer_event = NULL;
-    }
+    //if (view->priv->popup_timer_event)
+    //{
+    //    gdk_event_free(view->priv->popup_timer_event);
+    //    view->priv->popup_timer_event = NULL;
+    //}
 
     // disconnect from file
     if (view->priv->current_directory != NULL)
@@ -2128,7 +2128,9 @@ void standardview_set_history(StandardView *view, ThunarHistory *history)
 
 // Popup Menu -----------------------------------------------------------------
 
-void standardview_context_menu(StandardView *view, gboolean empty_area)
+void standardview_context_menu(StandardView *view,
+                               const GdkEvent *trigger_event,
+                               gboolean empty_area)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
@@ -2183,18 +2185,20 @@ void standardview_context_menu(StandardView *view, gboolean empty_area)
     window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
 
     // if there is a drag_timer_event (long press), we use it
-    if (view->priv->popup_timer_event)
-    {
-        etk_menu_run_at_event(GTK_MENU(context_menu),
-                              view->priv->popup_timer_event);
+    //if (view->priv->popup_timer_event)
+    //{
+    //    etk_menu_run_at_event(GTK_MENU(context_menu),
+    //                          view->priv->popup_timer_event);
 
-        gdk_event_free(view->priv->popup_timer_event);
-        view->priv->popup_timer_event = NULL;
-    }
-    else
-    {
-        etk_menu_run(GTK_MENU(context_menu));
-    }
+    //    gdk_event_free(view->priv->popup_timer_event);
+    //    view->priv->popup_timer_event = NULL;
+    //}
+    //else
+    //{
+    //    etk_menu_run(GTK_MENU(context_menu));
+    //}
+
+    etk_menu_run(GTK_MENU(context_menu));
 
     g_list_free_full(selected_items,(GDestroyNotify) gtk_tree_path_free);
 
@@ -2219,84 +2223,84 @@ static void _standardview_append_menu_items(StandardView *view,
  * schedules a timer, which - once expired - opens the context menu.
  * If the user moves the mouse prior to expiration, a right-click drag
  * with GDK_ACTION_ASK, will be started instead. */
-void standardview_popup_timer(StandardView *view, GdkEventButton *event)
-{
-    e_return_if_fail(IS_STANDARD_VIEW(view));
-    e_return_if_fail(event != NULL);
+//void standardview_popup_timer(StandardView *view, GdkEventButton *event)
+//{
+//    e_return_if_fail(IS_STANDARD_VIEW(view));
+//    e_return_if_fail(event != NULL);
 
-    // check if we have already scheduled a drag timer
-    if (view->priv->popup_timer_id)
-        return;
+//    // check if we have already scheduled a drag timer
+//    if (view->priv->popup_timer_id)
+//        return;
 
-    // figure out the real view
-    GtkWidget *child = gtk_bin_get_child(GTK_BIN(view));
+//    // figure out the real view
+//    GtkWidget *child = gtk_bin_get_child(GTK_BIN(view));
 
-    /* we use the menu popup delay here, note that we only use this to
-     * allow higher values! see bug #3549 */
+//    /* we use the menu popup delay here, note that we only use this to
+//     * allow higher values! see bug #3549 */
 
-    GtkSettings *settings;
-    settings = gtk_settings_get_for_screen(gtk_widget_get_screen(child));
+//    GtkSettings *settings;
+//    settings = gtk_settings_get_for_screen(gtk_widget_get_screen(child));
 
-    gint delay;
-    g_object_get(G_OBJECT(settings), "gtk-menu-popup-delay", &delay, NULL);
+//    gint delay;
+//    g_object_get(G_OBJECT(settings), "gtk-menu-popup-delay", &delay, NULL);
 
-    // schedule the timer
-    view->priv->popup_timer_id =
-        g_timeout_add_full(G_PRIORITY_LOW,
-                           MAX(225, delay),
-                           _popup_timer,
-                           view,
-                           _popup_timer_destroy);
+//    // schedule the timer
+//    view->priv->popup_timer_id =
+//        g_timeout_add_full(G_PRIORITY_LOW,
+//                           MAX(225, delay),
+//                           _popup_timer,
+//                           view,
+//                           _popup_timer_destroy);
 
-    // store current event data
-    view->priv->popup_timer_event = gtk_get_current_event();
+//    // store current event data
+//    view->priv->popup_timer_event = gtk_get_current_event();
 
-    // register the motion notify and the button release events on the real view
-    g_signal_connect(G_OBJECT(child), "button-release-event",
-                     G_CALLBACK(_on_button_release_event), view);
-}
+//    // register the motion notify and the button release events on the real view
+//    g_signal_connect(G_OBJECT(child), "button-release-event",
+//                     G_CALLBACK(_on_button_release_event), view);
+//}
 
-static gboolean _popup_timer(gpointer user_data)
-{
-    StandardView *view = STANDARD_VIEW(user_data);
+//static gboolean _popup_timer(gpointer user_data)
+//{
+//    StandardView *view = STANDARD_VIEW(user_data);
 
-    // fire up the context menu
-    UTIL_THREADS_ENTER;
+//    // fire up the context menu
+//    UTIL_THREADS_ENTER;
 
-    standardview_context_menu(view, false);
+//    standardview_context_menu(view, false);
 
-    UTIL_THREADS_LEAVE;
+//    UTIL_THREADS_LEAVE;
 
-    return false;
-}
+//    return false;
+//}
 
-static void _popup_timer_destroy(gpointer user_data)
-{
-    // unregister event handlers (thread-safe)
-    g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
-                                         _on_button_release_event, user_data);
+//static void _popup_timer_destroy(gpointer user_data)
+//{
+//    // unregister event handlers (thread-safe)
+//    g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
+//                                         _on_button_release_event, user_data);
 
-    // reset the drag timer source id
-    STANDARD_VIEW(user_data)->priv->popup_timer_id = 0;
-}
+//    // reset the drag timer source id
+//    STANDARD_VIEW(user_data)->priv->popup_timer_id = 0;
+//}
 
-static gboolean _on_button_release_event(GtkWidget *widget,
-                                         GdkEventButton *event,
-                                         StandardView *view)
-{
-    (void) widget;
-    (void) event;
+//static gboolean _on_button_release_event(GtkWidget *widget,
+//                                         GdkEventButton *event,
+//                                         StandardView *view)
+//{
+//    (void) widget;
+//    (void) event;
 
-    e_return_val_if_fail(IS_STANDARD_VIEW(view), false);
-    e_return_val_if_fail(view->priv->popup_timer_id != 0, false);
+//    e_return_val_if_fail(IS_STANDARD_VIEW(view), false);
+//    e_return_val_if_fail(view->priv->popup_timer_id != 0, false);
 
-    // cancel the pending drag timer
-    g_source_remove(view->priv->popup_timer_id);
+//    // cancel the pending drag timer
+//    g_source_remove(view->priv->popup_timer_id);
 
-    standardview_context_menu(view, false);
+//    standardview_context_menu(view, false);
 
-    return true;
-}
+//    return true;
+//}
 
 // Actions --------------------------------------------------------------------
 

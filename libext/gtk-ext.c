@@ -21,12 +21,8 @@
 
 #include "utils.h"
 
-/**
- * etk_mount_operation_new:
- * @parent : a #GtkWindow or non-toplevel widget.
- *
- * Create a mount operation with some defaults.
- **/
+static void _etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event);
+
 GMountOperation* etk_mount_operation_new(gpointer parent)
 {
     GtkWindow *window = NULL;
@@ -42,10 +38,6 @@ GMountOperation* etk_mount_operation_new(gpointer parent)
     return operation;
 }
 
-/**
- * thunar_gtk_get_focused_widget:
- * Return value:(transfer none): currently focused widget or NULL, if there is none.
- **/
 GtkWidget* etk_get_focused_widget()
 {
     GtkApplication *app;
@@ -147,19 +139,6 @@ void etk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
     g_object_unref(G_OBJECT(relation));
 }
 
-/**
- * thunar_gtk_menu_run:
- * @menu : a #GtkMenu.
- *
- * Conveniance wrapper for thunar_gtk_menu_run_at_event_pointer, to run a menu for the current event
- **/
-void etk_menu_run(GtkMenu *menu)
-{
-    GdkEvent *event = gtk_get_current_event();
-    etk_menu_run_at_event(menu, event);
-    gdk_event_free(event);
-}
-
 #if GTK_CHECK_VERSION(3, 24, 8)
 static void _moved_to_rect_cb(GdkWindow          *window,
                              const GdkRectangle *flipped_rect,
@@ -182,6 +161,19 @@ static void _popup_menu_realized(GtkWidget *menu, gpointer   user_data)
 #endif
 
 /**
+ * thunar_gtk_menu_run:
+ * @menu : a #GtkMenu.
+ *
+ * Conveniance wrapper for thunar_gtk_menu_run_at_event_pointer, to run a menu for the current event
+ **/
+void etk_menu_run(GtkMenu *menu)
+{
+    GdkEvent *event = gtk_get_current_event();
+    _etk_menu_run_at_event(menu, event);
+    gdk_event_free(event);
+}
+
+/**
  * thunar_gtk_menu_run_at_event:
  * @menu  : a #GtkMenu.
  * @event : a #GdkEvent which may be NULL if no previous event was stored.
@@ -194,7 +186,8 @@ static void _popup_menu_realized(GtkWidget *menu, gpointer   user_data)
  * not need to take care of destroying the menu later.
  *
  **/
-void etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
+
+static void _etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 {
     GMainLoop *loop;
     gulong     signal_id;

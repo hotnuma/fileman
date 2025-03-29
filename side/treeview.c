@@ -70,7 +70,7 @@ static gboolean treeview_button_release_event(GtkWidget *widget,
                                               GdkEventButton *event);
 // treeview_init
 static gboolean _treeview_key_press_event(GtkWidget *widget, GdkEventKey *event);
-static gboolean treeview_popup_menu(GtkWidget *widget);
+//static gboolean treeview_popup_menu(GtkWidget *widget);
 
 // GtkTreeView ----------------------------------------------------------------
 
@@ -242,7 +242,7 @@ static void treeview_class_init(TreeViewClass *klass)
     gtkwidget_class->button_press_event = treeview_button_press_event;
     gtkwidget_class->button_release_event = treeview_button_release_event;
 
-    gtkwidget_class->popup_menu = treeview_popup_menu;
+    //gtkwidget_class->popup_menu = treeview_popup_menu;
 
 #ifdef ENABLE_TREE_DRAG
     gtkwidget_class->drag_begin = treeview_drag_begin;
@@ -904,7 +904,8 @@ GtkWidget* treeview_new()
 
 // Events ---------------------------------------------------------------------
 
-static gboolean treeview_button_press_event(GtkWidget *widget, GdkEventButton *event)
+static gboolean treeview_button_press_event(GtkWidget *widget,
+                                            GdkEventButton *event)
 {
     TreeView    *view = TREEVIEW(widget);
     ThunarDevice      *device = NULL;
@@ -1234,31 +1235,34 @@ static void treeview_row_collapsed(GtkTreeView *tree_view,
 
 // Popup Menu -----------------------------------------------------------------
 
-static gboolean treeview_popup_menu(GtkWidget *widget)
-{
-    GtkTreeSelection *selection;
-    TreeView   *view = TREEVIEW(widget);
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
+//static gboolean treeview_popup_menu(GtkWidget *widget)
+//{
+//    printf("treeview_popup_menu\n");
+//    return true;
 
-    // determine the selected row
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+//    TreeView   *view = TREEVIEW(widget);
 
-    if (gtk_tree_selection_get_selected(selection, &model, &iter))
-    {
-        // popup the context menu
-        _treeview_context_menu(view, model, &iter);
+//    // determine the selected row
+//    GtkTreeSelection *selection;
+//    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 
-        return true;
-    }
-    else if (GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu != NULL)
-    {
-        // call the parent's "popup-menu" handler
-        return GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu(widget);
-    }
+//    GtkTreeModel     *model;
+//    GtkTreeIter       iter;
+//    if (gtk_tree_selection_get_selected(selection, &model, &iter))
+//    {
+//        // popup the context menu
+//        _treeview_context_menu(view, model, &iter);
 
-    return false;
-}
+//        return true;
+//    }
+//    else if (GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu != NULL)
+//    {
+//        // call the parent's "popup-menu" handler
+//        return GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu(widget);
+//    }
+
+//    return false;
+//}
 
 static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                    GtkTreeIter *iter)
@@ -1365,8 +1369,8 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    window_redirect_tooltips(APPWINDOW(window),
-                                               GTK_MENU(context_menu));
+    window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
+
     etk_menu_run(GTK_MENU(context_menu));
 
     if (device != NULL)

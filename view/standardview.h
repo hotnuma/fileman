@@ -133,11 +133,15 @@ GType standardview_get_type() G_GNUC_CONST;
 void standardview_selection_changed(StandardView *standard_view);
 
 ThunarHistory* standardview_get_history(StandardView *standard_view);
-void standardview_set_history(StandardView *standard_view, ThunarHistory *history);
+void standardview_set_history(StandardView *standard_view,
+                              ThunarHistory *history);
 
-void standardview_context_menu(StandardView *standard_view, gboolean empty_area);
+void standardview_context_menu(StandardView *standard_view,
+                               const GdkEvent *trigger_event,
+                               gboolean empty_area);
 
-void standardview_popup_timer(StandardView *standard_view, GdkEventButton *event);
+//void standardview_popup_timer(StandardView *standard_view,
+//                              GdkEventButton *event);
 
 G_END_DECLS
 
