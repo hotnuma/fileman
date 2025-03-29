@@ -17,6 +17,8 @@
  * MA 02110-1301 USA
  */
 
+#ifndef DISABLE_EXOTREEVIEW
+
 #include "config.h"
 #include "exotreeview.h"
 
@@ -756,5 +758,7 @@ GtkWidget* exo_treeview_new()
 {
     return g_object_new(TYPE_EXOTREEVIEW, NULL);
 }
+
+#endif
 
 

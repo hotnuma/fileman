@@ -20,6 +20,8 @@
 #ifndef __EXO_TREEVIEW_H__
 #define __EXO_TREEVIEW_H__
 
+#ifndef DISABLE_EXOTREEVIEW
+
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
@@ -77,6 +79,8 @@ void exo_treeview_set_single_click_timeout(ExoTreeView *tree_view,
                                            guint single_click_timeout);
 
 G_END_DECLS
+
+#endif
 
 #endif // __EXO_TREEVIEW_H__
 
