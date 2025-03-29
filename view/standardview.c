@@ -2129,9 +2129,11 @@ void standardview_set_history(StandardView *view, ThunarHistory *history)
 // Popup Menu -----------------------------------------------------------------
 
 void standardview_context_menu(StandardView *view,
-                               const GdkEvent *trigger_event,
+                               const GdkEvent *event,
                                gboolean empty_area)
 {
+    (void) event; // unused
+
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
     // grab an additional reference on the view
