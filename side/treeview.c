@@ -70,7 +70,7 @@ static gboolean treeview_button_release_event(GtkWidget *widget,
                                               GdkEventButton *event);
 // treeview_init
 static gboolean _treeview_key_press_event(GtkWidget *widget, GdkEventKey *event);
-static gboolean treeview_popup_menu(GtkWidget *widget);
+//static gboolean treeview_popup_menu(GtkWidget *widget);
 
 // GtkTreeView ----------------------------------------------------------------
 
@@ -242,7 +242,7 @@ static void treeview_class_init(TreeViewClass *klass)
     gtkwidget_class->button_press_event = treeview_button_press_event;
     gtkwidget_class->button_release_event = treeview_button_release_event;
 
-    gtkwidget_class->popup_menu = treeview_popup_menu;
+    //gtkwidget_class->popup_menu = treeview_popup_menu;
 
 #ifdef ENABLE_TREE_DRAG
     gtkwidget_class->drag_begin = treeview_drag_begin;
@@ -1235,6 +1235,7 @@ static void treeview_row_collapsed(GtkTreeView *tree_view,
 
 // Popup Menu -----------------------------------------------------------------
 
+#if 0
 static gboolean treeview_popup_menu(GtkWidget *widget)
 {
     TreeView   *view = TREEVIEW(widget);
@@ -1260,6 +1261,7 @@ static gboolean treeview_popup_menu(GtkWidget *widget)
 
     return false;
 }
+#endif
 
 static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                    GtkTreeIter *iter)
