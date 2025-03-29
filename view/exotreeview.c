@@ -326,14 +326,20 @@ static gboolean exo_treeview_button_press_event(GtkWidget *widget,
         }
 
         // check if the next button-release-event should activate the selected row (single click support)
-        tree_view->priv->button_release_activates = (tree_view->priv->single_click && event->type == GDK_BUTTON_PRESS && event->button == 1 && (event->state & gtk_accelerator_get_default_mod_mask()) == 0);
+        tree_view->priv->button_release_activates =
+            (tree_view->priv->single_click
+            && event->type == GDK_BUTTON_PRESS
+            && event->button == 1
+            && (event->state & gtk_accelerator_get_default_mod_mask()) == 0);
     }
 
     /* Rubberbanding in GtkTreeView 2.9.0 and above is rather buggy, unfortunately, and
      * doesn't interact properly with GTKs own DnD mechanism. So we need to block all
      * dragging here when pressing the mouse button on a not yet selected row if
      * rubberbanding is active, or disable rubberbanding when starting a drag. */
-    if (gtk_tree_selection_get_mode(selection) == GTK_SELECTION_MULTIPLE && gtk_tree_view_get_rubber_banding(GTK_TREE_VIEW(tree_view)) && event->button == 1 && event->type == GDK_BUTTON_PRESS)
+    if (gtk_tree_selection_get_mode(selection) == GTK_SELECTION_MULTIPLE
+            && gtk_tree_view_get_rubber_banding(GTK_TREE_VIEW(tree_view))
+            && event->button == 1 && event->type == GDK_BUTTON_PRESS)
     {
         // check if clicked on empty area or on a not yet selected row
         if (path == NULL || !gtk_tree_selection_path_is_selected(selection, path))

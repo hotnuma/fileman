@@ -2128,7 +2128,7 @@ void standardview_set_history(StandardView *view, ThunarHistory *history)
 
 // Popup Menu -----------------------------------------------------------------
 
-void standardview_context_menu(StandardView *view)
+void standardview_context_menu(StandardView *view, gboolean empty_area)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
@@ -2140,13 +2140,13 @@ void standardview_context_menu(StandardView *view)
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    AppMenu *context_menu;
-    context_menu = g_object_new(TYPE_APPMENU,
-                                "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
-                                "launcher", window_get_launcher(APPWINDOW(window)),
-                                NULL);
+    AppMenu *context_menu = g_object_new(
+                        TYPE_APPMENU,
+                        "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
+                        "launcher", window_get_launcher(APPWINDOW(window)),
+                        NULL);
 
-    if (selected_items != NULL)
+    if (selected_items && !empty_area)
     {
         appmenu_add_sections(context_menu,
                              MENU_SECTION_OPEN
@@ -2263,7 +2263,7 @@ static gboolean _popup_timer(gpointer user_data)
     // fire up the context menu
     UTIL_THREADS_ENTER;
 
-    standardview_context_menu(view);
+    standardview_context_menu(view, false);
 
     UTIL_THREADS_LEAVE;
 
@@ -2293,7 +2293,7 @@ static gboolean _on_button_release_event(GtkWidget *widget,
     // cancel the pending drag timer
     g_source_remove(view->priv->popup_timer_id);
 
-    standardview_context_menu(view);
+    standardview_context_menu(view, false);
 
     return true;
 }
