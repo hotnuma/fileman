@@ -869,9 +869,15 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
     {
         // we can only show a generic "Open" action
         label_text = g_strdup_printf(_("_Open With Default Applications"));
-        tooltip_text = g_strdup_printf(ngettext("Open the selected file with the default application",
-                                        "Open the selected files with the default applications", launcher->n_files_to_process));
-        xfce_gtk_menu_item_new(label_text, tooltip_text, NULL, G_CALLBACK(_launcher_menu_item_activated), G_OBJECT(launcher), menu);
+        tooltip_text = g_strdup_printf(
+                                ngettext("Open the selected file with"
+                                " the default application",
+                                "Open the selected files with the"
+                                " default applications",
+                                launcher->n_files_to_process));
+        xfce_gtk_menu_item_new(label_text, tooltip_text, NULL,
+                               G_CALLBACK(_launcher_menu_item_activated),
+                               G_OBJECT(launcher), menu);
         g_free(tooltip_text);
         g_free(label_text);
     }
@@ -883,15 +889,16 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
                                   LAUNCHER_ACTION_OPEN_IN_WINDOW, FALSE);
     }
 
-    if (applist != NULL)
+    if (applist)
     {
         menu_item = xfce_gtk_menu_item_new(
                 _("Open With"),
-                _("Choose another application with which to open the selected file"),
+                _("Choose another application with which to open the"
+                  " selected file"),
                 NULL, NULL, NULL, menu);
 
-        GtkWidget *submenu;
-        submenu = _launcher_build_application_submenu(launcher, applist);
+        GtkWidget *submenu = _launcher_build_application_submenu(launcher,
+                                                                 applist);
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
     }
     else

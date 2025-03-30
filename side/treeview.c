@@ -1284,12 +1284,11 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                        -1);
 
     // create the popup menu
-    AppMenu *context_menu = g_object_new(
-                                TYPE_APPMENU,
-                                "menu-type", MENU_TYPE_CONTEXT_TREE_VIEW,
-                                "launcher", view->launcher,
-                                "force-section-open", true,
-                                NULL);
+    AppMenu *menu = g_object_new(TYPE_APPMENU,
+                                 "menu-type", MENU_TYPE_CONTEXT_TREE_VIEW,
+                                 "launcher", view->launcher,
+                                 "force-section-open", true,
+                                 NULL);
 
     g_object_set(G_OBJECT(view->launcher),
                  "selected-device", device,
@@ -1317,18 +1316,18 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
             || e_file_is_computer(th_file_get_file(file))
             || e_file_is_network(th_file_get_file(file)))
         {
-            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN, true);
-            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(context_menu), LAUNCHER_ACTION_OPEN_IN_WINDOW, true);
+            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(menu), LAUNCHER_ACTION_OPEN, true);
+            launcher_append_menu_item(view->launcher, GTK_MENU_SHELL(menu), LAUNCHER_ACTION_OPEN_IN_WINDOW, true);
 
-            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(context_menu));
+            xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
 
-            appmenu_add_sections(context_menu, MENU_SECTION_EMPTY_TRASH);
+            appmenu_add_sections(menu, MENU_SECTION_EMPTY_TRASH);
         }
         else
         {
-            appmenu_add_sections(context_menu, MENU_SECTION_OPEN);
+            appmenu_add_sections(menu, MENU_SECTION_OPEN);
 
-            appmenu_add_sections(context_menu, MENU_SECTION_CREATE_NEW_FILES
+            appmenu_add_sections(menu, MENU_SECTION_CREATE_NEW_FILES
                                                    | MENU_SECTION_CUT
                                                    | MENU_SECTION_COPY_PASTE
                                                    | MENU_SECTION_TRASH_DELETE
@@ -1337,8 +1336,8 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                                    | MENU_SECTION_TERMINAL);
         }
 
-        appmenu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
-        appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
+        appmenu_add_sections(menu, MENU_SECTION_MOUNTABLE);
+        appmenu_add_sections(menu, MENU_SECTION_PROPERTIES);
     }
     else
     {
@@ -1350,32 +1349,32 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                      NULL);
 
         launcher_append_menu_item(view->launcher,
-                                  GTK_MENU_SHELL(context_menu),
+                                  GTK_MENU_SHELL(menu),
                                   LAUNCHER_ACTION_OPEN,
                                   true);
 
         launcher_append_menu_item(view->launcher,
-                                  GTK_MENU_SHELL(context_menu),
+                                  GTK_MENU_SHELL(menu),
                                   LAUNCHER_ACTION_OPEN_IN_WINDOW,
                                   true);
 
-        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(context_menu));
+        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
 
-        appmenu_add_sections(context_menu, MENU_SECTION_MOUNTABLE);
+        appmenu_add_sections(menu, MENU_SECTION_MOUNTABLE);
 
         if (th_device_is_mounted(device))
-            appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
+            appmenu_add_sections(menu, MENU_SECTION_PROPERTIES);
     }
 
-    appmenu_hide_accel_labels(context_menu);
+    appmenu_hide_accel_labels(menu);
 
-    gtk_widget_show_all(GTK_WIDGET(context_menu));
+    gtk_widget_show_all(GTK_WIDGET(menu));
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
+    window_redirect_tooltips(APPWINDOW(window), GTK_MENU(menu));
 
-    etk_menu_run(GTK_MENU(context_menu));
+    etk_menu_run(GTK_MENU(menu));
 
     if (device != NULL)
         g_object_unref(G_OBJECT(device));
