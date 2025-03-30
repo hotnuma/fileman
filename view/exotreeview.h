@@ -20,13 +20,9 @@
 #ifndef __EXO_TREEVIEW_H__
 #define __EXO_TREEVIEW_H__
 
-#ifndef DISABLE_EXOTREEVIEW
-
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
-
-// ExoTreeView ----------------------------------------------------------------
 
 typedef struct _ExoTreeViewPrivate  ExoTreeViewPrivate;
 typedef struct _ExoTreeViewClass    ExoTreeViewClass;
@@ -46,10 +42,8 @@ typedef struct _ExoTreeView         ExoTreeView;
 
 struct _ExoTreeViewClass
 {
-    //< private >
     GtkTreeViewClass __parent__;
 
-    //< private >
     void (*reserved1) ();
     void (*reserved2) ();
     void (*reserved3) ();
@@ -72,15 +66,14 @@ GType exo_treeview_get_type() G_GNUC_CONST;
 GtkWidget *exo_treeview_new() G_GNUC_MALLOC;
 
 gboolean exo_treeview_get_single_click(const ExoTreeView *tree_view);
-void exo_treeview_set_single_click(ExoTreeView *tree_view, gboolean single_click);
+void exo_treeview_set_single_click(ExoTreeView *tree_view,
+                                   gboolean single_click);
 
 guint exo_treeview_get_single_click_timeout(const ExoTreeView *tree_view);
 void exo_treeview_set_single_click_timeout(ExoTreeView *tree_view,
                                            guint single_click_timeout);
 
 G_END_DECLS
-
-#endif
 
 #endif // __EXO_TREEVIEW_H__
 

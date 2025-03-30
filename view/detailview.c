@@ -192,18 +192,14 @@ static void detailview_class_init(DetailViewClass *klass)
 
 static void detailview_init(DetailView *details_view)
 {
-    /* we need to force the GtkTreeView to recalculate column sizes
-       whenever the zoom-level changes, so we connect a handler here. */
+    // we need to force the GtkTreeView to recalculate column sizes
+    // whenever the zoom-level changes, so we connect a handler here.
+
     g_signal_connect(G_OBJECT(details_view), "notify::zoom-level",
                      G_CALLBACK(_detailview_zoom_level_changed), NULL);
 
     // create the tree view to embed
-
-#ifndef DISABLE_EXOTREEVIEW
     GtkWidget *tree_view = exo_treeview_new();
-#else
-    GtkWidget *tree_view = gtk_tree_view_new();
-#endif
 
     g_signal_connect(G_OBJECT(tree_view), "notify::model",
                      G_CALLBACK(_detailview_notify_model), details_view);

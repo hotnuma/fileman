@@ -17,8 +17,6 @@
  * MA 02110-1301 USA
  */
 
-#ifndef DISABLE_EXOTREEVIEW
-
 #include "config.h"
 #include "exotreeview.h"
 
@@ -40,8 +38,6 @@
 #undef gdk_cursor_unref
 #endif
 #define gdk_cursor_unref(cursor) g_object_unref(cursor)
-
-// ExoTreeView ----------------------------------------------------------------
 
 static void exo_treeview_finalize(GObject *object);
 static void exo_treeview_get_property(GObject *object, guint prop_id,
@@ -68,8 +64,6 @@ static void exo_treeview_drag_begin(GtkWidget *widget, GdkDragContext *context);
 static gboolean exo_treeview_move_cursor(GtkTreeView *view,
                                          GtkMovementStep step,
                                          gint count);
-
-// ExoTreeView ----------------------------------------------------------------
 
 enum
 {
@@ -101,6 +95,13 @@ struct _ExoTreeViewPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE(ExoTreeView, exo_treeview, GTK_TYPE_TREE_VIEW)
 
+// creation -------------------------------------------------------------------
+
+GtkWidget* exo_treeview_new()
+{
+    return g_object_new(TYPE_EXOTREEVIEW, NULL);
+}
+
 static void exo_treeview_class_init(ExoTreeViewClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
@@ -121,38 +122,27 @@ static void exo_treeview_class_init(ExoTreeViewClass *klass)
     // initialize the library's i18n support
     //_exo_i18n_init ();
 
-    /**
-   * ExoTreeView:single-click:
-   *
-   * %TRUE to activate items using a single click instead of a
-   * double click.
-   *
-   * Since: 0.3.1.3
-   **/
-    g_object_class_install_property(gobject_class,
-                                    PROP_SINGLE_CLICK,
-                                    g_param_spec_boolean("single-click",
-                                                         _("Single Click"),
-                                                         _("Whether the items in the view can be activated with single clicks"),
-                                                         FALSE,
-                                                         E_PARAM_READWRITE));
+    g_object_class_install_property(
+        gobject_class,
+        PROP_SINGLE_CLICK,
+        g_param_spec_boolean("single-click",
+                             _("Single Click"),
+                             _("Whether the items in the view can be activated"
+                               " with single clicks"),
+                             FALSE,
+                             E_PARAM_READWRITE));
 
-    /**
-   * ExoTreeView:single-click-timeout:
-   *
-   * The amount of time in milliseconds after which the hover row (the row
-   * which is hovered by the mouse cursor) will be selected automatically
-   * in single-click mode. A value of %0 disables the automatic selection.
-   *
-   * Since: 0.3.1.5
-   **/
-    g_object_class_install_property(gobject_class,
-                                    PROP_SINGLE_CLICK_TIMEOUT,
-                                    g_param_spec_uint("single-click-timeout",
-                                                      _("Single Click Timeout"),
-                                                      _("The amount of time after which the item under the mouse cursor will be selected automatically in single click mode"),
-                                                      0, G_MAXUINT, 0,
-                                                      E_PARAM_READWRITE));
+    // The amount of time in milliseconds
+    g_object_class_install_property(
+        gobject_class,
+        PROP_SINGLE_CLICK_TIMEOUT,
+        g_param_spec_uint("single-click-timeout",
+                          _("Single Click Timeout"),
+                          _("The amount of time after which the item under the"
+                            " mouse cursor will be selected automatically in"
+                            " single click mode"),
+                          0, G_MAXUINT, 0,
+                          E_PARAM_READWRITE));
 }
 
 static void exo_treeview_init(ExoTreeView *tree_view)
@@ -191,7 +181,8 @@ static void exo_treeview_get_property(GObject *object, guint prop_id,
         break;
 
     case PROP_SINGLE_CLICK_TIMEOUT:
-        g_value_set_uint(value, exo_treeview_get_single_click_timeout(tree_view));
+        g_value_set_uint(value,
+                         exo_treeview_get_single_click_timeout(tree_view));
         break;
 
     default:
@@ -214,7 +205,8 @@ static void exo_treeview_set_property(GObject *object, guint prop_id,
         break;
 
     case PROP_SINGLE_CLICK_TIMEOUT:
-        exo_treeview_set_single_click_timeout(tree_view, g_value_get_uint(value));
+        exo_treeview_set_single_click_timeout(tree_view,
+                                              g_value_get_uint(value));
         break;
 
     default:
@@ -230,7 +222,8 @@ gboolean exo_treeview_get_single_click(const ExoTreeView *tree_view)
     return tree_view->priv->single_click;
 }
 
-void exo_treeview_set_single_click(ExoTreeView *tree_view, gboolean single_click)
+void exo_treeview_set_single_click(ExoTreeView *tree_view,
+                                   gboolean single_click)
 {
     g_return_if_fail(IS_EXOTREEVIEW(tree_view));
 
@@ -751,14 +744,5 @@ static gboolean exo_treeview_move_cursor(GtkTreeView *view, GtkMovementStep step
     // call the parent's handler
     return GTK_TREE_VIEW_CLASS(exo_treeview_parent_class)->move_cursor(view, step, count);
 }
-
-// Public ---------------------------------------------------------------------
-
-GtkWidget* exo_treeview_new()
-{
-    return g_object_new(TYPE_EXOTREEVIEW, NULL);
-}
-
-#endif
 
 
