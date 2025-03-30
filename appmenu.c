@@ -91,7 +91,8 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         0,
                                         N_MENU_TYPE - 1,
                                         0,
-                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
+                                        G_PARAM_CONSTRUCT_ONLY
+                                        | G_PARAM_WRITABLE));
 
     g_object_class_install_property(gobject_class,
                                     PROP_LAUNCHER,
@@ -100,7 +101,8 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         "launcher",
                                         "launcher",
                                         TYPE_LAUNCHER,
-                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
+                                        G_PARAM_CONSTRUCT_ONLY
+                                        | G_PARAM_WRITABLE));
 
     g_object_class_install_property(gobject_class,
                                     PROP_FORCE_SECTION_OPEN,
@@ -109,7 +111,8 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         "force-section-open",
                                         "force-section-open",
                                         FALSE,
-                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
+                                        G_PARAM_CONSTRUCT_ONLY
+                                        | G_PARAM_WRITABLE));
 
     g_object_class_install_property(gobject_class,
                                     PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
@@ -118,7 +121,8 @@ static void appmenu_class_init(AppMenuClass *klass)
                                         "change_directory-support-disabled",
                                         "change_directory-support-disabled",
                                         FALSE,
-                                        G_PARAM_CONSTRUCT_ONLY | G_PARAM_WRITABLE));
+                                        G_PARAM_CONSTRUCT_ONLY
+                                        | G_PARAM_WRITABLE));
 }
 
 static void appmenu_init(AppMenu *menu)
@@ -239,10 +243,11 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
                                                  force) != NULL);
 
         if (menu->type == MENU_TYPE_CONTEXT_LOCATION_BUTTONS)
-            item_added |= (launcher_append_menu_item(menu->launcher,
-                                                     GTK_MENU_SHELL(menu),
-                                                     LAUNCHER_ACTION_PASTE_INTO_FOLDER,
-                                                     force) != NULL);
+            item_added |= (launcher_append_menu_item(
+                                        menu->launcher,
+                                        GTK_MENU_SHELL(menu),
+                                        LAUNCHER_ACTION_PASTE_INTO_FOLDER,
+                                        force) != NULL);
         else
             item_added |= (launcher_append_menu_item(menu->launcher,
                                                      GTK_MENU_SHELL(menu),
@@ -257,14 +262,14 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
     {
         item_added = FALSE;
 
-        item_added |=(launcher_append_menu_item(menu->launcher,
-                                                GTK_MENU_SHELL(menu),
-                                                LAUNCHER_ACTION_MOVE_TO_TRASH,
-                                                force) != NULL);
-        item_added |=(launcher_append_menu_item(menu->launcher,
-                                                GTK_MENU_SHELL(menu),
-                                                LAUNCHER_ACTION_DELETE,
-                                                force) != NULL);
+        item_added |= (launcher_append_menu_item(menu->launcher,
+                                                 GTK_MENU_SHELL(menu),
+                                                 LAUNCHER_ACTION_MOVE_TO_TRASH,
+                                                 force) != NULL);
+        item_added |= (launcher_append_menu_item(menu->launcher,
+                                                 GTK_MENU_SHELL(menu),
+                                                 LAUNCHER_ACTION_DELETE,
+                                                 force) != NULL);
         if (item_added)
             xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }

@@ -336,8 +336,10 @@ static void treeview_init(TreeView *view)
     g_closure_sink(view->new_files_closure);
 
     view->launcher =  g_object_new(TYPE_LAUNCHER,
-                                   "widget", GTK_WIDGET(view),
-                                   "select-files-closure", view->new_files_closure,
+                                   "widget",
+                                   GTK_WIDGET(view),
+                                   "select-files-closure",
+                                   view->new_files_closure,
                                    NULL);
 
     g_signal_connect_swapped(G_OBJECT(view->launcher), "change-directory",

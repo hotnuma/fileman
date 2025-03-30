@@ -585,22 +585,15 @@ static void window_init(AppWindow *window)
     g_signal_connect_swapped(window->paned, "button-release-event",
                              G_CALLBACK(_window_save_paned), window);
 
-    // Side Treeview
+    // side view
     _window_create_sidepane(window);
 
-    // Right Grid
-    //window->view_grid = gtk_grid_new();
-    //gtk_paned_pack2(GTK_PANED(window->paned), window->view_grid, TRUE, FALSE);
-    //gtk_widget_show(window->view_grid);
-
-    // Detail View
+    // detail view
     _window_create_detailview(window);
 
-    // setup a new statusbar
+    // statusbar
     window->statusbar = statusbar_new();
     gtk_widget_set_hexpand(window->statusbar, TRUE);
-    //gtk_grid_attach(GTK_GRID(window->view_grid),
-    //  window->statusbar, 0, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(window->grid), window->statusbar, 0, 2, 1, 1);
     gtk_widget_show(window->statusbar);
 
@@ -628,7 +621,8 @@ static void window_realize(GtkWidget *widget)
     /* connect to the clipboard manager of the new display and be sure to
      * redraw the window whenever the clipboard contents change to make sure
      * we always display up2date state. */
-    window->clipboard = clipman_get_for_display(gtk_widget_get_display(widget));
+    window->clipboard = clipman_get_for_display(
+                            gtk_widget_get_display(widget));
 
     g_signal_connect_swapped(G_OBJECT(window->clipboard), "changed",
                              G_CALLBACK(gtk_widget_queue_draw), widget);
@@ -790,9 +784,10 @@ void window_set_current_directory(AppWindow *window, ThunarFile *current_directo
     if (window->current_directory != NULL)
     {
         // disconnect signals and release reference
-        g_signal_handlers_disconnect_by_func(G_OBJECT(window->current_directory),
-                                             _window_current_directory_changed,
-                                             window);
+        g_signal_handlers_disconnect_by_func(
+                                    G_OBJECT(window->current_directory),
+                                    _window_current_directory_changed,
+                                    window);
 
         g_object_unref(G_OBJECT(window->current_directory));
         window->current_directory = NULL;
@@ -980,7 +975,8 @@ static void _window_device_pre_unmount(DeviceMonitor *device_monitor,
     if (window->current_directory == NULL)
         return;
 
-    // check if the file is the current directory or an ancestor of the current directory
+    // check if the file is the current directory or an ancestor of the
+    // current directory
     if (g_file_equal(th_file_get_file(window->current_directory), root_file)
             || th_file_is_gfile_ancestor(window->current_directory, root_file))
     {
@@ -1010,7 +1006,8 @@ static void _window_device_changed(DeviceMonitor *device_monitor,
     g_object_unref(root_file);
 }
 
-static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_event,
+static gboolean _window_propagate_key_event(GtkWindow* window,
+                                            GdkEvent *key_event,
                                             gpointer user_data)
 {
     e_return_val_if_fail(IS_APPWINDOW(window), GDK_EVENT_PROPAGATE);
@@ -1026,7 +1023,8 @@ static gboolean _window_propagate_key_event(GtkWindow* window, GdkEvent *key_eve
      * only priorize GtkEditable, because that is the easiest way to
      * fix the right-ahead problem. */
     if (focused_widget != NULL && GTK_IS_EDITABLE(focused_widget))
-        return gtk_window_propagate_key_event(window,(GdkEventKey *) key_event);
+        return gtk_window_propagate_key_event(window,
+                                              (GdkEventKey*) key_event);
 
     return GDK_EVENT_PROPAGATE;
 }
@@ -1038,7 +1036,8 @@ static void _window_select_files(AppWindow *window, GList *files_to_selected)
     /* If possible, reload the current directory to make sure new files
      * got added to the view */
 
-    ThunarFolder *thunar_folder = th_folder_get_for_thfile(window->current_directory);
+    ThunarFolder *thunar_folder = th_folder_get_for_thfile(
+                                                window->current_directory);
 
     if (thunar_folder != NULL)
     {
@@ -1050,14 +1049,16 @@ static void _window_select_files(AppWindow *window, GList *files_to_selected)
 
     for (GList *lp = files_to_selected; lp != NULL; lp = lp->next)
     {
-        thunar_files = g_list_append(thunar_files, th_file_get(G_FILE(lp->data), NULL));
+        thunar_files = g_list_append(thunar_files,
+                                     th_file_get(G_FILE(lp->data), NULL));
     }
 
     baseview_set_selected_files(BASEVIEW(window->view), thunar_files);
     g_list_free_full(thunar_files, g_object_unref);
 }
 
-static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event,
+static gboolean _window_history_clicked(GtkWidget *button,
+                                        GdkEventButton *event,
                                         GtkWidget *data)
 {
     e_return_val_if_fail(IS_APPWINDOW(data), FALSE);
@@ -1066,7 +1067,8 @@ static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event
 
     if (event->button == 3)
     {
-        ThunarHistory *history = standardview_get_history(STANDARD_VIEW(window->view));
+        ThunarHistory *history =
+                standardview_get_history(STANDARD_VIEW(window->view));
 
         if (button == window->toolbar_item_back)
             history_show_menu(history, THUNARHISTORY_MENU_BACK, button);
@@ -1081,7 +1083,8 @@ static gboolean _window_history_clicked(GtkWidget *button, GdkEventButton *event
     return FALSE;
 }
 
-static gboolean _window_button_press_event(GtkWidget *view, GdkEventButton *event,
+static gboolean _window_button_press_event(GtkWidget *view,
+                                           GdkEventButton *event,
                                            AppWindow *window)
 {
     (void) view;
@@ -1133,7 +1136,8 @@ static gboolean _window_save_paned(AppWindow *window)
     e_return_val_if_fail(IS_APPWINDOW(window), FALSE);
 
     Preferences *prefs = get_preferences();
-    prefs->separator_position = gtk_paned_get_position(GTK_PANED(window->paned));
+    prefs->separator_position =
+            gtk_paned_get_position(GTK_PANED(window->paned));
 
     // for button release event
     return false;
@@ -1191,8 +1195,6 @@ static void _window_create_detailview(AppWindow *window)
     gtk_widget_set_hexpand(detail_view, TRUE);
     gtk_widget_set_vexpand(detail_view, TRUE);
 
-    //gtk_grid_attach(GTK_GRID(window->view_grid), detail_view, 0, 0, 1, 1);
-
     gtk_paned_pack2(GTK_PANED(window->paned), detail_view, TRUE, FALSE);
 
     baseview_set_show_hidden(BASEVIEW(detail_view), window->show_hidden);
@@ -1207,7 +1209,8 @@ static void _window_create_detailview(AppWindow *window)
     g_signal_connect_swapped(G_OBJECT(detail_view), "change-directory",
                              G_CALLBACK(window_set_current_directory), window);
 
-    g_object_set(G_OBJECT(detail_view), "accel-group", window->accel_group, NULL);
+    g_object_set(G_OBJECT(detail_view),
+                 "accel-group", window->accel_group, NULL);
 
     //if (window->view != NULL))
     //{
@@ -1321,21 +1324,23 @@ static void _window_notify_loading(BaseView *view, GParamSpec *pspec,
 
     (void) pspec;
 
-    GdkCursor *cursor;
-
     if (gtk_widget_get_realized(GTK_WIDGET(window))
         && window->view == GTK_WIDGET(view))
     {
         // setup the proper cursor
         if (baseview_get_loading(view))
         {
-            cursor = gdk_cursor_new_for_display(gtk_widget_get_display(GTK_WIDGET(view)), GDK_WATCH);
-            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), cursor);
+            GdkCursor *cursor = gdk_cursor_new_for_display(
+                                gtk_widget_get_display(GTK_WIDGET(view)),
+                                GDK_WATCH);
+            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)),
+                                  cursor);
             g_object_unref(cursor);
         }
         else
         {
-            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)), NULL);
+            gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(window)),
+                                  NULL);
         }
     }
 }
@@ -1425,10 +1430,12 @@ static void _window_action_go_up(AppWindow *window)
     }
     else
     {
-        // the root folder '/' has no parent. In this special case we do not need a dialog
+        // the root folder '/' has no parent. In this special case we do not
+        // need a dialog
         if (error->code != G_FILE_ERROR_NOENT)
         {
-            dialog_error(GTK_WIDGET(window), error, _("Failed to open parent folder"));
+            dialog_error(GTK_WIDGET(window),
+                         error, _("Failed to open parent folder"));
         }
 
         g_error_free(error);
@@ -1505,7 +1512,8 @@ static void _window_action_key_show_hidden(AppWindow *window)
     baseview_set_show_hidden(BASEVIEW(window->view), window->show_hidden);
 
     if (window->sidepane != NULL)
-        sidepane_set_show_hidden(SIDEPANE(window->sidepane), window->show_hidden);
+        sidepane_set_show_hidden(SIDEPANE(window->sidepane),
+                                 window->show_hidden);
 }
 
 static void _window_action_key_trash(AppWindow *window)
@@ -1545,16 +1553,7 @@ ThunarLauncher* window_get_launcher(AppWindow *window)
     return window->launcher;
 }
 
-/**
- * window_redirect_menu_tooltips_to_statusbar:
- * @window : a #AppWindow instance.
- * @menu   : #GtkMenu for which all tooltips should be shown in the statusbar
- *
- * All tooltips of the provided #GtkMenu and any submenu will not be shown directly any more.
- * Instead they will be shown in the status bar of the passed #AppWindow
- **/
-void window_redirect_tooltips(AppWindow *window,
-                                                GtkMenu *menu)
+void window_redirect_tooltips(AppWindow *window, GtkMenu *menu)
 {
     e_return_if_fail(IS_APPWINDOW(window));
     e_return_if_fail(GTK_IS_MENU(menu));
@@ -1609,7 +1608,8 @@ static void _window_menu_item_selected(AppWindow *window, GtkWidget *menu_item)
     g_free(tooltip);
 }
 
-static void _window_menu_item_deselected(AppWindow *window, GtkWidget *menu_item)
+static void _window_menu_item_deselected(AppWindow *window,
+                                         GtkWidget *menu_item)
 {
     (void) menu_item;
 
