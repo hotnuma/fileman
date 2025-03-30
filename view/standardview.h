@@ -93,8 +93,8 @@ struct _StandardViewClass
     void (*start_open_location) (StandardView *view, const gchar  *initial_text);
 
     // Appends view-specific menu items to the given menu
-    void (*append_menu_items) (StandardView *view,
-                               GtkMenu *menu, GtkAccelGroup *accel_group);
+    //void (*append_menu_items) (StandardView *view,
+    //                           GtkMenu *menu, GtkAccelGroup *accel_group);
 
     // Connects view-specific accelerators to the given accelGroup
     void (*connect_accelerators) (StandardView *view, GtkAccelGroup *accel_group);

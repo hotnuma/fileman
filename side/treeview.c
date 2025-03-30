@@ -938,13 +938,16 @@ static gboolean treeview_button_press_event(GtkWidget *widget,
         return result;
 
     // resolve the path at the cursor position
-    if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget), event->x, event->y, &path, &column, NULL, NULL))
+    if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
+                                      event->x, event->y,
+                                      &path, &column, NULL, NULL))
     {
         // check if we should popup the context menu
         if (event->button == 3)
         {
             // determine the iterator for the path
-            if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
+            if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model),
+                                        &iter, path))
             {
                 // popup the context menu
                 _treeview_context_menu(view, GTK_TREE_MODEL(view->model), &iter);

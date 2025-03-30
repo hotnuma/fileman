@@ -64,9 +64,6 @@ static gboolean detailview_get_visible_range(StandardView *standard_view,
                                              GtkTreePath **end_path);
 static void detailview_highlight_path(StandardView *standard_view,
                                       GtkTreePath *path);
-static void detailview_append_menu_items(StandardView *standard_view,
-                                         GtkMenu *menu,
-                                         GtkAccelGroup *accel_group);
 static void detailview_connect_accelerators(StandardView *standard_view,
                                             GtkAccelGroup *accel_group);
 static void detailview_disconnect_accelerators(StandardView *standard_view,
@@ -173,10 +170,11 @@ static void detailview_class_init(DetailViewClass *klass)
     standardview_class->get_path_at_pos = detailview_get_path_at_pos;
     standardview_class->get_visible_range = detailview_get_visible_range;
     standardview_class->highlight_path = detailview_highlight_path;
-    standardview_class->append_menu_items = detailview_append_menu_items;
     standardview_class->connect_accelerators = detailview_connect_accelerators;
     standardview_class->disconnect_accelerators = detailview_disconnect_accelerators;
     standardview_class->zoom_level_property_name = "last-details-view-zoom-level";
+
+    //standardview_class->append_menu_items = detailview_append_menu_items;
 
     xfce_gtk_translate_action_entries(_detailview_actions,
                                       G_N_ELEMENTS(_detailview_actions));
@@ -630,25 +628,6 @@ static void detailview_highlight_path(StandardView *standard_view,
 {
     e_return_if_fail(IS_DETAILVIEW(standard_view));
     gtk_tree_view_set_drag_dest_row(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), path, GTK_TREE_VIEW_DROP_INTO_OR_AFTER);
-}
-
-static void detailview_append_menu_items(StandardView  *standard_view,
-                                         GtkMenu       *menu,
-                                         GtkAccelGroup *accel_group)
-{
-    (void) standard_view;
-    (void) menu;
-    (void) accel_group;
-
-    #ifdef WITH_CONFIGURE_COLUMNS
-    DetailView *details_view = DETAILVIEW(standard_view);
-    e_return_if_fail(IS_DETAILVIEW(details_view));
-
-    xfce_gtk_menu_item_new_from_action_entry(
-                get_action_entry(DETAILVIEW_ACTION_CONFIGURE_COLUMNS),
-                G_OBJECT(details_view),
-                GTK_MENU_SHELL(menu));
-    #endif
 }
 
 /**

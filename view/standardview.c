@@ -138,21 +138,6 @@ static void _standardview_error(ListModel *model, const GError *error,
 static void _standardview_update_statusbar_text(StandardView *view);
 static gboolean _standardview_update_statusbar_text_idle(gpointer data);
 
-// ----------------------------------------------------------------------------
-
-#if WITH_CONFIGURE_COLUMNS
-// standardview_context_menu
-static void _standardview_append_menu_items(StandardView *view, GtkMenu *menu,
-                                            GtkAccelGroup *accel_group);
-#endif
-
-// standardview_popup_timer
-//static gboolean _popup_timer(gpointer user_data);
-//static void _popup_timer_destroy(gpointer user_data);
-//static gboolean _on_button_release_event(GtkWidget *widget,
-//                                         GdkEventButton *event,
-//                                         StandardView *view);
-
 // Actions --------------------------------------------------------------------
 
 static void _standardview_select_all_files(BaseView *baseview);
@@ -2136,11 +2121,10 @@ void standardview_context_menu(StandardView *view,
 
     e_return_if_fail(IS_STANDARD_VIEW(view));
 
-    // grab an additional reference on the view
     g_object_ref(G_OBJECT(view));
 
-    GList *selected_items;
-    selected_items = STANDARD_VIEW_GET_CLASS(view)->get_selected_items(view);
+    StandardViewClass *klass = STANDARD_VIEW_GET_CLASS(view);
+    GList *selected_items = klass->get_selected_items(view);
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
@@ -2174,11 +2158,6 @@ void standardview_context_menu(StandardView *view,
                              | MENU_SECTION_EMPTY_TRASH
                              | MENU_SECTION_TERMINAL);
 
-        #ifdef WITH_CONFIGURE_COLUMNS
-        _standardview_append_menu_items(view, GTK_MENU(context_menu), NULL);
-        xfce_gtk_menu_append_separator(GTK_MENU_SHELL(context_menu));
-        #endif
-
         appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
     }
 
@@ -2186,123 +2165,12 @@ void standardview_context_menu(StandardView *view,
     gtk_widget_show_all(GTK_WIDGET(context_menu));
     window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
 
-    // if there is a drag_timer_event (long press), we use it
-    //if (view->priv->popup_timer_event)
-    //{
-    //    etk_menu_run_at_event(GTK_MENU(context_menu),
-    //                          view->priv->popup_timer_event);
-
-    //    gdk_event_free(view->priv->popup_timer_event);
-    //    view->priv->popup_timer_event = NULL;
-    //}
-    //else
-    //{
-    //    etk_menu_run(GTK_MENU(context_menu));
-    //}
-
     etk_menu_run(GTK_MENU(context_menu));
 
     g_list_free_full(selected_items,(GDestroyNotify) gtk_tree_path_free);
 
-    // release the additional reference on the view
     g_object_unref(G_OBJECT(view));
 }
-
-#ifdef WITH_CONFIGURE_COLUMNS
-static void _standardview_append_menu_items(StandardView *view,
-                                            GtkMenu *menu,
-                                            GtkAccelGroup *accel_group)
-{
-    e_return_if_fail(IS_STANDARD_VIEW(view));
-
-    STANDARD_VIEW_GET_CLASS(view)->append_menu_items(view, menu, accel_group);
-}
-#endif
-
-/* Schedules a context menu popup in response to a right-click button event.
- * Right-click events need to be handled in a special way, as the user may
- * also start a drag using the right mouse button and therefore this function
- * schedules a timer, which - once expired - opens the context menu.
- * If the user moves the mouse prior to expiration, a right-click drag
- * with GDK_ACTION_ASK, will be started instead. */
-//void standardview_popup_timer(StandardView *view, GdkEventButton *event)
-//{
-//    e_return_if_fail(IS_STANDARD_VIEW(view));
-//    e_return_if_fail(event != NULL);
-
-//    // check if we have already scheduled a drag timer
-//    if (view->priv->popup_timer_id)
-//        return;
-
-//    // figure out the real view
-//    GtkWidget *child = gtk_bin_get_child(GTK_BIN(view));
-
-//    /* we use the menu popup delay here, note that we only use this to
-//     * allow higher values! see bug #3549 */
-
-//    GtkSettings *settings;
-//    settings = gtk_settings_get_for_screen(gtk_widget_get_screen(child));
-
-//    gint delay;
-//    g_object_get(G_OBJECT(settings), "gtk-menu-popup-delay", &delay, NULL);
-
-//    // schedule the timer
-//    view->priv->popup_timer_id =
-//        g_timeout_add_full(G_PRIORITY_LOW,
-//                           MAX(225, delay),
-//                           _popup_timer,
-//                           view,
-//                           _popup_timer_destroy);
-
-//    // store current event data
-//    view->priv->popup_timer_event = gtk_get_current_event();
-
-//    // register the motion notify and the button release events on the real view
-//    g_signal_connect(G_OBJECT(child), "button-release-event",
-//                     G_CALLBACK(_on_button_release_event), view);
-//}
-
-//static gboolean _popup_timer(gpointer user_data)
-//{
-//    StandardView *view = STANDARD_VIEW(user_data);
-
-//    // fire up the context menu
-//    UTIL_THREADS_ENTER;
-
-//    standardview_context_menu(view, false);
-
-//    UTIL_THREADS_LEAVE;
-
-//    return false;
-//}
-
-//static void _popup_timer_destroy(gpointer user_data)
-//{
-//    // unregister event handlers (thread-safe)
-//    g_signal_handlers_disconnect_by_func(gtk_bin_get_child(GTK_BIN(user_data)),
-//                                         _on_button_release_event, user_data);
-
-//    // reset the drag timer source id
-//    STANDARD_VIEW(user_data)->priv->popup_timer_id = 0;
-//}
-
-//static gboolean _on_button_release_event(GtkWidget *widget,
-//                                         GdkEventButton *event,
-//                                         StandardView *view)
-//{
-//    (void) widget;
-//    (void) event;
-
-//    e_return_val_if_fail(IS_STANDARD_VIEW(view), false);
-//    e_return_val_if_fail(view->priv->popup_timer_id != 0, false);
-
-//    // cancel the pending drag timer
-//    g_source_remove(view->priv->popup_timer_id);
-
-//    standardview_context_menu(view, false);
-
-//    return true;
-//}
 
 // Actions --------------------------------------------------------------------
 
