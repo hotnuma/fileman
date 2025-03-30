@@ -297,10 +297,6 @@ struct _StandardViewPrivate
     ThunarHistory *history;
     ThunarZoomLevel zoom_level;
 
-    // popup with timer
-    //guint       popup_timer_id;
-    //GdkEvent    *popup_timer_event;
-
     // status text
     gchar       *statusbar_text;
     guint       statusbar_text_idle_id;
@@ -609,11 +605,8 @@ static GObject* standardview_constructor(GType type, guint n_props,
                                          GObjectConstructParam *props)
 {
     // let the GObject constructor create the instance
-    GObject *object;
-    object = G_OBJECT_CLASS(standardview_parent_class)->constructor(type,
-                                                                    n_props,
-                                                                    props);
-    // cast to standard_view for convenience
+    GObjectClass *klass = G_OBJECT_CLASS(standardview_parent_class);
+    GObject *object = klass->constructor(type, n_props, props);
     StandardView *view = STANDARD_VIEW(object);
 
     ThunarZoomLevel zoom_level = THUNAR_ZOOM_LEVEL_25_PERCENT;
@@ -700,17 +693,6 @@ static void standardview_dispose(GObject *object)
     // be sure to cancel any pending drag autoscroll timer
     if (view->priv->drag_scroll_timer_id != 0)
         g_source_remove(view->priv->drag_scroll_timer_id);
-
-    // be sure to cancel any pending drag timer
-    //if (view->priv->popup_timer_id)
-    //    g_source_remove(view->priv->popup_timer_id);
-
-    // be sure to free any pending drag timer event
-    //if (view->priv->popup_timer_event)
-    //{
-    //    gdk_event_free(view->priv->popup_timer_event);
-    //    view->priv->popup_timer_event = NULL;
-    //}
 
     // disconnect from file
     if (view->priv->current_directory != NULL)
@@ -2128,7 +2110,7 @@ void standardview_context_menu(StandardView *view,
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(view));
 
-    AppMenu *context_menu = g_object_new(
+    AppMenu *menu = g_object_new(
                         TYPE_APPMENU,
                         "menu-type", MENU_TYPE_CONTEXT_STANDARD_VIEW,
                         "launcher", window_get_launcher(APPWINDOW(window)),
@@ -2136,7 +2118,7 @@ void standardview_context_menu(StandardView *view,
 
     if (selected_items && !empty_area)
     {
-        appmenu_add_sections(context_menu,
+        appmenu_add_sections(menu,
                              MENU_SECTION_OPEN
                              | MENU_SECTION_CUT
                              | MENU_SECTION_COPY_PASTE
@@ -2152,20 +2134,20 @@ void standardview_context_menu(StandardView *view,
     // right click on some empty space
     else
     {
-        appmenu_add_sections(context_menu,
+        appmenu_add_sections(menu,
                              MENU_SECTION_CREATE_NEW_FILES
                              | MENU_SECTION_COPY_PASTE
                              | MENU_SECTION_EMPTY_TRASH
                              | MENU_SECTION_TERMINAL);
 
-        appmenu_add_sections(context_menu, MENU_SECTION_PROPERTIES);
+        appmenu_add_sections(menu, MENU_SECTION_PROPERTIES);
     }
 
-    appmenu_hide_accel_labels(context_menu);
-    gtk_widget_show_all(GTK_WIDGET(context_menu));
-    window_redirect_tooltips(APPWINDOW(window), GTK_MENU(context_menu));
+    appmenu_hide_accel_labels(menu);
+    gtk_widget_show_all(GTK_WIDGET(menu));
+    window_redirect_tooltips(APPWINDOW(window), GTK_MENU(menu));
 
-    etk_menu_run(GTK_MENU(context_menu));
+    etk_menu_run(GTK_MENU(menu));
 
     g_list_free_full(selected_items,(GDestroyNotify) gtk_tree_path_free);
 
