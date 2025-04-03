@@ -225,19 +225,22 @@ static void detailview_init(DetailView *details_view)
     details_view->column_model = colmodel_get_default();
     g_signal_connect(G_OBJECT(details_view->column_model), "columns-changed",
                      G_CALLBACK(_detailview_columns_changed), details_view);
-    g_signal_connect_after(G_OBJECT(STANDARD_VIEW(details_view)->model), "row-changed",
-                            G_CALLBACK(_detailview_row_changed), details_view);
+    g_signal_connect_after(G_OBJECT(STANDARD_VIEW(details_view)->model),
+                           "row-changed",
+                           G_CALLBACK(_detailview_row_changed), details_view);
 
     // allocate the shared right-aligned text renderer
-    GtkCellRenderer *right_aligned_renderer = g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
-                                                           "xalign", 1.0f,
-                                                           NULL);
+    GtkCellRenderer *right_aligned_renderer =
+                            g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
+                                         "xalign", 1.0f,
+                                         NULL);
     g_object_ref_sink(G_OBJECT(right_aligned_renderer));
 
     // allocate the shared left-aligned text renderer
-    GtkCellRenderer *left_aligned_renderer = g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
-                                                          "xalign", 0.0f,
-                                                          NULL);
+    GtkCellRenderer *left_aligned_renderer =
+                            g_object_new(GTK_TYPE_CELL_RENDERER_TEXT,
+                                         "xalign", 0.0f,
+                                         NULL);
     g_object_ref_sink(G_OBJECT(left_aligned_renderer));
 
     // allocate the tree view columns
@@ -252,10 +255,13 @@ static void detailview_init(DetailView *details_view)
         gtk_tree_view_column_set_resizable(tvcol, TRUE);
         //gtk_tree_view_column_set_sizing(tvcol, GTK_TREE_VIEW_COLUMN_FIXED);
         gtk_tree_view_column_set_sort_column_id(tvcol, column);
-        gtk_tree_view_column_set_title(tvcol, colmodel_get_column_name(details_view->column_model, column));
+        gtk_tree_view_column_set_title(
+                tvcol,
+                colmodel_get_column_name(details_view->column_model, column));
 
         // stay informed whenever the width of the column is changed
-        g_signal_connect(G_OBJECT(details_view->columns[column]), "notify::width",
+        g_signal_connect(G_OBJECT(details_view->columns[column]),
+                         "notify::width",
                          G_CALLBACK(_detailview_notify_width), details_view);
 
         // name column gets special renderers
@@ -782,7 +788,8 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
     }
 
     // right click
-    if (event->type == GDK_BUTTON_PRESS && event->button == 3)
+    if (event->type == GDK_BUTTON_PRESS
+        && event->button == GDK_BUTTON_SECONDARY)
     {
         // FOCUS
         gtk_widget_grab_focus(GTK_WIDGET(tree_view));
@@ -800,9 +807,6 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
                 // if the clicked path is not selected, unselect all other paths
                 if (!gtk_tree_selection_path_is_selected(selection, path))
                     gtk_tree_selection_unselect_all(selection);
-
-                // queue the menu popup
-                //standardview_popup_timer(STANDARD_VIEW(details_view), event);
 
                 // show the context menu
                 standardview_context_menu(STANDARD_VIEW(details_view),
@@ -825,10 +829,10 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
             gtk_tree_path_free(path);
         }
 
-        return TRUE;
+        return GDK_EVENT_STOP;
     }
 
-    return FALSE;
+    return GDK_EVENT_PROPAGATE;
 }
 
 static gboolean _detailview_key_press_event(GtkTreeView *tree_view,
