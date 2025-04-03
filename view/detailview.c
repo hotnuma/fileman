@@ -386,7 +386,8 @@ static void detailview_set_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_FIXED_COLUMNS:
-        _detailview_set_fixed_columns(details_view, g_value_get_boolean(value));
+        _detailview_set_fixed_columns(details_view,
+                                      g_value_get_boolean(value));
         break;
 
     default:
@@ -446,8 +447,6 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
             // reset column to grow-only mode
             gtk_tree_view_column_set_sizing(details_view->columns[column],
                                             GTK_TREE_VIEW_COLUMN_GROW_ONLY);
-            //gtk_tree_view_column_set_sizing(details_view->columns[column],
-            //                                GTK_TREE_VIEW_COLUMN_FIXED);
         }
     }
 
