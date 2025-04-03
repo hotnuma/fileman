@@ -723,7 +723,7 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
 {
     // check if the event is for the bin window
     if (event->window != gtk_tree_view_get_bin_window(tree_view))
-        return FALSE;
+        return GDK_EVENT_PROPAGATE;
 
     // get the current selection
     GtkTreeSelection  *selection;
@@ -851,10 +851,10 @@ static gboolean _detailview_key_press_event(GtkTreeView *tree_view,
                                   (GdkEvent*) event,
                                   false);
 
-        return TRUE;
+        return GDK_EVENT_STOP;
     }
 
-    return FALSE;
+    return GDK_EVENT_PROPAGATE;
 }
 
 static void _detailview_row_activated(GtkTreeView *tree_view,
