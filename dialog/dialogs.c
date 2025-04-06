@@ -764,47 +764,29 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
                                          ThunarFile *src_file,
                                          ThunarFile *dst_file)
 {
-    IconFactory *icon_factory;
-    GtkIconTheme      *icon_theme;
-    GtkWidget         *dialog;
-    GtkWidget         *grid;
-    GtkWidget         *image;
-    GtkWidget         *label;
-    GtkWidget         *content_area;
-    GtkWidget         *cancel_button;
-    GtkWidget         *button_box;
-    GtkWidget         *skipall_button;
-    GtkWidget         *skip_button;
-    GtkWidget         *replaceall_button;
-    GtkWidget         *replace_button;
-    GtkWidget         *renameall_button;
-    GtkWidget         *rename_button;
-    GdkPixbuf         *icon;
-    gchar             *date_string;
-    gchar             *size_string;
-    gchar             *text;
-    gint               response;
-
     e_return_val_if_fail(parent == NULL || GTK_IS_WINDOW(parent),
                          THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(IS_THUNARFILE(src_file), THUNAR_JOB_RESPONSE_CANCEL);
     e_return_val_if_fail(IS_THUNARFILE(dst_file), THUNAR_JOB_RESPONSE_CANCEL);
 
     // setup the confirmation dialog
-    dialog = gtk_dialog_new();
+    GtkWidget *dialog = gtk_dialog_new();
     gtk_window_set_title(GTK_WINDOW(dialog), _("Confirm to replace files"));
     gtk_window_set_transient_for(GTK_WINDOW(dialog), parent);
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog),
                                     THUNAR_JOB_RESPONSE_REPLACE);
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
     // determine the icon factory to use
-    icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(dialog));
-    icon_factory = iconfact_get_for_icon_theme(icon_theme);
+    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
+                                        gtk_widget_get_screen(dialog));
 
-    grid = gtk_grid_new();
+    IconFactory *icon_factory = iconfact_get_for_icon_theme(icon_theme);
+
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
+    GtkWidget *grid = gtk_grid_new();
     gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
     gtk_grid_set_row_spacing(GTK_GRID(grid), 6);
     gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
@@ -812,80 +794,93 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
     gtk_widget_show(grid);
 
     // set up the action area buttons ourself
-    button_box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
+    GtkWidget *button_box = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 
-    cancel_button     = gtk_button_new_with_mnemonic(_("_Cancel"));
-    skipall_button    = gtk_button_new_with_mnemonic(_("S_kip All"));
-    skip_button       = gtk_button_new_with_mnemonic(_("_Skip"));
-    replaceall_button = gtk_button_new_with_mnemonic(_("Replace _All"));
-    replace_button    = gtk_button_new_with_mnemonic(_("_Replace"));
-    renameall_button  = gtk_button_new_with_mnemonic(_("Rena_me All"));
-    rename_button     = gtk_button_new_with_mnemonic(_("Re_name"));
+    GtkWidget *widget = NULL;
 
-    g_signal_connect(cancel_button,
+    // cancel
+    widget = gtk_button_new_with_mnemonic(_("_Cancel"));
+    g_signal_connect(widget,
                      "clicked",
                      G_CALLBACK(_dialog_job_ask_replace_callback),
                      dialog);
-    g_signal_connect(skipall_button,
-                     "clicked",
-                     G_CALLBACK(_dialog_job_ask_replace_callback),
-                     dialog);
-    g_signal_connect(skip_button,
-                     "clicked",
-                     G_CALLBACK(_dialog_job_ask_replace_callback),
-                     dialog);
-    g_signal_connect(replaceall_button,
-                     "clicked",
-                     G_CALLBACK(_dialog_job_ask_replace_callback),
-                     dialog);
-    g_signal_connect(replace_button,
-                     "clicked",
-                     G_CALLBACK(_dialog_job_ask_replace_callback),
-                     dialog);
-    g_signal_connect(renameall_button,
-                     "clicked",
-                     G_CALLBACK(_dialog_job_ask_replace_callback),
-                     dialog);
-    g_signal_connect(rename_button,
-                     "clicked",
-                     G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
-
-    g_object_set_data(G_OBJECT(cancel_button),
+    g_object_set_data(G_OBJECT(widget),
                       "response-id",
                       GINT_TO_POINTER(GTK_RESPONSE_CANCEL));
-    g_object_set_data(G_OBJECT(skipall_button),
-                      "response-id",
-                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP_ALL));
-    g_object_set_data(G_OBJECT(skip_button),
+    gtk_container_add(GTK_CONTAINER(button_box), widget);
+
+    // skip
+    widget = gtk_button_new_with_mnemonic(_("_Skip"));
+    g_signal_connect(widget,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_object_set_data(G_OBJECT(widget),
                       "response-id",
                       GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP));
-    g_object_set_data(G_OBJECT(replaceall_button),
+    gtk_container_add(GTK_CONTAINER(button_box), widget);
+
+    // skip all
+    widget = gtk_button_new_with_mnemonic(_("S_kip All"));
+    g_signal_connect(widget,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_object_set_data(G_OBJECT(widget),
                       "response-id",
-                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_REPLACE_ALL));
-    g_object_set_data(G_OBJECT(replace_button),
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_SKIP_ALL));
+    gtk_container_add(GTK_CONTAINER(button_box), widget);
+
+    // replace
+    widget = gtk_button_new_with_mnemonic(_("_Replace"));
+    g_signal_connect(widget,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_object_set_data(G_OBJECT(widget),
                       "response-id",
                       GINT_TO_POINTER(THUNAR_JOB_RESPONSE_REPLACE));
-    g_object_set_data(G_OBJECT(renameall_button),
+    gtk_container_add(GTK_CONTAINER(button_box), widget);
+
+    // replace all
+    widget = gtk_button_new_with_mnemonic(_("Replace _All"));
+    g_signal_connect(widget,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_object_set_data(G_OBJECT(widget),
                       "response-id",
-                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_RENAME_ALL));
-    g_object_set_data(G_OBJECT(rename_button),
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_REPLACE_ALL));
+    gtk_container_add(GTK_CONTAINER(button_box), widget);
+
+    // rename
+    widget = gtk_button_new_with_mnemonic(_("Re_name"));
+    g_signal_connect(widget,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback), dialog);
+    g_object_set_data(G_OBJECT(widget),
                       "response-id",
                       GINT_TO_POINTER(THUNAR_JOB_RESPONSE_RENAME));
+    gtk_container_add(GTK_CONTAINER(button_box), widget);
 
-    gtk_container_add(GTK_CONTAINER(button_box), cancel_button);
-    gtk_container_add(GTK_CONTAINER(button_box), skipall_button);
-    gtk_container_add(GTK_CONTAINER(button_box), skip_button);
-    gtk_container_add(GTK_CONTAINER(button_box), replaceall_button);
-    gtk_container_add(GTK_CONTAINER(button_box), replace_button);
-    gtk_container_add(GTK_CONTAINER(button_box), renameall_button);
-    gtk_container_add(GTK_CONTAINER(button_box), rename_button);
+    // rename all
+    widget = gtk_button_new_with_mnemonic(_("Rena_me All"));
+    g_signal_connect(widget,
+                     "clicked",
+                     G_CALLBACK(_dialog_job_ask_replace_callback),
+                     dialog);
+    g_object_set_data(G_OBJECT(widget),
+                      "response-id",
+                      GINT_TO_POINTER(THUNAR_JOB_RESPONSE_RENAME_ALL));
+    gtk_container_add(GTK_CONTAINER(button_box), widget);
+
     gtk_container_add(GTK_CONTAINER(content_area), button_box);
     gtk_widget_set_halign(button_box, GTK_ALIGN_CENTER);
     gtk_box_set_spacing(GTK_BOX(button_box), 5);
     gtk_widget_show_all(button_box);
 
-    image = gtk_image_new_from_icon_name("stock_folder-copy",
-                                         GTK_ICON_SIZE_BUTTON);
+    GtkWidget *image = gtk_image_new_from_icon_name("stock_folder-copy",
+                                                    GTK_ICON_SIZE_BUTTON);
     gtk_widget_set_halign(image, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(image, GTK_ALIGN_START);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
@@ -895,6 +890,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
     gtk_widget_set_vexpand(image, TRUE);
     gtk_grid_attach(GTK_GRID(grid), image, 0, 0, 1, 1);
     gtk_widget_show(image);
+
+    gchar *text;
 
     if (th_file_is_symlink(dst_file))
     {
@@ -914,6 +911,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
                                  " \"%s\"."),
                                 th_file_get_display_name(dst_file));
     }
+
+    GtkWidget *label = NULL;
 
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
@@ -942,8 +941,10 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
     gtk_widget_show(label);
     g_free(text);
 
-    icon = iconfact_load_file_icon(icon_factory,
-                                   dst_file, FILE_ICON_STATE_DEFAULT, 48);
+    GdkPixbuf *icon = iconfact_load_file_icon(icon_factory,
+                                              dst_file,
+                                              FILE_ICON_STATE_DEFAULT, 48);
+
     image = gtk_image_new_from_pixbuf(icon);
     gtk_widget_set_margin_start(GTK_WIDGET(image), 6);
     gtk_widget_set_margin_end(GTK_WIDGET(image), 6);
@@ -959,13 +960,18 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
     gchar *date_custom_style = NULL;
     gboolean file_size_binary = TRUE;
 
-    size_string = th_file_get_size_string_long(dst_file, file_size_binary);
-    date_string = th_file_get_date_string(dst_file,
-                                          FILE_DATE_MODIFIED,
-                                          date_style, date_custom_style);
+    gchar *size_string = th_file_get_size_string_long(dst_file,
+                                                      file_size_binary);
+
+    gchar *date_string = th_file_get_date_string(dst_file,
+                                                 FILE_DATE_MODIFIED,
+                                                 date_style,
+                                                 date_custom_style);
+
     text = g_strdup_printf("%s %s\n%s %s",
                            _("Size:"), size_string,
                            _("Modified:"), date_string);
+
     label = gtk_label_new(text);
     gtk_label_set_xalign(GTK_LABEL(label), 0.0f);
     gtk_widget_set_hexpand(label, TRUE);
@@ -1019,7 +1025,8 @@ ThunarJobResponse dialog_job_ask_replace(GtkWindow *parent,
     g_free(text);
 
     // run the dialog
-    response = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
 
     // cleanup
