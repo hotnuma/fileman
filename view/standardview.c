@@ -2147,7 +2147,7 @@ void standardview_context_menu(StandardView *view,
     gtk_widget_show_all(GTK_WIDGET(menu));
     window_redirect_tooltips(APPWINDOW(window), GTK_MENU(menu));
 
-    etk_menu_run(GTK_MENU(menu));
+    etk_menu_run(GTK_MENU(menu), GTK_WIDGET(view));
 
     g_list_free_full(selected_items,(GDestroyNotify) gtk_tree_path_free);
 

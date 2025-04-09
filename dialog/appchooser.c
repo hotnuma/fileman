@@ -758,7 +758,7 @@ static gboolean _appchooser_context_menu(AppChooserDialog *dialog)
     gtk_widget_show(item);
 
     // run the menu(takes over the floating of menu)
-    etk_menu_run(GTK_MENU(menu));
+    etk_menu_run(GTK_MENU(menu), NULL);
 
     // clean up
     g_object_unref(app_info);

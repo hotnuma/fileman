@@ -21,7 +21,9 @@
 
 #include "utils.h"
 
-static void _etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event);
+static void _etk_menu_run_at_event(GtkMenu *menu,
+                                   GdkEvent *event, GtkWidget *widget);
+static void _etk_create_popup_rect (GdkWindow *window, GdkRectangle *rect);
 
 GMountOperation* etk_mount_operation_new(gpointer parent)
 {
@@ -51,15 +53,6 @@ GtkWidget* etk_get_focused_widget()
     return gtk_window_get_focus(window);
 }
 
-/**
- * etk_widget_set_tooltip:
- * @widget : a #GtkWidget for which to set the tooltip.
- * @format : a printf(3)-style format string.
- * @...    : additional arguments for @format.
- *
- * Sets the tooltip for the @widget to a string generated
- * from the @format and the additional arguments in @...<!--->.
- **/
 void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
 {
     va_list  var_args;
@@ -80,74 +73,46 @@ void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
     g_free(tooltip);
 }
 
-/**
- * thunar_gtk_editable_can_cut:
- *
- * Return value: TRUE if it's possible to cut text off of a GtkEditable.
- *               FALSE, otherwise.
- **/
 gboolean etk_editable_can_cut(GtkEditable *editable)
 {
     return gtk_editable_get_editable(editable)
            && etk_editable_can_copy(editable);
 }
 
-/**
- * thunar_gtk_editable_can_copy:
- *
- * Return value: TRUE if it's possible to copy text from a GtkEditable.
- *               FALSE, otherwise.
- **/
 gboolean etk_editable_can_copy(GtkEditable *editable)
 {
     return gtk_editable_get_selection_bounds(editable, NULL,NULL);
 }
 
-/**
- * thunar_gtk_editable_can_paste:
- *
- * Return value: TRUE if it's possible to paste text to a GtkEditable.
- *               FALSE, otherwise.
- **/
 gboolean etk_editable_can_paste(GtkEditable *editable)
 {
     return gtk_editable_get_editable(editable);
 }
 
-/**
- * thunar_gtk_label_set_a11y_relation:
- * @label  : a #GtkLabel.
- * @widget : a #GtkWidget.
- *
- * Sets the %ATK_RELATION_LABEL_FOR relation on @label for @widget, which means
- * accessiblity tools will identify @label as descriptive item for the specified
- * @widget.
- **/
 void etk_label_set_a11y_relation(GtkLabel  *label, GtkWidget *widget)
 {
-    AtkRelationSet *relations;
-    AtkRelation    *relation;
-    AtkObject      *object;
-
     e_return_if_fail(GTK_IS_WIDGET(widget));
     e_return_if_fail(GTK_IS_LABEL(label));
 
-    object = gtk_widget_get_accessible(widget);
-    relations = atk_object_ref_relation_set(gtk_widget_get_accessible(GTK_WIDGET(label)));
-    relation = atk_relation_new(&object, 1, ATK_RELATION_LABEL_FOR);
+    AtkObject *object = gtk_widget_get_accessible(widget);
+    AtkRelationSet *relations = atk_object_ref_relation_set(
+                            gtk_widget_get_accessible(GTK_WIDGET(label)));
+    AtkRelation *relation = atk_relation_new(&object,
+                                             1, ATK_RELATION_LABEL_FOR);
     atk_relation_set_add(relations, relation);
     g_object_unref(G_OBJECT(relation));
 }
 
 #if GTK_CHECK_VERSION(3, 24, 8)
-static void _moved_to_rect_cb(GdkWindow          *window,
+static void _moved_to_rect_cb(GdkWindow *window,
                              const GdkRectangle *flipped_rect,
                              const GdkRectangle *final_rect,
-                             gboolean            flipped_x,
-                             gboolean            flipped_y,
-                             GtkMenu            *menu)
+                             gboolean flipped_x,
+                             gboolean flipped_y,
+                             GtkMenu *menu)
 {
-    g_signal_emit_by_name(menu, "popped-up", 0, flipped_rect, final_rect, flipped_x, flipped_y);
+    g_signal_emit_by_name(menu, "popped-up", 0,
+                          flipped_rect, final_rect, flipped_x, flipped_y);
     g_signal_stop_emission_by_name(window, "moved-to-rect");
 }
 
@@ -155,39 +120,22 @@ static void _popup_menu_realized(GtkWidget *menu, gpointer   user_data)
 {
     (void) user_data;
     GdkWindow *toplevel = gtk_widget_get_window(gtk_widget_get_toplevel(menu));
-    g_signal_handlers_disconnect_by_func(toplevel, _moved_to_rect_cb, menu);
-    g_signal_connect(toplevel, "moved-to-rect", G_CALLBACK(_moved_to_rect_cb), menu);
+    g_signal_handlers_disconnect_by_func(toplevel,
+                                         _moved_to_rect_cb, menu);
+    g_signal_connect(toplevel, "moved-to-rect",
+                     G_CALLBACK(_moved_to_rect_cb), menu);
 }
 #endif
 
-/**
- * thunar_gtk_menu_run:
- * @menu : a #GtkMenu.
- *
- * Conveniance wrapper for thunar_gtk_menu_run_at_event_pointer, to run a menu for the current event
- **/
-void etk_menu_run(GtkMenu *menu)
+void etk_menu_run(GtkMenu *menu, GtkWidget *widget)
 {
     GdkEvent *event = gtk_get_current_event();
-    _etk_menu_run_at_event(menu, event);
+    _etk_menu_run_at_event(menu, event, widget);
     gdk_event_free(event);
 }
 
-/**
- * thunar_gtk_menu_run_at_event:
- * @menu  : a #GtkMenu.
- * @event : a #GdkEvent which may be NULL if no previous event was stored.
- *
- * A simple wrapper around gtk_menu_popup_at_pointer(), which runs the @menu in a separate
- * main loop and returns only after the @menu was deactivated.
- *
- * This method automatically takes over the floating reference of @menu if any and
- * releases it on return. That means if you created the menu via gtk_menu_new() you'll
- * not need to take care of destroying the menu later.
- *
- **/
-
-static void _etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
+static void _etk_menu_run_at_event(GtkMenu *menu,
+                                   GdkEvent *event, GtkWidget *widget)
 {
     GMainLoop *loop;
     gulong     signal_id;
@@ -199,7 +147,8 @@ static void _etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 
     // run an internal main loop
     loop = g_main_loop_new(NULL, FALSE);
-    signal_id = g_signal_connect_swapped(G_OBJECT(menu), "deactivate", G_CALLBACK(g_main_loop_quit), loop);
+    signal_id = g_signal_connect_swapped(G_OBJECT(menu), "deactivate",
+                                         G_CALLBACK(g_main_loop_quit), loop);
 
 #if GTK_CHECK_VERSION(3, 24, 8)
     // Workaround for incorrect popup menus size
@@ -208,8 +157,25 @@ static void _etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
     gtk_widget_realize(GTK_WIDGET(menu));
 #endif
 
-    gtk_menu_popup_at_pointer(menu, event);
-    gtk_menu_reposition(menu);
+    if (!widget)
+    {
+        gtk_menu_popup_at_pointer(menu, event);
+        gtk_menu_reposition(menu);
+    }
+    else
+    {
+        GdkWindow *window = gtk_widget_get_window(gtk_widget_get_toplevel(widget));
+
+        GdkRectangle rect;
+        _etk_create_popup_rect(window, &rect);
+        gtk_menu_popup_at_rect (menu,
+                               window,
+                               &rect,
+                               GDK_GRAVITY_NORTH_WEST,
+                               GDK_GRAVITY_NORTH_WEST,
+                               NULL);
+    }
+
     gtk_grab_add(GTK_WIDGET(menu));
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
@@ -219,6 +185,28 @@ static void _etk_menu_run_at_event(GtkMenu *menu, GdkEvent *event)
 
     // release the menu reference
     g_object_unref(G_OBJECT(menu));
+}
+
+static void _etk_create_popup_rect(GdkWindow *window, GdkRectangle *rect)
+{
+    GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+
+    if (!seat)
+        return;
+
+    GdkDevice *device = gdk_seat_get_pointer(seat);
+
+    if (!device)
+        return;
+
+    gint x;
+    gint y;
+
+    gdk_window_get_device_position(window, device, &x, &y, NULL);
+    rect->x = x;
+    rect->y = y;
+    rect->width = 2;
+    rect->height = 2;
 }
 
 

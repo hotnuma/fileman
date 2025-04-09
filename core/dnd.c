@@ -169,7 +169,7 @@ GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
     gtk_widget_show(item);
 
     // run the menu(takes over the floating of menu)
-    etk_menu_run(GTK_MENU(menu));
+    etk_menu_run(GTK_MENU(menu), NULL);
 
     // cleanup
     //g_object_unref(G_OBJECT(factory));

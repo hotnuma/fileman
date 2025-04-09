@@ -32,8 +32,10 @@ void etk_widget_set_tooltip(GtkWidget *widget, const gchar *format, ...)
 gboolean etk_editable_can_cut(GtkEditable *editable);
 gboolean etk_editable_can_copy(GtkEditable *editable);
 gboolean etk_editable_can_paste(GtkEditable *editable);
+
 void etk_label_set_a11y_relation(GtkLabel *label, GtkWidget *widget);
-void etk_menu_run(GtkMenu *menu);
+
+void etk_menu_run(GtkMenu *menu, GtkWidget *widget);
 
 G_END_DECLS
 

@@ -360,7 +360,7 @@ void history_show_menu(ThunarHistory         *history,
     g_object_unref(G_OBJECT(icon_factory));
 
     // run the menu(takes over the floating of menu)
-    etk_menu_run(GTK_MENU(menu));
+    etk_menu_run(GTK_MENU(menu), NULL);
 }
 
 // Actions --------------------------------------------------------------------
