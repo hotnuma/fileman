@@ -1025,8 +1025,10 @@ static void _treemodel_sort(TreeModel *model, GNode *node)
     }
 
     // sort the array using QuickSort
+    G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     g_qsort_with_data(sort_array, n_children, sizeof(SortTuple),
                       _treemodel_cmp_array, model);
+    G_GNUC_END_IGNORE_DEPRECATIONS
 
     // start out with an empty child list
     node->children = NULL;
