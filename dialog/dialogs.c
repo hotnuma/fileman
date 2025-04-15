@@ -17,6 +17,7 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <libxfce4ui/libxfce4ui.h>
 #include "config.h"
 #include "dialogs.h"
 
@@ -25,7 +26,6 @@
 #include "utils.h"
 #include "gtk-ext.h"
 #include "pango-ext.h"
-#include <libxfce4ui/libxfce4ui.h>
 
 // dialog_file_rename
 static void _dialog_select_filename(GtkWidget *entry, ThunarFile *file);

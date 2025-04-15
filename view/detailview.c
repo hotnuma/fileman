@@ -16,6 +16,7 @@
  * Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <libxfce4ui/libxfce4ui.h>
 #include "config.h"
 #include "detailview.h"
 

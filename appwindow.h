@@ -21,7 +21,7 @@
 
 #include "launcher.h"
 #include "th-file.h"
-#include <libxfce4ui/libxfce4ui.h>
+//#include <libxfce4ui/libxfce4ui.h>
 
 G_BEGIN_DECLS
 

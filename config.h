@@ -3,12 +3,20 @@
 
 #include "libmacros.h"
 #include "debug.h"
-#include <libxfce4util/libxfce4util.h>
 
-#if defined(GETTEXT_PACKAGE)
-#include <glib/gi18n-lib.h>
-#else
-#include <glib/gi18n.h>
+#include <libxfce4util/libxfce4util.h>
+#include <glib.h>
+#include <gio/gio.h>
+
+#undef _
+#define _(String) (String)
+
+#ifndef I_
+#define I_(string) (g_intern_static_string ((string)))
+#endif
+
+#ifndef N_
+#define N_(String) (String)
 #endif
 
 /* We don't need to implement all the G_OBJECT_WARN_INVALID_PROPERTY_ID()

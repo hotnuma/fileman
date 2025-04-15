@@ -18,6 +18,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <libxfce4ui/libxfce4ui.h>
 #include "config.h"
 #include "appwindow.h"
 #include "marshal.h"

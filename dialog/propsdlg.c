@@ -19,6 +19,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#include <libxfce4ui/libxfce4ui.h>
 #include "config.h"
 #include "propsdlg.h"
 #include "marshal.h"
@@ -34,7 +35,6 @@
 #include "pango-ext.h"
 #include "gio-ext.h"
 #include "utils.h"
-#include <libxfce4ui/libxfce4ui.h>
 
 // PropertiesDialog -----------------------------------------------------------
 

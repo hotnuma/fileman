@@ -27,8 +27,6 @@ int main(int argc, char **argv)
 {
     setbuf(stdout, NULL);
 
-    //xfce_textdomain(GETTEXT_PACKAGE, PACKAGE_LOCALE_DIR, "UTF-8");
-
     g_set_application_name(_("Fileman"));
 
     app_notify_init();
