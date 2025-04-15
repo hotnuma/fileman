@@ -4,9 +4,13 @@
 #include "libmacros.h"
 #include "debug.h"
 
-#include <libxfce4util/libxfce4util.h>
+//#include <libxfce4util/libxfce4util.h>
 #include <glib.h>
 #include <gio/gio.h>
+
+//#define NGETTEXT ngettext
+
+#define NGETTEXT(Str1, Str2, num) ((num) == 1 ? (Str1) : (Str2))
 
 #undef _
 #define _(String) (String)

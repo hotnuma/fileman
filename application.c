@@ -887,7 +887,7 @@ void application_unlink_files(Application *application, gpointer parent,
     else
     {
         message = g_strdup_printf(
-            ngettext("Are you sure that you want to permanently\ndelete"
+            NGETTEXT("Are you sure that you want to permanently\ndelete"
                      " the selected file?",
                      "Are you sure that you want to permanently\ndelete"
                      " the %u selected files?",

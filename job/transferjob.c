@@ -1124,7 +1124,7 @@ gchar* transferjob_get_status(TransferJob *job)
             if (remaining_time > 60 * 60)
             {
                 remaining_time =(gulong)(remaining_time /(60 * 60));
-                g_string_append_printf(status, ngettext("%lu hour remaining(%s/sec)",
+                g_string_append_printf(status, NGETTEXT("%lu hour remaining(%s/sec)",
                                         "%lu hours remaining(%s/sec)",
                                         remaining_time),
                                         remaining_time, transfer_rate_str);
@@ -1132,14 +1132,14 @@ gchar* transferjob_get_status(TransferJob *job)
             else if (remaining_time > 60)
             {
                 remaining_time =(gulong)(remaining_time / 60);
-                g_string_append_printf(status, ngettext("%lu minute remaining(%s/sec)",
+                g_string_append_printf(status, NGETTEXT("%lu minute remaining(%s/sec)",
                                         "%lu minutes remaining(%s/sec)",
                                         remaining_time),
                                         remaining_time, transfer_rate_str);
             }
             else
             {
-                g_string_append_printf(status, ngettext("%lu second remaining(%s/sec)",
+                g_string_append_printf(status, NGETTEXT("%lu second remaining(%s/sec)",
                                         "%lu seconds remaining(%s/sec)",
                                         remaining_time),
                                         remaining_time, transfer_rate_str);

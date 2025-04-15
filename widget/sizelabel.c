@@ -401,7 +401,7 @@ static void _szlabel_status_update(DeepCountJob *job,
     {
         // update the label
         size_string = g_format_size_full(total_size, G_FORMAT_SIZE_LONG_FORMAT |(size_label->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
-        text = g_strdup_printf(ngettext("%u item, totalling %s", "%u items, totalling %s", n), n, size_string);
+        text = g_strdup_printf(NGETTEXT("%u item, totalling %s", "%u items, totalling %s", n), n, size_string);
         g_free(size_string);
 
         if (unreadable_directory_count > 0)
