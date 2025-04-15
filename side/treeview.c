@@ -1374,7 +1374,7 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
 
     window_redirect_tooltips(APPWINDOW(window), GTK_MENU(menu));
 
-    etk_menu_run(GTK_MENU(menu), NULL);
+    etk_menu_run(GTK_MENU(menu), GTK_WIDGET(view));
 
     if (device != NULL)
         g_object_unref(G_OBJECT(device));
