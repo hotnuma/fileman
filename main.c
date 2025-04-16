@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 {
     setbuf(stdout, NULL);
 
-    g_set_application_name(_("Fileman"));
+    g_set_application_name("Fileman");
 
     app_notify_init();
 
