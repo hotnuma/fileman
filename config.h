@@ -4,19 +4,15 @@
 #include "libmacros.h"
 #include "debug.h"
 
-//#include <libxfce4util/libxfce4util.h>
 #include <glib.h>
-#include <gio/gio.h>
 
-//#define NGETTEXT ngettext
-
-#define NGETTEXT(Str1, Str2, num) ((num) == 1 ? (Str1) : (Str2))
+#define ngetstr(Str1, Str2, num) ((num) == 1 ? (Str1) : (Str2))
 
 #undef _
 #define _(String) (String)
 
 #ifndef I_
-#define I_(string) (g_intern_static_string ((string)))
+#define I_(String) (g_intern_static_string ((String)))
 #endif
 
 #ifndef N_

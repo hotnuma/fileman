@@ -2149,7 +2149,7 @@ static gchar* _listmodel_get_statusbar_text_for_files(
     if (non_folder_count > 0)
     {
         size_string = g_format_size_full(size_summary, G_FORMAT_SIZE_LONG_FORMAT |(show_file_size_binary_format ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
-        non_folder_text = g_strdup_printf(NGETTEXT("%d file: %s",
+        non_folder_text = g_strdup_printf(ngetstr("%d file: %s",
                                            "%d files: %s",
                                            non_folder_count), non_folder_count, size_string);
         g_free(size_string);
@@ -2157,7 +2157,7 @@ static gchar* _listmodel_get_statusbar_text_for_files(
 
     if (folder_count > 0)
     {
-        folder_text = g_strdup_printf(NGETTEXT("%d folder",
+        folder_text = g_strdup_printf(ngetstr("%d folder",
                                        "%d folders",
                                        folder_count), folder_count);
     }

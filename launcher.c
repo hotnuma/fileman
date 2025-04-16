@@ -850,7 +850,7 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
     else if (applist != NULL)
     {
         label_text = g_strdup_printf(_("_Open With \"%s\""), g_app_info_get_name(applist->data));
-        tooltip_text = g_strdup_printf(NGETTEXT("Use \"%s\" to open the selected file",
+        tooltip_text = g_strdup_printf(ngetstr("Use \"%s\" to open the selected file",
                                         "Use \"%s\" to open the selected files",
                                         launcher->n_files_to_process), g_app_info_get_name(applist->data));
 
@@ -871,7 +871,7 @@ gboolean launcher_append_open_section(ThunarLauncher *launcher,
         // we can only show a generic "Open" action
         label_text = g_strdup_printf(_("_Open With Default Applications"));
         tooltip_text = g_strdup_printf(
-                                NGETTEXT("Open the selected file with"
+                                ngetstr("Open the selected file with"
                                 " the default application",
                                 "Open the selected files with the"
                                 " default applications",
@@ -933,7 +933,7 @@ static GtkWidget* _launcher_build_application_submenu(
     for (lp = applications; lp != NULL; lp = lp->next)
     {
         label_text = g_strdup_printf(_("Open With \"%s\""), g_app_info_get_name(lp->data));
-        tooltip_text = g_strdup_printf(NGETTEXT("Use \"%s\" to open the selected file",
+        tooltip_text = g_strdup_printf(ngetstr("Use \"%s\" to open the selected file",
                                         "Use \"%s\" to open the selected files",
                                         launcher->n_files_to_process), g_app_info_get_name(lp->data));
         image = gtk_image_new_from_gicon(g_app_info_get_icon(lp->data), GTK_ICON_SIZE_MENU);
@@ -992,7 +992,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     case LAUNCHER_ACTION_OPEN:
         return xfce_gtk_image_menu_item_new_from_icon_name(
                                     _("_Open"),
-                                    NGETTEXT("Open the selected file",
+                                    ngetstr("Open the selected file",
                                              "Open the selected files",
                                              launcher->n_files_to_process),
                                     action_entry->accel_path,
@@ -1004,11 +1004,11 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     case LAUNCHER_ACTION_OPEN_IN_WINDOW:
         n = launcher->n_files_to_process > 0 ? launcher->n_files_to_process : 1;
         label_text = g_strdup_printf(
-                    NGETTEXT("Open in New _Window",
+                    ngetstr("Open in New _Window",
                     "Open in %d New _Windows", n),
                     n);
         tooltip_text = g_strdup_printf(
-                    NGETTEXT("Open the selected directory in new window",
+                    ngetstr("Open the selected directory in new window",
                     "Open the selected directories in %d new windows", n),
                     n);
         item = xfce_gtk_menu_item_new(label_text,
@@ -1032,7 +1032,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     case LAUNCHER_ACTION_EXECUTE:
         return xfce_gtk_image_menu_item_new_from_icon_name(
                                         _("_Execute"),
-                                        NGETTEXT("Execute the selected file",
+                                        ngetstr("Execute the selected file",
                                                  "Execute the selected files",
                                                  launcher->n_files_to_process),
                                         action_entry->accel_path,
@@ -1092,7 +1092,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
             show_item = launcher->files_are_selected;
             if (!show_item && !force)
                 return NULL;
-            tooltip_text = NGETTEXT("Prepare the selected file to be moved with a Paste command",
+            tooltip_text = ngetstr("Prepare the selected file to be moved with a Paste command",
                                      "Prepare the selected files to be moved with a Paste command", launcher->n_files_to_process);
             item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
                     action_entry->callback, G_OBJECT(launcher), action_entry->menu_item_icon_name, menu);
@@ -1116,7 +1116,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
             show_item = launcher->files_are_selected;
             if (!show_item && !force)
                 return NULL;
-            tooltip_text = NGETTEXT("Prepare the selected file to be copied with a Paste command",
+            tooltip_text = ngetstr("Prepare the selected file to be copied with a Paste command",
                                      "Prepare the selected files to be copied with a Paste command", launcher->n_files_to_process);
             item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
                     action_entry->callback, G_OBJECT(launcher), action_entry->menu_item_icon_name, menu);
@@ -1171,7 +1171,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         if (!show_item && !force)
             return NULL;
 
-        tooltip_text = NGETTEXT("Move the selected file to the Trash",
+        tooltip_text = ngetstr("Move the selected file to the Trash",
                                  "Move the selected files to the Trash", launcher->n_files_to_process);
         item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
                 action_entry->callback, G_OBJECT(launcher), action_entry->menu_item_icon_name, menu);
@@ -1187,7 +1187,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         if (!show_item && !force)
             return NULL;
 
-        tooltip_text = NGETTEXT("Permanently delete the selected file",
+        tooltip_text = ngetstr("Permanently delete the selected file",
                                  "Permanently delete the selected files", launcher->n_files_to_process);
         item = xfce_gtk_image_menu_item_new_from_icon_name(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
                 action_entry->callback, G_OBJECT(launcher), action_entry->menu_item_icon_name, menu);
@@ -1210,7 +1210,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
     case LAUNCHER_ACTION_RESTORE:
         if (launcher->files_are_selected && th_file_is_trashed(launcher->current_directory))
         {
-            tooltip_text = NGETTEXT("Restore the selected file to its original location",
+            tooltip_text = ngetstr("Restore the selected file to its original location",
                                      "Restore the selected files to its original location", launcher->n_files_to_process);
             item = xfce_gtk_menu_item_new(action_entry->menu_item_label_text, tooltip_text, action_entry->accel_path,
                                            action_entry->callback, G_OBJECT(launcher), menu);
@@ -1239,8 +1239,8 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
         if (!show_item && !force)
             return NULL;
 
-        label_text = NGETTEXT("Ma_ke Link", "Ma_ke Links", launcher->n_files_to_process);
-        tooltip_text = NGETTEXT("Create a symbolic link for the selected file",
+        label_text = ngetstr("Ma_ke Link", "Ma_ke Links", launcher->n_files_to_process);
+        tooltip_text = ngetstr("Create a symbolic link for the selected file",
                                  "Create a symbolic link for each selected file", launcher->n_files_to_process);
         item = xfce_gtk_menu_item_new(label_text, tooltip_text, action_entry->accel_path, action_entry->callback,
                                        G_OBJECT(launcher), menu);
@@ -1253,7 +1253,7 @@ GtkWidget* launcher_append_menu_item(ThunarLauncher  *launcher,
                     && th_file_is_trashed(launcher->current_directory) == FALSE;
         if (!show_item && !force)
             return NULL;
-        tooltip_text = NGETTEXT("Rename the selected file",
+        tooltip_text = ngetstr("Rename the selected file",
                                 "Rename the selected files", launcher->n_files_to_process);
         item = xfce_gtk_menu_item_new(action_entry->menu_item_label_text,
                                       tooltip_text,
@@ -1837,10 +1837,10 @@ static void _launcher_open_windows(ThunarLauncher *launcher, GList *directories)
                                          GTK_BUTTONS_NONE,
                                          _("Are you sure you want to open all folders?"));
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
-                NGETTEXT("This will open %d separate file manager window.",
+                ngetstr("This will open %d separate file manager window.",
                           "This will open %d separate file manager windows.",
                           n), n);
-        label = g_strdup_printf(NGETTEXT("Open %d New Window", "Open %d New Windows", n), n);
+        label = g_strdup_printf(ngetstr("Open %d New Window", "Open %d New Windows", n), n);
         gtk_dialog_add_button(GTK_DIALOG(dialog), _("_Cancel"), GTK_RESPONSE_CANCEL);
         gtk_dialog_add_button(GTK_DIALOG(dialog), label, GTK_RESPONSE_YES);
         gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
@@ -1996,7 +1996,7 @@ static void _launcher_open_paths(GAppInfo       *app_info,
         else
         {
             // we can just tell that n files failed to open
-            message = g_strdup_printf(NGETTEXT("Failed to open %d file", "Failed to open %d files", n), n);
+            message = g_strdup_printf(ngetstr("Failed to open %d file", "Failed to open %d files", n), n);
         }
 
         // display an error dialog to the user

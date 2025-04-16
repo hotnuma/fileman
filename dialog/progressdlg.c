@@ -379,7 +379,7 @@ static void _progressdlg_update_status_icon(ProgressDialog *dialog)
     n_views = g_list_length(dialog->views);
 
     // build the tooltip text
-    tooltip_text = g_strdup_printf(NGETTEXT("%d file operation running",
+    tooltip_text = g_strdup_printf(ngetstr("%d file operation running",
                                     "%d file operations running",
                                     n_views),
                                     n_views);
