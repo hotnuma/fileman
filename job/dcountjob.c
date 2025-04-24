@@ -35,6 +35,7 @@ static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
                                const gchar *toplevel_fs_id, GError **error);
 static void _dcjob_status_update(DeepCountJob *job);
 
+
 // DeepCountJob ---------------------------------------------------------------
 
 enum
@@ -43,16 +44,6 @@ enum
     LAST_SIGNAL,
 };
 static guint _dcjob_signals[LAST_SIGNAL];
-
-struct _DeepCountJobClass
-{
-    ThunarJobClass __parent__;
-
-    // signals
-    void (*status_update) (ThunarJob *job, guint64 total_size,
-                           guint file_count, guint directory_count,
-                           guint unreadable_directory_count);
-};
 
 struct _DeepCountJob
 {
@@ -71,7 +62,33 @@ struct _DeepCountJob
     guint       unreadable_directory_count;
 };
 
+struct _DeepCountJobClass
+{
+    ThunarJobClass __parent__;
+
+    // signals
+    void (*status_update) (ThunarJob *job, guint64 total_size,
+                           guint file_count, guint directory_count,
+                           guint unreadable_directory_count);
+};
+
+
+// creation / destruction -----------------------------------------------------
+
 G_DEFINE_TYPE(DeepCountJob, dcjob, TYPE_THUNARJOB)
+
+DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
+{
+    e_return_val_if_fail(files != NULL, NULL);
+
+    DeepCountJob *job = g_object_new(TYPE_DEEPCOUNTJOB, NULL);
+    job->files = g_list_copy(files);
+    job->query_flags = flags;
+
+    g_list_foreach(job->files,(GFunc)(void(*)(void)) g_object_ref, NULL);
+
+    return job;
+}
 
 static void dcjob_class_init(DeepCountJobClass *klass)
 {
@@ -120,10 +137,12 @@ static void dcjob_finalize(GObject *object)
     G_OBJECT_CLASS(dcjob_parent_class)->finalize(object);
 }
 
+
+// ----------------------------------------------------------------------------
+
 static gboolean dcjob_execute(ExoJob *job, GError **error)
 {
     DeepCountJob *count_job = DEEPCOUNTJOB(job);
-    gboolean            success = TRUE;
     GError             *err = NULL;
     GList              *lp;
     GFile              *gfile;
@@ -142,8 +161,10 @@ static gboolean dcjob_execute(ExoJob *job, GError **error)
     count_job->unreadable_directory_count = 0;
     count_job->last_time = 0;
 
+    gboolean success = TRUE;
+
     // count files, directories and compute size of the job files
-    for(lp = count_job->files; lp != NULL; lp = lp->next)
+    for (lp = count_job->files; lp != NULL; lp = lp->next)
     {
         gfile = th_file_get_file(THUNARFILE(lp->data));
         success = _dcjob_process(job, gfile, NULL, NULL, &err);
@@ -350,21 +371,6 @@ static void _dcjob_status_update(DeepCountJob *job)
                  job->file_count,
                  job->directory_count,
                  job->unreadable_directory_count);
-}
-
-// Public ---------------------------------------------------------------------
-
-DeepCountJob* dcjob_new(GList *files, GFileQueryInfoFlags flags)
-{
-    e_return_val_if_fail(files != NULL, NULL);
-
-    DeepCountJob *job = g_object_new(TYPE_DEEPCOUNTJOB, NULL);
-    job->files = g_list_copy(files);
-    job->query_flags = flags;
-
-    g_list_foreach(job->files,(GFunc)(void(*)(void)) g_object_ref, NULL);
-
-    return job;
 }
 
 
