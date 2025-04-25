@@ -24,6 +24,7 @@
 
 #include "etktype.h"
 #include "appwindow.h"
+#include "job.h"
 
 G_BEGIN_DECLS
 
@@ -38,48 +39,32 @@ GType application_get_type() G_GNUC_CONST;
 
 // properties -----------------------------------------------------------------
 
-gboolean application_get_daemon(Application *application);
-void application_set_daemon(Application *application, gboolean daemon);
+//gboolean application_get_daemon(Application *application);
+//void application_set_daemon(Application *application, gboolean daemon);
 
 // public ---------------------------------------------------------------------
 
 Application* application_get();
 void application_take_window(Application *application, GtkWindow *window);
-gboolean application_process_filenames(Application *application,
-                                       const gchar *working_directory,
-                                       gchar **filenames,
-                                       GdkScreen *screen,
-                                       const gchar *startup_id,
-                                       GError **error);
 GtkWidget* application_open_window(Application *application,
                                    ThunarFile *directory,
                                    GdkScreen *screen, const gchar *startup_id);
 
 // actions --------------------------------------------------------------------
 
-void application_mkdir(Application *application, gpointer parent,
-                       GList *file_list, GClosure *new_files_closure);
-void application_creat(Application *application, gpointer parent,
-                       GList *file_list, GFile *template_file,
-                       GClosure *new_files_closure);
-void application_copy_into(Application *application, gpointer parent,
-                           GList *source_file_list, GFile *target_file,
-                           GClosure *new_files_closure);
-void application_link_into(Application *application, gpointer parent,
-                           GList *source_file_list, GFile *target_file,
-                           GClosure *new_files_closure);
-void application_move_into(Application *application, gpointer parent,
-                           GList *source_file_list, GFile *target_file,
-                           GClosure *new_files_closure);
-void application_unlink_files(Application *application, gpointer parent,
-                              GList *file_list, gboolean permanently);
-void application_trash(Application *application, gpointer parent,
-                       GList *file_list);
-void application_restore_files(Application *application, gpointer parent,
-                               GList *trash_file_list,
-                               GClosure *new_files_closure);
-void application_empty_trash(Application *application, gpointer parent,
-                             const gchar *startup_id);
+typedef ThunarJob* (*LauncherFunc) (GList *source_path_list,
+                                    GList *target_path_list);
+
+void application_launch(Application *application,
+                        gpointer parent,
+                        const gchar *icon_name,
+                        const gchar *title,
+                        LauncherFunc launcher,
+                        GList *source_path_list,
+                        GList *target_path_list,
+                        gboolean update_source_folders,
+                        gboolean update_target_folders,
+                        GClosure *new_files_closure);
 
 G_END_DECLS
 

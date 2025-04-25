@@ -34,9 +34,11 @@
 #include "propsdlg.h"
 #include "preferences.h"
 
+#include "io-jobs.h"
 #include "io-scandir.h"
 #include "simplejob.h"
 #include "gtk-ext.h"
+#include "utils.h"
 #include <fnmatch.h>
 
 typedef struct _LauncherPokeData LauncherPokeData;
@@ -135,15 +137,22 @@ static void _launcher_open_paths(GAppInfo *app_info, GList *file_list,
                                  ThunarLauncher *launcher);
 static void _launcher_open_windows(ThunarLauncher *launcher, GList *directories);
 
-// Actions --------------------------------------------------------------------
+
+// actions --------------------------------------------------------------------
 
 static void _launcher_action_open(ThunarLauncher *launcher);
 static void _launcher_action_open_in_new_windows(ThunarLauncher *launcher);
 static void _launcher_action_open_with_other(ThunarLauncher *launcher);
 
 static void _launcher_action_create_folder(ThunarLauncher *launcher);
+static void _execute_mkdir(gpointer parent,
+                           GList *file_list, GClosure *new_files_closure);
+
 static void _launcher_action_create_document(ThunarLauncher *launcher,
                                              GtkWidget *menu_item);
+static void _execute_create(gpointer parent,
+                       GList *file_list, GFile *template_file,
+                       GClosure *new_files_closure);
 static void _launcher_action_cut(ThunarLauncher *launcher);
 static void _launcher_action_copy(ThunarLauncher *launcher);
 static void _launcher_action_paste(ThunarLauncher *launcher);
@@ -152,6 +161,8 @@ static void _launcher_action_paste_into_folder(ThunarLauncher *launcher);
 static void _launcher_action_move_to_trash(ThunarLauncher *launcher);
 static void _launcher_action_delete(ThunarLauncher *launcher);
 static void _launcher_action_empty_trash(ThunarLauncher *launcher);
+static void _execute_empty_trash(gpointer parent,
+                                 const gchar *startup_id);
 static void _launcher_action_restore(ThunarLauncher *launcher);
 
 static void _launcher_action_duplicate(ThunarLauncher *launcher);
@@ -163,6 +174,18 @@ static void _launcher_action_unmount_finish(ThunarDevice *device,
                                             const GError *error,
                                             gpointer user_data);
 static void _launcher_action_properties(ThunarLauncher *launcher);
+
+// ----------------------------------------------------------------------------
+
+static void _execute_collect_and_launch(gpointer parent,
+                                            const gchar *icon_name,
+                                            const gchar *title,
+                                            LauncherFunc launcher,
+                                            GList *source_file_list,
+                                            GFile *target_file,
+                                            gboolean update_source_folders,
+                                            gboolean update_target_folders,
+                                            GClosure *new_files_closure);
 
 // ----------------------------------------------------------------------------
 
@@ -2096,17 +2119,37 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
     path_list.next = path_list.prev = NULL;
 
     // launch the operation
-    Application *application = application_get();
-    application_mkdir(application,
-                      launcher->widget, &path_list,
-                      launcher->select_files_closure);
-    g_object_unref(G_OBJECT(application));
+    _execute_mkdir(launcher->widget, &path_list,
+                   launcher->select_files_closure);
 
     // release the path
     g_object_unref(path_list.data);
 
     // release the file name
     g_free(name);
+}
+
+static void _execute_mkdir(gpointer parent,
+                           GList *file_list, GClosure *new_files_closure)
+{
+    e_return_if_fail(parent == NULL
+                     || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+
+    Application *application = application_get();
+    e_return_if_fail(IS_APPLICATION(application));
+
+    application_launch(application,
+                        parent,
+                        "folder-new",
+                        _("Creating directories..."),
+                        io_make_directories,
+                        file_list,
+                        file_list,
+                        TRUE,
+                        FALSE,
+                        new_files_closure);
+
+    g_object_unref(G_OBJECT(application));
 }
 
 static void _launcher_action_create_document(ThunarLauncher   *launcher,
@@ -2174,16 +2217,12 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
         target_path_list.prev = NULL;
 
         // launch the operation
-        Application *application = application_get();
-        application_creat(application,
-                          launcher->widget,
+        _execute_create(launcher->widget,
                           &target_path_list,
                           template_file != NULL
                             ? th_file_get_file(template_file)
                             : NULL,
                           launcher->select_files_closure);
-
-        g_object_unref(G_OBJECT(application));
 
         // release the target path
         g_object_unref(target_path_list.data);
@@ -2191,6 +2230,33 @@ static void _launcher_action_create_document(ThunarLauncher   *launcher,
 
     // release the file name
     g_free(name);
+}
+
+static void _execute_create(gpointer parent, GList *file_list,
+                            GFile *template_file, GClosure *new_files_closure)
+{
+    GList template_list;
+
+    e_return_if_fail(parent == NULL
+                     || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    template_list.next = template_list.prev = NULL;
+    template_list.data = template_file;
+
+    Application *application = application_get();
+    e_return_if_fail(IS_APPLICATION(application));
+
+    application_launch(application,
+                        parent,
+                        "document-new",
+                        _("Creating files..."),
+                        io_create_files,
+                        &template_list,
+                        file_list,
+                        FALSE,
+                        TRUE,
+                        new_files_closure);
+
+    g_object_unref(G_OBJECT(application));
 }
 
 static void _launcher_action_cut(ThunarLauncher *launcher)
@@ -2284,14 +2350,9 @@ static void _launcher_action_move_to_trash(ThunarLauncher *launcher)
         || launcher->files_are_selected == FALSE)
         return;
 
-    Application *application = application_get();
-
-    application_unlink_files(application,
-                             launcher->widget,
+    execute_unlink_files(launcher->widget,
                              launcher->files_to_process,
                              FALSE);
-
-    g_object_unref(G_OBJECT(application));
 }
 
 static void _launcher_action_delete(ThunarLauncher *launcher)
@@ -2302,15 +2363,120 @@ static void _launcher_action_delete(ThunarLauncher *launcher)
         || launcher->files_are_selected == FALSE)
         return;
 
-    Application *application = application_get();
-
-    application_unlink_files(application,
-                             launcher->widget,
+    execute_unlink_files(launcher->widget,
                              launcher->files_to_process,
                              TRUE);
-
-    g_object_unref(G_OBJECT(application));
 }
+
+void execute_unlink_files(gpointer parent,
+                              GList *file_list, gboolean permanently)
+{
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
+
+    GList *path_list = NULL;
+    guint n_path_list = 0;
+
+    // determine the paths for the files
+    for (GList *lp = g_list_last(file_list); lp != NULL;
+         lp = lp->prev, ++n_path_list)
+    {
+        // prepend the path to the path list
+        path_list = e_list_prepend_ref(path_list, th_file_get_file(lp->data));
+
+        /* permanently delete if at least one of the file is not a local
+         * file(e.g. resides in the trash) or cannot be trashed */
+        if (!th_file_is_local(lp->data)
+            || !th_file_can_be_trashed(lp->data))
+            permanently = TRUE;
+    }
+
+    // nothing to do if we don't have any paths
+    if (n_path_list == 0)
+        return;
+
+    // ask the user to confirm if deleting permanently
+    if (permanently == false)
+    {
+        execute_trash(parent, path_list);
+
+        e_list_free(path_list);
+
+        return;
+    }
+
+    gchar *message;
+
+    // generate the question to confirm the delete operation
+    if (n_path_list == 1)
+    {
+        message = g_strdup_printf(
+        _("Are you sure that you want to\npermanently delete \"%s\"?"),
+        th_file_get_display_name(THUNARFILE(file_list->data)));
+    }
+    else
+    {
+        message = g_strdup_printf(
+            ngetstr("Are you sure that you want to permanently\ndelete"
+                     " the selected file?",
+                     "Are you sure that you want to permanently\ndelete"
+                     " the %u selected files?",
+                     n_path_list),
+                     n_path_list);
+    }
+
+    // parse the parent pointer
+    GtkWindow *window;
+    GdkScreen *screen = util_parse_parent(parent, &window);
+
+    // ask the user to confirm the delete operation
+    GtkWidget *dialog = gtk_message_dialog_new(window,
+                                     GTK_DIALOG_MODAL
+                                     | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                     GTK_MESSAGE_QUESTION,
+                                     GTK_BUTTONS_NONE,
+                                     "%s", message);
+
+    if (window == NULL && screen != NULL)
+        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("_Cancel"), GTK_RESPONSE_CANCEL,
+                           _("_Delete"), GTK_RESPONSE_YES,
+                           NULL);
+
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
+    gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog),
+                        _("If you delete a file, it is permanently lost."));
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    gtk_widget_destroy(dialog);
+    g_free(message);
+
+    // perform the delete operation
+    if (response == GTK_RESPONSE_YES)
+    {
+        Application *application = application_get();
+        e_return_if_fail(IS_APPLICATION(application));
+
+        application_launch(application,
+                            parent,
+                            "edit-delete",
+                            _("Deleting files..."),
+                            io_unlink_files,
+                            path_list,
+                            path_list,
+                            TRUE,
+                            FALSE,
+                            NULL);
+
+        g_object_unref(G_OBJECT(application));
+    }
+
+    e_list_free(path_list);
+}
+
 
 static void _launcher_action_empty_trash(ThunarLauncher *launcher)
 {
@@ -2323,11 +2489,78 @@ static void _launcher_action_empty_trash(ThunarLauncher *launcher)
         || !th_file_is_trashed(launcher->single_folder))
         return;
 
-    Application *application = application_get();
+    _execute_empty_trash(launcher->widget, NULL);
+}
 
-    application_empty_trash(application, launcher->widget, NULL);
+static void _execute_empty_trash(gpointer parent,
+                             const gchar *startup_id)
+{
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
+
+    // parse the parent pointer
+    GtkWindow *window;
+    GdkScreen *screen = util_parse_parent(parent, &window);
+
+    // ask the user to confirm the operation
+    GtkWidget *dialog = gtk_message_dialog_new(
+                        window,
+                        GTK_DIALOG_MODAL
+                        | GTK_DIALOG_DESTROY_WITH_PARENT,
+                        GTK_MESSAGE_QUESTION,
+                        GTK_BUTTONS_NONE,
+                        _("Remove all files and folders from the Trash?"));
+
+    if (window == NULL && screen != NULL)
+        gtk_window_set_screen(GTK_WINDOW(dialog), screen);
+
+    gtk_window_set_startup_id(GTK_WINDOW(dialog), startup_id);
+
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("_Cancel"), GTK_RESPONSE_CANCEL,
+                           _("_Empty Trash"), GTK_RESPONSE_YES,
+                           NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_YES);
+
+    gtk_message_dialog_format_secondary_text(
+        GTK_MESSAGE_DIALOG(dialog),
+        _("If you choose to empty the Trash, all items in it will be"
+          " permanently lost. Please note that you can also delete"
+          " them separately."));
+
+    gint response = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    gtk_widget_destroy(dialog);
+
+    // check if the user confirmed
+    if (response != GTK_RESPONSE_YES)
+        return;
+
+    /* fake a path list with only the trash root (the root
+     * folder itself will never be unlinked, so this is safe)
+     */
+    GList file_list;
+    file_list.data = e_file_new_for_trash();
+    file_list.next = NULL;
+    file_list.prev = NULL;
+
+    Application *application = application_get();
+    e_return_if_fail(IS_APPLICATION(application));
+
+    // launch the operation
+    application_launch(application,
+                       parent,
+                       "user-trash",
+                       _("Emptying the Trash..."),
+                       io_unlink_files,
+                       &file_list,
+                       NULL,
+                       TRUE,
+                       FALSE,
+                       NULL);
 
     g_object_unref(G_OBJECT(application));
+    g_object_unref(file_list.data);
 }
 
 static void _launcher_action_restore(ThunarLauncher *launcher)
@@ -2338,13 +2571,72 @@ static void _launcher_action_restore(ThunarLauncher *launcher)
         || !th_file_is_trashed(launcher->current_directory))
         return;
 
-    // restore the selected files
-    Application *application = application_get();
+    gpointer parent = launcher->widget;
+    GList *trash_file_list = launcher->files_to_process;
+    GClosure *new_files_closure = NULL;
 
-    application_restore_files(application,
-                              launcher->widget,
-                              launcher->files_to_process,
-                              NULL);
+    e_return_if_fail(parent == NULL
+                     || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
+
+    GList *lp = NULL;
+    GError *err = NULL;
+    GList *source_path_list = NULL;
+    GList *target_path_list = NULL;
+
+    for (lp = trash_file_list; lp != NULL; lp = lp->next)
+    {
+        const gchar *original_uri = th_file_get_original_path(lp->data);
+
+        if (original_uri == NULL)
+        {
+            // no OriginalPath, impossible to continue
+            g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL,
+                        _("Failed to determine the original path for \"%s\""),
+                        th_file_get_display_name(lp->data));
+            break;
+        }
+
+        // TODO we might have to distinguish between URIs and paths here
+        GFile *target_path = g_file_new_for_commandline_arg(original_uri);
+
+        source_path_list = e_list_append_ref(source_path_list,
+                                             th_file_get_file(lp->data));
+        target_path_list = e_list_append_ref(target_path_list, target_path);
+
+        g_object_unref(target_path);
+    }
+
+    if (err != NULL)
+    {
+        dialog_error(parent,
+                     err,
+                     _("Could not restore \"%s\""),
+                     th_file_get_display_name(lp->data));
+
+        g_error_free(err);
+        e_list_free(source_path_list);
+        e_list_free(target_path_list);
+
+        return;
+    }
+
+    Application *application = application_get();
+    e_return_if_fail(IS_APPLICATION(application));
+
+    application_launch(application,
+                       parent,
+                       "stock_folder-move",
+                       _("Restoring files..."),
+                       io_restore_files,
+                       source_path_list,
+                       target_path_list,
+                       TRUE,
+                       TRUE,
+                       new_files_closure);
+
+    e_list_free(source_path_list);
+    e_list_free(target_path_list);
 
     g_object_unref(G_OBJECT(application));
 }
@@ -2369,17 +2661,39 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
 
     /* copy the selected files into the current directory, which effectively
      * creates duplicates of the files */
-    Application *application = application_get();
-
-    application_copy_into(application,
-                          launcher->widget,
+    execute_copy_into(launcher->widget,
                           files_to_process,
                           th_file_get_file(launcher->current_directory),
                           launcher->select_files_closure);
 
-    g_object_unref(G_OBJECT(application));
-
     e_list_free(files_to_process);
+}
+
+void execute_copy_into(gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure)
+{
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
+    e_return_if_fail(G_IS_FILE(target_file));
+
+    // generate a title for the progress dialog
+    gchar *display_name = th_file_cached_display_name(target_file);
+    gchar *title = g_strdup_printf(_("Copying files to \"%s\"..."),
+                                   display_name);
+    g_free(display_name);
+
+    _execute_collect_and_launch(parent,
+                                    "edit-copy",
+                                    title,
+                                    io_copy_files,
+                                    source_file_list,
+                                    target_file,
+                                    FALSE,
+                                    TRUE,
+                                    new_files_closure);
+
+    g_free(title);
 }
 
 static void _launcher_action_make_link(ThunarLauncher *launcher)
@@ -2401,17 +2715,40 @@ static void _launcher_action_make_link(ThunarLauncher *launcher)
 
     /* link the selected files into the current directory, which effectively
      * creates new unique links for the files */
-    Application *application = application_get();
-
-    application_link_into(application,
-                          launcher->widget,
+    execute_link_into(launcher->widget,
                           g_files,
                           th_file_get_file(launcher->current_directory),
                           launcher->select_files_closure);
 
-    g_object_unref(G_OBJECT(application));
-
     g_list_free(g_files);
+}
+
+void execute_link_into(gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure)
+{
+    e_return_if_fail(parent == NULL
+                     || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
+    e_return_if_fail(G_IS_FILE(target_file));
+
+    // generate a title for the progress dialog
+    gchar *display_name = th_file_cached_display_name(target_file);
+    gchar *title = g_strdup_printf(_("Creating symbolic links in \"%s\"..."),
+                                   display_name);
+    g_free(display_name);
+
+    _execute_collect_and_launch(parent,
+                                    "insert-link",
+                                    title,
+                                    io_link_files,
+                                    source_file_list,
+                                    target_file,
+                                    FALSE,
+                                    TRUE,
+                                    new_files_closure);
+
+    g_free(title);
 }
 
 static void _launcher_rename_finished(ExoJob *job, GtkWidget *widget)
@@ -2662,6 +2999,138 @@ static void _launcher_action_properties(ThunarLauncher *launcher)
 
         gtk_widget_show(dialog);
     }
+}
+
+void execute_move_into(gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure)
+{
+    e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
+                     || GTK_IS_WIDGET(parent));
+    e_return_if_fail(target_file != NULL);
+
+    // launch the appropriate operation depending on the target file
+    if (e_file_is_trashed(target_file))
+    {
+        execute_trash(parent, source_file_list);
+
+        return;
+    }
+
+    // generate a title for the progress dialog
+    gchar *display_name = th_file_cached_display_name(target_file);
+    gchar *title = g_strdup_printf(_("Moving files into \"%s\"..."),
+                                   display_name);
+    g_free(display_name);
+
+    _execute_collect_and_launch(parent,
+                                    "stock_folder-move",
+                                    title,
+                                    io_move_files,
+                                    source_file_list,
+                                    target_file,
+                                    TRUE,
+                                    TRUE,
+                                    new_files_closure);
+
+    g_free(title);
+}
+
+void execute_trash(gpointer parent, GList *file_list)
+{
+    e_return_if_fail(parent == NULL
+                     || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent));
+    e_return_if_fail(file_list != NULL);
+
+    Application *application = application_get();
+    e_return_if_fail(IS_APPLICATION(application));
+
+    application_launch(application,
+                        parent,
+                        "user-trash-full",
+                        _("Moving files into the trash..."),
+                        io_trash_files,
+                        file_list,
+                        NULL,
+                        TRUE,
+                        FALSE,
+                        NULL);
+
+    g_object_unref(G_OBJECT(application));
+}
+
+
+// ----------------------------------------------------------------------------
+
+static void _execute_collect_and_launch(gpointer     parent,
+                                            const gchar  *icon_name,
+                                            const gchar  *title,
+                                            LauncherFunc launcher,
+                                            GList        *source_file_list,
+                                            GFile        *target_file,
+                                            gboolean     update_source_folders,
+                                            gboolean     update_target_folders,
+                                            GClosure     *new_files_closure)
+{
+    // check if we have anything to operate on
+    if (source_file_list == NULL)
+        return;
+
+    GList  *target_file_list = NULL;
+    GError *err = NULL;
+
+    // generate the target path list
+    for (GList *lp = g_list_last(source_file_list);
+                                    err == NULL && lp != NULL; lp = lp->prev)
+    {
+        // verify that we're not trying to collect a root node
+        if (e_file_is_root(lp->data))
+        {
+            // tell the user that we cannot perform the requested operation
+            g_set_error(&err, G_FILE_ERROR, G_FILE_ERROR_INVAL, "%s",
+                        g_strerror(EINVAL));
+        }
+        else
+        {
+            gchar *base_name = g_file_get_basename(lp->data);
+            GFile *file = g_file_resolve_relative_path(target_file, base_name);
+            g_free(base_name);
+
+            // add to the target file list
+            target_file_list = e_list_prepend_ref(target_file_list, file);
+            g_object_unref(file);
+        }
+    }
+
+    // check if we failed
+    if (err != NULL)
+    {
+        // display an error message to the user
+        dialog_error(parent, err, _("Failed to launch operation"));
+
+        // release the error
+        g_error_free(err);
+        e_list_free(target_file_list);
+
+        return;
+    }
+
+    Application *application = application_get();
+    e_return_if_fail(IS_APPLICATION(application));
+
+    application_launch(application,
+                        parent,
+                        icon_name,
+                        title,
+                        launcher,
+                        source_file_list,
+                        target_file_list,
+                        update_source_folders,
+                        update_target_folders,
+                        new_files_closure);
+
+    g_object_unref(G_OBJECT(application));
+    e_list_free(target_file_list);
 }
 
 

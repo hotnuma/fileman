@@ -184,24 +184,21 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
         switch(action)
         {
         case GDK_ACTION_COPY:
-            application_copy_into(application,
-                                  widget,
+            execute_copy_into(widget,
                                   file_list,
                                   th_file_get_file(file),
                                   new_files_closure);
             break;
 
         case GDK_ACTION_MOVE:
-            application_move_into(application,
-                                  widget,
+            execute_move_into(widget,
                                   file_list,
                                   th_file_get_file(file),
                                   new_files_closure);
             break;
 
         case GDK_ACTION_LINK:
-            application_link_into(application,
-                                  widget,
+            execute_link_into(widget,
                                   file_list,
                                   th_file_get_file(file),
                                   new_files_closure);

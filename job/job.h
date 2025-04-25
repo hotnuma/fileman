@@ -33,6 +33,7 @@ typedef struct _ThunarJobClass   ThunarJobClass;
 typedef struct _ThunarJob        ThunarJob;
 
 #define TYPE_THUNARJOB (job_get_type())
+
 #define THUNAR_JOB(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARJOB, ThunarJob))
 #define THUNAR_JOB_CLASS(klass) \
@@ -44,6 +45,13 @@ typedef struct _ThunarJob        ThunarJob;
 #define THUNAR_JOB_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARJOB, ThunarJobClass))
 
+struct _ThunarJob
+{
+    ExoJob __parent__;
+
+    ThunarJobPrivate *priv;
+};
+
 struct _ThunarJobClass
 {
     ExoJobClass __parent__;
@@ -53,13 +61,6 @@ struct _ThunarJobClass
                               ThunarJobResponse choices);
     ThunarJobResponse (*ask_replace) (ThunarJob *job, ThunarFile *source_file,
                                       ThunarFile *target_file);
-};
-
-struct _ThunarJob
-{
-    ExoJob __parent__;
-
-    ThunarJobPrivate *priv;
 };
 
 GType job_get_type() G_GNUC_CONST;

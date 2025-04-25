@@ -110,6 +110,20 @@ void launcher_action_eject(ThunarLauncher *launcher);
 void launcher_action_rename(ThunarLauncher *launcher);
 void launcher_action_trash_delete(ThunarLauncher *launcher);
 
+void execute_copy_into(gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure);
+void execute_link_into(gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure);
+void execute_move_into(gpointer parent,
+                           GList *source_file_list, GFile *target_file,
+                           GClosure *new_files_closure);
+void execute_unlink_files(gpointer parent,
+                              GList *file_list, gboolean permanently);
+void execute_trash(gpointer parent,
+                       GList *file_list);
+
 G_END_DECLS
 
 #endif // __THUNAR_LAUNCHER_H__

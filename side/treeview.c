@@ -1632,14 +1632,13 @@ static void _treeview_action_unlink_selected_folder(TreeView *view, gboolean per
         file_list.prev = NULL;
 
         // delete the file
-        Application *application = application_get();
+        //Application *application = application_get();
 
-        application_unlink_files(application,
-                                        GTK_WIDGET(view),
+        execute_unlink_files(GTK_WIDGET(view),
                                         &file_list,
                                         permanently);
 
-        g_object_unref(G_OBJECT(application));
+        //g_object_unref(G_OBJECT(application));
     }
 
     // release the file

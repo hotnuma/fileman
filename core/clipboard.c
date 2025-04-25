@@ -593,14 +593,19 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     // perform the action if possible
     if (file_list != NULL)
     {
-        Application *application = application_get();
+        //Application *application = application_get();
 
         if (path_copy)
-            application_copy_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
+            execute_copy_into(request->widget,
+                                  file_list, request->target_file,
+                                  request->new_files_closure);
         else
-            application_move_into(application, request->widget, file_list, request->target_file, request->new_files_closure);
+            execute_move_into(request->widget,
+                                  file_list,
+                                  request->target_file,
+                                  request->new_files_closure);
 
-        g_object_unref(G_OBJECT(application));
+        //g_object_unref(G_OBJECT(application));
         e_list_free(file_list);
 
         /* clear the clipboard if it contained "cutted data"
