@@ -25,8 +25,8 @@
 #include "browser.h"
 #include "preferences.h"
 #include "th-folder.h"
-#include "dialogs.h"
 #include "progressdlg.h"
+#include "dialogs.h"
 #include "utils.h"
 
 
@@ -46,8 +46,6 @@ static const GOptionEntry _option_entries[] =
 
 static void application_finalize(GObject *object);
 static void application_startup(GApplication *application);
-//static void _application_accel_map_changed(Application *application);
-//static gboolean _application_accel_map_save(gpointer user_data);
 static void _application_load_css();
 static void application_shutdown(GApplication *application);
 static void application_activate(GApplication *application);
@@ -95,9 +93,6 @@ struct _Application
     GtkWidget       *progress_dialog;
     guint           show_dialogs_timer_id;
     GList           *files_to_launch;
-
-    //guint           accel_map_save_id;
-    //GtkAccelMap     *accel_map;
 };
 
 struct _ApplicationClass
@@ -109,10 +104,7 @@ static GQuark _app_screen_quark;
 static GQuark _app_startup_id_quark;
 static GQuark _app_file_quark;
 
-G_DEFINE_TYPE_EXTENDED(Application,
-                       application,
-                       GTK_TYPE_APPLICATION,
-                       0,
+G_DEFINE_TYPE_EXTENDED(Application, application, GTK_TYPE_APPLICATION, 0,
                        G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER, NULL))
 
 static void application_class_init(ApplicationClass *klass)
@@ -154,13 +146,6 @@ static void application_startup(GApplication *gapplication)
 
     G_APPLICATION_CLASS(application_parent_class)->startup(gapplication);
 
-    // watch for changes
-    //Application *application = APPLICATION(gapplication);
-    //application->accel_map = gtk_accel_map_get();
-    //g_signal_connect_swapped(G_OBJECT(application->accel_map), "changed",
-    //                         G_CALLBACK(_application_accel_map_changed),
-    //                         application);
-
     _application_load_css();
 }
 
@@ -173,15 +158,6 @@ static void application_shutdown(GApplication *gapplication)
 
     // unqueue all files waiting to be processed
     e_list_free(application->files_to_launch);
-
-    // save the current accel map
-    //if (application->accel_map_save_id != 0)
-    //{
-    //    g_source_remove(application->accel_map_save_id);
-    //    _application_accel_map_save(application);
-    //}
-    //if (application->accel_map != NULL)
-    //    g_object_unref(G_OBJECT(application->accel_map));
 
     // drop any running "show dialogs" timer
     if (application->show_dialogs_timer_id != 0)
@@ -197,36 +173,6 @@ static void application_finalize(GObject *object)
 
     G_OBJECT_CLASS(application_parent_class)->finalize(object);
 }
-
-
-#if 0
-static void _application_accel_map_changed(Application *application)
-{
-    e_return_if_fail(IS_APPLICATION(application));
-
-    // stop pending save
-    if (application->accel_map_save_id != 0)
-    {
-        g_source_remove(application->accel_map_save_id);
-        application->accel_map_save_id = 0;
-    }
-
-    // schedule new save
-    application->accel_map_save_id =
-        g_timeout_add_seconds(10, _application_accel_map_save, application);
-}
-
-static gboolean _application_accel_map_save(gpointer user_data)
-{
-    Application *application = APPLICATION(user_data);
-
-    e_return_val_if_fail(IS_APPLICATION(application), FALSE);
-
-    application->accel_map_save_id = 0;
-
-    return FALSE;
-}
-#endif
 
 static void _application_load_css()
 {
@@ -275,8 +221,6 @@ static int application_command_line(GApplication *gapplication,
     g_variant_dict_lookup(options_dict, G_OPTION_REMAINING,
                           "^aay", &filenames);
 
-    GError *error = NULL;
-
     if (quit)
     {
         g_debug("quitting");
@@ -285,39 +229,19 @@ static int application_command_line(GApplication *gapplication,
         goto out;
     }
 
-    const char *workingdir = g_application_command_line_get_cwd(command_line);
-    gchar *cwd_list[] = {(gchar*) ".", NULL };
+    const char *startupdir = g_application_command_line_get_cwd(command_line);
 
+    gchar *cwd_list[] = {(gchar*) ".", NULL };
     gchar **files = filenames != NULL ? filenames : cwd_list;
 
-    if (!_application_process_filenames(application, workingdir, files,
+    GError *error = NULL;
+
+    if (!_application_process_filenames(application, startupdir, files,
                                         NULL, NULL, &error))
     {
-        // we failed to process the filenames or the bulk rename failed
         g_application_command_line_printerr(command_line, "Fileman: %s\n",
                                             error->message);
     }
-
-    //if (filenames != NULL)
-    //{
-    //    if (!_application_process_filenames(application, workingdir, filenames,
-    //                                        NULL, NULL, &error))
-    //    {
-    //        // we failed to process the filenames or the bulk rename failed
-    //        g_application_command_line_printerr(command_line, "Fileman: %s\n",
-    //                                            error->message);
-    //    }
-    //}
-    //else
-    //{
-    //    if (!_application_process_filenames(application, workingdir, cwd_list,
-    //                                        NULL, NULL, &error))
-    //    {
-    //        // we failed to process the filenames or the bulk rename failed
-    //        g_application_command_line_printerr(command_line, "Fileman: %s\n",
-    //                                            error->message);
-    //    }
-    //}
 
 out:
 
@@ -542,11 +466,8 @@ Application* application_get()
 
 GtkWidget* application_open_window(Application *application,
                                    ThunarFile *directory,
-                                   GdkScreen *screen, const gchar *startup_id
-                                   /*, gboolean force_new_window*/)
+                                   GdkScreen *screen, const gchar *startup_id)
 {
-    //(void) force_new_window;
-
     e_return_val_if_fail(IS_APPLICATION(application), NULL);
     e_return_val_if_fail(directory == NULL || IS_THUNARFILE(directory), NULL);
     e_return_val_if_fail(screen == NULL || GDK_IS_SCREEN(screen), NULL);
@@ -597,7 +518,7 @@ void application_take_window(Application *application, GtkWindow *window)
 
     // only windows without a parent get a new window group
     if (gtk_window_get_transient_for(window) == NULL
-            && !gtk_window_has_group(window))
+        && !gtk_window_has_group(window))
     {
         GtkWindowGroup *group = gtk_window_group_new();
         gtk_window_group_add_window(group, window);
