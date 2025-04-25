@@ -19,26 +19,19 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "application.h"
 #include "config.h"
+#include "application.h"
 
 #include "browser.h"
 #include "preferences.h"
 #include "th-folder.h"
 #include "dialogs.h"
 #include "progressdlg.h"
-#include "io-jobs.h"
 #include "utils.h"
 
 
-// globals --------------------------------------------------------------------
-
-// option entries
 static const GOptionEntry _option_entries[] =
 {
-    //{"daemon", 0, 0, G_OPTION_ARG_NONE,
-    // NULL, N_("Run in daemon mode"), NULL},
-
     {"quit", 'q', 0, G_OPTION_ARG_NONE,
      NULL, N_("Quit a running Fileman instance"), NULL},
 
@@ -52,12 +45,6 @@ static const GOptionEntry _option_entries[] =
 // application ----------------------------------------------------------------
 
 static void application_finalize(GObject *object);
-
-//static void application_get_property(GObject *object, guint prop_id,
-//                                     GValue *value, GParamSpec *pspec);
-//static void application_set_property(GObject *object, guint prop_id,
-//                                     const GValue *value, GParamSpec *pspec);
-
 static void application_startup(GApplication *application);
 //static void _application_accel_map_changed(Application *application);
 //static gboolean _application_accel_map_save(gpointer user_data);
@@ -75,7 +62,6 @@ static gboolean _application_process_filenames(Application *application,
                                                GdkScreen *screen,
                                                const gchar *startup_id,
                                                GError **error);
-
 static void _application_process_files(Application *application);
 static void _application_process_files_finish(ThunarBrowser *browser,
                                               ThunarFile *file,
@@ -105,8 +91,6 @@ enum
 struct _Application
 {
     GtkApplication  __parent__;
-
-    //gboolean        daemon;
 
     GtkWidget       *progress_dialog;
     guint           show_dialogs_timer_id;
@@ -141,23 +125,12 @@ static void application_class_init(ApplicationClass *klass)
 
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = application_finalize;
-    //gobject_class->get_property = application_get_property;
-    //gobject_class->set_property = application_set_property;
 
     GApplicationClass *gapplication_class = G_APPLICATION_CLASS(klass);
     gapplication_class->startup = application_startup;
     gapplication_class->shutdown = application_shutdown;
     gapplication_class->activate = application_activate;
     gapplication_class->command_line = application_command_line;
-
-    //g_object_class_install_property(gobject_class,
-    //                                PROP_DAEMON,
-    //                                g_param_spec_boolean(
-    //                                    "daemon",
-    //                                    "daemon",
-    //                                    "daemon",
-    //                                    FALSE,
-    //                                    E_PARAM_READWRITE));
 }
 
 static void application_init(Application *application)
@@ -175,14 +148,6 @@ static void application_init(Application *application)
                                           _option_entries);
 }
 
-static void application_finalize(GObject *object)
-{
-    // what gets initialized in GApplication::startup is cleaned up in
-    // GApplication::shutdown. Therefore, this method doesn't do very much
-
-    G_OBJECT_CLASS(application_parent_class)->finalize(object);
-}
-
 static void application_startup(GApplication *gapplication)
 {
     prefs_file_read();
@@ -198,6 +163,41 @@ static void application_startup(GApplication *gapplication)
 
     _application_load_css();
 }
+
+static void application_shutdown(GApplication *gapplication)
+{
+    Application *application = APPLICATION(gapplication);
+
+    prefs_write();
+    prefs_cleanup();
+
+    // unqueue all files waiting to be processed
+    e_list_free(application->files_to_launch);
+
+    // save the current accel map
+    //if (application->accel_map_save_id != 0)
+    //{
+    //    g_source_remove(application->accel_map_save_id);
+    //    _application_accel_map_save(application);
+    //}
+    //if (application->accel_map != NULL)
+    //    g_object_unref(G_OBJECT(application->accel_map));
+
+    // drop any running "show dialogs" timer
+    if (application->show_dialogs_timer_id != 0)
+        g_source_remove(application->show_dialogs_timer_id);
+
+    G_APPLICATION_CLASS(application_parent_class)->shutdown(gapplication);
+}
+
+static void application_finalize(GObject *object)
+{
+    // what gets initialized in GApplication::startup is cleaned up in
+    // GApplication::shutdown. Therefore, this method doesn't do very much
+
+    G_OBJECT_CLASS(application_parent_class)->finalize(object);
+}
+
 
 #if 0
 static void _application_accel_map_changed(Application *application)
@@ -232,13 +232,9 @@ static void _application_load_css()
 {
     GtkCssProvider *css_provider = gtk_css_provider_new();
 
-    // for the pathbar-buttons any margin looks ugly
     // remove extra border between side pane and view
     // add missing top border to side pane
     // make border thicker during DnD
-    // ".path-bar-button { margin-right: 0; }"
-    // ".shortcuts-pane { border-right-width: 0px; }"
-    // ".shortcuts-pane { border-top-style: solid; }"
 
     gtk_css_provider_load_from_data(
         css_provider,
@@ -256,36 +252,9 @@ static void _application_load_css()
     g_object_unref(css_provider);
 }
 
-static void application_shutdown(GApplication *gapplication)
-{
-    Application *application = APPLICATION(gapplication);
-
-    prefs_write();
-    prefs_cleanup();
-
-    // unqueue all files waiting to be processed
-    e_list_free(application->files_to_launch);
-
-    // save the current accel map
-    //if (application->accel_map_save_id != 0)
-    //{
-    //    g_source_remove(application->accel_map_save_id);
-    //    _application_accel_map_save(application);
-    //}
-
-    //if (application->accel_map != NULL)
-    //    g_object_unref(G_OBJECT(application->accel_map));
-
-    // drop any running "show dialogs" timer
-    if (application->show_dialogs_timer_id != 0)
-        g_source_remove(application->show_dialogs_timer_id);
-
-    G_APPLICATION_CLASS(application_parent_class)->shutdown(gapplication);
-}
-
 static void application_activate(GApplication *gapp)
 {
-    // TODO
+    // do something
 
     G_APPLICATION_CLASS(application_parent_class)->activate(gapp);
 }
@@ -299,9 +268,6 @@ static int application_command_line(GApplication *gapplication,
     GVariantDict *options_dict =
             g_application_command_line_get_options_dict(command_line);
 
-    //gboolean daemon = FALSE;
-    //g_variant_dict_lookup(options_dict, "daemon", "b", &daemon);
-
     gboolean quit = FALSE;
     g_variant_dict_lookup(options_dict, "quit", "b", &quit);
 
@@ -311,7 +277,6 @@ static int application_command_line(GApplication *gapplication,
 
     GError *error = NULL;
 
-    // FIXME: --quit should be named --suicide
     if (quit)
     {
         g_debug("quitting");
@@ -320,38 +285,42 @@ static int application_command_line(GApplication *gapplication,
         goto out;
     }
 
-    // check whether we should daemonize
-    //if (daemon)
-    //{
-    //    application_set_daemon(application, TRUE);
-    //}
-
-    const char *cwd = g_application_command_line_get_cwd(command_line);
+    const char *workingdir = g_application_command_line_get_cwd(command_line);
     gchar *cwd_list[] = {(gchar*) ".", NULL };
 
-    if (filenames != NULL)
+    gchar **files = filenames != NULL ? filenames : cwd_list;
+
+    if (!_application_process_filenames(application, workingdir, files,
+                                        NULL, NULL, &error))
     {
-        if (!_application_process_filenames(application, cwd, filenames,
-                                            NULL, NULL, &error))
-        {
-            // we failed to process the filenames or the bulk rename failed
-            g_application_command_line_printerr(command_line, "Thunar: %s\n",
-                                                error->message);
-        }
-    }
-    else //if (!daemon)
-    {
-        if (!_application_process_filenames(application, cwd, cwd_list,
-                                            NULL, NULL, &error))
-        {
-            // we failed to process the filenames or the bulk rename failed
-            g_application_command_line_printerr(command_line, "Fileman: %s\n",
-                                                error->message);
-        }
+        // we failed to process the filenames or the bulk rename failed
+        g_application_command_line_printerr(command_line, "Fileman: %s\n",
+                                            error->message);
     }
 
+    //if (filenames != NULL)
+    //{
+    //    if (!_application_process_filenames(application, workingdir, filenames,
+    //                                        NULL, NULL, &error))
+    //    {
+    //        // we failed to process the filenames or the bulk rename failed
+    //        g_application_command_line_printerr(command_line, "Fileman: %s\n",
+    //                                            error->message);
+    //    }
+    //}
+    //else
+    //{
+    //    if (!_application_process_filenames(application, workingdir, cwd_list,
+    //                                        NULL, NULL, &error))
+    //    {
+    //        // we failed to process the filenames or the bulk rename failed
+    //        g_application_command_line_printerr(command_line, "Fileman: %s\n",
+    //                                            error->message);
+    //    }
+    //}
+
 out:
-    // cleanup
+
     g_strfreev(filenames);
 
     if (error)
@@ -364,97 +333,13 @@ out:
     return EXIT_SUCCESS;
 }
 
-#if 0
-static void application_get_property(GObject *object, guint prop_id,
-                                     GValue *value, GParamSpec *pspec)
-{
-    (void) pspec;
-
-    Application *application = APPLICATION(object);
-
-    switch (prop_id)
-    {
-    case PROP_DAEMON:
-        g_value_set_boolean(value, application_get_daemon(application));
-        break;
-
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-static void application_set_property(GObject *object, guint prop_id,
-                                     const GValue *value, GParamSpec *pspec)
-{
-    (void) pspec;
-
-    Application *application = APPLICATION(object);
-
-    switch (prop_id)
-    {
-    case PROP_DAEMON:
-        application_set_daemon(application, g_value_get_boolean(value));
-        break;
-
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
-    }
-}
-
-gboolean application_get_daemon(Application *application)
-{
-    e_return_val_if_fail(IS_APPLICATION(application), FALSE);
-
-    return application->daemon;
-}
-
-void application_set_daemon(Application *application, gboolean daemonize)
-{
-    e_return_if_fail(IS_APPLICATION(application));
-
-    if (application->daemon == daemonize)
-        return;
-
-    application->daemon = daemonize;
-
-    g_object_notify(G_OBJECT(application), "daemon");
-
-    if (daemonize)
-        g_application_hold(G_APPLICATION(application));
-    else
-        g_application_release(G_APPLICATION(application));
-}
-
-#endif
-
-// Public ---------------------------------------------------------------------
-
-Application* application_get()
-{
-    GApplication *default_app = g_application_get_default();
-
-    if (default_app)
-    {
-        return APPLICATION(g_object_ref(default_app));
-    }
-    else
-    {
-        gpointer obj = g_object_new(TYPE_APPLICATION,
-                                    "application-id", "org.hotnuma.Fileman",
-                                    NULL);
-
-        return g_object_ref_sink(obj);
-    }
-}
 
 static gboolean _application_process_filenames(Application *application,
-                                       const gchar *working_directory,
-                                       gchar       **filenames,
-                                       GdkScreen   *screen,
-                                       const gchar *startup_id,
-                                       GError      **error)
+                                               const gchar *working_directory,
+                                               gchar       **filenames,
+                                               GdkScreen   *screen,
+                                               const gchar *startup_id,
+                                               GError      **error)
 {
     e_return_val_if_fail(IS_APPLICATION(application), FALSE);
     e_return_val_if_fail(working_directory != NULL, FALSE);
@@ -496,12 +381,13 @@ static gboolean _application_process_filenames(Application *application,
         else
         {
             // tell the user that we were unable to launch the file specified
-            dialog_error(screen, derror, _("Failed to open \"%s\""),
-                                       filenames[n]);
+            dialog_error(screen,
+                         derror, _("Failed to open \"%s\""), filenames[n]);
 
             g_set_error(error, derror->domain, derror->code,
                         _("Failed to open \"%s\": %s"),
                         filenames[n], derror->message);
+
             g_error_free(derror);
 
             e_list_free(file_list);
@@ -631,6 +517,27 @@ static void _application_process_files_finish(ThunarBrowser *browser,
 
     // release the application
     g_application_release(G_APPLICATION(application));
+}
+
+
+// public ---------------------------------------------------------------------
+
+Application* application_get()
+{
+    GApplication *default_app = g_application_get_default();
+
+    if (default_app)
+    {
+        return APPLICATION(g_object_ref(default_app));
+    }
+    else
+    {
+        gpointer obj = g_object_new(TYPE_APPLICATION,
+                                    "application-id", "org.hotnuma.Fileman",
+                                    NULL);
+
+        return g_object_ref_sink(obj);
+    }
 }
 
 GtkWidget* application_open_window(Application *application,
@@ -821,6 +728,7 @@ static void _application_launch_finished(ThunarJob *job,
         g_object_unref(lp->data);
     }
 }
+
 
 // Progress Dialog ------------------------------------------------------------
 
