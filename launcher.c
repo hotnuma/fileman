@@ -2097,7 +2097,9 @@ static void _launcher_action_create_folder(ThunarLauncher *launcher)
 
     // launch the operation
     Application *application = application_get();
-    application_mkdir(application, launcher->widget, &path_list, launcher->select_files_closure);
+    application_mkdir(application,
+                      launcher->widget, &path_list,
+                      launcher->select_files_closure);
     g_object_unref(G_OBJECT(application));
 
     // release the path

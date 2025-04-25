@@ -254,12 +254,12 @@ static void _application_load_css()
     // remove extra border between side pane and view
     // add missing top border to side pane
     // make border thicker during DnD
+    // ".path-bar-button { margin-right: 0; }"
+    // ".shortcuts-pane { border-right-width: 0px; }"
+    // ".shortcuts-pane { border-top-style: solid; }"
 
     gtk_css_provider_load_from_data(
         css_provider,
-        ".path-bar-button { margin-right: 0; }"
-        ".shortcuts-pane { border-right-width: 0px; }"
-        ".shortcuts-pane { border-top-style: solid; }"
         ".standard-view { border-left-width: 0px; border-right-width: 0px; }"
         ".standard-view:drop(active) { border-width: 2px; }",
         -1,
