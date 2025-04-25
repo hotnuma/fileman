@@ -30,9 +30,6 @@
 #include "io-jobs.h"
 #include "utils.h"
 
-#ifdef SAVE_ACCEL_MAP
-#define ACCEL_MAP_PATH "Fileman/accels.scm"
-#endif
 
 // globals --------------------------------------------------------------------
 
@@ -63,8 +60,8 @@ static void application_get_property(GObject *object, guint prop_id,
 static void application_set_property(GObject *object, guint prop_id,
                                      const GValue *value, GParamSpec *pspec);
 static void application_startup(GApplication *application);
-static void _application_accel_map_changed(Application *application);
-static gboolean _application_accel_map_save(gpointer user_data);
+//static void _application_accel_map_changed(Application *application);
+//static gboolean _application_accel_map_save(gpointer user_data);
 static void _application_load_css();
 static void application_shutdown(GApplication *application);
 static void application_activate(GApplication *application);
@@ -123,23 +120,23 @@ enum
     PROP_DAEMON,
 };
 
+struct _Application
+{
+    GtkApplication  __parent__;
+
+    gboolean        daemon;
+
+    GtkWidget       *progress_dialog;
+    guint           show_dialogs_timer_id;
+    GList           *files_to_launch;
+
+    //guint           accel_map_save_id;
+    //GtkAccelMap     *accel_map;
+};
+
 struct _ApplicationClass
 {
     GtkApplicationClass __parent__;
-};
-
-struct _Application
-{
-    GtkApplication      __parent__;
-
-    gboolean            daemon;
-
-    GtkWidget           *progress_dialog;
-    guint               show_dialogs_timer_id;
-    GList               *files_to_launch;
-
-    guint               accel_map_save_id;
-    GtkAccelMap         *accel_map;
 };
 
 static GQuark _app_screen_quark;
@@ -206,33 +203,21 @@ static void application_finalize(GObject *object)
 
 static void application_startup(GApplication *gapplication)
 {
-    Application *application = APPLICATION(gapplication);
-
     prefs_file_read();
 
     G_APPLICATION_CLASS(application_parent_class)->startup(gapplication);
 
-    #ifdef SAVE_ACCEL_MAP
-    // check if we have a saved accel map
-    gchar *path = xfce_resource_lookup(XFCE_RESOURCE_CONFIG, ACCEL_MAP_PATH);
-
-    if (path != NULL))
-    {
-        // load the accel map
-        gtk_accel_map_load(path);
-        g_free(path);
-    }
-    #endif
-
     // watch for changes
-    application->accel_map = gtk_accel_map_get();
-    g_signal_connect_swapped(G_OBJECT(application->accel_map), "changed",
-                             G_CALLBACK(_application_accel_map_changed),
-                             application);
+    //Application *application = APPLICATION(gapplication);
+    //application->accel_map = gtk_accel_map_get();
+    //g_signal_connect_swapped(G_OBJECT(application->accel_map), "changed",
+    //                         G_CALLBACK(_application_accel_map_changed),
+    //                         application);
 
     _application_load_css();
 }
 
+#if 0
 static void _application_accel_map_changed(Application *application)
 {
     e_return_if_fail(IS_APPLICATION(application));
@@ -257,21 +242,9 @@ static gboolean _application_accel_map_save(gpointer user_data)
 
     application->accel_map_save_id = 0;
 
-    #ifdef SAVE_ACCEL_MAP
-    // save the current accel map
-    gchar *path = xfce_resource_save_location(XFCE_RESOURCE_CONFIG,
-                                              ACCEL_MAP_PATH,
-                                              TRUE);
-    if (path != NULL))
-    {
-        // save the accel map
-        gtk_accel_map_save(path);
-        g_free(path);
-    }
-    #endif
-
     return FALSE;
 }
+#endif
 
 static void _application_load_css()
 {
@@ -312,14 +285,14 @@ static void application_shutdown(GApplication *gapplication)
     e_list_free(application->files_to_launch);
 
     // save the current accel map
-    if (application->accel_map_save_id != 0)
-    {
-        g_source_remove(application->accel_map_save_id);
-        _application_accel_map_save(application);
-    }
+    //if (application->accel_map_save_id != 0)
+    //{
+    //    g_source_remove(application->accel_map_save_id);
+    //    _application_accel_map_save(application);
+    //}
 
-    if (application->accel_map != NULL)
-        g_object_unref(G_OBJECT(application->accel_map));
+    //if (application->accel_map != NULL)
+    //    g_object_unref(G_OBJECT(application->accel_map));
 
     // drop any running "show dialogs" timer
     if (application->show_dialogs_timer_id != 0)
