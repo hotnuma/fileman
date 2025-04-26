@@ -35,6 +35,8 @@
 #include "gtk-ext.h"
 #include "utils.h"
 
+//#include <syslog.h>
+
 // drag dest expand timeout
 #define TREEVIEW_EXPAND_TIMEOUT 750
 
@@ -1440,7 +1442,8 @@ static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
         g_object_unref(G_OBJECT(file));
 }
 
-// Open -----------------------------------------------------------------------
+
+// open -----------------------------------------------------------------------
 
 static void _treeview_action_open(TreeView *view)
 {
@@ -1980,15 +1983,10 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
 {
     TreeView *view = TREEVIEW(user_data);
 
-    UTIL_THREADS_ENTER
-
-    // verify that we are realized
     if (!gtk_widget_get_realized(GTK_WIDGET(view)))
-    {
-        UTIL_THREADS_LEAVE
-
         return true;
-    }
+
+    UTIL_THREADS_ENTER
 
     GtkAdjustment  *vadjustment;
     GtkTreePath    *start_path;
