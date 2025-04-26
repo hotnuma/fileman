@@ -492,7 +492,8 @@ static gboolean _th_file_load(ThunarFile *file, GCancellable *cancellable,
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    e_return_val_if_fail(cancellable == NULL || G_IS_CANCELLABLE(cancellable), FALSE);
+    e_return_val_if_fail(cancellable == NULL
+                         || G_IS_CANCELLABLE(cancellable), FALSE);
     e_return_val_if_fail(G_IS_FILE(file->gfile), FALSE);
 
     // remove the file from cache
@@ -735,7 +736,8 @@ static void _th_file_get_async_finish(GObject *object, GAsyncResult *result,
 static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
 {
     e_return_if_fail(IS_THUNARFILE(file));
-    e_return_if_fail(file->gfileinfo == NULL || G_IS_FILE_INFO(file->gfileinfo));
+    e_return_if_fail(file->gfileinfo == NULL
+                     || G_IS_FILE_INFO(file->gfileinfo));
 
     if (file->gfileinfo != NULL)
     {
@@ -747,15 +749,20 @@ static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
         if (file->gfiletype == G_FILE_TYPE_MOUNTABLE)
         {
             target_uri = g_file_info_get_attribute_string(
-                                            file->gfileinfo,
-                                            G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
+                                        file->gfileinfo,
+                                        G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
 
-            if (target_uri != NULL && !g_file_info_get_attribute_boolean(
-                                            file->gfileinfo,
-                                            G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT))
+            if (target_uri != NULL
+                && !g_file_info_get_attribute_boolean(
+                                    file->gfileinfo,
+                                    G_FILE_ATTRIBUTE_MOUNTABLE_CAN_MOUNT))
+            {
                 FLAG_SET(file, FILEFLAG_IS_MOUNTED);
+            }
             else
+            {
                 FLAG_UNSET(file, FILEFLAG_IS_MOUNTED);
+            }
         }
     }
 
@@ -791,15 +798,15 @@ static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
         {
             // read the icon name from the .desktop file
             file->custom_icon_name = g_key_file_get_string(
-                                                    key_file,
-                                                    G_KEY_FILE_DESKTOP_GROUP,
-                                                    G_KEY_FILE_DESKTOP_KEY_ICON,
-                                                    NULL);
+                                                key_file,
+                                                G_KEY_FILE_DESKTOP_GROUP,
+                                                G_KEY_FILE_DESKTOP_KEY_ICON,
+                                                NULL);
 
             if (!file->custom_icon_name || !*file->custom_icon_name)
             {
-                /* make sure we set null if the string is empty else the assertion in
-                 * thunar_icon_factory_lookup_icon() will fail */
+                // make sure we set null if the string is empty else the
+                // assertion in thunar_icon_factory_lookup_icon() will fail
                 g_free(file->custom_icon_name);
                 file->custom_icon_name = NULL;
             }
@@ -845,13 +852,15 @@ static void _th_file_info_load(ThunarFile *file, GCancellable *cancellable)
     }
 
     // create case sensitive collation key
-    file->collate_key = g_utf8_collate_key_for_filename(file->display_name, -1);
+    file->collate_key = g_utf8_collate_key_for_filename(file->display_name,
+                                                        -1);
 
     gchar *casefold = g_utf8_casefold(file->display_name, -1);
 
     // if the lowercase name is equal, only peek the already hash key
     if (casefold != NULL && strcmp(casefold, file->display_name) != 0)
-        file->collate_key_nocase = g_utf8_collate_key_for_filename(casefold, -1);
+        file->collate_key_nocase = g_utf8_collate_key_for_filename(casefold,
+                                                                   -1);
     else
         file->collate_key_nocase = file->collate_key;
 
@@ -914,9 +923,8 @@ void th_file_destroy(ThunarFile *file)
     if (FLAG_IS_SET(file, FILEFLAG_IN_DESTRUCTION))
         return;
 
-    /* take an additional reference on the file, as the file-destroyed
-     * invocation may already release the last reference.
-     */
+    // take an additional reference on the file, as the file-destroyed
+    // invocation may already release the last reference.
     g_object_ref(G_OBJECT(file));
 
     // tell the file monitor that this file was destroyed
@@ -956,7 +964,8 @@ GAppInfo* th_file_get_default_handler(const ThunarFile *file)
         must_support_uris =(path == NULL);
         g_free(path);
 
-        app_info = g_app_info_get_default_for_type(content_type, must_support_uris);
+        app_info = g_app_info_get_default_for_type(content_type,
+                                                   must_support_uris);
     }
 
     if (app_info == NULL)
@@ -1088,8 +1097,10 @@ ThunarFileMode th_file_get_mode(const ThunarFile *file)
     if (file->gfileinfo == NULL)
         return 0;
 
-    if (g_file_info_has_attribute(file->gfileinfo, G_FILE_ATTRIBUTE_UNIX_MODE))
-        return g_file_info_get_attribute_uint32(file->gfileinfo, G_FILE_ATTRIBUTE_UNIX_MODE);
+    if (g_file_info_has_attribute(file->gfileinfo,
+                                  G_FILE_ATTRIBUTE_UNIX_MODE))
+        return g_file_info_get_attribute_uint32(file->gfileinfo,
+                                                G_FILE_ATTRIBUTE_UNIX_MODE);
     else
         return th_file_is_directory(file) ? 0777 : 0666;
 }
@@ -1106,17 +1117,16 @@ guint64 th_file_get_size(const ThunarFile *file)
 
 GFile* th_file_get_target_location(const ThunarFile *file)
 {
-    const gchar *uri;
-
     e_return_val_if_fail(IS_THUNARFILE(file), NULL);
 
     if (file->gfileinfo == NULL)
         return g_object_ref(file->gfile);
 
-    uri = g_file_info_get_attribute_string(file->gfileinfo,
-                                            G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
+    const gchar *uri = g_file_info_get_attribute_string(
+                                file->gfileinfo,
+                                G_FILE_ATTRIBUTE_STANDARD_TARGET_URI);
 
-    return(uri != NULL) ? g_file_new_for_uri(uri) : NULL;
+    return (uri != NULL) ? g_file_new_for_uri(uri) : NULL;
 }
 
 /**
@@ -1134,27 +1144,20 @@ GFile* th_file_get_target_location(const ThunarFile *file)
  **/
 ThunarUser* th_file_get_user(const ThunarFile *file)
 {
-    guint32 uid;
-
     e_return_val_if_fail(IS_THUNARFILE(file), NULL);
 
-    // TODO what are we going to do on non-UNIX systems?
-    uid = g_file_info_get_attribute_uint32(file->gfileinfo,
-                                            G_FILE_ATTRIBUTE_UNIX_UID);
+    guint32 uid = g_file_info_get_attribute_uint32(file->gfileinfo,
+                                                   G_FILE_ATTRIBUTE_UNIX_UID);
 
     return usermanager_get_user_by_id(_user_manager, uid);
 }
 
-/**
- * th_file_get_volume:
- * @file           : a #ThunarFile instance.
- *
- * Attempts to determine the #GVolume on which @file is located. If @file cannot
- * determine it's volume, then %NULL will be returned. Else a #GVolume instance
- * is returned which has to be released by the caller using g_object_unref().
- *
- * Return value: the #GVolume for @file or %NULL.
- **/
+/*
+ * Attempts to determine the GVolume on which file is located.
+ * If file cannot determine it's volume, then %NULL will be returned.
+ * Else a GVolume instance is returned which has to be released by
+ * the caller using g_object_unref().
+ */
 GVolume* th_file_get_volume(const ThunarFile *file)
 {
     GVolume *volume = NULL;
@@ -1189,7 +1192,8 @@ GVolume* th_file_get_volume(const ThunarFile *file)
  * Return value: the deletion date of @file if @file is
  *               in the trash, %NULL otherwise.
  **/
-gchar* th_file_get_deletion_date(const ThunarFile *file, ThunarDateStyle date_style,
+gchar* th_file_get_deletion_date(const ThunarFile *file,
+                                 ThunarDateStyle date_style,
                                  const gchar *date_custom_style)
 {
     const gchar *date;
@@ -1198,7 +1202,10 @@ gchar* th_file_get_deletion_date(const ThunarFile *file, ThunarDateStyle date_st
     e_return_val_if_fail(IS_THUNARFILE(file), NULL);
     e_return_val_if_fail(G_IS_FILE_INFO(file->gfileinfo), NULL);
 
-    date = g_file_info_get_attribute_string(file->gfileinfo, G_FILE_ATTRIBUTE_TRASH_DELETION_DATE);
+    date = g_file_info_get_attribute_string(
+                                    file->gfileinfo,
+                                    G_FILE_ATTRIBUTE_TRASH_DELETION_DATE);
+
     if (date == NULL)
         return NULL;
 
@@ -1206,7 +1213,8 @@ gchar* th_file_get_deletion_date(const ThunarFile *file, ThunarDateStyle date_st
     deletion_time = util_time_from_rfc3339(date);
 
     // humanize the time value
-    return util_humanize_file_time(deletion_time, date_style, date_custom_style);
+    return util_humanize_file_time(deletion_time,
+                                   date_style, date_custom_style);
 }
 
 /**
@@ -1223,7 +1231,8 @@ gchar* th_file_get_deletion_date(const ThunarFile *file, ThunarDateStyle date_st
  *
  * Return value: the @date_type of @file formatted as string.
  **/
-gchar* th_file_get_date_string(const ThunarFile *file, FileDateType date_type,
+gchar* th_file_get_date_string(const ThunarFile *file,
+                               FileDateType date_type,
                                ThunarDateStyle date_style,
                                const gchar *date_custom_style)
 {
@@ -1394,8 +1403,9 @@ const gchar* th_file_get_content_type(ThunarFile *file)
                 content_type = g_file_info_get_content_type(fileinfo);
 
                 if (content_type == NULL)
-                    content_type = g_file_info_get_attribute_string(fileinfo,
-                                   G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
+                    content_type = g_file_info_get_attribute_string(
+                                fileinfo,
+                                G_FILE_ATTRIBUTE_STANDARD_FAST_CONTENT_TYPE);
 
                 if (content_type != NULL)
                     file->content_type = g_strdup(content_type);
@@ -1482,9 +1492,11 @@ const gchar* th_file_get_icon_name(ThunarFile *file, FileIconState icon_state,
                     *special_names = "user-home";
                 else
                 {
-                    for(i = 0; i < G_N_ELEMENTS(_th_file_dirs); i++)
+                    for (i = 0; i < G_N_ELEMENTS(_th_file_dirs); i++)
                     {
-                        special_dir = g_get_user_special_dir(_th_file_dirs[i].type);
+                        special_dir =
+                                g_get_user_special_dir(_th_file_dirs[i].type);
+
                         if (special_dir != NULL
                                 && strcmp(path, special_dir) == 0)
                         {
@@ -1501,7 +1513,8 @@ const gchar* th_file_get_icon_name(ThunarFile *file, FileIconState icon_state,
         {
             if (g_file_has_uri_scheme(file->gfile, "trash"))
             {
-                special_names[0] = th_file_get_trash_count(file) > 0 ? "user-trash-full" : "user-trash";
+                special_names[0] = th_file_get_trash_count(file) > 0
+                        ? "user-trash-full" : "user-trash";
                 special_names[1] = "user-trash";
             }
             else if (g_file_has_uri_scheme(file->gfile, "network"))
@@ -1584,7 +1597,8 @@ check_names:
             g_object_unref(icon);
     }
 
-    // store new name, fallback to legacy names, or empty string to avoid recursion
+    // store new name, fallback to legacy names, or empty string
+    // to avoid recursion
     g_free(file->icon_name);
 
     if (icon_name != NULL)
@@ -1627,8 +1641,9 @@ const gchar* th_file_get_original_path(const ThunarFile *file)
     if (file->gfileinfo == NULL)
         return NULL;
 
-    return g_file_info_get_attribute_byte_string(file->gfileinfo,
-                                                 G_FILE_ATTRIBUTE_TRASH_ORIG_PATH);
+    return g_file_info_get_attribute_byte_string(
+                                    file->gfileinfo,
+                                    G_FILE_ATTRIBUTE_TRASH_ORIG_PATH);
 }
 
 const gchar* th_file_get_symlink_target(const ThunarFile *file)
@@ -2543,7 +2558,9 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
-    e_return_val_if_fail(parent == NULL || GDK_IS_SCREEN(parent) || GTK_IS_WIDGET(parent), FALSE);
+    e_return_val_if_fail(parent == NULL
+                         || GDK_IS_SCREEN(parent)
+                         || GTK_IS_WIDGET(parent), FALSE);
 
     GdkScreen *screen = util_parse_parent(parent, NULL);
 
@@ -2569,19 +2586,22 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
     // TODO We should probably add a cancellable argument to th_file_launch()
     GAppInfo *app_info = th_file_get_default_handler(THUNARFILE(file));
 
-    /* display the application chooser if no application is defined for this file
-     * type yet */
+    // display the application chooser if no application is defined
+    // for this file type yet
     if (app_info == NULL)
     {
         appchooser_dialog(parent, file, TRUE);
         return TRUE;
     }
 
-    /* HACK: check if we're not trying to launch another file manager again, possibly
-     * ourselfs which will end in a loop */
-    if (g_strcmp0(g_app_info_get_id(app_info), "exo-file-manager.desktop") == 0
-            || g_strcmp0(g_app_info_get_id(app_info), "thunar.desktop") == 0
-            || g_strcmp0(g_app_info_get_name(app_info), "exo-file-manager") == 0)
+    // HACK: check if we're not trying to launch another file manager again,
+    // possibly ourselfs which will end in a loop
+    if (g_strcmp0(g_app_info_get_id(app_info),
+                  "exo-file-manager.desktop") == 0
+        || g_strcmp0(g_app_info_get_id(app_info),
+                     "fileman.desktop") == 0
+        || g_strcmp0(g_app_info_get_name(app_info),
+                     "exo-file-manager") == 0)
     {
         g_object_unref(G_OBJECT(app_info));
         appchooser_dialog(parent, file, TRUE);
@@ -2593,22 +2613,19 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
     path_list.data = file->gfile;
     path_list.next = path_list.prev = NULL;
 
-    // create a launch context
-    GdkAppLaunchContext *context;
-    context = gdk_display_get_app_launch_context(gdk_screen_get_display(screen));
+    GdkAppLaunchContext *context =
+        gdk_display_get_app_launch_context(gdk_screen_get_display(screen));
     gdk_app_launch_context_set_screen(context, screen);
-    gdk_app_launch_context_set_timestamp(context, gtk_get_current_event_time());
+    gdk_app_launch_context_set_timestamp(context,
+                                         gtk_get_current_event_time());
 
-    // otherwise try to execute the application
     gboolean succeed = g_app_info_launch(app_info,
                                          &path_list,
                                          G_APP_LAUNCH_CONTEXT(context),
                                          error);
 
-    // destroy the launch context
     g_object_unref(context);
 
-    // release the handler reference
     g_object_unref(G_OBJECT(app_info));
 
     return succeed;

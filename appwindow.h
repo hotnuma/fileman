@@ -21,7 +21,6 @@
 
 #include "launcher.h"
 #include "th-file.h"
-//#include <libxfce4ui/libxfce4ui.h>
 
 G_BEGIN_DECLS
 
@@ -61,7 +60,8 @@ typedef struct _AppWindowClass AppWindowClass;
 GType window_get_type() G_GNUC_CONST;
 
 ThunarLauncher* window_get_launcher(AppWindow *window);
-void window_set_current_directory(AppWindow *window, ThunarFile *current_directory);
+void window_set_current_directory(AppWindow *window,
+                                  ThunarFile *current_directory);
 
 void window_redirect_tooltips(AppWindow *window, GtkMenu *menu);
 
