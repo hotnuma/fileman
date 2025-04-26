@@ -22,7 +22,7 @@
 #include "config.h"
 #include "treeview.h"
 
-#include "application.h"
+#include "appwindow.h"
 #include "appmenu.h"
 #include "treemodel.h"
 #include "iconfactory.h"
@@ -119,13 +119,15 @@ static void treeview_drag_data_get(GtkWidget *widget, GdkDragContext *context,
                                    GtkSelectionData *seldata, guint info,
                                    guint timestamp);
 static gchar** _gfile_to_stringv(GFile *file);
-static void treeview_drag_data_delete(GtkWidget *widget, GdkDragContext *context);
+static void treeview_drag_data_delete(GtkWidget *widget,
+                                      GdkDragContext *context);
 static void treeview_drag_end(GtkWidget *widget, GdkDragContext *context);
 #endif
 
 // DnD Dest -------------------------------------------------------------------
 
-static gboolean treeview_drag_motion(GtkWidget *widget, GdkDragContext *context,
+static gboolean treeview_drag_motion(GtkWidget *widget,
+                                     GdkDragContext *context,
                                      gint x, gint y, guint time);
 static GdkDragAction _treeview_get_dest_actions(TreeView *view,
                                                 GdkDragContext *context,
@@ -139,7 +141,8 @@ static void _treeview_expand_timer_destroy(gpointer user_data);
 static gboolean treeview_drag_drop(GtkWidget *widget, GdkDragContext *context,
                                    gint x, gint y, guint time);
 
-static void treeview_drag_data_received(GtkWidget *widget, GdkDragContext *context,
+static void treeview_drag_data_received(GtkWidget *widget,
+                                        GdkDragContext *context,
                                         gint x, gint y,
                                         GtkSelectionData *seldata,
                                         guint info, guint time);
@@ -171,11 +174,6 @@ enum
     PROP_0,
     PROP_CURRENT_DIRECTORY,
     PROP_SHOW_HIDDEN,
-};
-
-struct _TreeViewClass
-{
-    GtkTreeViewClass __parent__;
 };
 
 struct _TreeView
@@ -222,6 +220,11 @@ struct _TreeView
 
     guint               drag_scroll_timer_id;
     guint               expand_timer_id;
+};
+
+struct _TreeViewClass
+{
+    GtkTreeViewClass __parent__;
 };
 
 G_DEFINE_TYPE_WITH_CODE(TreeView,
@@ -421,7 +424,7 @@ static void treeview_realize(GtkWidget *widget)
     GTK_WIDGET_CLASS(treeview_parent_class)->realize(widget);
 
     GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
-                                                gtk_widget_get_screen(widget));
+                                            gtk_widget_get_screen(widget));
     view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
     // query the clipboard manager for the display
@@ -456,12 +459,14 @@ static void treeview_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value,
-                           navigator_get_current_directory(THUNARNAVIGATOR(object)));
+        g_value_set_object(
+                value,
+                navigator_get_current_directory(THUNARNAVIGATOR(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
-        g_value_set_boolean(value, _treeview_get_show_hidden(TREEVIEW(object)));
+        g_value_set_boolean(value,
+                            _treeview_get_show_hidden(TREEVIEW(object)));
         break;
 
     default:
@@ -592,10 +597,11 @@ static void treeview_set_current_directory(ThunarNavigator *navigator,
         // schedule an idle source to set the cursor to the current directory
         if (view->cursor_idle_id == 0)
         {
-            view->cursor_idle_id = g_idle_add_full(G_PRIORITY_LOW,
-                                                   _treeview_cursor_idle,
-                                                   view,
-                                                   _treeview_cursor_idle_destroy);
+            view->cursor_idle_id = g_idle_add_full(
+                                            G_PRIORITY_LOW,
+                                            _treeview_cursor_idle,
+                                            view,
+                                            _treeview_cursor_idle_destroy);
         }
     }
 
@@ -623,10 +629,12 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
 
     UTIL_THREADS_ENTER
 
-    // for easier navigation, we sometimes want to force/keep selection of a certain path
+    // for easier navigation, we sometimes want to force/keep selection
+    // of a certain path
     if (view->select_path != NULL)
     {
-        gtk_tree_view_set_cursor(GTK_TREE_VIEW(view), view->select_path, NULL, false);
+        gtk_tree_view_set_cursor(GTK_TREE_VIEW(view),
+                                 view->select_path, NULL, false);
         gtk_tree_path_free(view->select_path);
         view->select_path = NULL;
         return true;
@@ -637,7 +645,8 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
         return true;
 
     // get the preferred toplevel path for the current directory
-    path = _treeview_get_preferred_toplevel_path(view, view->current_directory);
+    path = _treeview_get_preferred_toplevel_path(view,
+                                                 view->current_directory);
 
     // fallback to a newly created root node
     if (path == NULL)

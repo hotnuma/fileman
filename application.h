@@ -22,13 +22,10 @@
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
 
-#include "etktype.h"
-#include "appwindow.h"
 #include "job.h"
+#include "etktype.h"
 
 G_BEGIN_DECLS
-
-// application ----------------------------------------------------------------
 
 typedef struct _Application Application;
 
@@ -36,11 +33,6 @@ typedef struct _Application Application;
 E_DECLARE_FINAL_TYPE(Application, application, APPLICATION, GtkApplication)
 
 GType application_get_type() G_GNUC_CONST;
-
-// properties -----------------------------------------------------------------
-
-//gboolean application_get_daemon(Application *application);
-//void application_set_daemon(Application *application, gboolean daemon);
 
 // public ---------------------------------------------------------------------
 

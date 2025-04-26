@@ -22,6 +22,7 @@
 #include "dnd.h"
 
 #include "application.h"
+#include "launcher.h"
 #include "dialogs.h"
 #include "gtk-ext.h"
 

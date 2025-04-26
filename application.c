@@ -22,6 +22,7 @@
 #include "config.h"
 #include "application.h"
 
+#include "appwindow.h"
 #include "browser.h"
 #include "preferences.h"
 #include "th-folder.h"

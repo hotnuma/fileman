@@ -19,11 +19,10 @@
 #define __APPMENU_H__
 
 #include "etktype.h"
-#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-// For window menu, some items are shown insensitive, instead of hidden
+// for window menu, some items are shown insensitive, instead of hidden
 typedef enum
 {
     MENU_TYPE_WINDOW,
@@ -34,7 +33,7 @@ typedef enum
 
 } MenuType;
 
-// Bundles of GtkMenuItems, which can be created by this widget
+// bundles of GtkMenuItems, which can be created by this widget
 typedef enum
 {
     MENU_SECTION_OPEN             = 1 << 0,
