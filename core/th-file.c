@@ -2550,13 +2550,13 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
     // check if we have a folder here
     if (th_file_is_directory(file))
     {
-        Application *app = application_get();
+        Application *application = application_get();
 
-        // Create app window
-        application_open_window(app, file,
-                                screen, startup_id /*, FALSE*/);
+        // create app window
+        application_open_window(application,
+                                file, screen, startup_id);
 
-        g_object_unref(G_OBJECT(app));
+        g_object_unref(G_OBJECT(application));
 
         return TRUE;
     }
@@ -2567,8 +2567,7 @@ gboolean th_file_launch(ThunarFile *file, gpointer parent,
 
     // determine the default application to open the file
     // TODO We should probably add a cancellable argument to th_file_launch()
-    GAppInfo            *app_info;
-    app_info = th_file_get_default_handler(THUNARFILE(file));
+    GAppInfo *app_info = th_file_get_default_handler(THUNARFILE(file));
 
     /* display the application chooser if no application is defined for this file
      * type yet */

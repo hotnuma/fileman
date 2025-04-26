@@ -36,6 +36,7 @@ int main(int argc, char **argv)
     #endif
 
     Application *application = application_get();
+
     gtk_window_set_default_icon_name("Thunar");
 
     g_application_run(G_APPLICATION(application), argc, argv);

@@ -1836,12 +1836,11 @@ static void _launcher_poke_files_finish(ThunarBrowser *browser,
     }
 }
 
-static void _launcher_open_windows(ThunarLauncher *launcher, GList *directories)
+static void _launcher_open_windows(ThunarLauncher *launcher,
+                                   GList *directories)
 {
-    Application *application;
     GtkWidget         *dialog;
     GtkWidget         *window;
-    GdkScreen         *screen;
     gchar             *label;
     GList             *lp;
     gint               response = GTK_RESPONSE_YES;
@@ -1872,25 +1871,21 @@ static void _launcher_open_windows(ThunarLauncher *launcher, GList *directories)
         g_free(label);
     }
 
-    // open n new windows if the user approved it
-    if (response == GTK_RESPONSE_YES)
+    if (response != GTK_RESPONSE_YES)
+        return;
+
+    GdkScreen *screen = gtk_widget_get_screen(launcher->widget);
+
+    Application *application = application_get();
+
+    // open all requested windows
+    for (lp = directories; lp != NULL; lp = lp->next)
     {
-        // query the application object
-        application = application_get();
-
-        // determine the screen on which to open the new windows
-        screen = gtk_widget_get_screen(launcher->widget);
-
-        // open all requested windows
-        for (lp = directories; lp != NULL; lp = lp->next)
-        {
-            application_open_window(application, lp->data,
-                                    screen, NULL /*, TRUE*/);
-        }
-
-        // release the application object
-        g_object_unref(G_OBJECT(application));
+        application_open_window(application,
+                                lp->data, screen, NULL);
     }
+
+    g_object_unref(G_OBJECT(application));
 }
 
 static void _launcher_open_file(ThunarLauncher *launcher,
@@ -2139,15 +2134,15 @@ static void _execute_mkdir(gpointer parent,
     e_return_if_fail(IS_APPLICATION(application));
 
     application_launch(application,
-                        parent,
-                        "folder-new",
-                        _("Creating directories..."),
-                        io_make_directories,
-                        file_list,
-                        file_list,
-                        TRUE,
-                        FALSE,
-                        new_files_closure);
+                       parent,
+                       "folder-new",
+                       _("Creating directories..."),
+                       io_make_directories,
+                       file_list,
+                       file_list,
+                       TRUE,
+                       FALSE,
+                       new_files_closure);
 
     g_object_unref(G_OBJECT(application));
 }
@@ -2455,24 +2450,27 @@ void execute_unlink_files(gpointer parent,
     g_free(message);
 
     // perform the delete operation
-    if (response == GTK_RESPONSE_YES)
+    if (response != GTK_RESPONSE_YES)
     {
-        Application *application = application_get();
-        e_return_if_fail(IS_APPLICATION(application));
-
-        application_launch(application,
-                            parent,
-                            "edit-delete",
-                            _("Deleting files..."),
-                            io_unlink_files,
-                            path_list,
-                            path_list,
-                            TRUE,
-                            FALSE,
-                            NULL);
-
-        g_object_unref(G_OBJECT(application));
+        e_list_free(path_list);
+        return;
     }
+
+    Application *application = application_get();
+    e_return_if_fail(IS_APPLICATION(application));
+
+    application_launch(application,
+                       parent,
+                       "edit-delete",
+                       _("Deleting files..."),
+                       io_unlink_files,
+                       path_list,
+                       path_list,
+                       TRUE,
+                       FALSE,
+                       NULL);
+
+    g_object_unref(G_OBJECT(application));
 
     e_list_free(path_list);
 }
@@ -2547,7 +2545,6 @@ static void _execute_empty_trash(gpointer parent,
     Application *application = application_get();
     e_return_if_fail(IS_APPLICATION(application));
 
-    // launch the operation
     application_launch(application,
                        parent,
                        "user-trash",
@@ -2635,10 +2632,10 @@ static void _launcher_action_restore(ThunarLauncher *launcher)
                        TRUE,
                        new_files_closure);
 
+    g_object_unref(G_OBJECT(application));
+
     e_list_free(source_path_list);
     e_list_free(target_path_list);
-
-    g_object_unref(G_OBJECT(application));
 }
 
 static void _launcher_action_duplicate(ThunarLauncher *launcher)
@@ -2669,9 +2666,9 @@ static void _launcher_action_duplicate(ThunarLauncher *launcher)
     e_list_free(files_to_process);
 }
 
-void execute_copy_into(gpointer parent,
-                           GList *source_file_list, GFile *target_file,
-                           GClosure *new_files_closure)
+void execute_copy_into(GtkWidget *parent,
+                       GList *source_file_list, GFile *target_file,
+                       GClosure *new_files_closure)
 {
     e_return_if_fail(parent == NULL || GDK_IS_SCREEN(parent)
                      || GTK_IS_WIDGET(parent));
@@ -3046,15 +3043,15 @@ void execute_trash(gpointer parent, GList *file_list)
     e_return_if_fail(IS_APPLICATION(application));
 
     application_launch(application,
-                        parent,
-                        "user-trash-full",
-                        _("Moving files into the trash..."),
-                        io_trash_files,
-                        file_list,
-                        NULL,
-                        TRUE,
-                        FALSE,
-                        NULL);
+                       parent,
+                       "user-trash-full",
+                       _("Moving files into the trash..."),
+                       io_trash_files,
+                       file_list,
+                       NULL,
+                       TRUE,
+                       FALSE,
+                       NULL);
 
     g_object_unref(G_OBJECT(application));
 }
@@ -3119,17 +3116,18 @@ static void _execute_collect_and_launch(gpointer     parent,
     e_return_if_fail(IS_APPLICATION(application));
 
     application_launch(application,
-                        parent,
-                        icon_name,
-                        title,
-                        launcher,
-                        source_file_list,
-                        target_file_list,
-                        update_source_folders,
-                        update_target_folders,
-                        new_files_closure);
+                       parent,
+                       icon_name,
+                       title,
+                       launcher,
+                       source_file_list,
+                       target_file_list,
+                       update_source_folders,
+                       update_target_folders,
+                       new_files_closure);
 
     g_object_unref(G_OBJECT(application));
+
     e_list_free(target_file_list);
 }
 

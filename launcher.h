@@ -110,9 +110,9 @@ void launcher_action_eject(ThunarLauncher *launcher);
 void launcher_action_rename(ThunarLauncher *launcher);
 void launcher_action_trash_delete(ThunarLauncher *launcher);
 
-void execute_copy_into(gpointer parent,
-                           GList *source_file_list, GFile *target_file,
-                           GClosure *new_files_closure);
+void execute_copy_into(GtkWidget *parent,
+                       GList *source_file_list, GFile *target_file,
+                       GClosure *new_files_closure);
 void execute_link_into(gpointer parent,
                            GList *source_file_list, GFile *target_file,
                            GClosure *new_files_closure);

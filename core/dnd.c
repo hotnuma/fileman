@@ -171,12 +171,8 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
     e_return_val_if_fail(gtk_widget_get_realized(widget), FALSE);
 
-    // query a reference on the application object
-    Application *application;
-    application = application_get();
-
-    gboolean           succeed = TRUE;
-    GError            *error = NULL;
+    gboolean succeed = TRUE;
+    GError *error = NULL;
 
     // check if the file is a directory
     if (th_file_is_directory(file))
@@ -186,23 +182,23 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
         {
         case GDK_ACTION_COPY:
             execute_copy_into(widget,
-                                  file_list,
-                                  th_file_get_file(file),
-                                  new_files_closure);
+                              file_list,
+                              th_file_get_file(file),
+                              new_files_closure);
             break;
 
         case GDK_ACTION_MOVE:
             execute_move_into(widget,
-                                  file_list,
-                                  th_file_get_file(file),
-                                  new_files_closure);
+                              file_list,
+                              th_file_get_file(file),
+                              new_files_closure);
             break;
 
         case GDK_ACTION_LINK:
             execute_link_into(widget,
-                                  file_list,
-                                  th_file_get_file(file),
-                                  new_files_closure);
+                              file_list,
+                              th_file_get_file(file),
+                              new_files_closure);
             break;
 
         default:
@@ -229,9 +225,6 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
     {
         succeed = FALSE;
     }
-
-    // release the application reference
-    g_object_unref(G_OBJECT(application));
 
     return succeed;
 }

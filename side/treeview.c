@@ -1620,11 +1620,10 @@ gboolean treeview_delete_selected(TreeView *view)
     return true;
 }
 
-static void _treeview_action_unlink_selected_folder(TreeView *view, gboolean permanently)
+static void _treeview_action_unlink_selected_folder(TreeView *view,
+                                                    gboolean permanently)
 {
     e_return_if_fail(IS_TREEVIEW(view));
-
-    // determine the selected file
 
     ThunarFile *file = _treeview_get_selected_file(view);
 
@@ -1640,17 +1639,11 @@ static void _treeview_action_unlink_selected_folder(TreeView *view, gboolean per
         file_list.next = NULL;
         file_list.prev = NULL;
 
-        // delete the file
-        //Application *application = application_get();
-
         execute_unlink_files(GTK_WIDGET(view),
                                         &file_list,
                                         permanently);
-
-        //g_object_unref(G_OBJECT(application));
     }
 
-    // release the file
     g_object_unref(G_OBJECT(file));
 }
 
@@ -1678,6 +1671,7 @@ void treeview_rename_selected(TreeView *view)
 
     return;
 }
+
 
 // DnD Source -----------------------------------------------------------------
 
@@ -1794,6 +1788,7 @@ static void treeview_drag_end(GtkWidget *widget, GdkDragContext *context)
     }
 }
 #endif
+
 
 // DnD Dest -------------------------------------------------------------------
 

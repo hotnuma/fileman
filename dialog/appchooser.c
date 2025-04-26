@@ -1177,7 +1177,9 @@ void appchooser_dialog(gpointer parent, ThunarFile *file, gboolean open)
 
     // let the application handle the dialog
     Application *application = application_get();
+
     application_take_window(application, GTK_WINDOW(dialog));
+
     g_object_unref(G_OBJECT(application));
 
     // display the dialog
