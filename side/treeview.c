@@ -38,8 +38,6 @@
 // drag dest expand timeout
 #define TREEVIEW_EXPAND_TIMEOUT 750
 
-#define ENABLE_TREE_DRAG
-
 // TreeView -------------------------------------------------------------------
 
 static void treeview_navigator_init(ThunarNavigatorIface *iface);
@@ -115,7 +113,6 @@ static void _treeview_action_unlink_selected_folder(TreeView *view,
 
 // DnD Source -----------------------------------------------------------------
 
-#ifdef ENABLE_TREE_DRAG
 static void treeview_drag_begin(GtkWidget *widget, GdkDragContext *context);
 static void treeview_drag_data_get(GtkWidget *widget,
                                    GdkDragContext *context,
@@ -125,7 +122,6 @@ static gchar** _gfile_to_stringv(GFile *file);
 static void treeview_drag_data_delete(GtkWidget *widget,
                                       GdkDragContext *context);
 static void treeview_drag_end(GtkWidget *widget, GdkDragContext *context);
-#endif
 
 // DnD Dest -------------------------------------------------------------------
 
@@ -160,12 +156,10 @@ enum
     TARGET_TEXT_URI_LIST,
 };
 
-#ifdef ENABLE_TREE_DRAG
 static const GtkTargetEntry _drag_targets[] =
 {
     {"text/uri-list", 0, TARGET_TEXT_URI_LIST},
 };
-#endif
 
 static const GtkTargetEntry _drop_targets[] =
 {
@@ -252,12 +246,10 @@ static void treeview_class_init(TreeViewClass *klass)
 
     //gtkwidget_class->popup_menu = treeview_popup_menu;
 
-#ifdef ENABLE_TREE_DRAG
     gtkwidget_class->drag_begin = treeview_drag_begin;
     gtkwidget_class->drag_data_get = treeview_drag_data_get;
     gtkwidget_class->drag_data_delete = treeview_drag_data_delete;
     gtkwidget_class->drag_end = treeview_drag_end;
-#endif
 
     gtkwidget_class->drag_motion = treeview_drag_motion;
     gtkwidget_class->drag_drop = treeview_drag_drop;
@@ -363,13 +355,10 @@ static void treeview_init(TreeView *view)
                            G_BINDING_SYNC_CREATE);
 
     // enable drag support
-
-#ifdef ENABLE_TREE_DRAG
     gtk_drag_source_set(GTK_WIDGET(view),
                         GDK_BUTTON1_MASK,
                         _drag_targets, G_N_ELEMENTS(_drag_targets),
-                        GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK);
-#endif
+                        GDK_ACTION_COPY | GDK_ACTION_LINK | GDK_ACTION_MOVE);
 
     // enable drop support
     gtk_drag_dest_set(GTK_WIDGET(view),
@@ -1734,9 +1723,8 @@ void treeview_rename_selected(TreeView *view)
 }
 
 
-// DnD Source -----------------------------------------------------------------
+// dnd source -----------------------------------------------------------------
 
-#ifdef ENABLE_TREE_DRAG
 static void treeview_drag_begin(GtkWidget *widget, GdkDragContext *context)
 {
     TreeView *view = TREEVIEW(widget);
@@ -1850,10 +1838,9 @@ static void treeview_drag_end(GtkWidget *widget, GdkDragContext *context)
         view->drag_gfile = NULL;
     }
 }
-#endif
 
 
-// DnD Dest -------------------------------------------------------------------
+// dnd dest -------------------------------------------------------------------
 
 static gboolean treeview_drag_motion(GtkWidget *widget,
                                      GdkDragContext *context,

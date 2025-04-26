@@ -1146,14 +1146,15 @@ static void _standardview_scroll_position_save(StandardView *view)
     }
 }
 
-static void _standardview_current_directory_destroy(ThunarFile *current_directory,
-                                                    StandardView *view)
+static void _standardview_current_directory_destroy(
+                                        ThunarFile *current_directory,
+                                        StandardView *view)
 {
     e_return_if_fail(IS_STANDARD_VIEW(view));
     e_return_if_fail(IS_THUNARFILE(current_directory));
     e_return_if_fail(view->priv->current_directory == current_directory);
 
-    DPRINT("*** _standardview_current_directory_destroy\n");
+    //DPRINT("*** _standardview_current_directory_destroy\n");
 
     GError *error = NULL;
 
