@@ -35,8 +35,6 @@
 #include "gtk-ext.h"
 #include "utils.h"
 
-//#include <syslog.h>
-
 // drag dest expand timeout
 #define TREEVIEW_EXPAND_TIMEOUT 750
 
@@ -47,7 +45,7 @@ static void treeview_finalize(GObject *object);
 static void treeview_realize(GtkWidget *widget);
 static void treeview_unrealize(GtkWidget *widget);
 
-// Properties -----------------------------------------------------------------
+// properties -----------------------------------------------------------------
 
 static void treeview_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec);
@@ -83,12 +81,12 @@ static gboolean treeview_test_expand_row(GtkTreeView *tree_view,
 static void treeview_row_collapsed(GtkTreeView *tree_view, GtkTreeIter *iter,
                                    GtkTreePath *path);
 
-// Popup ----------------------------------------------------------------------
+// popup ----------------------------------------------------------------------
 
 static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                    GtkTreeIter *iter);
 
-// Open -----------------------------------------------------------------------
+// open -----------------------------------------------------------------------
 
 static void _treeview_action_open(TreeView *view);
 static void _treeview_open_selection(TreeView *view);
@@ -106,13 +104,13 @@ static void _treeview_select_files(TreeView *view, GList *files_to_selected);
 static ThunarDevice* _treeview_get_selected_device(TreeView *view);
 static ThunarFile* _treeview_get_selected_file(TreeView *view);
 
-// Actions --------------------------------------------------------------------
+// actions --------------------------------------------------------------------
 
 // treeview_delete_selected
 static void _treeview_action_unlink_selected_folder(TreeView *view,
                                                     gboolean permanently);
 
-// DnD Source -----------------------------------------------------------------
+// dnd source -----------------------------------------------------------------
 
 static void treeview_drag_begin(GtkWidget *widget, GdkDragContext *context);
 static void treeview_drag_data_get(GtkWidget *widget,
@@ -124,7 +122,7 @@ static void treeview_drag_data_delete(GtkWidget *widget,
                                       GdkDragContext *context);
 static void treeview_drag_end(GtkWidget *widget, GdkDragContext *context);
 
-// DnD Dest -------------------------------------------------------------------
+// dnd dest -------------------------------------------------------------------
 
 static gboolean treeview_drag_motion(GtkWidget *widget,
                                      GdkDragContext *context,
@@ -231,6 +229,14 @@ G_DEFINE_TYPE_WITH_CODE(TreeView,
                         GTK_TYPE_TREE_VIEW,
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               treeview_navigator_init))
+
+
+// creation / destruction -----------------------------------------------------
+
+GtkWidget* treeview_new()
+{
+    return g_object_new(TYPE_TREEVIEW, NULL);
+}
 
 static void treeview_class_init(TreeViewClass *klass)
 {
@@ -366,7 +372,38 @@ static void treeview_init(TreeView *view)
                       GDK_ACTION_COPY | GDK_ACTION_LINK | GDK_ACTION_MOVE);
 }
 
-// TreeView -------------------------------------------------------------------
+static void treeview_realize(GtkWidget *widget)
+{
+    TreeView *view = TREEVIEW(widget);
+
+    // let the parent class realize the widget
+    GTK_WIDGET_CLASS(treeview_parent_class)->realize(widget);
+
+    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
+                                            gtk_widget_get_screen(widget));
+    view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
+
+    // query the clipboard manager for the display
+    GdkDisplay *display = gtk_widget_get_display(widget);
+    view->clipboard = clipman_get_for_display(display);
+}
+
+static void treeview_unrealize(GtkWidget *widget)
+{
+    TreeView *view = TREEVIEW(widget);
+
+    // release the clipboard manager reference
+    if (view->clipboard)
+        g_object_unref(view->clipboard);
+    view->clipboard = NULL;
+
+    if (view->icon_factory)
+        g_object_unref(view->icon_factory);
+    view->icon_factory = NULL;
+
+    // let the parent class unrealize the widget
+    GTK_WIDGET_CLASS(treeview_parent_class)->unrealize(widget);
+}
 
 static void treeview_finalize(GObject *object)
 {
@@ -413,40 +450,8 @@ static void treeview_finalize(GObject *object)
     G_OBJECT_CLASS(treeview_parent_class)->finalize(object);
 }
 
-static void treeview_realize(GtkWidget *widget)
-{
-    TreeView *view = TREEVIEW(widget);
 
-    // let the parent class realize the widget
-    GTK_WIDGET_CLASS(treeview_parent_class)->realize(widget);
-
-    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(
-                                            gtk_widget_get_screen(widget));
-    view->icon_factory = iconfact_get_for_icon_theme(icon_theme);
-
-    // query the clipboard manager for the display
-    GdkDisplay *display = gtk_widget_get_display(widget);
-    view->clipboard = clipman_get_for_display(display);
-}
-
-static void treeview_unrealize(GtkWidget *widget)
-{
-    TreeView *view = TREEVIEW(widget);
-
-    // release the clipboard manager reference
-    if (view->clipboard)
-        g_object_unref(view->clipboard);
-    view->clipboard = NULL;
-
-    if (view->icon_factory)
-        g_object_unref(view->icon_factory);
-    view->icon_factory = NULL;
-
-    // let the parent class unrealize the widget
-    GTK_WIDGET_CLASS(treeview_parent_class)->unrealize(widget);
-}
-
-// Properties -----------------------------------------------------------------
+// properties -----------------------------------------------------------------
 
 static void treeview_get_property(GObject *object, guint prop_id,
                                   GValue *value, GParamSpec *pspec)
@@ -925,14 +930,8 @@ static void _treeview_set_show_hidden(TreeView *view, gboolean show_hidden)
     }
 }
 
-// Public ---------------------------------------------------------------------
 
-GtkWidget* treeview_new()
-{
-    return g_object_new(TYPE_TREEVIEW, NULL);
-}
-
-// Events ---------------------------------------------------------------------
+// events ---------------------------------------------------------------------
 
 static gboolean treeview_button_press_event(GtkWidget *widget,
                                             GdkEventButton *event)
@@ -1113,9 +1112,12 @@ static gboolean _treeview_key_press_event(GtkWidget *widget,
     case GDK_KEY_KP_Left:
         // if branch is expanded then collapse it
         if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(view), path))
+        {
             gtk_tree_view_collapse_row(GTK_TREE_VIEW(view), path);
-
-        else // if the branch is already collapsed
+        }
+        // if the branch is already collapsed
+        else
+        {
             if (gtk_tree_path_get_depth(path) > 1 && gtk_tree_path_up(path))
             {
                 // if this is not a toplevel item then move to parent
@@ -1128,24 +1130,28 @@ static gboolean _treeview_key_press_event(GtkWidget *widget,
                 // unmount it
                 if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model),
                                             &iter, path))
+                {
                     gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter,
-                                        TREEMODEL_COLUMN_DEVICE, &device, -1);
+                                       TREEMODEL_COLUMN_DEVICE, &device, -1);
+                }
 
-                if (device != NULL)
-                    if (th_device_is_mounted(device)
-                            && th_device_can_unmount(device))
-                    {
-                        // mark this path for selection after unmounting
-                        view->select_path = gtk_tree_path_copy(path);
-                        g_object_set(G_OBJECT(view->launcher),
-                                     "selected-device", device, NULL);
-                        g_object_set(G_OBJECT(view->launcher),
-                                     "selected-files", NULL,
-                                     "current-directory", NULL, NULL);
-                        launcher_action_unmount(view->launcher);
-                        g_object_unref(G_OBJECT(device));
-                    }
+                if (device != NULL
+                    && th_device_is_mounted(device)
+                    && th_device_can_unmount(device))
+                {
+                    // mark this path for selection after unmounting
+                    view->select_path = gtk_tree_path_copy(path);
+                    g_object_set(G_OBJECT(view->launcher),
+                                 "selected-device", device, NULL);
+                    g_object_set(G_OBJECT(view->launcher),
+                                 "selected-files", NULL,
+                                 "current-directory", NULL, NULL);
+                    launcher_action_unmount(view->launcher);
+                    g_object_unref(G_OBJECT(device));
+                }
             }
+        }
+
         _treeview_open_selection(view);
 
         stopPropagation = true;
@@ -1155,8 +1161,10 @@ static gboolean _treeview_key_press_event(GtkWidget *widget,
     case GDK_KEY_KP_Right:
         // if this is a toplevel item and a mountable device, mount it
         if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path))
+        {
             gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter,
-                                TREEMODEL_COLUMN_DEVICE, &device, -1);
+                               TREEMODEL_COLUMN_DEVICE, &device, -1);
+        }
         if (device != NULL && th_device_is_mounted(device) == false)
         {
             g_object_set(G_OBJECT(view->launcher),
@@ -1170,8 +1178,11 @@ static gboolean _treeview_key_press_event(GtkWidget *widget,
         {
             // if branch is not expanded then expand it
             if (!gtk_tree_view_row_expanded(GTK_TREE_VIEW(view), path))
+            {
                 gtk_tree_view_expand_row(GTK_TREE_VIEW(view), path, false);
-            else // if branch is already expanded then move to first child
+            }
+            // if branch is already expanded then move to first child
+            else
             {
                 gtk_tree_path_down(path);
                 gtk_tree_view_set_cursor(GTK_TREE_VIEW(view),
@@ -1204,25 +1215,26 @@ static void treeview_row_activated(GtkTreeView *tree_view, GtkTreePath *path,
                                    GtkTreeViewColumn *column)
 {
     // call the parent's "row-activated" handler
-    if (GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated != NULL)
-        GTK_TREE_VIEW_CLASS(treeview_parent_class)->row_activated(
-                    tree_view,
-                    path,
-                    column);
+
+    GtkTreeViewClass *klass = GTK_TREE_VIEW_CLASS(treeview_parent_class);
+    if (klass->row_activated != NULL)
+    {
+        klass->row_activated(tree_view, path, column);
+    }
 
     // toggle the expanded state of the activated row...
     if (gtk_tree_view_row_expanded(tree_view, path))
     {
         gtk_tree_view_collapse_row(tree_view, path);
+
+        return;
     }
-    else
+
+    // expand the row, but open it if mounted
+    if (gtk_tree_view_expand_row(tree_view, path, false))
     {
-        // expand the row, but open it if mounted
-        if (gtk_tree_view_expand_row(tree_view, path, false))
-        {
-            // ...open the selected folder
-            _treeview_action_open(TREEVIEW(tree_view));
-        }
+        // ...open the selected folder
+        _treeview_action_open(TREEVIEW(tree_view));
     }
 }
 
@@ -1291,10 +1303,7 @@ static void treeview_row_collapsed(GtkTreeView *tree_view,
 }
 
 
-// Popup Menu -----------------------------------------------------------------
-
-#if 0
-#endif
+// popup menu -----------------------------------------------------------------
 
 static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
                                    GtkTreeIter *iter)
@@ -1600,7 +1609,7 @@ static gboolean _treeview_selection_func(GtkTreeSelection *selection,
 }
 
 
-// Actions --------------------------------------------------------------------
+// actions --------------------------------------------------------------------
 
 gboolean treeview_delete_selected(TreeView *view)
 {
