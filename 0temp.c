@@ -1,6 +1,9 @@
 
 #if 0
 
+
+// ----------------------------------------------------------------------------
+
 ThunarFileMode th_file_get_mode(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), 0);
@@ -13,6 +16,39 @@ ThunarFileMode th_file_get_mode(const ThunarFile *file)
     else
         return th_file_is_directory(file) ? 0777 : 0666;
 }
+
+
+// ----------------------------------------------------------------------------
+
+static gboolean treeview_popup_menu(GtkWidget *widget);
+static gboolean treeview_popup_menu(GtkWidget *widget)
+{
+    TreeView   *view = TREEVIEW(widget);
+
+    // determine the selected row
+    GtkTreeSelection *selection;
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+
+    GtkTreeModel     *model;
+    GtkTreeIter       iter;
+    if (gtk_tree_selection_get_selected(selection, &model, &iter))
+    {
+        // popup the context menu
+        _treeview_context_menu(view, model, &iter);
+
+        return true;
+    }
+    else if (GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu != NULL)
+    {
+        // call the parent's "popup-menu" handler
+        return GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu(widget);
+    }
+
+    return false;
+}
+
+
+// ----------------------------------------------------------------------------
 
 static void _execute_mkdir(gpointer parent,
                            GList *file_list, GClosure *new_files_closure);

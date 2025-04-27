@@ -72,7 +72,6 @@ static gboolean treeview_button_release_event(GtkWidget *widget,
 // treeview_init
 static gboolean _treeview_key_press_event(GtkWidget *widget,
                                           GdkEventKey *event);
-//static gboolean treeview_popup_menu(GtkWidget *widget);
 
 // GtkTreeView ----------------------------------------------------------------
 
@@ -246,8 +245,6 @@ static void treeview_class_init(TreeViewClass *klass)
     gtkwidget_class->button_press_event = treeview_button_press_event;
     gtkwidget_class->button_release_event = treeview_button_release_event;
 
-    //gtkwidget_class->popup_menu = treeview_popup_menu;
-
     gtkwidget_class->drag_begin = treeview_drag_begin;
     gtkwidget_class->drag_data_get = treeview_drag_data_get;
     gtkwidget_class->drag_data_delete = treeview_drag_data_delete;
@@ -263,7 +260,7 @@ static void treeview_class_init(TreeViewClass *klass)
     gtktree_view_class->test_expand_row = treeview_test_expand_row;
     gtktree_view_class->row_collapsed = treeview_row_collapsed;
 
-    // Override ThunarNavigator's properties
+    // override navigator's property
     g_object_class_override_property(gobject_class,
                                      PROP_CURRENT_DIRECTORY,
                                      "current-directory");
@@ -1293,34 +1290,10 @@ static void treeview_row_collapsed(GtkTreeView *tree_view,
     treemodel_cleanup(TREEVIEW(tree_view)->model);
 }
 
+
 // Popup Menu -----------------------------------------------------------------
 
 #if 0
-static gboolean treeview_popup_menu(GtkWidget *widget)
-{
-    TreeView   *view = TREEVIEW(widget);
-
-    // determine the selected row
-    GtkTreeSelection *selection;
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-    if (gtk_tree_selection_get_selected(selection, &model, &iter))
-    {
-        // popup the context menu
-        _treeview_context_menu(view, model, &iter);
-
-        return true;
-    }
-    else if (GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu != NULL)
-    {
-        // call the parent's "popup-menu" handler
-        return GTK_WIDGET_CLASS(treeview_parent_class)->popup_menu(widget);
-    }
-
-    return false;
-}
 #endif
 
 static void _treeview_context_menu(TreeView *view, GtkTreeModel *model,
@@ -1565,18 +1538,17 @@ static gboolean _treeview_visible_func(TreeModel *model, ThunarFile *file,
     // if show_hidden is true, nothing is filtered
     TreeView *view = TREEVIEW(user_data);
 
-    gboolean visible = true;
+    if (view->show_hidden)
+        return true;
 
-    if (!view->show_hidden)
-    {
-        /* we display all non-hidden file and hidden files that are ancestors
-         * of the current directory */
+    // display non-hidden file and hidden files that are ancestors
+    // of the current directory
 
-        visible = !th_file_is_hidden(file)
-                  || (view->current_directory == file)
-                  || (view->current_directory != NULL
-                      && th_file_is_ancestor(view->current_directory, file));
-    }
+    gboolean visible =
+            !th_file_is_hidden(file)
+            || (view->current_directory == file)
+            || (view->current_directory != NULL
+                && th_file_is_ancestor(view->current_directory, file));
 
     return visible;
 }
@@ -1590,46 +1562,43 @@ static gboolean _treeview_selection_func(GtkTreeSelection *selection,
     (void) selection;
     (void) user_data;
 
-    GtkTreeIter   iter;
-    ThunarFile   *file;
-    gboolean      result = false;
-    ThunarDevice *device;
-
-    // every row may be unselected at any time
     if (path_currently_selected)
         return true;
 
-    // determine the iterator for the path
-    if (gtk_tree_model_get_iter(model, &iter, path))
+    GtkTreeIter iter;
+
+    if (!gtk_tree_model_get_iter(model, &iter, path))
+        return false;
+
+    gboolean result = false;
+    ThunarFile *file;
+
+    gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_FILE, &file, -1);
+
+    if (file == NULL)
     {
-        // determine the file for the iterator
-        gtk_tree_model_get(model, &iter, TREEMODEL_COLUMN_FILE, &file, -1);
-        if (file != NULL)
+        ThunarDevice *device;
+
+        gtk_tree_model_get(model,
+                           &iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
+
+        if (device != NULL)
         {
-            // rows with files can be selected
             result = true;
 
-            // release file
-            g_object_unref(file);
+            g_object_unref(device);
         }
-        else
-        {
-            // but maybe the row has a device
-            gtk_tree_model_get(model,
-                               &iter, TREEMODEL_COLUMN_DEVICE, &device, -1);
-            if (device != NULL)
-            {
-                // rows with devices can also be selected
-                result = true;
 
-                // release device
-                g_object_unref(device);
-            }
-        }
+        return result;
     }
+
+    result = true;
+
+    g_object_unref(file);
 
     return result;
 }
+
 
 // Actions --------------------------------------------------------------------
 
@@ -1647,9 +1616,8 @@ gboolean treeview_delete_selected(TreeView *view)
     GtkAccelKey key;
 
     if (gtk_accel_map_lookup_entry(
-                        "<Actions>/StandardView/move-to-trash",
-                        &key)
-        &&(key.accel_key != 0 || key.accel_mods != 0))
+                        "<Actions>/StandardView/move-to-trash", &key)
+        && (key.accel_key != 0 || key.accel_mods != 0))
     {
         return false;
     }
@@ -1793,15 +1761,16 @@ static void treeview_drag_data_get(GtkWidget *widget,
 
 static gchar** _gfile_to_stringv(GFile *file)
 {
-    // g_strfreev
+    // free the returned data with g_strfreev
 
     if (!file)
         return NULL;
 
     gchar **uris = g_new0(gchar*, 2);
 
-    // Prefer native paths for interoperability.
+    // prefer native paths for interoperability.
     gchar *path = g_file_get_path(file);
+
     if (path == NULL)
     {
         uris[0] = g_file_get_uri(file);
@@ -1988,54 +1957,41 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
 
     UTIL_THREADS_ENTER
 
-    GtkAdjustment  *vadjustment;
-    GtkTreePath    *start_path;
-    GtkTreePath    *end_path;
-    GtkTreePath    *path;
-    GdkDevice      *pointer;
-    gfloat          value;
-    gint            offset;
-    gint            y, h;
-
     // determine pointer location and window geometry
-    GdkWindow      *window;
-    GdkSeat        *seat;
-    window = gtk_widget_get_window(GTK_WIDGET(view));
-    seat = gdk_display_get_default_seat(gdk_display_get_default());
-    pointer = gdk_seat_get_pointer(seat);
+    GdkWindow *window = gtk_widget_get_window(GTK_WIDGET(view));
+    GdkSeat *seat = gdk_display_get_default_seat(gdk_display_get_default());
+    GdkDevice *pointer = gdk_seat_get_pointer(seat);
+
+    gint y;
+    gint h;
 
     gdk_window_get_device_position(window, pointer, NULL, &y, NULL);
     gdk_window_get_geometry(window, NULL, NULL, NULL, &h);
 
     // check if we are near the edge
-    offset = y - (2 * 20);
+    gint offset = y - (2 * 20);
+
     if (offset > 0)
         offset = MAX(y - (h - 2 * 20), 0);
 
     // change the vertical adjustment appropriately
     if (offset == 0)
-    {
-        UTIL_THREADS_LEAVE
-
-        return true;
-    }
+        goto out;
 
     // determine the vertical adjustment
+    GtkAdjustment *vadjustment;
     vadjustment = gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(view));
 
     // determine the new value
-    value = CLAMP(gtk_adjustment_get_value(vadjustment)
-                  + 2 * offset, gtk_adjustment_get_lower(vadjustment),
-                  gtk_adjustment_get_upper(vadjustment)
-                  - gtk_adjustment_get_page_size(vadjustment));
+    gfloat value = CLAMP(gtk_adjustment_get_value(vadjustment)
+                             + 2 * offset,
+                         gtk_adjustment_get_lower(vadjustment),
+                         gtk_adjustment_get_upper(vadjustment)
+                             - gtk_adjustment_get_page_size(vadjustment));
 
     // check if we have a new value
     if (gtk_adjustment_get_value(vadjustment) == value)
-    {
-        UTIL_THREADS_LEAVE
-
-        return true;
-    }
+        goto out;
 
     // apply the new value
     gtk_adjustment_set_value(vadjustment, value);
@@ -2045,49 +2001,52 @@ static gboolean _treeview_drag_scroll_timer(gpointer user_data)
      * reschedule it if the drag dest path is still visible.
      */
     if (view->expand_timer_id == 0)
-    {
-        UTIL_THREADS_LEAVE
-
-        return true;
-    }
+        goto out;
 
     // drop the current expand timer source
     g_source_remove(view->expand_timer_id);
 
+    GtkTreePath    *start_path;
+    GtkTreePath    *end_path;
+    GtkTreePath    *path;
+
     // determine the visible range of the tree view
-    if (gtk_tree_view_get_visible_range(
+    if (!gtk_tree_view_get_visible_range(
                             GTK_TREE_VIEW(view),
                             &start_path, &end_path))
     {
-        // determine the drag dest row
-        gtk_tree_view_get_drag_dest_row(GTK_TREE_VIEW(view),
-                                        &path, NULL);
-        if (path != NULL)
-        {
-            // check if the drag dest row is currently visible
-            if (gtk_tree_path_compare(path, start_path) >= 0
-                && gtk_tree_path_compare(path, end_path) <= 0)
-            {
-                // schedule a new expand timer to expand the drag dest row
-                view->expand_timer_id = g_timeout_add_full(
-                                            G_PRIORITY_LOW,
-                                            TREEVIEW_EXPAND_TIMEOUT,
-                                            _treeview_expand_timer,
-                                            view,
-                                            _treeview_expand_timer_destroy);
-            }
-
-            // release the drag dest row
-            gtk_tree_path_free(path);
-        }
-
-        // release the start/end paths
-        gtk_tree_path_free(start_path);
-        gtk_tree_path_free(end_path);
+        goto out;
     }
 
-    UTIL_THREADS_LEAVE
+    // determine the drag dest row
+    gtk_tree_view_get_drag_dest_row(GTK_TREE_VIEW(view),
+                                    &path, NULL);
+    if (path != NULL)
+    {
+        // check if the drag dest row is currently visible
+        if (gtk_tree_path_compare(path, start_path) >= 0
+            && gtk_tree_path_compare(path, end_path) <= 0)
+        {
+            // schedule a new expand timer to expand the drag dest row
+            view->expand_timer_id = g_timeout_add_full(
+                                        G_PRIORITY_LOW,
+                                        TREEVIEW_EXPAND_TIMEOUT,
+                                        _treeview_expand_timer,
+                                        view,
+                                        _treeview_expand_timer_destroy);
+        }
 
+        // release the drag dest row
+        gtk_tree_path_free(path);
+    }
+
+    // release the start/end paths
+    gtk_tree_path_free(start_path);
+    gtk_tree_path_free(end_path);
+
+ out:
+
+    UTIL_THREADS_LEAVE
     return true;
 }
 
