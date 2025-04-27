@@ -112,7 +112,8 @@ static gboolean _th_file_atexit_registered = FALSE;
 static void _th_file_atexit();
 #endif
 
-static void _th_file_debug(gpointer gfile, gpointer value, gpointer user_data);
+static void _th_file_debug(gpointer gfile,
+                           gpointer value, gpointer user_data);
 
 // Globals --------------------------------------------------------------------
 
@@ -192,14 +193,6 @@ enum
 
 static guint _file_signals[LAST_SIGNAL];
 
-struct _ThunarFileClass
-{
-    GObjectClass __parent__;
-
-    // signals
-    void (*destroy) (ThunarFile *file);
-};
-
 struct _ThunarFile
 {
     GObject     __parent__;
@@ -224,6 +217,14 @@ struct _ThunarFile
 
     // tells whether the file watch is not set
     gboolean    no_file_watch;
+};
+
+struct _ThunarFileClass
+{
+    GObjectClass __parent__;
+
+    // signals
+    void (*destroy) (ThunarFile *file);
 };
 
 G_DEFINE_TYPE_WITH_CODE(ThunarFile,
@@ -1236,7 +1237,9 @@ gchar* th_file_get_date_string(const ThunarFile *file,
                                ThunarDateStyle date_style,
                                const gchar *date_custom_style)
 {
-    return util_humanize_file_time(th_file_get_date(file, date_type), date_style, date_custom_style);
+    return util_humanize_file_time(th_file_get_date(file, date_type),
+                                   date_style,
+                                   date_custom_style);
 }
 
 /**

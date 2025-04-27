@@ -474,6 +474,7 @@ gboolean e_file_move(GFile                 *source,
     return ret;
 }
 
+
 // GList ----------------------------------------------------------------------
 
 GList* e_list_copy(GList *list)
@@ -487,6 +488,7 @@ void e_list_free(GList *list)
 {
     g_list_free_full(list, g_object_unref);
 }
+
 
 // ThunarGFileList ------------------------------------------------------------
 
@@ -551,16 +553,15 @@ gchar** e_filelist_to_stringv(GList *list)
     return uris;
 }
 
-/**
+/*
  * thunar_g_file_list_get_parents:
  * @list : a list of #GFile<!---->s.
  *
  * Collects all parent folders of the passed files
- * If multiple files share the same parent, the parent will only be added once to the returned list.
- * Each list element of the returned list needs to be freed with g_object_unref() after use.
- *
- * Return value: A list of #GFile<!---->s of all parent folders. Free the returned list with calling g_object_unref() on each element
- **/
+ * If multiple files share the same parent, the parent will only be added
+ * once to the returned list. Each list element of the returned list needs
+ * to be freed with g_object_unref() after use.
+ */
 GList* e_filelist_get_parents(GList *file_list)
 {
     GList    *lp_file_list;
@@ -569,16 +570,23 @@ GList* e_filelist_get_parents(GList *file_list)
     GList    *parent_folder_list = NULL;
     gboolean  folder_already_added;
 
-    for(lp_file_list = file_list; lp_file_list != NULL; lp_file_list = lp_file_list->next)
+    for (lp_file_list = file_list;
+         lp_file_list != NULL; lp_file_list = lp_file_list->next)
     {
         if (!G_IS_FILE(lp_file_list->data))
             continue;
+
         parent_folder = g_file_get_parent(lp_file_list->data);
+
         if (parent_folder == NULL)
             continue;
+
         folder_already_added = FALSE;
+
         // Check if the folder already is in our list
-        for(lp_parent_folder_list = parent_folder_list; lp_parent_folder_list != NULL; lp_parent_folder_list = lp_parent_folder_list->next)
+        for (lp_parent_folder_list = parent_folder_list;
+             lp_parent_folder_list != NULL;
+             lp_parent_folder_list = lp_parent_folder_list->next)
         {
             if (g_file_equal(lp_parent_folder_list->data, parent_folder))
             {
@@ -590,10 +598,13 @@ GList* e_filelist_get_parents(GList *file_list)
         if (folder_already_added)
             g_object_unref(parent_folder);
         else
-            parent_folder_list = g_list_append(parent_folder_list, parent_folder);
+            parent_folder_list = g_list_append(parent_folder_list,
+                                               parent_folder);
     }
+
     return parent_folder_list;
 }
+
 
 // GKeyFile -------------------------------------------------------------------
 
@@ -610,7 +621,8 @@ GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
     gsize     length;
 
     // try to load the entire file into memory
-    if (!g_file_load_contents(file, cancellable, &contents, &length, NULL, error))
+    if (!g_file_load_contents(file,
+                              cancellable, &contents, &length, NULL, error))
         return NULL;
 
     // allocate a new key file
@@ -634,6 +646,7 @@ GKeyFile* e_file_query_key_file(GFile *file, GCancellable *cancellable,
     }
 }
 
+
 // VFS ------------------------------------------------------------------------
 
 gboolean e_vfs_is_uri_scheme_supported(const gchar *scheme)
@@ -642,7 +655,8 @@ gboolean e_vfs_is_uri_scheme_supported(const gchar *scheme)
     e_return_val_if_fail(scheme != NULL && *scheme != '\0', FALSE);
 
     GVfs *gvfs = g_vfs_get_default();
-    const gchar *const *supported_schemes = g_vfs_get_supported_uri_schemes(gvfs);
+    const gchar *const *supported_schemes =
+                                g_vfs_get_supported_uri_schemes(gvfs);
 
     if (supported_schemes == NULL)
         return FALSE;

@@ -1,17 +1,82 @@
 
 * 30 Biggest files
 
-find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -10
+    find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -10
 
-111923	./launcher.c
-102771	./view/standardview.c
-100535	./core/th-file.c
-71892	./side/treeview.c
-70276	./view/listmodel.c
-64804	./job/transferjob.c
-58185	./side/treemodel.c
-53899	./appwindow.c
-49366	./dialog/permbox.c
-44905	./job/io-jobs.c
+    111923	./launcher.c
+    102771	./view/standardview.c
+    100535	./core/th-file.c
+    71892	./side/treeview.c
+    70276	./view/listmodel.c
+    64804	./job/transferjob.c
+    58185	./side/treemodel.c
+    53899	./appwindow.c
+    49366	./dialog/permbox.c
+    44905	./job/io-jobs.c
+
+* all files
+
+    + ./core/appnotify.c
+    + ./core/clipboard.c
+      ./core/devmonitor.c
+      ./core/dnd.c
+      ./core/fileinfo.c
+      ./core/filemonitor.c
+      ./core/th-device.c
+      ./core/th-file.c
+      ./core/th-folder.c
+      ./core/usermanager.c
+      ./dialog/appchooser.c
+      ./dialog/appcombo.c
+      ./dialog/appmodel.c
+      ./dialog/dialogs.c
+      ./dialog/permbox.c
+      ./dialog/progressdlg.c
+      ./dialog/progressview.c
+      ./dialog/propsdlg.c
+      ./job/dcountjob.c
+      ./job/exo-job.c
+      ./job/io-jobs.c
+      ./job/io-scandir.c
+      ./job/job.c
+      ./job/jobutils.c
+      ./job/simplejob.c
+      ./job/transferjob.c
+      ./libext/gdk-ext.c
+      ./libext/gio-ext.c
+      ./libext/gtk-ext.c
+      ./libext/pango-ext.c
+      ./libext/pixbuf-ext.c
+      ./libext/utils.c
+      ./misc/browser.c
+      ./misc/component.c
+      ./misc/enumtypes.c
+      ./misc/history.c
+      ./misc/iconfactory.c
+      ./misc/iconrender.c
+      ./misc/navigator.c
+      ./misc/shortrender.c
+      ./side/sidepane.c
+      ./side/treemodel.c
+      ./side/treepane.c
+      ./side/treeview.c
+      ./view/baseview.c
+      ./view/columnmodel.c
+      ./view/detailview.c
+      ./view/exotreeview.c
+      ./view/listmodel.c
+      ./view/standardview.c
+      ./widget/locationbar.c
+      ./widget/locationentry.c
+      ./widget/pathentry.c
+      ./widget/sizelabel.c
+      ./widget/statusbar.c
+      ./widget/th-image.c
+      ./application.c
+      ./appmenu.c
+      ./appwindow.c
+      ./launcher.c
+      ./main.c
+      ./preferences.c
 
 

@@ -32,7 +32,8 @@ typedef struct _ClipboardManagerClass ClipboardManagerClass;
 #define TYPE_CLIPBOARDMANAGER (clipman_get_type())
 
 #define CLIPBOARDMANAGER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_CLIPBOARDMANAGER, ClipboardManager))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_CLIPBOARDMANAGER, \
+     ClipboardManager))
 #define IS_CLIPBOARDMANAGER(obj) \
     (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_CLIPBOARDMANAGER))
 
@@ -41,7 +42,8 @@ GType clipman_get_type() G_GNUC_CONST;
 ClipboardManager* clipman_get_for_display(GdkDisplay *display);
 
 gboolean clipman_can_paste(ClipboardManager *manager);
-gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *file);
+gboolean clipman_has_cutted_file(ClipboardManager *manager,
+                                 const ThunarFile *file);
 
 void clipman_copy_files(ClipboardManager *manager, GList *files);
 void clipman_cut_files(ClipboardManager *manager, GList *files);

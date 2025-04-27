@@ -45,8 +45,8 @@ typedef enum
 
 // ThunarFile -----------------------------------------------------------------
 
-typedef struct _ThunarFileClass ThunarFileClass;
 typedef struct _ThunarFile      ThunarFile;
+typedef struct _ThunarFileClass ThunarFileClass;
 
 GType th_file_get_type() G_GNUC_CONST;
 

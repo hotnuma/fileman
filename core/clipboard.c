@@ -33,7 +33,7 @@ static void clipman_dispose(GObject *object);
 static void clipman_get_property(GObject *object, guint prop_id,
                                  GValue *value, GParamSpec *pspec);
 
-// Public ---------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 static void _clipman_owner_changed(GtkClipboard *clipboard,
                                    GdkEventOwnerChange *event,
@@ -41,16 +41,19 @@ static void _clipman_owner_changed(GtkClipboard *clipboard,
 static void _clipman_targets_received(GtkClipboard *clipboard,
                                       GtkSelectionData *seldata,
                                       gpointer user_data);
-static void _clipman_transfer_files(ClipboardManager *manager, gboolean copy,
-                                    GList *files);
-static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager);
+static void _clipman_transfer_files(ClipboardManager *manager,
+                                    gboolean copy, GList *files);
+static void _clipman_file_destroyed(ThunarFile *file,
+                                    ClipboardManager *manager);
 static void _clipman_get_callback(GtkClipboard *clipboard,
                                   GtkSelectionData *seldata,
-                                  guint info,
-                                  gpointer user_data);
-static gchar* _clipman_file_list_to_string(GList *list, const gchar *prefix,
-                                           gboolean format_for_text, gsize *len);
-static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data);
+                                  guint info, gpointer user_data);
+static gchar* _clipman_file_list_to_string(GList *list,
+                                           const gchar *prefix,
+                                           gboolean format_for_text,
+                                           gsize *len);
+static void _clipman_clear_callback(GtkClipboard *clipboard,
+                                    gpointer user_data);
 static void _clipman_contents_received(GtkClipboard *clipboard,
                                        GtkSelectionData *seldata,
                                        gpointer user_data);
@@ -74,13 +77,6 @@ enum
     TARGET_UTF8_STRING,
 };
 
-struct _ClipboardManagerClass
-{
-    GObjectClass __parent__;
-
-    void (*changed) (ClipboardManager *manager);
-};
-
 struct _ClipboardManager
 {
     GObject     __parent__;
@@ -88,10 +84,17 @@ struct _ClipboardManager
     GtkClipboard *clipboard;
 
     gboolean    can_paste;
-    GdkAtom     x_special_gnome_copied_files;
+    GdkAtom     x_special;
 
     gboolean    files_cutted;
     GList       *files;
+};
+
+struct _ClipboardManagerClass
+{
+    GObjectClass __parent__;
+
+    void (*changed) (ClipboardManager *manager);
 };
 
 typedef struct
@@ -158,7 +161,8 @@ static void clipman_class_init(ClipboardManagerClass *klass)
 
 static void clipman_init(ClipboardManager *manager)
 {
-    manager->x_special_gnome_copied_files = gdk_atom_intern_static_string("x-special/gnome-copied-files");
+    manager->x_special = gdk_atom_intern_static_string(
+                                        "x-special/gnome-copied-files");
 }
 
 static void clipman_dispose(GObject *object)
@@ -188,7 +192,8 @@ static void clipman_finalize(GObject *object)
     for (GList *lp = manager->files; lp != NULL; lp = lp->next)
     {
         g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data),
-                                             _clipman_file_destroyed, manager);
+                                             _clipman_file_destroyed,
+                                             manager);
         g_object_unref(G_OBJECT(lp->data));
     }
 
@@ -203,7 +208,8 @@ static void clipman_finalize(GObject *object)
     G_OBJECT_CLASS(clipman_parent_class)->finalize(object);
 }
 
-static void clipman_get_property(GObject *object, guint prop_id, GValue *value,
+static void clipman_get_property(GObject *object,
+                                 guint prop_id, GValue *value,
                                  GParamSpec *pspec)
 {
     (void) pspec;
@@ -229,7 +235,8 @@ gboolean clipman_can_paste(ClipboardManager *manager)
     return manager->can_paste;
 }
 
-// Public ---------------------------------------------------------------------
+
+// public ---------------------------------------------------------------------
 
 /**
  * thunar_clipboard_manager_get_for_display:
@@ -249,7 +256,8 @@ ClipboardManager* clipman_get_for_display(GdkDisplay *display)
 
     // generate the quark on-demand
     if (_clipman_quark == 0)
-        _clipman_quark = g_quark_from_static_string("thunar-clipboard-manager");
+        _clipman_quark = g_quark_from_static_string(
+                                            "thunar-clipboard-manager");
 
     // figure out the clipboard for the given display
     GtkClipboard *clipboard = gtk_clipboard_get_for_display(
@@ -262,6 +270,7 @@ ClipboardManager* clipman_get_for_display(GdkDisplay *display)
     if (manager != NULL)
     {
         g_object_ref(G_OBJECT(manager));
+
         return manager;
     }
 
@@ -291,8 +300,7 @@ static void _clipman_owner_changed(GtkClipboard        *clipboard,
     (void) event;
 
     /* need to take a reference on the manager, because the clipboards
-     * "targets received callback" mechanism is not cancellable.
-     */
+     * "targets received callback" mechanism is not cancellable. */
     g_object_ref(G_OBJECT(manager));
 
     // request the list of supported targets from the new owner
@@ -323,7 +331,7 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
     {
         for (gint n = 0; n < n_targets; ++n)
         {
-            if (targets[n] == manager->x_special_gnome_copied_files)
+            if (targets[n] == manager->x_special)
             {
                 manager->can_paste = TRUE;
                 break;
@@ -341,12 +349,14 @@ static void _clipman_targets_received(GtkClipboard     *clipboard,
     g_object_unref(manager);
 }
 
-gboolean clipman_has_cutted_file(ClipboardManager *manager, const ThunarFile *file)
+gboolean clipman_has_cutted_file(ClipboardManager *manager,
+                                 const ThunarFile *file)
 {
     e_return_val_if_fail(IS_CLIPBOARDMANAGER(manager), FALSE);
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
-    return (manager->files_cutted && g_list_find(manager->files, file) != NULL);
+    return (manager->files_cutted
+            && g_list_find(manager->files, file) != NULL);
 }
 
 void clipman_copy_files(ClipboardManager *manager, GList *files)
@@ -364,17 +374,19 @@ void clipman_cut_files(ClipboardManager *manager, GList *files)
 }
 
 static void _clipman_transfer_files(ClipboardManager *manager,
-                                    gboolean         copy,
-                                    GList            *files)
+                                    gboolean copy, GList *files)
 {
     GList *lp;
 
     // release any pending files
     for (lp = manager->files; lp != NULL; lp = lp->next)
     {
-        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _clipman_file_destroyed, manager);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data),
+                                             _clipman_file_destroyed,
+                                             manager);
         g_object_unref(G_OBJECT(lp->data));
     }
+
     g_list_free(manager->files);
 
     // remember the transfer operation
@@ -383,7 +395,8 @@ static void _clipman_transfer_files(ClipboardManager *manager,
     ThunarFile *file;
 
     // setup the new file list
-    for (lp = g_list_last(files), manager->files = NULL; lp != NULL; lp = lp->prev)
+    for (lp = g_list_last(files),
+         manager->files = NULL; lp != NULL; lp = lp->prev)
     {
         file = THUNARFILE(g_object_ref(G_OBJECT(lp->data)));
         manager->files = g_list_prepend(manager->files, file);
@@ -399,13 +412,17 @@ static void _clipman_transfer_files(ClipboardManager *manager,
                                  _clipman_clear_callback,
                                  G_OBJECT(manager));
 
-    // Need to fake a "owner-change" event here if the Xserver doesn't support clipboard notification
+    // need to fake a "owner-change" event here if the Xserver doesn't
+    // support clipboard notification
     if (!gdk_display_supports_selection_notification(
-                gtk_clipboard_get_display(manager->clipboard)))
+                            gtk_clipboard_get_display(manager->clipboard)))
+    {
         _clipman_owner_changed(manager->clipboard, NULL, manager);
+    }
 }
 
-static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager)
+static void _clipman_file_destroyed(ThunarFile *file,
+                                    ClipboardManager *manager)
 {
     e_return_if_fail(IS_CLIPBOARDMANAGER(manager));
     e_return_if_fail(g_list_find(manager->files, file) != NULL);
@@ -420,10 +437,9 @@ static void _clipman_file_destroyed(ThunarFile *file, ClipboardManager *manager)
     g_object_unref(G_OBJECT(file));
 }
 
-static void _clipman_get_callback(GtkClipboard     *clipboard,
+static void _clipman_get_callback(GtkClipboard *clipboard,
                                   GtkSelectionData *seldata,
-                                  guint            target_info,
-                                  gpointer         user_data)
+                                  guint target_info, gpointer user_data)
 {
     e_return_if_fail(GTK_IS_CLIPBOARD(clipboard));
 
@@ -472,8 +488,10 @@ static void _clipman_get_callback(GtkClipboard     *clipboard,
     e_list_free(file_list);
 }
 
-static gchar* _clipman_file_list_to_string(GList *list, const gchar *prefix,
-                                           gboolean format_for_text, gsize *len)
+static gchar* _clipman_file_list_to_string(GList *list,
+                                           const gchar *prefix,
+                                           gboolean format_for_text,
+                                           gsize *len)
 {
     gchar *tmp;
 
@@ -500,7 +518,8 @@ static gchar* _clipman_file_list_to_string(GList *list, const gchar *prefix,
     return g_string_free(string, FALSE);
 }
 
-static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data)
+static void _clipman_clear_callback(GtkClipboard *clipboard,
+                                    gpointer user_data)
 {
     ClipboardManager *manager = CLIPBOARDMANAGER(user_data);
 
@@ -518,6 +537,7 @@ static void _clipman_clear_callback(GtkClipboard *clipboard, gpointer user_data)
     }
 
     g_list_free(manager->files);
+
     manager->files = NULL;
 }
 
@@ -546,11 +566,14 @@ void clipman_paste_files(ClipboardManager *manager, GFile *target_file,
      * completing the clipboard contents retrieval
      */
     if (request->widget != NULL)
-        g_object_add_weak_pointer(G_OBJECT(request->widget), (gpointer) &request->widget);
+    {
+        g_object_add_weak_pointer(G_OBJECT(request->widget),
+                                  (gpointer) &request->widget);
+    }
 
     // schedule the request
     gtk_clipboard_request_contents(manager->clipboard,
-                                   manager->x_special_gnome_copied_files,
+                                   manager->x_special,
                                    _clipman_contents_received,
                                    request);
 }
@@ -618,7 +641,8 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
 
         /* check the contents of the clipboard again if either the Xserver or
          * our GTK+ version doesn't support the XFixes extension */
-        if (!gdk_display_supports_selection_notification(gtk_clipboard_get_display(manager->clipboard)))
+        if (!gdk_display_supports_selection_notification(
+                    gtk_clipboard_get_display(manager->clipboard)))
         {
             _clipman_owner_changed(manager->clipboard, NULL, manager);
         }
@@ -626,12 +650,16 @@ static void _clipman_contents_received(GtkClipboard *clipboard,
     else
     {
         // tell the user that we cannot paste
-        dialog_error(request->widget, NULL, _("There is nothing on the clipboard to paste"));
+        dialog_error(request->widget,
+                     NULL, _("There is nothing on the clipboard to paste"));
     }
 
     // free the request
     if (request->widget != NULL)
-        g_object_remove_weak_pointer(G_OBJECT(request->widget),(gpointer) &request->widget);
+    {
+        g_object_remove_weak_pointer(G_OBJECT(request->widget),
+                                     (gpointer) &request->widget);
+    }
 
     if (request->new_files_closure != NULL)
         g_closure_unref(request->new_files_closure);
