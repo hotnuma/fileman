@@ -1,12 +1,13 @@
 
-ui
+-------------------------------------------------------------------------------
 
 xfce_spawn_on_screen
 xfce_dialog_show_help
 xfce_widget_reparent
 xfce_gdk_screen_get_active
 
-filename input field for create rename file dialogs
+-------------------------------------------------------------------------------
+
 XFCE_TYPE_FILENAME_INPUT
 xfce_filename_input_check
 xfce_filename_input_desensitise_widget
@@ -14,7 +15,7 @@ xfce_filename_input_get_entry
 xfce_filename_input_get_text
 xfce_filename_input_sensitise_widget
 
-
+-------------------------------------------------------------------------------
 
 xfce_gtk_get_action_entry_by_id
 xfce_gtk_menu_append_seperator

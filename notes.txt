@@ -1,7 +1,6 @@
 
-#### 30 Biggest files
+* 30 Biggest files
 
-```
 find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -10
 
 111923	./launcher.c
@@ -14,6 +13,5 @@ find . -type f -name "*.c" -printf "%s\t%p\n" | sort -nr | head -10
 53899	./appwindow.c
 49366	./dialog/permbox.c
 44905	./job/io-jobs.c
-```
 
 

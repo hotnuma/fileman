@@ -146,7 +146,7 @@ DISTFILES = \
     install.sh \
     marshal.list \
     meson.build \
-    Notes.md \
     Readme.md \
+    notes.txt
 
 
