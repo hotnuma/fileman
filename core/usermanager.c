@@ -417,7 +417,8 @@ static void _user_load(ThunarUser *user)
 
         // query name and primary group
         user->name = g_strdup(pw->pw_name);
-        user->primary_group = usermanager_get_group_by_id(manager, pw->pw_gid);
+        user->primary_group = usermanager_get_group_by_id(manager,
+                                                          pw->pw_gid);
 
         // try to figure out the real name
         s = strchr(pw->pw_gecos, ',');
