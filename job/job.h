@@ -28,9 +28,9 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarJobPrivate ThunarJobPrivate;
-typedef struct _ThunarJobClass   ThunarJobClass;
 typedef struct _ThunarJob        ThunarJob;
+typedef struct _ThunarJobClass   ThunarJobClass;
+typedef struct _ThunarJobPrivate ThunarJobPrivate;
 
 #define TYPE_THUNARJOB (job_get_type())
 

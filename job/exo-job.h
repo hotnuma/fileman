@@ -27,6 +27,7 @@ G_BEGIN_DECLS
 // ExoJob ---------------------------------------------------------------------
 
 #define TYPE_EXOJOB (exo_job_get_type())
+
 #define EXOJOB(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_EXOJOB, ExoJob))
 #define EXOJOB_CLASS(klass) \
@@ -38,9 +39,16 @@ G_BEGIN_DECLS
 #define EXOJOB_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_EXOJOB, ExoJobClass))
 
-typedef struct _ExoJobPrivate ExoJobPrivate;
-typedef struct _ExoJobClass   ExoJobClass;
 typedef struct _ExoJob        ExoJob;
+typedef struct _ExoJobClass   ExoJobClass;
+typedef struct _ExoJobPrivate ExoJobPrivate;
+
+struct _ExoJob
+{
+    GObject __parent__;
+
+    ExoJobPrivate *priv;
+};
 
 struct _ExoJobClass
 {
@@ -56,27 +64,20 @@ struct _ExoJobClass
     void (*percent) (ExoJob *job, gdouble percent);
 };
 
-struct _ExoJob
-{
-    GObject __parent__;
-
-    ExoJobPrivate *priv;
-};
-
 GType exo_job_get_type() G_GNUC_CONST;
 
-// Launch ---------------------------------------------------------------------
+// launch ---------------------------------------------------------------------
 
 ExoJob* exo_job_launch(ExoJob *job);
 GCancellable* exo_job_get_cancellable(const ExoJob *job);
 
-// Cancel ---------------------------------------------------------------------
+// cancel ---------------------------------------------------------------------
 
 void exo_job_cancel(ExoJob *job);
 gboolean exo_job_is_cancelled(const ExoJob *job);
 gboolean exo_job_set_error_if_cancelled (ExoJob *job, GError **error);
 
-// Emit -----------------------------------------------------------------------
+// emit -----------------------------------------------------------------------
 
 void exo_job_info_message(ExoJob *job, const gchar *format, ...);
 void exo_job_percent(ExoJob *job, gdouble percent);

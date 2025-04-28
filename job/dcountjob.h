@@ -26,11 +26,12 @@ G_BEGIN_DECLS
 
 // DeepCountJob ---------------------------------------------------------------
 
-typedef struct _DeepCountJobPrivate DeepCountJobPrivate;
-typedef struct _DeepCountJobClass   DeepCountJobClass;
 typedef struct _DeepCountJob        DeepCountJob;
+typedef struct _DeepCountJobClass   DeepCountJobClass;
+typedef struct _DeepCountJobPrivate DeepCountJobPrivate;
 
 #define TYPE_DEEPCOUNTJOB (dcjob_get_type())
+
 #define DEEPCOUNTJOB(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_DEEPCOUNTJOB, DeepCountJob))
 #define DEEPCOUNTJOB_CLASS(klass) \

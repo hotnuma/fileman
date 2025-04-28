@@ -22,13 +22,12 @@
 
 #include "gio-ext.h"
 
-GList* io_scan_directory(ThunarJob           *job,
-                         GFile               *file,
+GList* io_scan_directory(ThunarJob *job, GFile *file,
                          GFileQueryInfoFlags flags,
-                         gboolean            recursively,
-                         gboolean            unlinking,
-                         gboolean            return_thunar_files,
-                         GError              **error)
+                         gboolean recursively,
+                         gboolean unlinking,
+                         gboolean return_thunar_files,
+                         GError **error)
 {
     GFileEnumerator *enumerator;
     GFileInfo       *info;
@@ -122,7 +121,8 @@ GList* io_scan_directory(ThunarJob           *job,
         if (return_thunar_files)
         {
             // Prepend the ThunarFile
-            thunar_file = th_file_get_with_info(child_file, info, !is_mounted);
+            thunar_file = th_file_get_with_info(child_file,
+                                                info, !is_mounted);
             files = e_list_prepend_ref(files, thunar_file);
             g_object_unref(G_OBJECT(thunar_file));
         }
@@ -134,11 +134,16 @@ GList* io_scan_directory(ThunarJob           *job,
 
         // if the child is a directory and we need to recurse ... just do so
         if (recursively
-                && is_mounted
-                && g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
+            && is_mounted
+            && g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
         {
-            child_files = io_scan_directory(job, child_file, flags, recursively,
-                                                    unlinking, return_thunar_files, &err);
+            child_files = io_scan_directory(job,
+                                            child_file,
+                                            flags,
+                                            recursively,
+                                            unlinking,
+                                            return_thunar_files,
+                                            &err);
 
             /* prepend children to the file list to make sure they're
              * processed first(required for unlinking) */

@@ -31,7 +31,8 @@
 
 static void dcjob_finalize(GObject *object);
 static gboolean dcjob_execute(ExoJob *job, GError **error);
-static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
+static gboolean _dcjob_process(ExoJob *job,
+                               GFile *file, GFileInfo *file_info,
                                const gchar *toplevel_fs_id, GError **error);
 static void _dcjob_status_update(DeepCountJob *job);
 
@@ -198,7 +199,8 @@ static gboolean dcjob_execute(ExoJob *job, GError **error)
     return success;
 }
 
-static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
+static gboolean _dcjob_process(ExoJob *job,
+                               GFile *file, GFileInfo *file_info,
                                const gchar *toplevel_fs_id, GError **error)
 {
     DeepCountJob *count_job = DEEPCOUNTJOB(job);
@@ -213,7 +215,8 @@ static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
 
     e_return_val_if_fail(THUNAR_IS_JOB(job), FALSE);
     e_return_val_if_fail(G_IS_FILE(file), FALSE);
-    e_return_val_if_fail(file_info == NULL || G_IS_FILE_INFO(file_info), FALSE);
+    e_return_val_if_fail(file_info == NULL
+                         || G_IS_FILE_INFO(file_info), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
     // abort if job was already cancelled
@@ -248,7 +251,8 @@ static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
 
     /* only check files on the same filesystem so no remote mounts or
      * dummy filesystems are counted */
-    fs_id = g_file_info_get_attribute_string(info, G_FILE_ATTRIBUTE_ID_FILESYSTEM);
+    fs_id = g_file_info_get_attribute_string(info,
+                                             G_FILE_ATTRIBUTE_ID_FILESYSTEM);
     if (fs_id == NULL)
         fs_id = "";
 
@@ -266,90 +270,101 @@ static gboolean _dcjob_process(ExoJob *job, GFile *file, GFileInfo *file_info,
         return TRUE;
     }
 
-    // recurse if we have a directory
-    if (g_file_info_get_file_type(info) == G_FILE_TYPE_DIRECTORY)
-    {
-        // try to read from the directory
-        enumerator = g_file_enumerate_children(file,
-                                                DEEPCOUNT_FILEINFO_NAMESPACE ","
-                                                G_FILE_ATTRIBUTE_STANDARD_NAME,
-                                                count_job->query_flags,
-                                                exo_job_get_cancellable(job),
-                                                error);
-
-        if (!exo_job_is_cancelled(job))
-        {
-            if (enumerator == NULL)
-            {
-                // directory was unreadable
-                count_job->unreadable_directory_count++;
-
-                if (toplevel_file
-                        && g_list_length(count_job->files) < 2)
-                {
-                    // we only bail out if the job file is unreadable
-                    success = FALSE;
-                }
-                else
-                {
-                    // ignore errors from files other than the job file
-                    g_clear_error(error);
-                }
-            }
-            else
-            {
-                // directory was readable
-                count_job->directory_count++;
-
-                while(!exo_job_is_cancelled(job))
-                {
-                    // query next child info
-                    child_info = g_file_enumerator_next_file(enumerator,
-                                 exo_job_get_cancellable(job),
-                                 error);
-
-                    // abort on invalid child info(iteration ends) or cancellation
-                    if (child_info == NULL)
-                        break;
-
-                    if (!exo_job_is_cancelled(job))
-                    {
-                        // generate a GFile for the child
-                        child = g_file_resolve_relative_path(file, g_file_info_get_name(child_info));
-
-                        // recurse unless the job was cancelled before
-                        _dcjob_process(job, child, child_info, toplevel_fs_id, error);
-
-                        // free resources
-                        g_object_unref(child);
-                    }
-
-                    g_object_unref(child_info);
-                }
-            }
-        }
-
-        // destroy the enumerator
-        if (enumerator != NULL)
-            g_object_unref(enumerator);
-
-        /* emit status update whenever we've finished a directory,
-         * but not more than four times per second */
-        real_time = g_get_real_time();
-        if (real_time >= count_job->last_time)
-        {
-            if (count_job->last_time != 0)
-                _dcjob_status_update(count_job);
-            count_job->last_time = real_time +(G_USEC_PER_SEC / 4);
-        }
-    }
-    else
+    if (g_file_info_get_file_type(info) != G_FILE_TYPE_DIRECTORY)
     {
         // we have a regular file or at least not a directory
         count_job->file_count++;
 
         // add size of the file to the total size
         count_job->total_size += g_file_info_get_size(info);
+
+        // destroy the file info
+        g_object_unref(info);
+
+        /* we've succeeded if there was no error when loading information
+         * about the job file itself and the job was not cancelled */
+        return !exo_job_is_cancelled(job) && success;
+    }
+
+    // recurse if we have a directory
+    enumerator = g_file_enumerate_children(file,
+                                           DEEPCOUNT_FILEINFO_NAMESPACE ","
+                                           G_FILE_ATTRIBUTE_STANDARD_NAME,
+                                           count_job->query_flags,
+                                           exo_job_get_cancellable(job),
+                                           error);
+
+    if (!exo_job_is_cancelled(job))
+    {
+        if (enumerator == NULL)
+        {
+            // directory was unreadable
+            count_job->unreadable_directory_count++;
+
+            if (toplevel_file
+                    && g_list_length(count_job->files) < 2)
+            {
+                // we only bail out if the job file is unreadable
+                success = FALSE;
+            }
+            else
+            {
+                // ignore errors from files other than the job file
+                g_clear_error(error);
+            }
+        }
+        else
+        {
+            // directory was readable
+            count_job->directory_count++;
+
+            while (!exo_job_is_cancelled(job))
+            {
+                // query next child info
+                child_info = g_file_enumerator_next_file(enumerator,
+                             exo_job_get_cancellable(job),
+                             error);
+
+                // abort on invalid child info(iteration ends)
+                // or cancellation
+                if (child_info == NULL)
+                    break;
+
+                if (!exo_job_is_cancelled(job))
+                {
+                    // generate a GFile for the child
+                    child = g_file_resolve_relative_path(
+                                    file,
+                                    g_file_info_get_name(child_info));
+
+                    // recurse unless the job was cancelled before
+                    _dcjob_process(job,
+                                   child, child_info,
+                                   toplevel_fs_id, error);
+
+                    // free resources
+                    g_object_unref(child);
+                }
+
+                g_object_unref(child_info);
+            }
+        }
+    }
+
+    // destroy the enumerator
+    if (enumerator != NULL)
+        g_object_unref(enumerator);
+
+    /* emit status update whenever we've finished a directory,
+     * but not more than four times per second */
+    real_time = g_get_real_time();
+
+    if (real_time >= count_job->last_time)
+    {
+        if (count_job->last_time != 0)
+            _dcjob_status_update(count_job);
+
+        count_job->last_time = real_time +(G_USEC_PER_SEC / 4);
     }
 
     // destroy the file info

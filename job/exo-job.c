@@ -20,7 +20,7 @@
 #include "config.h"
 #include "exo-job.h"
 
-/**
+/*
  * ExoJob is an abstract base class
  * intended to wrap threaded/asynchronous operations(called jobs here).
  * It was written because the ways of dealing with threads provided by
@@ -34,13 +34,9 @@
  * or ExoJob::percent. This
  * design integrates very well with the usual object-oriented design of
  * applications based on GObject.
- **/
-
-// ExoJob ---------------------------------------------------------------------
+ */
 
 static void exo_job_finalize(GObject *object);
-
-// Public ---------------------------------------------------------------------
 
 // exo_job_launch
 static gboolean _exo_job_scheduler_job_func(GIOSchedulerJob *scheduler_job,
@@ -54,6 +50,7 @@ static void _exo_job_finished(ExoJob *job);
 static void _exo_job_emit_valist(ExoJob *job, guint signal_id,
                                  GQuark signal_detail, va_list var_args);
 static gboolean _exo_job_emit_valist_in_mainloop(gpointer user_data);
+
 
 // ExoJob ---------------------------------------------------------------------
 
@@ -103,7 +100,7 @@ static void exo_job_class_init(ExoJobClass *klass)
     klass->info_message = NULL;
     klass->percent = NULL;
 
-    /**
+    /*
      * ExoJob::error:
      * @job   : an #ExoJob.
      * @error : a #GError describing the cause.
@@ -118,7 +115,7 @@ static void exo_job_class_init(ExoJobClass *klass)
      * Callers interested in whether the @job was cancelled can connect to
      * the "cancelled" signal of the #GCancellable returned from
      * exo_job_get_cancellable().
-     **/
+     */
     _exo_job_signals[ERROR] =
         g_signal_new(I_("error"),
                      G_TYPE_FROM_CLASS(klass),
@@ -128,7 +125,7 @@ static void exo_job_class_init(ExoJobClass *klass)
                      g_cclosure_marshal_VOID__POINTER,
                      G_TYPE_NONE, 1, G_TYPE_POINTER);
 
-    /**
+    /*
      * ExoJob::finished:
      * @job : an #ExoJob.
      *
@@ -137,7 +134,7 @@ static void exo_job_class_init(ExoJobClass *klass)
      * was cancelled by the user. It may not be emitted by subclasses of
      * #ExoJob as it is automatically emitted by #ExoJob after the execute()
      * method has finished.
-     **/
+     */
     _exo_job_signals[FINISHED] =
         g_signal_new(I_("finished"),
                      G_TYPE_FROM_CLASS(klass),
@@ -147,7 +144,7 @@ static void exo_job_class_init(ExoJobClass *klass)
                      g_cclosure_marshal_VOID__VOID,
                      G_TYPE_NONE, 0);
 
-    /**
+    /*
      * ExoJob::info-message:
      * @job     : an #ExoJob.
      * @message : information to be displayed about @job.
@@ -157,7 +154,7 @@ static void exo_job_class_init(ExoJobClass *klass)
      *
      * The @message is garanteed to contain valid UTF-8, so it can be
      * displayed by #GtkWidget<!---->s out of the box.
-     **/
+     */
     _exo_job_signals[INFO_MESSAGE] =
         g_signal_new(I_("info-message"),
                      G_TYPE_FROM_CLASS(klass),
@@ -167,7 +164,7 @@ static void exo_job_class_init(ExoJobClass *klass)
                      g_cclosure_marshal_VOID__STRING,
                      G_TYPE_NONE, 1, G_TYPE_STRING);
 
-    /**
+    /*
      * ExoJob::percent:
      * @job     : an #ExoJob.
      * @percent : the percentage of completeness.
@@ -175,7 +172,7 @@ static void exo_job_class_init(ExoJobClass *klass)
      * This signal is emitted to present the overall progress of the
      * operation. The @percent value is garantied to be a value between
      * 0.0 and 100.0.
-     **/
+     */
     _exo_job_signals[PERCENT] =
         g_signal_new(I_("percent"),
                      G_TYPE_FROM_CLASS(klass),
@@ -215,7 +212,8 @@ static void exo_job_finalize(GObject *object)
     G_OBJECT_CLASS(exo_job_parent_class)->finalize(object);
 }
 
-// Launch ---------------------------------------------------------------------
+
+// launch ---------------------------------------------------------------------
 
 /**
  * exo_job_launch:
@@ -242,7 +240,7 @@ ExoJob* exo_job_launch(ExoJob *job)
     G_GNUC_BEGIN_IGNORE_DEPRECATIONS
     g_io_scheduler_push_job(_exo_job_scheduler_job_func, g_object_ref(job),
                             (GDestroyNotify) g_object_unref,
-                             G_PRIORITY_HIGH, job->priv->cancellable);
+                            G_PRIORITY_HIGH, job->priv->cancellable);
     G_GNUC_END_IGNORE_DEPRECATIONS
 
     return job;
@@ -320,8 +318,11 @@ static gboolean _exo_job_async_ready(gpointer user_data)
         g_assert(job->priv->error != NULL);
 
         // don't treat cancellation as an error
-        if (!g_error_matches(job->priv->error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        if (!g_error_matches(job->priv->error,
+                             G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        {
             _exo_job_error(job, job->priv->error);
+        }
 
         // cleanup
         g_error_free(job->priv->error);
@@ -434,10 +435,13 @@ gboolean exo_job_is_cancelled(const ExoJob *job)
 gboolean exo_job_set_error_if_cancelled(ExoJob *job, GError **error)
 {
     e_return_val_if_fail(IS_EXOJOB(job), FALSE);
-    return g_cancellable_set_error_if_cancelled(job->priv->cancellable, error);
+
+    return g_cancellable_set_error_if_cancelled(job->priv->cancellable,
+                                                error);
 }
 
-// Emit -----------------------------------------------------------------------
+
+// emit -----------------------------------------------------------------------
 
 /**
  * exo_job_info_message:
@@ -555,24 +559,16 @@ static gboolean _exo_job_emit_valist_in_mainloop(gpointer user_data)
 {
     ExoJobSignalData *data = user_data;
 
-    g_signal_emit_valist(data->instance, data->signal_id, data->signal_detail,
-                          data->var_args);
+    g_signal_emit_valist(data->instance,
+                         data->signal_id,
+                         data->signal_detail,
+                         data->var_args);
 
     return FALSE;
 }
 
-/**
- * exo_job_send_to_mainloop:
- * @job            : an #ExoJob.
- * @func           : a #GSourceFunc callback that will be called in the main thread.
- * @user_data      : data to pass to @func.
- * @destroy_notify : a #GDestroyNotify for @user_data, or %NULL.
- *
- * This functions schedules @func to be run in the main loop(main thread),
- * waiting for the result(and blocking the job in the meantime).
- *
- * Returns: The return value of @func.
- **/
+/* this functions schedules func to be run in the main loop (main thread),
+ * waiting for the result(and blocking the job in the meantime). */
 gboolean exo_job_send_to_mainloop(ExoJob         *job,
                                   GSourceFunc    func,
                                   gpointer       user_data,
