@@ -44,12 +44,14 @@ gboolean e_app_info_launch(GAppInfo *info,
     gboolean      skip_app_info_update;
 
     e_return_val_if_fail(G_IS_APP_INFO(info), FALSE);
-    e_return_val_if_fail(working_directory == NULL || G_IS_FILE(working_directory), FALSE);
+    e_return_val_if_fail(working_directory == NULL
+                         || G_IS_FILE(working_directory), FALSE);
     e_return_val_if_fail(path_list != NULL, FALSE);
     e_return_val_if_fail(G_IS_APP_LAUNCH_CONTEXT(context), FALSE);
     e_return_val_if_fail(error == NULL || *error == NULL, FALSE);
 
-    skip_app_info_update =(g_object_get_data(G_OBJECT(info), "skip-app-info-update") != NULL);
+    skip_app_info_update = (g_object_get_data(G_OBJECT(info),
+                                              "skip-app-info-update") != NULL);
 
     // check if we want to set the working directory of the spawned app
     if (working_directory != NULL)
@@ -58,7 +60,8 @@ gboolean e_app_info_launch(GAppInfo *info,
         new_path = g_file_get_path(working_directory);
         if (new_path != NULL)
         {
-            // switch to the desired working directory, remember that of Thunar itself
+            // switch to the desired working directory, remember that
+            // of Thunar itself
             old_path = util_change_working_directory(new_path);
 
             // forget about the new working directory path
@@ -95,7 +98,8 @@ gboolean e_app_info_launch(GAppInfo *info,
             if (update_app_info)
             {
                 // obtain list of last used applications
-                recommended_app_infos = g_app_info_get_recommended_for_type(content_type);
+                recommended_app_infos = g_app_info_get_recommended_for_type(
+                                                            content_type);
                 if (recommended_app_infos != NULL)
                 {
                     /* check if the application is already the last used one
@@ -107,16 +111,19 @@ gboolean e_app_info_launch(GAppInfo *info,
                 }
             }
 
-            // emit "changed" on the file if we successfully changed the last used application
-            if (update_app_info && g_app_info_set_as_last_used_for_type(info, content_type, NULL))
+            // emit "changed" on the file if we successfully changed the last
+            // used application
+            if (update_app_info
+                && g_app_info_set_as_last_used_for_type(info,
+                                                        content_type, NULL))
                 th_file_changed(file);
 
             g_object_unref(file);
         }
     }
 
-    /* check if we need to reset the working directory to the one Thunar was
-     * opened from */
+    // check if we need to reset the working directory to the one Thunar was
+    // opened from
     if (old_path != NULL)
     {
         // switch to Thunar's original working directory
@@ -179,7 +186,9 @@ gchar* e_file_get_display_name(GFile *file)
         else if (g_utf8_validate(base_name, -1, NULL))
             display_name = g_strdup(base_name);
         else
-            display_name = g_uri_escape_string(base_name, G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);
+            display_name = g_uri_escape_string(
+                                base_name,
+                                G_URI_RESERVED_CHARS_ALLOWED_IN_PATH, TRUE);
 
         g_free(base_name);
     }
@@ -248,11 +257,13 @@ gchar* e_file_get_display_name_remote(GFile *mount_point)
                 path = "/";
             }
 
-            // unescape the path so that spaces and other characters are shown correctly
+            // unescape the path so that spaces and other characters are
+            // shown correctly
             unescaped = g_uri_unescape_string(path, NULL);
 
             // TRANSLATORS: this will result in "<path> on <hostname>"
-            display_name = g_strdup_printf(_("%s on %s"), unescaped, hostname);
+            display_name = g_strdup_printf(_("%s on %s"),
+                                           unescaped, hostname);
 
             g_free(unescaped);
             g_free(hostname);
@@ -299,14 +310,22 @@ gboolean e_file_get_free_space(GFile *file, guint64 *fs_free_return,
     {
         if (fs_free_return != NULL)
         {
-            *fs_free_return = g_file_info_get_attribute_uint64(filesystem_info, G_FILE_ATTRIBUTE_FILESYSTEM_FREE);
-            success = g_file_info_has_attribute(filesystem_info, G_FILE_ATTRIBUTE_FILESYSTEM_FREE);
+            *fs_free_return =
+                g_file_info_get_attribute_uint64(
+                                    filesystem_info,
+                                    G_FILE_ATTRIBUTE_FILESYSTEM_FREE);
+            success =
+                    g_file_info_has_attribute(
+                                    filesystem_info,
+                                    G_FILE_ATTRIBUTE_FILESYSTEM_FREE);
         }
 
         if (fs_size_return != NULL)
         {
-            *fs_size_return = g_file_info_get_attribute_uint64(filesystem_info, G_FILE_ATTRIBUTE_FILESYSTEM_SIZE);
-            success = g_file_info_has_attribute(filesystem_info, G_FILE_ATTRIBUTE_FILESYSTEM_SIZE);
+            *fs_size_return = g_file_info_get_attribute_uint64(
+                        filesystem_info, G_FILE_ATTRIBUTE_FILESYSTEM_SIZE);
+            success = g_file_info_has_attribute(
+                        filesystem_info, G_FILE_ATTRIBUTE_FILESYSTEM_SIZE);
         }
 
         g_object_unref(filesystem_info);
@@ -328,12 +347,19 @@ gchar* e_file_get_free_space_string(GFile *file, gboolean file_size_binary)
     if (e_file_get_free_space(file, &fs_free, &fs_size)
             && fs_size > 0)
     {
-        fs_free_str = g_format_size_full(fs_free, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
-        fs_size_str = g_format_size_full(fs_size, file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
+        fs_free_str = g_format_size_full(
+                    fs_free,
+                    file_size_binary
+                    ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
+        fs_size_str = g_format_size_full(
+                    fs_size,
+                    file_size_binary
+                    ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT);
         // free disk space string
-        fs_string = g_strdup_printf(_("%s of %s free(%d%% used)"),
-                                     fs_free_str, fs_size_str,
-                                    (gint)((fs_size - fs_free) * 100 / fs_size));
+        fs_string = g_strdup_printf(
+                            _("%s of %s free(%d%% used)"),
+                            fs_free_str, fs_size_str,
+                            (gint) ((fs_size - fs_free) * 100 / fs_size));
         g_free(fs_free_str);
         g_free(fs_size_str);
     }

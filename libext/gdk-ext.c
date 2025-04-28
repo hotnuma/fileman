@@ -21,7 +21,7 @@
 
 static const cairo_user_data_key_t _cairo_key;
 
-static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf);
+static cairo_surface_t* _edk_cairo_create_surface(const GdkPixbuf *pixbuf);
 
 /**
  * thunar_gdk_cairo_set_source_pixbuf:
@@ -48,18 +48,19 @@ void edk_cairo_set_source_pixbuf(cairo_t *cr, GdkPixbuf *pixbuf,
     if (surface == NULL)
     {
         // create a new surface
-        surface = _egdk_cairo_create_surface(pixbuf);
+        surface = _edk_cairo_create_surface(pixbuf);
 
         // store the pixbuf on the pixbuf
-        g_object_set_qdata_full(G_OBJECT(pixbuf), surface_quark,
-                                 surface,(GDestroyNotify) cairo_surface_destroy);
+        g_object_set_qdata_full(G_OBJECT(pixbuf),
+                                surface_quark, surface,
+                                (GDestroyNotify) cairo_surface_destroy);
     }
 
     // apply
     cairo_set_source_surface(cr, surface, pixbuf_x, pixbuf_y);
 }
 
-static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf)
+static cairo_surface_t* _edk_cairo_create_surface(const GdkPixbuf *pixbuf)
 {
     gint             width;
     gint             height;
@@ -125,7 +126,10 @@ static cairo_surface_t* _egdk_cairo_create_surface(const GdkPixbuf *pixbuf)
     }
     else
     {
-#define MULT(d,c,a) G_STMT_START { guint t = c * a + 0x7f; d =((t >> 8) + t) >> 8; } G_STMT_END
+#define MULT(d,c,a) \
+    G_STMT_START { \
+    guint t = c * a + 0x7f; d =((t >> 8) + t) >> 8; \
+    } G_STMT_END
         for (j = height; j; j--)
         {
             p = gdk_pixels;

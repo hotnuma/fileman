@@ -69,12 +69,16 @@ GdkPixbuf* pixbuf_colorize(const GdkPixbuf *source, const GdkColor  *color)
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
     // check if there's a good reason to use MMX
-    if (has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 && (width * height) % 2 == 0)
+    if (has_alpha && dst_row_stride == width * 4
+        && src_row_stride == width * 4 && (width * height) % 2 == 0)
     {
         __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
         __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
         __m64  alpha_mask = _mm_set_pi8(0xff, 0, 0, 0, 0xff, 0, 0, 0);
-        __m64  color_factor = _mm_set_pi16(0, color->blue, color->green, color->red);
+        __m64  color_factor = _mm_set_pi16(0,
+                                           color->blue,
+                                           color->green,
+                                           color->red);
         __m64  zero = _mm_setzero_si64();
         __m64  src, alpha, hi, lo;
 
@@ -203,7 +207,9 @@ GdkPixbuf* pixbuf_scale_down(GdkPixbuf *source, gboolean preserve_ratio,
             dest_height = rint(source_height / wratio);
     }
 
-    return gdk_pixbuf_scale_simple(source, MAX(dest_width, 1), MAX(dest_height, 1), GDK_INTERP_BILINEAR);
+    return gdk_pixbuf_scale_simple(source,
+                                   MAX(dest_width, 1),
+                                   MAX(dest_height, 1), GDK_INTERP_BILINEAR);
 }
 
 /**
@@ -236,7 +242,10 @@ GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
     has_alpha = gdk_pixbuf_get_has_alpha(source);
 
     // allocate the destination pixbuf
-    dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source), has_alpha, gdk_pixbuf_get_bits_per_sample(source), width, height);
+    dst = gdk_pixbuf_new(gdk_pixbuf_get_colorspace(source),
+                         has_alpha,
+                         gdk_pixbuf_get_bits_per_sample(source),
+                         width, height);
 
     // determine src/dst row strides
     dst_row_stride = gdk_pixbuf_get_rowstride(dst);
@@ -244,7 +253,9 @@ GdkPixbuf* pixbuf_spotlight(const GdkPixbuf *source)
 
 #if defined(__GNUC__) && defined(__NO_MMX__)
     // check if there's a good reason to use MMX
-    if (has_alpha && dst_row_stride == width * 4 && src_row_stride == width * 4 && (width * height) % 2 == 0)
+    if (has_alpha
+        && dst_row_stride == width * 4
+        && src_row_stride == width * 4 && (width * height) % 2 == 0)
     {
         __m64 *pixdst =(__m64 *) gdk_pixbuf_get_pixels(dst);
         __m64 *pixsrc =(__m64 *) gdk_pixbuf_get_pixels(source);
@@ -325,6 +336,7 @@ static inline guchar _lighten_channel(guchar cur_value)
     gint new_value = cur_value;
 
     new_value += 24 +(new_value >> 3);
+
     if (new_value > 255)
         new_value = 255;
 

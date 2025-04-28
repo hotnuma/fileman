@@ -45,7 +45,7 @@ static inline gchar *_util_strrchr_offset(const gchar *str,
 gchar* util_str_get_extension(const gchar *filename)
 {
     static const gchar *compressed[] =
-                        {"gz", "bz2", "lzma", "lrz", "rpm", "lzo", "xz", "z"};
+                    {"gz", "bz2", "lzma", "lrz", "rpm", "lzo", "xz", "z"};
     gchar *dot;
     gchar *ext;
     guint i;
@@ -88,7 +88,8 @@ gchar* util_str_get_extension(const gchar *filename)
         for (i = 0, is_in = TRUE; is_in && i < 3; i++)
         {
             dot2 = _util_strrchr_offset(filename, dot - 1, '.');
-            // the extension before .in could be long. check that it's at least 2 chars
+            // the extension before .in could be long. check that
+            // it's at least 2 chars
             len = dot - dot2 - 1;
             if (dot2 == NULL || dot2 == filename || len < 2)
                 break;
@@ -118,7 +119,8 @@ gchar* util_str_get_extension(const gchar *filename)
  *
  * Return value: pointer in @str or NULL.
  **/
-static inline gchar* _util_strrchr_offset(const gchar *str, const gchar *offset,
+static inline gchar* _util_strrchr_offset(const gchar *str,
+                                          const gchar *offset,
                                           gchar c)
 {
     const gchar *p;
@@ -132,18 +134,17 @@ static inline gchar* _util_strrchr_offset(const gchar *str, const gchar *offset,
     return NULL;
 }
 
-/**
- * util_str_escape
- * @source  : The string to escape
+/* Similar to g_strescape, but as well escapes SPACE
  *
- * Similar to g_strescape, but as well escapes SPACE
+ * Escapes the special characters '\b', '\f', '\n', '\r', '\t', '\v', '\'
+ * ' ' and '"' in the string source by inserting a '\' before them.
+ * Additionally all characters in the range 0x01-0x1F
+ * (SPACE and everything below) and in the range 0x7F-0xFF
+ * (all non-ASCII chars) are replaced with a '\' followed by their
+ * octal representation.
  *
- * Escapes the special characters '\b', '\f', '\n', '\r', '\t', '\v', '\' ' ' and '"' in the string source by inserting a '\' before them.
- * Additionally all characters in the range 0x01-0x1F (SPACE and everything below)
- * and in the range 0x7F-0xFF (all non-ASCII chars) are replaced with a '\' followed by their octal representation.
- *
- * Return value: (transfer full): The new string. Has to be freed with g_free after usage.
- **/
+ * Return value: (transfer full): The new string. Has to be freed
+ * with g_free after usage. */
 gchar* util_str_escape(const gchar *source)
 {
     gchar *g_escaped;
@@ -151,7 +152,8 @@ gchar* util_str_escape(const gchar *source)
     unsigned int j = 0;
     unsigned int new_size = 0;
 
-    // First apply the default escaping .. will escape everything, expect SPACE
+    // first apply the default escaping
+    // .. will escape everything, expect SPACE
     g_escaped = g_strescape(source, NULL);
 
     // calc required new size
@@ -253,7 +255,8 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
     // check if we have a valid(non-empty!) filename
     if (*filename == '\0')
     {
-        g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL, _("Invalid path"));
+        g_set_error(error,
+                    G_FILE_ERROR, G_FILE_ERROR_INVAL, _("Invalid path"));
         return NULL;
     }
 
@@ -268,7 +271,8 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
             return g_strdup(g_get_home_dir());
 
         // lookup the slash
-        for (slash = remainder; *slash != '\0' && *slash != G_DIR_SEPARATOR; ++slash)
+        for (slash = remainder;
+             *slash != '\0' && *slash != G_DIR_SEPARATOR; ++slash)
             ;
 
         // check if a username was given after the '~'
@@ -288,7 +292,10 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
             if (passwd == NULL)
             {
                 username = g_strndup(remainder, slash - remainder);
-                g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL, _("Unknown user \"%s\""), username);
+                g_set_error(error,
+                            G_FILE_ERROR,
+                            G_FILE_ERROR_INVAL,
+                            _("Unknown user \"%s\""), username);
                 g_free(username);
                 return NULL;
             }
@@ -306,7 +313,8 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
         remainder = filename + 1;
 
         // lookup the slash at the end of the variable
-        for (slash = remainder; *slash != '\0' && *slash != G_DIR_SEPARATOR; ++slash)
+        for (slash = remainder; *slash != '\0'
+             && *slash != G_DIR_SEPARATOR; ++slash)
             ;
 
         // get the variable for replacement
@@ -330,12 +338,14 @@ gchar* util_expand_filename(const gchar *filename, GFile *working_directory,
         {
             pwd = g_file_get_path(working_directory);
 
-            // if we only have the slash then we want the working directory only
+            // if we only have the slash then we want the
+            // working directory only
             if (*remainder == '\0')
                 return pwd;
 
             // concatenate working directory and remainder
-            result = g_build_filename(pwd, remainder, G_DIR_SEPARATOR_S, NULL);
+            result = g_build_filename(pwd,
+                                      remainder, G_DIR_SEPARATOR_S, NULL);
 
             // free the working directory string
             g_free(pwd);
@@ -380,9 +390,9 @@ gchar* util_expand_field_codes(const gchar *command, GSList *uri_list,
             case 'F':
                 for (li = uri_list; li != NULL; li = li->next)
                 {
-                    /* passing through a GFile seems necessary to properly handle
-                     * all URI schemes, in particular g_filename_from_uri() is not
-                     * able to do so */
+                    /* passing through a GFile seems necessary to properly
+                     * handle all URI schemes, in particular
+                     * g_filename_from_uri() is not able to do so */
 
                     file = g_file_new_for_uri(li->data);
                     filename = g_file_get_path(file);
@@ -450,7 +460,8 @@ gchar* util_change_working_directory(const gchar *new_directory)
 {
     gchar *old_directory;
 
-    e_return_val_if_fail(new_directory != NULL && *new_directory != '\0', NULL);
+    e_return_val_if_fail(new_directory != NULL
+                         && *new_directory != '\0', NULL);
 
     // try to determine the current working directory
     old_directory = g_get_current_dir();
@@ -623,91 +634,96 @@ gchar* util_humanize_file_time(guint64 file_time, ThunarDateStyle date_style,
     gint diff;
 
     // check if the file_time is valid
-    if (file_time != 0)
+    if (file_time == 0)
+        goto out;
+
+    ftime = (time_t)file_time;
+
+    // take a copy of the local file time
+    tfile = *localtime(&ftime);
+
+    // check which style to use to format the time
+    if (date_style == THUNAR_DATE_STYLE_SIMPLE
+        || date_style == THUNAR_DATE_STYLE_SHORT)
     {
-        ftime = (time_t)file_time;
+        // setup the dates for the time values
+        g_date_set_time_t(&dfile, (time_t)ftime);
+        g_date_set_time_t(&dnow, time(NULL));
 
-        // take a copy of the local file time
-        tfile = *localtime(&ftime);
-
-        // check which style to use to format the time
-        if (date_style == THUNAR_DATE_STYLE_SIMPLE || date_style == THUNAR_DATE_STYLE_SHORT)
+        // determine the difference in days
+        diff = g_date_get_julian(&dnow) - g_date_get_julian(&dfile);
+        if (diff == 0)
         {
-            // setup the dates for the time values
-            g_date_set_time_t(&dfile, (time_t)ftime);
-            g_date_set_time_t(&dnow, time(NULL));
-
-            // determine the difference in days
-            diff = g_date_get_julian(&dnow) - g_date_get_julian(&dfile);
-            if (diff == 0)
+            if (date_style == THUNAR_DATE_STYLE_SIMPLE)
             {
-                if (date_style == THUNAR_DATE_STYLE_SIMPLE)
-                {
-                    // TRANSLATORS: file was modified less than one day ago
-                    return g_strdup(_("Today"));
-                }
-                else // if (date_style == THUNAR_DATE_STYLE_SHORT)
-                {
-                    // TRANSLATORS: file was modified less than one day ago
-                    return util_strdup_strftime(_("Today at %X"), &tfile);
-                }
+                // TRANSLATORS: file was modified less than one day ago
+                return g_strdup(_("Today"));
             }
-            else if (diff == 1)
+            else // if (date_style == THUNAR_DATE_STYLE_SHORT)
             {
-                if (date_style == THUNAR_DATE_STYLE_SIMPLE)
-                {
-                    // TRANSLATORS: file was modified less than two days ago
-                    return g_strdup(_("Yesterday"));
-                }
-                else // if (date_style == THUNAR_DATE_STYLE_SHORT)
-                {
-                    // TRANSLATORS: file was modified less than two days ago
-                    return util_strdup_strftime(_("Yesterday at %X"), &tfile);
-                }
+                // TRANSLATORS: file was modified less than one day ago
+                return util_strdup_strftime(_("Today at %X"), &tfile);
+            }
+        }
+        else if (diff == 1)
+        {
+            if (date_style == THUNAR_DATE_STYLE_SIMPLE)
+            {
+                // TRANSLATORS: file was modified less than two days ago
+                return g_strdup(_("Yesterday"));
+            }
+            else // if (date_style == THUNAR_DATE_STYLE_SHORT)
+            {
+                // TRANSLATORS: file was modified less than two days ago
+                return util_strdup_strftime(_("Yesterday at %X"), &tfile);
+            }
+        }
+        else
+        {
+            if (diff > 1 && diff < 7)
+            {
+                // Days from last week
+                date_format = (date_style
+                    == THUNAR_DATE_STYLE_SIMPLE) ? "%A" : _("%A at %X");
             }
             else
             {
-                if (diff > 1 && diff < 7)
-                {
-                    // Days from last week
-                    date_format = (date_style == THUNAR_DATE_STYLE_SIMPLE) ? "%A" : _("%A at %X");
-                }
-                else
-                {
-                    // Any other date
-                    date_format = (date_style == THUNAR_DATE_STYLE_SIMPLE) ? "%x" : _("%x at %X");
-                }
-
-                // format the date string accordingly
-                return util_strdup_strftime(date_format, &tfile);
+                // Any other date
+                date_format = (date_style
+                    == THUNAR_DATE_STYLE_SIMPLE) ? "%x" : _("%x at %X");
             }
-        }
-        else if (date_style == THUNAR_DATE_STYLE_LONG)
-        {
-            // use long, date(1)-like format string
-            return util_strdup_strftime("%c", &tfile);
-        }
-        else if (date_style == THUNAR_DATE_STYLE_YYYYMMDD)
-        {
-            return util_strdup_strftime("%Y-%m-%d %H:%M:%S", &tfile);
-        }
-        else if (date_style == THUNAR_DATE_STYLE_MMDDYYYY)
-        {
-            return util_strdup_strftime("%m-%d-%Y %H:%M:%S", &tfile);
-        }
-        else if (date_style == THUNAR_DATE_STYLE_DDMMYYYY)
-        {
-            return util_strdup_strftime("%d-%m-%Y %H:%M:%S", &tfile);
-        }
-        else // if (date_style == THUNAR_DATE_STYLE_CUSTOM)
-        {
-            if (date_custom_style == NULL)
-                return g_strdup("");
 
-            // use custom date formatting
-            return util_strdup_strftime(date_custom_style, &tfile);
+            // format the date string accordingly
+            return util_strdup_strftime(date_format, &tfile);
         }
     }
+    else if (date_style == THUNAR_DATE_STYLE_LONG)
+    {
+        // use long, date(1)-like format string
+        return util_strdup_strftime("%c", &tfile);
+    }
+    else if (date_style == THUNAR_DATE_STYLE_YYYYMMDD)
+    {
+        return util_strdup_strftime("%Y-%m-%d %H:%M:%S", &tfile);
+    }
+    else if (date_style == THUNAR_DATE_STYLE_MMDDYYYY)
+    {
+        return util_strdup_strftime("%m-%d-%Y %H:%M:%S", &tfile);
+    }
+    else if (date_style == THUNAR_DATE_STYLE_DDMMYYYY)
+    {
+        return util_strdup_strftime("%d-%m-%Y %H:%M:%S", &tfile);
+    }
+    else // if (date_style == THUNAR_DATE_STYLE_CUSTOM)
+    {
+        if (date_custom_style == NULL)
+            return g_strdup("");
+
+        // use custom date formatting
+        return util_strdup_strftime(date_custom_style, &tfile);
+    }
+
+out:
 
     // the file_time is invalid
     return g_strdup(_("Unknown"));
@@ -715,8 +731,10 @@ gchar* util_humanize_file_time(guint64 file_time, ThunarDateStyle date_style,
 
 gchar* util_strdup_strftime(const gchar *format, const struct tm *tm)
 {
-    static const gchar C_STANDARD_STRFTIME_CHARACTERS[] = "aAbBcCdeFgGhHIjklmMnprRsStTuUVwWxXyYzZ";
-    static const gchar C_STANDARD_NUMERIC_STRFTIME_CHARACTERS[] = "CdegGHIjklmMsSuUVwWyY";
+    static const gchar C_STANDARD_STRFTIME_CHARACTERS[] =
+            "aAbBcCdeFgGhHIjklmMnprRsStTuUVwWxXyYzZ";
+    static const gchar C_STANDARD_NUMERIC_STRFTIME_CHARACTERS[] =
+            "CdegGHIjklmMsSuUVwWyY";
     static const gchar SUS_EXTENDED_STRFTIME_MODIFIERS[] = "EO";
     const gchar *remainder;
     const gchar *percent;
@@ -795,13 +813,15 @@ gchar* util_strdup_strftime(const gchar *format, const struct tm *tm)
             modifier = *remainder++;
             if (*remainder == 0)
             {
-                g_warning("Unfinished %%%c modifier passed to e_strdup_strftime", modifier);
+                g_warning("Unfinished %%%c modifier passed to"
+                          " e_strdup_strftime", modifier);
                 break;
             }
         }
 
         if (strchr(C_STANDARD_STRFTIME_CHARACTERS, *remainder) == NULL)
-            g_warning("e_strdup_strftime does not support non-standard escape code %%%c", *remainder);
+            g_warning("e_strdup_strftime does not support"
+                      " non-standard escape code %%%c", *remainder);
 
         /* convert code to strftime format. We have a fixed
        * limit here that each code can expand to a maximum
@@ -832,8 +852,11 @@ gchar* util_strdup_strftime(const gchar *format, const struct tm *tm)
         piece = buffer;
         if (strip_leading_zeros || turn_leading_zeros_to_spaces)
         {
-            if (strchr(C_STANDARD_NUMERIC_STRFTIME_CHARACTERS, *remainder) == NULL)
-                g_warning("e_strdup_strftime does not support modifier for non-numeric escape code %%%c%c", remainder[-1], *remainder);
+            if (strchr(C_STANDARD_NUMERIC_STRFTIME_CHARACTERS,
+                       *remainder) == NULL)
+                g_warning("e_strdup_strftime does not support"
+                          " modifier for non-numeric escape code %%%c%c",
+                          remainder[-1], *remainder);
 
             if (*piece == '0')
             {

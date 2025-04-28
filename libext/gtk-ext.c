@@ -23,7 +23,7 @@
 
 static void _etk_menu_run_at_event(GtkMenu *menu,
                                    GdkEvent *event, GtkWidget *widget);
-static void _etk_create_popup_rect (GdkWindow *window, GdkRectangle *rect);
+static void _etk_create_popup_rect(GdkWindow *window, GdkRectangle *rect);
 
 GMountOperation* etk_mount_operation_new(gpointer parent)
 {
@@ -35,7 +35,8 @@ GMountOperation* etk_mount_operation_new(gpointer parent)
                                         G_PASSWORD_SAVE_FOR_SESSION);
 
     if (window == NULL && screen != NULL)
-        gtk_mount_operation_set_screen(GTK_MOUNT_OPERATION(operation), screen);
+        gtk_mount_operation_set_screen(GTK_MOUNT_OPERATION(operation),
+                                       screen);
 
     return operation;
 }
@@ -164,7 +165,8 @@ static void _etk_menu_run_at_event(GtkMenu *menu,
     }
     else
     {
-        GdkWindow *window = gtk_widget_get_window(gtk_widget_get_toplevel(widget));
+        GdkWindow *window =
+                gtk_widget_get_window(gtk_widget_get_toplevel(widget));
 
         GdkRectangle rect;
         _etk_create_popup_rect(window, &rect);

@@ -42,12 +42,12 @@
     + ./job/jobutils.c
     + ./job/simplejob.c
       ./job/transferjob.c
-      ./libext/gdk-ext.c
-      ./libext/gio-ext.c
-      ./libext/gtk-ext.c
-      ./libext/pango-ext.c
-      ./libext/pixbuf-ext.c
-      ./libext/utils.c
+    + ./libext/gdk-ext.c
+    + ./libext/gio-ext.c
+    + ./libext/gtk-ext.c
+    + ./libext/pango-ext.c
+    + ./libext/pixbuf-ext.c
+    + ./libext/utils.c
       ./misc/browser.c
       ./misc/component.c
       ./misc/enumtypes.c
