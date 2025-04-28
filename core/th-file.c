@@ -1661,14 +1661,7 @@ const gchar* th_file_get_symlink_target(const ThunarFile *file)
 
 // Tests ----------------------------------------------------------------------
 
-/**
- * th_file_accepts_drop:
- * @file                    : a #ThunarFile instance.
- * @file_list               : the list of #GFile<!---->s that will be dropped.
- * @context                 : the current #GdkDragContext, which is used for the drop.
- * @suggested_action_return : return location for the suggested #GdkDragAction or %NULL.
- *
- * Checks whether @file can accept @file_list for the given @context and
+/* Checks whether @file can accept @file_list for the given @context and
  * returns the #GdkDragAction<!---->s that can be used or 0 if no actions
  * apply.
  *
@@ -1710,7 +1703,8 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
     if (th_file_is_directory(file) && th_file_is_writable(file))
     {
         // determine the possible actions
-        actions &=(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK | GDK_ACTION_ASK);
+        actions &=(GDK_ACTION_COPY
+                   | GDK_ACTION_MOVE | GDK_ACTION_LINK | GDK_ACTION_ASK);
 
         // cannot create symbolic links in the trash or copy to the trash
         if (th_file_is_trashed(file))
@@ -1740,9 +1734,10 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
                 return 0;
         }
 
-        /* if the source offers both copy and move and the GTK+ suggested action is copy, try to be smart telling whether
-         * we should copy or move by default by checking whether the source and target are on the same disk.
-         */
+        /* if the source offers both copy and move and the GTK suggested
+         * action is copy, try to be smart telling whether we should
+         * copy or move by default by checking whether the source and
+         * target are on the same disk. */
         if ((actions &(GDK_ACTION_COPY | GDK_ACTION_MOVE)) != 0
                 &&(suggested_action == GDK_ACTION_COPY))
         {
@@ -1762,14 +1757,15 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
                 if (ofile == NULL)
                     ofile = th_file_get(lp->data, NULL);
 
-                /* we have only move if we know the source and both the source and the target
-                 * are on the same disk, and the source file is owned by the current user.
-                 */
+                /* we have only move if we know the source and both the
+                 * source and the target are on the same disk, and the
+                 * source file is owned by the current user. */
                 if (ofile == NULL
-                        || !_th_file_same_filesystem(file, ofile)
-                        ||(ofile->gfileinfo != NULL
-                            && g_file_info_get_attribute_uint32(ofile->gfileinfo,
-                                    G_FILE_ATTRIBUTE_UNIX_UID) != _effective_user_id))
+                    || !_th_file_same_filesystem(file, ofile)
+                    || (ofile->gfileinfo != NULL
+                        && g_file_info_get_attribute_uint32(
+                            ofile->gfileinfo,
+                            G_FILE_ATTRIBUTE_UNIX_UID) != _effective_user_id))
                 {
                     // default to copy and get outa here
                     suggested_action = GDK_ACTION_COPY;
@@ -1784,10 +1780,15 @@ GdkDragAction th_file_accepts_drop(ThunarFile *file, GList *file_list,
     else if (th_file_is_executable(file))
     {
         // determine the possible actions
-        actions &=(GDK_ACTION_COPY | GDK_ACTION_MOVE | GDK_ACTION_LINK | GDK_ACTION_PRIVATE);
+        actions &= (GDK_ACTION_COPY
+                    | GDK_ACTION_MOVE
+                    | GDK_ACTION_LINK
+                    | GDK_ACTION_PRIVATE);
     }
     else
+    {
         return 0;
+    }
 
     // determine the preferred action based on the context
     if (suggested_action_return != NULL)
@@ -1874,18 +1875,13 @@ gboolean th_file_load_content_type(ThunarFile *file)
     return TRUE;
 }
 
-/**
- * th_file_is_ancestor:
- * @file     : a #ThunarFile instance.
- * @ancestor : another #ThunarFile instance.
- *
- * Determines whether @file is somewhere inside @ancestor,
+/* Determines whether @file is somewhere inside @ancestor,
  * possibly with intermediate folders.
  *
  * Return value: %TRUE if @ancestor contains @file as a
- *               child, grandchild, great grandchild, etc.
- **/
-gboolean th_file_is_ancestor(const ThunarFile *file, const ThunarFile *ancestor)
+ *               child, grandchild, great grandchild, etc. */
+gboolean th_file_is_ancestor(const ThunarFile *file,
+                             const ThunarFile *ancestor)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
     e_return_val_if_fail(IS_THUNARFILE(ancestor), FALSE);
@@ -1893,101 +1889,78 @@ gboolean th_file_is_ancestor(const ThunarFile *file, const ThunarFile *ancestor)
     return th_file_is_gfile_ancestor(file, ancestor->gfile);
 }
 
-/**
- * th_file_is_chmodable:
- * @file : a #ThunarFile instance.
- *
- * Determines whether the owner of the current process is allowed
- * to changed the file mode of @file.
- *
- * Return value: %TRUE if the mode of @file can be changed.
- **/
+/* Determines whether the owner of the current process is allowed
+ * to changed the file mode of @file. */
 gboolean th_file_is_chmodable(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
-    /* we can only change the mode if we the euid is
-     *   a) equal to the file owner id
-     * or
-     *   b) the super-user id
-     * and the file is not in the trash.
-     */
     if (file->gfileinfo == NULL)
-    {
-        return(_effective_user_id == 0 && !th_file_is_trashed(file));
-    }
-    else
-    {
-        return((_effective_user_id == 0
-                 || _effective_user_id == g_file_info_get_attribute_uint32(file->gfileinfo,
-                         G_FILE_ATTRIBUTE_UNIX_UID))
-                && !th_file_is_trashed(file));
-    }
+        return (_effective_user_id == 0 && !th_file_is_trashed(file));
+
+    guint32 uid = g_file_info_get_attribute_uint32(
+                                            file->gfileinfo,
+                                            G_FILE_ATTRIBUTE_UNIX_UID);
+
+    return ((_effective_user_id == 0 || _effective_user_id == uid)
+            && !th_file_is_trashed(file));
 }
 
-/**
- * th_file_is_desktop_file:
- * @file      : a #ThunarFile.
- * @is_secure : if %NULL do a simple check, else it will set this boolean
- *              to indicate if the desktop file is safe see bug #5012
- *              for more info.
- *
- * Returns %TRUE if @file is a .desktop file. The @is_secure return value
- * will tell if the .desktop file is also secure.
- *
- * Return value: %TRUE if @file is a .desktop file.
- **/
+/* Returns %TRUE if @file is a .desktop file. The @is_secure return value
+ * will tell if the .desktop file is also secure. */
 gboolean th_file_is_desktop_file(const ThunarFile *file, gboolean *is_secure)
 {
-    const gchar * const *data_dirs;
-    guint                n;
-    gchar               *path;
-
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
 
-    if (file->gfileinfo == NULL)
+    if (file->gfileinfo == NULL
+        || !g_str_has_suffix(file->basename, ".desktop")
+        || file->gfiletype != G_FILE_TYPE_REGULAR)
+    {
         return FALSE;
+    }
 
-    // only allow regular files with a .desktop extension
-    if (!g_str_has_suffix(file->basename, ".desktop")
-            || file->gfiletype != G_FILE_TYPE_REGULAR)
-        return FALSE;
-
-    // don't check more if not needed
     if (is_secure == NULL)
         return TRUE;
 
-    // desktop files outside xdg directories need to be executable for security reasons
-    if (g_file_info_get_attribute_boolean(file->gfileinfo, G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE))
+    // desktop files outside xdg directories need to be executable
+    // for security reasons
+    if (g_file_info_get_attribute_boolean(
+                                file->gfileinfo,
+                                G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE))
     {
         // has +x
         *is_secure = TRUE;
-    }
-    else
-    {
-        // assume the file is not safe
-        *is_secure = FALSE;
 
-        // deskopt files in xdg directories are also fine...
-        if (g_file_is_native(th_file_get_file(file)))
+        return TRUE;
+    }
+
+    // assume the file is not safe
+    *is_secure = FALSE;
+
+    // desktop files in xdg directories are also fine...
+    if (!g_file_is_native(th_file_get_file(file)))
+        return TRUE;
+
+    const gchar * const *data_dirs;
+    data_dirs = g_get_system_data_dirs();
+
+    if (data_dirs == NULL)
+        return TRUE;
+
+    gchar *path = g_file_get_path(th_file_get_file(file));
+
+    for (guint n = 0; data_dirs[n] != NULL; n++)
+    {
+        if (g_str_has_prefix(path, data_dirs[n]))
         {
-            data_dirs = g_get_system_data_dirs();
-            if (data_dirs != NULL)
-            {
-                path = g_file_get_path(th_file_get_file(file));
-                for(n = 0; data_dirs[n] != NULL; n++)
-                {
-                    if (g_str_has_prefix(path, data_dirs[n]))
-                    {
-                        // has known prefix, can launch without problems
-                        *is_secure = TRUE;
-                        break;
-                    }
-                }
-                g_free(path);
-            }
+            // has known prefix, can launch without problems
+            *is_secure = TRUE;
+
+            break;
         }
     }
+
+    g_free(path);
 
     return TRUE;
 }
@@ -2017,32 +1990,33 @@ gboolean th_file_is_executable(const ThunarFile *file)
     if (file->gfileinfo == NULL)
         return FALSE;
 
-    gboolean can_execute = FALSE;
+    if (!g_file_info_get_attribute_boolean(
+                        file->gfileinfo,
+                        G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE))
+    {
+        return th_file_is_desktop_file(file, NULL);
+    }
+
+    const gchar *content_type = th_file_get_content_type(THUNARFILE(file));
+
+    if (content_type == NULL)
+        return th_file_is_desktop_file(file, NULL);
+
+    gboolean can_execute = g_content_type_can_be_executable(content_type);
+
+    if (!can_execute)
+        return th_file_is_desktop_file(file, NULL);
+
+    /* do never execute plain text files which are not
+     * shell scripts but marked executable */
+
     gboolean exec_shell_scripts = FALSE;
 
-    if (g_file_info_get_attribute_boolean(file->gfileinfo,
-                                          G_FILE_ATTRIBUTE_ACCESS_CAN_EXECUTE))
+    if (g_strcmp0(content_type, "text/plain") == 0
+        || (g_content_type_is_a(content_type, "text/plain")
+            && exec_shell_scripts == false))
     {
-        const gchar *content_type;
-        content_type = th_file_get_content_type(THUNARFILE(file));
-
-        if (content_type != NULL)
-        {
-            can_execute = g_content_type_can_be_executable(content_type);
-
-            if (can_execute)
-            {
-                /* do never execute plain text files which are not
-                 *  shell scripts but marked executable */
-
-                if (g_strcmp0(content_type, "text/plain") == 0)
-                    can_execute = FALSE;
-
-                else if (g_content_type_is_a(content_type, "text/plain")
-                         && exec_shell_scripts == false)
-                    can_execute = FALSE;
-            }
-        }
+        can_execute = FALSE;
     }
 
     return can_execute || th_file_is_desktop_file(file, NULL);
@@ -2069,7 +2043,7 @@ gboolean th_file_is_gfile_ancestor(const ThunarFile *file, GFile *ancestor)
     e_return_val_if_fail(G_IS_FILE(ancestor), FALSE);
 
     current = g_object_ref(file->gfile);
-    while(TRUE)
+    while (TRUE)
     {
         tmp = g_file_get_parent(current);
         g_object_unref(current);
@@ -2081,6 +2055,7 @@ gboolean th_file_is_gfile_ancestor(const ThunarFile *file, GFile *ancestor)
         if (g_file_equal(current, ancestor))
         {
             g_object_unref(current);
+
             return TRUE;
         }
     }
@@ -2104,24 +2079,27 @@ gboolean th_file_is_hidden(const ThunarFile *file)
                                                        "standard::is-backup");
 
     return (has_is_hidden && g_file_info_get_is_hidden(file->gfileinfo))
-           || (has_is_backup && g_file_info_get_is_backup(file->gfileinfo));
+            || (has_is_backup && g_file_info_get_is_backup(file->gfileinfo));
 }
 
 gboolean th_file_is_local(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
+
     return g_file_has_uri_scheme(file->gfile, "file");
 }
 
 gboolean th_file_is_mountable(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
+
     return file->gfiletype == G_FILE_TYPE_MOUNTABLE;
 }
 
 gboolean th_file_is_mounted(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
+
     return FLAG_IS_SET(file, FILEFLAG_IS_MOUNTED);
 }
 
@@ -2185,13 +2163,15 @@ gboolean th_file_is_renameable(const ThunarFile *file)
     if (file->gfileinfo == NULL)
         return FALSE;
 
-    return g_file_info_get_attribute_boolean(file->gfileinfo,
-                                             G_FILE_ATTRIBUTE_ACCESS_CAN_RENAME);
+    return g_file_info_get_attribute_boolean(
+                                    file->gfileinfo,
+                                    G_FILE_ATTRIBUTE_ACCESS_CAN_RENAME);
 }
 
 gboolean th_file_is_shortcut(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
+
     return file->gfiletype == G_FILE_TYPE_SHORTCUT;
 }
 
@@ -2218,6 +2198,7 @@ gboolean th_file_is_symlink(const ThunarFile *file)
 gboolean th_file_is_trashed(const ThunarFile *file)
 {
     e_return_val_if_fail(IS_THUNARFILE(file), FALSE);
+
     return e_file_is_trashed(file->gfile);
 }
 
@@ -2237,11 +2218,13 @@ gboolean th_file_is_writable(const ThunarFile *file)
     if (file->gfileinfo == NULL)
         return FALSE;
 
-    if (!g_file_info_has_attribute(file->gfileinfo, G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
+    if (!g_file_info_has_attribute(file->gfileinfo,
+                                   G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE))
         return TRUE;
 
-    return g_file_info_get_attribute_boolean(file->gfileinfo,
-            G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
+    return g_file_info_get_attribute_boolean(
+                                    file->gfileinfo,
+                                    G_FILE_ATTRIBUTE_ACCESS_CAN_WRITE);
 }
 
 // Compare --------------------------------------------------------------------
@@ -2258,7 +2241,8 @@ gboolean th_file_is_writable(const ThunarFile *file)
  * Return value: -1 if @file_a should be sorted before @file_b, 1 if
  *               @file_b should be sorted before @file_a, 0 if equal.
  **/
-gint th_file_compare_by_name(const ThunarFile *file_a, const ThunarFile *file_b,
+gint th_file_compare_by_name(const ThunarFile *file_a,
+                             const ThunarFile *file_b,
                              gboolean case_sensitive)
 {
     gint result = 0;
@@ -2273,7 +2257,10 @@ gint th_file_compare_by_name(const ThunarFile *file_a, const ThunarFile *file_b,
 
     // case insensitive checking
     if (!case_sensitive)
-        result = g_strcmp0(file_a->collate_key_nocase, file_b->collate_key_nocase);
+    {
+        result = g_strcmp0(file_a->collate_key_nocase,
+                           file_b->collate_key_nocase);
+    }
 
     // fall-back to case sensitive
     if (result == 0)
@@ -2354,7 +2341,8 @@ gint th_file_compare_by_type(ThunarFile *a, ThunarFile *b)
     return ret;
 }
 
-// Actions --------------------------------------------------------------------
+
+// actions --------------------------------------------------------------------
 
 gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
                          gpointer parent, GList *file_list,
@@ -2397,30 +2385,64 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
         if (key_file == NULL)
         {
             g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
-                         _("Failed to parse the desktop file: %s"), err->message);
+                        _("Failed to parse the desktop file: %s"),
+                        err->message);
             g_error_free(err);
             return FALSE;
         }
 
-        type = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_TYPE, NULL);
+        type = g_key_file_get_string(key_file,
+                                     G_KEY_FILE_DESKTOP_GROUP,
+                                     G_KEY_FILE_DESKTOP_KEY_TYPE, NULL);
+
         if (g_strcmp0(type, "Application") == 0)
         {
-            exec = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_EXEC, NULL);
+            exec = g_key_file_get_string(key_file,
+                                         G_KEY_FILE_DESKTOP_GROUP,
+                                         G_KEY_FILE_DESKTOP_KEY_EXEC, NULL);
             if (exec != NULL)
             {
                 // if the .desktop file is not secure, ask user what to do
-                if (is_secure || dialog_insecure_program(parent, _("Untrusted application launcher"), file, exec))
+                if (is_secure
+                    || dialog_insecure_program(
+                            parent,
+                            _("Untrusted application launcher"), file, exec))
                 {
                     // parse other fields
-                    name = g_key_file_get_locale_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_NAME, NULL, NULL);
-                    icon_name = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_ICON, NULL);
-                    directory = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_PATH, NULL);
-                    terminal = g_key_file_get_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_TERMINAL, NULL);
-                    snotify = g_key_file_get_boolean(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY, NULL);
+                    name = g_key_file_get_locale_string(
+                                key_file,
+                                G_KEY_FILE_DESKTOP_GROUP,
+                                G_KEY_FILE_DESKTOP_KEY_NAME,
+                                NULL,
+                                NULL);
+                    icon_name = g_key_file_get_string(
+                                key_file,
+                                G_KEY_FILE_DESKTOP_GROUP,
+                                G_KEY_FILE_DESKTOP_KEY_ICON,
+                                NULL);
+                    directory = g_key_file_get_string(
+                                key_file,
+                                G_KEY_FILE_DESKTOP_GROUP,
+                                G_KEY_FILE_DESKTOP_KEY_PATH,
+                                NULL);
+                    terminal = g_key_file_get_boolean(
+                                key_file,
+                                G_KEY_FILE_DESKTOP_GROUP,
+                                G_KEY_FILE_DESKTOP_KEY_TERMINAL,
+                                NULL);
+                    snotify = g_key_file_get_boolean(
+                                key_file,
+                                G_KEY_FILE_DESKTOP_GROUP,
+                                G_KEY_FILE_DESKTOP_KEY_STARTUP_NOTIFY,
+                                NULL);
 
                     // expand the field codes and parse the execute command
-                    command = util_expand_field_codes(exec, uri_list, icon_name,
-                              name, location, terminal);
+                    command = util_expand_field_codes(exec,
+                                                      uri_list,
+                                                      icon_name,
+                                                      name,
+                                                      location,
+                                                      terminal);
                     g_free(name);
                     result = g_shell_parse_argv(command, NULL, &argv, error);
                     g_free(command);
@@ -2435,21 +2457,27 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
             }
             else
             {
-                // TRANSLATORS: `Exec' is a field name in a .desktop file. Don't translate it.
+                // TRANSLATORS: `Exec' is a field name in a .desktop file.
+                // Don't translate it.
                 g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
-                             _("No Exec field specified"));
+                            _("No Exec field specified"));
             }
         }
         else if (g_strcmp0(type, "Link") == 0)
         {
-            url = g_key_file_get_string(key_file, G_KEY_FILE_DESKTOP_GROUP, G_KEY_FILE_DESKTOP_KEY_URL, NULL);
+            url = g_key_file_get_string(key_file,
+                                        G_KEY_FILE_DESKTOP_GROUP,
+                                        G_KEY_FILE_DESKTOP_KEY_URL, NULL);
             if (url != NULL)
             {
                 // if the .desktop file is not secure, ask user what to do
-                if (is_secure || dialog_insecure_program(parent, _("Untrusted link launcher"), file, url))
+                if (is_secure
+                    || dialog_insecure_program(parent,
+                                               _("Untrusted link launcher"),
+                                               file, url))
                 {
-                    /* pass the URL to the webbrowser, this could be a bit strange,
-                     * but then at least we are on the secure side */
+                    /* pass the URL to the webbrowser, this could be a bit
+                     * strange, but then at least we are on the secure side */
                     argv = g_new(gchar *, 3);
                     argv[0] = g_strdup("exo-open");
                     argv[1] = url;
@@ -2460,14 +2488,18 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
             }
             else
             {
-                // TRANSLATORS: `URL' is a field name in a .desktop file. Don't translate it.
+                // TRANSLATORS: `URL' is a field name in a .desktop file.
+                // Don't translate it.
                 g_set_error(error, G_FILE_ERROR, G_FILE_ERROR_INVAL,
-                             _("No URL field specified"));
+                            _("No URL field specified"));
             }
         }
         else
         {
-            g_set_error_literal(error, G_FILE_ERROR, G_FILE_ERROR_INVAL, _("Invalid desktop file"));
+            g_set_error_literal(error,
+                                G_FILE_ERROR,
+                                G_FILE_ERROR_INVAL,
+                                _("Invalid desktop file"));
         }
 
         g_free(type);
@@ -2478,7 +2510,8 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
         // fake the Exec line
         escaped_location = g_shell_quote(location);
         exec = g_strconcat(escaped_location, " %F", NULL);
-        command = util_expand_field_codes(exec, uri_list, NULL, NULL, NULL, FALSE);
+        command = util_expand_field_codes(exec,
+                                          uri_list, NULL, NULL, NULL, FALSE);
         result = g_shell_parse_argv(command, NULL, &argv, error);
         g_free(escaped_location);
         g_free(exec);
@@ -2500,14 +2533,16 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
             {
                 // use the directory of the first list item
                 file_parent = g_file_get_parent(file_list->data);
-                directory =(file_parent != NULL) ? e_file_get_location(file_parent) : NULL;
+                directory = (file_parent != NULL)
+                                ? e_file_get_location(file_parent) : NULL;
                 g_object_unref(file_parent);
             }
             else
             {
                 // use the directory of the executable file
                 parent = g_file_get_parent(file->gfile);
-                directory =(parent != NULL) ? e_file_get_location(parent) : NULL;
+                directory = (parent != NULL)
+                                ? e_file_get_location(parent) : NULL;
                 g_object_unref(parent);
             }
         }
@@ -2540,8 +2575,14 @@ gboolean th_file_execute(ThunarFile *file, GFile *working_directory,
 
         // execute the command
         result = xfce_spawn_on_screen(util_parse_parent(parent, NULL),
-                                       directory, argv, NULL, G_SPAWN_SEARCH_PATH,
-                                       snotify, stimestamp, icon_name, error);
+                                      directory,
+                                      argv,
+                                      NULL,
+                                      G_SPAWN_SEARCH_PATH,
+                                      snotify,
+                                      stimestamp,
+                                      icon_name,
+                                      error);
 
         G_GNUC_END_IGNORE_DEPRECATIONS
     }
@@ -3172,7 +3213,8 @@ gchar* th_file_cached_display_name(const GFile *file)
     }
     else
     {
-        // determine something a hopefully good approximation of the display name
+        // determine something a hopefully good approximation
+        // of the display name
         display_name = e_file_get_display_name(G_FILE(file));
     }
 
@@ -3187,7 +3229,8 @@ gboolean th_file_cache_dump(gpointer user_data)
 
     if (_file_cache != NULL)
     {
-        g_print("------------------------------------------------------------\n");
+        g_print("--------------------------------------------------"
+                "----------\n");
 
         g_hash_table_foreach(_file_cache, _th_file_debug, NULL);
 
@@ -3318,7 +3361,9 @@ GList* thlist_get_applications(GList *thlist)
                 next = ap->next;
 
                 // check if the application is present in list
-                if (g_list_find_custom(list, ap->data, _compare_app_infos) == NULL)
+                if (g_list_find_custom(list,
+                                       ap->data,
+                                       _compare_app_infos) == NULL)
                 {
                     // drop our reference on the application
                     g_object_unref(G_OBJECT(ap->data));
@@ -3368,7 +3413,10 @@ GList* thlist_to_glist(GList *thlist)
     GList *list = NULL;
 
     for (GList *lp = g_list_last(thlist); lp != NULL; lp = lp->prev)
-        list = g_list_prepend(list, g_object_ref(THUNARFILE(lp->data)->gfile));
+    {
+        list = g_list_prepend(list,
+                              g_object_ref(THUNARFILE(lp->data)->gfile));
+    }
 
     return list;
 }

@@ -20,9 +20,9 @@
     + ./core/clipboard.c
     + ./core/devmonitor.c
     + ./core/dnd.c
-      ./core/fileinfo.c
-      ./core/filemonitor.c
-      ./core/th-device.c
+    + ./core/fileinfo.c
+    + ./core/filemonitor.c
+    + ./core/th-device.c
       ./core/th-file.c
       ./core/th-folder.c
       ./core/usermanager.c

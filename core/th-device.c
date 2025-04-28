@@ -797,14 +797,14 @@ static void _th_device_operation_finish(GObject *object, GAsyncResult *result,
     app_notify_finish(op->device);
 
     // finish the operation
-    if (!(op->callback_finish)(object, result, &error))
+    if (!(op->callback_finish) (object, result, &error))
     {
         // unset the error if a helper program has already interacted
         // with the user
         if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_FAILED_HANDLED))
             g_clear_error(&error);
 
-        if (op->callback_finish ==(AsyncCallbackFinish) g_volume_mount_finish)
+        if (op->callback_finish == (AsyncCallbackFinish) g_volume_mount_finish)
         {
             // special handling for mount operation
             if (g_error_matches(error, G_IO_ERROR, G_IO_ERROR_ALREADY_MOUNTED)
