@@ -25,16 +25,19 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ThunarBrowserIface ThunarBrowserIface;
 typedef struct _ThunarBrowser      ThunarBrowser;
+typedef struct _ThunarBrowserIface ThunarBrowserIface;
 
 #define TYPE_THUNARBROWSER (browser_get_type())
+
 #define THUNARBROWSER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_THUNARBROWSER, ThunarBrowser))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),    TYPE_THUNARBROWSER, \
+                                                        ThunarBrowser))
 #define THUNAR_IS_BROWSER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_THUNARBROWSER))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),    TYPE_THUNARBROWSER))
 #define THUNARBROWSER_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_THUNARBROWSER, ThunarBrowserIface))
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj), TYPE_THUNARBROWSER, \
+                                                        ThunarBrowserIface))
 
 struct _ThunarBrowserIface
 {

@@ -23,20 +23,21 @@
 
 G_BEGIN_DECLS
 
-typedef struct _IconFactoryClass IconFactoryClass;
 typedef struct _IconFactory      IconFactory;
+typedef struct _IconFactoryClass IconFactoryClass;
 
 #define TYPE_ICONFACTORY (iconfact_get_type())
+
 #define ICONFACTORY(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_ICONFACTORY, IconFactory))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_ICONFACTORY, IconFactory))
 #define ICONFACTORY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_ICONFACTORY, IconFactoryClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_ICONFACTORY, IconFactoryClass))
 #define IS_ICONFACTORY(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_ICONFACTORY))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_ICONFACTORY))
 #define IS_ICONFACTORY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_ICONFACTORY))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_ICONFACTORY))
 #define ICONFACTORY_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_ICONFACTORY, IconFactoryClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_ICONFACTORY, IconFactoryClass))
 
 GType iconfact_get_type() G_GNUC_CONST;
 

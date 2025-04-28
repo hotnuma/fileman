@@ -31,8 +31,8 @@
  * The exact semantics of this property depend on the implementor
  * of this interface. For example, ThunarComponent will update
  * the property depending on the users selection with the
- * #GtkTreeComponent or #ExoIconComponent. While other components in a window,
- * like the #ThunarShortcutsPane, will not update this property on
+ * #GtkTreeComponent or #ExoIconComponent. While other components in a
+ * window, like the #ThunarShortcutsPane, will not update this property on
  * their own, but rely on #AppWindow to synchronize the selected
  * files list with the selected files list from the active #ThunarComponent.
  *

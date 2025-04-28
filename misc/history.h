@@ -25,20 +25,20 @@ G_BEGIN_DECLS
 
 // ThunarHistory --------------------------------------------------------------
 
-typedef struct _ThunarHistoryClass ThunarHistoryClass;
 typedef struct _ThunarHistory      ThunarHistory;
+typedef struct _ThunarHistoryClass ThunarHistoryClass;
 
 #define TYPE_THUNARHISTORY (history_get_type())
 #define THUNARHISTORY(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARHISTORY, ThunarHistory))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_THUNARHISTORY, ThunarHistory))
 #define THUNARHISTORY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_THUNARHISTORY, ThunarHistoryClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_THUNARHISTORY, ThunarHistoryClass))
 #define IS_THUNARHISTORY(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_THUNARHISTORY))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_THUNARHISTORY))
 #define IS_THUNARHISTORY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_THUNARHISTORY))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_THUNARHISTORY))
 #define THUNARHISTORY_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_THUNARHISTORY, ThunarHistoryClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_THUNARHISTORY, ThunarHistoryClass))
 
 typedef enum
 {
@@ -52,7 +52,8 @@ struct _ThunarHistoryClass
     GObjectClass __parent__;
 
     // external signals
-    void (*history_changed) (ThunarHistory *history, const gchar *initial_text);
+    void (*history_changed) (ThunarHistory *history,
+                             const gchar *initial_text);
 };
 
 GType history_get_type() G_GNUC_CONST;

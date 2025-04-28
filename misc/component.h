@@ -30,11 +30,13 @@ typedef struct _ThunarComponent      ThunarComponent;
 
 #define TYPE_THUNARCOMPONENT (component_get_type())
 #define THUNARCOMPONENT(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_THUNARCOMPONENT, ThunarComponent))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),    TYPE_THUNARCOMPONENT, \
+                                                        ThunarComponent))
 #define IS_THUNARCOMPONENT(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_THUNARCOMPONENT))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),    TYPE_THUNARCOMPONENT))
 #define THUNARCOMPONENT_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_THUNARCOMPONENT, ThunarComponentIface))
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj), TYPE_THUNARCOMPONENT, \
+                                                        ThunarComponentIface))
 
 struct _ThunarComponentIface
 {
@@ -42,7 +44,8 @@ struct _ThunarComponentIface
 
     // methods
     GList* (*get_selected_files) (ThunarComponent *component);
-    void (*set_selected_files) (ThunarComponent *component, GList *selected_files);
+    void (*set_selected_files) (ThunarComponent *component,
+                                GList *selected_files);
 };
 
 GType component_get_type() G_GNUC_CONST;

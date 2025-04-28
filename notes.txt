@@ -48,11 +48,11 @@
     + ./libext/pango-ext.c
     + ./libext/pixbuf-ext.c
     + ./libext/utils.c
-      ./misc/browser.c
-      ./misc/component.c
-      ./misc/enumtypes.c
-      ./misc/history.c
-      ./misc/iconfactory.c
+    + ./misc/browser.c
+    + ./misc/component.c
+    + ./misc/enumtypes.c
+    + ./misc/history.c
+    + ./misc/iconfactory.c
       ./misc/iconrender.c
       ./misc/navigator.c
       ./misc/shortrender.c

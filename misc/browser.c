@@ -29,7 +29,7 @@ static PokeDeviceData* _browser_poke_device_data_new(
                                         ThunarBrowser *browser,
                                         ThunarDevice *device,
                                         PokeDeviceFunc func,
-                                        gpointer                    user_data);
+                                        gpointer user_data);
 static void _browser_poke_device_data_free(PokeDeviceData *poke_data);
 
 // browser_poke_device
@@ -71,7 +71,8 @@ static void _browser_poke_mountable_file_finish(GFile *location,
 static void _browser_poke_mountable_finish(GObject *object,
                                            GAsyncResult *result,
                                            gpointer user_data);
-static void _browser_poke_file_finish(GObject *object, GAsyncResult *result,
+static void _browser_poke_file_finish(GObject *object,
+                                      GAsyncResult *result,
                                       gpointer user_data);
 
 struct _PokeFileData
@@ -133,14 +134,13 @@ GType browser_get_type()
  * #ThunarFile corresponding to the mount root when the mounting is finished.
  *
  * The #ThunarFile passed to @func will be %NULL if, and only if mounting
- * the @device failed. The #GError passed to @func will be set if, and only if
- * mounting failed.
+ * the @device failed. The #GError passed to @func will be set if, and only
+ * if mounting failed.
  **/
-static PokeDeviceData* _browser_poke_device_data_new(
-                                        ThunarBrowser               *browser,
-                                        ThunarDevice                *device,
-                                        PokeDeviceFunc func,
-                                        gpointer                    user_data)
+static PokeDeviceData* _browser_poke_device_data_new(ThunarBrowser *browser,
+                                                     ThunarDevice *device,
+                                                     PokeDeviceFunc func,
+                                                     gpointer user_data)
 {
     PokeDeviceData *poke_data;
 
@@ -185,7 +185,8 @@ void browser_poke_device(ThunarBrowser   *browser,
     {
         mount_point = th_device_get_root(device);
 
-        poke_data = _browser_poke_device_data_new(browser, device, func, user_data);
+        poke_data = _browser_poke_device_data_new(browser,
+                                                  device, func, user_data);
 
         th_file_get_async(mount_point, NULL,
                                _browser_poke_device_file_finish,
@@ -195,7 +196,8 @@ void browser_poke_device(ThunarBrowser   *browser,
     }
     else
     {
-        poke_data = _browser_poke_device_data_new(browser, device, func, user_data);
+        poke_data = _browser_poke_device_data_new(browser,
+                                                  device, func, user_data);
 
         mount_operation = etk_mount_operation_new(widget);
 
@@ -209,10 +211,10 @@ void browser_poke_device(ThunarBrowser   *browser,
     }
 }
 
-static void _browser_poke_device_file_finish(GFile      *location,
+static void _browser_poke_device_file_finish(GFile *location,
                                              ThunarFile *file,
-                                             GError     *error,
-                                             gpointer    user_data)
+                                             GError *error,
+                                             gpointer user_data)
 {
     PokeDeviceData *poke_data = user_data;
 
@@ -223,8 +225,9 @@ static void _browser_poke_device_file_finish(GFile      *location,
 
     if (poke_data->func != NULL)
     {
-       (poke_data->func)(poke_data->browser, poke_data->device, file, error,
-                           poke_data->user_data, FALSE);
+       (poke_data->func) (poke_data->browser,
+                          poke_data->device, file, error,
+                          poke_data->user_data, FALSE);
     }
 
     _browser_poke_device_data_free(poke_data);
@@ -232,7 +235,7 @@ static void _browser_poke_device_file_finish(GFile      *location,
 
 static void _browser_poke_device_finish(ThunarDevice *device,
                                         const GError *error,
-                                        gpointer      user_data)
+                                        gpointer user_data)
 {
     PokeDeviceData *poke_data = user_data;
     GFile          *mount_point = NULL;

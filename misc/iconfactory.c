@@ -57,8 +57,9 @@ static void _iconkey_free(gpointer data);
 // Look up --------------------------------------------------------------------
 
 static GdkPixbuf* _iconfact_load_fallback(IconFactory *factory, gint size);
-static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
-                                        gint size, gboolean wants_default);
+static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory,
+                                        const gchar *name, gint size,
+                                        gboolean wants_default);
 static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory,
                                            const gchar *path, gint size);
 
@@ -91,11 +92,6 @@ enum
     PROP_ICON_THEME,
 };
 
-struct _IconFactoryClass
-{
-    GObjectClass        __parent__;
-};
-
 struct _IconFactory
 {
     GObject             __parent__;
@@ -110,11 +106,17 @@ struct _IconFactory
     guint               theme_stamp;
 };
 
+struct _IconFactoryClass
+{
+    GObjectClass        __parent__;
+};
+
 G_DEFINE_TYPE(IconFactory, iconfact, G_TYPE_OBJECT)
 
 static void iconfact_class_init(IconFactoryClass *klass)
 {
-    _iconfact_store_quark = g_quark_from_static_string("thunar-icon-factory-store");
+    _iconfact_store_quark =
+            g_quark_from_static_string("thunar-icon-factory-store");
 
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = iconfact_dispose;
@@ -122,12 +124,7 @@ static void iconfact_class_init(IconFactoryClass *klass)
     gobject_class->get_property = iconfact_get_property;
     gobject_class->set_property = iconfact_set_property;
 
-    /**
-     * IconFactory:icon-theme:
-     *
-     * The #GtkIconTheme on which the given #IconFactory instance operates
-     * on.
-     **/
+    // the GtkIconTheme on which the given IconFactory instance operates on.
     g_object_class_install_property(gobject_class,
                                     PROP_ICON_THEME,
                                     g_param_spec_object(
@@ -180,12 +177,15 @@ static void iconfact_finalize(GObject *object)
     g_hash_table_destroy(factory->icon_cache);
 
     // remove the "changed" emission hook from the GtkIconTheme class
-    g_signal_remove_emission_hook(g_signal_lookup("changed", GTK_TYPE_ICON_THEME), factory->changed_hook_id);
+    g_signal_remove_emission_hook(g_signal_lookup("changed",
+                                                  GTK_TYPE_ICON_THEME),
+                                  factory->changed_hook_id);
 
     // disconnect from the associated icon theme(if any)
     if (factory->icon_theme != NULL)
     {
-        g_object_set_qdata(G_OBJECT(factory->icon_theme), _iconfact_quark, NULL);
+        g_object_set_qdata(G_OBJECT(factory->icon_theme),
+                           _iconfact_quark, NULL);
         g_object_unref(G_OBJECT(factory->icon_theme));
     }
 
@@ -302,8 +302,9 @@ static void _iconkey_free(gpointer data)
 
 // Lookup Icon ----------------------------------------------------------------
 
-static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
-                                        gint size, gboolean wants_default)
+static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory,
+                                        const gchar *name, gint size,
+                                        gboolean wants_default)
 {
     IconKey  lookup_key;
     IconKey *key;
@@ -335,7 +336,11 @@ static GdkPixbuf* _iconfact_lookup_icon(IconFactory *factory, const gchar *name,
                 name = "folder";
 
             // check if the icon theme contains an icon of that name
-            icon_info = gtk_icon_theme_lookup_icon(factory->icon_theme, name, size, GTK_ICON_LOOKUP_FORCE_SIZE);
+            icon_info = gtk_icon_theme_lookup_icon(
+                                            factory->icon_theme,
+                                            name,
+                                            size,
+                                            GTK_ICON_LOOKUP_FORCE_SIZE);
             if (icon_info != NULL)
             {
                 // try to load the pixbuf from the icon info
@@ -384,8 +389,8 @@ static GdkPixbuf* _iconfact_load_fallback(IconFactory *factory, gint size)
     return _iconfact_lookup_icon(factory, "text-x-generic", size, FALSE);
 }
 
-static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *path,
-                                           gint size)
+static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory,
+                                           const gchar *path, gint size)
 {
     GdkPixbuf *pixbuf;
     GdkPixbuf *tmp;
@@ -400,34 +405,37 @@ static GdkPixbuf* _iconfact_load_from_file(IconFactory *factory, const gchar *pa
     // try to load the image from the file
     pixbuf = gdk_pixbuf_new_from_file(path, NULL);
 
-    if (pixbuf != NULL)
+    if (pixbuf == NULL)
+        return NULL;
+
+    // determine the dimensions of the pixbuf
+    width = gdk_pixbuf_get_width(pixbuf);
+    height = gdk_pixbuf_get_height(pixbuf);
+
+    needs_frame = FALSE;
+
+    // be sure to make framed pixbufs fit into the size
+    if (needs_frame)
     {
-        // determine the dimensions of the pixbuf
-        width = gdk_pixbuf_get_width(pixbuf);
-        height = gdk_pixbuf_get_height(pixbuf);
+        max_width = size - (3 + 6);
+        max_height = size - (3 + 6);
+    }
+    else
+    {
+        max_width = size;
+        max_height = size;
+    }
 
-        needs_frame = FALSE;
-
-        // be sure to make framed pixbufs fit into the size
-        if (needs_frame)
-        {
-            max_width = size - (3 + 6);
-            max_height = size - (3 + 6);
-        }
-        else
-        {
-            max_width = size;
-            max_height = size;
-        }
-
-        // scale down the icon(if required)
-        if (width > max_width || height > max_height)
-        {
-            // scale down to the required size
-            tmp = pixbuf_scale_down(pixbuf, TRUE, MAX(1, max_height), MAX(1, max_height));
-            g_object_unref(G_OBJECT(pixbuf));
-            pixbuf = tmp;
-        }
+    // scale down the icon(if required)
+    if (width > max_width || height > max_height)
+    {
+        // scale down to the required size
+        tmp = pixbuf_scale_down(pixbuf,
+                                TRUE,
+                                MAX(1, max_height),
+                                MAX(1, max_height));
+        g_object_unref(G_OBJECT(pixbuf));
+        pixbuf = tmp;
     }
 
     return pixbuf;
@@ -442,9 +450,10 @@ static gboolean _iconfact_sweep_timer(gpointer user_data)
     UTIL_THREADS_ENTER
 
     // ditch all icons whose ref_count is 1
-    g_hash_table_foreach_remove(factory->icon_cache,
-                                (GHRFunc) (void(*) (void)) _iconkey_check_sweep,
-                                factory);
+    g_hash_table_foreach_remove(
+                        factory->icon_cache,
+                        (GHRFunc) (void(*) (void)) _iconkey_check_sweep,
+                        factory);
 
     UTIL_THREADS_LEAVE
 
@@ -475,11 +484,11 @@ IconFactory* iconfact_get_default()
     {
         factory = iconfact_get_for_icon_theme(gtk_icon_theme_get_default());
         g_object_add_weak_pointer(G_OBJECT(factory),(gpointer) &factory);
+
+        return factory;
     }
-    else
-    {
-        g_object_ref(G_OBJECT(factory));
-    }
+
+    g_object_ref(G_OBJECT(factory));
 
     return factory;
 }
@@ -498,18 +507,20 @@ IconFactory* iconfact_get_for_icon_theme(GtkIconTheme *icon_theme)
 
     // check if the given icon theme already knows about an icon factory
     factory = g_object_get_qdata(G_OBJECT(icon_theme), _iconfact_quark);
+
     if (factory == NULL)
     {
         // allocate a new factory and connect it to the icon theme
         factory = g_object_new(TYPE_ICONFACTORY, NULL);
-        factory->icon_theme = GTK_ICON_THEME(g_object_ref(G_OBJECT(icon_theme)));
-        g_object_set_qdata(G_OBJECT(factory->icon_theme), _iconfact_quark, factory);
+        factory->icon_theme =
+                GTK_ICON_THEME(g_object_ref(G_OBJECT(icon_theme)));
+        g_object_set_qdata(G_OBJECT(factory->icon_theme),
+                           _iconfact_quark, factory);
+        return factory;
 
     }
-    else
-    {
-        g_object_ref(G_OBJECT(factory));
-    }
+
+    g_object_ref(G_OBJECT(factory));
 
     return factory;
 }
@@ -583,22 +594,24 @@ GdkPixbuf* iconfact_load_file_icon(IconFactory *factory,
     // lookup the icon name for the icon in the given state and load the icon
     if (icon == NULL)
     {
-        const gchar *icon_name = th_file_get_icon_name(file, icon_state, factory->icon_theme);
+        const gchar *icon_name = th_file_get_icon_name(file,
+                                                       icon_state,
+                                                       factory->icon_theme);
         icon = iconfact_load_icon(factory, icon_name, icon_size, TRUE);
     }
 
-    if (icon != NULL)
-    {
-        store = g_slice_new(IconStore);
-        store->icon_size = icon_size;
-        store->icon_state = icon_state;
-        store->stamp = factory->theme_stamp;
-        store->icon = g_object_ref(icon);
+    if (icon == NULL)
+        return NULL;
 
-        g_object_set_qdata_full(G_OBJECT(file),
-                                _iconfact_store_quark,
-                                store, _iconstore_free);
-    }
+    store = g_slice_new(IconStore);
+    store->icon_size = icon_size;
+    store->icon_state = icon_state;
+    store->stamp = factory->theme_stamp;
+    store->icon = g_object_ref(icon);
+
+    g_object_set_qdata_full(G_OBJECT(file),
+                            _iconfact_store_quark,
+                            store, _iconstore_free);
 
     return icon;
 }
