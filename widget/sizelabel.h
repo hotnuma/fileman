@@ -25,10 +25,11 @@ G_BEGIN_DECLS
 
 // SizeLabel ------------------------------------------------------------------
 
-typedef struct _SizeLabelClass SizeLabelClass;
 typedef struct _SizeLabel      SizeLabel;
+typedef struct _SizeLabelClass SizeLabelClass;
 
 #define TYPE_SIZELABEL (szlabel_get_type())
+
 #define SIZELABEL(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_SIZELABEL, SizeLabel))
 #define SIZELABEL_CLASS(klass) \

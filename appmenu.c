@@ -44,14 +44,7 @@ enum
     PROP_CHANGE_DIRECTORY_SUPPORT_DISABLED,
 };
 
-// Allocation -----------------------------------------------------------------
-
 static GQuark _appmenu_handler_quark;
-
-struct _AppMenuClass
-{
-    GtkMenuClass    __parent__;
-};
 
 struct _AppMenu
 {
@@ -70,12 +63,18 @@ struct _AppMenu
     MenuType        type;
 };
 
+struct _AppMenuClass
+{
+    GtkMenuClass    __parent__;
+};
+
 G_DEFINE_TYPE(AppMenu, appmenu, GTK_TYPE_MENU)
 
 static void appmenu_class_init(AppMenuClass *klass)
 {
     // determine the "thunar-menu-handler" quark
-    _appmenu_handler_quark = g_quark_from_static_string("thunar-menu-handler");
+    _appmenu_handler_quark =
+            g_quark_from_static_string("thunar-menu-handler");
 
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = appmenu_finalize;
@@ -199,11 +198,12 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
 
     if (menu_sections & MENU_SECTION_OPEN)
     {
-        if (launcher_append_open_section(menu->launcher,
-                                         GTK_MENU_SHELL(menu),
-                                         FALSE,
-                                         !menu->change_directory_support_disabled,
-                                         menu->force_section_open))
+        if (launcher_append_open_section(
+                                menu->launcher,
+                                GTK_MENU_SHELL(menu),
+                                FALSE,
+                                !menu->change_directory_support_disabled,
+                                menu->force_section_open))
         {
             xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
         }
@@ -213,17 +213,19 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
 
     if (menu_sections & MENU_SECTION_CREATE_NEW_FILES)
     {
-        item_added |= (launcher_append_menu_item(menu->launcher,
-                                                 GTK_MENU_SHELL(menu),
-                                                 LAUNCHER_ACTION_CREATE_FOLDER,
-                                                 force) != NULL);
+        item_added |= (launcher_append_menu_item(
+                                            menu->launcher,
+                                            GTK_MENU_SHELL(menu),
+                                            LAUNCHER_ACTION_CREATE_FOLDER,
+                                            force) != NULL);
 
         // No document creation for tree-view
         if (menu->type != MENU_TYPE_CONTEXT_TREE_VIEW)
-            item_added |= (launcher_append_menu_item(menu->launcher,
-                                                     GTK_MENU_SHELL(menu),
-                                                     LAUNCHER_ACTION_CREATE_DOCUMENT,
-                                                     force) != NULL);
+            item_added |= (launcher_append_menu_item(
+                                            menu->launcher,
+                                            GTK_MENU_SHELL(menu),
+                                            LAUNCHER_ACTION_CREATE_DOCUMENT,
+                                            force) != NULL);
         if (item_added)
             xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }
@@ -263,14 +265,16 @@ gboolean appmenu_add_sections(AppMenu *menu, MenuSections menu_sections)
     {
         item_added = FALSE;
 
-        item_added |= (launcher_append_menu_item(menu->launcher,
-                                                 GTK_MENU_SHELL(menu),
-                                                 LAUNCHER_ACTION_MOVE_TO_TRASH,
-                                                 force) != NULL);
-        item_added |= (launcher_append_menu_item(menu->launcher,
-                                                 GTK_MENU_SHELL(menu),
-                                                 LAUNCHER_ACTION_DELETE,
-                                                 force) != NULL);
+        item_added |= (launcher_append_menu_item(
+                                            menu->launcher,
+                                            GTK_MENU_SHELL(menu),
+                                            LAUNCHER_ACTION_MOVE_TO_TRASH,
+                                            force) != NULL);
+        item_added |= (launcher_append_menu_item(
+                                            menu->launcher,
+                                            GTK_MENU_SHELL(menu),
+                                            LAUNCHER_ACTION_DELETE,
+                                            force) != NULL);
         if (item_added)
             xfce_gtk_menu_append_separator(GTK_MENU_SHELL(menu));
     }

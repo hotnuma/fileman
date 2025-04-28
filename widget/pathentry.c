@@ -41,7 +41,8 @@ static void pathentry_get_property(GObject *object, guint prop_id,
 static void pathentry_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);
 static void _pathentry_update_icon(PathEntry *path_entry);
-static gboolean pathentry_focus(GtkWidget *widget, GtkDirectionType direction);
+static gboolean pathentry_focus(GtkWidget *widget,
+                                GtkDirectionType direction);
 static gboolean pathentry_motion_notify_event(GtkWidget *widget,
                                               GdkEventMotion *event);
 static void pathentry_drag_data_get(GtkWidget *widget,
@@ -54,7 +55,8 @@ static void pathentry_activate(GtkEntry *entry);
 // GtkEditable Init -----------------------------------------------------------
 
 static void pathentry_changed(GtkEditable *editable);
-static void pathentry_do_insert_text(GtkEditable *editable, const gchar *new_text,
+static void pathentry_do_insert_text(GtkEditable *editable,
+                                     const gchar *new_text,
                                      gint new_text_length, gint *position);
 
 // PathEntry Init ----------------------------------------------------------------
@@ -69,7 +71,8 @@ static gboolean _pathentry_match_selected(GtkEntryCompletion *completion,
                                           GtkTreeModel *model,
                                           GtkTreeIter *iter,
                                           gpointer user_data);
-static gboolean _pathentry_key_press_event(GtkWidget *widget, GdkEventKey *event);
+static gboolean _pathentry_key_press_event(GtkWidget *widget,
+                                           GdkEventKey *event);
 static void _pathentry_clear_completion(PathEntry *path_entry);
 static void _pathentry_icon_press_event(GtkEntry *entry,
                                         GtkEntryIconPosition icon_pos,
@@ -105,11 +108,6 @@ enum
     PROP_CURRENT_FILE,
 };
 
-struct _PathEntryClass
-{
-    GtkEntryClass __parent__;
-};
-
 struct _PathEntry
 {
     GtkEntry    __parent__;
@@ -127,6 +125,11 @@ struct _PathEntry
     guint       in_change : 1;
     guint       has_completion : 1;
     guint       check_completion_idle_id;
+};
+
+struct _PathEntryClass
+{
+    GtkEntryClass __parent__;
 };
 
 static const GtkTargetEntry _pathentry_drag_targets[] =
@@ -194,8 +197,11 @@ static void pathentry_init(PathEntry *path_entry)
     // allocate a new entry completion for the given model
     GtkEntryCompletion *completion = gtk_entry_completion_new();
     gtk_entry_completion_set_popup_single_match(completion, FALSE);
-    gtk_entry_completion_set_match_func(completion, _pathentry_match_func, path_entry, NULL);
-    g_signal_connect(G_OBJECT(completion), "match-selected", G_CALLBACK(_pathentry_match_selected), path_entry);
+    gtk_entry_completion_set_match_func(completion,
+                                        _pathentry_match_func,
+                                        path_entry, NULL);
+    g_signal_connect(G_OBJECT(completion), "match-selected",
+                     G_CALLBACK(_pathentry_match_selected), path_entry);
 
     // add the icon renderer to the entry completion
     GtkCellRenderer *renderer = g_object_new(TYPE_ICONRENDERER,
@@ -203,25 +209,31 @@ static void pathentry_init(PathEntry *path_entry)
                                              NULL);
 
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(completion), renderer, FALSE);
-    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion), renderer, "file", THUNAR_COLUMN_FILE);
+    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion),
+                                  renderer, "file", THUNAR_COLUMN_FILE);
 
     // add the text renderer to the entry completion
     renderer = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(completion), renderer, TRUE);
-    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion), renderer, "text", THUNAR_COLUMN_NAME);
+    gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(completion),
+                                  renderer, "text", THUNAR_COLUMN_NAME);
 
     // allocate a new list mode for the completion
     ListModel *store = listmodel_new();
     listmodel_set_show_hidden(store, TRUE);
     listmodel_set_folders_first(store, TRUE);
 
-    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), THUNAR_COLUMN_FILE_NAME, GTK_SORT_ASCENDING);
+    gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store),
+                                         THUNAR_COLUMN_FILE_NAME,
+                                         GTK_SORT_ASCENDING);
     gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(store));
     g_object_unref(G_OBJECT(store));
 
-    /* need to connect the "key-press-event" before the GtkEntry class connects the completion signals, so
-     * we get the Tab key before its handled as part of the completion stuff. */
-    g_signal_connect(G_OBJECT(path_entry), "key-press-event", G_CALLBACK(_pathentry_key_press_event), NULL);
+    /* need to connect the "key-press-event" before the GtkEntry class
+     * connects the completion signals, so we get the Tab key before its
+     * handled as part of the completion stuff. */
+    g_signal_connect(G_OBJECT(path_entry), "key-press-event",
+                     G_CALLBACK(_pathentry_key_press_event), NULL);
 
     // setup the new completion
     gtk_entry_set_completion(GTK_ENTRY(path_entry), completion);
@@ -229,13 +241,18 @@ static void pathentry_init(PathEntry *path_entry)
     // cleanup
     g_object_unref(G_OBJECT(completion));
 
-    // clear the auto completion whenever the cursor is moved manually or the selection is changed manually
-    g_signal_connect(G_OBJECT(path_entry), "notify::cursor-position", G_CALLBACK(_pathentry_clear_completion), NULL);
-    g_signal_connect(G_OBJECT(path_entry), "notify::selection-bound", G_CALLBACK(_pathentry_clear_completion), NULL);
+    // clear the auto completion whenever the cursor is moved manually
+    // or the selection is changed manually
+    g_signal_connect(G_OBJECT(path_entry), "notify::cursor-position",
+                     G_CALLBACK(_pathentry_clear_completion), NULL);
+    g_signal_connect(G_OBJECT(path_entry), "notify::selection-bound",
+                     G_CALLBACK(_pathentry_clear_completion), NULL);
 
     // connect the icon signals
-    g_signal_connect(G_OBJECT(path_entry), "icon-press", G_CALLBACK(_pathentry_icon_press_event), NULL);
-    g_signal_connect(G_OBJECT(path_entry), "icon-release", G_CALLBACK(_pathentry_icon_release_event), NULL);
+    g_signal_connect(G_OBJECT(path_entry), "icon-press",
+                     G_CALLBACK(_pathentry_icon_press_event), NULL);
+    g_signal_connect(G_OBJECT(path_entry), "icon-release",
+                     G_CALLBACK(_pathentry_icon_release_event), NULL);
 }
 
 static void pathentry_finalize(GObject *object)
@@ -253,7 +270,10 @@ static void pathentry_finalize(GObject *object)
     // release the current-file reference
     if (path_entry->current_file != NULL)
     {
-        g_signal_handlers_disconnect_by_func(G_OBJECT(path_entry->current_file), pathentry_set_current_file, path_entry);
+        g_signal_handlers_disconnect_by_func(
+                    G_OBJECT(path_entry->current_file),
+                    pathentry_set_current_file,
+                    path_entry);
         g_object_unref(G_OBJECT(path_entry->current_file));
     }
 
@@ -311,12 +331,14 @@ ThunarFile* pathentry_get_current_file(PathEntry *path_entry)
     return path_entry->current_file;
 }
 
-void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
+void pathentry_set_current_file(PathEntry *path_entry,
+                                ThunarFile *current_file)
 {
     e_return_if_fail(IS_PATHENTRY(path_entry));
     e_return_if_fail(current_file == NULL || IS_THUNARFILE(current_file));
 
-    GFile *file = (current_file != NULL) ? th_file_get_file(current_file) : NULL;
+    GFile *file = (current_file != NULL)
+                  ? th_file_get_file(current_file) : NULL;
 
     gchar    *text;
     gboolean  is_uri = FALSE;
@@ -350,8 +372,8 @@ void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file)
 
         gchar *tmp;
 
-        /* if the file is a directory, end with a / to avoid loading the parent
-         * directory which is probably not something the user wants */
+        /* if the file is a directory, end with a / to avoid loading the
+         * parent directory which is probably not something the user wants */
         if (th_file_is_directory(current_file)
                 && !g_str_has_suffix(text, "/"))
         {
@@ -394,11 +416,14 @@ static void _pathentry_update_icon(PathEntry *path_entry)
 
     if (path_entry->icon_factory == NULL)
     {
-        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(GTK_WIDGET(path_entry)));
+        icon_theme =
+                gtk_icon_theme_get_for_screen(
+                    gtk_widget_get_screen(GTK_WIDGET(path_entry)));
         path_entry->icon_factory = iconfact_get_for_icon_theme(icon_theme);
     }
 
-    gtk_widget_style_get(GTK_WIDGET(path_entry), "icon-size", &icon_size, NULL);
+    gtk_widget_style_get(GTK_WIDGET(path_entry),
+                         "icon-size", &icon_size, NULL);
 
     if (path_entry->current_file != NULL)
     {

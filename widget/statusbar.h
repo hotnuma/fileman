@@ -25,10 +25,11 @@ G_BEGIN_DECLS
 
 // Statusbar ------------------------------------------------------------------
 
-typedef struct _StatusbarClass StatusbarClass;
 typedef struct _Statusbar      Statusbar;
+typedef struct _StatusbarClass StatusbarClass;
 
 #define TYPE_STATUSBAR (statusbar_get_type())
+
 #define STATUSBAR(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_STATUSBAR, Statusbar))
 #define STATUSBAR_CLASS(klass) \

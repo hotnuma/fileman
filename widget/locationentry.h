@@ -25,20 +25,21 @@ G_BEGIN_DECLS
 
 // LocationEntry --------------------------------------------------------------
 
-typedef struct _LocationEntryClass LocationEntryClass;
 typedef struct _LocationEntry      LocationEntry;
+typedef struct _LocationEntryClass LocationEntryClass;
 
 #define TYPE_LOCATIONENTRY (locentry_get_type())
+
 #define LOCATIONENTRY(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_LOCATIONENTRY, LocationEntry))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_LOCATIONENTRY, LocationEntry))
 #define LOCATIONENTRY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_LOCATIONENTRY, LocationEntryClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_LOCATIONENTRY, LocationEntryClass))
 #define IS_LOCATIONENTRY(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_LOCATIONENTRY))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_LOCATIONENTRY))
 #define IS_LOCATIONENTRY_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_LOCATIONENTRY))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_LOCATIONENTRY))
 #define LOCATIONENTRY_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_LOCATIONENTRY, LocationEntryClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_LOCATIONENTRY, LocationEntryClass))
 
 GType locentry_get_type() G_GNUC_CONST;
 

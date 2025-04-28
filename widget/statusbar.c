@@ -25,17 +25,10 @@ static void statusbar_set_property(GObject *object, guint prop_id,
                                    const GValue *value, GParamSpec *pspec);
 static void _statusbar_set_text(Statusbar *statusbar, const gchar *text);
 
-// Statusbar ------------------------------------------------------------------
-
 enum
 {
     PROP_0,
     PROP_TEXT,
-};
-
-struct _StatusbarClass
-{
-    GtkStatusbarClass __parent__;
 };
 
 struct _Statusbar
@@ -44,7 +37,20 @@ struct _Statusbar
     guint context_id;
 };
 
+struct _StatusbarClass
+{
+    GtkStatusbarClass __parent__;
+};
+
 G_DEFINE_TYPE(Statusbar, statusbar, GTK_TYPE_STATUSBAR)
+
+
+// creation / destruction -----------------------------------------------------
+
+GtkWidget* statusbar_new()
+{
+    return g_object_new(TYPE_STATUSBAR, NULL);
+}
 
 static void statusbar_class_init(StatusbarClass *klass)
 {
@@ -61,16 +67,17 @@ static void statusbar_class_init(StatusbarClass *klass)
                                                         NULL,
                                                         E_PARAM_WRITABLE));
 
-    if (!style_initialized)
-    {
-        gtk_widget_class_install_style_property(GTK_WIDGET_CLASS(gobject_class),
-            g_param_spec_enum("shadow-type",                //name
-                              "shadow-type",                //nick
-                              "type of shadow",             //blurb
-                              gtk_shadow_type_get_type(),   //type
-                              GTK_SHADOW_NONE,              //default
-                              G_PARAM_READWRITE ));         //flags
-    }
+    if (style_initialized)
+        return;
+
+    gtk_widget_class_install_style_property(
+        GTK_WIDGET_CLASS(gobject_class),
+        g_param_spec_enum("shadow-type",
+                          "shadow-type",
+                          "type of shadow",
+                          gtk_shadow_type_get_type(),
+                          GTK_SHADOW_NONE,
+                          G_PARAM_READWRITE));
 }
 
 static void statusbar_init(Statusbar *statusbar)
@@ -109,13 +116,6 @@ static void _statusbar_set_text(Statusbar *statusbar, const gchar *text)
 
     gtk_statusbar_pop(GTK_STATUSBAR(statusbar), statusbar->context_id);
     gtk_statusbar_push(GTK_STATUSBAR(statusbar), statusbar->context_id, text);
-}
-
-// Public ---------------------------------------------------------------------
-
-GtkWidget* statusbar_new()
-{
-    return g_object_new(TYPE_STATUSBAR, NULL);
 }
 
 

@@ -66,17 +66,17 @@
     + ./view/exotreeview.c
       ./view/listmodel.c
       ./view/standardview.c
-      ./widget/locationbar.c
-      ./widget/locationentry.c
+    + ./widget/locationbar.c
+    + ./widget/locationentry.c
       ./widget/pathentry.c
-      ./widget/sizelabel.c
-      ./widget/statusbar.c
-      ./widget/th-image.c
-      ./application.c
-      ./appmenu.c
+    + ./widget/sizelabel.c
+    + ./widget/statusbar.c
+    + ./widget/th-image.c
+    + ./application.c
+    + ./appmenu.c
       ./appwindow.c
       ./launcher.c
-      ./main.c
-      ./preferences.c
+    + ./main.c
+    + ./preferences.c
 
 

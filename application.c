@@ -108,6 +108,25 @@ static GQuark _app_file_quark;
 G_DEFINE_TYPE_EXTENDED(Application, application, GTK_TYPE_APPLICATION, 0,
                        G_IMPLEMENT_INTERFACE(TYPE_THUNARBROWSER, NULL))
 
+
+// creation / destruction -----------------------------------------------------
+
+Application* application_get()
+{
+    GApplication *default_app = g_application_get_default();
+
+    if (default_app == NULL)
+    {
+        gpointer obj = g_object_new(TYPE_APPLICATION,
+                                    "application-id", "org.hotnuma.Fileman",
+                                    NULL);
+
+        return g_object_ref_sink(obj);
+    }
+
+    return APPLICATION(g_object_ref(default_app));
+}
+
 static void application_class_init(ApplicationClass *klass)
 {
     // pre-allocate the required quarks
@@ -293,7 +312,8 @@ static gboolean _application_process_filenames(Application *application,
         else
         {
             // translate the filename into an absolute path first
-            filename = g_build_filename(working_directory, filenames[n], NULL);
+            filename = g_build_filename(working_directory,
+                                        filenames[n], NULL);
             file = th_file_get_for_uri(filename, &derror);
             g_free(filename);
         }
@@ -446,24 +466,6 @@ static void _application_process_files_finish(ThunarBrowser *browser,
 
 
 // public ---------------------------------------------------------------------
-
-Application* application_get()
-{
-    GApplication *default_app = g_application_get_default();
-
-    if (default_app)
-    {
-        return APPLICATION(g_object_ref(default_app));
-    }
-    else
-    {
-        gpointer obj = g_object_new(TYPE_APPLICATION,
-                                    "application-id", "org.hotnuma.Fileman",
-                                    NULL);
-
-        return g_object_ref_sink(obj);
-    }
-}
 
 GtkWidget* application_open_window(Application *application,
                                    ThunarFile *directory,

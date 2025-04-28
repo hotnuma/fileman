@@ -64,6 +64,16 @@ enum
     PROP_CURRENT_DIRECTORY,
 };
 
+struct _LocationEntry
+{
+    GtkBox      __parent__;
+
+    ThunarFile  *current_directory;
+    GtkWidget   *path_entry;
+
+    gboolean    right_click_occurred;
+};
+
 struct _LocationEntryClass
 {
     GtkBoxClass __parent__;
@@ -74,16 +84,6 @@ struct _LocationEntryClass
     // externally visible signals
     void        (*reload_requested) (void);
     void        (*edit_done) (void);
-};
-
-struct _LocationEntry
-{
-    GtkBox      __parent__;
-
-    ThunarFile  *current_directory;
-    GtkWidget   *path_entry;
-
-    gboolean    right_click_occurred;
 };
 
 G_DEFINE_TYPE_WITH_CODE(LocationEntry, locentry, GTK_TYPE_BOX,
@@ -102,7 +102,9 @@ static void locentry_class_init(LocationEntryClass *klass)
     klass->reset = locentry_reset;
 
     // override ThunarNavigator's properties
-    g_object_class_override_property(gobject_class, PROP_CURRENT_DIRECTORY, "current-directory");
+    g_object_class_override_property(gobject_class,
+                                     PROP_CURRENT_DIRECTORY,
+                                     "current-directory");
 
     /**
      * LocationEntry::reset:
@@ -120,12 +122,7 @@ static void locentry_class_init(LocationEntryClass *klass)
                  _thunar_marshal_BOOLEAN__VOID,
                  G_TYPE_BOOLEAN, 0);
 
-    /**
-     * LocationEntry::reload-requested:
-     * @location_entry : a #LocationEntry.
-     *
-     * Emitted by @location_entry whenever the user clicked a "reload" button
-     **/
+    // emitted by location_entry whenever the user clicked a "reload" button
     g_signal_new("reload-requested",
                  G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
@@ -134,14 +131,9 @@ static void locentry_class_init(LocationEntryClass *klass)
                  NULL,
                  G_TYPE_NONE, 0);
 
-    /**
-     * LocationEntry::edit-done:
-     * @location_entry : a #LocationEntry.
-     *
-     * Emitted by @location_entry whenever the user finished or aborted an edit
-     * operation by either changing to a directory, pressing Escape or moving the
-     * focus away from the entry.
-     **/
+    /* Emitted by @location_entry whenever the user finished or aborted an
+     * edit operation by either changing to a directory, pressing Escape
+     * or moving the focus away from the entry. */
     g_signal_new("edit-done",
                  G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_LAST | G_SIGNAL_ACTION,
@@ -180,13 +172,16 @@ static void locentry_init(LocationEntry *entry)
 
     // put reload button in entry
     gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry->path_entry),
-                                       GTK_ENTRY_ICON_SECONDARY, "view-refresh-symbolic");
+                                      GTK_ENTRY_ICON_SECONDARY,
+                                      "view-refresh-symbolic");
     gtk_entry_set_icon_tooltip_text(GTK_ENTRY(entry->path_entry),
-                                     GTK_ENTRY_ICON_SECONDARY, _("Reload the current folder"));
+                                    GTK_ENTRY_ICON_SECONDARY,
+                                    _("Reload the current folder"));
     g_signal_connect(G_OBJECT(entry->path_entry), "icon-release",
                      G_CALLBACK(locentry_reload), entry);
 
-    // make sure the edit-done signal is emitted upon moving the focus somewhere else
+    // make sure the edit-done signal is emitted upon moving the focus
+    // somewhere else
     g_signal_connect_swapped(entry->path_entry, "focus-out-event",
                              G_CALLBACK(locentry_emit_edit_done), entry);
 
@@ -212,7 +207,9 @@ static void locentry_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value, navigator_get_current_directory(THUNARNAVIGATOR(object)));
+        g_value_set_object(
+                value,
+                navigator_get_current_directory(THUNARNAVIGATOR(object)));
         break;
 
     default:
@@ -246,10 +243,12 @@ static void locentry_set_property(GObject *object, guint prop_id,
 static gboolean locentry_reset(LocationEntry *location_entry)
 {
     // just reset the path entry to our current directory...
-    pathentry_set_current_file(PATHENTRY(location_entry->path_entry), location_entry->current_directory);
+    pathentry_set_current_file(PATHENTRY(location_entry->path_entry),
+                               location_entry->current_directory);
 
     // ...and select the whole text again
-    gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);
+    gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry),
+                               0, -1);
 
     locentry_emit_edit_done(location_entry);
 
@@ -262,7 +261,7 @@ static ThunarFile* locentry_get_current_directory(ThunarNavigator *navigator)
 }
 
 static void locentry_set_current_directory(ThunarNavigator *navigator,
-                                           ThunarFile      *current_directory)
+                                           ThunarFile *current_directory)
 {
     LocationEntry *location_entry = LOCATIONENTRY(navigator);
 
@@ -291,21 +290,26 @@ void locentry_accept_focus(LocationEntry *location_entry,
     if (initial_text != NULL)
     {
         // setup the new text
-        gtk_entry_set_text(GTK_ENTRY(location_entry->path_entry), initial_text);
+        gtk_entry_set_text(GTK_ENTRY(location_entry->path_entry),
+                           initial_text);
 
         // move the cursor to the end of the text
-        gtk_editable_set_position(GTK_EDITABLE(location_entry->path_entry), -1);
+        gtk_editable_set_position(GTK_EDITABLE(location_entry->path_entry),
+                                  -1);
     }
     else
     {
         // select the whole path in the path entry
-        gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry), 0, -1);
+        gtk_editable_select_region(GTK_EDITABLE(location_entry->path_entry),
+                                   0, -1);
     }
 }
 
-// Events ---------------------------------------------------------------------
 
-static void locentry_activate(GtkWidget *path_entry, LocationEntry *location_entry)
+// events ---------------------------------------------------------------------
+
+static void locentry_activate(GtkWidget *path_entry,
+                              LocationEntry *location_entry)
 {
     e_return_if_fail(IS_LOCATIONENTRY(location_entry));
     e_return_if_fail(location_entry->path_entry == path_entry);
@@ -374,22 +378,26 @@ static void locentry_open_or_launch(LocationEntry *location_entry,
             // be sure to reset the current file of the path entry
             if (location_entry->current_directory != NULL)
             {
-                pathentry_set_current_file(PATHENTRY(location_entry->path_entry),
-                                                    location_entry->current_directory);
+                pathentry_set_current_file(
+                            PATHENTRY(location_entry->path_entry),
+                            location_entry->current_directory);
             }
         }
     }
     else
     {
-        g_set_error(&error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, _("File does not exist"));
+        g_set_error(&error,
+                    G_IO_ERROR,
+                    G_IO_ERROR_NOT_FOUND, _("File does not exist"));
     }
 
     // check if we need to display an error dialog
     if (error != NULL)
     {
-        dialog_error(location_entry->path_entry, error,
-                                   _("Failed to open \"%s\""),
-                                   th_file_get_display_name(file));
+        dialog_error(location_entry->path_entry,
+                     error,
+                     _("Failed to open \"%s\""),
+                     th_file_get_display_name(file));
         g_error_free(error);
     }
 }
@@ -420,7 +428,7 @@ static void locentry_emit_edit_done(LocationEntry *entry)
     entry->right_click_occurred = FALSE;
 }
 
-static gboolean locentry_button_press_event(GtkWidget      *path_entry,
+static gboolean locentry_button_press_event(GtkWidget *path_entry,
                                             GdkEventButton *event,
                                             LocationEntry  *location_entry)
 {

@@ -26,11 +26,12 @@ G_BEGIN_DECLS
 
 // ThunarImage ----------------------------------------------------------------
 
-typedef struct _ThunarImagePrivate ThunarImagePrivate;
-typedef struct _ThunarImageClass   ThunarImageClass;
 typedef struct _ThunarImage        ThunarImage;
+typedef struct _ThunarImageClass   ThunarImageClass;
+typedef struct _ThunarImagePrivate ThunarImagePrivate;
 
 #define TYPE_THUNARIMAGE (th_image_get_type())
+
 #define THUNARIMAGE(obj)            \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARIMAGE, ThunarImage))
 #define THUNARIMAGE_CLASS(klass)    \

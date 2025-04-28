@@ -25,7 +25,8 @@ void prefs_file_read()
     if (!_prefs.filepath)
     {
         _prefs.filepath = cstr_new_size(32);
-        cstr_fmt(_prefs.filepath, "%s/%s/", g_get_user_config_dir(), APP_NAME);
+        cstr_fmt(_prefs.filepath,
+                 "%s/%s/", g_get_user_config_dir(), APP_NAME);
         g_mkdir_with_parents(c_str(_prefs.filepath), 0700);
 
         cstr_append(_prefs.filepath, APP_NAME);
@@ -40,11 +41,16 @@ void prefs_file_read()
 
     CIniSection *section = cinifile_section(file, "General");
 
-    cinisection_int(section, &_prefs.window_width, "WindowWidth", 640);
-    cinisection_int(section, &_prefs.window_height, "WindowHeight", 480);
-    cinisection_int(section, &_prefs.window_maximized, "WindowMaximized", 0);
-    cinisection_int(section, &_prefs.separator_position, "SeparatorPosition", 200);
-    cinisection_value(section, _prefs.column_widths, "ColumnWidths", "");
+    cinisection_int(section, &_prefs.window_width,
+                    "WindowWidth", 640);
+    cinisection_int(section, &_prefs.window_height,
+                    "WindowHeight", 480);
+    cinisection_int(section, &_prefs.window_maximized,
+                    "WindowMaximized", 0);
+    cinisection_int(section, &_prefs.separator_position,
+                    "SeparatorPosition", 200);
+    cinisection_value(section, _prefs.column_widths,
+                      "ColumnWidths", "");
 
     if (!_prefs.extractflt)
         _prefs.extractflt = cstrlist_new_size(12);

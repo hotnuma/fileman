@@ -55,11 +55,6 @@ enum
     PROP_FILE_SIZE_BINARY
 };
 
-struct _SizeLabelClass
-{
-    GtkBoxClass __parent__;
-};
-
 struct _SizeLabel
 {
     GtkBox      __parent__;
@@ -73,7 +68,22 @@ struct _SizeLabel
     GtkWidget   *spinner;
 };
 
+struct _SizeLabelClass
+{
+    GtkBoxClass __parent__;
+};
+
 G_DEFINE_TYPE(SizeLabel, szlabel, GTK_TYPE_BOX)
+
+
+// creation / destruction -----------------------------------------------------
+
+GtkWidget* szlabel_new()
+{
+    return g_object_new(TYPE_SIZELABEL,
+                        "orientation", GTK_ORIENTATION_HORIZONTAL,
+                        NULL);
+}
 
 static void szlabel_class_init(SizeLabelClass *klass)
 {
@@ -114,7 +124,8 @@ static void szlabel_class_init(SizeLabelClass *klass)
 
 static void szlabel_init(SizeLabel *size_label)
 {
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(size_label), GTK_ORIENTATION_HORIZONTAL);
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(size_label),
+                                   GTK_ORIENTATION_HORIZONTAL);
 
     // configure the box
     gtk_box_set_spacing(GTK_BOX(size_label), 6);
@@ -124,12 +135,16 @@ static void szlabel_init(SizeLabel *size_label)
     gtk_event_box_set_visible_window(GTK_EVENT_BOX(ebox), FALSE);
     g_signal_connect(G_OBJECT(ebox), "button-press-event",
                      G_CALLBACK(_szlabel_button_press_event), size_label);
-    gtk_widget_set_tooltip_text(ebox, _("Click here to stop calculating the total size of the folder."));
+    gtk_widget_set_tooltip_text(ebox,
+                                _("Click here to stop calculating the total"
+                                  " size of the folder."));
     gtk_box_pack_start(GTK_BOX(size_label), ebox, FALSE, FALSE, 0);
 
     // add the spinner widget
     size_label->spinner = gtk_spinner_new();
-    g_object_bind_property(G_OBJECT(size_label->spinner), "visible", G_OBJECT(ebox), "visible", G_BINDING_SYNC_CREATE);
+    g_object_bind_property(G_OBJECT(size_label->spinner),
+                           "visible", G_OBJECT(ebox),
+                           "visible", G_BINDING_SYNC_CREATE);
     gtk_container_add(GTK_CONTAINER(ebox), size_label->spinner);
     gtk_widget_show(size_label->spinner);
 
@@ -149,7 +164,9 @@ static void szlabel_finalize(GObject *object)
     // cancel the pending job(if any)
     if (size_label->job != NULL)
     {
-        g_signal_handlers_disconnect_matched(G_OBJECT(size_label->job), G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
+        g_signal_handlers_disconnect_matched(G_OBJECT(size_label->job),
+                                             G_SIGNAL_MATCH_DATA,
+                                             0, 0, NULL, NULL, size_label);
         exo_job_cancel(EXOJOB(size_label->job));
         g_object_unref(size_label->job);
     }
@@ -237,7 +254,9 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
     {
         e_assert(IS_THUNARFILE(lp->data));
 
-        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data), _szlabel_files_changed, size_label);
+        g_signal_handlers_disconnect_by_func(G_OBJECT(lp->data),
+                                             _szlabel_files_changed,
+                                             size_label);
         g_object_unref(G_OBJECT(lp->data));
     }
     g_list_free(size_label->files);
@@ -251,7 +270,8 @@ static void _szlabel_set_files(SizeLabel *size_label, GList *files)
 
         g_object_ref(G_OBJECT(lp->data));
         g_signal_connect_swapped(G_OBJECT(lp->data), "changed",
-                                 G_CALLBACK(_szlabel_files_changed), size_label);
+                                 G_CALLBACK(_szlabel_files_changed),
+                                 size_label);
     }
 
     if (size_label->files != NULL)
@@ -289,7 +309,8 @@ static gboolean _szlabel_button_press_event(GtkWidget *ebox,
         gtk_widget_hide(size_label->spinner);
 
         // tell the user that the operation was canceled
-        gtk_label_set_text(GTK_LABEL(size_label->label), _("Calculation aborted"));
+        gtk_label_set_text(GTK_LABEL(size_label->label),
+                           _("Calculation aborted"));
 
         // we handled the event
         return TRUE;
@@ -307,7 +328,9 @@ static void _szlabel_files_changed(SizeLabel *size_label)
     // cancel the pending job(if any)
     if (size_label->job != NULL)
     {
-        g_signal_handlers_disconnect_matched(size_label->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
+        g_signal_handlers_disconnect_matched(size_label->job,
+                                             G_SIGNAL_MATCH_DATA,
+                                             0, 0, NULL, NULL, size_label);
         exo_job_cancel(EXOJOB(size_label->job));
         g_object_unref(size_label->job);
         size_label->job = NULL;
@@ -315,13 +338,18 @@ static void _szlabel_files_changed(SizeLabel *size_label)
 
     // check if there are multiple files or the single file is a directory
     if (size_label->files->next != NULL
-            || th_file_is_directory(THUNARFILE(size_label->files->data)))
+        || th_file_is_directory(THUNARFILE(size_label->files->data)))
     {
-        // schedule a new job to determine the total size of the directory(not following symlinks)
-        size_label->job = dcjob_new(size_label->files, G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS);
-        g_signal_connect(size_label->job, "error", G_CALLBACK(_szlabel_error), size_label);
-        g_signal_connect(size_label->job, "finished", G_CALLBACK(_szlabel_finished), size_label);
-        g_signal_connect(size_label->job, "status-update", G_CALLBACK(_szlabel_status_update), size_label);
+        // schedule a new job to determine the total size of the directory
+        // (not following symlinks)
+        size_label->job = dcjob_new(size_label->files,
+                                    G_FILE_QUERY_INFO_NOFOLLOW_SYMLINKS);
+        g_signal_connect(size_label->job, "error",
+                         G_CALLBACK(_szlabel_error), size_label);
+        g_signal_connect(size_label->job, "finished",
+                         G_CALLBACK(_szlabel_finished), size_label);
+        g_signal_connect(size_label->job, "status-update",
+                         G_CALLBACK(_szlabel_status_update), size_label);
 
         // tell the user that we started calculation
         gtk_label_set_text(GTK_LABEL(size_label->label), _("Calculating..."));
@@ -373,7 +401,9 @@ static void _szlabel_finished(ExoJob *job, SizeLabel *size_label)
     gtk_widget_hide(size_label->spinner);
 
     // disconnect from the job
-    g_signal_handlers_disconnect_matched(size_label->job, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, size_label);
+    g_signal_handlers_disconnect_matched(size_label->job,
+                                         G_SIGNAL_MATCH_DATA,
+                                         0, 0, NULL, NULL, size_label);
     g_object_unref(size_label->job);
     size_label->job = NULL;
 }
@@ -400,15 +430,25 @@ static void _szlabel_status_update(DeepCountJob *job,
     if (n > unreadable_directory_count)
     {
         // update the label
-        size_string = g_format_size_full(total_size, G_FORMAT_SIZE_LONG_FORMAT |(size_label->file_size_binary ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
-        text = g_strdup_printf(ngetstr("%u item, totalling %s", "%u items, totalling %s", n), n, size_string);
+        size_string = g_format_size_full(
+                total_size,
+                G_FORMAT_SIZE_LONG_FORMAT
+                | (size_label->file_size_binary
+                   ? G_FORMAT_SIZE_IEC_UNITS : G_FORMAT_SIZE_DEFAULT));
+        text = g_strdup_printf(
+                    ngetstr("%u item, totalling %s",
+                            "%u items, totalling %s", n),
+                    n, size_string);
         g_free(size_string);
 
         if (unreadable_directory_count > 0)
         {
             /* TRANSLATORS: this is shows if during the deep count size
              * directories were not accessible */
-            unreable_text = g_strconcat(text, "\n", _("(some contents unreadable)"), NULL);
+            unreable_text = g_strconcat(text,
+                                        "\n",
+                                        _("(some contents unreadable)"),
+                                        NULL);
             g_free(text);
             text = unreable_text;
         }
@@ -419,17 +459,9 @@ static void _szlabel_status_update(DeepCountJob *job,
     else
     {
         // nothing was readable, so permission was denied
-        gtk_label_set_text(GTK_LABEL(size_label->label), _("Permission denied"));
+        gtk_label_set_text(GTK_LABEL(size_label->label),
+                           _("Permission denied"));
     }
-}
-
-// Public ---------------------------------------------------------------------
-
-GtkWidget* szlabel_new()
-{
-    return g_object_new(TYPE_SIZELABEL,
-                        "orientation", GTK_ORIENTATION_HORIZONTAL,
-                        NULL);
 }
 
 

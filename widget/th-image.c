@@ -41,16 +41,16 @@ enum
     PROP_FILE,
 };
 
-struct _ThunarImageClass
-{
-    GtkImageClass __parent__;
-};
-
 struct _ThunarImage
 {
     GtkImage __parent__;
 
     ThunarImagePrivate *priv;
+};
+
+struct _ThunarImageClass
+{
+    GtkImageClass __parent__;
 };
 
 struct _ThunarImagePrivate
@@ -59,7 +59,15 @@ struct _ThunarImagePrivate
     ThunarFile *file;
 };
 
-G_DEFINE_TYPE_WITH_PRIVATE(ThunarImage, th_image, GTK_TYPE_IMAGE);
+G_DEFINE_TYPE_WITH_PRIVATE(ThunarImage, th_image, GTK_TYPE_IMAGE)
+
+
+// creation / destruction -----------------------------------------------------
+
+GtkWidget* th_image_new()
+{
+    return g_object_new(TYPE_THUNARIMAGE, NULL);
+}
 
 static void th_image_class_init(ThunarImageClass *klass)
 {
@@ -94,7 +102,7 @@ static void th_image_finalize(GObject *object)
     ThunarImage *image = THUNARIMAGE(object);
 
     g_signal_handlers_disconnect_by_func(image->priv->monitor,
-                                          _th_image_file_changed, image);
+                                         _th_image_file_changed, image);
     g_object_unref(image->priv->monitor);
 
     th_image_set_file(image, NULL);
@@ -151,34 +159,27 @@ static void _th_image_file_changed(FileMonitor *monitor, ThunarFile *file,
 
 static void _th_image_update(ThunarImage *image)
 {
-    IconFactory *icon_factory;
-    GtkIconTheme      *icon_theme;
-    GdkPixbuf         *icon;
-    GdkScreen         *screen;
-
     e_return_if_fail(IS_THUNARIMAGE(image));
 
-    if (IS_THUNARFILE(image->priv->file))
-    {
-        screen = gtk_widget_get_screen(GTK_WIDGET(image));
-        icon_theme = gtk_icon_theme_get_for_screen(screen);
-        icon_factory = iconfact_get_for_icon_theme(icon_theme);
+    if (!IS_THUNARFILE(image->priv->file))
+        return;
 
-        icon = iconfact_load_file_icon(icon_factory, image->priv->file,
-                FILE_ICON_STATE_DEFAULT, 48);
+    GdkScreen *screen = gtk_widget_get_screen(GTK_WIDGET(image));
+    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_screen(screen);
+    IconFactory *icon_factory = iconfact_get_for_icon_theme(icon_theme);
 
-        gtk_image_set_from_pixbuf(GTK_IMAGE(image), icon);
+    GdkPixbuf *icon = iconfact_load_file_icon(
+                                        icon_factory,
+                                        image->priv->file,
+                                        FILE_ICON_STATE_DEFAULT, 48);
 
-        g_object_unref(icon_factory);
-    }
+    gtk_image_set_from_pixbuf(GTK_IMAGE(image), icon);
+
+    g_object_unref(icon_factory);
 }
 
-// Public ---------------------------------------------------------------------
 
-GtkWidget* th_image_new()
-{
-    return g_object_new(TYPE_THUNARIMAGE, NULL);
-}
+// public ---------------------------------------------------------------------
 
 void th_image_set_file(ThunarImage *image, ThunarFile *file)
 {

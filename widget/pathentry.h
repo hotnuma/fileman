@@ -27,10 +27,11 @@ G_BEGIN_DECLS
 
 // PathEntry ------------------------------------------------------------------
 
-typedef struct _PathEntryClass PathEntryClass;
 typedef struct _PathEntry      PathEntry;
+typedef struct _PathEntryClass PathEntryClass;
 
 #define TYPE_PATHENTRY (pathentry_get_type())
+
 #define PATHENTRY(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_PATHENTRY, PathEntry))
 #define PATHENTRY_CLASS(klass) \
@@ -47,9 +48,11 @@ GType pathentry_get_type() G_GNUC_CONST;
 GtkWidget* pathentry_new();
 
 ThunarFile* pathentry_get_current_file(PathEntry *path_entry);
-void pathentry_set_current_file(PathEntry *path_entry, ThunarFile *current_file);
+void pathentry_set_current_file(PathEntry *path_entry,
+                                ThunarFile *current_file);
 
-void pathentry_set_working_directory(PathEntry *path_entry, ThunarFile *directory);
+void pathentry_set_working_directory(PathEntry *path_entry,
+                                     ThunarFile *directory);
 
 G_END_DECLS
 

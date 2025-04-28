@@ -25,10 +25,11 @@ G_BEGIN_DECLS
 
 // LocationBar ----------------------------------------------------------------
 
-typedef struct _LocationBarClass LocationBarClass;
 typedef struct _LocationBar      LocationBar;
+typedef struct _LocationBarClass LocationBarClass;
 
 #define TYPE_LOCATIONBAR (locbar_get_type())
+
 #define LOCATIONBAR(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_LOCATIONBAR, LocationBar))
 #define IS_LOCATIONBAR(obj) \

@@ -26,13 +26,10 @@ static void _locbar_noop();
 
 // LocationBar ----------------------------------------------------------------
 
-struct _LocationBarClass
+enum
 {
-    GtkBinClass __parent__;
-
-    // signals
-    void (*reload_requested) ();
-    void (*entry_done) ();
+    PROP_0,
+    PROP_CURRENT_DIRECTORY,
 };
 
 struct _LocationBar
@@ -43,10 +40,13 @@ struct _LocationBar
     GtkWidget   *locationEntry;
 };
 
-enum
+struct _LocationBarClass
 {
-    PROP_0,
-    PROP_CURRENT_DIRECTORY,
+    GtkBinClass __parent__;
+
+    // signals
+    void (*reload_requested) ();
+    void (*entry_done) ();
 };
 
 static void locbar_navigator_init(ThunarNavigatorIface *iface);
@@ -63,18 +63,22 @@ static gboolean _locbar_settings_changed(LocationBar *bar);
 static GtkWidget* _locbar_install_widget(LocationBar *bar, GType type);
 static void _locbar_reload_requested(LocationBar *bar);
 
-// Public ---------------------------------------------------------------------
-
 static void locbar_on_entry_edit_done(LocationEntry *entry, LocationBar *bar);
-
-
-G_DEFINE_TYPE_WITH_CODE(LocationBar, locbar, GTK_TYPE_BIN,
-                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
-                                              locbar_navigator_init));
 
 static void _locbar_noop()
 {
     //g_print("_locbar_noop\n");
+}
+
+G_DEFINE_TYPE_WITH_CODE(LocationBar, locbar, GTK_TYPE_BIN,
+                        G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
+                                              locbar_navigator_init))
+
+// creation / destruction -----------------------------------------------------
+
+GtkWidget* locbar_new()
+{
+    return gtk_widget_new(TYPE_LOCATIONBAR, NULL);
 }
 
 static void locbar_class_init(LocationBarClass *klass)
@@ -182,7 +186,7 @@ static ThunarFile* locbar_get_current_directory(ThunarNavigator *navigator)
 }
 
 static void locbar_set_current_directory(ThunarNavigator *navigator,
-                                         ThunarFile      *current_directory)
+                                         ThunarFile *current_directory)
 {
     LocationBar *bar = LOCATIONBAR(navigator);
 
@@ -232,7 +236,8 @@ static GtkWidget* _locbar_install_widget(LocationBar *bar, GType type)
             g_object_ref(bar->locationEntry);
 
             g_signal_connect_swapped(bar->locationEntry, "reload-requested",
-                                     G_CALLBACK(_locbar_reload_requested), bar);
+                                     G_CALLBACK(_locbar_reload_requested),
+                                     bar);
 
             g_signal_connect_swapped(bar->locationEntry, "change-directory",
                                      G_CALLBACK(navigator_change_directory),
@@ -256,7 +261,8 @@ static GtkWidget* _locbar_install_widget(LocationBar *bar, GType type)
     return widget;
 }
 
-// Events ---------------------------------------------------------------------
+
+// events ---------------------------------------------------------------------
 
 static void _locbar_reload_requested(LocationBar *bar)
 {
@@ -264,19 +270,12 @@ static void _locbar_reload_requested(LocationBar *bar)
 }
 
 
-// Public ---------------------------------------------------------------------
+// public ---------------------------------------------------------------------
 
-GtkWidget* locbar_new()
-{
-    return gtk_widget_new(TYPE_LOCATIONBAR, NULL);
-}
-
-/*
- * Makes the location bar display an entry with the given text and places the
- * cursor accordingly. If the currently displayed location widget is a path
- * bar, it will be temporarily swapped for an entry widget and swapped back
- * once the user completed (or aborted) the input.
- */
+/* Makes the location bar display an entry with the given text and places
+ * the cursor accordingly. If the currently displayed location widget is
+ * a path bar, it will be temporarily swapped for an entry widget and
+ * swapped back once the user completed (or aborted) the input. */
 void locbar_request_entry(LocationBar *bar, const gchar *initial_text)
 {
     GtkWidget *child = gtk_bin_get_child(GTK_BIN(bar));
@@ -302,7 +301,8 @@ void locbar_request_entry(LocationBar *bar, const gchar *initial_text)
 
 static void locbar_on_entry_edit_done(LocationEntry *entry, LocationBar *bar)
 {
-    g_signal_handlers_disconnect_by_func(entry, locbar_on_entry_edit_done, bar);
+    g_signal_handlers_disconnect_by_func(entry,
+                                         locbar_on_entry_edit_done, bar);
 
     g_object_ref(bar);
 
