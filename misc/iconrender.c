@@ -68,10 +68,10 @@ static void iconrender_class_init(IconRendererClass *klass)
     gobject_class->get_property = iconrender_get_property;
     gobject_class->set_property = iconrender_set_property;
 
-    GtkCellRendererClass *gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
-    gtkcell_renderer_class->get_preferred_width = iconrender_get_preferred_width;
-    gtkcell_renderer_class->get_preferred_height = iconrender_get_preferred_height;
-    gtkcell_renderer_class->render = iconrender_render;
+    GtkCellRendererClass *renderer_class = GTK_CELL_RENDERER_CLASS(klass);
+    renderer_class->get_preferred_width = iconrender_get_preferred_width;
+    renderer_class->get_preferred_height = iconrender_get_preferred_height;
+    renderer_class->render = iconrender_render;
 
     /**
      * IconRenderer:drop-file:
@@ -114,7 +114,8 @@ static void iconrender_class_init(IconRendererClass *klass)
                                         "emblems",
                                         "emblems",
                                         false,
-                                        G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
+                                        G_PARAM_CONSTRUCT
+                                        | E_PARAM_READWRITE));
 
     /**
      * IconRenderer:follow-state:
@@ -147,7 +148,8 @@ static void iconrender_class_init(IconRendererClass *klass)
                                         "size",
                                         THUNAR_TYPE_ICON_SIZE,
                                         THUNAR_ICON_SIZE_16,
-                                        G_PARAM_CONSTRUCT | E_PARAM_READWRITE));
+                                        G_PARAM_CONSTRUCT
+                                        | E_PARAM_READWRITE));
 }
 
 static void iconrender_init(IconRenderer *icon_renderer)
@@ -245,9 +247,8 @@ static void iconrender_set_property(GObject *object, guint prop_id,
 }
 
 static void iconrender_get_preferred_width(GtkCellRenderer *renderer,
-                                           GtkWidget       *widget,
-                                           gint            *minimum,
-                                           gint            *natural)
+                                           GtkWidget *widget, gint *minimum,
+                                           gint *natural)
 {
     (void) widget;
 
@@ -264,9 +265,8 @@ static void iconrender_get_preferred_width(GtkCellRenderer *renderer,
 }
 
 static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
-                                            GtkWidget       *widget,
-                                            gint            *minimum,
-                                            gint            *natural)
+                                            GtkWidget *widget, gint *minimum,
+                                            gint *natural)
 {
     (void) widget;
 
@@ -282,28 +282,27 @@ static void iconrender_get_preferred_height(GtkCellRenderer *renderer,
         *natural =(gint) ypad * 2 + icon_renderer->size;
 }
 
-static void iconrender_render(GtkCellRenderer     *renderer,
-                             cairo_t              *cr,
-                             GtkWidget            *widget,
-                             const GdkRectangle   *background_area,
-                             const GdkRectangle   *cell_area,
-                             GtkCellRendererState flags)
+static void iconrender_render(GtkCellRenderer *renderer,
+                              cairo_t *cr, GtkWidget *widget,
+                              const GdkRectangle *background_area,
+                              const GdkRectangle *cell_area,
+                              GtkCellRendererState flags)
 {
     (void) background_area;
 
     ClipboardManager *clipboard;
-    FileIconState     icon_state;
+    FileIconState    icon_state;
     IconRenderer     *icon_renderer = ICONRENDERER(renderer);
     IconFactory      *icon_factory;
-    GtkIconTheme           *icon_theme;
-    GdkRectangle            icon_area;
-    GdkRectangle            clip_area;
-    GdkPixbuf              *icon;
-    GdkPixbuf              *temp;
-    gdouble                 alpha;
-    gboolean                color_selected;
-    gboolean                color_lighten;
-    gboolean                is_expanded;
+    GtkIconTheme     *icon_theme;
+    GdkRectangle     icon_area;
+    GdkRectangle     clip_area;
+    GdkPixbuf        *icon;
+    GdkPixbuf        *temp;
+    gdouble          alpha;
+    gboolean         color_selected;
+    gboolean         color_lighten;
+    gboolean         is_expanded;
 
     if (icon_renderer->file == NULL)
         return;
@@ -314,16 +313,19 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     g_object_get(renderer, "is-expanded", &is_expanded, NULL);
 
     // determine the icon state
-    icon_state =(icon_renderer->drop_file != icon_renderer->file)
-                 ? is_expanded
-                 ? FILE_ICON_STATE_OPEN
-                 : FILE_ICON_STATE_DEFAULT
-                 : FILE_ICON_STATE_DROP;
+    icon_state = (icon_renderer->drop_file != icon_renderer->file)
+                  ? is_expanded
+                        ? FILE_ICON_STATE_OPEN
+                        : FILE_ICON_STATE_DEFAULT
+                  : FILE_ICON_STATE_DROP;
 
     // load the main icon
     icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
     icon_factory = iconfact_get_for_icon_theme(icon_theme);
-    icon = iconfact_load_file_icon(icon_factory, icon_renderer->file, icon_state, icon_renderer->size);
+    icon = iconfact_load_file_icon(icon_factory,
+                                   icon_renderer->file,
+                                   icon_state,
+                                   icon_renderer->size);
     if (icon == NULL)
     {
         g_object_unref(G_OBJECT(icon_factory));
@@ -343,7 +345,10 @@ static void iconrender_render(GtkCellRenderer     *renderer,
         || icon_area.height > cell_area->height)
     {
         // scale down to fit
-        temp = pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
+        temp = pixbuf_scale_down(icon,
+                                 TRUE,
+                                 MAX(1, cell_area->width),
+                                 MAX(1, cell_area->height));
         g_object_unref(G_OBJECT(icon));
         icon = temp;
 
@@ -356,13 +361,16 @@ static void iconrender_render(GtkCellRenderer     *renderer,
     icon_area.y = cell_area->y +(cell_area->height - icon_area.height) / 2;
 
     // bools for cairo transformations
-    color_selected = (flags & GTK_CELL_RENDERER_SELECTED) != 0 && icon_renderer->follow_state;
-    color_lighten = (flags & GTK_CELL_RENDERER_PRELIT) != 0 && icon_renderer->follow_state;
+    color_selected = (flags & GTK_CELL_RENDERER_SELECTED) != 0
+                      && icon_renderer->follow_state;
+    color_lighten = (flags & GTK_CELL_RENDERER_PRELIT) != 0
+                     && icon_renderer->follow_state;
 
     // check whether the icon is affected by the expose event
     if (gdk_rectangle_intersect(&clip_area, &icon_area, NULL))
     {
-        // use a translucent icon to represent cutted and hidden files to the user
+        // use a translucent icon to represent cutted
+        // and hidden files to the user
         clipboard = clipman_get_for_display(gtk_widget_get_display(widget));
         if (clipman_has_cutted_file(clipboard, icon_renderer->file))
         {
@@ -415,7 +423,11 @@ static void _iconrender_color_insensitive(cairo_t *cr, GtkWidget *widget)
     cairo_save(cr);
 
     source = cairo_pattern_reference(cairo_get_source(cr));
-    gtk_style_context_get(context, GTK_STATE_FLAG_INSENSITIVE, GTK_STYLE_PROPERTY_COLOR, &color, NULL);
+    gtk_style_context_get(context,
+                          GTK_STATE_FLAG_INSENSITIVE,
+                          GTK_STYLE_PROPERTY_COLOR,
+                          &color,
+                          NULL);
     gdk_cairo_set_source_rgba(cr, color);
     gdk_rgba_free(color);
     cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);
@@ -454,8 +466,13 @@ static void _iconrender_color_selected(cairo_t *cr, GtkWidget *widget)
     cairo_save(cr);
 
     source = cairo_pattern_reference(cairo_get_source(cr));
-    state = gtk_widget_has_focus(widget) ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_ACTIVE;
-    gtk_style_context_get(context, state, GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &color, NULL);
+    state = gtk_widget_has_focus(widget)
+            ? GTK_STATE_FLAG_SELECTED : GTK_STATE_FLAG_ACTIVE;
+    gtk_style_context_get(context,
+                          state,
+                          GTK_STYLE_PROPERTY_BACKGROUND_COLOR,
+                          &color,
+                          NULL);
     gdk_cairo_set_source_rgba(cr, color);
     gdk_rgba_free(color);
     cairo_set_operator(cr, CAIRO_OPERATOR_MULTIPLY);

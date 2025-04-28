@@ -292,7 +292,8 @@ static void treeview_init(TreeView *view)
     view->model = g_object_new(TYPE_TREEMODEL, NULL);
 
     treemodel_set_visible_func(view->model, _treeview_visible_func, view);
-    gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(view->model));
+    gtk_tree_view_set_model(GTK_TREE_VIEW(view),
+                            GTK_TREE_MODEL(view->model));
 
     // configure the tree view
     gtk_tree_view_set_enable_search(GTK_TREE_VIEW(view), false);
@@ -657,7 +658,8 @@ static gboolean _treeview_cursor_idle(gpointer user_data)
     gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model), &iter, path);
     gtk_tree_path_free(path);
 
-    // collect all ThunarFiles in the path of current_directory in a List. root is on the very left side
+    // collect all ThunarFiles in the path of current_directory
+    // in a List. root is on the very left side
     for (file = view->current_directory;
          file != NULL; file = th_file_get_parent(file, NULL))
     {
@@ -917,17 +919,17 @@ static void _treeview_set_show_hidden(TreeView *view, gboolean show_hidden)
     show_hidden = !!show_hidden;
 
     // check if we have a new setting
-    if (view->show_hidden != show_hidden)
-    {
-        // apply the new setting
-        view->show_hidden = show_hidden;
+    if (view->show_hidden == show_hidden)
+        return;
 
-        // update the model
-        treemodel_refilter(view->model);
+    // apply the new setting
+    view->show_hidden = show_hidden;
 
-        // notify listeners
-        g_object_notify(G_OBJECT(view), "show-hidden");
-    }
+    // update the model
+    treemodel_refilter(view->model);
+
+    // notify listeners
+    g_object_notify(G_OBJECT(view), "show-hidden");
 }
 
 
@@ -959,7 +961,8 @@ static gboolean treeview_button_press_event(GtkWidget *widget,
                                  &(view->select_path), NULL);
     }
 
-    // let the widget process the event first(handles focussing and scrolling)
+    // let the widget process the event first
+    // (handles focussing and scrolling)
     result = GTK_WIDGET_CLASS(
                 treeview_parent_class)->button_press_event(widget, event);
 
@@ -1096,7 +1099,8 @@ static gboolean _treeview_key_press_event(GtkWidget *widget,
     case GDK_KEY_KP_Up:
     case GDK_KEY_Down:
     case GDK_KEY_KP_Down:
-        // the default actions works good, but we want to update the right pane
+        // the default actions works good, but we want to
+        // update the right pane
         GTK_WIDGET_CLASS(treeview_parent_class)->key_press_event(widget,
                                                                  event);
 
@@ -1131,8 +1135,10 @@ static gboolean _treeview_key_press_event(GtkWidget *widget,
                 if (gtk_tree_model_get_iter(GTK_TREE_MODEL(view->model),
                                             &iter, path))
                 {
-                    gtk_tree_model_get(GTK_TREE_MODEL(view->model), &iter,
-                                       TREEMODEL_COLUMN_DEVICE, &device, -1);
+                    gtk_tree_model_get(GTK_TREE_MODEL(view->model),
+                                       &iter,
+                                       TREEMODEL_COLUMN_DEVICE,
+                                       &device, -1);
                 }
 
                 if (device != NULL
@@ -1211,7 +1217,8 @@ static gboolean _treeview_key_press_event(GtkWidget *widget,
 
 // TreeViewClass --------------------------------------------------------------
 
-static void treeview_row_activated(GtkTreeView *tree_view, GtkTreePath *path,
+static void treeview_row_activated(GtkTreeView *tree_view,
+                                   GtkTreePath *path,
                                    GtkTreeViewColumn *column)
 {
     // call the parent's "row-activated" handler
@@ -1502,7 +1509,7 @@ static ThunarFile* _treeview_get_selected_file(TreeView *view)
     GtkTreeSelection *selection;
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 
-    /* avoid dealing with invalid selections(may occur when the mount_finish()
+    /* avoid dealing with invalid selections (may occur when the mount_finish()
      * handler is called and the tree view has been hidden already) */
     if (!GTK_IS_TREE_SELECTION(selection))
         return NULL;

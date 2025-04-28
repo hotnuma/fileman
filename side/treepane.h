@@ -25,10 +25,11 @@ G_BEGIN_DECLS
 
 // TreePane -------------------------------------------------------------------
 
-typedef struct _TreePaneClass TreePaneClass;
 typedef struct _TreePane      TreePane;
+typedef struct _TreePaneClass TreePaneClass;
 
 #define TYPE_TREEPANE (treepane_get_type())
+
 #define TREEPANE(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_TREEPANE, TreePane))
 #define TREEPANE_CLASS(klass) \

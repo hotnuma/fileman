@@ -25,10 +25,11 @@ G_BEGIN_DECLS
 
 // SidePane -------------------------------------------------------------------
 
-typedef struct _SidePaneIface SidePaneIface;
 typedef struct _SidePane      SidePane;
+typedef struct _SidePaneIface SidePaneIface;
 
 #define TYPE_SIDEPANE (sidepane_get_type())
+
 #define SIDEPANE(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_SIDEPANE, SidePane))
 #define IS_SIDEPANE(obj) \

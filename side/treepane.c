@@ -35,7 +35,8 @@ static ThunarFile *treepane_get_current_directory(ThunarNavigator *navigator);
 static void treepane_set_current_directory(ThunarNavigator *navigator,
                                            ThunarFile *current_directory);
 static gboolean treepane_get_show_hidden(SidePane *side_pane);
-static void treepane_set_show_hidden(SidePane *side_pane, gboolean show_hidden);
+static void treepane_set_show_hidden(SidePane *side_pane,
+                                     gboolean show_hidden);
 
 // TreePane -------------------------------------------------------------------
 
@@ -47,11 +48,6 @@ enum
     PROP_SHOW_HIDDEN,
 };
 
-struct _TreePaneClass
-{
-    GtkScrolledWindowClass __parent__;
-};
-
 struct _TreePane
 {
     GtkScrolledWindow __parent__;
@@ -61,6 +57,11 @@ struct _TreePane
     gboolean    show_hidden;
 };
 
+struct _TreePaneClass
+{
+    GtkScrolledWindowClass __parent__;
+};
+
 G_DEFINE_TYPE_WITH_CODE(TreePane, treepane, GTK_TYPE_SCROLLED_WINDOW,
                         G_IMPLEMENT_INTERFACE(TYPE_THUNARNAVIGATOR,
                                               treepane_navigator_init)
@@ -68,6 +69,14 @@ G_DEFINE_TYPE_WITH_CODE(TreePane, treepane, GTK_TYPE_SCROLLED_WINDOW,
                                               treepane_component_init)
                         G_IMPLEMENT_INTERFACE(TYPE_SIDEPANE,
                                               treepane_sidepane_init))
+
+
+// creation / destruction -----------------------------------------------------
+
+TreeView* treepane_get_view(TreePane *tree_pane)
+{
+    return TREEVIEW(tree_pane->view);
+}
 
 static void treepane_class_init(TreePaneClass *klass)
 {
@@ -115,15 +124,24 @@ static void treepane_init(TreePane *tree_pane)
     // configure the GtkScrolledWindow
     gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(tree_pane), NULL);
     gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(tree_pane), NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_pane), GTK_SHADOW_IN);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tree_pane), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_pane),
+                                        GTK_SHADOW_IN);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(tree_pane),
+                                   GTK_POLICY_AUTOMATIC,
+                                   GTK_POLICY_AUTOMATIC);
 
     // allocate the tree view
     tree_pane->view = treeview_new();
 
-    g_object_bind_property(G_OBJECT(tree_pane), "show-hidden", G_OBJECT(tree_pane->view), "show-hidden", G_BINDING_SYNC_CREATE);
-    g_object_bind_property(G_OBJECT(tree_pane), "current-directory", G_OBJECT(tree_pane->view), "current-directory", G_BINDING_SYNC_CREATE);
-    g_signal_connect_swapped(G_OBJECT(tree_pane->view), "change-directory", G_CALLBACK(navigator_change_directory), tree_pane);
+    g_object_bind_property(G_OBJECT(tree_pane), "show-hidden",
+                           G_OBJECT(tree_pane->view), "show-hidden",
+                           G_BINDING_SYNC_CREATE);
+    g_object_bind_property(G_OBJECT(tree_pane), "current-directory",
+                           G_OBJECT(tree_pane->view), "current-directory",
+                           G_BINDING_SYNC_CREATE);
+    g_signal_connect_swapped(G_OBJECT(tree_pane->view), "change-directory",
+                             G_CALLBACK(navigator_change_directory),
+                             tree_pane);
     gtk_container_add(GTK_CONTAINER(tree_pane), tree_pane->view);
     gtk_widget_show(tree_pane->view);
 }
@@ -138,23 +156,23 @@ static void treepane_dispose(GObject *object)
     G_OBJECT_CLASS(treepane_parent_class)->dispose(object);
 }
 
-static void treepane_get_property(GObject    *object,
-                                          guint       prop_id,
-                                          GValue     *value,
-                                          GParamSpec *pspec)
+static void treepane_get_property(GObject *object, guint prop_id,
+                                  GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
     switch (prop_id)
     {
     case PROP_CURRENT_DIRECTORY:
-        g_value_set_object(value,
-                           navigator_get_current_directory(THUNARNAVIGATOR(object)));
+        g_value_set_object(
+                value,
+                navigator_get_current_directory(THUNARNAVIGATOR(object)));
         break;
 
     case PROP_SELECTED_FILES:
-        g_value_set_boxed(value,
-                          component_get_selected_files(THUNARCOMPONENT(object)));
+        g_value_set_boxed(
+                value,
+                component_get_selected_files(THUNARCOMPONENT(object)));
         break;
 
     case PROP_SHOW_HIDDEN:
@@ -202,7 +220,7 @@ static ThunarFile* treepane_get_current_directory(ThunarNavigator *navigator)
 }
 
 static void treepane_set_current_directory(ThunarNavigator *navigator,
-                                           ThunarFile      *current_directory)
+                                           ThunarFile *current_directory)
 {
     TreePane *tree_pane = TREEPANE(navigator);
 
@@ -227,28 +245,21 @@ static gboolean treepane_get_show_hidden(SidePane *side_pane)
 }
 
 static void treepane_set_show_hidden(SidePane *side_pane,
-                                             gboolean       show_hidden)
+                                     gboolean show_hidden)
 {
     TreePane *tree_pane = TREEPANE(side_pane);
 
     show_hidden = !!show_hidden;
 
     // check if we have a new setting
-    if (tree_pane->show_hidden != show_hidden)
-    {
-        // remember the new setting
-        tree_pane->show_hidden = show_hidden;
+    if (tree_pane->show_hidden == show_hidden)
+        return;
 
-        // notify listeners
-        g_object_notify(G_OBJECT(tree_pane), "show-hidden");
-    }
-}
+    // remember the new setting
+    tree_pane->show_hidden = show_hidden;
 
-// Public ---------------------------------------------------------------------
-
-TreeView* treepane_get_view(TreePane *tree_pane)
-{
-    return TREEVIEW(tree_pane->view);
+    // notify listeners
+    g_object_notify(G_OBJECT(tree_pane), "show-hidden");
 }
 
 

@@ -25,16 +25,19 @@ G_BEGIN_DECLS
 
 // ThunarNavigator ------------------------------------------------------------
 
-typedef struct _ThunarNavigatorIface ThunarNavigatorIface;
 typedef struct _ThunarNavigator      ThunarNavigator;
+typedef struct _ThunarNavigatorIface ThunarNavigatorIface;
 
 #define TYPE_THUNARNAVIGATOR (navigator_get_type())
+
 #define THUNARNAVIGATOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_THUNARNAVIGATOR, ThunarNavigator))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj),    TYPE_THUNARNAVIGATOR, \
+                                                    ThunarNavigator))
 #define IS_THUNARNAVIGATOR(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),      TYPE_THUNARNAVIGATOR))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj),    TYPE_THUNARNAVIGATOR))
 #define THUNARNAVIGATOR_GET_IFACE(obj) \
-    (G_TYPE_INSTANCE_GET_INTERFACE((obj),   TYPE_THUNARNAVIGATOR, ThunarNavigatorIface))
+    (G_TYPE_INSTANCE_GET_INTERFACE((obj), TYPE_THUNARNAVIGATOR, \
+                                                    ThunarNavigatorIface))
 
 struct _ThunarNavigatorIface
 {
@@ -46,7 +49,8 @@ struct _ThunarNavigatorIface
                                    ThunarFile *current_directory);
 
     // signals
-    void (*change_directory) (ThunarNavigator *navigator, ThunarFile *directory);
+    void (*change_directory) (ThunarNavigator *navigator,
+                              ThunarFile *directory);
 };
 
 GType navigator_get_type() G_GNUC_CONST;
@@ -55,7 +59,8 @@ ThunarFile* navigator_get_current_directory(ThunarNavigator *navigator);
 void navigator_set_current_directory(ThunarNavigator *navigator,
                                      ThunarFile *current_directory);
 
-void navigator_change_directory(ThunarNavigator *navigator, ThunarFile *directory);
+void navigator_change_directory(ThunarNavigator *navigator,
+                                ThunarFile *directory);
 
 G_END_DECLS
 

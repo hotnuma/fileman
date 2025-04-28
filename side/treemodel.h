@@ -37,13 +37,14 @@ typedef enum
 
 // TreeModel ------------------------------------------------------------------
 
-typedef struct _TreeModelClass TreeModelClass;
 typedef struct _TreeModel      TreeModel;
+typedef struct _TreeModelClass TreeModelClass;
 
 typedef gboolean (*TreeModelVisibleFunc) (TreeModel *model, ThunarFile *file,
                                           gpointer data);
 
 #define TYPE_TREEMODEL (treemodel_get_type())
+
 #define TREEMODEL(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_TREEMODEL, TreeModel))
 #define TREEMODEL_CLASS(klass) \
@@ -57,8 +58,8 @@ typedef gboolean (*TreeModelVisibleFunc) (TreeModel *model, ThunarFile *file,
 
 GType treemodel_get_type() G_GNUC_CONST;
 
-void treemodel_set_visible_func(TreeModel *model, TreeModelVisibleFunc func,
-                                gpointer data);
+void treemodel_set_visible_func(TreeModel *model,
+                                TreeModelVisibleFunc func, gpointer data);
 void treemodel_cleanup(TreeModel *model);
 void treemodel_refilter(TreeModel *model);
 

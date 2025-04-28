@@ -67,38 +67,38 @@ static void navigator_base_init(gpointer klass)
 {
     static gboolean initialized = FALSE;
 
-    if (!initialized)
-    {
-        /**
-         * ThunarNavigator::change-directory:
-         * @navigator : a #ThunarNavigator instance.
-         * @directory : a #ThunarFile referring to the new directory.
-         *
-         * Invoked by implementing classes whenever the user requests
-         * to changed the current directory to @directory from within
-         * the @navigator instance(e.g. for the location buttons bar,
-         * this signal would be invoked whenever the user clicks on
-         * a path button).
-         *
-         * The @navigator must not apply the @directory to the
-         * "current-directory" property directly. But
-         * instead, it must wait for the surrounding module(usually
-         * a #AppWindow instance) to explicitly inform the
-         * @navigator to change it's current directory using
-         * the #thunar_navigator_set_current_directory() method
-         * or the "current-directory" property.
-         **/
-        _navigator_signals[CHANGE_DIRECTORY] =
-            g_signal_new(I_("change-directory"),
-                         G_TYPE_FROM_INTERFACE(klass),
-                         G_SIGNAL_RUN_LAST,
-                         G_STRUCT_OFFSET(ThunarNavigatorIface, change_directory),
-                         NULL, NULL,
-                         g_cclosure_marshal_VOID__OBJECT,
-                         G_TYPE_NONE, 1, TYPE_THUNARFILE);
+    if (initialized)
+        return;
 
-        initialized = TRUE;
-    }
+    /**
+     * ThunarNavigator::change-directory:
+     * @navigator : a #ThunarNavigator instance.
+     * @directory : a #ThunarFile referring to the new directory.
+     *
+     * Invoked by implementing classes whenever the user requests
+     * to changed the current directory to @directory from within
+     * the @navigator instance(e.g. for the location buttons bar,
+     * this signal would be invoked whenever the user clicks on
+     * a path button).
+     *
+     * The @navigator must not apply the @directory to the
+     * "current-directory" property directly. But
+     * instead, it must wait for the surrounding module(usually
+     * a #AppWindow instance) to explicitly inform the
+     * @navigator to change it's current directory using
+     * the #thunar_navigator_set_current_directory() method
+     * or the "current-directory" property.
+     **/
+    _navigator_signals[CHANGE_DIRECTORY] =
+        g_signal_new(I_("change-directory"),
+                     G_TYPE_FROM_INTERFACE(klass),
+                     G_SIGNAL_RUN_LAST,
+                     G_STRUCT_OFFSET(ThunarNavigatorIface, change_directory),
+                     NULL, NULL,
+                     g_cclosure_marshal_VOID__OBJECT,
+                     G_TYPE_NONE, 1, TYPE_THUNARFILE);
+
+    initialized = TRUE;
 }
 
 static void navigator_class_init(gpointer klass)
@@ -142,7 +142,8 @@ ThunarFile* navigator_get_current_directory(ThunarNavigator *navigator)
 {
     e_return_val_if_fail(IS_THUNARNAVIGATOR(navigator), NULL);
 
-    return THUNARNAVIGATOR_GET_IFACE(navigator)->get_current_directory(navigator);
+    ThunarNavigatorIface *iface = THUNARNAVIGATOR_GET_IFACE(navigator);
+    return iface->get_current_directory(navigator);
 }
 
 /**
@@ -157,9 +158,11 @@ void navigator_set_current_directory(ThunarNavigator *navigator,
                                      ThunarFile      *current_directory)
 {
     e_return_if_fail(IS_THUNARNAVIGATOR(navigator));
-    e_return_if_fail(current_directory == NULL || IS_THUNARFILE(current_directory));
+    e_return_if_fail(current_directory == NULL
+                     || IS_THUNARFILE(current_directory));
 
-    THUNARNAVIGATOR_GET_IFACE(navigator)->set_current_directory(navigator, current_directory);
+    ThunarNavigatorIface *iface = THUNARNAVIGATOR_GET_IFACE(navigator);
+    iface->set_current_directory(navigator, current_directory);
 }
 
 /**
@@ -180,13 +183,14 @@ void navigator_set_current_directory(ThunarNavigator *navigator,
  * implementation, as that may led to unexpected results!
  **/
 void navigator_change_directory(ThunarNavigator *navigator,
-                                ThunarFile      *directory)
+                                ThunarFile *directory)
 {
     e_return_if_fail(IS_THUNARNAVIGATOR(navigator));
     e_return_if_fail(IS_THUNARFILE(directory));
     e_return_if_fail(th_file_is_directory(directory));
 
-    g_signal_emit(G_OBJECT(navigator), _navigator_signals[CHANGE_DIRECTORY], 0, directory);
+    g_signal_emit(G_OBJECT(navigator),
+                  _navigator_signals[CHANGE_DIRECTORY], 0, directory);
 }
 
 

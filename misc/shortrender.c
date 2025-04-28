@@ -68,8 +68,8 @@ static void shrender_class_init(ShortcutRendererClass *klass)
     gobject_class->get_property = shrender_get_property;
     gobject_class->set_property = shrender_set_property;
 
-    GtkCellRendererClass *gtkcell_renderer_class = GTK_CELL_RENDERER_CLASS(klass);
-    gtkcell_renderer_class->render = shrender_render;
+    GtkCellRendererClass *renderer_class = GTK_CELL_RENDERER_CLASS(klass);
+    renderer_class->render = shrender_render;
 
     /**
      * ShortcutRenderer:device:
@@ -86,12 +86,8 @@ static void shrender_class_init(ShortcutRendererClass *klass)
                                         TYPE_THUNARDEVICE,
                                         E_PARAM_READWRITE));
 
-    /**
-     * IconRenderer:gicon:
-     *
-     * The GIcon to render, this property has preference over the the icon returned
-     * by the ThunarFile property.
-     **/
+    /* The GIcon to render, this property has preference over the
+     * icon returned by the ThunarFile property. */
     g_object_class_install_property(gobject_class,
                                     PROP_GICON,
                                     g_param_spec_object(
@@ -194,10 +190,11 @@ static void shrender_render(GtkCellRenderer *renderer,
 
     // check if we have a volume set
     if (shortcuts_icon_renderer->gicon != NULL
-        ||  shortcuts_icon_renderer->device != NULL)
+        || shortcuts_icon_renderer->device != NULL)
     {
         // load the volume icon
-        icon_theme = gtk_icon_theme_get_for_screen(gtk_widget_get_screen(widget));
+        icon_theme = gtk_icon_theme_get_for_screen(
+                                gtk_widget_get_screen(widget));
 
         // look up the icon info
         if (shortcuts_icon_renderer->gicon != NULL)
@@ -205,9 +202,11 @@ static void shrender_render(GtkCellRenderer *renderer,
         else
             gicon = th_device_get_icon(shortcuts_icon_renderer->device);
 
-        icon_info = gtk_icon_theme_lookup_by_gicon(icon_theme, gicon, cell_area->width,
-                    GTK_ICON_LOOKUP_USE_BUILTIN |
-                    GTK_ICON_LOOKUP_FORCE_SIZE);
+        icon_info = gtk_icon_theme_lookup_by_gicon(
+                                            icon_theme,
+                                            gicon, cell_area->width,
+                                            GTK_ICON_LOOKUP_USE_BUILTIN
+                                            | GTK_ICON_LOOKUP_FORCE_SIZE);
 
         g_object_unref(gicon);
 
@@ -230,7 +229,10 @@ static void shrender_render(GtkCellRenderer *renderer,
                 || icon_area.height > cell_area->height)
             {
                 // scale down to fit
-                temp = pixbuf_scale_down(icon, TRUE, MAX(1, cell_area->width), MAX(1, cell_area->height));
+                temp = pixbuf_scale_down(icon,
+                                         TRUE,
+                                         MAX(1, cell_area->width),
+                                         MAX(1, cell_area->height));
                 g_object_unref(G_OBJECT(icon));
                 icon = temp;
 
@@ -241,19 +243,23 @@ static void shrender_render(GtkCellRenderer *renderer,
 
             // 50% translucent for unmounted volumes
             if (shortcuts_icon_renderer->device != NULL
-                    && !th_device_is_mounted(shortcuts_icon_renderer->device))
+                && !th_device_is_mounted(shortcuts_icon_renderer->device))
                 alpha = 0.50;
             else
                 alpha = 1.00;
 
-            icon_area.x = cell_area->x +(cell_area->width - icon_area.width) / 2;
-            icon_area.y = cell_area->y +(cell_area->height - icon_area.height) / 2;
+            icon_area.x = cell_area->x
+                    + (cell_area->width - icon_area.width) / 2;
+            icon_area.y = cell_area->y
+                    + (cell_area->height - icon_area.height) / 2;
 
             // check whether the icon is affected by the expose event
             if (gdk_rectangle_intersect(&clip_area, &icon_area, NULL))
             {
                 // render the invalid parts of the icon
-                edk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
+                edk_cairo_set_source_pixbuf(cr,
+                                            icon,
+                                            icon_area.x, icon_area.y);
                 cairo_paint_with_alpha(cr, alpha);
             }
 
@@ -274,7 +280,8 @@ static void shrender_render(GtkCellRenderer *renderer,
     }
 }
 
-// Public ---------------------------------------------------------------------
+
+// public ---------------------------------------------------------------------
 
 GtkCellRenderer* shrender_new()
 {

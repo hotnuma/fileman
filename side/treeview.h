@@ -23,10 +23,11 @@
 
 G_BEGIN_DECLS
 
-typedef struct _TreeViewClass TreeViewClass;
 typedef struct _TreeView      TreeView;
+typedef struct _TreeViewClass TreeViewClass;
 
 #define TYPE_TREEVIEW (treeview_get_type())
+
 #define TREEVIEW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_TREEVIEW, TreeView))
 #define TREEVIEW_CLASS(klass) \

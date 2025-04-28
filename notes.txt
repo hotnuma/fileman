@@ -53,13 +53,13 @@
     + ./misc/enumtypes.c
     + ./misc/history.c
     + ./misc/iconfactory.c
-      ./misc/iconrender.c
-      ./misc/navigator.c
-      ./misc/shortrender.c
-      ./side/sidepane.c
-      ./side/treemodel.c
-      ./side/treepane.c
-      ./side/treeview.c
+    + ./misc/iconrender.c
+    + ./misc/navigator.c
+    + ./misc/shortrender.c
+    + ./side/sidepane.c
+    + ./side/treemodel.c
+    + ./side/treepane.c
+    + ./side/treeview.c
       ./view/baseview.c
       ./view/columnmodel.c
       ./view/detailview.c

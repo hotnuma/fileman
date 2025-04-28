@@ -25,20 +25,24 @@ G_BEGIN_DECLS
 
 // ShortcutRenderer -----------------------------------------------------------
 
-typedef struct _ShortcutRendererClass ShortcutRendererClass;
 typedef struct _ShortcutRenderer      ShortcutRenderer;
+typedef struct _ShortcutRendererClass ShortcutRendererClass;
 
 #define TYPE_SHORTCUT_RENDERER (shrender_get_type())
+
 #define SHORTCUT_RENDERER(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_SHORTCUT_RENDERER, ShortcutRenderer))
+    (G_TYPE_CHECK_INSTANCE_CAST((obj), TYPE_SHORTCUT_RENDERER, \
+                                                    ShortcutRenderer))
 #define SHORTCUT_RENDERER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass),   TYPE_SHORTCUT_RENDERER, ShortcutRendererClass))
+    (G_TYPE_CHECK_CLASS_CAST((klass),  TYPE_SHORTCUT_RENDERER, \
+                                                    ShortcutRendererClass))
 #define IS_SHORTCUT_RENDERER(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj),  TYPE_SHORTCUT_RENDERER))
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), TYPE_SHORTCUT_RENDERER))
 #define IS_SHORTCUT_RENDERER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_SHORTCUT_RENDERER))
+    (G_TYPE_CHECK_CLASS_TYPE((klass),  TYPE_SHORTCUT_RENDERER))
 #define SHORTCUT_RENDERER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_SHORTCUT_RENDERER, ShortcutRendererClass))
+    (G_TYPE_INSTANCE_GET_CLASS((obj),  TYPE_SHORTCUT_RENDERER, \
+                                                    ShortcutRendererClass))
 
 GType shrender_get_type() G_GNUC_CONST;
 

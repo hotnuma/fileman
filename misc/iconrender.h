@@ -26,8 +26,8 @@ G_BEGIN_DECLS
 
 // IconRenderer ---------------------------------------------------------------
 
-typedef struct _IconRendererClass IconRendererClass;
 typedef struct _IconRenderer      IconRenderer;
+typedef struct _IconRendererClass IconRendererClass;
 
 #define TYPE_ICONRENDERER (iconrender_get_type())
 
@@ -42,11 +42,6 @@ typedef struct _IconRenderer      IconRenderer;
 #define IS_ICONRENDERER_CLASS(klass) \
     (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_ICONRENDERER))
 
-struct _IconRendererClass
-{
-    GtkCellRendererClass __parent__;
-};
-
 struct _IconRenderer
 {
     GtkCellRenderer __parent__;
@@ -56,6 +51,11 @@ struct _IconRenderer
     gboolean        emblems;
     gboolean        follow_state;
     ThunarIconSize  size;
+};
+
+struct _IconRendererClass
+{
+    GtkCellRendererClass __parent__;
 };
 
 GType iconrender_get_type() G_GNUC_CONST;
