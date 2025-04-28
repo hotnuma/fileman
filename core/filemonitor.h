@@ -25,10 +25,11 @@ G_BEGIN_DECLS
 
 // FileMonitor ----------------------------------------------------------------
 
-typedef struct _FileMonitorClass FileMonitorClass;
 typedef struct _FileMonitor      FileMonitor;
+typedef struct _FileMonitorClass FileMonitorClass;
 
 #define TYPE_FILEMONITOR (filemon_get_type())
+
 #define FILEMONITOR(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_FILEMONITOR, FileMonitor))
 #define FILEMONITOR_CLASS(klass) \

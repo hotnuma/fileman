@@ -25,10 +25,11 @@ G_BEGIN_DECLS
 
 // ThunarFolder ---------------------------------------------------------------
 
-typedef struct _ThunarFolderClass ThunarFolderClass;
 typedef struct _ThunarFolder      ThunarFolder;
+typedef struct _ThunarFolderClass ThunarFolderClass;
 
 #define TYPE_THUNARFOLDER (th_folder_get_type())
+
 #define THUNARFOLDER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARFOLDER, ThunarFolder))
 #define THUNARFOLDER_CLASS(klass) \

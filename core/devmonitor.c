@@ -27,32 +27,33 @@
 static void devmon_finalize(GObject *object);
 static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
                                 GParamSpec *pspec);
-static void devmon_set_property(GObject *object, guint prop_id, const GValue *value,
-                                GParamSpec *pspec);
-static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data);
+static void devmon_set_property(GObject *object, guint prop_id,
+                                const GValue *value, GParamSpec *pspec);
+static void _devmon_update_hidden(gpointer key,
+                                  gpointer value, gpointer data);
 static gboolean _devmon_id_is_hidden(DeviceMonitor *monitor, const gchar *id);
 
-// Events ---------------------------------------------------------------------
+// events ---------------------------------------------------------------------
 
-static void _devmon_volume_added(GVolumeMonitor *volume_monitor, GVolume *volume,
-                                 DeviceMonitor *monitor);
-static void _devmon_volume_changed(GVolumeMonitor *volume_monitor, GVolume *volume,
-                                   DeviceMonitor *monitor);
-static void _devmon_volume_removed(GVolumeMonitor *volume_monitor, GVolume *volume,
-                                   DeviceMonitor *monitor);
-static void _devmon_mount_added(GVolumeMonitor *volume_monitor, GMount *mount,
-                                DeviceMonitor *monitor);
-static void _devmon_mount_changed(GVolumeMonitor *volume_monitor, GMount *mount,
-                                  DeviceMonitor *monitor);
-static void _devmon_mount_pre_unmount(GVolumeMonitor *volume_monitor, GMount *mount,
-                                      DeviceMonitor *monitor);
-static void _devmon_mount_removed(GVolumeMonitor *volume_monitor, GMount *mount,
-                                  DeviceMonitor *monitor);
+static void _devmon_volume_added(GVolumeMonitor *volume_monitor,
+                                 GVolume *volume, DeviceMonitor *monitor);
+static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
+                                   GVolume *volume, DeviceMonitor *monitor);
+static void _devmon_volume_removed(GVolumeMonitor *volume_monitor,
+                                   GVolume *volume, DeviceMonitor *monitor);
+static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
+                                GMount *mount, DeviceMonitor *monitor);
+static void _devmon_mount_changed(GVolumeMonitor *volume_monitor,
+                                  GMount *mount, DeviceMonitor *monitor);
+static void _devmon_mount_pre_unmount(GVolumeMonitor *volume_monitor,
+                                      GMount *mount, DeviceMonitor *monitor);
+static void _devmon_mount_removed(GVolumeMonitor *volume_monitor,
+                                  GMount *mount, DeviceMonitor *monitor);
 
-// Public ---------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-// devmon_get_devices
-static void _devmon_list_prepend(gpointer key, gpointer value, gpointer user_data);
+static void _devmon_list_prepend(gpointer key,
+                                 gpointer value, gpointer user_data);
 
 // DeviceMonitor --------------------------------------------------------------
 
@@ -71,18 +72,6 @@ enum
     PROP_HIDDEN_DEVICES
 };
 
-struct _DeviceMonitorClass
-{
-    GObjectClass __parent__;
-
-    // signals
-    void (*device_added)       (DeviceMonitor *monitor, ThunarDevice *device);
-    void (*device_removed)     (DeviceMonitor *monitor, ThunarDevice *device);
-    void (*device_changed)     (DeviceMonitor *monitor, ThunarDevice *device);
-    void (*device_pre_unmount) (DeviceMonitor *monitor, ThunarDevice *device,
-                                GFile *root_file);
-};
-
 struct _DeviceMonitor
 {
     GObject __parent__;
@@ -99,9 +88,41 @@ struct _DeviceMonitor
     gchar           **hidden_devices;
 };
 
+struct _DeviceMonitorClass
+{
+    GObjectClass __parent__;
+
+    // signals
+    void (*device_added)       (DeviceMonitor *monitor, ThunarDevice *device);
+    void (*device_removed)     (DeviceMonitor *monitor, ThunarDevice *device);
+    void (*device_changed)     (DeviceMonitor *monitor, ThunarDevice *device);
+    void (*device_pre_unmount) (DeviceMonitor *monitor,
+                                ThunarDevice *device, GFile *root_file);
+};
+
 static guint _devmon_signals[LAST_SIGNAL];
 
 G_DEFINE_TYPE(DeviceMonitor, devmon, G_TYPE_OBJECT)
+
+
+// creation / destruction -----------------------------------------------------
+
+DeviceMonitor* devmon_get()
+{
+    static DeviceMonitor *monitor = NULL;
+
+    if (monitor == NULL)
+    {
+        monitor = g_object_new(TYPE_DEVICE_MONITOR, NULL);
+        g_object_add_weak_pointer(G_OBJECT(monitor), (gpointer) &monitor);
+
+        return monitor;
+    }
+
+    g_object_ref(G_OBJECT(monitor));
+
+    return monitor;
+}
 
 static void devmon_class_init(DeviceMonitorClass *klass)
 {
@@ -163,7 +184,10 @@ static void devmon_init(DeviceMonitor *monitor)
     GList *lp;
 
     // table for GVolume/GMount(key) -> ThunarDevice(value)
-    monitor->devices = g_hash_table_new_full(g_direct_hash, g_direct_equal, g_object_unref, g_object_unref);
+    monitor->devices = g_hash_table_new_full(g_direct_hash,
+                                             g_direct_equal,
+                                             g_object_unref,
+                                             g_object_unref);
 
     // gio volume monitor
     monitor->volume_monitor = g_volume_monitor_get();
@@ -213,7 +237,9 @@ static void devmon_finalize(GObject *object)
     g_strfreev(monitor->hidden_devices);
 
     // detatch from the monitor
-    g_signal_handlers_disconnect_matched(monitor->volume_monitor, G_SIGNAL_MATCH_DATA, 0, 0, NULL, NULL, monitor);
+    g_signal_handlers_disconnect_matched(monitor->volume_monitor,
+                                         G_SIGNAL_MATCH_DATA,
+                                         0, 0, NULL, NULL, monitor);
     g_object_unref(monitor->volume_monitor);
 
     // clear list of devices
@@ -225,8 +251,8 @@ static void devmon_finalize(GObject *object)
    (*G_OBJECT_CLASS(devmon_parent_class)->finalize)(object);
 }
 
-static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
-                                GParamSpec *pspec)
+static void devmon_get_property(GObject *object, guint prop_id,
+                                GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -244,8 +270,8 @@ static void devmon_get_property(GObject *object, guint prop_id, GValue *value,
     }
 }
 
-static void devmon_set_property(GObject *object, guint prop_id, const GValue *value,
-                                GParamSpec *pspec)
+static void devmon_set_property(GObject *object, guint prop_id,
+                                const GValue *value, GParamSpec *pspec)
 {
     (void) pspec;
 
@@ -260,7 +286,8 @@ static void devmon_set_property(GObject *object, guint prop_id, const GValue *va
 
         // update the devices
         if (monitor->devices != NULL)
-            g_hash_table_foreach(monitor->devices, _devmon_update_hidden, monitor);
+            g_hash_table_foreach(monitor->devices,
+                                 _devmon_update_hidden, monitor);
         break;
 
     default:
@@ -286,21 +313,22 @@ static void _devmon_update_hidden(gpointer key, gpointer value, gpointer data)
     if (th_device_get_hidden(device) != hidden)
     {
         g_object_set(G_OBJECT(device), "hidden", hidden, NULL);
-        g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_CHANGED], 0, device);
+        g_signal_emit(G_OBJECT(monitor),
+                      _devmon_signals[DEVICE_CHANGED], 0, device);
     }
 }
 
 static gboolean _devmon_id_is_hidden(DeviceMonitor *monitor, const gchar *id)
 {
-    guint n;
-
     if (id == NULL || monitor->hidden_devices == NULL)
         return FALSE;
 
     // check if the uuid is in the hidden list
-    for(n = 0; monitor->hidden_devices[n] != NULL; n++)
-        if (g_strcmp0(monitor->hidden_devices[n], id)== 0)
+    for (guint n = 0; monitor->hidden_devices[n] != NULL; n++)
+    {
+        if (g_strcmp0(monitor->hidden_devices[n], id) == 0)
             return TRUE;
+    }
 
     return FALSE;
 }
@@ -308,8 +336,7 @@ static gboolean _devmon_id_is_hidden(DeviceMonitor *monitor, const gchar *id)
 // Events ---------------------------------------------------------------------
 
 static void _devmon_volume_added(GVolumeMonitor *volume_monitor,
-                                 GVolume        *volume,
-                                 DeviceMonitor  *monitor)
+                                 GVolume *volume, DeviceMonitor *monitor)
 {
     e_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
     e_return_if_fail(IS_DEVICE_MONITOR(monitor));
@@ -325,7 +352,8 @@ static void _devmon_volume_added(GVolumeMonitor *volume_monitor,
         return;
 
     // add to internal list
-    monitor->hidden_volumes = g_list_prepend(monitor->hidden_volumes, g_object_ref(volume));
+    monitor->hidden_volumes = g_list_prepend(monitor->hidden_volumes,
+                                             g_object_ref(volume));
 
     // change visibility in changed
     _devmon_volume_changed(volume_monitor, volume, monitor);
@@ -348,7 +376,8 @@ static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
     if (lp != NULL)
     {
         // remove from the hidden list
-        monitor->hidden_volumes = g_list_delete_link(monitor->hidden_volumes, lp);
+        monitor->hidden_volumes = g_list_delete_link(monitor->hidden_volumes,
+                                                     lp);
 
         // create a new device for this volume
         device = g_object_new(TYPE_THUNARDEVICE,
@@ -367,7 +396,8 @@ static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
         g_hash_table_insert(monitor->devices, volume, device);
 
         // notify
-        g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_ADDED], 0, device);
+        g_signal_emit(G_OBJECT(monitor),
+                      _devmon_signals[DEVICE_ADDED], 0, device);
     }
     else
     {
@@ -380,53 +410,49 @@ static void _devmon_volume_changed(GVolumeMonitor *volume_monitor,
             return;
 
         // the device changed
-        g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_CHANGED], 0, device);
+        g_signal_emit(G_OBJECT(monitor),
+                      _devmon_signals[DEVICE_CHANGED], 0, device);
     }
 }
 
 static void _devmon_volume_removed(GVolumeMonitor *volume_monitor,
-                                   GVolume        *volume,
-                                   DeviceMonitor  *monitor)
+                                   GVolume *volume, DeviceMonitor *monitor)
 {
     e_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
     e_return_if_fail(IS_DEVICE_MONITOR(monitor));
     e_return_if_fail(monitor->volume_monitor == volume_monitor);
     e_return_if_fail(G_IS_VOLUME(volume));
 
-    ThunarDevice *device;
-    GList        *lp;
+    GList *lp = g_list_find(monitor->hidden_volumes, volume);
 
-    // remove the volume
-    lp = g_list_find(monitor->hidden_volumes, volume);
-    if (lp != NULL)
+    if (lp == NULL)
     {
-        // silently drop it
-        monitor->hidden_volumes = g_list_delete_link(monitor->hidden_volumes, lp);
+        ThunarDevice *device = g_hash_table_lookup(monitor->devices, volume);
 
-        // release ref from hidden list
-        g_object_unref(G_OBJECT(volume));
-    }
-    else
-    {
-        // find device
-        device = g_hash_table_lookup(monitor->devices, volume);
-
-        // meh
         e_return_if_fail(IS_THUNARDEVICE(device));
+
         if (device == NULL)
             return;
 
         // the device is not visble for the user
-        g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_REMOVED], 0, device);
+        g_signal_emit(G_OBJECT(monitor),
+                      _devmon_signals[DEVICE_REMOVED], 0, device);
 
-        // drop it
         g_hash_table_remove(monitor->devices, volume);
+
+        return;
     }
+
+    // silently drop it
+    monitor->hidden_volumes = g_list_delete_link(monitor->hidden_volumes,
+                                                 lp);
+
+    // release ref from hidden list
+    g_object_unref(G_OBJECT(volume));
 }
 
 static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
-                                GMount         *mount,
-                                DeviceMonitor  *monitor)
+                                GMount *mount, DeviceMonitor *monitor)
 {
     ThunarDevice     *device;
     GFile            *location;
@@ -449,6 +475,7 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
 
     // volume for this mount
     volume = g_mount_get_volume(mount);
+
     if (volume == NULL)
     {
         location = g_mount_get_root(mount);
@@ -488,7 +515,8 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
         g_hash_table_insert(monitor->devices, g_object_ref(mount), device);
 
         // notify
-        g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_ADDED], 0, device);
+        g_signal_emit(G_OBJECT(monitor),
+                      _devmon_signals[DEVICE_ADDED], 0, device);
     }
     else
     {
@@ -500,7 +528,8 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
             th_device_reload_file(device);
 
             // notify
-            g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_CHANGED], 0, device);
+            g_signal_emit(G_OBJECT(monitor),
+                          _devmon_signals[DEVICE_CHANGED], 0, device);
         }
 
         g_object_unref(volume);
@@ -508,8 +537,7 @@ static void _devmon_mount_added(GVolumeMonitor *volume_monitor,
 }
 
 static void _devmon_mount_changed(GVolumeMonitor *volume_monitor,
-                                  GMount         *mount,
-                                  DeviceMonitor  *monitor)
+                                  GMount *mount, DeviceMonitor *monitor)
 {
     e_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
     e_return_if_fail(IS_DEVICE_MONITOR(monitor));
@@ -517,54 +545,52 @@ static void _devmon_mount_changed(GVolumeMonitor *volume_monitor,
     e_return_if_fail(G_IS_MOUNT(mount));
 
     // check if we have a device for this mount
-    ThunarDevice *device;
-    device = g_hash_table_lookup(monitor->devices, mount);
-    if (device != NULL)
-    {
-        // notify
-        g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_CHANGED], 0, device);
-    }
+    ThunarDevice *device = g_hash_table_lookup(monitor->devices, mount);
+
+    if (device == NULL)
+        return;
+
+    // notify
+    g_signal_emit(G_OBJECT(monitor),
+                  _devmon_signals[DEVICE_CHANGED], 0, device);
 }
 
 static void _devmon_mount_pre_unmount(GVolumeMonitor *volume_monitor,
-                                      GMount         *mount,
-                                      DeviceMonitor  *monitor)
+                                      GMount *mount, DeviceMonitor *monitor)
 {
     e_return_if_fail(G_IS_VOLUME_MONITOR(volume_monitor));
     e_return_if_fail(IS_DEVICE_MONITOR(monitor));
     e_return_if_fail(monitor->volume_monitor == volume_monitor);
     e_return_if_fail(G_IS_MOUNT(mount));
 
-    // check if we have a device for this mount
-    ThunarDevice *device;
-    device = g_hash_table_lookup(monitor->devices, mount);
+    ThunarDevice *device = g_hash_table_lookup(monitor->devices, mount);
+
     if (device == NULL)
     {
         // maybe a volume device?
-        GVolume      *volume;
-        volume = g_mount_get_volume(mount);
+
+        GVolume *volume = g_mount_get_volume(mount);
         if (volume != NULL)
         {
             device = g_hash_table_lookup(monitor->devices, volume);
             g_object_unref(volume);
         }
+
+        if (device == NULL)
+            return;
     }
 
-    if (device != NULL)
-    {
-        // notify
-        GFile        *root_file;
-        root_file = g_mount_get_root(mount);
-        g_signal_emit(G_OBJECT(monitor),
-                       _devmon_signals[DEVICE_PRE_UNMOUNT],
-                       0, device, root_file);
-        g_object_unref(root_file);
-    }
+    // notify
+    GFile *root_file = g_mount_get_root(mount);
+
+    g_signal_emit(G_OBJECT(monitor),
+                   _devmon_signals[DEVICE_PRE_UNMOUNT], 0, device, root_file);
+
+    g_object_unref(root_file);
 }
 
 static void _devmon_mount_removed(GVolumeMonitor *volume_monitor,
-                                  GMount         *mount,
-                                  DeviceMonitor  *monitor)
+                                  GMount *mount, DeviceMonitor *monitor)
 {
     ThunarDevice *device;
     GVolume      *volume;
@@ -577,54 +603,42 @@ static void _devmon_mount_removed(GVolumeMonitor *volume_monitor,
 
     // check if we have a device for this mount
     device = g_hash_table_lookup(monitor->devices, mount);
-    if (device != NULL)
-    {
-        // notify
-        g_signal_emit(G_OBJECT(monitor),_devmon_signals[DEVICE_REMOVED], 0, device);
-
-        // drop it
-        g_hash_table_remove(monitor->devices, mount);
-    }
-    else
+    if (device == NULL)
     {
         // maybe a mount was removed from a known volume, gphoto2 does this
         volume = g_mount_get_volume(mount);
-        if (volume != NULL)
-        {
-            device = g_hash_table_lookup(monitor->devices, volume);
-            if (device != NULL)
-            {
-                // we can't get the file from the volume at this point so provide it
-                root_file = g_mount_get_root(mount);
-                g_signal_emit(G_OBJECT(monitor),
-                               _devmon_signals[DEVICE_PRE_UNMOUNT], 0,
-                               device, root_file);
-                g_object_unref(root_file);
-            }
+        if (volume == NULL)
+            return;
 
+        device = g_hash_table_lookup(monitor->devices, volume);
+        if (device == NULL)
+        {
             g_object_unref(volume);
+
+            return;
         }
+
+        // we can't get the file from the volume at this point so provide it
+        root_file = g_mount_get_root(mount);
+
+        g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_PRE_UNMOUNT],
+                      0, device, root_file);
+
+        g_object_unref(root_file);
+
+        g_object_unref(volume);
+
+        return;
     }
+
+    g_signal_emit(G_OBJECT(monitor),
+                  _devmon_signals[DEVICE_REMOVED], 0, device);
+
+    g_hash_table_remove(monitor->devices, mount);
 }
+
 
 // Public ---------------------------------------------------------------------
-
-DeviceMonitor* devmon_get()
-{
-    static DeviceMonitor *monitor = NULL;
-
-    if (monitor == NULL)
-    {
-        monitor = g_object_new(TYPE_DEVICE_MONITOR, NULL);
-        g_object_add_weak_pointer(G_OBJECT(monitor), (gpointer) &monitor);
-    }
-    else
-    {
-        g_object_ref(G_OBJECT(monitor));
-    }
-
-    return monitor;
-}
 
 GList* devmon_get_devices(DeviceMonitor *monitor)
 {
@@ -637,7 +651,8 @@ GList* devmon_get_devices(DeviceMonitor *monitor)
     return list;
 }
 
-static void _devmon_list_prepend(gpointer key, gpointer value, gpointer user_data)
+static void _devmon_list_prepend(gpointer key,
+                                 gpointer value, gpointer user_data)
 {
     e_return_if_fail(IS_THUNARDEVICE(value));
 
@@ -647,37 +662,39 @@ static void _devmon_list_prepend(gpointer key, gpointer value, gpointer user_dat
     *list = g_list_prepend(*list, g_object_ref(value));
 }
 
-void devmon_set_hidden(DeviceMonitor *monitor, ThunarDevice *device,
-                       gboolean hidden)
+void devmon_set_hidden(DeviceMonitor *monitor,
+                       ThunarDevice *device, gboolean hidden)
 {
-    gchar  *id;
-    gchar **devices;
-    guint   length;
-    guint   n;
-    guint   pos;
-
     e_return_if_fail(IS_DEVICE_MONITOR(monitor));
     e_return_if_fail(IS_THUNARDEVICE(device));
 
+    gchar  *id;
     id = th_device_get_identifier(device);
     if (id == NULL)
         return;
 
     // update device
     g_object_set(G_OBJECT(device), "hidden", hidden, NULL);
-    g_signal_emit(G_OBJECT(monitor), _devmon_signals[DEVICE_CHANGED], 0, device);
+    g_signal_emit(G_OBJECT(monitor),
+                  _devmon_signals[DEVICE_CHANGED], 0, device);
 
     // update the device list
-    length = monitor->hidden_devices != NULL ? g_strv_length(monitor->hidden_devices) : 0;
+    guint   length;
+    length = monitor->hidden_devices != NULL
+                    ? g_strv_length(monitor->hidden_devices) : 0;
+    gchar **devices;
     devices = g_new0(gchar *, length + 2);
-    pos = 0;
+
+    guint pos = 0;
 
     // copy other identifiers in the new list
     if (monitor->hidden_devices != NULL)
     {
-        for(n = 0; monitor->hidden_devices[n] != NULL; n++)
+        for (guint n = 0; monitor->hidden_devices[n] != NULL; n++)
+        {
             if (g_strcmp0(monitor->hidden_devices[n], id) != 0)
                 devices[pos++] = g_strdup(monitor->hidden_devices[n]);
+        }
     }
 
     // add the new identifiers if it should hide

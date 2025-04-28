@@ -47,8 +47,8 @@ static void _dnd_action_selected(GtkWidget *item,
  *
  * Return value: the selected #GdkDragAction or 0 to cancel.
  **/
-GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder, GList *path_list,
-                      GdkDragAction dnd_actions)
+GdkDragAction dnd_ask(GtkWidget *widget, ThunarFile *folder,
+                      GList *path_list, GdkDragAction dnd_actions)
 {
     static const GdkDragAction dnd_action_items[] = {GDK_ACTION_COPY,
                                                      GDK_ACTION_MOVE,
@@ -208,7 +208,8 @@ gboolean dnd_perform(GtkWidget *widget, ThunarFile *file, GList *file_list,
     else if (th_file_is_executable(file))
     {
         // TODO any chance to determine the working dir here?
-        succeed = th_file_execute(file, NULL, widget, file_list, NULL, &error);
+        succeed = th_file_execute(file,
+                                  NULL, widget, file_list, NULL, &error);
         if (!succeed)
         {
             // display an error to the user

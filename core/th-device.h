@@ -25,11 +25,12 @@ G_BEGIN_DECLS
 
 // ThunarDevice ---------------------------------------------------------------
 
-typedef struct _ThunarDeviceClass ThunarDeviceClass;
 typedef struct _ThunarDevice      ThunarDevice;
+typedef struct _ThunarDeviceClass ThunarDeviceClass;
 typedef enum   _ThunarDeviceKind  ThunarDeviceKind;
 
-typedef void (*ThunarDeviceCallback) (ThunarDevice *device, const GError *error,
+typedef void (*ThunarDeviceCallback) (ThunarDevice *device,
+                                      const GError *error,
                                       gpointer user_data);
 
 enum _ThunarDeviceKind
@@ -40,6 +41,7 @@ enum _ThunarDeviceKind
 };
 
 #define TYPE_THUNARDEVICE (th_device_get_type())
+
 #define THUNARDEVICE(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARDEVICE, ThunarDevice))
 #define THUNARDEVICE_CLASS(klass) \

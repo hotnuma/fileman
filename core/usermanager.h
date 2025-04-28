@@ -30,10 +30,11 @@ typedef struct _ThunarUser  ThunarUser;
 
 // User Manager ---------------------------------------------------------------
 
-typedef struct _UserManagerClass UserManagerClass;
 typedef struct _UserManager      UserManager;
+typedef struct _UserManagerClass UserManagerClass;
 
 #define TYPE_USERMANAGER (usermanager_get_type())
+
 #define USERMANAGER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_USERMANAGER, UserManager))
 #define USERMANAGER_CLASS(klass) \

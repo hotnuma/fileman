@@ -25,8 +25,8 @@
 
 G_BEGIN_DECLS
 
-typedef struct _DeviceMonitorClass DeviceMonitorClass;
 typedef struct _DeviceMonitor      DeviceMonitor;
+typedef struct _DeviceMonitorClass DeviceMonitorClass;
 
 #define TYPE_DEVICE_MONITOR (devmon_get_type())
 #define DEVICE_MONITOR(obj) \

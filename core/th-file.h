@@ -20,10 +20,10 @@
 #ifndef __TH_FILE_H__
 #define __TH_FILE_H__
 
-#include <gtk/gtk.h>
-#include "usermanager.h"
 #include "fileinfo.h"
+#include "usermanager.h"
 #include "enumtypes.h"
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
@@ -51,6 +51,7 @@ typedef struct _ThunarFileClass ThunarFileClass;
 GType th_file_get_type() G_GNUC_CONST;
 
 #define TYPE_THUNARFILE (th_file_get_type())
+
 #define THUNARFILE(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_THUNARFILE, ThunarFile))
 #define THUNARFILE_CLASS(klass) \

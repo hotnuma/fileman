@@ -20,8 +20,8 @@
 #include "config.h"
 #include "th-folder.h"
 
-#include "filemonitor.h"
 #include "io-jobs.h"
+#include "filemonitor.h"
 #include "gio-ext.h"
 
 #define DEBUG_FILE_CHANGES FALSE
@@ -88,17 +88,6 @@ enum
 
 static guint _th_folder_signals[LAST_SIGNAL];
 
-struct _ThunarFolderClass
-{
-    GObjectClass __parent__;
-
-    // signals
-    void (*destroy)       (ThunarFolder *folder);
-    void (*error)         (ThunarFolder *folder, const GError *error);
-    void (*files_added)   (ThunarFolder *folder, GList *files);
-    void (*files_removed) (ThunarFolder *folder, GList *files);
-};
-
 struct _ThunarFolder
 {
     GObject     __parent__;
@@ -119,6 +108,17 @@ struct _ThunarFolder
     gchar       *monitor_uri;
     GFileMonitor *gfilemonitor;
     FileMonitor *monitor;
+};
+
+struct _ThunarFolderClass
+{
+    GObjectClass __parent__;
+
+    // signals
+    void (*destroy)       (ThunarFolder *folder);
+    void (*error)         (ThunarFolder *folder, const GError *error);
+    void (*files_added)   (ThunarFolder *folder, GList *files);
+    void (*files_removed) (ThunarFolder *folder, GList *files);
 };
 
 G_DEFINE_TYPE(ThunarFolder, th_folder, G_TYPE_OBJECT)
@@ -157,7 +157,9 @@ static void th_folder_class_init(ThunarFolderClass *klass)
     _th_folder_signals[DESTROY] =
         g_signal_new(I_("destroy"),
                      G_TYPE_FROM_CLASS(gobject_class),
-                     G_SIGNAL_RUN_CLEANUP | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                     G_SIGNAL_RUN_CLEANUP
+                     | G_SIGNAL_NO_RECURSE
+                     | G_SIGNAL_NO_HOOKS,
                      G_STRUCT_OFFSET(ThunarFolderClass, destroy),
                      NULL, NULL,
                      g_cclosure_marshal_VOID__VOID,
