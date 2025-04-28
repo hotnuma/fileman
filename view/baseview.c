@@ -249,7 +249,8 @@ gboolean baseview_get_visible_range(BaseView  *view,
 {
     e_return_val_if_fail(THUNAR_IS_VIEW(view), FALSE);
 
-    return BASEVIEW_GET_IFACE(view)->get_visible_range(view, start_file, end_file);
+    return BASEVIEW_GET_IFACE(view)->get_visible_range(view,
+                                                       start_file, end_file);
 }
 
 /**

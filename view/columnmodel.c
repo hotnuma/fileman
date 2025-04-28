@@ -30,8 +30,8 @@ static void colmodel_finalize(GObject *object);
 static GtkTreeModelFlags colmodel_get_flags(GtkTreeModel *tree_model);
 static gint colmodel_get_n_columns(GtkTreeModel *tree_model);
 static GType colmodel_get_column_type(GtkTreeModel *tree_model, gint idx);
-static gboolean colmodel_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
-                                  GtkTreePath *path);
+static gboolean colmodel_get_iter(GtkTreeModel *tree_model,
+                                  GtkTreeIter *iter, GtkTreePath *path);
 static GtkTreePath *colmodel_get_path(GtkTreeModel *tree_model,
                                       GtkTreeIter *iter);
 static void colmodel_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
@@ -39,13 +39,15 @@ static void colmodel_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
 static gboolean colmodel_iter_next(GtkTreeModel *tree_model,
                                    GtkTreeIter *iter);
 static gboolean colmodel_iter_children(GtkTreeModel *tree_model,
-                                       GtkTreeIter *iter, GtkTreeIter *parent);
+                                       GtkTreeIter *iter,
+                                       GtkTreeIter *parent);
 static gboolean colmodel_iter_has_child(GtkTreeModel *tree_model,
                                         GtkTreeIter *iter);
 static gint colmodel_iter_n_children(GtkTreeModel *tree_model,
                                      GtkTreeIter *iter);
 static gboolean colmodel_iter_nth_child(GtkTreeModel *tree_model,
-                                        GtkTreeIter *iter, GtkTreeIter *parent,
+                                        GtkTreeIter *iter,
+                                        GtkTreeIter *parent,
                                         gint n);
 static gboolean colmodel_iter_parent(GtkTreeModel *tree_model,
                                      GtkTreeIter *iter, GtkTreeIter *child);
@@ -59,7 +61,7 @@ static void _colmodel_save_column_widths(ColumnModel *column_model);
 static void _colmodel_load_visible_columns(ColumnModel *column_model);
 static void _colmodel_save_visible_columns(ColumnModel *column_model);
 
-// Public ---------------------------------------------------------------------
+// public ---------------------------------------------------------------------
 
 // colmodel_set_column_width
 static gboolean _colmodel_set_column_width_timer(gpointer user_data);
@@ -73,13 +75,6 @@ enum
 };
 
 static guint _colmodel_signals[LAST_SIGNAL];
-
-struct _ColumnModelClass
-{
-    GObjectClass __parent__;
-
-    void (*columns_changed) (ColumnModel *column_model);
-};
 
 struct _ColumnModel
 {
@@ -99,6 +94,13 @@ struct _ColumnModel
     gboolean        visible[THUNAR_N_VISIBLE_COLUMNS];
     gint            width[THUNAR_N_VISIBLE_COLUMNS];
     guint           save_width_timer_id;
+};
+
+struct _ColumnModelClass
+{
+    GObjectClass __parent__;
+
+    void (*columns_changed) (ColumnModel *column_model);
 };
 
 G_DEFINE_TYPE_WITH_CODE(ColumnModel,
@@ -211,8 +213,8 @@ static GType colmodel_get_column_type(GtkTreeModel *tree_model, gint idx)
     return G_TYPE_INVALID;
 }
 
-static gboolean colmodel_get_iter(GtkTreeModel *tree_model, GtkTreeIter *iter,
-                                      GtkTreePath *path)
+static gboolean colmodel_get_iter(GtkTreeModel *tree_model,
+                                  GtkTreeIter *iter, GtkTreePath *path)
 {
     ColumnModel *column_model = COLUMN_MODEL(tree_model);
     e_return_val_if_fail(IS_COLUMN_MODEL(column_model), FALSE);
@@ -234,14 +236,16 @@ static GtkTreePath* colmodel_get_path(GtkTreeModel *tree_model,
                                           GtkTreeIter *iter)
 {
     e_return_val_if_fail(IS_COLUMN_MODEL(tree_model), NULL);
-    e_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, NULL);
+    e_return_val_if_fail(iter->stamp
+                         == COLUMN_MODEL(tree_model)->stamp, NULL);
 
     // generate the path for the iterator
-    return gtk_tree_path_new_from_indices(GPOINTER_TO_INT(iter->user_data), -1);
+    return gtk_tree_path_new_from_indices(
+                GPOINTER_TO_INT(iter->user_data), -1);
 }
 
-static void colmodel_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
-                                   gint idx, GValue *value)
+static void colmodel_get_value(GtkTreeModel *tree_model,
+                               GtkTreeIter *iter, gint idx, GValue *value)
 {
     ColumnModel *column_model = COLUMN_MODEL(tree_model);
     e_return_if_fail(IS_COLUMN_MODEL(column_model));
@@ -259,7 +263,9 @@ static void colmodel_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
     {
     case COLUMN_MODEL_COLUMN_NAME:
         g_value_init(value, G_TYPE_STRING);
-        g_value_set_static_string(value, colmodel_get_column_name(column_model, column));
+        g_value_set_static_string(value,
+                                  colmodel_get_column_name(column_model,
+                                                           column));
         break;
 
     case COLUMN_MODEL_COLUMN_MUTABLE:
@@ -269,7 +275,9 @@ static void colmodel_get_value(GtkTreeModel *tree_model, GtkTreeIter *iter,
 
     case COLUMN_MODEL_COLUMN_VISIBLE:
         g_value_init(value, G_TYPE_BOOLEAN);
-        g_value_set_boolean(value, colmodel_get_column_visible(column_model, column));
+        g_value_set_boolean(value,
+                            colmodel_get_column_visible(column_model,
+                                                        column));
         break;
 
     default:
@@ -284,7 +292,8 @@ static gboolean colmodel_iter_next(GtkTreeModel *tree_model,
     ThunarColumn column;
 
     e_return_val_if_fail(IS_COLUMN_MODEL(tree_model), FALSE);
-    e_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp, FALSE);
+    e_return_val_if_fail(iter->stamp == COLUMN_MODEL(tree_model)->stamp,
+                         FALSE);
 
     // move the iterator to the next column
     column = GPOINTER_TO_INT(iter->user_data) + 1;
@@ -366,9 +375,12 @@ static void _colmodel_load_column_order(ColumnModel *column_model)
     gint         i, j;
 
     // determine the column order from the preferences
-    gchar       *tmp = g_strdup("THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_SIZE_IN_BYTES,THUNAR_COLUMN_TYPE,THUNAR_COLUMN_DATE_MODIFIED");
+    gchar *tmp = g_strdup("THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,"
+                          "THUNAR_COLUMN_SIZE_IN_BYTES,THUNAR_COLUMN_TYPE,"
+                          "THUNAR_COLUMN_DATE_MODIFIED");
 
-    //g_object_get(G_OBJECT(column_model->preferences), "last-details-view-column-order", &tmp, NULL);
+    //g_object_get(G_OBJECT(column_model->preferences),
+    //             "last-details-view-column-order", &tmp, NULL);
 
     column_order = g_strsplit(tmp, ",", -1);
     g_free(tmp);
@@ -507,7 +519,8 @@ static void _colmodel_save_column_widths(ColumnModel *column_model)
         if (n == THUNAR_COLUMN_NAME)
             g_string_append_printf(column_widths, "-1");
         else
-            g_string_append_printf(column_widths, "%d", column_model->width[n]);
+            g_string_append_printf(column_widths, "%d",
+                                   column_model->width[n]);
     }
 
     Preferences *prefs = get_preferences();
@@ -540,7 +553,9 @@ static void _colmodel_load_visible_columns(ColumnModel *column_model)
     gint        n;
 
     // determine the list of visible columns from the preferences
-    gchar *tmp = g_strdup("THUNAR_COLUMN_DATE_MODIFIED,THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,THUNAR_COLUMN_TYPE");
+    gchar *tmp = g_strdup("THUNAR_COLUMN_DATE_MODIFIED,"
+                          "THUNAR_COLUMN_NAME,THUNAR_COLUMN_SIZE,"
+                          "THUNAR_COLUMN_TYPE");
 
     // g_object_get(G_OBJECT(column_model->preferences),
     //      "last-details-view-visible-columns", &tmp, NULL);
@@ -581,7 +596,7 @@ static void _colmodel_save_visible_columns(ColumnModel *column_model)
 
     // transform the internal visible column list
     klass = g_type_class_ref(THUNAR_TYPE_COLUMN);
-    for(n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
+    for (n = 0; n < THUNAR_N_VISIBLE_COLUMNS; ++n)
         if (column_model->visible[klass->values[n].value])
         {
             // append a comma if not empty
@@ -591,6 +606,7 @@ static void _colmodel_save_visible_columns(ColumnModel *column_model)
             // append the enum value name
             g_string_append(visible_columns, klass->values[n].value_name);
         }
+
     g_type_class_unref(klass);
 
     // save the list of visible columns
@@ -621,7 +637,8 @@ ColumnModel* colmodel_get_default()
     if (column_model == NULL)
     {
         column_model = g_object_new(TYPE_COLUMN_MODEL, NULL);
-        g_object_add_weak_pointer(G_OBJECT(column_model),(gpointer) &column_model);
+        g_object_add_weak_pointer(G_OBJECT(column_model),
+                                  (gpointer) &column_model);
     }
     else
     {
@@ -645,7 +662,8 @@ void colmodel_exchange(ColumnModel *column_model,
 
     // swap the columns
     column = column_model->order[GPOINTER_TO_INT(iter1->user_data)];
-    column_model->order[GPOINTER_TO_INT(iter1->user_data)] = column_model->order[GPOINTER_TO_INT(iter2->user_data)];
+    column_model->order[GPOINTER_TO_INT(iter1->user_data)] =
+            column_model->order[GPOINTER_TO_INT(iter2->user_data)];
     column_model->order[GPOINTER_TO_INT(iter2->user_data)] = column;
 
     // initialize the new order array
@@ -653,16 +671,20 @@ void colmodel_exchange(ColumnModel *column_model,
         new_order[n] = n;
 
     // perform the swapping on the new order array
-    new_order[GPOINTER_TO_INT(iter1->user_data)] = GPOINTER_TO_INT(iter2->user_data);
-    new_order[GPOINTER_TO_INT(iter2->user_data)] = GPOINTER_TO_INT(iter1->user_data);
+    new_order[GPOINTER_TO_INT(iter1->user_data)] =
+            GPOINTER_TO_INT(iter2->user_data);
+    new_order[GPOINTER_TO_INT(iter2->user_data)] =
+            GPOINTER_TO_INT(iter1->user_data);
 
     // emit "rows-reordered"
     path = gtk_tree_path_new();
-    gtk_tree_model_rows_reordered(GTK_TREE_MODEL(column_model), path, NULL, new_order);
+    gtk_tree_model_rows_reordered(GTK_TREE_MODEL(column_model),
+                                  path, NULL, new_order);
     gtk_tree_path_free(path);
 
     // emit "columns-changed"
-    g_signal_emit(G_OBJECT(column_model), _colmodel_signals[COLUMNS_CHANGED], 0);
+    g_signal_emit(G_OBJECT(column_model),
+                  _colmodel_signals[COLUMNS_CHANGED], 0);
 
     // save the new column order
     _colmodel_save_column_order(column_model);
@@ -749,13 +771,16 @@ void colmodel_set_column_visible(ColumnModel  *column_model,
         // emit "row-changed"
         path = gtk_tree_path_new_from_indices(column, -1);
 
-        if (gtk_tree_model_get_iter(GTK_TREE_MODEL(column_model), &iter, path))
-            gtk_tree_model_row_changed(GTK_TREE_MODEL(column_model), path, &iter);
+        if (gtk_tree_model_get_iter(GTK_TREE_MODEL(column_model),
+                                    &iter, path))
+            gtk_tree_model_row_changed(GTK_TREE_MODEL(column_model),
+                                       path, &iter);
 
         gtk_tree_path_free(path);
 
         // emit "columns-changed"
-        g_signal_emit(G_OBJECT(column_model), _colmodel_signals[COLUMNS_CHANGED], 0);
+        g_signal_emit(G_OBJECT(column_model),
+                      _colmodel_signals[COLUMNS_CHANGED], 0);
 
         // save the list of visible columns
         _colmodel_save_visible_columns(column_model);
@@ -770,28 +795,28 @@ gint colmodel_get_column_width(ColumnModel *column_model, ThunarColumn column)
     return column_model->width[column];
 }
 
-void colmodel_set_column_width(ColumnModel *column_model, ThunarColumn column,
-                               gint width)
+void colmodel_set_column_width(ColumnModel *column_model,
+                               ThunarColumn column, gint width)
 {
     e_return_if_fail(IS_COLUMN_MODEL(column_model));
     e_return_if_fail(column < THUNAR_N_VISIBLE_COLUMNS);
     e_return_if_fail(width >= 0);
 
     // check if we have a new width
-    if (column_model->width[column] != width)
-    {
-        // apply the new value
-        column_model->width[column] = width;
+    if (column_model->width[column] == width)
+        return;
 
-        // store the settings...
-        if (column_model->save_width_timer_id != 0)
-            g_source_remove(column_model->save_width_timer_id);
+    // apply the new value
+    column_model->width[column] = width;
 
-        // ... asynchronously and only once to not overload xfconf
-        column_model->save_width_timer_id = g_timeout_add(1000,
-                                            _colmodel_set_column_width_timer,
-                                            column_model);
-    }
+    // store the settings...
+    if (column_model->save_width_timer_id != 0)
+        g_source_remove(column_model->save_width_timer_id);
+
+    // ... asynchronously and only once to not overload xfconf
+    column_model->save_width_timer_id = g_timeout_add(1000,
+                                        _colmodel_set_column_width_timer,
+                                        column_model);
 }
 
 static gboolean _colmodel_set_column_width_timer(gpointer user_data)

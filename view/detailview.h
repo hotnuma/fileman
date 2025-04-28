@@ -31,10 +31,11 @@ typedef enum
 
 // DetailView -----------------------------------------------------------------
 
-typedef struct _DetailViewClass DetailViewClass;
 typedef struct _DetailView      DetailView;
+typedef struct _DetailViewClass DetailViewClass;
 
 #define TYPE_DETAILVIEW (detailview_get_type())
+
 #define DETAILVIEW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_DETAILVIEW, DetailView))
 #define DETAILVIEW_CLASS(klass) \

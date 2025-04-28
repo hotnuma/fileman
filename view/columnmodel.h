@@ -37,8 +37,8 @@ typedef enum
 
 // ColumnModel ----------------------------------------------------------------
 
-typedef struct _ColumnModelClass ColumnModelClass;
 typedef struct _ColumnModel      ColumnModel;
+typedef struct _ColumnModelClass ColumnModelClass;
 
 #define TYPE_COLUMN_MODEL (colmodel_get_type())
 
@@ -58,20 +58,20 @@ GType colmodel_get_type() G_GNUC_CONST;
 ColumnModel* colmodel_get_default();
 
 void colmodel_exchange(ColumnModel *column_model,
-                           GtkTreeIter *iter1, GtkTreeIter *iter2);
+                       GtkTreeIter *iter1, GtkTreeIter *iter2);
 ThunarColumn colmodel_get_column_for_iter(ColumnModel *column_model,
-                                              GtkTreeIter *iter);
+                                          GtkTreeIter *iter);
 const ThunarColumn* colmodel_get_column_order(ColumnModel *column_model);
 const gchar* colmodel_get_column_name(ColumnModel *column_model,
-                                          ThunarColumn column);
+                                      ThunarColumn column);
 gboolean colmodel_get_column_visible(ColumnModel *column_model,
-                                         ThunarColumn column);
+                                     ThunarColumn column);
 void colmodel_set_column_visible(ColumnModel *column_model,
-                                     ThunarColumn column, gboolean visible);
+                                 ThunarColumn column, gboolean visible);
 gint colmodel_get_column_width(ColumnModel *column_model,
-                                   ThunarColumn column);
+                               ThunarColumn column);
 void colmodel_set_column_width(ColumnModel *column_model,
-                                   ThunarColumn column, gint width);
+                               ThunarColumn column, gint width);
 
 G_END_DECLS
 

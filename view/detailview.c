@@ -73,7 +73,7 @@ static void detailview_disconnect_accelerators(StandardView *standard_view,
 // Events ---------------------------------------------------------------------
 
 static void _detailview_zoom_level_changed(DetailView *details_view);
-static gboolean _detailview_zoom_level_changed_reload_fixed_columns(gpointer data);
+static gboolean _detailview_zoom_reload(gpointer data);
 static void _detailview_notify_model(GtkTreeView *tree_view,
                                      GParamSpec *pspec,
                                      DetailView *details_view);
@@ -120,17 +120,12 @@ static XfceGtkActionEntry _detailview_actions[] =
 
 #define get_action_entry(id) \
     xfce_gtk_get_action_entry_by_id(_detailview_actions, \
-                                    G_N_ELEMENTS(_detailview_actions), \
-                                    id)
+                                    G_N_ELEMENTS(_detailview_actions), id)
+
 enum
 {
     PROP_0,
     PROP_FIXED_COLUMNS,
-};
-
-struct _DetailViewClass
-{
-    StandardViewClass __parent__;
 };
 
 struct _DetailView
@@ -144,36 +139,41 @@ struct _DetailView
     // whether the most recent item activation used a mouse button press
     gboolean        button_pressed;
 
-    // event source id for thunar_details_view_zoom_level_changed_reload_fixed_columns
+    // event source id for _detailview_zoom_reload
     guint           idle_id;
+};
+
+struct _DetailViewClass
+{
+    StandardViewClass __parent__;
 };
 
 G_DEFINE_TYPE(DetailView, detailview, TYPE_STANDARD_VIEW)
 
 static void detailview_class_init(DetailViewClass *klass)
 {
-    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-    gobject_class->finalize = detailview_finalize;
-    gobject_class->get_property = detailview_get_property;
-    gobject_class->set_property = detailview_set_property;
+    GObjectClass *object_class = G_OBJECT_CLASS(klass);
+    object_class->finalize = detailview_finalize;
+    object_class->get_property = detailview_get_property;
+    object_class->set_property = detailview_set_property;
 
-    GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
-    gtkwidget_class->get_accessible = detailview_get_accessible;
+    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+    widget_class->get_accessible = detailview_get_accessible;
 
-    StandardViewClass *standardview_class = STANDARD_VIEW_CLASS(klass);
-    standardview_class->get_selected_items = detailview_get_selected_items;
-    standardview_class->select_all = detailview_select_all;
-    standardview_class->unselect_all = detailview_unselect_all;
-    standardview_class->selection_invert = detailview_selection_invert;
-    standardview_class->select_path = detailview_select_path;
-    standardview_class->set_cursor = detailview_set_cursor;
-    standardview_class->scroll_to_path = detailview_scroll_to_path;
-    standardview_class->get_path_at_pos = detailview_get_path_at_pos;
-    standardview_class->get_visible_range = detailview_get_visible_range;
-    standardview_class->highlight_path = detailview_highlight_path;
-    standardview_class->connect_accelerators = detailview_connect_accelerators;
-    standardview_class->disconnect_accelerators = detailview_disconnect_accelerators;
-    standardview_class->zoom_level_property_name = "last-details-view-zoom-level";
+    StandardViewClass *view_class = STANDARD_VIEW_CLASS(klass);
+    view_class->get_selected_items = detailview_get_selected_items;
+    view_class->select_all = detailview_select_all;
+    view_class->unselect_all = detailview_unselect_all;
+    view_class->selection_invert = detailview_selection_invert;
+    view_class->select_path = detailview_select_path;
+    view_class->set_cursor = detailview_set_cursor;
+    view_class->scroll_to_path = detailview_scroll_to_path;
+    view_class->get_path_at_pos = detailview_get_path_at_pos;
+    view_class->get_visible_range = detailview_get_visible_range;
+    view_class->highlight_path = detailview_highlight_path;
+    view_class->connect_accelerators = detailview_connect_accelerators;
+    view_class->disconnect_accelerators = detailview_disconnect_accelerators;
+    view_class->zoom_level_property_name = "last-details-view-zoom-level";
 
     //standardview_class->append_menu_items = detailview_append_menu_items;
 
@@ -181,7 +181,7 @@ static void detailview_class_init(DetailViewClass *klass)
                                       G_N_ELEMENTS(_detailview_actions));
 
     // fixed-columns
-    g_object_class_install_property(gobject_class,
+    g_object_class_install_property(object_class,
                                     PROP_FIXED_COLUMNS,
                                     g_param_spec_boolean(
                                         "fixed-columns",
@@ -280,15 +280,25 @@ static void detailview_init(DetailView *details_view)
 
             // add the name renderer
             g_object_set(G_OBJECT(STANDARD_VIEW(details_view)->name_renderer),
-                          "xalign", 0.0, "ellipsize", PANGO_ELLIPSIZE_END, "width-chars", 30, NULL);
-            gtk_tree_view_column_pack_start(details_view->columns[column], STANDARD_VIEW(details_view)->name_renderer, TRUE);
-            gtk_tree_view_column_set_attributes(details_view->columns[column], STANDARD_VIEW(details_view)->name_renderer,
-                                                 "text", THUNAR_COLUMN_NAME,
-                                                 NULL);
+                         "xalign", 0.0,
+                         "ellipsize", PANGO_ELLIPSIZE_END,
+                         "width-chars", 30,
+                         NULL);
+            gtk_tree_view_column_pack_start(
+                    details_view->columns[column],
+                    STANDARD_VIEW(details_view)->name_renderer,
+                    TRUE);
+            gtk_tree_view_column_set_attributes(
+                    details_view->columns[column],
+                    STANDARD_VIEW(details_view)->name_renderer,
+                    "text", THUNAR_COLUMN_NAME,
+                    NULL);
 
             // add some spacing between the icon and the name
-            gtk_tree_view_column_set_spacing(details_view->columns[column], 2);
-            gtk_tree_view_column_set_expand(details_view->columns[column], TRUE);
+            gtk_tree_view_column_set_spacing(
+                        details_view->columns[column], 2);
+            gtk_tree_view_column_set_expand(
+                        details_view->columns[column], TRUE);
         }
         else
         {
@@ -296,17 +306,19 @@ static void detailview_init(DetailView *details_view)
             GtkCellRenderer *renderer =
                 (column == THUNAR_COLUMN_SIZE
                  || column == THUNAR_COLUMN_SIZE_IN_BYTES)
-                        ? right_aligned_renderer : left_aligned_renderer;
+                    ? right_aligned_renderer : left_aligned_renderer;
 
             // add the renderer
             gtk_tree_view_column_pack_start(details_view->columns[column],
                                             renderer, TRUE);
-            gtk_tree_view_column_set_attributes(details_view->columns[column],
-                                                renderer, "text", column, NULL);
+            gtk_tree_view_column_set_attributes(
+                                        details_view->columns[column],
+                                        renderer, "text", column, NULL);
         }
 
         // append the tree view column to the tree view
-        gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), details_view->columns[column]);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view),
+                                    details_view->columns[column]);
     }
 
     // configure the tree selection
@@ -316,7 +328,8 @@ static void detailview_init(DetailView *details_view)
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
 
     g_signal_connect_swapped(G_OBJECT(selection), "changed",
-                             G_CALLBACK(standardview_selection_changed), details_view);
+                             G_CALLBACK(standardview_selection_changed),
+                             details_view);
 
     // apply the initial column order and visibility from the column model
     _detailview_columns_changed(details_view->column_model, details_view);
@@ -325,12 +338,13 @@ static void detailview_init(DetailView *details_view)
     if (details_view->fixed_columns)
     {
         // apply to all columns
-        for (ThunarColumn column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
+        for (ThunarColumn column = 0;
+             column < THUNAR_N_VISIBLE_COLUMNS; ++column)
         {
             gtk_tree_view_column_set_fixed_width(
                 details_view->columns[column],
                 colmodel_get_column_width(details_view->column_model,
-                                              column));
+                                          column));
         }
     }
 
@@ -342,14 +356,16 @@ static void detailview_init(DetailView *details_view)
 static void detailview_finalize(GObject *object)
 {
     DetailView *details_view = DETAILVIEW(object);
-    ThunarColumn       column;
+    ThunarColumn column;
 
     // release the tree view columns array
     for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
         g_object_unref(G_OBJECT(details_view->columns[column]));
 
     // disconnect from the default column model
-    g_signal_handlers_disconnect_by_func(G_OBJECT(details_view->column_model), _detailview_columns_changed, details_view);
+    g_signal_handlers_disconnect_by_func(G_OBJECT(details_view->column_model),
+                                         _detailview_columns_changed,
+                                         details_view);
     g_object_unref(G_OBJECT(details_view->column_model));
 
     if (details_view->idle_id)
@@ -368,7 +384,8 @@ static void detailview_get_property(GObject *object, guint prop_id,
     switch (prop_id)
     {
     case PROP_FIXED_COLUMNS:
-        g_value_set_boolean(value, _detailview_get_fixed_columns(details_view));
+        g_value_set_boolean(value,
+                            _detailview_get_fixed_columns(details_view));
         break;
 
     default:
@@ -416,7 +433,7 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
     if (details_view->fixed_columns == fixed_columns)
         return;
 
-        // apply the new value
+    // apply the new value
     details_view->fixed_columns = fixed_columns;
 
     // disable in reverse order, otherwise graphical glitches can appear
@@ -432,12 +449,14 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
         if (fixed_columns)
         {
             // apply "width" as "fixed-width" for fixed columns mode
-            gint width;
-            width = gtk_tree_view_column_get_width(details_view->columns[column]);
+            gint width =
+                gtk_tree_view_column_get_width(details_view->columns[column]);
             if (width <= 0)
-                width = colmodel_get_column_width(details_view->column_model, column);
+                width = colmodel_get_column_width(details_view->column_model,
+                                                  column);
 
-            gtk_tree_view_column_set_fixed_width(details_view->columns[column], MAX(width, 1));
+            gtk_tree_view_column_set_fixed_width(
+                        details_view->columns[column], MAX(width, 1));
 
             // set column to fixed width
             gtk_tree_view_column_set_sizing(details_view->columns[column],
@@ -465,7 +484,8 @@ static void _detailview_set_fixed_columns(DetailView *details_view,
 static AtkObject* detailview_get_accessible(GtkWidget *widget)
 {
     // query the atk object for the tree view class
-    AtkObject *object = GTK_WIDGET_CLASS(detailview_parent_class)->get_accessible(widget);
+    AtkObject *object =
+        GTK_WIDGET_CLASS(detailview_parent_class)->get_accessible(widget);
 
     // set custom Atk properties for the details view
     if (object != NULL)
@@ -484,7 +504,8 @@ static GList* detailview_get_selected_items(StandardView *standard_view)
 
     e_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
+    selection = gtk_tree_view_get_selection(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     return gtk_tree_selection_get_selected_rows(selection, NULL);
 }
 
@@ -494,7 +515,8 @@ static void detailview_select_all(StandardView *standard_view)
 
     e_return_if_fail(IS_DETAILVIEW(standard_view));
 
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
+    selection = gtk_tree_view_get_selection(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_select_all(selection);
 }
 
@@ -504,7 +526,8 @@ static void detailview_unselect_all(StandardView *standard_view)
 
     e_return_if_fail(IS_DETAILVIEW(standard_view));
 
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
+    selection = gtk_tree_view_get_selection(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_unselect_all(selection);
 }
 
@@ -517,13 +540,18 @@ static void detailview_selection_invert(StandardView *standard_view)
 
     e_return_if_fail(IS_DETAILVIEW(standard_view));
 
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
+    selection = gtk_tree_view_get_selection(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
 
     // block updates
-    g_signal_handlers_block_by_func(selection, standardview_selection_changed, standard_view);
+    g_signal_handlers_block_by_func(selection,
+                                    standardview_selection_changed,
+                                    standard_view);
 
     // get paths of selected files
-    gtk_tree_selection_selected_foreach(selection, _detailview_selection_invert_foreach, &selected_paths);
+    gtk_tree_selection_selected_foreach(selection,
+                                        _detailview_selection_invert_foreach,
+                                        &selected_paths);
 
     gtk_tree_selection_select_all(selection);
 
@@ -537,7 +565,9 @@ static void detailview_selection_invert(StandardView *standard_view)
     g_list_free(selected_paths);
 
     // unblock updates
-    g_signal_handlers_unblock_by_func(selection, standardview_selection_changed, standard_view);
+    g_signal_handlers_unblock_by_func(selection,
+                                      standardview_selection_changed,
+                                      standard_view);
 
     standardview_selection_changed(STANDARD_VIEW(standard_view));
 }
@@ -555,17 +585,20 @@ static void _detailview_selection_invert_foreach(GtkTreeModel *model,
     *list = g_list_prepend(*list, gtk_tree_path_copy(path));
 }
 
-static void detailview_select_path(StandardView *standard_view, GtkTreePath *path)
+static void detailview_select_path(StandardView *standard_view,
+                                   GtkTreePath *path)
 {
     e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     GtkTreeSelection *selection;
 
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
+    selection = gtk_tree_view_get_selection(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))));
     gtk_tree_selection_select_path(selection, path);
 }
 
-static void detailview_set_cursor(StandardView *standard_view, GtkTreePath *path,
+static void detailview_set_cursor(StandardView *standard_view,
+                                  GtkTreePath *path,
                                   gboolean start_editing)
 {
     GtkCellRendererMode mode;
@@ -574,14 +607,20 @@ static void detailview_set_cursor(StandardView *standard_view, GtkTreePath *path
     e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     // make sure the name renderer is editable
-    g_object_get( G_OBJECT(standard_view->name_renderer), "mode", &mode, NULL);
-    g_object_set( G_OBJECT(standard_view->name_renderer), "mode", GTK_CELL_RENDERER_MODE_EDITABLE, NULL);
+    g_object_get(G_OBJECT(standard_view->name_renderer),
+                 "mode", &mode, NULL);
+    g_object_set(G_OBJECT(standard_view->name_renderer),
+                 "mode", GTK_CELL_RENDERER_MODE_EDITABLE, NULL);
 
     // tell the tree view to start editing the given row
-    column = gtk_tree_view_get_column(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), 0);
-    gtk_tree_view_set_cursor_on_cell(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))),
-                                      path, column, standard_view->name_renderer,
-                                      start_editing);
+    column = gtk_tree_view_get_column(
+            GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), 0);
+
+    gtk_tree_view_set_cursor_on_cell(
+            GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))),
+            path,
+            column, standard_view->name_renderer,
+            start_editing);
 
     // reset the name renderer mode
     g_object_set(G_OBJECT(standard_view->name_renderer), "mode", mode, NULL);
@@ -598,13 +637,15 @@ static void detailview_scroll_to_path(StandardView *standard_view,
     e_return_if_fail(IS_DETAILVIEW(standard_view));
 
     // tell the tree view to scroll to the given row
-    column = gtk_tree_view_get_column(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), 0);
-    gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), path, column, use_align, row_align, col_align);
+    column = gtk_tree_view_get_column(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), 0);
+    gtk_tree_view_scroll_to_cell(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))),
+                path, column, use_align, row_align, col_align);
 }
 
 static GtkTreePath* detailview_get_path_at_pos(StandardView *standard_view,
-                                               gint    x,
-                                               gint    y)
+                                               gint x, gint y)
 {
     GtkTreePath *path;
 
@@ -693,11 +734,11 @@ static void _detailview_zoom_level_changed(DetailView *details_view)
     if (fixed_columns_used)
     {
         // Call when idle to ensure that gtk_tree_view_column_queue_resize got finished
-        details_view->idle_id = gdk_threads_add_idle(_detailview_zoom_level_changed_reload_fixed_columns, details_view);
+        details_view->idle_id = gdk_threads_add_idle(_detailview_zoom_reload, details_view);
     }
 }
 
-static gboolean _detailview_zoom_level_changed_reload_fixed_columns(gpointer data)
+static gboolean _detailview_zoom_reload(gpointer data)
 {
     DetailView *details_view = data;
     e_return_val_if_fail(IS_DETAILVIEW(details_view), FALSE);

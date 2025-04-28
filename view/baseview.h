@@ -26,10 +26,11 @@ G_BEGIN_DECLS
 
 // BaseView -------------------------------------------------------------------
 
-typedef struct _BaseViewIface BaseViewIface;
 typedef struct _BaseView      BaseView;
+typedef struct _BaseViewIface BaseViewIface;
 
 #define TYPE_BASEVIEW (baseview_get_type())
+
 #define BASEVIEW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),      TYPE_BASEVIEW, BaseView))
 #define THUNAR_IS_VIEW(obj) \
