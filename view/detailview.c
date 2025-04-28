@@ -651,7 +651,9 @@ static GtkTreePath* detailview_get_path_at_pos(StandardView *standard_view,
 
     e_return_val_if_fail(IS_DETAILVIEW(standard_view), NULL);
 
-    if (gtk_tree_view_get_dest_row_at_pos(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), x, y, &path, NULL))
+    if (gtk_tree_view_get_dest_row_at_pos(
+            GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))),
+            x, y, &path, NULL))
         return path;
 
     return NULL;
@@ -663,24 +665,24 @@ static gboolean detailview_get_visible_range(StandardView *standard_view,
 {
     e_return_val_if_fail(IS_DETAILVIEW(standard_view), FALSE);
 
-    return gtk_tree_view_get_visible_range(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), start_path, end_path);
+    return gtk_tree_view_get_visible_range(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))),
+                start_path, end_path);
 }
 
 static void detailview_highlight_path(StandardView *standard_view,
                                       GtkTreePath        *path)
 {
     e_return_if_fail(IS_DETAILVIEW(standard_view));
-    gtk_tree_view_set_drag_dest_row(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))), path, GTK_TREE_VIEW_DROP_INTO_OR_AFTER);
+    gtk_tree_view_set_drag_dest_row(
+                GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(standard_view))),
+                path, GTK_TREE_VIEW_DROP_INTO_OR_AFTER);
 }
 
-/**
- * thunar_details_view_connect_accelerators:
- * @standard_view : a #StandardView.
- * @accel_group   : a #GtkAccelGroup to be used used for new menu items
- *
- * Connects all accelerators and corresponding default keys of this widget to the global accelerator list
- * The concrete implementation depends on the concrete widget which is implementing this view
- **/
+/*
+ * Connects all accelerators and corresponding default keys of this widget
+ * to the global accelerator list. The concrete implementation depends on
+ * the concrete widget which is implementing this view */
 static void detailview_connect_accelerators(StandardView  *standard_view,
                                             GtkAccelGroup *accel_group)
 {
@@ -691,10 +693,11 @@ static void detailview_connect_accelerators(StandardView  *standard_view,
     xfce_gtk_accel_map_add_entries(_detailview_actions,
                                    G_N_ELEMENTS(_detailview_actions));
 
-    xfce_gtk_accel_group_connect_action_entries(accel_group,
-                                                _detailview_actions,
-                                                G_N_ELEMENTS(_detailview_actions),
-                                                standard_view);
+    xfce_gtk_accel_group_connect_action_entries(
+                                        accel_group,
+                                        _detailview_actions,
+                                        G_N_ELEMENTS(_detailview_actions),
+                                        standard_view);
 }
 
 static void detailview_disconnect_accelerators(StandardView *standard_view,
@@ -703,12 +706,14 @@ static void detailview_disconnect_accelerators(StandardView *standard_view,
     (void) standard_view;
 
     // Dont listen to the accel keys defined by the action entries any more
-    xfce_gtk_accel_group_disconnect_action_entries(accel_group,
-                                                   _detailview_actions,
-                                                   G_N_ELEMENTS(_detailview_actions));
+    xfce_gtk_accel_group_disconnect_action_entries(
+                                        accel_group,
+                                        _detailview_actions,
+                                        G_N_ELEMENTS(_detailview_actions));
 }
 
-// Events ---------------------------------------------------------------------
+
+// events ---------------------------------------------------------------------
 
 static void _detailview_zoom_level_changed(DetailView *details_view)
 {
@@ -720,12 +725,13 @@ static void _detailview_zoom_level_changed(DetailView *details_view)
     if (details_view->fixed_columns == TRUE)
         fixed_columns_used = TRUE;
 
-    // Disable fixed column mode during resize, since it can generate graphical glitches
+    // disable fixed column mode during resize, since it can generate
+    // graphical glitches
     if (fixed_columns_used)
         _detailview_set_fixed_columns(details_view, FALSE);
 
     // determine the list of tree view columns
-    for(column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
+    for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
     {
         // just queue a resize on this column
         gtk_tree_view_column_queue_resize(details_view->columns[column]);
@@ -733,8 +739,10 @@ static void _detailview_zoom_level_changed(DetailView *details_view)
 
     if (fixed_columns_used)
     {
-        // Call when idle to ensure that gtk_tree_view_column_queue_resize got finished
-        details_view->idle_id = gdk_threads_add_idle(_detailview_zoom_reload, details_view);
+        // call when idle to ensure that gtk_tree_view_column_queue_resize
+        // got finished
+        details_view->idle_id = gdk_threads_add_idle(_detailview_zoom_reload,
+                                                     details_view);
     }
 }
 
@@ -748,14 +756,15 @@ static gboolean _detailview_zoom_reload(gpointer data)
     return FALSE;
 }
 
-static void _detailview_notify_model(GtkTreeView *tree_view, GParamSpec *pspec,
+static void _detailview_notify_model(GtkTreeView *tree_view,
+                                     GParamSpec *pspec,
                                      DetailView *details_view)
 {
     (void) pspec;
     (void) details_view;
+
     /* We need to set the search column here, as GtkTreeView resets it
-     * whenever a new model is set.
-     */
+     * whenever a new model is set. */
     gtk_tree_view_set_search_column(tree_view, THUNAR_COLUMN_NAME);
 }
 
@@ -791,7 +800,9 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
     gtk_tree_view_set_rubber_banding(tree_view, TRUE);
 
     // left click
-    if (path != NULL && event->type == GDK_BUTTON_PRESS && event->button == 1)
+    if (path != NULL
+        && event->type == GDK_BUTTON_PRESS
+        && event->button == 1)
     {
         details_view->button_pressed = TRUE;
 
@@ -845,7 +856,8 @@ static gboolean _detailview_button_press_event(GtkTreeView *tree_view,
         {
             if (column != name_column)
             {
-                // if the clicked path is not selected, unselect all other paths
+                // if the clicked path is not selected, unselect
+                // all other paths
                 if (!gtk_tree_selection_path_is_selected(selection, path))
                     gtk_tree_selection_unselect_all(selection);
 
@@ -920,7 +932,8 @@ static void _detailview_row_activated(GtkTreeView *tree_view,
 
     GtkWidget *window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
     ThunarLauncher *launcher = window_get_launcher(APPWINDOW(window));
-    launcher_activate_selected_files(launcher, LAUNCHER_CHANGE_DIRECTORY, NULL);
+    launcher_activate_selected_files(launcher,
+                                     LAUNCHER_CHANGE_DIRECTORY, NULL);
 
     // FOCUS
     gtk_widget_grab_focus(GTK_WIDGET(tree_view));
@@ -930,13 +943,13 @@ static gboolean _detailview_select_cursor_row(GtkTreeView *tree_view,
                                               gboolean editing,
                                               DetailView *details_view)
 {
-    /* This function is a work-around to fix bug #2487. The default gtk handler for
-     * the "select-cursor-row" signal changes the selection to just the cursor row,
-     * which prevents multiple file selections being opened. Thus we bypass the gtk
-     * signal handler with g_signal_stop_emission_by_name, and emit the "open" action
-     * directly. A better long-term solution would be to fix exo to avoid using the
-     * default gtk signal handler there.
-     */
+    /* This function is a work-around to fix bug #2487.
+     * The default gtk handler for the "select-cursor-row" signal changes
+     * the selection to just the cursor row, which prevents multiple file
+     * selections being opened. Thus we bypass the gtk signal handler
+     * with g_signal_stop_emission_by_name, and emit the "open" action
+     * directly. A better long-term solution would be to fix exo to avoid
+     * using the default gtk signal handler there. */
 
     (void) editing;
     ThunarLauncher *launcher;
@@ -948,7 +961,8 @@ static gboolean _detailview_select_cursor_row(GtkTreeView *tree_view,
 
     window = gtk_widget_get_toplevel(GTK_WIDGET(details_view));
     launcher = window_get_launcher(APPWINDOW(window));
-    launcher_activate_selected_files(launcher, LAUNCHER_CHANGE_DIRECTORY, NULL);
+    launcher_activate_selected_files(launcher,
+                                     LAUNCHER_CHANGE_DIRECTORY, NULL);
 
     return TRUE;
 }
@@ -967,22 +981,26 @@ static void _detailview_columns_changed(ColumnModel *column_model,
     column_order = colmodel_get_column_order(column_model);
 
     // apply new order and visibility
-    for(column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
+    for (column = 0; column < THUNAR_N_VISIBLE_COLUMNS; ++column)
     {
         // apply the new visibility for the tree view column
-        gtk_tree_view_column_set_visible(details_view->columns[column], colmodel_get_column_visible(column_model, column));
+        gtk_tree_view_column_set_visible(
+                        details_view->columns[column],
+                        colmodel_get_column_visible(column_model, column));
 
         // change the order of the column relative to its predecessor
         if (column > 0)
         {
-            gtk_tree_view_move_column_after(GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))),
-                                             details_view->columns[column_order[column]],
-                                             details_view->columns[column_order[column - 1]]);
+            gtk_tree_view_move_column_after(
+                    GTK_TREE_VIEW(gtk_bin_get_child(GTK_BIN(details_view))),
+                    details_view->columns[column_order[column]],
+                    details_view->columns[column_order[column - 1]]);
         }
     }
 }
 
-static void _detailview_row_changed(GtkTreeView *tree_view, GtkTreePath *path,
+static void _detailview_row_changed(GtkTreeView *tree_view,
+                                    GtkTreePath *path,
                                     GtkTreeViewColumn *column,
                                     DetailView *details_view)
 {
@@ -1011,16 +1029,17 @@ static void _detailview_notify_width(GtkTreeViewColumn *tree_view_column,
         if (details_view->columns[column] == tree_view_column)
         {
             // save the new width as default fixed width
-            colmodel_set_column_width(details_view->column_model,
-                                                 column,
-                                                 gtk_tree_view_column_get_width(
-                                                     tree_view_column));
+            colmodel_set_column_width(
+                        details_view->column_model,
+                        column,
+                        gtk_tree_view_column_get_width(tree_view_column));
             break;
         }
     }
 }
 
-// Popup action ---------------------------------------------------------------
+
+// columb editor --------------------------------------------------------------
 
 static void _detailview_show_column_editor(gpointer parent)
 {

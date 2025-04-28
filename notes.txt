@@ -62,8 +62,8 @@
     + ./side/treeview.c
     + ./view/baseview.c
     + ./view/columnmodel.c
-      ./view/detailview.c
-      ./view/exotreeview.c
+    + ./view/detailview.c
+    + ./view/exotreeview.c
       ./view/listmodel.c
       ./view/standardview.c
       ./widget/locationbar.c

@@ -24,11 +24,12 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ExoTreeViewPrivate  ExoTreeViewPrivate;
-typedef struct _ExoTreeViewClass    ExoTreeViewClass;
 typedef struct _ExoTreeView         ExoTreeView;
+typedef struct _ExoTreeViewClass    ExoTreeViewClass;
+typedef struct _ExoTreeViewPrivate  ExoTreeViewPrivate;
 
 #define TYPE_EXOTREEVIEW (exo_treeview_get_type())
+
 #define EXOTREEVIEW(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_EXOTREEVIEW, ExoTreeView))
 #define EXOTREEVIEW_CLASS(klass) \
@@ -39,6 +40,13 @@ typedef struct _ExoTreeView         ExoTreeView;
     (G_TYPE_CHECK_CLASS_TYPE((klass),   TYPE_EXOTREEVIEW))
 #define EXOTREEVIEW_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj),   TYPE_EXOTREEVIEW, ExoTreeViewClass))
+
+struct _ExoTreeView
+{
+    GtkTreeView __parent__;
+
+    ExoTreeViewPrivate *priv;
+};
 
 struct _ExoTreeViewClass
 {
@@ -52,13 +60,6 @@ struct _ExoTreeViewClass
     void (*reserved6) ();
     void (*reserved7) ();
     void (*reserved8) ();
-};
-
-struct _ExoTreeView
-{
-    GtkTreeView __parent__;
-
-    ExoTreeViewPrivate *priv;
 };
 
 GType exo_treeview_get_type() G_GNUC_CONST;
