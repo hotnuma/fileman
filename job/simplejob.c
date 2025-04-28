@@ -80,7 +80,8 @@ static gboolean simplejob_execute(ExoJob *job, GError **error)
     e_return_val_if_fail(simple_job->func != NULL, FALSE);
 
     // try to execute the job using the supplied function
-    success = simple_job->func(THUNAR_JOB(job), simple_job->param_values, &err);
+    success = simple_job->func(THUNAR_JOB(job),
+                               simple_job->param_values, &err);
 
     if (!success)
     {
@@ -138,7 +139,10 @@ ThunarJob* simplejob_new(SimpleJobFunc func, guint n_param_values, ...)
     SimpleJob *simple_job;
     simple_job = g_object_new(TYPE_SIMPLEJOB, NULL);
     simple_job->func = func;
-    simple_job->param_values = g_array_sized_new(FALSE, TRUE, sizeof(GValue), n_param_values);
+    simple_job->param_values = g_array_sized_new(FALSE,
+                                                 TRUE,
+                                                 sizeof(GValue),
+                                                 n_param_values);
 
     va_list var_args;
     gchar *error_message;
@@ -178,6 +182,7 @@ ThunarJob* simplejob_new(SimpleJobFunc func, guint n_param_values, ...)
 GArray* simplejob_get_param_values(SimpleJob *job)
 {
     e_return_val_if_fail(THUNAR_IS_SIMPLE_JOB(job), NULL);
+
     return job->param_values;
 }
 

@@ -24,7 +24,8 @@
 
 G_BEGIN_DECLS
 
-GFile* jobutil_next_duplicate_file(ThunarJob *job, GFile *file, gboolean copy,
+GFile* jobutil_next_duplicate_file(ThunarJob *job,
+                                   GFile *file, gboolean copy,
                                    guint  n, GError **error)
                                    G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 

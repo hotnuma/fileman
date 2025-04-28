@@ -41,10 +41,11 @@ typedef gboolean (*SimpleJobFunc) (ThunarJob *job, GArray *param_values,
 
 // SimpleJob ------------------------------------------------------------------
 
-typedef struct _SimpleJobClass SimpleJobClass;
 typedef struct _SimpleJob      SimpleJob;
+typedef struct _SimpleJobClass SimpleJobClass;
 
 #define TYPE_SIMPLEJOB (simplejob_get_type())
+
 #define THUNAR_SIMPLE_JOB(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj),  TYPE_SIMPLEJOB, SimpleJob))
 #define THUNAR_SIMPLE_JOB_CLASS(klass) \
@@ -59,7 +60,7 @@ typedef struct _SimpleJob      SimpleJob;
 GType simplejob_get_type() G_GNUC_CONST;
 
 ThunarJob* simplejob_new(SimpleJobFunc func, guint n_param_values, ...)
-                            G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+                         G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 GArray* simplejob_get_param_values(SimpleJob *job);
 
 G_END_DECLS

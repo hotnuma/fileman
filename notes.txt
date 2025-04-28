@@ -23,9 +23,9 @@
     + ./core/fileinfo.c
     + ./core/filemonitor.c
     + ./core/th-device.c
-      ./core/th-file.c
-      ./core/th-folder.c
-      ./core/usermanager.c
+    + ./core/th-file.c
+    + ./core/th-folder.c
+    + ./core/usermanager.c
       ./dialog/appchooser.c
       ./dialog/appcombo.c
       ./dialog/appmodel.c
@@ -34,13 +34,13 @@
       ./dialog/progressdlg.c
       ./dialog/progressview.c
       ./dialog/propsdlg.c
-      ./job/dcountjob.c
-      ./job/exo-job.c
-      ./job/io-jobs.c
-      ./job/io-scandir.c
-      ./job/job.c
-      ./job/jobutils.c
-      ./job/simplejob.c
+    + ./job/dcountjob.c
+    + ./job/exo-job.c
+    + ./job/io-jobs.c
+    + ./job/io-scandir.c
+    + ./job/job.c
+    + ./job/jobutils.c
+    + ./job/simplejob.c
       ./job/transferjob.c
       ./libext/gdk-ext.c
       ./libext/gio-ext.c

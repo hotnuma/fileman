@@ -44,7 +44,8 @@
  * Return value: the #GFile referencing the @n<!---->th copy or link
  *               of @file or %NULL on error/cancellation.
  **/
-GFile* jobutil_next_duplicate_file(ThunarJob *job, GFile *file, gboolean copy,
+GFile* jobutil_next_duplicate_file(ThunarJob *job,
+                                   GFile *file, gboolean copy,
                                    guint n, GError **error)
 {
     GFileInfo   *info;
@@ -88,15 +89,18 @@ GFile* jobutil_next_duplicate_file(ThunarJob *job, GFile *file, gboolean copy,
 
         if (dot != NULL)
         {
-            file_basename = g_strndup(old_display_name, dot - old_display_name);
+            file_basename = g_strndup(old_display_name,
+                                      dot - old_display_name);
             // I18N: put "(copy #)" between basename and extension
-            display_name = g_strdup_printf(_("%s(copy %u)%s"), file_basename, n, dot);
+            display_name = g_strdup_printf(_("%s(copy %u)%s"),
+                                           file_basename, n, dot);
             g_free(file_basename);
         }
         else
         {
             // I18N: put "(copy #)" after filename(for files without extension)
-            display_name = g_strdup_printf(_("%s(copy %u)"), old_display_name, n);
+            display_name = g_strdup_printf(_("%s(copy %u)"),
+                                           old_display_name, n);
         }
     }
     else
@@ -110,7 +114,8 @@ GFile* jobutil_next_duplicate_file(ThunarJob *job, GFile *file, gboolean copy,
         else
         {
             // I18N: name for nth link to basename
-            display_name = g_strdup_printf(_("link %u to %s"), n, old_display_name);
+            display_name = g_strdup_printf(_("link %u to %s"),
+                                           n, old_display_name);
         }
     }
 
@@ -190,7 +195,8 @@ GFile* jobutil_next_renamed_file(ThunarJob *job, GFile *src_file,
     {
         file_basename = g_strndup(old_display_name, dot - old_display_name);
         // I18N: put "(copy #)" between basename and extension
-        display_name = g_strdup_printf(_("%s(copy %u)%s"), file_basename, n, dot);
+        display_name = g_strdup_printf(_("%s(copy %u)%s"),
+                                       file_basename, n, dot);
         g_free(file_basename);
     }
     else

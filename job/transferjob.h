@@ -35,11 +35,12 @@ typedef enum
 
 // TransferJob ----------------------------------------------------------------
 
-typedef struct _TransferJobPrivate TransferJobPrivate;
-typedef struct _TransferJobClass   TransferJobClass;
 typedef struct _TransferJob        TransferJob;
+typedef struct _TransferJobClass   TransferJobClass;
+typedef struct _TransferJobPrivate TransferJobPrivate;
 
 #define TYPE_TRANSFERJOB (transferjob_get_type())
+
 #define TRANSFERJOB(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_TRANSFERJOB, TransferJob))
 #define TRANSFERJOB_CLASS(klass) \
